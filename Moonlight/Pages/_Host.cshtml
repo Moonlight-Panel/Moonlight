@@ -5,4 +5,25 @@
     Layout = "_Layout";
 }
 
-<component type="typeof(App)" render-mode="ServerPrerendered" />
+<component type="typeof(BlazorApp)" render-mode="ServerPrerendered" />
+
+<div id="components-reconnect-modal" class="my-reconnect-modal components-reconnect-hide">
+    <div class="show">
+        <p>
+            <br/>
+            Connecting to moonlight servers
+        </p>
+    </div>
+    <div class="failed">
+        <p>
+            <br />
+            Connection to moonlight servers failed
+        </p>
+    </div>
+    <div class="rejected">
+        <p>
+            <br />
+            Connection to moonlight servers rejected
+        </p>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+{
+  "Crashes": {
+    "Component": {
+      "Title": "Ooops. Something went wrong",
+      "Details": "This component has crashed"
+    },
+    "Page": {
+      "Title": "Ooops. Something went wrong",
+      "Details": "This site has crashed"
+    },
+    "Global": {
+      "Title": "Ooops. Something went wrong",
+      "Details": "Your moonlight client has crashed"
+    }
+  },
+  "Footer": {
+    "AboutUs": "About us",
+    "Imprint": "Imprint",
+    "Privacy": "Privacy"
+  },
+  "Alerts": {
+    "Banned": {
+      "Title": "Your account is banned from moonlight",
+      "Details": "Your data will be deleted shortly. For more information contact support"
+    },
+    "Disabled": {
+      "Title": "Your account is temporary banned from moonlight",
+      "Details": "Your data is is still saved but the access to it is not possible at this time. For more information contact support"
+    }
+  },
+  "Navbar": {
+    "Account": {
+      "Settings": "Account settings"
+    },
+    "Logout": "Logout"
+  },
+  "Sidebar": {
+    "Footer": {
+      "OpenSupport": "Open support"
+    },
+    "Menu": {
+      "Login": "Login",
+      "Register": "Register",
+      "Dashboard": "Dashboard",
+      "Order": "Order",
+      "Website": "Website",
+      "Database": "Database",
+      "Domain": "Domain",
+      "Servers": "Servers",
+      "Websites": "Websites",
+      "Databases": "Databases",
+      "Domains": "Domains",
+      "Changelog": "Changelog",
+      "Admin": "Admin",
+      "System": "System",
+      "Overview": "Overview",
+      "Manager": "Manager",
+      "Cleanup": "Cleanup",
+      "Nodes": "Nodes",
+      "Images": "Images",
+      "AaPanel": "AaPanel",
+      "Users": "Users",
+      "Support": "Support",
+      "Statistics": "Statistics"
+    }
+  }
+}

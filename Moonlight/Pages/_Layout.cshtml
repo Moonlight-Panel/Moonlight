@@ -1,32 +1,111 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
+@using Moonlight.App.Services
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
+@inject ConfigService ConfigService
+
+@{
+    var headerConfig = ConfigService
+        .GetSection("Moonlight")
+        .GetSection("Html")
+        .GetSection("Headers");
+
+    var moonlightConfig = ConfigService
+        .GetSection("Moonlight");
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link href="css/site.css" rel="stylesheet" />
-    <link href="Moonlight.styles.css" rel="stylesheet" />
-    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+    <meta charset="utf-8"/>
+
+    <meta property="og:locale" content="de_DE"/>
+    <meta property="og:type" content="article"/>
+    <meta content="@(headerConfig.GetValue<string>("Title"))" property="og:title"/>
+    <meta content="@(headerConfig.GetValue<string>("Description"))" property="og:description"/>
+    <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))" property="og:url"/>
+    <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logofull.png" property="og:image"/>
+    <meta content="@(headerConfig.GetValue<string>("Color"))" data-react-helmet="true" name="theme-color"/>
+
+    <meta content="@(headerConfig.GetValue<string>("Description"))" name="description"/>
+    <meta content="@(headerConfig.GetValue<string>("Keywords"))" name="keywords"/>
+
+    <link rel="shortcut icon" href="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg"/>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"/>
+
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.bundle.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/flashbang.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/snow.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/invisiblea.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/boxicons.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/blazor.css"/>
+
+    <link rel="stylesheet" type="text/css" href="/_content/XtermBlazor/XtermBlazor.css"/>
+    <link rel="stylesheet" type="text/css" href="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css"/>
+    <link rel="stylesheet" type="text/css" href="/_content/Blazor.ContextMenu/blazorContextMenu.min.css"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <base href="~/"/>
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered"/>
+    
+    <title>Loading</title>
 </head>
-<body>
-    @RenderBody()
+<body
+    class="app-default"
+    cz-shortcut-listen="true"
+    data-kt-app-layout="dark-sidebar"
+    data-kt-app-header-fixed="true"
+    data-kt-app-sidebar-fixed="true"
+    data-kt-app-sidebar-hoverable="true"
+    data-kt-app-sidebar-push-header="true"
+    data-kt-app-sidebar-push-toolbar="true"
+    data-kt-app-sidebar-push-footer="true"
+    data-kt-app-toolbar-enabled="true">
 
-    <div id="blazor-error-ui">
-        <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
-        </environment>
-        <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
-        </environment>
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+@RenderBody()
+
+<div id="flashbang" class="flashbanglight"></div>
+
+<div class="app-page-loader flex-column">
+    <img alt="Logo" src="/api/moonlight/resources/images/logo.svg" class="h-25px"/>
+
+    <div class="d-flex align-items-center mt-5">
+        <span class="spinner-border text-primary" role="status"></span>
+        <span class="text-muted fs-6 fw-semibold ms-5">CHANGEME</span>
     </div>
+</div>
 
-    <script src="_framework/blazor.server.js"></script>
+<script src="/_framework/blazor.server.js"></script>
+
+<script src="/_content/XtermBlazor/XtermBlazor.min.js"></script>
+<script src="/_content/BlazorTable/BlazorTable.min.js"></script>
+<script src="/_content/BlazorInputFile/inputfile.js"></script>
+<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+<script src="/_content/BlazorMonaco/jsInterop.js"></script>
+<script src="/_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script>
+<script src="/_content/Blazor-ApexCharts/js/blazor-apex-charts.js"></script>
+<script src="/_content/Blazor.ContextMenu/blazorContextMenu.min.js"></script>
+
+<script src="https://www.google.com/recaptcha/api.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.5.0/lib/xterm-addon-fit.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.8.2/lib/xterm-addon-search.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.5.0/lib/xterm-addon-web-links.min.js"></script>
+
+<script src="/assets/js/scripts.bundle.js"></script>
+<script src="/assets/js/flashbang.js"></script>
+<script src="/assets/js/cookieUtils.js"></script>
+<script src="/assets/js/clipboard.js"></script>
+<script src="/assets/js/toastUtils.js"></script>
+<script src="/assets/js/alertUtils.js"></script>
+<script src="/assets/js/utils.js"></script>
+<script src="/assets/js/loggingUtils.js"></script>
+<script src="/assets/js/snow.js"></script>
+<script src="/assets/js/recaptcha.js"></script>
+<script src="/assets/js/xtermAddons.js"></script>
+<script src="/assets/js/monaco.js"></script>
 </body>
 </html>

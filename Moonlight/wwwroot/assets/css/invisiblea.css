@@ -1,0 +1,9 @@
+﻿.invisible-a {
+    color: inherit;
+    cursor: pointer;
+}
+
+.invisible-a:hover {
+    color: inherit;
+    cursor: pointer;
+}

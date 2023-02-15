@@ -1,0 +1,90 @@
+﻿@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Database.Entities
+@using Task = System.Threading.Tasks.Task
+
+@inject IdentityService IdentityService
+@inject NavigationManager NavigationManager
+@inject CookieService CookieService
+@inject TranslationService TranslationService
+
+<div class="app-navbar flex-shrink-0">
+    <div class="app-navbar-item ms-1 ms-lg-3">
+        <ThemeSwitcher
+            ToggleBtnClass="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px"
+            ToggleBtnIconClass="svg-icon svg-icon-2">
+        </ThemeSwitcher>
+    </div>
+
+    @if (User != null)
+    {
+        <div class="app-navbar-item ms-1 ms-lg-3">
+            <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px position-relative" id="support_ticket_toggle">
+                <span class="svg-icon svg-icon-1">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path opacity="0.3" d="M20 3H4C2.89543 3 2 3.89543 2 5V16C2 17.1046 2.89543 18 4 18H4.5C5.05228 18 5.5 18.4477 5.5 19V21.5052C5.5 22.1441 6.21212 22.5253 6.74376 22.1708L11.4885 19.0077C12.4741 18.3506 13.6321 18 14.8167 18H20C21.1046 18 22 17.1046 22 16V5C22 3.89543 21.1046 3 20 3Z" fill="currentColor"></path>
+                        <rect x="6" y="12" width="7" height="2" rx="1" fill="currentColor"></rect>
+                        <rect x="6" y="7" width="12" height="2" rx="1" fill="currentColor"></rect>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        
+        <div class="app-navbar-item ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
+            <div class="cursor-pointer symbol symbol-35px symbol-md-40px" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+                <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)"/>
+            </div>
+
+            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-primary fw-semibold py-4 fs-6 w-275px" data-kt-menu="true">
+                <div class="menu-item px-3">
+                    <div class="menu-content d-flex align-items-center px-3">
+                        <div class="symbol symbol-50px me-5">
+                            <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)"/>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <div class="fw-bold d-flex align-items-center fs-5">
+                                @(User.FirstName) @(User.LastName)
+                                
+                                @if (User.Admin)
+                                {
+                                    <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Admin</span>
+                                }
+                            </div>
+                            <a class="fw-semibold text-muted text-hover-primary fs-7">@(User.Email)</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="separator my-2"></div>
+                <div class="menu-item px-5 my-1">
+                    <a href="/settings" class="menu-link px-5">@TranslationService.Translate("Navbar.Account.Settings")</a>
+                </div>
+                <div class="menu-item px-5">
+                    <a @onclick="Logout" class="menu-link px-5">@TranslationService.Translate("Navbar.Logout")</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code
+{
+    private User? User;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            User = await IdentityService.Get();
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async void Logout()
+    {
+        await CookieService.SetValue("token", "", 1);
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+}

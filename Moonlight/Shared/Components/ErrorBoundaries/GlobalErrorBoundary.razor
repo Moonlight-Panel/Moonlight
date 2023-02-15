@@ -1,0 +1,71 @@
+﻿@using Moonlight.App.Services
+@using Logging.Net
+@using Moonlight.App.Services.Sessions
+
+@inherits ErrorBoundary
+
+@inject IdentityService IdentityService
+@inject TranslationService TranslationService
+
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+else if (ErrorContent is not null)
+{
+    <div class="card card-flush h-md-100">
+        <div class="card-body d-flex flex-column justify-content-between mt-9 bgi-no-repeat bgi-size-cover bgi-position-x-center pb-0">
+            <div class="mb-10">
+                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                    <span class="me-2">
+                        @(TranslationService.Translate("Crashes.Global.Title"))
+                    </span>
+                </div>
+                <div class="text-center">
+                    @(TranslationService.Translate("Crashes.Global.Details"))
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card card-flush h-md-100">
+        <div class="card-body d-flex flex-column justify-content-between mt-9 bgi-no-repeat bgi-size-cover bgi-position-x-center pb-0">
+            <div class="mb-10">
+                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                    <span class="me-2">
+                        @TranslationService.Translate("Crashes.Global.Title")
+                    </span>
+                </div>
+                <div class="text-center">
+                    @TranslationService.Translate("Crashes.Global.Details")
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    List<Exception> receivedExceptions = new();
+
+    protected override async Task OnErrorAsync(Exception exception)
+    {
+        receivedExceptions.Add(exception);
+        
+        var user = await IdentityService.Get();
+        var id = user == null ? -1 : user.Id;
+
+        Logger.Error($"[{id}] An unhanded exception occured:");
+        Logger.Error(exception);
+
+        await base.OnErrorAsync(exception);
+    }
+
+    public new void Recover()
+    {
+        receivedExceptions.Clear();
+        base.Recover();
+    }
+}

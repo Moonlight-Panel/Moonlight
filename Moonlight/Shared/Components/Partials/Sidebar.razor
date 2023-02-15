@@ -1,0 +1,63 @@
+﻿@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+
+@inject IdentityService IdentityService
+@inject TranslationService TranslationService
+@inject ConfigService ConfigService
+@inject IJSRuntime JsRuntime
+
+@{
+    var moonlightConfig = ConfigService
+        .GetSection("Moonlight");
+}
+
+<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
+    <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
+        <a href="@(User != null ? "/" : "/login")">
+            @if (sidebar == "dark-sidebar")
+            {
+                <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logofull.png" class="h-45px app-sidebar-logo-default"/>
+            }
+            else
+            {
+                if (sidebar == "light-sidebar")
+                {
+                    <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="theme-light-show h-20px app-sidebar-logo-default"/>
+                    <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="theme-dark-show h-20px app-sidebar-logo-default"/>
+                }
+            }
+            <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-20px app-sidebar-logo-minimize"/>
+        </a>
+    
+        <div id="kt_app_sidebar_toggle" class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary body-bg h-30px w-30px position-absolute top-50 start-100 translate-middle rotate" data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="app-sidebar-minimize">
+            <i class="bx bx-chevrons-left bx-md"></i>
+        </div>
+    </div>
+    
+    <SidebarMenu></SidebarMenu>
+    
+    <div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
+    	<a id="support_ticket_toggle_sidebar"
+    	   class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100 btn-label">
+    		@(TranslationService.Translate("Sidebar.Footer.OpenSupport"))
+    	</a>
+    </div>
+</div>
+
+@code
+{
+    private string sidebar;
+
+    private User? User;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            User = await IdentityService.Get();
+            sidebar = await JsRuntime.InvokeAsync<string>("document.body.getAttribute", "data-kt-app-layout");
+            StateHasChanged();
+        }
+    }
+}

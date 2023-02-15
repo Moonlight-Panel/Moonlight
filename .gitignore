@@ -431,3 +431,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/.idea.Moonlight/.idea/discord.xml
