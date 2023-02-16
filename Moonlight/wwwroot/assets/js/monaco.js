@@ -1,1 +1,1 @@
-require.config({ paths: { 'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs' } });
+var require = { paths: { vs: '/_content/BlazorMonaco/lib/monaco-editor/min/vs' } };

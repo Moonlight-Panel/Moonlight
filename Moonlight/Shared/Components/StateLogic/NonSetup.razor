@@ -1,0 +1,20 @@
+﻿@using Moonlight.App.Services
+
+@inject ConfigService ConfigService
+
+@{
+    var setupComplete = ConfigService
+        .GetSection("Moonlight")
+        .GetValue<bool>("SetupComplete");
+}
+
+@if (setupComplete)
+{
+    @ChildContent
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

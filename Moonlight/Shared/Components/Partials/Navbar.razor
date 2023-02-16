@@ -8,7 +8,6 @@
 @inject IdentityService IdentityService
 @inject NavigationManager NavigationManager
 @inject CookieService CookieService
-@inject TranslationService TranslationService
 
 <div class="app-navbar flex-shrink-0">
     <div class="app-navbar-item ms-1 ms-lg-3">
@@ -58,10 +57,10 @@
                 </div>
                 <div class="separator my-2"></div>
                 <div class="menu-item px-5 my-1">
-                    <a href="/settings" class="menu-link px-5">@TranslationService.Translate("Navbar.Account.Settings")</a>
+                    <a href="/settings" class="menu-link px-5"><TL>Account settings</TL></a>
                 </div>
                 <div class="menu-item px-5">
-                    <a @onclick="Logout" class="menu-link px-5">@TranslationService.Translate("Navbar.Logout")</a>
+                    <a @onclick="Logout" class="menu-link px-5"><TL>Logout</TL></a>
                 </div>
             </div>
         </div>

@@ -2,7 +2,6 @@
 @using Moonlight.App.Services.Sessions
 @using Moonlight.App.Database.Entities
 
-@inject TranslationService TranslationService
 @inject IdentityService IdentityService
 
 <div class="app-sidebar-menu overflow-hidden flex-column-fluid">
@@ -15,7 +14,7 @@
             <span class="menu-icon">
                 <i class="bx bxs-log-in"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Login")</span>
+            <span class="menu-title"><TL>Login</TL></span>
         </a>
     </div>
     <div class="menu-item">
@@ -23,7 +22,7 @@
             <span class="menu-icon">
                 <i class="bx bx-user-plus"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Register")</span>
+            <span class="menu-title"><TL>Register</TL></span>
         </a>
     </div>
 }
@@ -34,7 +33,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-layer"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Dashboard")</span>
+            <span class="menu-title"><TL>Dashboard</TL></span>
         </a>
     </div>
     <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
@@ -42,7 +41,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-cart-alt"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Order")</span>
+            <span class="menu-title"><TL>Order</TL></span>
             <span class="menu-arrow"></span>
         </span>
         <div class="menu-sub menu-sub-accordion">
@@ -51,7 +50,7 @@ else
                     <span class="menu-bullet">
                         <span class="bullet bullet-dot"></span>
                     </span>
-                    <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Website")</span>
+                    <span class="menu-title"><TL>Website</TL></span>
                 </a>
             </div>
 
@@ -60,7 +59,7 @@ else
                     <span class="menu-bullet">
                         <span class="bullet bullet-dot"></span>
                     </span>
-                    <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Database")</span>
+                    <span class="menu-title"><TL>Database</TL></span>
                 </a>
             </div>
 
@@ -69,7 +68,7 @@ else
                     <span class="menu-bullet">
                         <span class="bullet bullet-dot"></span>
                     </span>
-                    <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Domain")</span>
+                    <span class="menu-title"><TL>Domain</TL></span>
                 </a>
             </div>
         </div>
@@ -79,7 +78,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-server"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Servers")</span>
+            <span class="menu-title"><TL>Servers</TL></span>
         </a>
     </div>
     <div class="menu-item">
@@ -87,7 +86,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-globe"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Websites")</span>
+            <span class="menu-title"><TL>Websites</TL></span>
         </a>
     </div>
     <div class="menu-item">
@@ -95,7 +94,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-data"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Databases")</span>
+            <span class="menu-title"><TL>Databases</TL></span>
         </a>
     </div>
     <div class="menu-item">
@@ -103,7 +102,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-purchase-tag"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Domains")</span>
+            <span class="menu-title"><TL>Domains</TL></span>
         </a>
     </div>
     <div class="menu-item">
@@ -111,7 +110,7 @@ else
             <span class="menu-icon">
                 <i class="bx bx-notepad"></i>
             </span>
-            <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Changelog")</span>
+            <span class="menu-title"><TL>Changelog</TL></span>
         </a>
     </div>
 
@@ -119,7 +118,7 @@ else
     {
         <div class="menu-item pt-5">
             <div class="menu-content">
-                <span class="menu-heading fw-bold text-uppercase fs-7">@TranslationService.Translate("Sidebar.Menu.Admin")</span>
+                <span class="menu-heading fw-bold text-uppercase fs-7"><TL>Admin</TL></span>
             </div>
         </div>
         <div class="menu-item">
@@ -127,7 +126,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-layer"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Dashboard")</span>
+                <span class="menu-title"><TL>Dashboard</TL></span>
             </a>
         </div>
         <div class="menu-item">
@@ -135,7 +134,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-chip"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.System")</span>
+                <span class="menu-title"><TL>System</TL></span>
             </a>
         </div>
         <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
@@ -143,7 +142,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-server"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Servers")</span>
+                <span class="menu-title"><TL>Servers</TL></span>
                 <span class="menu-arrow"></span>
             </span>
             <div class="menu-sub menu-sub-accordion">
@@ -152,7 +151,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Overview")</span>
+                        <span class="menu-title"><TL>Overview</TL></span>
                     </a>
                 </div>
 
@@ -161,7 +160,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Manager")</span>
+                        <span class="menu-title"><TL>Manager</TL></span>
                     </a>
                 </div>
 
@@ -170,7 +169,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Cleanup")</span>
+                        <span class="menu-title"><TL>Cleanup</TL></span>
                     </a>
                 </div>
 
@@ -179,7 +178,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Nodes")</span>
+                        <span class="menu-title"><TL>Nodes</TL></span>
                     </a>
                 </div>
 
@@ -188,7 +187,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Images")</span>
+                        <span class="menu-title"><TL>Images</TL></span>
                     </a>
                 </div>
             </div>
@@ -198,7 +197,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-cube"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.AaPanel")</span>
+                <span class="menu-title"><TL>aaPanel</TL></span>
                 <span class="menu-arrow"></span>
             </span>
             <div class="menu-sub menu-sub-accordion">
@@ -207,7 +206,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Overview")</span>
+                        <span class="menu-title"><TL>Overview</TL></span>
                     </a>
                 </div>
                 <div class="menu-item">
@@ -215,7 +214,7 @@ else
                         <span class="menu-bullet">
                             <span class="bullet bullet-dot"></span>
                         </span>
-                        <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Databases")</span>
+                        <span class="menu-title"><TL>Databases</TL></span>
                     </a>
                 </div>
             </div>
@@ -225,7 +224,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-user"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Users")</span>
+                <span class="menu-title"><TL>Users</TL></span>
             </a>
         </div>
         <div class="menu-item">
@@ -233,7 +232,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-support"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Support")</span>
+                <span class="menu-title"><TL>Support</TL></span>
             </a>
         </div>
         <div class="menu-item">
@@ -241,7 +240,7 @@ else
                 <span class="menu-icon">
                     <i class="bx bx-objects-vertical-bottom"></i>
                 </span>
-                <span class="menu-title">@TranslationService.Translate("Sidebar.Menu.Statistics")</span>
+                <span class="menu-title"><TL>Statistics</TL></span>
             </a>
         </div>
     }

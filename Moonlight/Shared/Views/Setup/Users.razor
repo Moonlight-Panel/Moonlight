@@ -1,0 +1,136 @@
+﻿@page "/setup/users"
+@using Moonlight.App.Services
+@using Microsoft.AspNetCore.Components
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Exceptions
+@using Moonlight.App.Services.Interop
+@using Logging.Net
+
+@inject UserService UserService
+@inject SmartTranslateService SmartTranslateService
+@inject AlertService AlertService
+@inject ToastService ToastService
+
+<IsSetup>
+    <div class="card col d-flex justify-content-center">
+        <div class="card-header">
+            <span class="card-title"><TL>Add admin accounts</TL> (2/4)</span>
+        </div>
+        <div class="card-body p-10">
+            <label class="form-label">
+                <TL>First name</TL>
+            </label>
+            <div class="input-group mb-5">
+                <span class="input-group-text">
+                    <i class="bx bx-envelope"></i>
+                </span>
+                <input
+                    @bind="@(NewUser.FirstName)"
+                    type="text"
+                    class="form-control"
+                    required=""
+                    placeholder="@(SmartTranslateService.Translate("Insert first name..."))">
+            </div>
+            <label class="form-label">
+                <TL>Last name</TL>
+            </label>
+            <div class="input-group mb-5">
+                <span class="input-group-text">
+                    <i class="bx bx-envelope"></i>
+                </span>
+                <input
+                    @bind="@(NewUser.LastName)"
+                    type="text"
+                    class="form-control"
+                    required=""
+                    placeholder="@(SmartTranslateService.Translate("Insert last name..."))">
+            </div>
+            <label class="form-label">
+                <TL>Email address</TL>
+            </label>
+            <div class="input-group mb-5">
+                <span class="input-group-text">
+                    <i class="bx bx-envelope"></i>
+                </span>
+                <input
+                    @bind="@(NewUser.Email)"
+                    type="email"
+                    class="form-control"
+                    required=""
+                    placeholder="@(SmartTranslateService.Translate("Insert email address..."))">
+            </div>
+            <label class="form-label">
+                <TL>Enter password</TL>
+            </label>
+            <div class="input-group mb-5">
+                <span class="input-group-text">
+                    <i class="bx bx-envelope"></i>
+                </span>
+                <input
+                    @bind="@(NewUser.Password)"
+                    type="password"
+                    class="form-control"
+                    required="">
+            </div>
+            <div class="input-group mt-5">
+                <WButton Text="@(SmartTranslateService.Translate("Add"))"
+                         WorkingText="@(SmartTranslateService.Translate("Adding..."))"
+                         CssClasses="btn-success"
+                         OnClick="Save">
+                </WButton>
+                <a href="/setup/features" class="btn btn-primary">
+                    <TL>Next</TL>
+                </a>
+                <a href="/setup" class="btn btn-danger">
+                    <TL>Back</TL>
+                </a>
+            </div>
+        </div>
+    </div>
+</IsSetup>
+<NonSetup>
+    <SetupCompletedAlert></SetupCompletedAlert>
+</NonSetup>
+
+@code
+{
+    private User NewUser = new();
+
+    private async Task Save()
+    {
+        try
+        {
+            await UserService.Register(
+                NewUser.Email,
+                NewUser.Password,
+                NewUser.FirstName,
+                NewUser.LastName
+                );
+
+            await ToastService.Success(
+                SmartTranslateService.Translate("User successfully created")
+                );
+        }
+        catch (DisplayException e)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error"),
+                e.Message
+                );
+        }
+        catch (Exception e)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error"),
+                SmartTranslateService.Translate("An error occured while creating user")
+                );
+
+            Logger.Error("Error while creating user");
+            Logger.Error(e);
+        }
+
+        NewUser = new();
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

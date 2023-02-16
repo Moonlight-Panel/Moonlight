@@ -1,6 +1,5 @@
 ﻿@using Moonlight.App.Services
 
-@inject TranslationService TranslationService
 @inject ConfigService ConfigService
 
 @{
@@ -20,17 +19,17 @@
         <ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
             <li class="menu-item">
                 <a href="@(marketingConfig.GetValue<string>("About"))" target="_blank" class="menu-link px-2">
-                    @(TranslationService.Translate("Footer.AboutUs"))
+                    <TL>About us</TL>
                 </a>
             </li>
             <li class="menu-item">
                 <a href="@(marketingConfig.GetValue<string>("Imprint"))" target="_blank" class="menu-link px-2">
-                    @(TranslationService.Translate("Footer.Imprint"))
+                    <TL>Imprint</TL>
                 </a>
             </li>
             <li class="menu-item">
                 <a href="@(marketingConfig.GetValue<string>("Privacy"))" target="_blank" class="menu-link px-2">
-                    @(TranslationService.Translate("Footer.Privacy"))
+                    <TL>Privacy</TL>
                 </a>
             </li>
         </ul>

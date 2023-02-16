@@ -1,0 +1,44 @@
+﻿@if (!Working)
+{
+    <button class="btn @(CssClasses)" @onclick="Do">
+        @Text
+    </button>
+}
+else
+{
+    <button class="btn @(CssClasses) disabled" disabled="">
+        <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+        @WorkingText
+    </button>
+}
+
+@code
+{
+    private bool Working { get; set; } = false;
+
+    [Parameter]
+    public string CssClasses { get; set; } = "btn-primary";
+
+    [Parameter]
+    public string Text { get; set; } = "Mache was";
+
+    [Parameter]
+    public string WorkingText { get; set; } = "Verarbeite...";
+    
+    [Parameter]
+    public Func<Task>? OnClick { get; set; }
+
+    private async Task Do()
+    {
+        Working = true;
+        StateHasChanged();
+        await Task.Run(async () =>
+        {
+            if(OnClick != null)
+                await OnClick.Invoke();
+            
+            Working = false;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+}

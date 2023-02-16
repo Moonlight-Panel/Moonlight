@@ -53,11 +53,10 @@
 
   <ItemGroup>
     <Folder Include="App\Database\Migrations" />
-    <Folder Include="App\Exceptions" />
-    <Folder Include="App\Http\Controllers" />
     <Folder Include="App\Http\Middleware" />
     <Folder Include="App\Http\Requests" />
     <Folder Include="App\Http\Resources" />
+    <Folder Include="resources\lang" />
     <Folder Include="wwwroot\assets\media" />
   </ItemGroup>
 

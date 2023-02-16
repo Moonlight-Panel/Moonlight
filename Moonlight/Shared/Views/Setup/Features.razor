@@ -1,0 +1,69 @@
+﻿@page "/setup/features"
+
+@using Moonlight.App.Services
+
+@inject ConfigService ConfigService
+@inject NavigationManager NavigationManager
+@inject SmartTranslateService SmartTranslateService
+
+<IsSetup>
+    <div class="card col d-flex justify-content-center">
+        <div class="card-header">
+            <span class="card-title"><TL>Configure features</TL> (3/4)</span>
+        </div>
+        <div class="card-body p-10">
+            <div class="input-group">
+                <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                    <TL>Support chat</TL>
+                </label>
+                <div class="col-lg-8 d-flex align-items-center">
+                    <div class="form-check form-check-solid form-switch form-check-custom fv-row">
+                        <input @bind="EnableSupportChat" class="form-check-input w-45px h-30px" type="checkbox" id="supportChat">
+                        <label class="form-check-label" for="supportChat"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group mt-5">
+                <WButton Text="@(SmartTranslateService.Translate("Save and continue"))"
+                         WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                         CssClasses="btn-success"
+                         OnClick="Save">
+                </WButton>
+                <a href="/setup/final" class="btn btn-primary">
+                    <TL>Next</TL>
+                </a>
+                <a href="/setup/users" class="btn btn-danger">
+                    <TL>Back</TL>
+                </a>
+            </div>
+        </div>
+    </div>
+</IsSetup>
+<NonSetup>
+    <SetupCompletedAlert></SetupCompletedAlert>
+</NonSetup>
+
+@code
+{
+    private bool EnableSupportChat
+    {
+        get => bool.Parse(
+            ConfigService
+                .GetSection("Moonlight")
+                .GetSection("SupportChat")
+                ["Enabled"]!
+            );
+        set => ConfigService
+            .GetSection("Moonlight")
+            .GetSection("SupportChat")
+            ["Enabled"] = value.ToString();
+    }
+
+    private Task Save()
+    {
+        ConfigService.Save();
+        NavigationManager.NavigateTo("/setup/final");
+
+        return Task.CompletedTask;
+    }
+}

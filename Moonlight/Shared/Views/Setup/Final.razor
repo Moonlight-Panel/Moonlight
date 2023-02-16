@@ -1,0 +1,40 @@
+﻿@page "/setup/final"
+
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject ConfigService ConfigService
+@inject NavigationManager NavigationManager
+@inject SmartTranslateService SmartTranslateService
+@inject ToastService ToastService
+
+<IsSetup>
+    <div class="card col d-flex justify-content-center">
+        <div class="card-header">
+            <span class="card-title"><TL>Finalize installation</TL> (4/4)</span>
+        </div>
+        <div class="card-body p-10">
+            <div class="input-group mt-5">
+                <WButton Text="@(SmartTranslateService.Translate("Finish"))"
+                         WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                         CssClasses="btn-success"
+                         OnClick="Save">
+                </WButton>
+            </div>
+        </div>
+    </div>
+</IsSetup>
+<NonSetup>
+    <SetupCompletedAlert></SetupCompletedAlert>
+</NonSetup>
+
+@code
+{
+    private async Task Save()
+    {
+        ConfigService.GetSection("Moonlight")["SetupComplete"] = true.ToString();
+        ConfigService.Save();
+        await ToastService.Success(SmartTranslateService.Translate("Moonlight basic settings successfully configured"));
+        NavigationManager.NavigateTo("/");
+    }
+}

@@ -5,7 +5,6 @@
 @inherits ErrorBoundary
 
 @inject IdentityService IdentityService
-@inject TranslationService TranslationService
 
 @if (CurrentException is null)
 {
@@ -18,14 +17,13 @@ else if (ErrorContent is not null)
             <div class="mb-10">
                 <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
                     <span class="me-2">
-                        @TranslationService.Translate("Crashes.Page.Title")
+                        <TL>Ooops. This page is crashed</TL>
                     </span>
                 </div>
                 <div class="text-center">
-                    @TranslationService.Translate("Crashes.Page.Details")
+                    <TL>This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page</TL>
                 </div>
             </div>
-            <img class="mx-auto h-150px h-lg-200px" src="/assets/media/svg/illustrations/broken-cable.svg" alt="Broken cable">
         </div>
     </div>
 }
@@ -36,14 +34,13 @@ else
             <div class="mb-10">
                 <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
                     <span class="me-2">
-                        @TranslationService.Translate("Crashes.Page.Title")
+                        <TL>Ooops. This page is crashed</TL>
                     </span>
                 </div>
                 <div class="text-center">
-                    @TranslationService.Translate("Crashes.Page.Details")
+                    <TL>This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page</TL>
                 </div>
             </div>
-            <img class="mx-auto h-150px h-lg-200px" src="/assets/media/svg/illustrations/broken-cable.svg" alt="Broken cable">
         </div>
     </div>
 }

@@ -1,5 +1,6 @@
 using BlazorTable;
 using CurrieTechnologies.Razor.SweetAlert2;
+using Logging.Net;
 using Moonlight.App.Database;
 using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
@@ -14,6 +15,8 @@ namespace Moonlight
     {
         public static void Main(string[] args)
         {
+            Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -32,17 +35,19 @@ namespace Moonlight
             builder.Services.AddScoped<ServerBackupRepository>();
             
             // Services
-            builder.Services.AddScoped<TranslationService>();
             builder.Services.AddSingleton<ConfigService>();
             builder.Services.AddScoped<CookieService>();
             builder.Services.AddScoped<IdentityService>();
             builder.Services.AddScoped<IpLocateService>();
             builder.Services.AddScoped<SessionService>();
-            builder.Services.AddScoped<TranslationService>();
             builder.Services.AddScoped<AlertService>();
-            
+            builder.Services.AddScoped<SmartTranslateService>();
+            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<TotpService>();
+            builder.Services.AddScoped<ToastService>();
+
             // Helpers
-            builder.Services.AddSingleton<TranslationHelper>();
+            builder.Services.AddSingleton<SmartTranslateHelper>();
             
             // Third party services
 
@@ -60,12 +65,11 @@ namespace Moonlight
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
             app.UseRouting();
 
+            app.MapControllers();
+            
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
 

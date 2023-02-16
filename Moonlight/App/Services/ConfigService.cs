@@ -1,6 +1,6 @@
 ﻿using System.Text;
-using Logging.Net;
 using Microsoft.Extensions.Primitives;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services;
 
@@ -42,5 +42,10 @@ public class ConfigService : IConfiguration
     {
         get => Configuration[key];
         set => Configuration[key] = value;
+    }
+
+    public void Save()
+    {
+        ConfigUtils.SaveConfigurationAsJson(Configuration, "..\\..\\appsettings.json");
     }
 }

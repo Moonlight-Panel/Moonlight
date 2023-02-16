@@ -3,7 +3,6 @@
 @using Moonlight.App.Services
 
 @inject IdentityService IdentityService
-@inject TranslationService TranslationService
 @inject ConfigService ConfigService
 @inject IJSRuntime JsRuntime
 
@@ -17,7 +16,7 @@
         <a href="@(User != null ? "/" : "/login")">
             @if (sidebar == "dark-sidebar")
             {
-                <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logofull.png" class="h-45px app-sidebar-logo-default"/>
+                <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logolong.png" class="h-45px app-sidebar-logo-default"/>
             }
             else
             {
@@ -40,7 +39,7 @@
     <div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
     	<a id="support_ticket_toggle_sidebar"
     	   class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100 btn-label">
-    		@(TranslationService.Translate("Sidebar.Footer.OpenSupport"))
+            <TL>Open support</TL>
     	</a>
     </div>
 </div>

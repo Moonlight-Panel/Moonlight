@@ -1,11 +1,9 @@
-﻿@using Moonlight.App.Services
-@using Logging.Net
+﻿@using Logging.Net
 @using Moonlight.App.Services.Sessions
 
 @inherits ErrorBoundary
 
 @inject IdentityService IdentityService
-@inject TranslationService TranslationService
 
 @if (CurrentException is null)
 {
@@ -18,11 +16,11 @@ else if (ErrorContent is not null)
             <div class="mb-10">
                 <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
                     <span class="me-2">
-                        @TranslationService.Translate("Crashes.Component.Title")
+                        <TL>Ooops. This component is crashed</TL>
                     </span>
                 </div>
                 <div class="text-center">
-                    @TranslationService.Translate("Crashes.Component.Details")
+                    <TL>This component is crashed. The error has been reported to the moonlight team</TL>
                 </div>
             </div>
         </div>
@@ -35,11 +33,11 @@ else
             <div class="mb-10">
                 <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
                     <span class="me-2">
-                        @TranslationService.Translate("Crashes.Component.Title")
+                        <TL>Ooops. This component is crashed</TL>
                     </span>
                 </div>
                 <div class="text-center">
-                    @TranslationService.Translate("Crashes.Component.Details")
+                    <TL>This component is crashed. The error has been reported to the moonlight team</TL>
                 </div>
             </div>
         </div>

@@ -25,7 +25,7 @@
     <meta content="@(headerConfig.GetValue<string>("Title"))" property="og:title"/>
     <meta content="@(headerConfig.GetValue<string>("Description"))" property="og:description"/>
     <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))" property="og:url"/>
-    <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logofull.png" property="og:image"/>
+    <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logolong.png" property="og:image"/>
     <meta content="@(headerConfig.GetValue<string>("Color"))" data-react-helmet="true" name="theme-color"/>
 
     <meta content="@(headerConfig.GetValue<string>("Description"))" name="description"/>
@@ -45,6 +45,8 @@
     <link rel="stylesheet" type="text/css" href="/_content/XtermBlazor/XtermBlazor.css"/>
     <link rel="stylesheet" type="text/css" href="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css"/>
     <link rel="stylesheet" type="text/css" href="/_content/Blazor.ContextMenu/blazorContextMenu.min.css"/>
+    
+    <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
 
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <base href="~/"/>
@@ -69,7 +71,7 @@
 <div id="flashbang" class="flashbanglight"></div>
 
 <div class="app-page-loader flex-column">
-    <img alt="Logo" src="/api/moonlight/resources/images/logo.svg" class="h-25px"/>
+    <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-25px"/>
 
     <div class="d-flex align-items-center mt-5">
         <span class="spinner-border text-primary" role="status"></span>
@@ -79,14 +81,14 @@
 
 <script src="/_framework/blazor.server.js"></script>
 
+<script src="/assets/plugins/global/plugins.bundle.js"></script>
 <script src="/_content/XtermBlazor/XtermBlazor.min.js"></script>
 <script src="/_content/BlazorTable/BlazorTable.min.js"></script>
 <script src="/_content/BlazorInputFile/inputfile.js"></script>
+<script src="/_content/BlazorMonaco/jsInterop.js"></script>
 <script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
 <script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
-<script src="/_content/BlazorMonaco/jsInterop.js"></script>
 <script src="/_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script>
-<script src="/_content/Blazor-ApexCharts/js/blazor-apex-charts.js"></script>
 <script src="/_content/Blazor.ContextMenu/blazorContextMenu.min.js"></script>
 
 <script src="https://www.google.com/recaptcha/api.js"></script>
@@ -106,6 +108,5 @@
 <script src="/assets/js/snow.js"></script>
 <script src="/assets/js/recaptcha.js"></script>
 <script src="/assets/js/xtermAddons.js"></script>
-<script src="/assets/js/monaco.js"></script>
 </body>
 </html>
