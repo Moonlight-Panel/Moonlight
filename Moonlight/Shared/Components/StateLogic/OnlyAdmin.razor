@@ -1,0 +1,36 @@
+﻿@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Database.Entities
+
+@inject IdentityService IdentityService
+
+@if (User != null)
+{
+    if (User.Admin)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            <TL>Missing admin permissions. This attempt has been logged ;)</TL>
+        </div>
+    }
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private User? User;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            User = await IdentityService.Get();
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
 #nullable disable
 
-namespace Moonlight.App.Database.Migrations
+namespace Moonlight.App.DatabaseMigrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230217152643_MigratedSomeModels")]
+    partial class MigratedSomeModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,9 +220,6 @@ namespace Moonlight.App.Database.Migrations
 
                     b.Property<int>("SftpPort")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Ssl")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Token")
                         .IsRequired()

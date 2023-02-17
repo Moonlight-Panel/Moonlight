@@ -1,10 +1,6 @@
 ﻿@using Moonlight.Shared.Components.ErrorBoundaries
-@using Moonlight.Shared.Components.Partials
-@using Moonlight.Shared.Components.Alerts
-@using Moonlight.Shared.Components.Auth
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Extensions
-@using Moonlight.App.Models.Misc
 @using Moonlight.App.Services.Sessions
 
 @layout ThemeInit
@@ -19,23 +15,18 @@
 <GlobalErrorBoundary>
     @{
         var uri = new Uri(NavigationManager.Uri);
-        var pathParts = uri.LocalPath.Split("/").Reverse();
+        var pathParts = uri.LocalPath.Split("/");
 
         var title = "";
 
         foreach (var pathPart in pathParts)
         {
             if (!string.IsNullOrEmpty(pathPart))
-            {
-                if(pathPart == pathParts.Last())
-                    title += $"{pathPart.FirstCharToUpper()} ";
-                else
-                    title += $"{pathPart.FirstCharToUpper()} - ";
-            }
+                title += $"{pathPart.FirstCharToUpper()} ";
         }
     }
 
-    <PageTitle>@(string.IsNullOrEmpty(title) ? "Dashboard - " : title)Moonlight</PageTitle>
+    <PageTitle>@(string.IsNullOrEmpty(title) ? "Dashboard " : title)- Moonlight</PageTitle>
 
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
         <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
@@ -54,40 +45,7 @@
                             <div id="kt_app_content_container" class="app-container container-fluid">
                                 <div class="mt-10">
                                     <PageErrorBoundary>
-                                        @if (uri.LocalPath != "/login" &&
-                                             uri.LocalPath != "/register")
-                                        {
-                                            if (User == null)
-                                            {
-                                                <Login></Login>
-                                            }
-                                            else
-                                            {
-                                                if (User.Status == UserStatus.Banned)
-                                                {
-                                                    <BannedAlert></BannedAlert>
-                                                }
-                                                else if (User.Status == UserStatus.Disabled)
-                                                {
-                                                    <DisabledAlert></DisabledAlert>
-                                                }
-                                                else
-                                                {
-                                                    @Body
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (uri.LocalPath == "/login")
-                                            {
-                                                <Login></Login>
-                                            }
-                                            else if (uri.LocalPath == "/register")
-                                            {
-                                                <Register></Register>
-                                            }
-                                        }
+                                        @Body
                                     </PageErrorBoundary>
                                 </div>
                             </div>

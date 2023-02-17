@@ -1,0 +1,50 @@
+﻿@if (loaded)
+{
+    @ChildContent
+}
+else
+{
+    <div class="d-flex flex-center flex-column">
+        <span class="fs-1 spinner-border spinner-border-lg align-middle me-2"></span>
+        <span class="mt-3 fs-5">@(Text)</span>
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    
+    [Parameter]
+    public Func<LazyLoader, Task> Load { get; set; }
+
+    [Parameter]
+    public string Text { get; set; } = "";
+
+    private bool loaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Load.Invoke(this);
+            loaded = true;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async Task SetText(string text)
+    {
+        Text = text;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task Reload()
+    {
+        loaded = false;
+        await InvokeAsync(StateHasChanged);
+        await Load.Invoke(this);
+        loaded = true;
+        await InvokeAsync(StateHasChanged);
+    }
+}

@@ -432,3 +432,13 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea/.idea.Moonlight/.idea/discord.xml
+Moonlight/obj/project.nuget.cache
+*.editorconfig
+*.cache
+Moonlight/obj/Debug/net6.0/Moonlight.assets.cache
+Moonlight/obj/Debug/net6.0/Moonlight.csproj.AssemblyReference.cache
+Moonlight/obj/Debug/net6.0/Moonlight.GeneratedMSBuildEditorConfig.editorconfig
+Moonlight/obj/Moonlight.csproj.nuget.dgspec.json
+Moonlight/obj/project.assets.json
+Moonlight/obj/project.nuget.cache
+Moonlight/obj/project.packagespec.json

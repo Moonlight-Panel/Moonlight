@@ -32,3 +32,94 @@ This page is crashed. The error has been reported to the moonlight team. Meanwhi
 Setup complete;Setup complete
 It looks like this moonlight instance is ready to go;It looks like this moonlight instance is ready to go
 User successfully created;User successfully created
+Ooops. Your moonlight client is crashed;Ooops. Your moonlight client is crashed
+This error has been reported to the moonlight team;This error has been reported to the moonlight team
+Sign In;Sign In
+Sign in to start with moonlight;Sign in to start with moonlight
+Sign in with Discord;Sign in with Discord
+Or with email;Or with email
+Forgot password?;Forgot password?
+Sign-in;Sign-in
+Not registered yet?;Not registered yet?
+Sign up;Sign up
+Authenticating;Authenticating
+Sign in with Google;Sign in with Google
+Working;Working
+Error;Error
+Email and password combination not found;Email and password combination not found
+Email;Email
+Password;Password
+Account settings;Account settings
+Logout;Logout
+Dashboard;Dashboard
+Order;Order
+Website;Website
+Database;Database
+Domain;Domain
+Servers;Servers
+Websites;Websites
+Databases;Databases
+Domains;Domains
+Changelog;Changelog
+Firstname;Firstname
+Lastname;Lastname
+Repeat password;Repeat password
+Sign Up;Sign Up
+Sign up to start with moonlight;Sign up to start with moonlight
+Sign up with Discord;Sign up with Discord
+Sign up with Google;Sign up with Google
+Sign-up;Sign-up
+Already registered?;Already registered?
+Sign in;Sign in
+Create something new;Create something new
+Create a gameserver;Create a gameserver
+A new gameserver in just a few minutes;A new gameserver in just a few minutes
+Create a database;Create a database
+A quick way to store your data and manage it from all around the world;A quick way to store your data and manage it from all around the world
+Manage your services;Manage your services
+Manage your gameservers;Manage your gameservers
+Adjust your gameservers;Adjust your gameservers
+Manage your databases;Manage your databases
+Insert, delete and update the data in your databases;Insert, delete and update the data in your databases
+Create a website;Create a website
+Make your own websites with a webspace;Make your own websites with a webspace
+Create a domain;Create a domain
+Make your servvices accessible throught your own domain;Make your servvices accessible throught your own domain
+Manage your websites;Manage your websites
+Modify the content of your websites;Modify the content of your websites
+Manage your domains;Manage your domains
+Add, edit and delete dns records;Add, edit and delete dns records
+Admin;Admin
+System;System
+Overview;Overview
+Manager;Manager
+Cleanup;Cleanup
+Nodes;Nodes
+Images;Images
+aaPanel;aaPanel
+Users;Users
+Support;Support
+Statistics;Statistics
+No nodes found. Start with adding a new node;No nodes found. Start with adding a new node
+Nodename;Nodename
+FQDN;FQDN
+Create;Create
+Creating;Creating
+Http port;Http port
+Sftp port;Sftp port
+Moonlight daemon port;Moonlight daemon port
+SSL;SSL
+CPU Usage;CPU Usage
+In %;In %
+Memory;Memory
+Used / Available memory;Used / Available memory
+Storage;Storage
+Available storage;Available storage
+Add a new node;Add a new node
+Delete;Delete
+Deleting;Deleting
+Edit;Edit
+Toekn Id;Toekn Id
+Token;Token
+Save;Save
+Token Id;Token Id

@@ -24,7 +24,9 @@ public class DataContext : DbContext
     public DbSet<ServerVariable> ServerVariables { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<LoadingMessage> LoadingMessages { get; set; }
-    
+    public DbSet<AuditLogEntry> AuditLog { get; set; }
+    public DbSet<Entities.Database> Databases { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

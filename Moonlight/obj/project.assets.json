@@ -225,16 +225,16 @@
           "lib/net6.0/Discord.Net.WebSocket.dll": {}
         }
       },
-      "GravatarSharp.Core/0.9.0.2": {
+      "GravatarSharp.Core/1.0.1.2": {
         "type": "package",
         "dependencies": {
-          "Newtonsoft.Json": "13.0.1"
+          "Newtonsoft.Json": "13.0.2"
         },
         "compile": {
-          "lib/net46/GravatarSharp.Core.dll": {}
+          "lib/netstandard2.1/GravatarSharp.dll": {}
         },
         "runtime": {
-          "lib/net46/GravatarSharp.Core.dll": {}
+          "lib/netstandard2.1/GravatarSharp.dll": {}
         }
       },
       "Humanizer.Core/2.14.1": {
@@ -615,6 +615,17 @@
         "build": {
           "build/Microsoft.VisualStudio.Azure.Containers.Tools.Targets.props": {},
           "build/Microsoft.VisualStudio.Azure.Containers.Tools.Targets.targets": {}
+        }
+      },
+      "MimeTypes/2.4.0": {
+        "type": "package",
+        "contentFiles": {
+          "contentFiles/cs/netcoreapp3.0/MimeTypes.cs.pp": {
+            "buildAction": "Compile",
+            "codeLanguage": "cs",
+            "copyToOutput": false,
+            "ppOutputPath": "MimeTypes.cs"
+          }
         }
       },
       "MineStat/3.1.1": {
@@ -1440,18 +1451,17 @@
         "lib/netstandard2.1/Discord.Net.WebSocket.xml"
       ]
     },
-    "GravatarSharp.Core/0.9.0.2": {
-      "sha512": "+UfeBl5kBzAhl3ZakHC+5t7cBhhiV91zQCKna+Uwu99JC9OtAA4BgHAoz3Dk1GRkLjxh5gk0I/mwShbRC3IRDw==",
+    "GravatarSharp.Core/1.0.1.2": {
+      "sha512": "zSucyFwx5RHjMo69UeDXK1tCKJj9ziBc6vA8XtGhSar3cqciVVoBBuK882p31UyXZlva6xjpb2Pw5onKJzZP5g==",
       "type": "package",
-      "path": "gravatarsharp.core/0.9.0.2",
+      "path": "gravatarsharp.core/1.0.1.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "gravatarsharp.core.0.9.0.2.nupkg.sha512",
+        "Gravatar-01.png",
+        "gravatarsharp.core.1.0.1.2.nupkg.sha512",
         "gravatarsharp.core.nuspec",
-        "icon.png",
-        "lib/net46/GravatarSharp.Core.XML",
-        "lib/net46/GravatarSharp.Core.dll"
+        "lib/netstandard2.1/GravatarSharp.dll"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -2195,6 +2205,22 @@
         "tools/zh-Hant/Microsoft.VisualStudio.Containers.Tools.Tasks.resources.dll"
       ]
     },
+    "MimeTypes/2.4.0": {
+      "sha512": "jbdJlfoz5YtmuvyM12G5KY22kkXZUG0HgU8ahnZPM0JtXPRvL5m3jURqXL47or/FCbc1qb4GDhg6ip3yOgeFaw==",
+      "type": "package",
+      "path": "mimetypes/2.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "contentFiles/cs/net472/MimeTypes.NullableAttributes.cs.pp",
+        "contentFiles/cs/netcoreapp3.0/MimeTypes.cs.pp",
+        "contentFiles/cs/netstandard2.0/MimeTypes.NullableAttributes.cs.pp",
+        "contentFiles/cs/netstandard2.1/MimeTypes.cs.pp",
+        "images/nuget-icon.png",
+        "mimetypes.2.4.0.nupkg.sha512",
+        "mimetypes.nuspec"
+      ]
+    },
     "MineStat/3.1.1": {
       "sha512": "yF+grj87r7+LSu6hnL1g5V1wtpvZIw46taeEjIRD6KuXXXmqRT/WjBMRJMfoKuSinPQBeQiCT0sCIGvuiZ3kfw==",
       "type": "package",
@@ -2771,11 +2797,12 @@
       "BlazorTable >= 1.17.0",
       "CurrieTechnologies.Razor.SweetAlert2 >= 5.4.0",
       "Discord.Net >= 3.9.0",
-      "GravatarSharp.Core >= 0.9.0.2",
+      "GravatarSharp.Core >= 1.0.1.2",
       "JWT >= 10.0.2",
       "Logging.Net >= 1.1.0",
       "Microsoft.EntityFrameworkCore.Design >= 7.0.3",
       "Microsoft.VisualStudio.Azure.Containers.Tools.Targets >= 1.15.1",
+      "MimeTypes >= 2.4.0",
       "MineStat >= 3.1.1",
       "Newtonsoft.Json >= 13.0.3-beta1",
       "Otp.NET >= 1.3.0",
@@ -2865,7 +2892,7 @@
           },
           "GravatarSharp.Core": {
             "target": "Package",
-            "version": "[0.9.0.2, )"
+            "version": "[1.0.1.2, )"
           },
           "JWT": {
             "target": "Package",
@@ -2884,6 +2911,12 @@
           "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": {
             "target": "Package",
             "version": "[1.15.1, )"
+          },
+          "MimeTypes": {
+            "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[2.4.0, )"
           },
           "MineStat": {
             "target": "Package",
@@ -2947,17 +2980,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'GravatarSharp.Core 0.9.0.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework 'net6.0'. This package may not be fully compatible with your project.",
-      "libraryId": "GravatarSharp.Core",
-      "targetGraphs": [
-        "net6.0"
-      ]
-    }
-  ]
+  }
 }

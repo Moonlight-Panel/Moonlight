@@ -1,7 +1,232 @@
 ﻿@page "/"
+@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Servers
 
-<div class="card">
-    <div class="card-body">
-        x
+@inject DatabaseRepository DatabaseRepository
+@inject ServerRepository ServerRepository
+
+<LazyLoader Load="Load">
+<div class="row mb-5">
+    <div class="col-12 col-lg-6 col-xl">
+        <a class="mt-4 card" href="/servers">
+            <div class="card-body">
+                <div class="row align-items-center gx-0">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted mb-2">
+                            <TL>Servers</TL>
+                        </h6>
+                        <span class="h2 mb-0">
+                            @(ServerCount)
+                        </span>
+                    </div>
+                    <div class="col-auto">
+                        <span class="h2 text-muted mb-0">
+                            <i class="text-primary bx bx-server bx-lg"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-lg-6 col-xl">
+        <a class="mt-4 card" href="/websites">
+            <div class="card-body">
+                <div class="row align-items-center gx-0">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted mb-2">
+                            <TL>Websites</TL>
+                        </h6>
+                        <span class="h2 mb-0">
+                            0
+                        </span>
+                    </div>
+                    <div class="col-auto">
+                        <span class="h2 text-muted mb-0">
+                            <i class="text-primary bx bx-globe bx-lg"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-lg-6 col-xl">
+        <div class="mt-4 card" href="/databases">
+            <div class="card-body">
+                <div class="row align-items-center gx-0">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted mb-2">
+                            <TL>Databases</TL>
+                        </h6>
+                        <span class="h2 mb-0">
+                            @(DatabaseCount)
+                        </span>
+                    </div>
+                    <div class="col-auto">
+                        <span class="h2 text-muted mb-0">
+                            <i class="text-primary bx bx-data bx-lg"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl">
+        <a class="mt-4 card" href="/domains">
+            <div class="card-body">
+                <div class="row align-items-center gx-0">
+                    <div class="col">
+                        <h6 class="text-uppercase text-muted mb-2">
+                            <TL>Domains</TL>
+                        </h6>
+                        <span class="h2 mb-0">
+                            0
+                        </span>
+                    </div>
+                    <div class="col-auto">
+                        <span class="h2 text-muted mb-">
+                            <i class="text-primary bx bx-purchase-tag bx-lg"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
+
+<div class="d-flex flex-row mb-5">
+    <div class="card card-body">
+        <span class="card-title mb-3 fs-3">
+            <TL>Create something new</TL>
+        </span>
+        <div class="flex-row">
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-server"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/servers/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Create a gameserver</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>A new gameserver in just a few minutes</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-data"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/databases/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Create a database</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>A quick way to store your data and manage it from all around the world</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-globe"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/websites/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Create a website</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>Make your own websites with a webspace</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-purchase-tag"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/domains/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Create a domain</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>Make your servvices accessible throught your own domain</TL>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="d-flex flex-row">
+    <div class="card card-body">
+        <span class="card-title mb-3 fs-3">
+            <TL>Manage your services</TL>
+        </span>
+        <div class="flex-row">
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-server"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/servers" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Manage your gameservers</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>Adjust your gameservers</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-data"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/databases" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Manage your databases</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>Insert, delete and update the data in your databases</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-globe"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/websites" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Manage your websites</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>Modify the content of your websites</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-50px me-3">
+                    <i class="bx bx-md bx-purchase-tag"></i>
+                </div>
+                <div class="d-flex justify-content-start flex-column">
+                    <a href="/domains" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Manage your domains</TL>
+                    </a>
+                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                        <TL>Add, edit and delete dns records</TL>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</LazyLoader>
+
+@code
+{
+    private int DatabaseCount = 0;
+    private int ServerCount = 0;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        DatabaseCount = DatabaseRepository.Get().Count();
+        ServerCount = ServerRepository.Get().Count();
+
+        return Task.CompletedTask;
+    }
+}

@@ -5,7 +5,7 @@ namespace Moonlight.App.Http.Controllers.Api.Moonlight;
 
 [ApiController]
 [Route("api/moonlight/resources")]
-public class Resources : Controller
+public class ResourcesController : Controller
 {
     [HttpGet("images/{name}")]
     public ActionResult GetImage([FromRoute] string name)
@@ -16,8 +16,14 @@ public class Resources : Controller
             return NotFound();
         }
 
-        var fs = new FileStream($"resources/public/images/{name}", FileMode.Open);
+        if (System.IO.File.Exists($"resources/public/images/{name}"))
+        {
+            var fs = new FileStream($"resources/public/images/{name}", FileMode.Open);
         
-        return File(fs, "application/octet-stream", name);
+            return File(fs, MimeTypes.GetMimeType(name), name);
+        }
+        
+        Logger.Debug("404 on resources");
+        return NotFound();
     }
 }

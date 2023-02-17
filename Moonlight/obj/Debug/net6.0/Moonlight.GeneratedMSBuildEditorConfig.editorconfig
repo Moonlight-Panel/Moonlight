@@ -31,6 +31,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQWxlcnRzXFNldHVwQ29tcGxldGVkQWxlcnQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/Auth/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQXV0aFxMb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/Auth/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQXV0aFxSZWdpc3Rlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/ErrorBoundaries/ComponentErrorBoundary.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcRXJyb3JCb3VuZGFyaWVzXENvbXBvbmVudEVycm9yQm91bmRhcnkucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -49,6 +57,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/Partials/Footer.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcUGFydGlhbHNcRm9vdGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/Partials/LazyLoader.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcUGFydGlhbHNcTGF6eUxvYWRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/Partials/Navbar.razor]
@@ -83,12 +95,32 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcU3RhdGVMb2dpY1xOb25TZXR1cC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Components/StateLogic/OnlyAdmin.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcU3RhdGVMb2dpY1xPbmx5QWRtaW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Layouts/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExheW91dHNcTWFpbkxheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Layouts/NotFoundLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExheW91dHNcTm90Rm91bmRMYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Layouts/ThemeInit.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExheW91dHNcVGhlbWVJbml0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Views/Admin/Nodes/Edit.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXE5vZGVzXEVkaXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Views/Admin/Nodes/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXE5vZGVzXEluZGV4LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Views/Admin/Nodes/New.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXE5vZGVzXE5ldy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/marce/source/repos/MoonlightPublic/Moonlight/Moonlight/Shared/Views/Index.razor]

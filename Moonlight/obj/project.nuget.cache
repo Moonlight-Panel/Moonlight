@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "kweG9cyheq0lvUg6tPkk+sPoY2pPlReL0QP5jHLJNWl9pUpDd+CJp7bLfFE9WjjPi9DegeiFh5tJQ1eO1r96RA==",
+  "dgSpecHash": "pQgIHNaG7q9d70t4chS097wnXaBcGVs4M1KNaxW4kyPiCyrsd3TNRJ260ThoX5FTLByZYWNfqf9FNIzWLSOXTQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\Moonlight.csproj",
   "expectedPackageFiles": [
@@ -18,7 +18,7 @@
     "C:\\Users\\marce\\.nuget\\packages\\discord.net.rest\\3.9.0\\discord.net.rest.3.9.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\discord.net.webhook\\3.9.0\\discord.net.webhook.3.9.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\discord.net.websocket\\3.9.0\\discord.net.websocket.3.9.0.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\gravatarsharp.core\\0.9.0.2\\gravatarsharp.core.0.9.0.2.nupkg.sha512",
+    "C:\\Users\\marce\\.nuget\\packages\\gravatarsharp.core\\1.0.1.2\\gravatarsharp.core.1.0.1.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\jwt\\10.0.2\\jwt.10.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\linqkit.core\\1.1.26\\linqkit.core.1.1.26.nupkg.sha512",
@@ -49,6 +49,7 @@
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.extensions.primitives\\7.0.0\\microsoft.extensions.primitives.7.0.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.jsinterop\\6.0.9\\microsoft.jsinterop.6.0.9.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.15.1\\microsoft.visualstudio.azure.containers.tools.targets.1.15.1.nupkg.sha512",
+    "C:\\Users\\marce\\.nuget\\packages\\mimetypes\\2.4.0\\mimetypes.2.4.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\minestat\\3.1.1\\minestat.3.1.1.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\mysqlconnector\\2.2.5\\mysqlconnector.2.2.5.nupkg.sha512",
@@ -72,16 +73,5 @@
     "C:\\Users\\marce\\.nuget\\packages\\uaparser\\3.1.47\\uaparser.3.1.47.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\xtermblazor\\1.6.1\\xtermblazor.1.6.1.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'GravatarSharp.Core 0.9.0.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework 'net6.0'. This package may not be fully compatible with your project.",
-      "libraryId": "GravatarSharp.Core",
-      "targetGraphs": [
-        "net6.0"
-      ]
-    }
-  ]
+  "logs": []
 }

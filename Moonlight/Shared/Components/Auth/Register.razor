@@ -1,0 +1,88 @@
+﻿@page "/register"
+
+@* This is just a "virtual" route/page. The handling for that is
+@* MainLayout doing for us. We need to put that here so the router
+@* does not return the 404 page
+*@
+
+@using Moonlight.App.Services
+
+@inject SmartTranslateService SmartTranslateService
+
+<div class="d-flex flex-center">
+    <div class="card rounded-3 w-md-550px">
+        <div class="card-body">
+            <div class="d-flex flex-center flex-column-fluid pb-15 pb-lg-20">
+                <div class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate">
+                    <div class="text-center mb-11">
+                        <h1 class="text-dark fw-bolder mb-3">
+                            <TL>Sign Up</TL>
+                        </h1>
+                        <div class="text-gray-500 fw-semibold fs-6">
+                            <TL>Sign up to start with moonlight</TL>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-9">
+                        <div class="col-md-6">
+                            <a href="#" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                                <div class="h-15px me-3">
+                                    <i class="bx bx-md bxl-discord-alt"></i>
+                                </div>
+                                <TL>Sign up with Discord</TL>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="#" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                                <div class="h-15px me-3">
+                                    <i class="bx bx-md bxl-google"></i>
+                                </div>
+                                <TL>Sign up with Google</TL>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="separator separator-content my-14">
+                        <span class="w-125px text-gray-500 fw-semibold fs-7">
+                            <TL>Or with email</TL>
+                        </span>
+                    </div>
+
+                    <div class="fv-row mb-8 fv-plugins-icon-container">
+                        <input type="text" placeholder="@(SmartTranslateService.Translate("Firstname"))" name="text" class="form-control bg-transparent">
+                    </div>
+
+                    <div class="fv-row mb-8 fv-plugins-icon-container">
+                        <input type="text" placeholder="@(SmartTranslateService.Translate("Lastname"))" name="text"class="form-control bg-transparent">
+                    </div>
+
+                    <div class="fv-row mb-8 fv-plugins-icon-container">
+                        <input type="text" placeholder="@(SmartTranslateService.Translate("Email"))" name="email" autocomplete="off" class="form-control bg-transparent">
+                    </div>
+
+                    <div class="fv-row mb-3 fv-plugins-icon-container">
+                        <input type="password" placeholder="@(SmartTranslateService.Translate("Password"))" name="password" autocomplete="off" class="form-control bg-transparent">
+                    </div>
+
+                    <div class="fv-row mb-5 fv-plugins-icon-container">
+                        <input type="password" placeholder="@(SmartTranslateService.Translate("Repeat password"))" name="password" autocomplete="off" class="form-control bg-transparent">
+                    </div>
+
+                    <div class="d-grid mb-10">
+                        <button class="btn btn-primary">
+                            <TL>Sign-up</TL>
+                        </button>
+                    </div>
+
+                    <div class="text-gray-500 text-center fw-semibold fs-6">
+                        <TL>Already registered?</TL>
+
+                        <a href="/login" class="link-primary">
+                            <TL>Sign in</TL>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

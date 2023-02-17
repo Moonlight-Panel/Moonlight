@@ -11,4 +11,5 @@ public class Node
     public int HttpPort { get; set; }
     public int MoonlightDaemonPort { get; set; }
     public List<NodeAllocation> Allocations { get; set; } = new();
+    public bool Ssl { get; set; } = false;
 }

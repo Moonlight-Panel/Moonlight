@@ -5,8 +5,10 @@
 @using Moonlight.App.Exceptions
 @using Moonlight.App.Services.Interop
 @using Logging.Net
+@using Moonlight.App.Repositories
 
 @inject UserService UserService
+@inject UserRepository UserRepository
 @inject SmartTranslateService SmartTranslateService
 @inject AlertService AlertService
 @inject ToastService ToastService
@@ -106,6 +108,10 @@
                 NewUser.FirstName,
                 NewUser.LastName
                 );
+
+            var user = UserRepository.Get().First(x => x.Email == NewUser.Email);
+            user.Admin = true;
+            UserRepository.Update(user);
 
             await ToastService.Success(
                 SmartTranslateService.Translate("User successfully created")

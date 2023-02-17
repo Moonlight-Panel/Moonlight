@@ -33,6 +33,8 @@ namespace Moonlight
             builder.Services.AddScoped<NodeRepository>();
             builder.Services.AddScoped<ServerRepository>();
             builder.Services.AddScoped<ServerBackupRepository>();
+            builder.Services.AddScoped<AuditLogRepository>();
+            builder.Services.AddScoped<DatabaseRepository>();
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -45,6 +47,9 @@ namespace Moonlight
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TotpService>();
             builder.Services.AddScoped<ToastService>();
+
+            builder.Services.AddScoped<AuditLogService>();
+            builder.Services.AddScoped<SystemAuditLogService>();
 
             // Helpers
             builder.Services.AddSingleton<SmartTranslateHelper>();

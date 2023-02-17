@@ -1,5 +1,6 @@
 ﻿using JWT.Algorithms;
 using JWT.Builder;
+using Logging.Net;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Models.Misc;
@@ -80,13 +81,13 @@ public class UserService
     {
         var user = UserRepository.Get()
             .FirstOrDefault(
-                x => x.Email.Equals(
-                    email
-                )
+                x => x.Email == email
             );
 
         if (user == null)
         {
+            Logger.Debug("User not found");
+            
             //AuditLogService.Log("login:fail", $"Invalid email: {email}. Password: {password}");
             throw new DisplayException("Email and password combination not found");
         }

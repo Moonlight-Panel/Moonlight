@@ -76,7 +76,7 @@
             },
             "GravatarSharp.Core": {
               "target": "Package",
-              "version": "[0.9.0.2, )"
+              "version": "[1.0.1.2, )"
             },
             "JWT": {
               "target": "Package",
@@ -95,6 +95,12 @@
             "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": {
               "target": "Package",
               "version": "[1.15.1, )"
+            },
+            "MimeTypes": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.4.0, )"
             },
             "MineStat": {
               "target": "Package",
