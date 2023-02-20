@@ -38,13 +38,14 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/style.bundle.css"/>
     <link rel="stylesheet" type="text/css" href="/assets/css/flashbang.css"/>
     <link rel="stylesheet" type="text/css" href="/assets/css/snow.css"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/invisiblea.css"/>
+    <link rel="stylesheet" type="text/css" href="/assets/css/utils.css"/>
     <link rel="stylesheet" type="text/css" href="/assets/css/boxicons.min.css"/>
     <link rel="stylesheet" type="text/css" href="/assets/css/blazor.css"/>
 
     <link rel="stylesheet" type="text/css" href="/_content/XtermBlazor/XtermBlazor.css"/>
     <link rel="stylesheet" type="text/css" href="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css"/>
     <link rel="stylesheet" type="text/css" href="/_content/Blazor.ContextMenu/blazorContextMenu.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/_content/Blazored.Typeahead/blazored-typeahead.css" />
     
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
 
@@ -80,22 +81,26 @@
 </div>
 
 <script src="/_framework/blazor.server.js"></script>
-
 <script src="/assets/plugins/global/plugins.bundle.js"></script>
 <script src="/_content/XtermBlazor/XtermBlazor.min.js"></script>
 <script src="/_content/BlazorTable/BlazorTable.min.js"></script>
 <script src="/_content/BlazorInputFile/inputfile.js"></script>
-<script src="/_content/BlazorMonaco/jsInterop.js"></script>
-<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
-<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
 <script src="/_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script>
 <script src="/_content/Blazor.ContextMenu/blazorContextMenu.min.js"></script>
+<script src="/_content/Blazored.Typeahead/blazored-typeahead.js"></script>
 
 <script src="https://www.google.com/recaptcha/api.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.5.0/lib/xterm-addon-fit.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.8.2/lib/xterm-addon-search.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.5.0/lib/xterm-addon-web-links.min.js"></script>
+<script src="http://cdn.jsdelivr.net/npm/xterm-addon-fit@0.5.0/lib/xterm-addon-fit.min.js"></script>
+<script src="http://cdn.jsdelivr.net/npm/xterm-addon-search@0.8.2/lib/xterm-addon-search.min.js"></script>
+<script src="http://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.5.0/lib/xterm-addon-web-links.min.js"></script>
+
+<script src="/assets/js/xtermAddons.js"></script>
+
+<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+<script>require.config({ paths: { 'vs': '/_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
+<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+<script src="/_content/BlazorMonaco/jsInterop.js"></script>
 
 <script src="/assets/js/scripts.bundle.js"></script>
 <script src="/assets/js/flashbang.js"></script>
@@ -107,6 +112,5 @@
 <script src="/assets/js/loggingUtils.js"></script>
 <script src="/assets/js/snow.js"></script>
 <script src="/assets/js/recaptcha.js"></script>
-<script src="/assets/js/xtermAddons.js"></script>
 </body>
 </html>

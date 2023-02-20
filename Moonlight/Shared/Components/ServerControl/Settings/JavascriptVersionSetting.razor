@@ -1,0 +1,83 @@
+﻿@using Moonlight.App.Services
+@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Servers
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Database.Entities
+
+@inject ServerRepository ServerRepository
+@inject ImageRepository ImageRepository
+@inject SmartTranslateService TranslationService
+    
+<div class="col">
+    <div class="card card-body">
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            <label class="mb-2 form-label"><TL>Javascript Version</TL></label>
+            <select class="mb-2 form-select" @bind="Image">
+                @foreach (var image in Images)
+                {
+                    if (image == Image)
+                    {
+                        <option value="@(image)" selected="">@(image)</option>
+                    }
+                    else
+                    {
+                        <option value="@(image)">@(image)</option>
+                    }
+                }
+            </select>
+            <WButton 
+                OnClick="Save" 
+                Text="@(TranslationService.Translate("Change"))" 
+                WorkingText="@(TranslationService.Translate("Changing"))" 
+                CssClasses="btn-primary"></WButton>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    private string[] Images;
+    private string Image;
+
+    private LazyLoader LazyLoader;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        //TODO: Check if this is a redundant call
+        var serverImage = ImageRepository
+            .Get()
+            .Include(x => x.DockerImages)
+            .First(x => x.Id == CurrentServer.Image.Id);
+        
+        Image = ParseHelper.FirstPartStartingWithNumber(serverImage.DockerImages.First(x => x.Id == CurrentServer.DockerImageIndex).Name);
+        
+        var res = new List<string>();
+        foreach (var image in serverImage.DockerImages)
+        {
+            res.Add(ParseHelper.FirstPartStartingWithNumber(image.Name));
+        }
+        Images = res.ToArray();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Save()
+    {
+        var serverImage = ImageRepository
+            .Get()
+            .Include(x => x.DockerImages)
+            .First(x => x.Id == CurrentServer.Image.Id);
+        
+        var allImages = serverImage.DockerImages;
+        var imageToUse = allImages.First(x => x.Name.EndsWith(Image));
+        CurrentServer.DockerImageIndex = allImages.IndexOf(imageToUse);
+        
+        ServerRepository.Update(CurrentServer);
+
+        await LazyLoader.Reload();
+    }
+}

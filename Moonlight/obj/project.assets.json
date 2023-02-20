@@ -56,17 +56,36 @@
           "buildMultiTargeting/Blazor.ContextMenu.props": {}
         }
       },
-      "BlazorMonaco/3.0.0": {
+      "Blazored.Typeahead/4.7.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.AspNetCore.Components": "6.0.0",
-          "Microsoft.AspNetCore.Components.Web": "6.0.0"
+          "Microsoft.AspNetCore.Components": "6.0.3",
+          "Microsoft.AspNetCore.Components.Web": "6.0.3"
         },
         "compile": {
-          "lib/net6.0/BlazorMonaco.dll": {}
+          "lib/net6.0/Blazored.Typeahead.dll": {}
         },
         "runtime": {
-          "lib/net6.0/BlazorMonaco.dll": {}
+          "lib/net6.0/Blazored.Typeahead.dll": {}
+        },
+        "build": {
+          "buildTransitive/Blazored.Typeahead.props": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Blazored.Typeahead.props": {}
+        }
+      },
+      "BlazorMonaco/2.1.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components": "5.0.0",
+          "Microsoft.AspNetCore.Components.Web": "5.0.0"
+        },
+        "compile": {
+          "lib/net5.0/BlazorMonaco.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/BlazorMonaco.dll": {}
         },
         "build": {
           "buildTransitive/BlazorMonaco.props": {}
@@ -960,15 +979,33 @@
         "staticwebassets/blazorContextMenu.min.js"
       ]
     },
-    "BlazorMonaco/3.0.0": {
-      "sha512": "GD2IJR4ke05Hj5koO2Mk4cEToDZI7dXnDhtb8H8eqMiCjlROX1DGBSt3K1c2C14mBtFGH4swJCgmHBDxU1R+MQ==",
+    "Blazored.Typeahead/4.7.0": {
+      "sha512": "fTN4Bt9rwEE/d33FXFd+h/DBjVtsFJLRf9B8mu0zJWMWG5Mk2tU2il3aK0+laUxNgBNBgEL0jW/831I+oapd6A==",
       "type": "package",
-      "path": "blazormonaco/3.0.0",
+      "path": "blazored.typeahead/4.7.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "README.md",
-        "blazormonaco.3.0.0.nupkg.sha512",
+        "blazored.typeahead.4.7.0.nupkg.sha512",
+        "blazored.typeahead.nuspec",
+        "build/Blazored.Typeahead.props",
+        "build/Microsoft.AspNetCore.StaticWebAssets.props",
+        "buildMultiTargeting/Blazored.Typeahead.props",
+        "buildTransitive/Blazored.Typeahead.props",
+        "icon.png",
+        "lib/net6.0/Blazored.Typeahead.dll",
+        "staticwebassets/blazored-typeahead.css",
+        "staticwebassets/blazored-typeahead.js"
+      ]
+    },
+    "BlazorMonaco/2.1.0": {
+      "sha512": "OWzHwymmcArn4Nn62LwUi0C5O7T5rtcIB71mqCaS7vrHoQP9rJMMSMDytxAxCfOq85Auj84kumOA9CpAWi23FQ==",
+      "type": "package",
+      "path": "blazormonaco/2.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "blazormonaco.2.1.0.nupkg.sha512",
         "blazormonaco.nuspec",
         "build/BlazorMonaco.props",
         "build/Microsoft.AspNetCore.StaticWebAssets.props",
@@ -976,20 +1013,8 @@
         "buildTransitive/BlazorMonaco.props",
         "icon.png",
         "lib/net5.0/BlazorMonaco.dll",
-        "lib/net6.0/BlazorMonaco.dll",
-        "lib/net7.0/BlazorMonaco.dll",
         "lib/netstandard2.0/BlazorMonaco.dll",
         "staticwebassets/jsInterop.js",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.de.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.es.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.fr.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.it.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.ja.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.ko.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.ru.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.zh-cn.js.map",
-        "staticwebassets/lib/monaco-editor/min-maps/vs/base/common/worker/simpleWorker.nls.zh-tw.js.map",
         "staticwebassets/lib/monaco-editor/min-maps/vs/base/worker/workerMain.js.map",
         "staticwebassets/lib/monaco-editor/min-maps/vs/editor/editor.main.js.map",
         "staticwebassets/lib/monaco-editor/min-maps/vs/editor/editor.main.nls.de.js.map",
@@ -1004,26 +1029,6 @@
         "staticwebassets/lib/monaco-editor/min-maps/vs/editor/editor.main.nls.zh-tw.js.map",
         "staticwebassets/lib/monaco-editor/min-maps/vs/loader.js.map",
         "staticwebassets/lib/monaco-editor/min/vs/base/browser/ui/codicons/codicon/codicon.ttf",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.de.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.de.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.es.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.es.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.fr.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.fr.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.it.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.it.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.ja.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.ja.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.ko.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.ko.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.ru.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.ru.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.zh-cn.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.zh-cn.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.zh-tw.js",
-        "staticwebassets/lib/monaco-editor/min/vs/base/common/worker/simpleWorker.nls.zh-tw.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/base/worker/workerMain.js",
         "staticwebassets/lib/monaco-editor/min/vs/base/worker/workerMain.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/abap/abap.js",
@@ -1034,8 +1039,6 @@
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/azcli/azcli.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/bat/bat.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/bat/bat.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/bicep/bicep.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/bicep/bicep.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/cameligo/cameligo.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/cameligo/cameligo.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/clojure/clojure.js",
@@ -1050,20 +1053,12 @@
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/csp/csp.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/css/css.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/css/css.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/cypher/cypher.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/cypher/cypher.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/dart/dart.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/dart/dart.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/dockerfile/dockerfile.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/dockerfile/dockerfile.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/ecl/ecl.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/ecl/ecl.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/elixir/elixir.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/elixir/elixir.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/flow9/flow9.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/flow9/flow9.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/freemarker2/freemarker2.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/freemarker2/freemarker2.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/fsharp/fsharp.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/fsharp/fsharp.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/go/go.js",
@@ -1090,8 +1085,6 @@
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/less/less.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/lexon/lexon.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/lexon/lexon.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/liquid/liquid.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/liquid/liquid.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/lua/lua.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/lua/lua.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/m3/m3.js",
@@ -1116,22 +1109,16 @@
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/pgsql/pgsql.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/php/php.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/php/php.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/pla/pla.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/pla/pla.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/postiats/postiats.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/postiats/postiats.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/powerquery/powerquery.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/powerquery/powerquery.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/powershell/powershell.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/powershell/powershell.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/protobuf/protobuf.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/protobuf/protobuf.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/pug/pug.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/pug/pug.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/python/python.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/python/python.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/qsharp/qsharp.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/qsharp/qsharp.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/r/r.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/r/r.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/razor/razor.js",
@@ -1160,8 +1147,6 @@
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/solidity/solidity.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/sophia/sophia.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/sophia/sophia.min.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/sparql/sparql.js",
-        "staticwebassets/lib/monaco-editor/min/vs/basic-languages/sparql/sparql.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/sql/sql.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/sql/sql.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/basic-languages/st/st.js",
@@ -1185,7 +1170,6 @@
         "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.css",
         "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.js",
         "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.min.css",
-        "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.nls.de.js",
         "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.nls.de.min.js",
         "staticwebassets/lib/monaco-editor/min/vs/editor/editor.main.nls.es.js",
@@ -2793,8 +2777,9 @@
       "BCrypt.Net-Next >= 4.0.3",
       "Ben.Demystifier >= 0.4.1",
       "Blazor.ContextMenu >= 1.15.0",
-      "BlazorMonaco >= 3.0.0",
+      "BlazorMonaco >= 2.1.0",
       "BlazorTable >= 1.17.0",
+      "Blazored.Typeahead >= 4.7.0",
       "CurrieTechnologies.Razor.SweetAlert2 >= 5.4.0",
       "Discord.Net >= 3.9.0",
       "GravatarSharp.Core >= 1.0.1.2",
@@ -2876,11 +2861,15 @@
           },
           "BlazorMonaco": {
             "target": "Package",
-            "version": "[3.0.0, )"
+            "version": "[2.1.0, )"
           },
           "BlazorTable": {
             "target": "Package",
             "version": "[1.17.0, )"
+          },
+          "Blazored.Typeahead": {
+            "target": "Package",
+            "version": "[4.7.0, )"
           },
           "CurrieTechnologies.Razor.SweetAlert2": {
             "target": "Package",

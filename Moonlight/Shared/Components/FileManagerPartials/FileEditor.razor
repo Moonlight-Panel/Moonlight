@@ -1,0 +1,98 @@
+﻿@using BlazorMonaco
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.Partials
+
+@inject SmartTranslateService TranslationService
+
+<div class="card-body">
+    <MonacoEditor CssClass="h-100" @ref="Editor" Id="vseditor" ConstructionOptions="(x) => EditorOptions"/>
+</div>
+
+<div class="card-footer pt-0">
+    <div class="btn-group">
+        <WButton 
+            Text="@(TranslationService.Translate("Save"))" 
+            WorkingText="@(TranslationService.Translate("Saving"))" 
+            OnClick="Submit"></WButton>
+        <WButton 
+            CssClasses="btn-danger" 
+            Text="@(TranslationService.Translate("Cancel"))" 
+            WorkingText="@(TranslationService.Translate("Canceling"))" 
+            OnClick="Cancel"></WButton>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public string InitialData { get; set; }
+    
+    [Parameter]
+    public string Language { get; set; }
+    
+    // Events
+    [Parameter]
+    public Action<string> OnSubmit { get; set; }
+    
+    [Parameter]
+    public Action OnCancel { get; set; }
+
+    // Monaco Editor
+    private MonacoEditor Editor;
+    private StandaloneEditorConstructionOptions EditorOptions;
+
+    protected override void OnInitialized()
+    {
+        EditorOptions = new()
+        {
+            AutomaticLayout = true,
+            Language = "plaintext",
+            Value = "Wird geladen",
+            Theme = "vs-dark",
+            Contextmenu = false,
+            Minimap = new()
+            {
+                Enabled = false
+            },
+            AutoIndent = true
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Editor.OnDidInit = new EventCallback<MonacoEditorBase>(this, async () =>
+            {
+                EditorOptions.Language = Language;
+        
+                var model = await Editor.GetModel();
+                await MonacoEditorBase.SetModelLanguage(model, EditorOptions.Language);
+                await Editor.SetPosition(new Position()
+                {
+                    Column = 0,
+                    LineNumber = 1
+                });
+        
+                await Editor.SetValue(InitialData);
+        
+                await Editor.Layout(new Dimension()
+                {
+                    Height = 500,
+                    Width = 1000
+                }); 
+            });
+        }
+    }
+
+    private async Task Submit()
+    {
+        var data = await Editor.GetValue();
+        await InvokeAsync(() => OnSubmit?.Invoke(data));
+    }
+    
+    private async Task Cancel()
+    {
+        await InvokeAsync(() => OnCancel?.Invoke());
+    }
+}

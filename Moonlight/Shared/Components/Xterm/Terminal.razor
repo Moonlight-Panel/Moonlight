@@ -1,0 +1,55 @@
+﻿@using XtermBlazor
+
+@implements IDisposable
+
+<Xterm
+    @ref="Xterm"
+    Options="TerminalOptions"
+    AddonIds="@(new[] { "xterm-addon-fit", "xterm-addon-search", "xterm-addon-web-links" })"
+    OnFirstRender="OnFirstRender">
+</Xterm>
+
+@code
+{
+    private Xterm Xterm;
+
+    [Parameter]
+    public Action RunOnFirstRender { get; set; }
+
+    private TerminalOptions TerminalOptions = new TerminalOptions
+    {
+        CursorBlink = false,
+        CursorStyle = CursorStyle.Underline,
+        CursorWidth = 1,
+        DisableStdin = true,
+        FontFamily = "monospace"
+    };
+
+    public async Task WriteLine(string message)
+    {
+        try
+        {
+            await Xterm.WriteLine(message);
+        }
+        catch (Exception)
+        {
+        }
+    }
+
+    public async void Dispose()
+    {
+        await Xterm.DisposeAsync();
+    }
+
+    private async void OnFirstRender()
+    {
+        try
+        {
+            await Xterm.InvokeAddonFunctionVoidAsync("xterm-addon-fit", "fit");
+            RunOnFirstRender.Invoke();
+        }
+        catch (Exception)
+        {
+        }
+    }
+}

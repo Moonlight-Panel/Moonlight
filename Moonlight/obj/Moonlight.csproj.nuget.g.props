@@ -21,7 +21,8 @@
     <Import Project="$(NuGetPackageRoot)microsoft.entityframeworkcore.design\7.0.3\build\net6.0\Microsoft.EntityFrameworkCore.Design.props" Condition="Exists('$(NuGetPackageRoot)microsoft.entityframeworkcore.design\7.0.3\build\net6.0\Microsoft.EntityFrameworkCore.Design.props')" />
     <Import Project="$(NuGetPackageRoot)currietechnologies.razor.sweetalert2\5.4.0\buildTransitive\CurrieTechnologies.Razor.SweetAlert2.props" Condition="Exists('$(NuGetPackageRoot)currietechnologies.razor.sweetalert2\5.4.0\buildTransitive\CurrieTechnologies.Razor.SweetAlert2.props')" />
     <Import Project="$(NuGetPackageRoot)blazortable\1.17.0\buildTransitive\BlazorTable.props" Condition="Exists('$(NuGetPackageRoot)blazortable\1.17.0\buildTransitive\BlazorTable.props')" />
-    <Import Project="$(NuGetPackageRoot)blazormonaco\3.0.0\buildTransitive\BlazorMonaco.props" Condition="Exists('$(NuGetPackageRoot)blazormonaco\3.0.0\buildTransitive\BlazorMonaco.props')" />
+    <Import Project="$(NuGetPackageRoot)blazormonaco\2.1.0\buildTransitive\BlazorMonaco.props" Condition="Exists('$(NuGetPackageRoot)blazormonaco\2.1.0\buildTransitive\BlazorMonaco.props')" />
+    <Import Project="$(NuGetPackageRoot)blazored.typeahead\4.7.0\buildTransitive\Blazored.Typeahead.props" Condition="Exists('$(NuGetPackageRoot)blazored.typeahead\4.7.0\buildTransitive\Blazored.Typeahead.props')" />
     <Import Project="$(NuGetPackageRoot)blazor.contextmenu\1.15.0\buildTransitive\Blazor.ContextMenu.props" Condition="Exists('$(NuGetPackageRoot)blazor.contextmenu\1.15.0\buildTransitive\Blazor.ContextMenu.props')" />
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">

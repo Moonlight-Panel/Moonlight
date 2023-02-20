@@ -1,9 +1,12 @@
 ﻿@page "/"
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Servers
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Sessions
 
 @inject DatabaseRepository DatabaseRepository
 @inject ServerRepository ServerRepository
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
 <div class="row mb-5">
@@ -222,11 +225,18 @@
     private int DatabaseCount = 0;
     private int ServerCount = 0;
 
-    private Task Load(LazyLoader lazyLoader)
+    private async Task Load(LazyLoader lazyLoader)
     {
-        DatabaseCount = DatabaseRepository.Get().Count();
-        ServerCount = ServerRepository.Get().Count();
-
-        return Task.CompletedTask;
+        var user = await IdentityService.Get();
+        
+        DatabaseCount = DatabaseRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Count(x => x.Owner.Id == user.Id);
+        
+        ServerCount = ServerRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Count(x => x.Owner.Id == user.Id);
     }
 }

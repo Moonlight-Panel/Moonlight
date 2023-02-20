@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "pQgIHNaG7q9d70t4chS097wnXaBcGVs4M1KNaxW4kyPiCyrsd3TNRJ260ThoX5FTLByZYWNfqf9FNIzWLSOXTQ==",
+  "dgSpecHash": "tg/pcbZFjC1DzdXLz1U4t3D9RlK8DsBcivE40sezA9KD921KFGrw4MATZDqmNFjOQaQFeekGMS+4SukWB5eJWA==",
   "success": true,
   "projectFilePath": "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\Moonlight.csproj",
   "expectedPackageFiles": [
@@ -8,7 +8,8 @@
     "C:\\Users\\marce\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\ben.demystifier\\0.4.1\\ben.demystifier.0.4.1.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\blazor.contextmenu\\1.15.0\\blazor.contextmenu.1.15.0.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\blazormonaco\\3.0.0\\blazormonaco.3.0.0.nupkg.sha512",
+    "C:\\Users\\marce\\.nuget\\packages\\blazored.typeahead\\4.7.0\\blazored.typeahead.4.7.0.nupkg.sha512",
+    "C:\\Users\\marce\\.nuget\\packages\\blazormonaco\\2.1.0\\blazormonaco.2.1.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\blazortable\\1.17.0\\blazortable.1.17.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\currietechnologies.razor.sweetalert2\\5.4.0\\currietechnologies.razor.sweetalert2.5.4.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\discord.net\\3.9.0\\discord.net.3.9.0.nupkg.sha512",

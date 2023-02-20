@@ -1,0 +1,51 @@
+﻿@using PteroConsole.NET
+@using Moonlight.App.Database.Entities
+@using Moonlight.Shared.Components.ServerControl.Settings
+
+<div class="row mb-5">
+    @if (Tags.Contains("paperversion"))
+    {
+        <PaperVersionSetting></PaperVersionSetting>
+    }
+
+    @if (Tags.Contains("pythonversion"))
+    {
+        <PythonVersionSetting></PythonVersionSetting>
+    }
+
+@{
+    /*
+     *     @if (Tags.Contains("pythonfile"))
+    {
+        <PythonFileSetting></PythonFileSetting>
+    }
+
+    @if (Tags.Contains("javascriptfile"))
+    {
+        <JavascriptFileSetting></JavascriptFileSetting>
+    }
+     */
+}
+
+    @if (Tags.Contains("javascriptversion"))
+    {
+        <JavascriptVersionSetting></JavascriptVersionSetting>
+    }
+
+    @if (Tags.Contains("join2start"))
+    {
+        <Join2StartSetting></Join2StartSetting>
+    }
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public PteroConsole Console { get; set; }
+
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    [CascadingParameter]
+    public string[] Tags { get; set; }
+}

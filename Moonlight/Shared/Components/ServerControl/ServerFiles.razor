@@ -1,0 +1,27 @@
+﻿@using Moonlight.Shared.Components.FileManagerPartials
+@using Moonlight.App.Services
+@using Moonlight.App.Helpers
+@using Moonlight.App.Models.Files
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Database.Entities
+
+@inject ServerService ServerService
+@inject IdentityService IdentityService
+
+<LazyLoader Load="Load">
+    <FileManager FileAccess="FileAccess"></FileManager>
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    private IFileAccess FileAccess;
+
+    private async Task Load(LazyLoader arg)
+    {
+        var user = await IdentityService.Get(); // User for launch url
+        FileAccess = await ServerService.CreateFileAccess(CurrentServer, user);
+    }
+}

@@ -1,0 +1,215 @@
+﻿@page "/server/{ServerUuid}/{Route?}"
+@using PteroConsole.NET
+@using Task = System.Threading.Tasks.Task
+@using Moonlight.App.Repositories.Servers
+@using PteroConsole.NET.Enums
+@using Microsoft.EntityFrameworkCore
+@using Logging.Net
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services.Sessions
+@using Moonlight.Shared.Components.Xterm
+@using Moonlight.Shared.Components.ServerControl
+
+@inject ImageRepository ImageRepository
+@inject ServerRepository ServerRepository
+@inject WingsConsoleHelper WingsConsoleHelper
+@inject IdentityService IdentityService
+
+<LazyLoader Load="LoadData">
+    @if (CurrentServer == null)
+    {
+        <div class="alert alert-danger">
+            <TL>Server not found</TL>
+        </div>
+    }
+    else
+    {
+        if (Console.ConnectionState == ConnectionState.Connected)
+        {
+            if (Console.ServerState == ServerState.Installing)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-10">
+                            <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                                <span class="me-2">
+                                    <TL>Server installation is currently running</TL>
+                                </span>
+                            </div>
+                        </div>
+                        <Terminal @ref="InstallConsole"></Terminal>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <CascadingValue Value="Console">
+                    <CascadingValue Value="CurrentServer">
+                        <CascadingValue Value="Tags">
+                            <CascadingValue Value="Node">
+                                <CascadingValue Value="Image">
+                                    <CascadingValue Value="NodeAllocation">
+                                        @{
+                                            var index = 0;
+
+                                            switch (Route)
+                                            {
+                                                case "files":
+                                                    index = 1;
+                                                    break;
+                                                case "backups":
+                                                    index = 2;
+                                                    break;
+                                                case "network":
+                                                    index = 3;
+                                                    break;
+                                                case "plugins":
+                                                    index = 4;
+                                                    break;
+                                                case "settings":
+                                                    index = 5;
+                                                    break;
+                                                default:
+                                                    index = 0;
+                                                    break;
+                                            }
+                                        }
+
+                                        <ServerNavigation Index="index">
+                                            @switch (Route)
+                                            {
+                                                case "files":
+                                                    <ServerFiles></ServerFiles>
+                                                    break;
+                                                case "backups":
+                                                    <ServerBackups></ServerBackups>
+                                                    break;
+                                                case "network":
+                                                    <ServerNetwork></ServerNetwork>
+                                                    break;
+                                                case "plugins":
+                                                    <ServerPlugins></ServerPlugins>
+                                                    break;
+                                                case "settings":
+                                                    <ServerSettings></ServerSettings>
+                                                    break;
+                                                default:
+                                                    <ServerConsole></ServerConsole>
+                                                    break;
+                                            }
+                                        </ServerNavigation>
+                                    </CascadingValue>
+                                </CascadingValue>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </CascadingValue>
+                </CascadingValue>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <TL>Connecting</TL>
+            </div>
+        }
+    }
+</LazyLoader>
+
+@code
+{
+
+    [Parameter]
+    public string ServerUuid { get; set; }
+
+    [Parameter]
+    public string? Route { get; set; }
+
+    private PteroConsole? Console;
+    private Server? CurrentServer;
+    private Node Node;
+    private Image Image;
+    private NodeAllocation NodeAllocation;
+    private string[] Tags;
+
+    private Terminal? InstallConsole;
+
+    protected override void OnInitialized()
+    {
+        Console = new();
+
+        Console.OnConnectionStateUpdated += (_, _) => { InvokeAsync(StateHasChanged); };
+        Console.OnServerResourceUpdated += async (_, _) => { await InvokeAsync(StateHasChanged); };
+        Console.OnServerStateUpdated += async (_, _) => { await InvokeAsync(StateHasChanged); };
+
+        Console.RequestToken += (_) => WingsConsoleHelper.GenerateToken(CurrentServer!);
+
+        Console.OnMessage += async (_, s) =>
+        {
+            if (Console.ServerState == ServerState.Installing)
+            {
+                if (InstallConsole != null)
+                {
+                    await InstallConsole.WriteLine(s);
+                }
+            }
+        };
+    }
+
+    private async Task LoadData(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Requesting server data");
+
+        try
+        {
+            var uuid = Guid.Parse(ServerUuid);
+
+            var user = await IdentityService.Get();
+            
+            CurrentServer = ServerRepository
+                .Get()
+                .Include(x => x.Allocations)
+                .Include(x => x.Image)
+                .Include(x => x.Node)
+                .Include(x => x.Variables)
+                .Include(x => x.MainAllocation)
+                .Include(x => x.Owner)
+                .First(x => x.Uuid == uuid);
+
+            if (CurrentServer.Owner.Id != user!.Id)
+                CurrentServer = null;
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
+        if (CurrentServer != null)
+        {
+            await lazyLoader.SetText("Requesting tags");
+
+            var tags = new List<string>();
+            var image = ImageRepository
+                .Get()
+                .Include(x => x.Tags)
+                .First(x => x.Id == CurrentServer.Image.Id);
+
+            foreach (var tag in image.Tags)
+            {
+                tags.Add(tag.Name);
+            }
+
+            Tags = tags.ToArray();
+            Image = image;
+
+            await lazyLoader.SetText("Connecting to console");
+
+            await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
+        }
+        else
+        {
+            Logger.Debug("Server is null");
+        }
+    }
+}

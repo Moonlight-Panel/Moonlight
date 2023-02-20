@@ -2,13 +2,15 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Services
+@using Microsoft.EntityFrameworkCore
+@using BlazorTable
 
 @inject NodeRepository NodeRepository
 @inject SmartTranslateService SmartTranslateService
 @inject NavigationManager NavigationManager
 
 <OnlyAdmin>
-    <LazyLoader Load="Load">
+    <LazyLoader Load="Load" @ref="LazyLoader">
         @if (Node == null)
         {
             <div class="alert alert-warning">
@@ -17,75 +19,112 @@
         }
         else
         {
-            <div class="d-flex flex-center">
-                <div class="card rounded-3 w-md-550px">
-                    <div class="card-body">
-                        <div class="d-flex flex-center flex-column-fluid">
-                            <div class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework">
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>Nodename</TL>
-                                    </label>
-                                    <input @bind="Node.Name" type="text" placeholder="@(SmartTranslateService.Translate("Nodename"))" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>FQDN</TL>
-                                    </label>
-                                    <input @bind="Node.Fqdn" type="text" placeholder="@(SmartTranslateService.Translate("FQDN"))" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>Token Id</TL>
-                                    </label>
-                                    <input @bind="Node.TokenId" type="text" placeholder="@(SmartTranslateService.Translate("Toekn Id"))" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>Token</TL>
-                                    </label>
-                                    <input @bind="Node.Token" type="text" placeholder="@(SmartTranslateService.Translate("Token"))" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>Http port</TL>
-                                    </label>
-                                    <input @bind="Node.HttpPort" type="number" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>Sftp port</TL>
-                                    </label>
-                                    <input @bind="Node.SftpPort" type="number" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <label>
-                                        <TL>Moonlight daemon port</TL>
-                                    </label>
-                                    <input @bind="Node.MoonlightDaemonPort" type="number" class="form-control bg-transparent">
-                                </div>
-                                <div class="fv-row mb-8">
-                                    <div class="input-group">
-                                        <label class="col-lg-4 col-form-label fw-semibold fs-6">
-                                            <TL>SSL</TL>
+            <div class="d-flex">
+                <div class="flex-column">
+                    <div class="card rounded-3 w-md-550px">
+                        <div class="card-body">
+                            <div class="d-flex flex-center flex-column-fluid">
+                                <div class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework">
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>Nodename</TL>
                                         </label>
-                                        <div class="col-lg-8 d-flex align-items-center">
-                                            <div class="form-check form-check-solid form-switch form-check-custom fv-row">
-                                                <input @bind="Node.Ssl" class="form-check-input w-45px h-30px" type="checkbox" id="ssl">
-                                                <label class="form-check-label" for="ssl"></label>
+                                        <input @bind="Node.Name" type="text" placeholder="@(SmartTranslateService.Translate("Nodename"))" class="form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>FQDN</TL>
+                                        </label>
+                                        <input @bind="Node.Fqdn" type="text" placeholder="@(SmartTranslateService.Translate("FQDN"))" class="form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>Token Id</TL>
+                                        </label>
+                                        <input @bind="Node.TokenId" type="text" placeholder="@(SmartTranslateService.Translate("Token Id"))" class="blur-unless-hover form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>Token</TL>
+                                        </label>
+                                        <input @bind="Node.Token" type="text" placeholder="@(SmartTranslateService.Translate("Token"))" class="blur-unless-hover form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>Http port</TL>
+                                        </label>
+                                        <input @bind="Node.HttpPort" type="number" class="form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>Sftp port</TL>
+                                        </label>
+                                        <input @bind="Node.SftpPort" type="number" class="form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <label class="form-label">
+                                            <TL>Moonlight daemon port</TL>
+                                        </label>
+                                        <input @bind="Node.MoonlightDaemonPort" type="number" class="form-control bg-transparent">
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <div class="input-group">
+                                            <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                                                <TL>SSL</TL>
+                                            </label>
+                                            <div class="col-lg-8 d-flex align-items-center">
+                                                <div class="form-check form-check-solid form-switch form-check-custom fv-row">
+                                                    <input @bind="Node.Ssl" class="form-check-input w-45px h-30px" type="checkbox" id="ssl">
+                                                    <label class="form-check-label" for="ssl"></label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="fv-row mb-9">
+                                        <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                                                 WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                                                 CssClasses="btn-success"
+                                                 OnClick="Save">
+                                        </WButton>
+                                        <a href="/admin/nodes" class="btn btn-primary">
+                                            <TL>Back</TL>
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="fv-row mb-9">
-                                    <WButton Text="@(SmartTranslateService.Translate("Save"))"
-                                             WorkingText="@(SmartTranslateService.Translate("Saving"))"
-                                             CssClasses="btn-primary"
-                                             OnClick="Save">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-column w-100">
+                    <div class="ms-5 card card-body">
+                        <div class="form w-100">
+                            <div class="mb-8 row g-3">
+                                <div class="col-auto">
+                                    <input @bind="Port" type="number" class="col-auto form-control bg-transparent">
+                                </div>
+                                <div class="col-auto">
+                                    <WButton Text="@(SmartTranslateService.Translate("Add"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Adding"))"
+                                             CssClasses="col-auto btn-success"
+                                             OnClick="CreateAllocation">
                                     </WButton>
                                 </div>
                             </div>
                         </div>
+                        <Table TableItem="NodeAllocation" Items="Node.Allocations" PageSize="25" TableHeadClass="border-bottom border-gray-200 fs-6 text-gray-600 fw-bold bg-light bg-opacity-75">
+                            <Column TableItem="NodeAllocation" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%"/>
+                            <Column TableItem="NodeAllocation" Title="@(SmartTranslateService.Translate("Port"))" Field="@(x => x.Port)" Sortable="true" Filterable="true" Width="10%"/>
+                            <Column TableItem="NodeAllocation" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="20%">
+                                <Template>
+                                    <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                                             CssClasses="btn-danger"
+                                             OnClick="() => DeleteAllocation(context)">
+                                    </WButton>
+                                </Template>
+                            </Column>
+                            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                        </Table>
                     </div>
                 </div>
             </div>
@@ -99,17 +138,49 @@
     public int Id { get; set; }
 
     private Node? Node;
+    private LazyLoader LazyLoader;
 
-    private async Task Load(LazyLoader arg)
+    private int Port = 2000;
+
+    private Task Load(LazyLoader arg)
     {
-        Node = NodeRepository.Get().FirstOrDefault(x => x.Id == Id);
+        Node = NodeRepository
+            .Get()
+            .Include(x => x.Allocations)
+            .FirstOrDefault(x => x.Id == Id);
+
+        return Task.CompletedTask;
     }
 
     private Task Save()
     {
-        NodeRepository.Update(Node);
+        NodeRepository.Update(Node!);
         NavigationManager.NavigateTo("/admin/nodes");
 
         return Task.CompletedTask;
+    }
+
+    private async Task DeleteAllocation(NodeAllocation nodeAllocation)
+    {
+    //TODO: Check if a server is using the allocation
+        Node!.Allocations.Remove(nodeAllocation);
+        NodeRepository.Update(Node);
+
+        await LazyLoader.Reload();
+    }
+
+    private async Task CreateAllocation()
+    {
+        var nodeAllocation = new NodeAllocation()
+        {
+            Port = Port
+        };
+
+        Node!.Allocations.Add(nodeAllocation);
+        NodeRepository.Update(Node);
+
+        Port = 2000;
+
+        await LazyLoader.Reload();
     }
 }

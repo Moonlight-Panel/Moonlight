@@ -16,31 +16,31 @@
                 <div class="d-flex flex-center flex-column-fluid">
                     <div class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework">
                         <div class="fv-row mb-8">
-                            <label>
+                            <label class="form-label">
                                 <TL>Nodename</TL>
                             </label>
                             <input @bind="NewNode.Name" type="text" placeholder="@(SmartTranslateService.Translate("Nodename"))" class="form-control bg-transparent">
                         </div>
                         <div class="fv-row mb-8">
-                            <label>
+                            <label class="form-label">
                                 <TL>FQDN</TL>
                             </label>
                             <input @bind="NewNode.Fqdn" type="text" placeholder="@(SmartTranslateService.Translate("FQDN"))" class="form-control bg-transparent">
                         </div>
                         <div class="fv-row mb-8">
-                            <label>
+                            <label class="form-label">
                                 <TL>Http port</TL>
                             </label>
                             <input @bind="NewNode.HttpPort" type="number" class="form-control bg-transparent">
                         </div>
                         <div class="fv-row mb-8">
-                            <label>
+                            <label class="form-label">
                                 <TL>Sftp port</TL>
                             </label>
                             <input @bind="NewNode.SftpPort" type="number" class="form-control bg-transparent">
                         </div>
                         <div class="fv-row mb-8">
-                            <label>
+                            <label class="form-label">
                                 <TL>Moonlight daemon port</TL>
                             </label>
                             <input @bind="NewNode.MoonlightDaemonPort" type="number" class="form-control bg-transparent">
@@ -61,9 +61,12 @@
                         <div class="fv-row mb-9">
                             <WButton Text="@(SmartTranslateService.Translate("Create"))"
                                      WorkingText="@(SmartTranslateService.Translate("Creating"))"
-                                     CssClasses="btn-primary"
+                                     CssClasses="btn-success"
                                      OnClick="Create">
                             </WButton>
+                            <a href="/admin/nodes" class="btn btn-primary">
+                                <TL>Back</TL>
+                            </a>
                         </div>
                     </div>
                 </div>

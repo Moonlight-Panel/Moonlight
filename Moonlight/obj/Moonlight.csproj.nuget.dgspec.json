@@ -60,11 +60,15 @@
             },
             "BlazorMonaco": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[2.1.0, )"
             },
             "BlazorTable": {
               "target": "Package",
               "version": "[1.17.0, )"
+            },
+            "Blazored.Typeahead": {
+              "target": "Package",
+              "version": "[4.7.0, )"
             },
             "CurrieTechnologies.Razor.SweetAlert2": {
               "target": "Package",

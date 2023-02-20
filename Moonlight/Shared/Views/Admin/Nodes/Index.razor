@@ -3,23 +3,32 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Models.Node
+@using Moonlight.App.Models.Wings.Resources
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+@using Logging.Net
 
 @inject NodeRepository NodeRepository
+@inject AlertService AlertService
+@inject NodeService NodeService
 @inject SmartTranslateService SmartTranslateService
 
 <OnlyAdmin>
     <div class="row mb-5">
         <div class="card card-body">
-            <a class="btn btn-primary" href="/admin/nodes/new"><TL>Add a new node</TL></a>
+            <a class="btn btn-primary" href="/admin/nodes/new">
+                <TL>Add a new node</TL>
+            </a>
         </div>
     </div>
     <div class="row">
-        <LazyLoader Load="Load">
+        <LazyLoader @ref="LazyLoader" Load="Load">
             @if (!Nodes.Any())
             {
-                <div class="alert alert-info">
-                    <TL>No nodes found. Start with adding a new node</TL>
+                <div class="card card-body">
+                    <div class="alert alert-info">
+                        <TL>No nodes found. Start with adding a new node</TL>
+                    </div>
                 </div>
             }
             else
@@ -38,6 +47,32 @@
                                     <div class="d-flex align-items-center me-3">
                                         <div class="flex-grow-1">
                                             <span class="text-gray-800 fs-5 fw-bold lh-0">
+                                                <TL>Status</TL>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center w-100 mw-125px">
+                                        <span class="text-white-400 fw-semibold">
+                                            @{
+                                                var ss = StatusCache.ContainsKey(node) ? StatusCache[node] : null;
+                                            }
+
+                                            @if (ss == null)
+                                            {
+                                                <span class="text-danger">Offline</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-success">Online (@(ss.Version))</span>
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="separator separator-dashed my-3"></div>
+                                <div class="d-flex flex-stack">
+                                    <div class="d-flex align-items-center me-3">
+                                        <div class="flex-grow-1">
+                                            <span class="text-gray-800 fs-5 fw-bold lh-0">
                                                 <TL>CPU Usage</TL>
                                             </span>
                                             <span class="text-gray-400 fw-semibold d-block fs-6">
@@ -50,7 +85,7 @@
                                             @{
                                                 var cpu = CpuCache.ContainsKey(node) ? CpuCache[node] : null;
                                             }
-    
+
                                             @if (cpu == null)
                                             {
                                                 <span>Loading</span>
@@ -79,7 +114,7 @@
                                             @{
                                                 var memory = MemoryCache.ContainsKey(node) ? MemoryCache[node] : null;
                                             }
-    
+
                                             @if (memory == null)
                                             {
                                                 <span>Loading</span>
@@ -108,7 +143,7 @@
                                             @{
                                                 var disk = DiskCache.ContainsKey(node) ? DiskCache[node] : null;
                                             }
-    
+
                                             @if (disk == null)
                                             {
                                                 <span>Loading</span>
@@ -126,13 +161,17 @@
                                         <a class="btn btn-primary" href="/admin/nodes/edit/@(node.Id)">
                                             <TL>Edit</TL>
                                         </a>
+                                        <a class="btn btn-success" href="/admin/nodes/setup/@(node.Id)">
+                                            <TL>Setup</TL>
+                                        </a>
                                         <WButton Text="@(SmartTranslateService.Translate("Delete"))"
                                                  WorkingText="@(SmartTranslateService.Translate("Deleting"))"
                                                  CssClasses="btn-danger"
-                                                 OnClick="() => Delete(node)"></WButton>
+                                                 OnClick="() => Delete(node)">
+                                        </WButton>
                                     </div>
                                 </div>
-                                </div>
+                            </div>
                         </div>
                     </div>
                 }
@@ -145,21 +184,80 @@
 {
     private Node[] Nodes;
 
+    private LazyLoader LazyLoader;
+
     private Dictionary<Node, CpuStats> CpuCache = new();
     private Dictionary<Node, MemoryStats> MemoryCache = new();
     private Dictionary<Node, DiskStats> DiskCache = new();
+    private Dictionary<Node, SystemStatus?> StatusCache = new();
 
     private Task Load(LazyLoader lazyLoader)
     {
+        CpuCache.Clear();
+        MemoryCache.Clear();
+        DiskCache.Clear();
+
+        lock (StatusCache)
+        {
+            StatusCache.Clear();
+        }
+
         Nodes = NodeRepository.Get().ToArray();
 
-        Task.Run(() => { });
+        Task.Run(() =>
+        {
+            foreach (var node in Nodes)
+            {
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        var ss = await NodeService.GetStatus(node);
+
+                        lock (StatusCache)
+                        {
+                            StatusCache.Add(node, ss);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(e.Message);
+
+                        lock (StatusCache)
+                        {
+                            StatusCache.Add(node, null);
+                        }
+                    }
+
+                    await InvokeAsync(StateHasChanged);
+                });
+            }
+        });
 
         return Task.CompletedTask;
     }
 
-    private Task Delete(Node node)
+    private async Task Delete(Node node)
     {
-        return Task.CompletedTask;
+        var b = await AlertService.YesNo(
+            SmartTranslateService.Translate("Delete this node?"),
+            SmartTranslateService.Translate("Do you really want to delete this node"),
+            SmartTranslateService.Translate("Yes"),
+            SmartTranslateService.Translate("No")
+            );
+
+        if (b)
+        {
+            if (node.Allocations.Any())
+                await AlertService.Error(
+                    SmartTranslateService.Translate("Error"),
+                    SmartTranslateService.Translate("Delete all allocations before deleting the node")
+                    );
+            else
+            {
+                NodeRepository.Delete(node);
+                await LazyLoader.Reload();
+            }
+        }
     }
 }

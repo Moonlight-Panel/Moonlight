@@ -8,7 +8,7 @@ using Moonlight.App.Database;
 
 #nullable disable
 
-namespace Moonlight.App.DatabaseMigrations
+namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
     [Migration("20230217152643_MigratedSomeModels")]

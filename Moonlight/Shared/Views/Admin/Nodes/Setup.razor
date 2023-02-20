@@ -1,0 +1,159 @@
+﻿@page "/admin/nodes/setup/{id:int}"
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+
+@inject NodeRepository NodeRepository
+@inject SmartTranslateService SmartTranslateService
+@inject ConfigService ConfigService
+@inject NavigationManager NavigationManager
+
+@{
+    var appUrl = ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl");
+}
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        @if (Node == null)
+        {
+            <div class="alert alert-warning">
+                <TL>No node with this id found</TL>
+            </div>
+        }
+        else
+        {
+            <div class="">
+                <div class="card rounded-3">
+                    <div class="card-body">
+                        <p class="fs-5">
+                            <TL>Before configuring this node, install the daemon</TL><br/>
+                            <a href="https://endelon-hosting.gitbook.io/moonlight-documentation/install-the-daemon">How to install the daemon</a><br/>
+                            <TL>Open a ssh connection to your node and enter</TL><br/>
+                            <span class="fw-bold">nano /etc/pterodactyl/config.yml</span><br/>
+                            <TL>and paste the config below. Then press STRG+O and STRG+X to save</TL>
+                        </p>
+                        <p class="mb-5 bg-light">
+                            debug: false<br>
+                            app_name: Moonlight<br>
+                            uuid: @(Guid.NewGuid())<br/>
+                            token_id: @(Node.TokenId)<br/>
+                            token: @(Node.Token)<br/>
+                            api:<br/>
+                            &nbsp;&nbsp;host: 0.0.0.0<br/>
+                            &nbsp;&nbsp;port: @(Node.HttpPort)<br/>
+                            &nbsp;&nbsp;ssl:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;enabled: false<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;cert: /etc/letsencrypt/live/@(Node.Fqdn)/fullchain.pem<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;key: /etc/letsencrypt/live/@(Node.Fqdn)/privkey.pem<br/>
+                            &nbsp;&nbsp;disable_remote_download: false<br/>
+                            &nbsp;&nbsp;upload_limit: 100<br/>
+                            &nbsp;&nbsp;trusted_proxies: []<br/>
+                            system:<br/>
+                            &nbsp;&nbsp;root_directory: /var/lib/pterodactyl<br/>
+                            &nbsp;&nbsp;log_directory: /var/log/pterodactyl<br/>
+                            &nbsp;&nbsp;data: /var/lib/pterodactyl/volumes<br/>
+                            &nbsp;&nbsp;archive_directory: /var/lib/pterodactyl/archives<br/>
+                            &nbsp;&nbsp;backup_directory: /var/lib/pterodactyl/backups<br/>
+                            &nbsp;&nbsp;tmp_directory: /tmp/pterodactyl<br/>
+                            &nbsp;&nbsp;username: pterodactyl<br/>
+                            &nbsp;&nbsp;timezone: Europe/Berlin<br/>
+                            &nbsp;&nbsp;user:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;rootless:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: false<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;container_uid: 0<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;container_gid: 0<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;uid: 999<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;gid: 999<br/>
+                            &nbsp;&nbsp;disk_check_interval: 150<br/>
+                            &nbsp;&nbsp;activity_send_interval: 60<br/>
+                            &nbsp;&nbsp;activity_send_count: 100<br/>
+                            &nbsp;&nbsp;check_permissions_on_boot: true<br/>
+                            &nbsp;&nbsp;enable_log_rotate: true<br/>
+                            &nbsp;&nbsp;websocket_log_count: 150<br/>
+                            &nbsp;&nbsp;sftp:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;bind_address: 0.0.0.0<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;bind_port: @(Node.SftpPort)<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;read_only: false<br/>
+                            &nbsp;&nbsp;crash_detection:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;enabled: true<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;detect_clean_exit_as_crash: true<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;timeout: 60<br/>
+                            &nbsp;&nbsp;backups:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;write_limit: 0<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;compression_level: best_speed<br/>
+                            &nbsp;&nbsp;transfers:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;download_limit: 0<br/>
+                            docker:<br/>
+                            &nbsp;&nbsp;network:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;interface: 172.18.0.1<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;dns:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;- 1.1.1.1<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;- 1.0.0.1<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;name: pterodactyl_nw<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;ispn: false<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;driver: bridge<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;network_mode: pterodactyl_nw<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;is_internal: false<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;enable_icc: true<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;network_mtu: 1500<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;interfaces:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v4:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subnet: 172.18.0.0/16<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gateway: 172.18.0.1<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v6:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subnet: fdba:17c8:6c94::/64<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gateway: fdba:17c8:6c94::1011<br/>
+                            &nbsp;&nbsp;domainname: ""<br/>
+                            &nbsp;&nbsp;registries: {}<br/>
+                            &nbsp;&nbsp;tmpfs_size: 100<br/>
+                            &nbsp;&nbsp;container_pid_limit: 512<br/>
+                            &nbsp;&nbsp;installer_limits:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;memory: 1024<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;cpu: 100<br/>
+                            &nbsp;&nbsp;overhead:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;override: false<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;default_multiplier: 1.05<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;multipliers: {}<br/>
+                            &nbsp;&nbsp;use_performant_inspect: true<br/>
+                            &nbsp;&nbsp;userns_mode: ""<br/>
+                            &nbsp;&nbsp;log_config:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;type: local<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;config:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;compress: "false"<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max-file: "1"<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max-size: 5m<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mode: non-blocking<br/>
+                            throttles:<br/>
+                            &nbsp;&nbsp;enabled: true<br/>
+                            &nbsp;&nbsp;lines: 2000<br/>
+                            &nbsp;&nbsp;line_reset_interval: 100<br/>
+                            remote: @(appUrl)<br/>
+                            remote_query:<br/>
+                            &nbsp;&nbsp;timeout: 30<br/>
+                            &nbsp;&nbsp;boot_servers_per_page: 50<br/>
+                            allowed_mounts: []<br/>
+                            allowed_origins:<br/>
+                            - '*'
+                        </p>
+                        <a href="/admin/nodes" class="btn btn-primary">
+                            <TL>Back</TL>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private Node? Node;
+
+    private async Task Load(LazyLoader arg)
+    {
+        Node = NodeRepository.Get().FirstOrDefault(x => x.Id == Id);
+    }
+}

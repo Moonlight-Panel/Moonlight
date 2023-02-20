@@ -1,0 +1,198 @@
+﻿@page "/admin/servers/edit/{id:int}"
+
+@using Moonlight.App.Services
+@using Moonlight.App.Repositories.Servers
+@using Moonlight.App.Database.Entities
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Repositories
+
+@inject SmartTranslateService SmartTranslateService
+@inject ServerRepository ServerRepository
+@inject ImageRepository ImageRepository
+
+<OnlyAdmin>
+    <LazyLoader @ref="LazyLoader" Load="Load">
+        @if (Server == null)
+        {
+            <div class="alert alert-danger">
+                <TL>No server with this id found</TL>
+            </div>
+        }
+        else
+        {
+            <div class="row mb-5">
+                <div class="card card-body p-10">
+                    <label class="form-label">
+                        <TL>Identifier</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-id-card"></i>
+                        </span>
+                        <input @bind="Server.Id" type="number" class="form-control disabled" disabled="">
+                    </div>
+                    <label class="form-label">
+                        <TL>UuidIdentifier</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-id-card"></i>
+                        </span>
+                        <input @bind="Server.Uuid" type="text" class="form-control disabled" disabled="">
+                    </div>
+                    <label class="form-label">
+                        <TL>Server name</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-purchase-tag-alt"></i>
+                        </span>
+                        <input @bind="Server.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))" aria-label="Servername">
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="card card-body p-10">
+                    <label class="form-label">
+                        <TL>Cpu cores</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-chip"></i>
+                        </span>
+                        <input @bind="Server.Cpu" type="number" class="form-control">
+                        <span class="input-group-text">
+                            <TL>CPU Cores (100% = 1 Core)</TL>
+                        </span>
+                    </div>
+                    <label class="form-label">
+                        <TL>Memory</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-microchip"></i>
+                        </span>
+                        <input @bind="Server.Memory" type="number" class="form-control">
+                        <span class="input-group-text">
+                            MB
+                        </span>
+                    </div>
+                    <label class="form-label">
+                        <TL>Disk</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-hdd"></i>
+                        </span>
+                        <input @bind="Server.Disk" type="number" class="form-control">
+                        <span class="input-group-text">
+                            MB
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="card card-body p-10">
+                    <label class="form-label">
+                        <TL>Override startup command</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-terminal"></i>
+                        </span>
+                        <input @bind="Server.OverrideStartup" type="text" class="form-control" placeholder="@(Server.Image.Startup)">
+                    </div>
+                    <label class="form-label">
+                        <TL>Docker image</TL>
+                    </label>
+                    <select @bind="Server.DockerImageIndex" class="form-select">
+                        @foreach (var image in DockerImages)
+                        {
+                            <option value="@(DockerImages.IndexOf(image))">@(image.Name)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-5">
+                @foreach (var vars in Server.Variables.Chunk(4))
+                {
+                    <div class="row mb-3">
+                        @foreach (var variable in vars)
+                        {
+                            <div class="col">
+                                <div class="card card-body">
+                                    <label class="form-label">
+                                        <TL>Name</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                                    </div>
+                                    <label class="form-label">
+                                        <TL>Value</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Value" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="row">
+                <div class="card card-body">
+                    <div class="btn-group">
+                        <a class="btn btn-primary" href="/admin/servers">Back</a>
+                        <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                                 WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                                 CssClasses="btn-success"
+                                 OnClick="Save">
+                        </WButton>
+                    </div>
+                </div>
+            </div>
+        }
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private LazyLoader LazyLoader;
+
+    private Server? Server;
+    private List<DockerImage> DockerImages;
+    private List<Image> Images;
+
+    private Task Load(LazyLoader arg)
+    {
+        Server = ServerRepository
+            .Get()
+            .Include(x => x.Variables)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (Server != null)
+        {
+            Images = ImageRepository
+                .Get()
+                .Include(x => x.Variables)
+                .Include(x => x.DockerImages)
+                .ToList();
+
+            DockerImages = Images
+                .First(x => x.Id == Server.Image.Id).DockerImages
+                .ToList();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Save()
+    {
+        ServerRepository.Update(Server);
+
+        await LazyLoader.Reload();
+    }
+}

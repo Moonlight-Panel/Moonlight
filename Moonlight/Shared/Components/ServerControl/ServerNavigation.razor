@@ -1,0 +1,208 @@
+﻿@using PteroConsole.NET
+@using PteroConsole.NET.Enums
+@using Task = System.Threading.Tasks.Task
+@using Moonlight.App.Services
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+
+@inject SmartTranslateService TranslationService
+
+<div class="align-items-center">
+    <div class="row">
+        <div class="card card-body me-6">
+            <div class="row">
+                <div class="col-8">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-circle me-5">
+                            <div class="symbol-label bg-transparent text-primary border border-secondary border-dashed">
+                                <i class="bx bx-server bx-md"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <div class="mb-1 fs-4">@(CurrentServer.Name)</div>
+                            <div class="text-muted fs-5">@(CurrentServer.Cpu <= 100 ? Math.Round(CurrentServer.Cpu / 100f, 2) + $" {TranslationService.Translate("Core")}" : Math.Round(CurrentServer.Cpu / 100f, 2) + $" {TranslationService.Translate("Cores")}") / @(Math.Round(CurrentServer.Memory / 1024f, 2)) GB @(TranslationService.Translate("Memory")) / @(Math.Round(CurrentServer.Disk / 1024f, 2)) GB @(TranslationService.Translate("Disk")) / @(CurrentServer.Node.Name) - <span class="text-muted">@(CurrentServer.Image.Name)</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 d-flex flex-column flex-end mb-1">
+                    <div class="btn-group btn-group-sm">
+                        <button class="w-100 nav-link btn btn-sm btn-success fw-bold px-4 me-1 @(Console.ServerState == ServerState.Offline ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Start"><TL>Start</TL></button>
+                        <button class="w-100 nav-link btn btn-sm btn-primary fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Restart"><TL>Restart</TL></button>
+                        @if (Console.ServerState == ServerState.Stopping)
+                        {
+                            <button class="w-100 nav-link btn btn-sm btn-danger fw-bold px-4 me-1" aria-selected="true" role="tab" @onclick="Kill"><TL>Kill</TL></button>
+                        }
+                        else
+                        {
+                            <button class="w-100 nav-link btn btn-sm btn-danger fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running || Console.ServerState == ServerState.Starting ? "" : "disabled")"
+                                    aria-selected="true" role="tab" @onclick="Stop">
+                                <TL>Stop</TL>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="separator my-5"></div>
+        </div>
+        <div class="row">
+            <div class="card card-body">
+                <div class="row align-items-center">
+                    <div class="col fs-5">
+                        <span class="fw-bold"><TL>Shared IP</TL>:</span>
+                        <span class="ms-1 text-muted">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation.Port}")</span>
+                    </div>
+                    <div class="col fs-5">
+                        <span class="fw-bold"><TL>Server ID</TL>:</span>
+                        <span class="ms-1 text-muted">@(CurrentServer.Id)</span>
+                    </div>
+                    <div class="col fs-5">
+                        <span class="fw-bold"><TL>Status</TL>:</span>
+                        <span class="ms-1 text-muted">
+                            @switch (Console.ServerState)
+                            {
+                                case ServerState.Offline:
+                                    <span class="text-danger"><TL>Offline</TL></span>
+                                    break;
+
+                                case ServerState.Starting:
+                                    <span class="text-warning"><TL>Starting</TL></span>
+                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.ServerResource.Uptime)))</span>
+                                    break;
+
+                                case ServerState.Stopping:
+                                    <span class="text-warning"><TL>Stopping</TL></span>
+                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.ServerResource.Uptime)))</span>
+                                    break;
+
+                                case ServerState.Running:
+                                    <span class="text-success"><TL>Online</TL></span>
+                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.ServerResource.Uptime)))</span>
+                                    break;
+                            }
+                        </span>
+                    </div>
+                    <div class="col fs-5">
+                        <span class="fw-bold"><TL>Cpu</TL>:</span>
+                        <span class="ms-1 text-muted">@(Math.Round(Console.ServerResource.CpuAbsolute, 2))%</span>
+                    </div>
+                    <div class="col fs-5">
+                        <span class="fw-bold"><TL>Memory</TL>:</span>
+                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.ServerResource.MemoryBytes)) / @(Formatter.FormatSize(Console.ServerResource.MemoryLimitBytes))</span>
+                    </div>
+                    <div class="col fs-5">
+                        <span class="fw-bold"><TL>Disk</TL>:</span>
+                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.ServerResource.DiskBytes)) / @(Math.Round(CurrentServer.Disk / 1024f, 2)) GB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5 row">
+            <div class="d-flex flex-column flex-md-row card card-body p-10">
+                <ul class="nav nav-tabs nav-pills flex-row border-0 flex-md-column me-5 mb-3 mb-md-0 fs-6 min-w-lg-200px">
+                    <li class="nav-item w-100 me-0 mb-md-2">
+                        <a href="/server/@(CurrentServer.Uuid)/" class="nav-link w-100 btn btn-flex @(Index == 0 ? "active" : "") btn-active-light-primary">
+                            <i class="bx bx-terminal bx-sm me-2"></i>
+                            <span class="d-flex flex-column align-items-start">
+                                <span class="fs-5"><TL>Console</TL></span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item w-100 me-0 mb-md-2">
+                        <a href="/server/@(CurrentServer.Uuid)/files" class="nav-link w-100 btn btn-flex @(Index == 1 ? "active" : "") btn-active-light-primary">
+                            <i class="bx bx-folder bx-sm me-2"></i>
+                            <span class="d-flex flex-column align-items-start">
+                                <span class="fs-5"><TL>Files</TL></span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item w-100 me-0 mb-md-2">
+                        <a href="/server/@(CurrentServer.Uuid)/backups" class="nav-link w-100 btn btn-flex @(Index == 2 ? "active" : "") btn-active-light-primary">
+                            <i class="bx bx-box bx-sm me-2"></i>
+                            <span class="d-flex flex-column align-items-start">
+                                <span class="fs-5"><TL>Backups</TL></span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item w-100 me-0 mb-md-2">
+                        <a href="/server/@(CurrentServer.Uuid)/network" class="nav-link w-100 btn btn-flex @(Index == 3 ? "active" : "") btn-active-light-primary">
+                            <i class="bx bx-wifi bx-sm me-2"></i>
+                            <span class="d-flex flex-column align-items-start">
+                                <span class="fs-5"><TL>Network</TL></span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item w-100 me-0 mb-md-2">
+                        <a href="/server/@(CurrentServer.Uuid)/plugins" class="nav-link w-100 btn btn-flex @(Index == 4 ? "active" : "") btn-active-light-primary">
+                            <i class="bx bx-plug bx-sm me-2"></i>
+                            <span class="d-flex flex-column align-items-start">
+                                <span class="fs-5"><TL>Plugins</TL></span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item w-100 me-0 mb-md-2">
+                        <a href="/server/@(CurrentServer.Uuid)/settings" class="nav-link w-100 btn btn-flex @(Index == 5 ? "active" : "") btn-active-light-primary">
+                            <i class="bx bx-cog bx-sm me-2"></i>
+                            <span class="d-flex flex-column align-items-start">
+                                <span class="fs-5"><TL>Settings</TL></span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content w-100">
+                    <div class="tab-pane fade show active">
+                        @ChildContent
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    [CascadingParameter]
+    public PteroConsole Console { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public int Index { get; set; } = 0;
+
+    //TODO: NodeIpService which loads and caches raw ips for nodes (maybe)
+
+    protected override void OnInitialized()
+    {
+        Console.OnServerStateUpdated += async (sender, state) => { await InvokeAsync(StateHasChanged); };
+        Console.OnServerResourceUpdated += async (sender, x) => { await InvokeAsync(StateHasChanged); };
+    }
+
+    #region Power Actions
+
+    private async Task Start()
+    {
+        await Console.SetPowerState("start");
+    }
+
+    private async Task Stop()
+    {
+        await Console.SetPowerState("stop");
+    }
+
+    private async Task Kill()
+    {
+        await Console.SetPowerState("kill");
+    }
+
+    private async Task Restart()
+    {
+        await Console.SetPowerState("restart");
+    }
+
+    #endregion
+}

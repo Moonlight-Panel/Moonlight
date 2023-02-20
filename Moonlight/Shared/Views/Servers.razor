@@ -1,0 +1,127 @@
+﻿@page "/servers"
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Repositories.Servers
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services
+
+@inject IdentityService IdentityService
+@inject ServerRepository ServerRepository
+@inject IServiceScopeFactory ServiceScopeFactory
+
+<LazyLoader Load="Load">
+    @if (AllServers.Any())
+    {
+        @foreach (var server in AllServers)
+        {
+            <div class="row px-5 mb-5">
+                <a class="card card-body" href="/server/@(server.Uuid)">
+                    <div class="row">
+                        <div class="col">
+                            <div class="d-flex align-items-center">
+                                <div class="symbol symbol-50px me-3">
+                                    <i class="bx bx-md bx-server"></i>
+                                </div>
+                                <div class="d-flex justify-content-start flex-column">
+                                    <a href="/server/@(server.Uuid)" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                                        @(server.Name)
+                                    </a>
+                                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                                        @(Math.Round(server.Memory / 1024D, 2)) GB / @(Math.Round(server.Disk / 1024D, 2)) GB / @(server.Node.Name) <span class="text-gray-700">- @(server.Image.Name)</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-none d-sm-block col my-auto fs-6">
+                            @(server.Node.Fqdn):@(server.MainAllocation.Port)
+                        </div>
+                        <div class="d-none d-sm-block col my-auto fs-6">
+                            @if (StatusCache.ContainsKey(server))
+                            {
+                                var status = StatusCache[server];
+
+                                switch (status)
+                                {
+                                    case "offline":
+                                        <span class="text-danger"><TL>Offline</TL></span>
+                                        break;
+                                    case "stopping":
+                                        <span class="text-warning"><TL>Stopping</TL></span>
+                                        break;
+                                    case "starting":
+                                        <span class="text-warning"><TL>Starting</TL></span>
+                                        break;
+                                    case "running":
+                                        <span class="text-success"><TL>Running</TL></span>
+                                        break;
+                                    case "failed":
+                                        <span class="text-gray-400"><TL>Failed</TL></span>
+                                        break;
+                                    default:
+                                        <span class="text-danger"><TL>Offline</TL></span>
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-gray-400"><TL>Loading</TL></span>
+                            }
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No servers found
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    private App.Database.Entities.Server[] AllServers;
+    private readonly Dictionary<App.Database.Entities.Server, string> StatusCache = new();
+
+    private async Task Load(LazyLoader arg)
+    {
+        var user = await IdentityService.Get();
+
+        AllServers = ServerRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Include(x => x.MainAllocation)
+            .Include(x => x.Node)
+            .Include(x => x.Image)
+            .Where(x => x.Owner.Id == user.Id)
+            .ToArray();
+
+        foreach (var server in AllServers)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = ServiceScopeFactory.CreateScope();
+                    var serverService = scope.ServiceProvider.GetRequiredService<ServerService>();
+
+                    AddStatus(server, (await serverService.GetDetails(server)).State);
+                }
+                catch (Exception e)
+                {
+                    AddStatus(server, "failed");
+                }
+            });
+        }
+    }
+
+    private void AddStatus(App.Database.Entities.Server server, string status)
+    {
+        lock (StatusCache)
+        {
+            StatusCache.Add(server, status);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+}

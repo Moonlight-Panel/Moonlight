@@ -1,0 +1,300 @@
+﻿@page "/admin/servers/new"
+@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Servers
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Exceptions
+@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Sessions
+@using Logging.Net
+@using Blazored.Typeahead
+
+@inject NodeRepository NodeRepository
+@inject ImageRepository ImageRepository
+@inject ServerService ServerService
+@inject SmartTranslateService SmartTranslateService
+@inject AlertService AlertService
+@inject ToastService ToastService
+@inject NavigationManager NavigationManager
+@inject UserRepository UserRepository
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        <div class="row mb-5">
+            <div class="card card-body p-10">
+                <label class="form-label">
+                    <TL>Server name</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-purchase-tag-alt"></i>
+                    </span>
+                    <input @bind="Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))" aria-label="Servername">
+                </div>
+                <label class="form-label">
+                    <TL>Server name</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <div class="form-select">
+                        <BlazoredTypeahead SearchMethod="SearchUsers"
+                                           @bind-Value="User">
+                            <SelectedTemplate>
+                                @(context.Email)
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @(context.Email)
+                            </ResultTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="card card-body p-10">
+                <label class="form-label">
+                    <TL>Cpu cores</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-chip"></i>
+                    </span>
+                    <input @bind="Cpu" type="number" class="form-control">
+                    <span class="input-group-text">
+                        <TL>CPU Cores (100% = 1 Core)</TL>
+                    </span>
+                </div>
+                <label class="form-label">
+                    <TL>Memory</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-microchip"></i>
+                    </span>
+                    <input @bind="Memory" type="number" class="form-control">
+                    <span class="input-group-text">
+                        MB
+                    </span>
+                </div>
+                <label class="form-label">
+                    <TL>Disk</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-hdd"></i>
+                    </span>
+                    <input @bind="Disk" type="number" class="form-control">
+                    <span class="input-group-text">
+                        MB
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="card card-body p-10">
+                <label class="form-label">
+                    <TL>Image</TL>
+                </label>
+                <select @bind="ImageIndex" class="form-select mb-5">
+                    @foreach (var image in Images)
+                    {
+                        <option value="@(Images.IndexOf(image))">@(image.Name)</option>
+                    }
+                </select>
+                @if (Image != null)
+                {
+                    <label class="form-label">
+                        <TL>Override startup</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-terminal"></i>
+                        </span>
+                        <input @bind="OverrideStartup" type="text" class="form-control" placeholder="@(Image.Startup)">
+                    </div>
+                    <label class="form-label">
+                        <TL>Docker image</TL>
+                    </label>
+                    <select @bind="DockerImageIndex" class="form-select">
+                        @foreach (var image in Image.DockerImages)
+                        {
+                            <option value="@(Image.DockerImages.IndexOf(image))">@(image.Name)</option>
+                        }
+                    </select>
+                }
+            </div>
+        </div>
+
+        @if (Image != null)
+        {
+            <div class="mt-9 row d-flex">
+                @foreach (var vars in ServerVariables.Chunk(4))
+                {
+                    <div class="row mb-3">
+                        @foreach (var variable in vars)
+                        {
+                            <div class="col">
+                                <div class="card card-body">
+                                    <label class="form-label"><TL>Name</TL></label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                                    </div>
+                                    <label class="form-label"><TL>Value</TL></label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Value" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="row">
+            <div class="card card-body">
+                <div class="btn-group">
+                    <a class="btn btn-primary" href="/admin/servers">
+                        <TL>Back</TL>
+                    </a>
+                    <WButton Text="@(SmartTranslateService.Translate("Create"))"
+                             WorkingText="@(SmartTranslateService.Translate("Creating"))"
+                             CssClasses="btn-success"
+                             OnClick="Create">
+                    </WButton>
+                </div>
+            </div>
+        </div>
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    private List<Image> Images;
+    private Node[] Nodes;
+    private User[] Users;
+
+    private string Name = "";
+
+    private int Cpu = 100;
+    private int Memory = 4096;
+    private int Disk = 10240;
+
+    private string OverrideStartup = "";
+    private int DockerImageIndex = 0;
+
+    private Image? Image;
+    private User? User;
+
+    private ServerVariable[] ServerVariables = Array.Empty<ServerVariable>();
+
+    private int ImageIndex
+    {
+        get => Image == null ? 0 : Images.IndexOf(Image);
+        set
+        {
+            Image = Images[value];
+
+            if (Image == null)
+                ServerVariables = Array.Empty<ServerVariable>();
+            else
+                RebuildVariables();
+
+
+                InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void RebuildVariables()
+    {
+        var list = new List<ServerVariable>();
+
+        foreach (var variable in Image.Variables)
+        {
+            list.Add(new()
+            {
+                Key = variable.Key,
+                Value = variable.DefaultValue
+            });
+        }
+
+        ServerVariables = list.ToArray();
+    }
+
+    private Task<IEnumerable<User>> SearchUsers(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return Task.FromResult(Array.Empty<User>().Cast<User>());
+        }
+        else
+        {
+            return Task.FromResult(Users.Where(x => x.Email.ToLower().StartsWith(input)));
+        }
+    }
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading images");
+
+        Images = ImageRepository
+            .Get()
+            .Include(x => x.Variables)
+            .Include(x => x.DockerImages)
+            .ToList();
+
+        await lazyLoader.SetText("Loading nodes");
+
+        Nodes = NodeRepository.Get().ToArray();
+
+        await lazyLoader.SetText("Loading users");
+
+        Users = UserRepository.Get().ToArray();
+        User = Users.FirstOrDefault();
+
+        Image = Images.FirstOrDefault();
+        
+        RebuildVariables();
+
+        if (Image != null)
+            DockerImageIndex = Image.DockerImages.Count - 1;
+    }
+
+    private async Task Create()
+    {
+        try
+        {
+            await ServerService.Create(Name, Cpu, Memory, Disk, User, Image, null, server =>
+            {
+                server.OverrideStartup = OverrideStartup;
+                server.DockerImageIndex = DockerImageIndex;
+
+                foreach (var serverVariable in ServerVariables)
+                {
+                    server.Variables
+                        .First(x => x.Key == serverVariable.Key).Value = serverVariable.Value;
+                }
+            });
+
+            await ToastService.Success(SmartTranslateService.Translate("Server successfully created"));
+            NavigationManager.NavigateTo("/admin/servers");
+        }
+        catch (DisplayException e)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error"),
+                SmartTranslateService.Translate(e.Message)
+                );
+        }
+        catch (Exception e)
+        {
+            Logger.Error("Error creating server");
+            Logger.Error(e);
+
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error"),
+                SmartTranslateService.Translate("An unknown error occured")
+                );
+        }
+    }
+}

@@ -1,0 +1,97 @@
+﻿@using PteroConsole.NET
+@using PteroConsole.NET.Enums
+@using Task = System.Threading.Tasks.Task
+@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Logging.Net
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services.Interop
+@using Moonlight.Shared.Components.Xterm
+
+@implements IDisposable
+
+@inject ClipboardService ClipboardService
+@inject AlertService AlertService
+@inject SmartTranslateService TranslationService
+
+<div class="row g-5 g-xl-10 mb-xl-10">
+    <Terminal @ref="Terminal" RunOnFirstRender="RunOnFirstRender"></Terminal>
+
+    <div class="mt-3 row">
+        <div class="ms-2 input-group">
+            <script suppress-error="BL9992">
+                                                                function checkEnter(event) {
+                                                                    if (event.keyCode === 13) {
+                                                                        event.preventDefault();
+                                                                        document.getElementById("sendCmd").click();
+                                                                    }
+                                                                }
+                                                            </script>
+            <input @bind="@CommandInput" class="form-control" onkeyup="checkEnter(event)" placeholder="@(TranslationService.Translate("Enter command"))"/>
+            
+            <button id="sendCmd" @onclick="SendCommand" class="input-group-text btn btn-primary">@(TranslationService.Translate("Execute"))</button>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public PteroConsole Console { get; set; }
+
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    private Terminal? Terminal;
+
+    private string CommandInput = "";
+
+    protected override void OnInitialized()
+    {
+        Console.OnMessage += OnMessage;
+    }
+
+    private async void OnMessage(object? sender, string e)
+    {
+        if (Terminal != null)
+        {
+            var s = e;
+
+            s = s.Replace("Pterodactyl Daemon", "Moonlight Daemon");
+            s = s.Replace("Checking server disk space usage, this could take a few seconds...", TranslationService.Translate("Checking disk space"));
+            s = s.Replace("Updating process configuration files...", TranslationService.Translate("Updating config files"));
+            s = s.Replace("Ensuring file permissions are set correctly, this could take a few seconds...", TranslationService.Translate("Checking file permissions"));
+            s = s.Replace("Pulling Docker container image, this could take a few minutes to complete...", TranslationService.Translate("Downloading server image"));
+            s = s.Replace("Finished pulling Docker container image", TranslationService.Translate("Downloaded server image"));
+            s = s.Replace("container@pterodactyl~", "server@moonlight >");
+
+            await Terminal.WriteLine(s);
+        }
+    }
+
+    public void Dispose()
+    {
+        Console.OnMessage -= OnMessage;
+        Terminal!.Dispose();
+    }
+
+    private async Task SendCommand()
+    {
+        CommandInput = CommandInput.Replace("\n", "");
+        await Console.EnterCommand(CommandInput);
+        CommandInput = "";
+        StateHasChanged();
+    }
+
+    private void RunOnFirstRender()
+    {
+        lock (Console.MessageCache)
+        {
+            foreach (var message in Console.MessageCache.TakeLast(30))
+            {
+                OnMessage(null, message);
+            }
+        }
+    }
+}

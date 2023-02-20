@@ -1,0 +1,55 @@
+﻿@using Moonlight.App.Services
+@using Task = System.Threading.Tasks.Task
+@using Moonlight.Shared.Components.Partials
+@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Servers
+@using Logging.Net
+@using Moonlight.App.Database.Entities
+
+@inject ServerRepository ServerRepository
+@inject SmartTranslateService TranslationService
+
+<div class="col">
+    <div class="card card-body">
+        <LazyLoader @ref="Loader" Load="Load">
+            <div class="form-check form-check-custom form-check-solid mb-3">
+                <input @bind="Value" class="form-check-input" type="checkbox" value="1" id="j2sCheck"/>
+                <label class="form-check-label" for="j2sCheck">
+                    <TL>Join2Start</TL>
+                </label>
+            </div>
+            <WButton 
+                OnClick="Save" 
+                Text="@(TranslationService.Translate("Change"))" 
+                WorkingText="@(TranslationService.Translate("Changing"))" 
+                CssClasses="btn-primary"></WButton>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    private bool Value;
+
+    private LazyLoader Loader;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        Value = CurrentServer.Variables.First(x => x.Key == "J2S").Value == "1";
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Save()
+    {
+        CurrentServer.Variables.First(x => x.Key == "J2S").Value = Value ? "1" : "0";
+        
+        ServerRepository.Update(CurrentServer);
+        
+        await Loader.Reload();
+    }
+}

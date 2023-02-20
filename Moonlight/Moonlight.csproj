@@ -13,7 +13,8 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="Blazor.ContextMenu" Version="1.15.0" />
-    <PackageReference Include="BlazorMonaco" Version="3.0.0" />
+    <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
+    <PackageReference Include="BlazorMonaco" Version="2.1.0" />
     <PackageReference Include="BlazorTable" Version="1.17.0" />
     <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
     <PackageReference Include="Discord.Net" Version="3.9.0" />
@@ -56,10 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="App\Database\Migrations" />
     <Folder Include="App\Http\Middleware" />
-    <Folder Include="App\Http\Requests" />
-    <Folder Include="App\Http\Resources" />
     <Folder Include="App\Models\AuditLogData" />
     <Folder Include="resources\lang" />
     <Folder Include="wwwroot\assets\media" />

@@ -35,6 +35,7 @@ namespace Moonlight
             builder.Services.AddScoped<ServerBackupRepository>();
             builder.Services.AddScoped<AuditLogRepository>();
             builder.Services.AddScoped<DatabaseRepository>();
+            builder.Services.AddScoped<ImageRepository>();
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -47,13 +48,23 @@ namespace Moonlight
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TotpService>();
             builder.Services.AddScoped<ToastService>();
+            builder.Services.AddScoped<NodeService>();
+            builder.Services.AddSingleton<MessageService>();
+            builder.Services.AddScoped<ServerService>();
+            builder.Services.AddSingleton<PaperService>();
+            builder.Services.AddScoped<ClipboardService>();
 
             builder.Services.AddScoped<AuditLogService>();
             builder.Services.AddScoped<SystemAuditLogService>();
 
             // Helpers
             builder.Services.AddSingleton<SmartTranslateHelper>();
-            
+            builder.Services.AddScoped<WingsApiHelper>();
+            builder.Services.AddScoped<WingsServerConverter>();
+            builder.Services.AddSingleton<WingsJwtHelper>();
+            builder.Services.AddScoped<WingsConsoleHelper>();
+            builder.Services.AddSingleton<PaperApiHelper>();
+
             // Third party services
 
             builder.Services.AddBlazorTable();

@@ -1,0 +1,41 @@
+﻿@using Moonlight.App.Repositories
+@using Moonlight.Shared.Components.Partials
+@using Task = System.Threading.Tasks.Task
+@using Logging.Net
+@using Moonlight.App.Database.Entities
+
+@inject NodeRepository NodeRepository
+
+@foreach (var allocation in CurrentServer.Allocations)
+{
+    <div class="row align-items-center">
+        <div class="col-1 me-4">
+            <i class="text-primary bx bx-wifi bx-md"></i>
+        </div>
+        <div class="col-7">
+            <span class="h4">
+                @(CurrentServer.Node.Fqdn):@(allocation.Port)
+            </span>
+        </div>
+        <div class="col-1 align-items-end">
+            @if (allocation.Id == CurrentServer.MainAllocation.Id)
+            {
+                <button class="btn btn-primary">
+                    <TL>Primary</TL>
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-danger">
+                    <TL>Delete</TL>
+                </button>
+            }
+        </div>
+    </div>
+}
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+}

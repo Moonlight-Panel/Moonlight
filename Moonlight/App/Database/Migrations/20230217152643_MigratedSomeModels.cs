@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Moonlight.App.DatabaseMigrations
+namespace Moonlight.App.Database.Migrations
 {
     /// <inheritdoc />
     public partial class MigratedSomeModels : Migration

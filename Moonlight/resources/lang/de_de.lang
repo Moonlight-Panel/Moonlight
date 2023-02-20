@@ -119,7 +119,77 @@ Add a new node;Add a new node
 Delete;Delete
 Deleting;Deleting
 Edit;Edit
-Toekn Id;Toekn Id
+Token Id;Token Id
 Token;Token
 Save;Save
-Token Id;Token Id
+Setup;Setup
+Open a ssh connection to your node and enter;Open a ssh connection to your node and enter
+and paste the config below. Then press STRG+O and STRG+X to save;and paste the config below. Then press STRG+O and STRG+X to save
+Before configuring this node, install the daemon;Before configuring this node, install the daemon
+Delete this node?;Delete this node?
+Do you really want to delete this node;Do you really want to delete this node
+Yes;Yes
+No;No
+Status;Status
+Adding;Adding
+Port;Port
+Id;Id
+Manage;Manage
+Create new server;Create new server
+No servers found;No servers found
+Server name;Server name
+Cpu cores;Cpu cores
+Disk;Disk
+Image;Image
+Override startup;Override startup
+Docker image;Docker image
+CPU Cores (100% = 1 Core);CPU Cores (100% = 1 Core)
+Server successfully created;Server successfully created
+Name;Name
+Cores;Cores
+Owner;Owner
+Value;Value
+An unknown error occured;An unknown error occured
+No allocation found;No allocation found
+Identifier;Identifier
+UuidIdentifier;UuidIdentifier
+Override startup command;Override startup command
+Loading;Loading
+Offline;Offline
+Connecting;Connecting
+Start;Start
+Restart;Restart
+Stop;Stop
+Shared IP;Shared IP
+Server ID;Server ID
+Cpu;Cpu
+Console;Console
+Files;Files
+Backups;Backups
+Network;Network
+Plugins;Plugins
+Settings;Settings
+Enter command;Enter command
+Execute;Execute
+Checking disk space;Checking disk space
+Updating config files;Updating config files
+Checking file permissions;Checking file permissions
+Downloading server image;Downloading server image
+Downloaded server image;Downloaded server image
+Starting;Starting
+Online;Online
+Kill;Kill
+Stopping;Stopping
+Search files and folders;Search files and folders
+Launch WinSCP;Launch WinSCP
+New folder;New folder
+Upload;Upload
+File name;File name
+File size;File size
+Last modified;Last modified
+Cancel;Cancel
+Canceling;Canceling
+Running;Running
+Loading backups;Loading backups
+Started backup creation;Started backup creation
+Backup is going to be created;Backup is going to be created
