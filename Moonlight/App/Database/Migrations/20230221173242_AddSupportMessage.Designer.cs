@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230221173242_AddSupportMessage")]
+    partial class AddSupportMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -390,28 +393,17 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<bool>("IsQuestion")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsSupport")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsSystem")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("RecipientId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SenderId")
+                    b.Property<int>("SenderId")
                         .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RecipientId");
 
                     b.HasIndex("SenderId");
 
@@ -475,9 +467,6 @@ namespace Moonlight.App.Database.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
-
-                    b.Property<bool>("SupportPending")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("TokenValidTime")
                         .HasColumnType("datetime(6)");
@@ -591,15 +580,11 @@ namespace Moonlight.App.Database.Migrations
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.SupportMessage", b =>
                 {
-                    b.HasOne("Moonlight.App.Database.Entities.User", "Recipient")
-                        .WithMany()
-                        .HasForeignKey("RecipientId");
-
                     b.HasOne("Moonlight.App.Database.Entities.User", "Sender")
                         .WithMany()
-                        .HasForeignKey("SenderId");
-
-                    b.Navigation("Recipient");
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Sender");
                 });

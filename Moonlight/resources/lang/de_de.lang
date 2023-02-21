@@ -193,3 +193,25 @@ Running;Running
 Loading backups;Loading backups
 Started backup creation;Started backup creation
 Backup is going to be created;Backup is going to be created
+Rename;Rename
+Move;Move
+Archive;Archive
+Unarchive;Unarchive
+Download;Download
+Starting download;Starting download
+Backup successfully created;Backup successfully created
+Restore;Restore
+Copy url;Copy url
+Backup deletion started;Backup deletion started
+Backup successfully deleted;Backup successfully deleted
+Primary;Primary
+This feature is currently not available;This feature is currently not available
+Send;Send
+Sending;Sending
+Welcome to the support chat. Ask your question here and we will help you;Welcome to the support chat. Ask your question here and we will help you
+ minutes ago; minutes ago
+just now;just now
+less than a minute ago;less than a minute ago
+1 hour ago;1 hour ago
+1 minute ago;1 minute ago
+Failed;Failed

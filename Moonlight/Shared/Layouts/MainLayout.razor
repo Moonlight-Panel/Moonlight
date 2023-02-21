@@ -5,6 +5,8 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Extensions
 @using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Sessions
 
 @layout ThemeInit
@@ -15,6 +17,8 @@
 @inject IdentityService IdentityService
 @inject SessionService SessionService
 @inject NavigationManager NavigationManager
+@inject MessageService MessageService
+@inject ToastService ToastService
 
 <GlobalErrorBoundary>
     @{
@@ -151,10 +155,21 @@
                 await SessionService.Register();
 
                 NavigationManager.LocationChanged += (sender, args) => { SessionService.Refresh(); };
+
+                MessageService.Subscribe<MainLayout, SupportMessage>(
+                    $"support.{User.Id}.message", 
+                    this, 
+                    async message =>
+                {
+                    if (!NavigationManager.Uri.EndsWith("/support") && (message.IsSupport || message.IsSystem))
+                    {
+                        await ToastService.Info($"Support: {message.Message}");
+                    }
+                });
             }
             catch (Exception)
             {
-    // ignored
+                // ignored
             }
         }
     }
@@ -162,6 +177,11 @@
     public void Dispose()
     {
         SessionService.Close();
+
+        if (User != null)
+        {
+            MessageService.Unsubscribe($"support.{User.Id}.message", this);
+        }
     }
 
     private void AddBodyAttribute(string attribute, string value)

@@ -8,6 +8,7 @@ using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.Sessions;
+using Moonlight.App.Services.Support;
 
 namespace Moonlight
 {
@@ -36,6 +37,7 @@ namespace Moonlight
             builder.Services.AddScoped<AuditLogRepository>();
             builder.Services.AddScoped<DatabaseRepository>();
             builder.Services.AddScoped<ImageRepository>();
+            builder.Services.AddScoped<SupportMessageRepository>();
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -53,9 +55,15 @@ namespace Moonlight
             builder.Services.AddScoped<ServerService>();
             builder.Services.AddSingleton<PaperService>();
             builder.Services.AddScoped<ClipboardService>();
+            builder.Services.AddSingleton<ResourceService>();
 
             builder.Services.AddScoped<AuditLogService>();
             builder.Services.AddScoped<SystemAuditLogService>();
+
+            // Support
+            builder.Services.AddSingleton<SupportServerService>();
+            builder.Services.AddScoped<SupportAdminServer>();
+            builder.Services.AddScoped<SupportClientService>();
 
             // Helpers
             builder.Services.AddSingleton<SmartTranslateHelper>();
@@ -88,6 +96,9 @@ namespace Moonlight
             
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
+            
+            // Support service
+            var supportServerService = app.Services.GetRequiredService<SupportServerService>();
 
             app.Run();
         }

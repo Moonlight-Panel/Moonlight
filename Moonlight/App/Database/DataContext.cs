@@ -26,6 +26,7 @@ public class DataContext : DbContext
     public DbSet<LoadingMessage> LoadingMessages { get; set; }
     public DbSet<AuditLogEntry> AuditLog { get; set; }
     public DbSet<Entities.Database> Databases { get; set; }
+    public DbSet<SupportMessage> SupportMessages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

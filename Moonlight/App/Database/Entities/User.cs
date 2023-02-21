@@ -14,13 +14,14 @@ public class User
     public string State { get; set; } = "";
     public string Country { get; set; } = "";
     public UserStatus Status { get; set; } = UserStatus.Unverified;
-    public bool TotpEnabled { get; set; }
+    public bool TotpEnabled { get; set; } = false;
     public string TotpSecret { get; set; } = "";
     public DateTime TokenValidTime { get; set; } = DateTime.Now;
-    public long DiscordId { get; set; }
+    public long DiscordId { get; set; } = -1;
     public string DiscordUsername { get; set; } = "";
     public string DiscordDiscriminator { get; set; } = "";
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public bool Admin { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public bool Admin { get; set; } = false;
+    public bool SupportPending { get; set; } = false;
 }

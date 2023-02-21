@@ -1,0 +1,135 @@
+﻿@page "/admin"
+@using Moonlight.App.Repositories.Servers
+@using Moonlight.App.Repositories
+
+@inject ServerRepository ServerRepository
+@inject DatabaseRepository DatabaseRepository
+@inject UserRepository UserRepository
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        <div class="row mb-5">
+            <div class="col-12 col-lg-6 col-xl">
+                <a class="mt-4 card" href="/servers">
+                    <div class="card-body">
+                        <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-2">
+                                    <TL>Servers</TL>
+                                </h6>
+                                <span class="h2 mb-0">
+                                    @(ServerCount)
+                                </span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h2 text-muted mb-0">
+                                    <i class="text-primary bx bx-server bx-lg"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-lg-6 col-xl">
+                <a class="mt-4 card" href="/websites">
+                    <div class="card-body">
+                        <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-2">
+                                    <TL>Websites</TL>
+                                </h6>
+                                <span class="h2 mb-0">
+                                    0
+                                </span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h2 text-muted mb-0">
+                                    <i class="text-primary bx bx-globe bx-lg"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-lg-6 col-xl">
+                <div class="mt-4 card" href="/databases">
+                    <div class="card-body">
+                        <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-2">
+                                    <TL>Databases</TL>
+                                </h6>
+                                <span class="h2 mb-0">
+                                    @(DatabaseCount)
+                                </span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h2 text-muted mb-0">
+                                    <i class="text-primary bx bx-data bx-lg"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl">
+                <a class="mt-4 card" href="/domains">
+                    <div class="card-body">
+                        <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-2">
+                                    <TL>Domains</TL>
+                                </h6>
+                                <span class="h2 mb-0">
+                                    0
+                                </span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h2 text-muted mb-">
+                                    <i class="text-primary bx bx-purchase-tag bx-lg"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12 col-lg-6 col-xl">
+                <a class="mt-4 card" href="/domains">
+                    <div class="card-body">
+                        <div class="row align-items-center gx-0">
+                            <div class="col">
+                                <h6 class="text-uppercase text-muted mb-2">
+                                    <TL>Users</TL>
+                                </h6>
+                                <span class="h2 mb-0">
+                                    @(UserCount)
+                                </span>
+                            </div>
+                            <div class="col-auto">
+                                <span class="h2 text-muted mb-">
+                                    <i class="text-primary bx bx-user bx-lg"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    private int DatabaseCount = 0;
+    private int ServerCount = 0;
+    private int UserCount = 0;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        DatabaseCount = DatabaseRepository.Get().Count();
+        ServerCount = ServerRepository.Get().Count();
+        UserCount = UserRepository.Get().Count();
+
+        return Task.CompletedTask;
+    }
+}
