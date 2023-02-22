@@ -3,7 +3,7 @@ using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services.Support;
 
-public class SupportAdminServer
+public class SupportAdminService
 {
     private readonly SupportServerService SupportServerService;
     private readonly IdentityService IdentityService;
@@ -14,7 +14,7 @@ public class SupportAdminServer
     private User Self;
     private User Recipient;
 
-    public SupportAdminServer(
+    public SupportAdminService(
         SupportServerService supportServerService,
         IdentityService identityService,
         MessageService messageService)
@@ -58,6 +58,11 @@ public class SupportAdminServer
             Self,
             true
         );
+    }
+
+    public async Task Close()
+    {
+        await SupportServerService.Close(Recipient);
     }
 
     public void Dispose()

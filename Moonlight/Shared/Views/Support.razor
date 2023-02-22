@@ -14,80 +14,89 @@
     <div class="row">
         <div class="card">
             <div class="card-body">
-                <div class="scroll-y me-n5 pe-5" style="max-height: 65vh; display: flex; flex-direction: column-reverse;">
-                    @foreach (var message in Messages)
-                    {
-                        if (message.IsSystem || message.IsSupport)
+                <LazyLoader Load="LoadMessages">
+                    <div class="scroll-y me-n5 pe-5" style="max-height: 65vh; display: flex; flex-direction: column-reverse;">
+                        @foreach (var message in Messages)
                         {
-                            <div class="d-flex justify-content-start mb-10 ">
-                                <div class="d-flex flex-column align-items-start">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="symbol  symbol-35px symbol-circle ">
-                                            <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
+                            if (message.IsSystem || message.IsSupport)
+                            {
+                                <div class="d-flex justify-content-start mb-10 ">
+                                    <div class="d-flex flex-column align-items-start">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="symbol  symbol-35px symbol-circle ">
+                                                <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
+                                            </div>
+                                            <div class="ms-3">
+                                                <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
+                                                    @if (message.IsSupport && !message.IsSystem)
+                                                    {
+                                                        <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>System</span>
+                                                    }
+                                                </a>
+                                                <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
+                                            </div>
                                         </div>
-                                        <div class="ms-3">
-                                            <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
-                                                @if (message.IsSupport && !message.IsSystem)
-                                                {
+
+                                        <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
+                                            @if (message.IsSystem)
+                                            {
+                                                <TL>@(message.Message)</TL>
+                                            }
+                                            else
+                                            {
+                                                @(message.Message)
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex justify-content-end mb-10 ">
+                                    <div class="d-flex flex-column align-items-end">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="me-3">
+                                                <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
+                                                <a class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">
                                                     <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
-                                                }
-                                                else
-                                                {
-                                                    <span>System</span>
-                                                }
-                                            </a>
-                                            <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
+                                                </a>
+                                            </div>
+                                            <div class="symbol  symbol-35px symbol-circle ">
+                                                <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
+                                            </div>
+                                        </div>
+
+                                        <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
+                                            @(message.Message)
                                         </div>
                                     </div>
-
-                                    <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
-                                        @(message.Message)
-                                    </div>
                                 </div>
-                            </div>
+                            }
                         }
-                        else
-                        {
-                            <div class="d-flex justify-content-end mb-10 ">
-                                <div class="d-flex flex-column align-items-end">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="me-3">
-                                            <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
-                                            <a class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">
-                                                <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
-                                            </a>
-                                        </div>
-                                        <div class="symbol  symbol-35px symbol-circle ">
-                                            <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
-                                        </div>
+                        <div class="d-flex justify-content-start mb-10 ">
+                            <div class="d-flex flex-column align-items-start">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="symbol  symbol-35px symbol-circle ">
+                                        <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
                                     </div>
-
-                                    <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
-                                        @(message.Message)
+                                    <div class="ms-3">
+                                        <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
+                                            <span>System</span>
+                                        </a>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                    }
-                    <div class="d-flex justify-content-start mb-10 ">
-                        <div class="d-flex flex-column align-items-start">
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="symbol  symbol-35px symbol-circle ">
-                                    <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
-                                </div>
-                                <div class="ms-3">
-                                    <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
-                                        <span>System</span>
-                                    </a>
-                                </div>
-                            </div>
 
-                            <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
-                                <TL>Welcome to the support chat. Ask your question here and we will help you</TL>
+                                <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
+                                    <TL>Welcome to the support chat. Ask your question here and we will help you</TL>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </LazyLoader>
             </div>
             <div class="card-footer">
                 <textarea @bind="Content" class="form-control form-control-flush mb-3" rows="1" placeholder="Type a message">            
@@ -125,8 +134,6 @@
         SupportClientService.OnNewMessage += OnNewMessage;
 
         await SupportClientService.Start();
-
-        Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
     }
 
     private async void OnNewMessage(object? sender, SupportMessage e)
@@ -140,5 +147,10 @@
         await SupportClientService.SendMessage(Content);
         Content = "";
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadMessages(LazyLoader arg)
+    {
+        Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
     }
 }

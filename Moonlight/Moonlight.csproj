@@ -60,7 +60,6 @@
     <Folder Include="App\Http\Middleware" />
     <Folder Include="App\Models\AuditLogData" />
     <Folder Include="resources\lang" />
-    <Folder Include="Shared\Views\Admin\Support" />
     <Folder Include="wwwroot\assets\media" />
   </ItemGroup>
 

@@ -62,7 +62,7 @@ namespace Moonlight
 
             // Support
             builder.Services.AddSingleton<SupportServerService>();
-            builder.Services.AddScoped<SupportAdminServer>();
+            builder.Services.AddScoped<SupportAdminService>();
             builder.Services.AddScoped<SupportClientService>();
 
             // Helpers

@@ -1,0 +1,194 @@
+﻿@page "/admin/support/view/{Id:int}"
+@using Moonlight.App.Services.Support
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+
+@inject SupportAdminService SupportAdminService
+@inject UserRepository UserRepository
+@inject SmartTranslateService SmartTranslateService
+@inject ResourceService ResourceService
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        @if (User == null)
+        {
+            <div class="alert alert-danger">
+                <TL>User not found</TL>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="d-flex flex-column flex-xl-row p-7">
+                    <div class="flex-lg-row-fluid me-xl-15 mb-20 mb-xl-0">
+                        <div class="card">
+                            <div class="card-body">
+                                <LazyLoader Load="LoadMessages">
+                                    <div class="scroll-y me-n5 pe-5" style="max-height: 65vh; display: flex; flex-direction: column-reverse;">
+                                        @foreach (var message in Messages)
+                                        {
+                                            if (message.IsSystem || message.IsSupport)
+                                            {
+                                                <div class="d-flex justify-content-end mb-10 ">
+                                                    <div class="d-flex flex-column align-items-end">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <div class="me-3">
+                                                                <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
+                                                                <a class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">
+                                                                    @if (message.IsSupport && !message.IsSystem)
+                                                                    {
+                                                                        <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span>System</span>
+                                                                    }
+                                                                </a>
+                                                            </div>
+                                                            <div class="symbol  symbol-35px symbol-circle ">
+                                                                <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
+                                                            </div>
+                                                        </div>
+    
+                                                        <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
+                                                            @if (message.IsSystem)
+                                                            {
+                                                                <TL>@(message.Message)</TL>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(message.Message)
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex justify-content-start mb-10 ">
+                                                    <div class="d-flex flex-column align-items-start">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <div class="symbol  symbol-35px symbol-circle ">
+                                                                <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
+                                                            </div>
+                                                            <div class="ms-3">
+                                                                <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
+                                                                    <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                                </a>
+                                                                <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
+                                                            </div>
+                                                        </div>
+    
+                                                        <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
+                                                            @(message.Message)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </LazyLoader>
+                            </div>
+                            <div class="card-footer">
+                                <textarea @bind="Content" class="form-control form-control-flush mb-3" rows="1" placeholder="Type a message">            
+                    </textarea>
+                                <div class="d-flex flex-stack">
+                                    <div class="d-flex align-items-center me-2">
+                                        <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button">
+                                            <i class="bx bx-upload fs-3"></i>
+                                        </button>
+                                    </div>
+                                    <WButton Text="@(SmartTranslateService.Translate("Send"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Sending"))"
+                                             CssClasses="btn-primary"
+                                             OnClick="Send">
+                                    </WButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-column flex-lg-row-auto w-100 mw-lg-300px mw-xxl-350px">
+                        <div class="card p-10 mb-15">
+                            <h2 class="text-dark fw-bold mb-11">
+                                <TL>User information</TL>
+                            </h2>
+    
+                            <div class="d-flex align-items-center mb-6">
+                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
+                                    <TL>Firstname</TL>: @(User.FirstName)
+                                </spna>
+                            </div>
+                            <div class="d-flex align-items-center mb-6">
+                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
+                                    <TL>Lastname</TL>: @(User.LastName)
+                                </spna>
+                            </div>
+                            <div class="d-flex align-items-center mb-6">
+                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
+                                    <TL>Email</TL>: @(User.Email)
+                                </spna>
+                            </div>
+                            <div class="d-flex align-items-center mb-6">
+                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
+                                    <WButton Text="@(SmartTranslateService.Translate("Close ticket"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Closing"))"
+                                             CssClasses="btn-danger"
+                                             OnClick="CloseTicket">
+                                    </WButton>
+                                </spna>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private User? User;
+    private SupportMessage[] Messages;
+    private string Content = "";
+
+    private async Task Load(LazyLoader arg)
+    {
+        User = UserRepository
+            .Get()
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (User != null)
+        {
+            SupportAdminService.OnNewMessage += OnNewMessage;
+
+            await SupportAdminService.Start(User);
+        }
+    }
+
+    private async void OnNewMessage(object? sender, SupportMessage e)
+    {
+        Messages = (await SupportAdminService.GetMessages()).Reverse().ToArray();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadMessages(LazyLoader arg)
+    {
+        Messages = (await SupportAdminService.GetMessages()).Reverse().ToArray();
+    }
+
+    private async Task Send()
+    {
+        await SupportAdminService.SendMessage(Content);
+        Content = "";
+    }
+
+    private async Task CloseTicket()
+    {
+        await SupportAdminService.Close();
+    }
+}

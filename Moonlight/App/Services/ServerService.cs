@@ -1,8 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using JWT.Algorithms;
-using JWT.Builder;
-using Logging.Net;
+﻿using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;

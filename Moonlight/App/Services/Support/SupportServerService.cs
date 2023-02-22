@@ -27,36 +27,70 @@ public class SupportServerService : IDisposable
 
         Task.Run(async () =>
         {
-            message.CreatedAt = DateTime.UtcNow;
-            message.Sender = sender;
-            message.Recipient = recipient;
-            message.IsSupport = isSupport;
-
-            SupportMessageRepository.Add(message);
-
-            await MessageService.Emit($"support.{recipient.Id}.message", message);
-
-            if (!recipient.SupportPending)
+            try
             {
-                recipient.SupportPending = true;
-                UserRepository.Update(recipient);
+                message.CreatedAt = DateTime.UtcNow;
+                message.Sender = sender;
+                message.Recipient = recipient;
+                message.IsSupport = isSupport;
 
-                var systemMessage = new SupportMessage()
+                SupportMessageRepository.Add(message);
+
+                await MessageService.Emit($"support.{recipient.Id}.message", message);
+
+                if (!recipient.SupportPending)
                 {
-                    Recipient = recipient,
-                    Sender = null,
-                    IsSystem = true,
-                    Message = "The support team has been notified. Please be patient"
-                };
+                    recipient.SupportPending = true;
+                    UserRepository.Update(recipient);
 
-                SupportMessageRepository.Add(systemMessage);
+                    if (!message.IsSupport)
+                    {
+                        var systemMessage = new SupportMessage()
+                        {
+                            Recipient = recipient,
+                            Sender = null,
+                            IsSystem = true,
+                            Message = "The support team has been notified. Please be patient"
+                        };
 
-                await MessageService.Emit($"support.{recipient.Id}.message", systemMessage);
+                        SupportMessageRepository.Add(systemMessage);
 
-                Logger.Info("Support ticket created: " + recipient.Id);
-                //TODO: Ping or so
+                        await MessageService.Emit($"support.{recipient.Id}.message", systemMessage);
+                    }
+                
+                    await MessageService.Emit($"support.new", recipient);
+
+                    Logger.Info("Support ticket created: " + recipient.Id);
+                    //TODO: Ping or so
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error sending message");
+                Logger.Error(e);
             }
         });
+    }
+
+    public async Task Close(User user)
+    {
+        var recipient = UserRepository.Get().First(x => x.Id == user.Id);
+        
+        recipient.SupportPending = false;
+        UserRepository.Update(recipient);
+
+        var systemMessage = new SupportMessage()
+        {
+            Recipient = recipient,
+            Sender = null,
+            IsSystem = true,
+            Message = "The ticket is now closed. Type a message to open it again"
+        };
+
+        SupportMessageRepository.Add(systemMessage);
+
+        await MessageService.Emit($"support.{recipient.Id}.message", systemMessage);
+        await MessageService.Emit($"support.close", recipient);
     }
 
     public Task<SupportMessage[]> GetMessages(User r)
