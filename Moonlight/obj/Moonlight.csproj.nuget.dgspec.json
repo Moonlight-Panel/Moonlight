@@ -70,6 +70,10 @@
               "target": "Package",
               "version": "[4.7.0, )"
             },
+            "CloudFlare.Client": {
+              "target": "Package",
+              "version": "[6.1.4, )"
+            },
             "CurrieTechnologies.Razor.SweetAlert2": {
               "target": "Package",
               "version": "[5.4.0, )"

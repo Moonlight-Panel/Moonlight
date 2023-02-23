@@ -27,6 +27,9 @@ public class DataContext : DbContext
     public DbSet<AuditLogEntry> AuditLog { get; set; }
     public DbSet<Entities.Database> Databases { get; set; }
     public DbSet<SupportMessage> SupportMessages { get; set; }
+    
+    public DbSet<SharedDomain> SharedDomains { get; set; }
+    public DbSet<Domain> Domains { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

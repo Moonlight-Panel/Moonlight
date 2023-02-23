@@ -1,0 +1,68 @@
+﻿@page "/admin/domains"
+@using Moonlight.App.Repositories.Domains
+@using Moonlight.App.Database.Entities
+@using Microsoft.EntityFrameworkCore
+@using BlazorTable
+@using Moonlight.App.Services
+
+@inject DomainRepository DomainRepository
+@inject SmartTranslateService SmartTranslateService
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        <div class="row mb-5">
+            <a class="btn btn-success" href="/admin/domains/new">Add new domain</a>
+        </div>
+        <div class="row mb-5">
+            <Table TableItem="Domain" Items="Domains" PageSize="25" TableHeadClass="border-bottom border-gray-200 fs-6 text-gray-600 fw-bold bg-light bg-opacity-75">
+                        <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%"/>
+                        <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true" Width="10%"/>
+                        <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Shared domain"))" Field="@(x => x.SharedDomain)" Sortable="true" Filterable="true" Width="10%">
+                            <Template>
+                                <span>@(context.SharedDomain.Name)</span>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Owner)" Sortable="true" Filterable="true" Width="10%">
+                            <Template>
+                                <a class="invisible-a" href="/admin/users/view/@(context.Owner.Id)">@(context.Owner.Email)</a>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                            <Template>
+                                <a class="invisible-a" href="/domain/@(context.Id)">Manage</a>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Domain" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                            <Template>
+                                <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                                         CssClasses="btn-danger"
+                                         OnClick="() => Delete(context)">
+                                </WButton>
+                            </Template>
+                        </Column>
+                    </Table>
+        </div>
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    private Domain[] Domains;
+
+    private Task Load(LazyLoader arg)
+    {
+        Domains = DomainRepository
+            .Get()
+            .Include(x => x.SharedDomain)
+            .Include(x => x.Owner)
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Delete(Domain context)
+    {
+        
+    }
+}

@@ -4,6 +4,7 @@ using Logging.Net;
 using Moonlight.App.Database;
 using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
+using Moonlight.App.Repositories.Domains;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Interop;
@@ -39,6 +40,8 @@ namespace Moonlight
             builder.Services.AddScoped<DatabaseRepository>();
             builder.Services.AddScoped<ImageRepository>();
             builder.Services.AddScoped<SupportMessageRepository>();
+            builder.Services.AddScoped<DomainRepository>();
+            builder.Services.AddScoped<SharedDomainRepository>();
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -57,6 +60,8 @@ namespace Moonlight
             builder.Services.AddSingleton<PaperService>();
             builder.Services.AddScoped<ClipboardService>();
             builder.Services.AddSingleton<ResourceService>();
+            builder.Services.AddScoped<DomainService>();
+            
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
 
