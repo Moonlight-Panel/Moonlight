@@ -51,7 +51,7 @@
                                                                 <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
                                                             </div>
                                                         </div>
-    
+
                                                         <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
                                                             @if (message.IsSystem)
                                                             {
@@ -80,7 +80,7 @@
                                                                 <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                                                             </div>
                                                         </div>
-    
+
                                                         <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
                                                             @(message.Message)
                                                         </div>
@@ -92,8 +92,34 @@
                                 </LazyLoader>
                             </div>
                             <div class="card-footer">
-                                <textarea @bind="Content" class="form-control form-control-flush mb-3" rows="1" placeholder="Type a message">            
-                    </textarea>
+                                @{
+                                    var typingUsers = SupportAdminService.GetTypingUsers();
+                                }
+
+                                @if (typingUsers.Any())
+                                {
+                                    <span class="mb-5 fs-5 d-flex flex-row">
+                                        <div class="wave me-3">
+                                            <div class="dot"></div>
+                                            <div class="dot"></div>
+                                            <div class="dot"></div>
+                                        </div>
+                                        @if (typingUsers.Length > 1)
+                                        {
+                                            <span>
+                                                @(typingUsers.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                @(typingUsers.First()) <TL>is typing</TL>
+                                            </span>
+                                        }
+                                    </span>
+                                }
+                                <textarea @bind="Content" @oninput="OnTyping" class="form-control mb-3" rows="1" placeholder="Type a message">            
+                                </textarea>
                                 <div class="d-flex flex-stack">
                                     <div class="d-flex align-items-center me-2">
                                         <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button">
@@ -114,7 +140,7 @@
                             <h2 class="text-dark fw-bold mb-11">
                                 <TL>User information</TL>
                             </h2>
-    
+
                             <div class="d-flex align-items-center mb-6">
                                 <spna class="fw-semibold text-gray-800 fs-5 m-0">
                                     <TL>Firstname</TL>: @(User.FirstName)
@@ -156,6 +182,8 @@
     private SupportMessage[] Messages;
     private string Content = "";
 
+    private DateTime LastTypingTimestamp = DateTime.UtcNow.AddMinutes(-10);
+
     private async Task Load(LazyLoader arg)
     {
         User = UserRepository
@@ -165,9 +193,15 @@
         if (User != null)
         {
             SupportAdminService.OnNewMessage += OnNewMessage;
+            SupportAdminService.OnUpdateTyping += OnUpdateTyping;
 
             await SupportAdminService.Start(User);
         }
+    }
+
+    private async void OnUpdateTyping(object? sender, EventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void OnNewMessage(object? sender, SupportMessage e)
@@ -190,5 +224,15 @@
     private async Task CloseTicket()
     {
         await SupportAdminService.Close();
+    }
+
+    private async Task OnTyping()
+    {
+        if ((DateTime.UtcNow - LastTypingTimestamp).TotalSeconds > 5)
+        {
+            LastTypingTimestamp = DateTime.UtcNow;
+
+            await SupportAdminService.TriggerTyping();
+        }
     }
 }

@@ -99,7 +99,30 @@
                 </LazyLoader>
             </div>
             <div class="card-footer">
-                <textarea @bind="Content" class="form-control form-control-flush mb-3" rows="1" placeholder="Type a message">            
+                @{
+                    var typingUsers = SupportClientService.GetTypingUsers();
+                }
+                
+                @if (typingUsers.Any())
+                {
+                    <span class="mb-5 fs-5 d-flex flex-row">
+                        <div class="wave me-3">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        @if (typingUsers.Length > 1)
+                        {
+                            <span>@(typingUsers.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL></span>
+                        }
+                        else
+                        {
+                            <span>@(typingUsers.First()) <TL>is typing</TL></span>
+                        }
+                    </span>
+                }
+
+                <textarea @bind="Content" @oninput="OnTyping" class="form-control mb-3" rows="1" placeholder="Type a message">            
                 </textarea>
                 <div class="d-flex flex-stack">
                     <div class="d-flex align-items-center me-2">
@@ -124,6 +147,8 @@
 
     private SupportMessage[] Messages;
     private string Content = "";
+    
+    private DateTime LastTypingTimestamp = DateTime.UtcNow.AddMinutes(-10);
 
     private async Task Load(LazyLoader lazyLoader)
     {
@@ -132,8 +157,14 @@
         await lazyLoader.SetText("Starting chat client");
 
         SupportClientService.OnNewMessage += OnNewMessage;
+        SupportClientService.OnUpdateTyping += OnUpdateTyping;
 
         await SupportClientService.Start();
+    }
+
+    private async void OnUpdateTyping(object? sender, EventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void OnNewMessage(object? sender, SupportMessage e)
@@ -152,5 +183,15 @@
     private async Task LoadMessages(LazyLoader arg)
     {
         Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
+    }
+
+    private async void OnTyping()
+    {
+        if ((DateTime.UtcNow - LastTypingTimestamp).TotalSeconds > 5)
+        {
+            LastTypingTimestamp = DateTime.UtcNow;
+
+            await SupportClientService.TriggerTyping();
+        }
     }
 }

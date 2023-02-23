@@ -10,6 +10,9 @@ public class SupportClientService : IDisposable
     private readonly MessageService MessageService;
 
     public EventHandler<SupportMessage> OnNewMessage;
+    
+    public EventHandler OnUpdateTyping;
+    private List<string> TypingUsers = new();
 
     private User Self;
     
@@ -36,6 +39,48 @@ public class SupportClientService : IDisposable
             
             return Task.CompletedTask;
         });
+        
+        MessageService.Subscribe<SupportClientService, User>(
+            $"support.{Self.Id}.admintyping", 
+            this,  
+            user =>
+            {
+                HandleTyping(user);
+                return Task.CompletedTask;
+            });
+    }
+
+    private void HandleTyping(User user)
+    {
+        var name = $"{user.FirstName} {user.LastName}";
+        
+        lock (TypingUsers)
+        {
+            if (!TypingUsers.Contains(name))
+            {
+                TypingUsers.Add(name);
+                OnUpdateTyping!.Invoke(this, null!);
+
+                Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+
+                    if (TypingUsers.Contains(name))
+                    {
+                        TypingUsers.Remove(name);
+                        OnUpdateTyping!.Invoke(this, null!);
+                    }
+                });
+            }
+        }
+    }
+
+    public string[] GetTypingUsers()
+    {
+        lock (TypingUsers)
+        {
+            return TypingUsers.ToArray();
+        }
     }
 
     public async Task<SupportMessage[]> GetMessages()
@@ -56,9 +101,20 @@ public class SupportClientService : IDisposable
             Self
         );
     }
+    
+    public Task TriggerTyping()
+    {
+        Task.Run(async () =>
+        {
+            await MessageService.Emit($"support.{Self.Id}.typing", Self);
+        });
+
+        return Task.CompletedTask;
+    }
 
     public void Dispose()
     {
         MessageService.Unsubscribe($"support.{Self.Id}.message", this);
+        MessageService.Unsubscribe($"support.{Self.Id}.admintyping", this);
     }
 }

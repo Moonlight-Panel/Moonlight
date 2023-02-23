@@ -11,6 +11,9 @@ public class SupportAdminService
 
     public EventHandler<SupportMessage> OnNewMessage;
 
+    public EventHandler OnUpdateTyping;
+    private List<string> TypingUsers = new();
+    
     private User Self;
     private User Recipient;
 
@@ -38,6 +41,48 @@ public class SupportAdminService
 
                 return Task.CompletedTask;
             });
+        
+        MessageService.Subscribe<SupportClientService, User>(
+            $"support.{Self.Id}.typing",
+            this,  
+            user =>
+            {
+                HandleTyping(user);
+                return Task.CompletedTask;
+            });
+    }
+    
+    private void HandleTyping(User user)
+    {
+        var name = $"{user.FirstName} {user.LastName}";
+        
+        lock (TypingUsers)
+        {
+            if (!TypingUsers.Contains(name))
+            {
+                TypingUsers.Add(name);
+                OnUpdateTyping!.Invoke(this, null!);
+
+                Task.Run(async () =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+
+                    if (TypingUsers.Contains(name))
+                    {
+                        TypingUsers.Remove(name);
+                        OnUpdateTyping!.Invoke(this, null!);
+                    }
+                });
+            }
+        }
+    }
+    
+    public string[] GetTypingUsers()
+    {
+        lock (TypingUsers)
+        {
+            return TypingUsers.ToArray();
+        }
     }
 
     public async Task<SupportMessage[]> GetMessages()
@@ -65,8 +110,19 @@ public class SupportAdminService
         await SupportServerService.Close(Recipient);
     }
 
+    public Task TriggerTyping()
+    {
+        Task.Run(async () =>
+        {
+            await MessageService.Emit($"support.{Recipient.Id}.admintyping", Self);
+        });
+
+        return Task.CompletedTask;
+    }
+
     public void Dispose()
     {
         MessageService.Unsubscribe($"support.{Recipient.Id}.message", this);
+        MessageService.Unsubscribe($"support.{Recipient.Id}.typing", this);
     }
 }
