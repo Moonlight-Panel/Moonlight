@@ -8,6 +8,7 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Sessions
+@using Logging.Net
 
 @layout ThemeInit
 @implements IDisposable
@@ -31,7 +32,7 @@
         {
             if (!string.IsNullOrEmpty(pathPart))
             {
-                if(pathPart == pathParts.Last())
+                if (pathPart == pathParts.Last())
                     title += $"{pathPart.FirstCharToUpper()} ";
                 else
                     title += $"{pathPart.FirstCharToUpper()} - ";
@@ -128,11 +129,6 @@
         AddBodyAttribute("data-kt-app-toolbar-enabled", "true");
 
         AddBodyClass("app-default");
-
-        JsRuntime.InvokeVoidAsync("KTModalUpgradePlan.init");
-        JsRuntime.InvokeVoidAsync("KTCreateApp.init");
-        JsRuntime.InvokeVoidAsync("KTModalUserSearch.init");
-        JsRuntime.InvokeVoidAsync("KTModalNewTarget.init");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -142,9 +138,7 @@
             try
             {
                 User = await IdentityService.Get();
-
                 await InvokeAsync(StateHasChanged);
-                await Task.Delay(300);
 
                 await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-reset-transition");
                 await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-page-loading");
@@ -157,19 +151,24 @@
                 NavigationManager.LocationChanged += (sender, args) => { SessionService.Refresh(); };
 
                 MessageService.Subscribe<MainLayout, SupportMessage>(
-                    $"support.{User.Id}.message", 
-                    this, 
+                    $"support.{User.Id}.message",
+                    this,
                     async message =>
-                {
-                    if (!NavigationManager.Uri.EndsWith("/support") && (message.IsSupport || message.IsSystem))
                     {
-                        await ToastService.Info($"Support: {message.Message}");
-                    }
-                });
+                        if (!NavigationManager.Uri.EndsWith("/support") && (message.IsSupport || message.IsSystem))
+                        {
+                            await ToastService.Info($"Support: {message.Message}");
+                        }
+                    });
+                
+                RunDelayedMenu(0);
+                RunDelayedMenu(1);
+                RunDelayedMenu(3);
+                RunDelayedMenu(5);
             }
             catch (Exception)
             {
-                // ignored
+    // ignored
             }
         }
     }
@@ -192,5 +191,22 @@
     private void AddBodyClass(string className)
     {
         JsRuntime.InvokeVoidAsync("document.body.classList.add", className);
+    }
+
+    private void RunDelayedMenu(int seconds)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(seconds));
+                await JsRuntime.InvokeVoidAsync("KTMenu.initHandlers");
+            }
+            catch (Exception e)
+            {
+                Logger.Warn("Delayed menu error");
+                Logger.Warn(e);
+            }
+        });
     }
 }

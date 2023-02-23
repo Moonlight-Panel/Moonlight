@@ -1,10 +1,14 @@
 ﻿@using Logging.Net
+@using Moonlight.App.Exceptions
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Sessions
 
 @inherits ErrorBoundary
 
 @inject IdentityService IdentityService
+@inject AlertService AlertService
+@inject SmartTranslateService SmartTranslateService
 
 @if (CurrentException is null)
 {
@@ -60,6 +64,21 @@ else
         Logger.Error(exception);
 
         await base.OnErrorAsync(exception);
+
+        if (exception is DisplayException displayException)
+        {
+            Task.Run(async () =>
+            {
+                await AlertService.Error(
+                    SmartTranslateService.Translate("Error"),
+                    SmartTranslateService.Translate(displayException.Message)
+                    );
+            });
+            
+            Recover();
+
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     public new void Recover()

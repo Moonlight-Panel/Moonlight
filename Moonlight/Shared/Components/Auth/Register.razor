@@ -6,8 +6,12 @@
 *@
 
 @using Moonlight.App.Services
+@using Moonlight.App.Services.OAuth2
 
 @inject SmartTranslateService SmartTranslateService
+@inject GoogleOAuth2Service GoogleOAuth2Service
+@inject NavigationManager NavigationManager
+@inject DiscordOAuth2Service DiscordOAuth2Service
 
 <div class="d-flex flex-center">
     <div class="card rounded-3 w-md-550px">
@@ -25,17 +29,17 @@
 
                     <div class="row g-3 mb-9">
                         <div class="col-md-6">
-                            <a href="#" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                            <a href="#" @onclick:preventDefault @onclick="DoDiscord" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
                                 <div class="h-15px me-3">
-                                    <i class="bx bx-md bxl-discord-alt"></i>
+                                    <i class="mb-1 bx bx-md bxl-discord-alt"></i>
                                 </div>
                                 <TL>Sign up with Discord</TL>
                             </a>
                         </div>
                         <div class="col-md-6">
-                            <a href="#" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                            <a href="#" @onclick:preventDefault @onclick="DoGoogle" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
                                 <div class="h-15px me-3">
-                                    <i class="bx bx-md bxl-google"></i>
+                                    <i class="mb-1 bx bx-md bxl-google"></i>
                                 </div>
                                 <TL>Sign up with Google</TL>
                             </a>
@@ -86,3 +90,18 @@
         </div>
     </div>
 </div>
+
+@code
+{
+    private async Task DoGoogle()
+    {
+        var url = await GoogleOAuth2Service.GetUrl();
+        NavigationManager.NavigateTo(url, true);
+    }
+    
+    private async Task DoDiscord()
+    {
+        var url = await DiscordOAuth2Service.GetUrl();
+        NavigationManager.NavigateTo(url, true);
+    }
+}

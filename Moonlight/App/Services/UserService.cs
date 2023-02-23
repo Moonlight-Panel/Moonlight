@@ -68,13 +68,7 @@ public class UserService
         //var mail = new WelcomeMail(user);
         //await MailService.Send(mail, user);
 
-        return JwtBuilder.Create()
-            .WithAlgorithm(new HMACSHA256Algorithm())
-            .WithSecret(JwtSecret)
-            .AddClaim("exp", DateTimeOffset.UtcNow.AddDays(10).ToUnixTimeSeconds())
-            .AddClaim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds())
-            .AddClaim("userid", user.Id)
-            .Encode();
+        return await GenerateToken(user);
     }
 
     public Task<bool> CheckTotp(string email, string password)
@@ -123,13 +117,7 @@ public class UserService
             {
                 //AuditLogService.Log("login:success", $"{user.Email} has successfully logged in");
 
-                return JwtBuilder.Create()
-                    .WithAlgorithm(new HMACSHA256Algorithm())
-                    .WithSecret(JwtSecret)
-                    .AddClaim("exp", DateTimeOffset.UtcNow.AddDays(10).ToUnixTimeSeconds())
-                    .AddClaim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds())
-                    .AddClaim("userid", user.Id)
-                    .Encode();
+                return await GenerateToken(user);
             }
             else
             {
@@ -141,17 +129,11 @@ public class UserService
         {
             //AuditLogService.Log("login:success", $"{user.Email} has successfully logged in");
 
-            return JwtBuilder.Create()
-                .WithAlgorithm(new HMACSHA256Algorithm())
-                .WithSecret(JwtSecret)
-                .AddClaim("exp", DateTimeOffset.UtcNow.AddDays(10).ToUnixTimeSeconds())
-                .AddClaim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds())
-                .AddClaim("userid", user.Id)
-                .Encode();
+            return await GenerateToken(user!);
         }
     }
 
-    public async Task ChangePassword(User user, string password)
+    public Task ChangePassword(User user, string password)
     {
         user.Password = BCrypt.Net.BCrypt.HashPassword(password);
         user.TokenValidTime = DateTime.Now;
@@ -161,6 +143,8 @@ public class UserService
         //await MailService.Send(mail, user);
             
         //AuditLogService.Log("password:change", "The password has been set to a new one");
+        
+        return Task.CompletedTask;
     }
 
     public Task<User> SftpLogin(int id, string password)
@@ -178,5 +162,18 @@ public class UserService
         
         //TODO: Log
         throw new Exception("Invalid userid or password");
+    }
+
+    public Task<string> GenerateToken(User user)
+    {
+        var token = JwtBuilder.Create()
+            .WithAlgorithm(new HMACSHA256Algorithm())
+            .WithSecret(JwtSecret)
+            .AddClaim("exp", DateTimeOffset.UtcNow.AddDays(10).ToUnixTimeSeconds())
+            .AddClaim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            .AddClaim("userid", user.Id)
+            .Encode();
+
+        return Task.FromResult(token);
     }
 }

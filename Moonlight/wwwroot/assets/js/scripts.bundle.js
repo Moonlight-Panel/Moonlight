@@ -2462,8 +2462,17 @@ KTMenu.updateDropdowns = function() {
     }
 }
 
+// Bug fix for menu load initializing
+KTMenu.hasInit = false;
+
 // Global handlers
 KTMenu.initHandlers = function() {
+    
+    if(KTMenu.hasInit)
+        return;
+    
+    KTMenu.hasInit = true;
+    
     // Dropdown handler
     document.addEventListener("click", function(e) {
         var items = document.querySelectorAll('.show.menu-dropdown[data-kt-menu-trigger]');

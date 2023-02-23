@@ -7,6 +7,7 @@ using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Interop;
+using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Support;
 
@@ -56,6 +57,8 @@ namespace Moonlight
             builder.Services.AddSingleton<PaperService>();
             builder.Services.AddScoped<ClipboardService>();
             builder.Services.AddSingleton<ResourceService>();
+            builder.Services.AddScoped<GoogleOAuth2Service>();
+            builder.Services.AddScoped<DiscordOAuth2Service>();
 
             builder.Services.AddScoped<AuditLogService>();
             builder.Services.AddScoped<SystemAuditLogService>();
