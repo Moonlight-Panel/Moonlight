@@ -6,7 +6,6 @@
 @using Moonlight.App.Services.Support
 
 @inject ResourceService ResourceService
-@inject IdentityService IdentityService
 @inject SupportClientService SupportClientService
 @inject SmartTranslateService SmartTranslateService
 
@@ -143,8 +142,6 @@
 
 @code
 {
-    private User User;
-
     private SupportMessage[] Messages;
     private string Content = "";
     
@@ -152,8 +149,6 @@
 
     private async Task Load(LazyLoader lazyLoader)
     {
-        User = (await IdentityService.Get())!;
-
         await lazyLoader.SetText("Starting chat client");
 
         SupportClientService.OnNewMessage += OnNewMessage;
@@ -162,27 +157,33 @@
         await SupportClientService.Start();
     }
 
-    private async void OnUpdateTyping(object? sender, EventArgs e)
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async void OnNewMessage(object? sender, SupportMessage e)
-    {
-        Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
-        await InvokeAsync(StateHasChanged);
-    }
-
     private async Task Send()
     {
         await SupportClientService.SendMessage(Content);
         Content = "";
         await InvokeAsync(StateHasChanged);
     }
+    
+    #region Message handling
+    
+    private async void OnNewMessage(object? sender, SupportMessage e)
+    {
+        Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
+        await InvokeAsync(StateHasChanged);
+    }
 
     private async Task LoadMessages(LazyLoader arg)
     {
         Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
+    }
+    
+    #endregion
+    
+    #region Typing
+    
+    private async void OnUpdateTyping(object? sender, EventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void OnTyping()
@@ -194,4 +195,6 @@
             await SupportClientService.TriggerTyping();
         }
     }
+    
+    #endregion
 }

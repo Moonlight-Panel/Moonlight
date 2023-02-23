@@ -198,11 +198,8 @@
             await SupportAdminService.Start(User);
         }
     }
-
-    private async void OnUpdateTyping(object? sender, EventArgs e)
-    {
-        await InvokeAsync(StateHasChanged);
-    }
+    
+    #region Message handling
 
     private async void OnNewMessage(object? sender, SupportMessage e)
     {
@@ -214,6 +211,8 @@
     {
         Messages = (await SupportAdminService.GetMessages()).Reverse().ToArray();
     }
+    
+    #endregion
 
     private async Task Send()
     {
@@ -225,6 +224,8 @@
     {
         await SupportAdminService.Close();
     }
+    
+    #region Typing
 
     private async Task OnTyping()
     {
@@ -235,4 +236,11 @@
             await SupportAdminService.TriggerTyping();
         }
     }
+    
+    private async void OnUpdateTyping(object? sender, EventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    #endregion
 }

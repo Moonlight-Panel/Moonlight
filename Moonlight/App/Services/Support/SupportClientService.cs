@@ -49,6 +49,8 @@ public class SupportClientService : IDisposable
                 return Task.CompletedTask;
             });
     }
+    
+    #region Typing
 
     private void HandleTyping(User user)
     {
@@ -82,7 +84,19 @@ public class SupportClientService : IDisposable
             return TypingUsers.ToArray();
         }
     }
+    
+    public Task TriggerTyping()
+    {
+        Task.Run(async () =>
+        {
+            await MessageService.Emit($"support.{Self.Id}.typing", Self);
+        });
 
+        return Task.CompletedTask;
+    }
+
+    #endregion
+    
     public async Task<SupportMessage[]> GetMessages()
     {
         return await SupportServerService.GetMessages(Self);
@@ -100,16 +114,6 @@ public class SupportClientService : IDisposable
             message,
             Self
         );
-    }
-    
-    public Task TriggerTyping()
-    {
-        Task.Run(async () =>
-        {
-            await MessageService.Emit($"support.{Self.Id}.typing", Self);
-        });
-
-        return Task.CompletedTask;
     }
 
     public void Dispose()

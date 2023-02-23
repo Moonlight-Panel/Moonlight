@@ -52,6 +52,8 @@ public class SupportAdminService
             });
     }
     
+    #region Typing
+    
     private void HandleTyping(User user)
     {
         var name = $"{user.FirstName} {user.LastName}";
@@ -84,6 +86,18 @@ public class SupportAdminService
             return TypingUsers.ToArray();
         }
     }
+    
+    public Task TriggerTyping()
+    {
+        Task.Run(async () =>
+        {
+            await MessageService.Emit($"support.{Recipient.Id}.admintyping", Self);
+        });
+
+        return Task.CompletedTask;
+    }
+    
+    #endregion
 
     public async Task<SupportMessage[]> GetMessages()
     {
@@ -108,16 +122,6 @@ public class SupportAdminService
     public async Task Close()
     {
         await SupportServerService.Close(Recipient);
-    }
-
-    public Task TriggerTyping()
-    {
-        Task.Run(async () =>
-        {
-            await MessageService.Emit($"support.{Recipient.Id}.admintyping", Self);
-        });
-
-        return Task.CompletedTask;
     }
 
     public void Dispose()
