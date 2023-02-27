@@ -62,7 +62,6 @@
     <Folder Include="App\Models\AuditLogData" />
     <Folder Include="App\Models\Google\Resources" />
     <Folder Include="resources\lang" />
-    <Folder Include="Shared\Views\Domain" />
     <Folder Include="wwwroot\assets\media" />
   </ItemGroup>
 

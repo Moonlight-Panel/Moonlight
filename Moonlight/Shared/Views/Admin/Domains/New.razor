@@ -1,0 +1,121 @@
+﻿@page "/admin/domains/new"
+@using Moonlight.App.Services
+@using Moonlight.App.Database.Entities
+@using Blazored.Typeahead
+@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Domains
+
+@inject SmartTranslateService SmartTranslateService
+@inject SharedDomainRepository SharedDomainRepository
+@inject DomainRepository DomainRepository
+@inject UserRepository UserRepository
+
+<OnlyAdmin>
+    <div class="row mb-5">
+        <div class="card card-body p-10">
+            <LazyLoader Load="Load">
+                <label class="form-label">
+                    <TL>Domain name</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-purchase-tag-alt"></i>
+                    </span>
+                    <input @bind="Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))" aria-label="Servername">
+                </div>
+                <div class="mb-5">
+                    <label class="form-label">
+                        <TL>Shared domain</TL>
+                    </label>
+                    <select @bind="SharedDomainId" class="form-select">
+                        @if (SharedDomains.Any())
+                        {
+                            foreach (var sharedDomain in SharedDomains)
+                            {
+                                <option value="@(sharedDomain.Id)">@(sharedDomain.Name)</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">
+                                <TL>No shared domains available</TL>
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="input-group mb-5">
+                    <div class="form-select">
+                        <BlazoredTypeahead SearchMethod="SearchUsers"
+                                           @bind-Value="User">
+                            <SelectedTemplate>
+                                @(context.Email)
+                            </SelectedTemplate>
+                            <ResultTemplate>
+                                @(context.Email)
+                            </ResultTemplate>
+                        </BlazoredTypeahead>
+                    </div>
+                </div>
+                <WButton Text="@(SmartTranslateService.Translate("Add"))"
+                         WorkingText="@(SmartTranslateService.Translate("Adding"))"
+                         CssClasses="btn-success"
+                         OnClick="Add">
+                </WButton>
+            </LazyLoader>
+        </div>
+    </div>
+</OnlyAdmin>
+
+@code
+{
+    private string Name;
+
+    private User? User;
+    private User[] Users;
+
+    private List<SharedDomain> SharedDomains;
+
+    private SharedDomain? SharedDomain;
+
+    private int SharedDomainId
+    {
+        get => SharedDomain?.Id ?? -1;
+        set
+        {
+            SharedDomain = SharedDomains.FirstOrDefault(x => x.Id == value);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private Task<IEnumerable<User>> SearchUsers(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return Task.FromResult(Array.Empty<User>().Cast<User>());
+        }
+        else
+        {
+            return Task.FromResult(Users.Where(x => x.Email.ToLower().StartsWith(input)));
+        }
+    }
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        Users = UserRepository.Get().ToArray();
+        SharedDomains = SharedDomainRepository.Get().ToList();
+
+        return Task.CompletedTask;
+    }
+
+    private Task Add()
+    {
+        DomainRepository.Add(new()
+        {
+            Name = Name,
+            Owner = User!,
+            SharedDomain = SharedDomain!
+        });
+        
+        return Task.CompletedTask;
+    }
+}

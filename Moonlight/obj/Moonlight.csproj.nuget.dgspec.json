@@ -1,33 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\Moonlight.csproj": {}
+    "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj": {}
   },
   "projects": {
-    "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\Moonlight.csproj": {
+    "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\Moonlight.csproj",
+        "projectUniqueName": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
         "projectName": "Moonlight",
-        "projectPath": "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\Moonlight.csproj",
+        "projectPath": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
         "packagesPath": "C:\\Users\\marce\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\marce\\source\\repos\\MoonlightPublic\\Moonlight\\Moonlight\\obj\\",
+        "outputPath": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\marce\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\marce\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Users\\marce\\source\\repos\\Logging.Net\\LoggingNet\\LoggingNet\\bin\\Release\\net5.0\\newpublish": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -157,10 +149,29 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.14, 6.0.14]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[6.0.14, 6.0.14]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.14, 6.0.14]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.14, 6.0.14]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -169,7 +180,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\marce\\.dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }

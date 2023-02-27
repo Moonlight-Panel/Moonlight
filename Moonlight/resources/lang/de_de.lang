@@ -232,3 +232,7 @@ Shared domains;Shared domains
 Shared domain;Shared domain
 Shared domain successfully deleted;Shared domain successfully deleted
 Shared domain successfully added;Shared domain successfully added
+Domain name;Domain name
+DNS records for;DNS records for 
+Fetching dns records;Fetching dns records
+No dns records found;No dns records found

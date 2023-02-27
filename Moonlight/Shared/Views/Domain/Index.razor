@@ -1,0 +1,125 @@
+﻿@page "/domain/{Id:int}"
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Repositories.Domains
+@using Moonlight.App.Database.Entities
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+
+@inject IdentityService IdentityService
+@inject DomainRepository DomainRepository
+@inject DomainService DomainService
+@inject SmartTranslateService SmartTranslateService
+
+<LazyLoader Load="Load">
+    @if (Domain == null)
+    {
+        <div class="alert alert-danger">
+            <TL>This domain does not exist or you have no access to it</TL>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <TL>DNS records for</TL><span class="ms-3">@($"{Domain.Name}.{Domain.SharedDomain.Name}")</span>
+                </span>
+            </div>
+            <LazyLoader Load="LoadDnsRecords">
+                <div class="card-body">
+                    
+                </div>
+                <div class="">
+                    @if (DnsRecords.Any())
+                    {
+                        <div class="row">
+                            <div class="">
+                                <div class="accordion accordion-flush" id="accordionDomain">
+                                    @foreach (var record in DnsRecords)
+                                    {
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="heading@(record.Id)">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(record.Id)" aria-expanded="false" aria-controls="collapse@(record.Id)">
+                                                    <div class="w-100 d-flex flex-row justify-content-between align-items-center">
+                                                        <div class="p-2">
+                                                            @(record.Type.ToString().ToUpper())
+                                                        </div>
+                                                        <div class="p-2">
+                                                            @(record.Name == "" ? $"{Domain.Name}.{Domain.SharedDomain.Name}" : record.Name)
+                                                        </div>
+                                                        <div class="p-2">
+                                                            @(record.Content)
+                                                        </div>
+                                                        <div class="p-2">
+                                                            @(record.Proxied)
+                                                        </div>
+                                                        <div class="p-2 pe-6">
+                                                            @(record.Ttl)
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            </h2>
+                                            <div id="collapse@(record.Id)" class="accordion-collapse collapse" aria-labelledby="heading@(record.Id)" data-bs-parent="#accordionDomain">
+                                                <div class="accordion-body">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-primary">
+                            <TL>No dns records found</TL>
+                        </div>
+                    }
+                </div>
+            </LazyLoader>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private Domain? Domain;
+    private DnsRecord[] DnsRecords;
+
+    private async Task Load(LazyLoader arg)
+    {
+        Domain = DomainRepository
+            .Get()
+            .Include(x => x.SharedDomain)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (Domain == null)
+            return;
+
+        var user = await IdentityService.Get();
+
+        if (user == null)
+        {
+            Domain = null;
+            return;
+        }
+
+        if (Domain.Owner.Id != user.Id && !user.Admin)
+        {
+            Domain = null;
+            return;
+        }
+    }
+
+    private async Task LoadDnsRecords(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText(SmartTranslateService.Translate("Fetching dns records"));
+        DnsRecords = await DomainService.GetDnsRecords(Domain!);
+    }
+}

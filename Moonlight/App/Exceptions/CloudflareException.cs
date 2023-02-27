@@ -1,5 +1,7 @@
 ﻿using System.Runtime.Serialization;
 
+namespace Moonlight.App.Exceptions;
+
 [Serializable]
 public class CloudflareException : Exception
 {
