@@ -1,0 +1,41 @@
+﻿@using Moonlight.App.Services.Interop
+@using Moonlight.App.Exceptions
+@using Moonlight.App.Services
+@inherits ErrorBoundaryBase
+
+@inject AlertService AlertService
+@inject SmartTranslateService SmartTranslateService
+
+@ChildContent
+
+@code
+{
+    protected override async Task OnErrorAsync(Exception exception)
+    {
+        if (exception is DisplayException displayException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error"),
+                SmartTranslateService.Translate(displayException.Message)
+                );
+        }
+        else if (exception is CloudflareException cloudflareException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from cloudflare api"),
+                cloudflareException.Message
+                );
+        }
+        else if (exception is WingsException wingsException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from daemon"),
+                wingsException.Message
+                );
+        }
+        else
+        {
+            throw exception;
+        }
+    }
+}

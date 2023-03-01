@@ -1,12 +1,16 @@
 ﻿using CloudFlare.Client;
 using CloudFlare.Client.Api.Authentication;
+using CloudFlare.Client.Api.Parameters.Data;
 using CloudFlare.Client.Api.Result;
 using CloudFlare.Client.Api.Zones;
+using CloudFlare.Client.Api.Zones.DnsRecord;
+using CloudFlare.Client.Enumerators;
+using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
-using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories.Domains;
+using DnsRecord = Moonlight.App.Models.Misc.DnsRecord;
 
 namespace Moonlight.App.Services;
 
@@ -107,6 +111,95 @@ public class DomainService
         return result.ToArray();
     }
 
+    public async Task AddDnsRecord(Domain d, DnsRecord dnsRecord)
+    {
+        var domain = EnsureData(d);
+        
+        var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
+        var dname = $".{rname}";
+
+        if (dnsRecord.Type == DnsRecordType.Srv)
+        {
+            var parts = dnsRecord.Name.Split(".");
+            Enum.TryParse(parts[1], out Protocol protocol);
+
+            var valueParts = dnsRecord.Content.Split(" ");
+
+            var nameWithoutProt = dnsRecord.Name.Replace($"{parts[0]}.{parts[1]}.", "");
+            nameWithoutProt = nameWithoutProt.Replace($"{parts[0]}.{parts[1]}", "");
+            var name = nameWithoutProt == "" ? rname : nameWithoutProt + dname;
+
+            var srv = new NewDnsRecord<Srv>()
+            {
+                Type = dnsRecord.Type,
+                Data = new()
+                {
+
+                    Service = parts[0],
+                    Protocol = protocol,
+                    Name = name,
+                    Weight = int.Parse(valueParts[0]),
+                    Port = int.Parse(valueParts[1]),
+                    Target = valueParts[2],
+                    Priority = dnsRecord.Priority
+                },
+                Proxied = dnsRecord.Proxied,
+                Ttl = dnsRecord.Ttl,
+            };
+            
+            GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, srv));
+        }
+        else
+        {
+            var name = string.IsNullOrEmpty(dnsRecord.Name) ? rname : dnsRecord.Name + dname;
+
+            GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, new NewDnsRecord()
+            {
+                Type = dnsRecord.Type,
+                Priority = dnsRecord.Priority,
+                Content = dnsRecord.Content,
+                Proxied = dnsRecord.Proxied,
+                Ttl = dnsRecord.Ttl,
+                Name = name
+            }));
+        }
+    }
+    
+    public async Task UpdateDnsRecord(Domain d, DnsRecord dnsRecord)
+    {
+        var domain = EnsureData(d);
+        
+        var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
+        var dname = $".{rname}";
+
+        if (dnsRecord.Type == DnsRecordType.Srv)
+        {
+            throw new DisplayException("SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one");
+        }
+        else
+        {
+            var name = dnsRecord.Name == "" ? rname : dnsRecord.Name + dname;
+            
+            GetData(await Client.Zones.DnsRecords.UpdateAsync(d.SharedDomain.CloudflareId, dnsRecord.Id, new ModifiedDnsRecord()
+            {
+                Content = dnsRecord.Content,
+                Proxied = dnsRecord.Proxied,
+                Ttl = dnsRecord.Ttl,
+                Name = name,
+                Type = dnsRecord.Type
+            }));
+        }
+    }
+
+    public async Task DeleteDnsRecord(Domain d, DnsRecord dnsRecord)
+    {
+        var domain = EnsureData(d);
+
+        GetData(
+            await Client.Zones.DnsRecords.DeleteAsync(domain.SharedDomain.CloudflareId, dnsRecord.Id)
+        );
+    }
+
     private Domain EnsureData(Domain domain)
     {
         if (domain.SharedDomain != null)
@@ -121,7 +214,16 @@ public class DomainService
     {
         if (!result.Success)
         {
-            var message = result.Errors.First().ErrorChain.First().Message;
+            string message;
+            
+            try
+            {
+                message = result.Errors.First().ErrorChain.First().Message;
+            }
+            catch (Exception)
+            {
+                throw new CloudflareException("No error message provided");
+            }
 
             throw new CloudflareException(message);
         }

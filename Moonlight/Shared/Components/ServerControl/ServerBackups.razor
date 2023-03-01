@@ -112,10 +112,10 @@
 
     protected override void OnInitialized()
     {
-        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.create", this, async (backup) =>
+        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.create", this, (backup) =>
         {
             if (AllBackups == null)
-                return;
+                return Task.CompletedTask;
 
             if (AllBackups.Any(x => x.Id == backup.Id))
             {
@@ -126,12 +126,14 @@
                     await LazyLoader.Reload();
                 });
             }
+            
+            return Task.CompletedTask;
         });
 
-        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.createfailed", this, async (backup) =>
+        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.createfailed", this, (backup) =>
         {
             if (AllBackups == null)
-                return;
+                return Task.CompletedTask;
 
             if (AllBackups.Any(x => x.Id == backup.Id))
             {
@@ -141,6 +143,8 @@
                     await LazyLoader.Reload();
                 });
             }
+            
+            return Task.CompletedTask;
         });
 
         MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.delete", this, async (backup) =>

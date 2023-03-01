@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "h+m+sPm3O7eUNxvWdurMZhK8n+X4XIB2K11iRoLniiWZkh0HpElt3QhjSoP/Rps/4kXgZiTwr+r4hbh4gDxAFA==",
+  "dgSpecHash": "vaAqxQVZgwjBmv9wk4mLw5OLlAnxWHEIocSEveXG2u/Qy6MfU1wC5VzWGYfj+fE6X2bAWVxfQLUtpy9spJL3Mg==",
   "success": true,
   "projectFilePath": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
   "expectedPackageFiles": [
@@ -149,11 +149,7 @@
     "C:\\Users\\marce\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\uaparser\\3.1.47\\uaparser.3.1.47.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\xtermblazor\\1.6.1\\xtermblazor.1.6.1.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.14\\microsoft.netcore.app.ref.6.0.14.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.14\\microsoft.windowsdesktop.app.ref.6.0.14.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.14\\microsoft.aspnetcore.app.ref.6.0.14.nupkg.sha512",
-    "C:\\Users\\marce\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.14\\microsoft.netcore.app.host.win-x64.6.0.14.nupkg.sha512"
+    "C:\\Users\\marce\\.nuget\\packages\\xtermblazor\\1.6.1\\xtermblazor.1.6.1.nupkg.sha512"
   ],
   "logs": []
 }

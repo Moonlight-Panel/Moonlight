@@ -1,5 +1,5 @@
 ﻿using Moonlight.App.Database.Entities;
-using Moonlight.App.Exceptions.Wings;
+using Moonlight.App.Exceptions;
 using Newtonsoft.Json;
 using RestSharp;
 

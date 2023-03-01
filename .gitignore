@@ -444,3 +444,10 @@ Moonlight/obj/project.nuget.cache
 Moonlight/obj/project.packagespec.json
 Moonlight/obj/Debug/net6.0/Moonlight.GeneratedMSBuildEditorConfig.editorconfig
 *.editorconfig
+Moonlight/obj/Debug/net6.0/Moonlight.GeneratedMSBuildEditorConfig.editorconfig
+*.cache
+*.editorconfig
+Moonlight/obj/Moonlight.csproj.nuget.dgspec.json
+Moonlight/obj/project.assets.json
+Moonlight/obj/project.nuget.cache
+Moonlight/obj/project.packagespec.json

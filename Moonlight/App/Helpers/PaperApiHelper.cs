@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Moonlight.App.Exceptions;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace Moonlight.App.Helpers;
@@ -33,7 +34,7 @@ public class PaperApiHelper
         {
             if (response.StatusCode != 0)
             {
-                throw new Exception(
+                throw new PaperException(
                     $"An error occured: ({response.StatusCode}) {response.Content}"
                 );
             }
@@ -43,6 +44,6 @@ public class PaperApiHelper
             }
         }
 
-        return JsonConvert.DeserializeObject<T>(response.Content);
+        return JsonConvert.DeserializeObject<T>(response.Content!)!;
     }
 }

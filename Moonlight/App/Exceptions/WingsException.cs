@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Moonlight.App.Exceptions.Wings;
+namespace Moonlight.App.Exceptions;
 
 [Serializable]
 public class WingsException : Exception

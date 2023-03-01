@@ -59,40 +59,42 @@
                             <div id="kt_app_content_container" class="app-container container-fluid">
                                 <div class="mt-10">
                                     <PageErrorBoundary>
-                                        @if (uri.LocalPath != "/login" &&
-                                             uri.LocalPath != "/register")
-                                        {
-                                            if (User == null)
+                                        <SoftErrorBoundary>
+                                            @if (uri.LocalPath != "/login" &&
+                                                 uri.LocalPath != "/register")
                                             {
-                                                <Login></Login>
-                                            }
-                                            else
-                                            {
-                                                if (User.Status == UserStatus.Banned)
+                                                if (User == null)
                                                 {
-                                                    <BannedAlert></BannedAlert>
-                                                }
-                                                else if (User.Status == UserStatus.Disabled)
-                                                {
-                                                    <DisabledAlert></DisabledAlert>
+                                                    <Login></Login>
                                                 }
                                                 else
                                                 {
-                                                    @Body
+                                                    if (User.Status == UserStatus.Banned)
+                                                    {
+                                                        <BannedAlert></BannedAlert>
+                                                    }
+                                                    else if (User.Status == UserStatus.Disabled)
+                                                    {
+                                                        <DisabledAlert></DisabledAlert>
+                                                    }
+                                                    else
+                                                    {
+                                                        @Body
+                                                    }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (uri.LocalPath == "/login")
+                                            else
                                             {
-                                                <Login></Login>
+                                                if (uri.LocalPath == "/login")
+                                                {
+                                                    <Login></Login>
+                                                }
+                                                else if (uri.LocalPath == "/register")
+                                                {
+                                                    <Register></Register>
+                                                }
                                             }
-                                            else if (uri.LocalPath == "/register")
-                                            {
-                                                <Register></Register>
-                                            }
-                                        }
+                                        </SoftErrorBoundary>
                                     </PageErrorBoundary>
                                 </div>
                             </div>
@@ -160,7 +162,7 @@
                             await ToastService.Info($"Support: {message.Message}");
                         }
                     });
-                
+
                 RunDelayedMenu(0);
                 RunDelayedMenu(1);
                 RunDelayedMenu(3);
@@ -204,8 +206,8 @@
             }
             catch (Exception e)
             {
-                //Logger.Warn("Delayed menu error");
-                //Logger.Warn(e);
+    //Logger.Warn("Delayed menu error");
+    //Logger.Warn(e);
             }
         });
     }

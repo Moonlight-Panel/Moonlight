@@ -236,3 +236,13 @@ Domain name;Domain name
 DNS records for;DNS records for 
 Fetching dns records;Fetching dns records
 No dns records found;No dns records found
+Content;Content
+Priority;Priority
+Ttl;Ttl
+Enable cloudflare proxy;Enable cloudflare proxy
+CF Proxy;CF Proxy
+ days ago; days ago
+Cancle;Cancle
+An unexpected error occured;An unexpected error occured
+Testy;Testy
+Error from cloudflare api;Error from cloudflare api

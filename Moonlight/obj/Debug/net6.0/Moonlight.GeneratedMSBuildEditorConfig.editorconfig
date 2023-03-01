@@ -5,7 +5,6 @@ build_property.UsingMicrosoftNETSdkWeb = true
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = 
 build_property.PlatformNeutralAssembly = 
-build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Moonlight
 build_property.RootNamespace = Moonlight
@@ -50,6 +49,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/ErrorBoundaries/PageErrorBoundary.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcRXJyb3JCb3VuZGFyaWVzXFBhZ2VFcnJvckJvdW5kYXJ5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/ErrorBoundaries/SoftErrorBoundary.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcRXJyb3JCb3VuZGFyaWVzXFNvZnRFcnJvckJvdW5kYXJ5LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/FileManagerPartials/FileEditor.razor]

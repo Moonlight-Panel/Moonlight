@@ -111,7 +111,7 @@
     {
         DomainRepository.Add(new()
         {
-            Name = Name,
+            Name = Name.ToLower(),
             Owner = User!,
             SharedDomain = SharedDomain!
         });
