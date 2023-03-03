@@ -246,3 +246,14 @@ Cancle;Cancle
 An unexpected error occured;An unexpected error occured
 Testy;Testy
 Error from cloudflare api;Error from cloudflare api
+Profile;Profile
+No subscription available;No subscription available
+Buy;Buy
+Redirecting;Redirecting
+Apply;Apply
+Applying code;Applying code
+Invalid subscription code;Invalid subscription code
+Cancel Subscription;Cancel Subscription
+Active until;Active until
+We will send you a notification upon subscription expiration;We will send you a notification upon subscription expiration
+This token has been already used;This token has been already used

@@ -64,4 +64,16 @@ public static class Formatter
 
         return Math.Round(timeSince.TotalDays) + (translateService == null ? " days ago" : translateService.Translate(" days ago"));
     }
+    
+    public static string FormatDate(DateTime e)
+    {
+        string i2s(int i)
+        {
+            if (i.ToString().Length < 2)
+                return "0" + i;
+            return i.ToString();
+        }
+        
+        return $"{i2s(e.Day)}.{i2s(e.Month)}.{e.Year} {i2s(e.Hour)}:{i2s(e.Minute)}";
+    }
 }

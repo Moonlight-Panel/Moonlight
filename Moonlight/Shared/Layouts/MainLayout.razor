@@ -40,71 +40,73 @@
         }
     }
 
-    <PageTitle>@(string.IsNullOrEmpty(title) ? "Dashboard - " : title)Moonlight</PageTitle>
+    <CascadingValue Value="User">
+        <PageTitle>@(string.IsNullOrEmpty(title) ? "Dashboard - " : title)Moonlight</PageTitle>
 
-    <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
-        <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
-            <canvas id="snow" class="snow-canvas"></canvas>
+        <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+            <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+                <canvas id="snow" class="snow-canvas"></canvas>
 
-            @{
-                //TODO: Add a way to disable the snow
-            }
+                @{
+                    //TODO: Add a way to disable the snow
+                }
 
-            <PageHeader></PageHeader>
-            <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
-                <Sidebar></Sidebar>
-                <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-                    <div class="d-flex flex-column flex-column-fluid">
-                        <div id="kt_app_content" class="app-content flex-column-fluid">
-                            <div id="kt_app_content_container" class="app-container container-fluid">
-                                <div class="mt-10">
-                                    <PageErrorBoundary>
-                                        <SoftErrorBoundary>
-                                            @if (uri.LocalPath != "/login" &&
-                                                 uri.LocalPath != "/register")
-                                            {
-                                                if (User == null)
+                <PageHeader></PageHeader>
+                <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+                    <Sidebar></Sidebar>
+                    <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+                        <div class="d-flex flex-column flex-column-fluid">
+                            <div id="kt_app_content" class="app-content flex-column-fluid">
+                                <div id="kt_app_content_container" class="app-container container-fluid">
+                                    <div class="mt-10">
+                                        <PageErrorBoundary>
+                                            <SoftErrorBoundary>
+                                                @if (uri.LocalPath != "/login" &&
+                                                     uri.LocalPath != "/register")
                                                 {
-                                                    <Login></Login>
-                                                }
-                                                else
-                                                {
-                                                    if (User.Status == UserStatus.Banned)
+                                                    if (User == null)
                                                     {
-                                                        <BannedAlert></BannedAlert>
-                                                    }
-                                                    else if (User.Status == UserStatus.Disabled)
-                                                    {
-                                                        <DisabledAlert></DisabledAlert>
+                                                        <Login></Login>
                                                     }
                                                     else
                                                     {
-                                                        @Body
+                                                        if (User.Status == UserStatus.Banned)
+                                                        {
+                                                            <BannedAlert></BannedAlert>
+                                                        }
+                                                        else if (User.Status == UserStatus.Disabled)
+                                                        {
+                                                            <DisabledAlert></DisabledAlert>
+                                                        }
+                                                        else
+                                                        {
+                                                            @Body
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            else
-                                            {
-                                                if (uri.LocalPath == "/login")
+                                                else
                                                 {
-                                                    <Login></Login>
+                                                    if (uri.LocalPath == "/login")
+                                                    {
+                                                        <Login></Login>
+                                                    }
+                                                    else if (uri.LocalPath == "/register")
+                                                    {
+                                                        <Register></Register>
+                                                    }
                                                 }
-                                                else if (uri.LocalPath == "/register")
-                                                {
-                                                    <Register></Register>
-                                                }
-                                            }
-                                        </SoftErrorBoundary>
-                                    </PageErrorBoundary>
+                                            </SoftErrorBoundary>
+                                        </PageErrorBoundary>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <Footer></Footer>
                     </div>
-                    <Footer></Footer>
                 </div>
             </div>
         </div>
-    </div>
+    </CascadingValue>
 </GlobalErrorBoundary>
 
 @code

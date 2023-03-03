@@ -2,11 +2,11 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Database.Entities
 @using Moonlight.App.Services.Sessions
 
 @inject DatabaseRepository DatabaseRepository
 @inject ServerRepository ServerRepository
-@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
 <div class="row mb-5">
@@ -222,21 +222,22 @@
 
 @code
 {
+    [CascadingParameter]
+    public User User { get; set; }
+    
     private int DatabaseCount = 0;
     private int ServerCount = 0;
 
     private async Task Load(LazyLoader lazyLoader)
     {
-        var user = await IdentityService.Get();
-        
         DatabaseCount = DatabaseRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == user.Id);
+            .Count(x => x.Owner.Id == User.Id);
         
         ServerCount = ServerRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == user.Id);
+            .Count(x => x.Owner.Id == User.Id);
     }
 }

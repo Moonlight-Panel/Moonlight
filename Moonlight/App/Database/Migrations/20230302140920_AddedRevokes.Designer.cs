@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230302140920_AddedRevokes")]
+    partial class AddedRevokes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -443,9 +446,6 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -594,14 +594,8 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("SubscriptionDuration")
-                        .HasColumnType("int");
-
                     b.Property<int?>("SubscriptionId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("SubscriptionSince")
-                        .HasColumnType("datetime(6)");
 
                     b.Property<bool>("SupportPending")
                         .HasColumnType("tinyint(1)");

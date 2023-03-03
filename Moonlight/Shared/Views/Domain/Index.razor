@@ -6,15 +6,11 @@
 @using Moonlight.App.Models.Misc
 @using Moonlight.App.Services
 @using CloudFlare.Client.Enumerators
-@using Logging.Net
-@using Moonlight.App.Exceptions
 @using Moonlight.App.Services.Interop
 
-@inject IdentityService IdentityService
 @inject DomainRepository DomainRepository
 @inject DomainService DomainService
 @inject SmartTranslateService SmartTranslateService
-@inject ToastService ToastService
 
 <LazyLoader Load="Load">
     @if (Domain == null)
@@ -176,6 +172,9 @@
 {
     [Parameter]
     public int Id { get; set; }
+    
+    [CascadingParameter]
+    public User? User { get; set; }
 
     private Domain? Domain;
     private DnsRecord[] DnsRecords;
@@ -198,15 +197,13 @@
         if (Domain == null)
             return;
 
-        var user = await IdentityService.Get();
-
-        if (user == null)
+        if (User == null)
         {
             Domain = null;
             return;
         }
 
-        if (Domain.Owner.Id != user.Id && !user.Admin)
+        if (Domain.Owner.Id != User.Id && !User.Admin)
         {
             Domain = null;
             return;

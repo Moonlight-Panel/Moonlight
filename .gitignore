@@ -451,3 +451,4 @@ Moonlight/obj/Moonlight.csproj.nuget.dgspec.json
 Moonlight/obj/project.assets.json
 Moonlight/obj/project.nuget.cache
 Moonlight/obj/project.packagespec.json
+*.editorconfig

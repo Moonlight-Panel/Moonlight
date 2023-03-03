@@ -1,0 +1,49 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Misc
+
+<div class="card mb-5 mb-xl-10">
+    <div class="card-body pt-9 pb-0">
+        <div class="d-flex flex-wrap flex-sm-nowrap mb-3">
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center mb-2">
+                            <a class="text-gray-900 fs-2 fw-bold me-1">@(User.FirstName) @(User.LastName)</a>
+                            
+                            @if (User.Status == UserStatus.Verified)
+                            {
+                                <i class="text-success bx bx-md bxs-badge-check"></i>
+                            }
+                        </div>
+                        <div class="d-flex flex-wrap fw-semibold fs-6 mb-4 pe-2">
+                            <span class="d-flex align-items-center text-gray-400 mb-2">
+                                @(User.Email)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 0 ? "active" : "")" href="/profile">
+                    Overview
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 1 ? "active" : "")" href="/profile/subscriptions">
+                    Subscriptions
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public User User { get; set; }
+
+    [Parameter]
+    public int Index { get; set; } = 0;
+}

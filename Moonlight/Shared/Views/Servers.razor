@@ -2,9 +2,9 @@
 @using Moonlight.App.Services.Sessions
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Database.Entities
 @using Moonlight.App.Services
 
-@inject IdentityService IdentityService
 @inject ServerRepository ServerRepository
 @inject IServiceScopeFactory ServiceScopeFactory
 
@@ -81,20 +81,21 @@
 
 @code
 {
+    [CascadingParameter]
+    public User User { get; set; }
+    
     private App.Database.Entities.Server[] AllServers;
     private readonly Dictionary<App.Database.Entities.Server, string> StatusCache = new();
 
-    private async Task Load(LazyLoader arg)
+    private Task Load(LazyLoader arg)
     {
-        var user = await IdentityService.Get();
-
         AllServers = ServerRepository
             .Get()
             .Include(x => x.Owner)
             .Include(x => x.MainAllocation)
             .Include(x => x.Node)
             .Include(x => x.Image)
-            .Where(x => x.Owner.Id == user.Id)
+            .Where(x => x.Owner.Id == User.Id)
             .ToArray();
 
         foreach (var server in AllServers)
@@ -114,6 +115,8 @@
                 }
             });
         }
+        
+        return Task.CompletedTask;
     }
 
     private void AddStatus(App.Database.Entities.Server server, string status)

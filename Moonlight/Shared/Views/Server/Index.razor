@@ -122,6 +122,9 @@
 
     [Parameter]
     public string ServerUuid { get; set; }
+    
+    [CascadingParameter]
+    public User User { get; set; }
 
     [Parameter]
     public string? Route { get; set; }
@@ -165,8 +168,6 @@
         {
             var uuid = Guid.Parse(ServerUuid);
 
-            var user = await IdentityService.Get();
-            
             CurrentServer = ServerRepository
                 .Get()
                 .Include(x => x.Allocations)
@@ -177,7 +178,7 @@
                 .Include(x => x.Owner)
                 .First(x => x.Uuid == uuid);
 
-            if (CurrentServer.Owner.Id != user!.Id)
+            if (CurrentServer.Owner.Id != User!.Id)
                 CurrentServer = null;
         }
         catch (Exception)

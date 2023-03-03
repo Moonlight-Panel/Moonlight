@@ -5,6 +5,9 @@ namespace Moonlight.App.Database.Entities;
 public class User
 {
     public int Id { get; set; }
+    
+    // Personal data
+    
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";
     public string Email { get; set; } = "";
@@ -13,15 +16,29 @@ public class User
     public string City { get; set; } = "";
     public string State { get; set; } = "";
     public string Country { get; set; } = "";
+    
+    // States
+    
     public UserStatus Status { get; set; } = UserStatus.Unverified;
+    public bool Admin { get; set; } = false;
+    public bool SupportPending { get; set; } = false;
+    
+    // Security
     public bool TotpEnabled { get; set; } = false;
     public string TotpSecret { get; set; } = "";
     public DateTime TokenValidTime { get; set; } = DateTime.Now;
+    
+    // Discord
     public long DiscordId { get; set; } = -1;
     public string DiscordUsername { get; set; } = "";
     public string DiscordDiscriminator { get; set; } = "";
+    
+    // Date stuff
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    public bool Admin { get; set; } = false;
-    public bool SupportPending { get; set; } = false;
+
+    // Subscriptions
+    public Subscription? Subscription { get; set; } = null;
+    public DateTime? SubscriptionSince { get; set; }
+    public int SubscriptionDuration { get; set; }
 }
