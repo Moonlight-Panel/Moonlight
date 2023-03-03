@@ -19,4 +19,20 @@ public class NotificationClientService
     public User User => NotificationClient.User;
     
     public NotificationClient NotificationClient { get; set; }
+
+    public void SendAction(string action)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void WebsocketReady(NotificationClient client)
+    {
+        NotificationClient = client;
+        NotificationServerService.AddClient(this);
+    }
+
+    public void WebsocketClosed()
+    {
+        NotificationServerService.RemoveClient(this);
+    }
 }

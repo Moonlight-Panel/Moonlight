@@ -35,6 +35,7 @@ public class DataContext : DbContext
     public DbSet<SubscriptionLimit> SubscriptionLimits { get; set; }
     public DbSet<Revoke> Revokes { get; set; }
     public DbSet<NotificationClient> NotificationClients { get; set; }
+    public DbSet<NotificationAction> NotificationActions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

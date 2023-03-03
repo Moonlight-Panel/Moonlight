@@ -41,7 +41,7 @@ public class OneTimeJwtService
         if (validTime == null)
             builder = builder.AddClaim("exp", DateTimeOffset.Now.AddMinutes(10).ToUnixTimeSeconds());
         else
-            builder = builder.AddClaim("exp", DateTimeOffset.Now.Add(validTime.Value));
+            builder = builder.AddClaim("exp", DateTimeOffset.Now.Add(validTime.Value).ToUnixTimeSeconds());
 
         foreach (var o in opt)
         {
