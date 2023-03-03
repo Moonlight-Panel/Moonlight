@@ -9,6 +9,7 @@ using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Repositories.Subscriptions;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Interop;
+using Moonlight.App.Services.Notifications;
 using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Support;
@@ -46,6 +47,7 @@ namespace Moonlight
             builder.Services.AddScoped<SubscriptionRepository>();
             builder.Services.AddScoped<SubscriptionLimitRepository>();
             builder.Services.AddScoped<RevokeRepository>();
+            builder.Services.AddScoped<NotificationRepository>();
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -67,6 +69,9 @@ namespace Moonlight
             builder.Services.AddScoped<DomainService>();
             builder.Services.AddScoped<OneTimeJwtService>();
             builder.Services.AddScoped<SubscriptionService>();
+            builder.Services.AddSingleton<NotificationServerService>();
+            builder.Services.AddScoped<NotificationAdminService>();
+            builder.Services.AddScoped<NotificationClientService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();

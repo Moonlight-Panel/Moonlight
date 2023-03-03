@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Notification;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Database;
@@ -33,6 +34,7 @@ public class DataContext : DbContext
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<SubscriptionLimit> SubscriptionLimits { get; set; }
     public DbSet<Revoke> Revokes { get; set; }
+    public DbSet<NotificationClient> NotificationClients { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
