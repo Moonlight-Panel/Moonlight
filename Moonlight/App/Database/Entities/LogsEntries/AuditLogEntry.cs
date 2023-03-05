@@ -1,6 +1,6 @@
 ﻿using Moonlight.App.Models.Misc;
 
-namespace Moonlight.App.Database.Entities;
+namespace Moonlight.App.Database.Entities.LogsEntries;
 
 public class AuditLogEntry
 {

@@ -1,34 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Dalk YouTube\\source\\github\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj": {}
+    "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Dalk YouTube\\source\\github\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj": {
+    "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Dalk YouTube\\source\\github\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
+        "projectUniqueName": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
         "projectName": "Moonlight",
-        "projectPath": "C:\\Users\\Dalk YouTube\\source\\github\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
-        "packagesPath": "C:\\Users\\Dalk YouTube\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Dalk YouTube\\source\\github\\Moonlight-Panel\\Moonlight\\Moonlight\\obj\\",
+        "projectPath": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\Moonlight.csproj",
+        "packagesPath": "C:\\Users\\marce\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\marce\\GitHub\\Moonlight-Panel\\Moonlight\\Moonlight\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Dalk YouTube\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\marce\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files (x86)\\Syncfusion\\Essential Studio\\WinUI\\19.2.0.44\\NuGetPackages": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "C:\\Users\\Dalk YouTube\\AppData\\Roaming\\Cosmos User Kit\\packages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -171,7 +162,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.406\\RuntimeIdentifierGraph.json"
         }
       }
     }

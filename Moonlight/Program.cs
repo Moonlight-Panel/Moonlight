@@ -5,6 +5,7 @@ using Moonlight.App.Database;
 using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Domains;
+using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Repositories.Subscriptions;
 using Moonlight.App.Services;
@@ -38,7 +39,6 @@ namespace Moonlight
             builder.Services.AddScoped<NodeRepository>();
             builder.Services.AddScoped<ServerRepository>();
             builder.Services.AddScoped<ServerBackupRepository>();
-            builder.Services.AddScoped<AuditLogRepository>();
             builder.Services.AddScoped<DatabaseRepository>();
             builder.Services.AddScoped<ImageRepository>();
             builder.Services.AddScoped<SupportMessageRepository>();
@@ -48,6 +48,10 @@ namespace Moonlight
             builder.Services.AddScoped<SubscriptionLimitRepository>();
             builder.Services.AddScoped<RevokeRepository>();
             builder.Services.AddScoped<NotificationRepository>();
+
+            builder.Services.AddScoped<AuditLogEntryRepository>();
+            builder.Services.AddScoped<ErrorLogEntryRepository>();
+            builder.Services.AddScoped<SecurityLogEntryRepository>();
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -76,8 +80,7 @@ namespace Moonlight
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
 
-            builder.Services.AddScoped<AuditLogService>();
-            builder.Services.AddScoped<SystemAuditLogService>();
+            
 
             // Support
             builder.Services.AddSingleton<SupportServerService>();
