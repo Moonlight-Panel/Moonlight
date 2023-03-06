@@ -10,6 +10,7 @@ using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Repositories.Subscriptions;
 using Moonlight.App.Services;
+using Moonlight.App.Services.DiscordBot;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Notifications;
@@ -110,6 +111,9 @@ namespace Moonlight
             builder.Services.AddScoped<WingsConsoleHelper>();
             builder.Services.AddSingleton<PaperApiHelper>();
             builder.Services.AddSingleton<HostSystemHelper>();
+            
+            // Background services
+            builder.Services.AddSingleton<DiscordBotService>();
 
             // Third party services
 
@@ -137,6 +141,9 @@ namespace Moonlight
             
             // Support service
             var supportServerService = app.Services.GetRequiredService<SupportServerService>();
+            
+            // Discord bot service
+            var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
 
             app.Run();
         }
