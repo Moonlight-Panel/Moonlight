@@ -1,7 +1,7 @@
 ﻿ Common IntelliJ Platform excludes
 
 # User specific
-**/obj/*
+**/obj/**/*
 **/.idea/**/workspace.xml
 **/.idea/**/tasks.xml
 **/.idea/shelf/*
