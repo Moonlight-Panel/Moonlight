@@ -1,0 +1,38 @@
+﻿@page "/admin/system/logs"
+
+@using BlazorTable
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.Navigations
+
+@inject LogService LogService
+@inject SmartTranslateService SmartTranslateService
+
+<OnlyAdmin>
+    <AdminSystemNavigation Index="1"/>
+
+    <div class="card">
+        <div class="card-body">
+            <LazyLoader Load="Load">
+                <Table TableItem="LogEntry" Items="LogEntries" PageSize="25" TableHeadClass="border-bottom border-gray-200 fs-6 text-gray-600 fw-bold bg-light bg-opacity-75">
+                    <Column TableItem="LogEntry" Title="@(SmartTranslateService.Translate("Time"))" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="false"></Column>
+                    <Column TableItem="LogEntry" Title="@(SmartTranslateService.Translate("Log level"))" Field="@(x => x.Level)" Sortable="true" Filterable="false"></Column>
+                    <Column TableItem="LogEntry" Title="@(SmartTranslateService.Translate("Log message"))" Field="@(x => x.Message)" Sortable="false" Filterable="true"></Column>
+                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                </Table>
+            </LazyLoader>
+        </div>
+    </div>
+</OnlyAdmin>
+
+@code
+{
+    private LogEntry[] LogEntries;
+
+    private Task Load(LazyLoader arg)
+    {
+        LogEntries = LogService.GetMessages();
+
+        return Task.CompletedTask;
+    }
+}

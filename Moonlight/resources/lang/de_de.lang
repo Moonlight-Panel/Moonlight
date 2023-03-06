@@ -267,3 +267,10 @@ Server installation is currently running;Server installation is currently runnin
 Selected;Selected
 Move deleted;Move deleted
 Delete selected;Delete selected
+Log level;Log level
+Log message;Log message
+Time;Time
+Version;Version
+You are running moonlight version;You are running moonlight version
+Operating system;Operating system
+Moonlight is running on;Moonlight is running on

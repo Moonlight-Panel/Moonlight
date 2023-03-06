@@ -31,8 +31,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQWxlcnRzXFNldHVwQ29tcGxldGVkQWxlcnQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/AuditLogEntrys/AuditLogEntryChangePassword.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQXVkaXRMb2dFbnRyeXNcQXVkaXRMb2dFbnRyeUNoYW5nZVBhc3N3b3JkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/AuditLogEntrys/AuditLogEntryChangePowerState.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQXVkaXRMb2dFbnRyeXNcQXVkaXRMb2dFbnRyeUNoYW5nZVBvd2VyU3RhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/AuditLogEntrys/AuditLogEntryLogin.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQXVkaXRMb2dFbnRyeXNcQXVkaXRMb2dFbnRyeUxvZ2luLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/AuditLogEntrys/AuditLogEntryRegister.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcQXVkaXRMb2dFbnRyeXNcQXVkaXRMb2dFbnRyeVJlZ2lzdGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/Auth/Login.razor]
@@ -243,8 +255,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXFN5c1xJbmRleC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Admin/Sys/Logging.razor]
-build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXFN5c1xMb2dnaW5nLnJhem9y
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Admin/Sys/Logs.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXFN5c1xMb2dzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Domains.razor]

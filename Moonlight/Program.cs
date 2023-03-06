@@ -3,6 +3,7 @@ using CurrieTechnologies.Razor.SweetAlert2;
 using Logging.Net;
 using Moonlight.App.Database;
 using Moonlight.App.Helpers;
+using Moonlight.App.LogMigrator;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Domains;
 using Moonlight.App.Repositories.LogEntries;
@@ -20,11 +21,20 @@ namespace Moonlight
 {
     public class Program
     {
+        // App version. Change for release
+        public static readonly string AppVersion = $"InDev {Formatter.FormatDateOnly(DateTime.Now.Date)}";
+        
         public static void Main(string[] args)
         {
+            Logger.UsedLogger = new CacheLogger();
+            
             Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
 
             var builder = WebApplication.CreateBuilder(args);
+            
+            // Switch to logging.net injection
+            builder.Logging.ClearProviders();
+            builder.Logging.AddProvider(new LogMigratorProvider());
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -85,6 +95,7 @@ namespace Moonlight
             builder.Services.AddScoped<SecurityLogService>();
             builder.Services.AddScoped<AuditLogService>();
             builder.Services.AddScoped<ErrorLogService>();
+            builder.Services.AddScoped<LogService>();
 
             // Support
             builder.Services.AddSingleton<SupportServerService>();
@@ -98,6 +109,7 @@ namespace Moonlight
             builder.Services.AddSingleton<WingsJwtHelper>();
             builder.Services.AddScoped<WingsConsoleHelper>();
             builder.Services.AddSingleton<PaperApiHelper>();
+            builder.Services.AddSingleton<HostSystemHelper>();
 
             // Third party services
 

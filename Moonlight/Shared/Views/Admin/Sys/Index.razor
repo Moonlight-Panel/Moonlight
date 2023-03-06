@@ -1,9 +1,43 @@
 ﻿@page "/admin/system"
 
 @using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Helpers
+
+@inject HostSystemHelper HostSystemHelper
 
 <OnlyAdmin>
-    <AdminSystemNavigation Index="0" />
-    
-    
+    <AdminSystemNavigation Index="0"/>
+
+    <div class="row">
+        <div class="col-xxl-6">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <TL>Version</TL>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <span class="fs-5">
+                        <TL>You are running moonlight version</TL>
+                        <span class="text-primary">@(Program.AppVersion)</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-6">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">
+                        <TL>Operating system</TL>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <span class="fs-5">
+                        <TL>Moonlight is running on</TL>
+                        <span class="text-primary">@(HostSystemHelper.GetOsName())</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
 </OnlyAdmin>
