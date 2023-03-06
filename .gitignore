@@ -1,7 +1,6 @@
 ﻿ Common IntelliJ Platform excludes
 
 # User specific
-**/obj/**/*
 **/.idea/**/workspace.xml
 **/.idea/**/tasks.xml
 **/.idea/shelf/*
@@ -21,6 +20,12 @@
 **/.idea/**/*.iml
 **/.idea/**/contentModel.xml
 **/.idea/**/modules.xml
+
+
+Moonlight/[Bb]in/
+Moonlight/[Oo]bj/
+Moonlight/_UpgradeReport_Files/
+Moonlight/[Pp]ackages/
 
 *.suo
 *.user
