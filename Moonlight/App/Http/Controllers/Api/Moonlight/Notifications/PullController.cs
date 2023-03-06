@@ -27,7 +27,7 @@ public class PullController : Controller
         Stream req = Request.Body;
         string jwt = await new StreamReader(req).ReadToEndAsync();
 
-        var dict = OneTimeJwtService.Validate(jwt);
+        var dict = await OneTimeJwtService.Validate(jwt);
 
         if (dict == null)
             return NotFound();

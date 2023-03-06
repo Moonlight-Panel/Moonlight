@@ -6,11 +6,13 @@ using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Files;
 using Moonlight.App.Models.Files.Accesses;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Models.Wings;
 using Moonlight.App.Models.Wings.Requests;
 using Moonlight.App.Models.Wings.Resources;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
+using Moonlight.App.Services.LogServices;
 
 namespace Moonlight.App.Services;
 
@@ -25,6 +27,9 @@ public class ServerService
     private readonly UserService UserService;
     private readonly ConfigService ConfigService;
     private readonly WingsJwtHelper WingsJwtHelper;
+    private readonly SecurityLogService SecurityLogService;
+    private readonly AuditLogService AuditLogService;
+    private readonly ErrorLogService ErrorLogService;
     private readonly string AppUrl;
 
     public ServerService(
@@ -36,7 +41,10 @@ public class ServerService
         MessageService messageService,
         UserService userService,
         ConfigService configService,
-        WingsJwtHelper wingsJwtHelper)
+        WingsJwtHelper wingsJwtHelper,
+        SecurityLogService securityLogService,
+        AuditLogService auditLogService,
+        ErrorLogService errorLogService)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -47,6 +55,9 @@ public class ServerService
         UserService = userService;
         ConfigService = configService;
         WingsJwtHelper = wingsJwtHelper;
+        SecurityLogService = securityLogService;
+        AuditLogService = auditLogService;
+        ErrorLogService = errorLogService;
 
         AppUrl = ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl");
     }
@@ -84,6 +95,8 @@ public class ServerService
         {
             Action = rawSignal
         });
+
+        await AuditLogService.Log(AuditLogType.ChangePowerState, new[] { server.Uuid.ToString(), rawSignal });
     }
 
     public async Task<ServerBackup> CreateBackup(Server server)
@@ -111,6 +124,9 @@ public class ServerService
             Uuid = backup.Uuid,
             Ignore = ""
         });
+
+        await AuditLogService.Log(AuditLogType.CreateBackup,
+            new[] { serverData.Uuid.ToString(), backup.Uuid.ToString() });
 
         return backup;
     }
@@ -146,6 +162,9 @@ public class ServerService
             {
                 Adapter = "wings"
             });
+
+        await AuditLogService.Log(AuditLogType.RestoreBackup,
+            new[] { s.Uuid.ToString(), serverBackup.Uuid.ToString() });
     }
 
     public async Task DeleteBackup(Server server, ServerBackup serverBackup)
@@ -165,9 +184,12 @@ public class ServerService
         ServerRepository.Update(serverData);
 
         await MessageService.Emit("wings.backups.delete", backup);
+        
+        await AuditLogService.Log(AuditLogType.DeleteBackup,
+            new[] { serverBackup.Uuid.ToString(), serverBackup.Uuid.ToString() });
     }
 
-    public Task<string> DownloadBackup(Server s, ServerBackup serverBackup)
+    public async Task<string> DownloadBackup(Server s, ServerBackup serverBackup)
     {
         Server server = EnsureNodeData(s);
 
@@ -176,10 +198,11 @@ public class ServerService
             claims.Add("server_uuid", server.Uuid.ToString());
             claims.Add("backup_uuid", serverBackup.Uuid.ToString());
         });
+        
+        await AuditLogService.Log(AuditLogType.DownloadBackup,
+            new[] { serverBackup.Uuid.ToString(), serverBackup.Uuid.ToString() });
 
-        return Task.FromResult(
-            $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}"
-        );
+        return $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
     }
 
     public Task<IFileAccess> CreateFileAccess(Server s, User user) // We need the user to create the launch url
@@ -197,7 +220,8 @@ public class ServerService
         );
     }
 
-    public async Task<Server> Create(string name, int cpu, long memory, long disk, User u, Image i, Node? n = null, Action<Server>? modifyDetails = null)
+    public async Task<Server> Create(string name, int cpu, long memory, long disk, User u, Image i, Node? n = null,
+        Action<Server>? modifyDetails = null)
     {
         var user = UserRepository
             .Get()
@@ -267,8 +291,8 @@ public class ServerService
                 Value = imageVariable.DefaultValue
             });
         }
-        
-        if(modifyDetails != null)
+
+        if (modifyDetails != null)
             modifyDetails.Invoke(server);
 
         var newServerData = ServerRepository.Add(server);
@@ -281,16 +305,17 @@ public class ServerService
                 StartOnCompletion = false
             });
 
+            await AuditLogService.Log(AuditLogType.CreateServer, newServerData.Uuid.ToString());
+
             return newServerData;
         }
         catch (Exception e)
         {
-            Logger.Error("Error creating server on wings. Deleting db model");
-            Logger.Error(e);
+            await ErrorLogService.Log(e, new[] { newServerData.Uuid.ToString(), node.Id.ToString() });
 
             ServerRepository.Delete(newServerData);
 
-            throw new Exception("Error creating server on wings");
+            throw new DisplayException("Error creating server on wings");
         }
     }
 
@@ -299,14 +324,19 @@ public class ServerService
         Server server = EnsureNodeData(s);
 
         await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/reinstall", null);
+
+        await AuditLogService.Log(AuditLogType.ReinstallServer, server.Uuid.ToString());
     }
 
     public async Task<Server> SftpServerLogin(int serverId, int id, string password)
     {
         var server = ServerRepository.Get().FirstOrDefault(x => x.Id == serverId);
 
-        if (server == null) //TODO: Logging
+        if (server == null)
+        {
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, serverId);
             throw new Exception("Server not found");
+        }
 
         var user = await UserService.SftpLogin(id, password);
 
@@ -316,6 +346,7 @@ public class ServerService
         }
         else
         {
+            //TODO: Decide if logging
             throw new Exception("User and owner id do not match");
         }
     }

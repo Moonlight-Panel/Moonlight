@@ -4,5 +4,19 @@ public enum AuditLogType
 {
     Login,
     Register,
-    LoginFail
+    ChangePassword,
+    ChangePowerState,
+    CreateBackup,
+    RestoreBackup,
+    DeleteBackup,
+    DownloadBackup,
+    CreateServer,
+    ReinstallServer,
+    CancelSubscription,
+    ApplySubscriptionCode,
+    EnableTotp,
+    DisableTotp,
+    AddDomainRecord,
+    UpdateDomainRecord,
+    DeleteDomainRecord
 }

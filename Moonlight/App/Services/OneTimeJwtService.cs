@@ -1,9 +1,12 @@
 ﻿using System.Text;
 using JWT.Algorithms;
 using JWT.Builder;
+using JWT.Exceptions;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.LogServices;
 
 namespace Moonlight.App.Services;
 
@@ -11,11 +14,15 @@ public class OneTimeJwtService
 {
     private readonly ConfigService ConfigService;
     private readonly RevokeRepository RevokeRepository;
+    private readonly SecurityLogService SecurityLogService;
 
-    public OneTimeJwtService(ConfigService configService, RevokeRepository revokeRepository)
+    public OneTimeJwtService(ConfigService configService,
+        RevokeRepository revokeRepository,
+        SecurityLogService securityLogService)
     {
         ConfigService = configService;
         RevokeRepository = revokeRepository;
+        SecurityLogService = securityLogService;
     }
 
     public string Generate(Action<Dictionary<string, string>> options, TimeSpan? validTime = null)
@@ -51,7 +58,7 @@ public class OneTimeJwtService
         return builder.Encode();
     }
 
-    public Dictionary<string, string>? Validate(string token)
+    public async Task<Dictionary<string, string>?> Validate(string token)
     {
         string secret = ConfigService
             .GetSection("Moonlight")
@@ -59,15 +66,18 @@ public class OneTimeJwtService
             .GetValue<string>("Token");
 
         string json;
-        
+
         try
         {
             json = JwtBuilder.Create()
                 .WithAlgorithm(new HMACSHA256Algorithm())
                 .WithSecret(secret)
                 .Decode(token);
-            
-            //TODO: Error handling, report signature errors
+        }
+        catch (SignatureVerificationException)
+        {
+            await SecurityLogService.LogSystem(SecurityLogType.ManipulatedJwt, token);
+            return null;
         }
         catch (Exception e)
         {
@@ -97,9 +107,9 @@ public class OneTimeJwtService
         return opt;
     }
 
-    public void Revoke(string token)
+    public async Task Revoke(string token)
     {
-        var values = Validate(token);
+        var values = await Validate(token);
 
         RevokeRepository.Add(new()
         {

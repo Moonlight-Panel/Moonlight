@@ -1,10 +1,10 @@
 ﻿using JWT.Algorithms;
 using JWT.Builder;
-using Logging.Net;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.LogServices;
 
 namespace Moonlight.App.Services;
 
@@ -12,20 +12,24 @@ public class UserService
 {
     private readonly UserRepository UserRepository;
     private readonly TotpService TotpService;
-    private readonly ConfigService ConfigService;
+    private readonly SecurityLogService SecurityLogService;
+    private readonly AuditLogService AuditLogService;
 
     private readonly string JwtSecret;
 
     public UserService(
         UserRepository userRepository,
         TotpService totpService,
-        ConfigService configService)
+        ConfigService configService, 
+        SecurityLogService securityLogService,
+        AuditLogService auditLogService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
-        ConfigService = configService;
+        SecurityLogService = securityLogService;
+        AuditLogService = auditLogService;
 
-        JwtSecret = ConfigService
+        JwtSecret = configService
             .GetSection("Moonlight")
             .GetSection("Security")
             .GetValue<string>("Token");
@@ -67,11 +71,13 @@ public class UserService
 
         //var mail = new WelcomeMail(user);
         //await MailService.Send(mail, user);
+        
+        await AuditLogService.Log(AuditLogType.Register, user.Email);
 
         return await GenerateToken(user);
     }
 
-    public Task<bool> CheckTotp(string email, string password)
+    public async Task<bool> CheckTotp(string email, string password)
     {
         var user = UserRepository.Get()
             .FirstOrDefault(
@@ -80,18 +86,16 @@ public class UserService
 
         if (user == null)
         {
-            Logger.Debug("User not found");
-            
-            //AuditLogService.Log("login:fail", $"Invalid email: {email}. Password: {password}");
+            await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
             throw new DisplayException("Email and password combination not found");
         }
 
         if (BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
-            return Task.FromResult(user.TotpEnabled);
+            return user.TotpEnabled;
         }
 
-        //AuditLogService.Log("login:fail", $"Invalid email: {email}. Password: {password}");
+        await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
         throw new DisplayException("Email and password combination not found");;
     }
 
@@ -111,29 +115,27 @@ public class UserService
             if (string.IsNullOrEmpty(totpCode))
                 throw new DisplayException("2FA code must be provided");
 
-            var totpCodeValid = await TotpService.Verify(user.TotpSecret, totpCode);
+            var totpCodeValid = await TotpService.Verify(user!.TotpSecret, totpCode);
 
             if (totpCodeValid)
             {
-                //AuditLogService.Log("login:success", $"{user.Email} has successfully logged in");
-
+                await AuditLogService.Log(AuditLogType.Login, email);
                 return await GenerateToken(user);
             }
             else
             {
-                //AuditLogService.Log("login:fail", $"Invalid totp code: {totpCode}");
+                await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
                 throw new DisplayException("2FA code invalid");
             }
         }
         else
         {
-            //AuditLogService.Log("login:success", $"{user.Email} has successfully logged in");
-
+            await AuditLogService.Log(AuditLogType.Login, email);
             return await GenerateToken(user!);
         }
     }
 
-    public Task ChangePassword(User user, string password)
+    public async Task ChangePassword(User user, string password)
     {
         user.Password = BCrypt.Net.BCrypt.HashPassword(password);
         user.TokenValidTime = DateTime.Now;
@@ -141,26 +143,27 @@ public class UserService
 
         //var mail = new NewPasswordMail(user);
         //await MailService.Send(mail, user);
-            
-        //AuditLogService.Log("password:change", "The password has been set to a new one");
-        
-        return Task.CompletedTask;
+
+        await AuditLogService.Log(AuditLogType.ChangePassword, user.Email);
     }
 
-    public Task<User> SftpLogin(int id, string password)
+    public async Task<User> SftpLogin(int id, string password)
     {
         var user = UserRepository.Get().FirstOrDefault(x => x.Id == id);
 
         if (user == null)
-            throw new Exception("Unknown user");
+        {
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, id);
+            throw new Exception("Invalid username");
+        }
         
         if (BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
-            //TODO: Maybe log
-            return Task.FromResult(user);
+            await AuditLogService.LogSystem(AuditLogType.Login, user.Email);
+            return user;
         }
         
-        //TODO: Log
+        await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, new[] { id.ToString(), password });
         throw new Exception("Invalid userid or password");
     }
 

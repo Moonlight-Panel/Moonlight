@@ -2,5 +2,8 @@
 
 public enum SecurityLogType
 {
-    ManipulatedJwt
+    ManipulatedJwt,
+    PathTransversal,
+    SftpBruteForce,
+    LoginFail
 }

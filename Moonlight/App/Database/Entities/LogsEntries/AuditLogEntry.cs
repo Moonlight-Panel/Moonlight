@@ -9,4 +9,5 @@ public class AuditLogEntry
     public string JsonData { get; set; } = "";
     public bool System { get; set; }
     public string Ip { get; set; } = "";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

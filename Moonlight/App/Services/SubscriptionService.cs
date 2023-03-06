@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Subscriptions;
+using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services;
@@ -14,18 +16,21 @@ public class SubscriptionService
     private readonly IdentityService IdentityService;
     private readonly ConfigService ConfigService;
     private readonly OneTimeJwtService OneTimeJwtService;
+    private readonly AuditLogService AuditLogService;
 
     public SubscriptionService(SubscriptionRepository subscriptionRepository, 
         UserRepository userRepository, 
         IdentityService identityService, 
         ConfigService configService, 
-        OneTimeJwtService oneTimeJwtService)
+        OneTimeJwtService oneTimeJwtService,
+        AuditLogService auditLogService)
     {
         SubscriptionRepository = subscriptionRepository;
         UserRepository = userRepository;
         IdentityService = identityService;
         ConfigService = configService;
         OneTimeJwtService = oneTimeJwtService;
+        AuditLogService = auditLogService;
     }
 
     public async Task<Subscription?> Get()
@@ -50,6 +55,8 @@ public class SubscriptionService
         var user = await IdentityService.Get();
         user!.Subscription = null;
         UserRepository.Update(user!);
+
+        await AuditLogService.Log(AuditLogType.CancelSubscription, new[] { user.Email });
     }
     public Task<Subscription[]> GetAvailable()
     {
@@ -91,7 +98,7 @@ public class SubscriptionService
     public async Task ApplyCode(string code)
     {
         var user = (await IdentityService.Get())!;
-        var values = OneTimeJwtService.Validate(code);
+        var values = await OneTimeJwtService.Validate(code);
 
         if (values == null)
             throw new DisplayException("Invalid subscription code");
@@ -114,6 +121,8 @@ public class SubscriptionService
         
         UserRepository.Update(user);
         
-        OneTimeJwtService.Revoke(code);
+        await OneTimeJwtService.Revoke(code);
+
+        await AuditLogService.Log(AuditLogType.ApplySubscriptionCode, new[] { user.Email, subscription.Id.ToString() });
     }
 }

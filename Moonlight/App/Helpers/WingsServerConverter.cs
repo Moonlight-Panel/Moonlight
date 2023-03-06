@@ -67,7 +67,7 @@ public class WingsServerConverter
 
         // Settings
         wingsServer.Settings.Skip_Egg_Scripts = false;
-        wingsServer.Settings.Suspended = false; //TODO: Implement
+        wingsServer.Settings.Suspended = server.Suspended;
         wingsServer.Settings.Invocation = string.IsNullOrEmpty(server.OverrideStartup) ? image.Startup : server.OverrideStartup;
         wingsServer.Settings.Uuid = server.Uuid;
 

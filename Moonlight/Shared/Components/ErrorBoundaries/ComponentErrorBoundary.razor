@@ -1,9 +1,10 @@
 ﻿@using Logging.Net
+@using Moonlight.App.Services.LogServices
 @using Moonlight.App.Services.Sessions
 
 @inherits ErrorBoundary
 
-@inject IdentityService IdentityService
+@inject ErrorLogService ErrorLogService
 
 @if (CurrentException is null)
 {
@@ -52,13 +53,7 @@ else
     {
         receivedExceptions.Add(exception);
 
-        var user = await IdentityService.Get();
-        var id = user == null ? -1 : user.Id;
-
-        Logger.Error($"[{id}] An unhanded exception occured:");
-        Logger.Error(exception);
-            
-        //TODO: Create error report
+        await ErrorLogService.Log(exception);
 
         await base.OnErrorAsync(exception);
     }

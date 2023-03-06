@@ -13,6 +13,8 @@
 {
     protected override async Task OnErrorAsync(Exception exception)
     {
+        Logger.Debug(exception);
+        
         if (exception is DisplayException displayException)
         {
             await AlertService.Error(

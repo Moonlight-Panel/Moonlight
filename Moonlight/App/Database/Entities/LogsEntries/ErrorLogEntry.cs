@@ -8,4 +8,5 @@ public class ErrorLogEntry
     public string JsonData { get; set; } = "";
     public string Ip { get; set; } = "";
     public string Class { get; set; } = "";
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

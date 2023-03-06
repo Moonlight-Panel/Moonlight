@@ -6,6 +6,6 @@ public class MessageService : MessageSender
 {
     public MessageService()
     {
-        Debug = true;
+        Debug = false;
     }
 }

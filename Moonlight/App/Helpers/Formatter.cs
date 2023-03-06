@@ -76,4 +76,16 @@ public static class Formatter
         
         return $"{i2s(e.Day)}.{i2s(e.Month)}.{e.Year} {i2s(e.Hour)}:{i2s(e.Minute)}";
     }
+    
+    public static string FormatDateOnly(DateTime e)
+    {
+        string i2s(int i)
+        {
+            if (i.ToString().Length < 2)
+                return "0" + i;
+            return i.ToString();
+        }
+        
+        return $"{i2s(e.Day)}.{i2s(e.Month)}.{e.Year}";
+    }
 }

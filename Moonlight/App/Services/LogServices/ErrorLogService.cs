@@ -10,17 +10,17 @@ namespace Moonlight.App.Services.LogServices;
 public class ErrorLogService
 {
     private readonly ErrorLogEntryRepository Repository;
-    private readonly IdentityService IdentityService;
+    private readonly IHttpContextAccessor HttpContextAccessor;
     
-    public ErrorLogService(ErrorLogEntryRepository repository, IdentityService identityService)
+    public ErrorLogService(ErrorLogEntryRepository repository, IHttpContextAccessor httpContextAccessor)
     {
         Repository = repository;
-        IdentityService = identityService;
+        HttpContextAccessor = httpContextAccessor;
     }
     
     public Task Log(Exception exception, params object[] objects)
     {
-        var ip = IdentityService.GetIp();
+        var ip = GetIp();
         
         var entry = new ErrorLogEntry()
         {
@@ -73,5 +73,18 @@ public class ErrorLogService
         while (declaringType.Module.Name.Equals("mscorlib.dll", StringComparison.OrdinalIgnoreCase) | fullName.Contains("Log"));
 
         return fullName;
+    }
+    
+    private string GetIp()
+    {
+        if (HttpContextAccessor.HttpContext == null)
+            return "N/A";
+
+        if(HttpContextAccessor.HttpContext.Request.Headers.ContainsKey("X-Real-IP"))
+        {
+            return HttpContextAccessor.HttpContext.Request.Headers["X-Real-IP"]!;
+        }
+        
+        return HttpContextAccessor.HttpContext.Connection.RemoteIpAddress!.ToString();
     }
 }

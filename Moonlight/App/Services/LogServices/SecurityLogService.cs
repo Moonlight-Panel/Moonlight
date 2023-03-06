@@ -9,24 +9,24 @@ namespace Moonlight.App.Services.LogServices;
 public class SecurityLogService
 {
     private readonly SecurityLogEntryRepository Repository;
-    private readonly IdentityService IdentityService;
+    private readonly IHttpContextAccessor HttpContextAccessor;
 
-    public SecurityLogService(SecurityLogEntryRepository repository, IdentityService identityService)
+    public SecurityLogService(SecurityLogEntryRepository repository, IHttpContextAccessor httpContextAccessor)
     {
         Repository = repository;
-        IdentityService = identityService;
+        HttpContextAccessor = httpContextAccessor;
     }
 
-    public Task Log(SecurityLogType type, object? data = null)
+    public Task Log(SecurityLogType type, params object[] data)
     {
-        var ip = IdentityService.GetIp();
+        var ip = GetIp();
         
         var entry = new SecurityLogEntry()
         {
             Ip = ip,
             Type = type,
             System = false,
-            JsonData = data == null ? "" : JsonConvert.SerializeObject(data)
+            JsonData = data.Length == 0 ? "" : JsonConvert.SerializeObject(data)
         };
 
         Repository.Add(entry);
@@ -34,17 +34,30 @@ public class SecurityLogService
         return Task.CompletedTask;
     }
     
-    public Task LogSystem(SecurityLogType type, object? data = null)
+    public Task LogSystem(SecurityLogType type, params object[] data)
     {
         var entry = new SecurityLogEntry()
         {
             Type = type,
             System = true,
-            JsonData = data == null ? "" : JsonConvert.SerializeObject(data)
+            JsonData = data.Length == 0 ? "" : JsonConvert.SerializeObject(data)
         };
 
         Repository.Add(entry);
         
         return Task.CompletedTask;
+    }
+    
+    private string GetIp()
+    {
+        if (HttpContextAccessor.HttpContext == null)
+            return "N/A";
+
+        if(HttpContextAccessor.HttpContext.Request.Headers.ContainsKey("X-Real-IP"))
+        {
+            return HttpContextAccessor.HttpContext.Request.Headers["X-Real-IP"]!;
+        }
+        
+        return HttpContextAccessor.HttpContext.Connection.RemoteIpAddress!.ToString();
     }
 }

@@ -9,7 +9,9 @@ using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories.Domains;
+using Moonlight.App.Services.LogServices;
 using DnsRecord = Moonlight.App.Models.Misc.DnsRecord;
 
 namespace Moonlight.App.Services;
@@ -19,14 +21,18 @@ public class DomainService
     private readonly DomainRepository DomainRepository;
     private readonly SharedDomainRepository SharedDomainRepository;
     private readonly CloudFlareClient Client;
+    private readonly AuditLogService AuditLogService;
     private readonly string AccountId;
 
-    public DomainService(ConfigService configService,
+    public DomainService(
+        ConfigService configService,
         DomainRepository domainRepository,
-        SharedDomainRepository sharedDomainRepository)
+        SharedDomainRepository sharedDomainRepository,
+        AuditLogService auditLogService)
     {
         DomainRepository = domainRepository;
         SharedDomainRepository = sharedDomainRepository;
+        AuditLogService = auditLogService;
 
         var config = configService
             .GetSection("Moonlight")
@@ -46,10 +52,10 @@ public class DomainService
         GetAvailableDomains() // This method returns all available domains which are not added as a shared domain
     {
         var domains = GetData(
-                await Client.Zones.GetAsync(new()
-                {
-                    AccountId = AccountId
-                })
+            await Client.Zones.GetAsync(new()
+            {
+                AccountId = AccountId
+            })
         );
 
         var sharedDomains = SharedDomainRepository.Get().ToArray();
@@ -82,7 +88,7 @@ public class DomainService
         {
             if (record.Name.EndsWith(dname))
             {
-                result.Add(new ()
+                result.Add(new()
                 {
                     Name = record.Name.Replace(dname, ""),
                     Content = record.Content,
@@ -95,7 +101,7 @@ public class DomainService
             }
             else if (record.Name.EndsWith(rname))
             {
-                result.Add(new ()
+                result.Add(new()
                 {
                     Name = record.Name.Replace(rname, ""),
                     Content = record.Content,
@@ -107,14 +113,14 @@ public class DomainService
                 });
             }
         }
-        
+
         return result.ToArray();
     }
 
     public async Task AddDnsRecord(Domain d, DnsRecord dnsRecord)
     {
         var domain = EnsureData(d);
-        
+
         var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
         var dname = $".{rname}";
 
@@ -134,7 +140,6 @@ public class DomainService
                 Type = dnsRecord.Type,
                 Data = new()
                 {
-
                     Service = parts[0],
                     Protocol = protocol,
                     Name = name,
@@ -146,7 +151,7 @@ public class DomainService
                 Proxied = dnsRecord.Proxied,
                 Ttl = dnsRecord.Ttl,
             };
-            
+
             GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, srv));
         }
         else
@@ -163,32 +168,38 @@ public class DomainService
                 Name = name
             }));
         }
+
+        await AuditLogService.Log(AuditLogType.AddDomainRecord, new[] { d.Id.ToString(), dnsRecord.Name });
     }
-    
+
     public async Task UpdateDnsRecord(Domain d, DnsRecord dnsRecord)
     {
         var domain = EnsureData(d);
-        
+
         var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
         var dname = $".{rname}";
 
         if (dnsRecord.Type == DnsRecordType.Srv)
         {
-            throw new DisplayException("SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one");
+            throw new DisplayException(
+                "SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one");
         }
         else
         {
             var name = dnsRecord.Name == "" ? rname : dnsRecord.Name + dname;
-            
-            GetData(await Client.Zones.DnsRecords.UpdateAsync(d.SharedDomain.CloudflareId, dnsRecord.Id, new ModifiedDnsRecord()
-            {
-                Content = dnsRecord.Content,
-                Proxied = dnsRecord.Proxied,
-                Ttl = dnsRecord.Ttl,
-                Name = name,
-                Type = dnsRecord.Type
-            }));
+
+            GetData(await Client.Zones.DnsRecords.UpdateAsync(d.SharedDomain.CloudflareId, dnsRecord.Id,
+                new ModifiedDnsRecord()
+                {
+                    Content = dnsRecord.Content,
+                    Proxied = dnsRecord.Proxied,
+                    Ttl = dnsRecord.Ttl,
+                    Name = name,
+                    Type = dnsRecord.Type
+                }));
         }
+        
+        await AuditLogService.Log(AuditLogType.UpdateDomainRecord, new[] { d.Id.ToString(), dnsRecord.Name });
     }
 
     public async Task DeleteDnsRecord(Domain d, DnsRecord dnsRecord)
@@ -198,6 +209,8 @@ public class DomainService
         GetData(
             await Client.Zones.DnsRecords.DeleteAsync(domain.SharedDomain.CloudflareId, dnsRecord.Id)
         );
+        
+        await AuditLogService.Log(AuditLogType.DeleteDomainRecord, new[] { d.Id.ToString(), dnsRecord.Name });
     }
 
     private Domain EnsureData(Domain domain)
@@ -210,12 +223,13 @@ public class DomainService
                 .Include(x => x.SharedDomain)
                 .First(x => x.Id == domain.Id);
     }
+
     private T GetData<T>(CloudFlareResult<T> result)
     {
         if (!result.Success)
         {
             string message;
-            
+
             try
             {
                 message = result.Errors.First().ErrorChain.First().Message;
