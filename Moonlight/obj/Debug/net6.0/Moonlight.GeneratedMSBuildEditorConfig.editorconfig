@@ -83,6 +83,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcRm9ybXNcV0J1dHRvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/Navigations/AdminSessionNavigation.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcTmF2aWdhdGlvbnNcQWRtaW5TZXNzaW9uTmF2aWdhdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Components/Navigations/AdminSystemNavigation.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXENvbXBvbmVudHNcTmF2aWdhdGlvbnNcQWRtaW5TeXN0ZW1OYXZpZ2F0aW9uLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -257,6 +261,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Admin/Sys/Logs.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXFN5c1xMb2dzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Admin/Users/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXFVzZXJzXEluZGV4LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Admin/Users/Sessions.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFZpZXdzXEFkbWluXFVzZXJzXFNlc3Npb25zLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/marce/GitHub/Moonlight-Panel/Moonlight/Moonlight/Shared/Views/Domains.razor]

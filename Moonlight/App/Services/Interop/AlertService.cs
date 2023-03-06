@@ -67,7 +67,7 @@ public class AlertService
         return result.IsConfirmed;
     }
     
-    public async Task<string> Text(string title, string desciption, string setValue)
+    public async Task<string?> Text(string title, string desciption, string setValue)
     {
         var result = await SweetAlertService.FireAsync(new SweetAlertOptions()
         {

@@ -13,7 +13,7 @@ public class SessionService
     private readonly NavigationManager NavigationManager;
     private readonly AlertService AlertService;
 
-    private Session OwnSession;
+    private Session? OwnSession;
 
     public SessionService(
         SessionRepository sessionRepository, 
@@ -30,18 +30,14 @@ public class SessionService
     public async Task Register()
     {
         var user = await IdentityService.Get();
-        var userId = -1;
-
-        if (user != null)
-            userId = user.Id;
-
+        
         OwnSession = new Session()
         {
             Ip = IdentityService.GetIp(),
             Url = NavigationManager.Uri,
             Device = IdentityService.GetDevice(),
             CreatedAt = DateTime.Now,
-            UserId = userId,
+            User = user,
             Navigation = NavigationManager,
             AlertService = AlertService
         };
@@ -68,7 +64,7 @@ public class SessionService
     {
         foreach (var session in SessionRepository.Get())
         {
-            if (session.UserId == user.Id)
+            if (session.User.Id == user.Id)
             {
                 session.Navigation.NavigateTo(session.Navigation.Uri, true);
             }
