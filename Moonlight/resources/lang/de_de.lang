@@ -274,3 +274,7 @@ Version;Version
 You are running moonlight version;You are running moonlight version
 Operating system;Operating system
 Moonlight is running on;Moonlight is running on
+Memory usage;Memory usage
+Moonlight is using;Moonlight is using
+of memory;of memory
+Cpu usage;Cpu usage

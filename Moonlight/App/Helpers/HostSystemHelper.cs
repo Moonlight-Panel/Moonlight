@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Logging.Net;
 
 namespace Moonlight.App.Helpers;
@@ -44,5 +45,20 @@ public class HostSystemHelper
 
             return "N/A";
         }
+    }
+
+    public int GetMemoryUsage()
+    {
+        var process = Process.GetCurrentProcess();
+        var bytes = process.WorkingSet64;
+        return (int)(bytes / (1024.0 * 1024.0));
+    }
+
+    public int GetCpuUsage()
+    {
+        var process = Process.GetCurrentProcess();
+        var cpuTime = process.TotalProcessorTime;
+        var wallClockTime = DateTime.UtcNow - process.StartTime.ToUniversalTime();
+        return (int)(100.0 * cpuTime.TotalMilliseconds / wallClockTime.TotalMilliseconds / Environment.ProcessorCount);
     }
 }
