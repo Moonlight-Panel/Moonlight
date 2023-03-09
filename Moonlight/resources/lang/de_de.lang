@@ -290,3 +290,19 @@ Enter the message to send;Enter the message to send
 Confirm;Confirm
 Are you sure?;Are you sure?
 Enter url;Enter url
+An unknown error occured while starting backup deletion;An unknown error occured while starting backup deletion
+Success;Success
+Backup URL successfully copied to your clipboard;Backup URL successfully copied to your clipboard
+Backup restore started;Backup restore started
+Backup successfully restored;Backup successfully restored
+Register for;Register for
+Core;Core
+Logs;Logs
+AuditLog;AuditLog
+SecurityLog;SecurityLog
+ErrorLog;ErrorLog
+Resources;Resources
+WinSCP cannot be launched here;WinSCP cannot be launched here
+Create a new folder;Create a new folder
+Enter a name;Enter a name
+File upload complete;File upload complete

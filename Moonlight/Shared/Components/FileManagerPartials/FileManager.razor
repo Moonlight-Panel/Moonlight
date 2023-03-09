@@ -1,5 +1,6 @@
 ﻿@using Moonlight.App.Helpers
 @using BlazorContextMenu
+@using BlazorDownloadFile
 @using Logging.Net
 @using Moonlight.App.Models.Files
 @using Moonlight.App.Services
@@ -9,6 +10,7 @@
 @inject ToastService ToastService
 @inject NavigationManager NavigationManager
 @inject SmartTranslateService TranslationService
+@inject IBlazorDownloadFileService FileService
 
 <div class="card card-flush">
 @if (Editing == null)
@@ -347,18 +349,32 @@ else
             case "download":
                 if (data.IsFile)
                 {
-    // First we try to download via stream
-
                     try
                     {
-                        var url = await FileAccess.GetDownloadUrl(data);
-                        NavigationManager.NavigateTo(url, true);
+                        var stream = await FileAccess.GetDownloadStream(data);
                         await ToastService.Info(TranslationService.Translate("Starting download"));
+                        await FileService.AddBuffer(stream);
+                        await FileService.DownloadBinaryBuffers(data.Name);
+                    }
+                    catch (NotImplementedException)
+                    {
+                        try
+                        {
+                            var url = await FileAccess.GetDownloadUrl(data);
+                            NavigationManager.NavigateTo(url, true);
+                            await ToastService.Info(TranslationService.Translate("Starting download"));
+                        }
+                        catch (Exception exception)
+                        {
+                            await ToastService.Error(TranslationService.Translate("Error starting download"));
+                            Logger.Error("Error downloading file");
+                            Logger.Error(exception.Message);
+                        }
                     }
                     catch (Exception exception)
                     {
                         await ToastService.Error(TranslationService.Translate("Error starting download"));
-                        Logger.Error("Error downloading file");
+                        Logger.Error("Error downloading file stream");
                         Logger.Error(exception.Message);
                     }
                 }
@@ -462,7 +478,7 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void Launch()
+    private async Task Launch()
     {
         NavigationManager.NavigateTo(await FileAccess.GetLaunchUrl());
     }

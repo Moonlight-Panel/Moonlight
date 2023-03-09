@@ -5,6 +5,7 @@ using Moonlight.App.Exceptions;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.LogServices;
+using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services;
 
@@ -14,6 +15,8 @@ public class UserService
     private readonly TotpService TotpService;
     private readonly SecurityLogService SecurityLogService;
     private readonly AuditLogService AuditLogService;
+    private readonly MailService MailService;
+    private readonly IdentityService IdentityService;
 
     private readonly string JwtSecret;
 
@@ -22,12 +25,16 @@ public class UserService
         TotpService totpService,
         ConfigService configService, 
         SecurityLogService securityLogService,
-        AuditLogService auditLogService)
+        AuditLogService auditLogService,
+        MailService mailService,
+        IdentityService identityService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
         SecurityLogService = securityLogService;
         AuditLogService = auditLogService;
+        MailService = mailService;
+        IdentityService = identityService;
 
         JwtSecret = configService
             .GetSection("Moonlight")
@@ -37,14 +44,17 @@ public class UserService
 
     public async Task<string> Register(string email, string password, string firstname, string lastname)
     {
+        // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;
 
         if (emailTaken)
         {
-            //AuditLogService.Log("register:fail", $"Invalid email: {email}");
             throw new DisplayException("The email is already in use");
         }
+        
+        //TODO: Validation
 
+        // Add user
         var user = UserRepository.Add(new()
         {
             Address = "",
@@ -67,11 +77,7 @@ public class UserService
             TokenValidTime = DateTime.Now.AddDays(-5)
         });
 
-        //AuditLogService.Log("register:done", $"A new user has registered: Email: {email}");
-
-        //var mail = new WelcomeMail(user);
-        //await MailService.Send(mail, user);
-        
+        await MailService.SendMail(user!, "register", values => {});
         await AuditLogService.Log(AuditLogType.Register, user.Email);
 
         return await GenerateToken(user);
@@ -101,6 +107,7 @@ public class UserService
 
     public async Task<string> Login(string email, string password, string totpCode = "")
     {
+        // First password check and check if totp is enabled
         var needTotp = await CheckTotp(email, password);
         
         var user = UserRepository.Get()
@@ -120,7 +127,7 @@ public class UserService
             if (totpCodeValid)
             {
                 await AuditLogService.Log(AuditLogType.Login, email);
-                return await GenerateToken(user);
+                return await GenerateToken(user, true);
             }
             else
             {
@@ -131,7 +138,7 @@ public class UserService
         else
         {
             await AuditLogService.Log(AuditLogType.Login, email);
-            return await GenerateToken(user!);
+            return await GenerateToken(user!, true);
         }
     }
 
@@ -141,8 +148,12 @@ public class UserService
         user.TokenValidTime = DateTime.Now;
         UserRepository.Update(user);
 
-        //var mail = new NewPasswordMail(user);
-        //await MailService.Send(mail, user);
+        await MailService.SendMail(user!, "passwordChange", values =>
+        {
+            values.Add("Ip", IdentityService.GetIp());
+            values.Add("Device", IdentityService.GetDevice());
+            values.Add("Location", "In your walls");
+        });
 
         await AuditLogService.Log(AuditLogType.ChangePassword, user.Email);
     }
@@ -167,8 +178,15 @@ public class UserService
         throw new Exception("Invalid userid or password");
     }
 
-    public Task<string> GenerateToken(User user)
+    public async Task<string> GenerateToken(User user, bool sendMail = false)
     {
+        await MailService.SendMail(user!, "login", values =>
+        {
+            values.Add("Ip", IdentityService.GetIp());
+            values.Add("Device", IdentityService.GetDevice());
+            values.Add("Location", "In your walls");
+        });
+        
         var token = JwtBuilder.Create()
             .WithAlgorithm(new HMACSHA256Algorithm())
             .WithSecret(JwtSecret)
@@ -177,6 +195,6 @@ public class UserService
             .AddClaim("userid", user.Id)
             .Encode();
 
-        return Task.FromResult(token);
+        return token;
     }
 }

@@ -1,3 +1,4 @@
+using BlazorDownloadFile;
 using BlazorTable;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Logging.Net;
@@ -34,8 +35,9 @@ namespace Moonlight
             var builder = WebApplication.CreateBuilder(args);
             
             // Switch to logging.net injection
-            builder.Logging.ClearProviders();
-            builder.Logging.AddProvider(new LogMigratorProvider());
+            // TODO: Enable in production
+            //builder.Logging.ClearProviders();
+            //builder.Logging.AddProvider(new LogMigratorProvider());
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -97,6 +99,7 @@ namespace Moonlight
             builder.Services.AddScoped<AuditLogService>();
             builder.Services.AddScoped<ErrorLogService>();
             builder.Services.AddScoped<LogService>();
+            builder.Services.AddScoped<MailService>();
 
             // Support
             builder.Services.AddSingleton<SupportServerService>();
@@ -120,6 +123,7 @@ namespace Moonlight
             builder.Services.AddBlazorTable();
             builder.Services.AddSweetAlert2(options => { options.Theme = SweetAlertTheme.Dark; });
             builder.Services.AddBlazorContextMenu();
+            builder.Services.AddBlazorDownloadFile();
 
             var app = builder.Build();
 
