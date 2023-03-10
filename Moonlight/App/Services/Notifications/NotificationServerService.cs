@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Notification;
 using Moonlight.App.Repositories;
 
@@ -40,9 +41,9 @@ public class NotificationServerService
         return connectedClients.Where(x => x.User == user).ToList();
     }
 
-    public void SendAction(User user, string action)
+    public async Task SendAction(User user, string action)
     {
-        var clients = NotificationRepository.GetClients().Where(x => x.User == user).ToList();
+        var clients = NotificationRepository.GetClients().Include(x => x.User).Where(x => x.User == user).ToList();
 
         foreach (var client in clients)
         {
@@ -52,12 +53,12 @@ public class NotificationServerService
                 NotificationClient = client
             };
             
-            var connected = connectedClients.Where(x => x.NotificationClient == client).ToList();
+            var connected = connectedClients.Where(x => x.NotificationClient.Id == client.Id).ToList();
 
             if (connected.Count > 0)
             {
                 var clientService = connected[0];
-                clientService.SendAction(action);
+                await clientService.SendAction(action);
             }
             else
             {

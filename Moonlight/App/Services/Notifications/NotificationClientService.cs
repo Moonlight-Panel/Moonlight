@@ -1,5 +1,8 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using System.Net.WebSockets;
+using System.Text;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Notification;
+using Moonlight.App.Http.Controllers.Api.Moonlight.Notifications;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.Sessions;
 
@@ -9,6 +12,7 @@ public class NotificationClientService
 {
     private readonly NotificationRepository NotificationRepository;
     private readonly NotificationServerService NotificationServerService;
+    internal ListenController listenController;
     
     public NotificationClientService(NotificationRepository notificationRepository, NotificationServerService notificationServerService)
     {
@@ -20,9 +24,10 @@ public class NotificationClientService
     
     public NotificationClient NotificationClient { get; set; }
 
-    public void SendAction(string action)
+    public async Task SendAction(string action)
     {
-        throw new NotImplementedException();
+        await listenController.ws.SendAsync(Encoding.UTF8.GetBytes(action), WebSocketMessageType.Text,
+            WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
     }
 
     public void WebsocketReady(NotificationClient client)
