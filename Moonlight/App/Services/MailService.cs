@@ -52,12 +52,14 @@ public class MailService
             try
             {
                 using var client = new SmtpClient();
-        
+
                 client.Host = Server;
                 client.Port = Port;
-                client.EnableSsl = true;
+                client.EnableSsl = false;
                 client.Credentials = new NetworkCredential(Email, Password);
 
+                Logger.Debug("Sending");
+                
                 await client.SendMailAsync(new MailMessage()
                 {
                     From = new MailAddress(Email),
@@ -75,6 +77,8 @@ public class MailService
                 Logger.Warn("Error sending mail");
                 Logger.Warn(e);
             }
+            
+            Logger.Debug("Mail send task stopped");
         });
     }
 

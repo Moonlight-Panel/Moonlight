@@ -2,6 +2,7 @@
 using JWT.Builder;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
+using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.LogServices;
@@ -142,20 +143,27 @@ public class UserService
         }
     }
 
-    public async Task ChangePassword(User user, string password)
+    public async Task ChangePassword(User user, string password, bool isSystemAction = false)
     {
         user.Password = BCrypt.Net.BCrypt.HashPassword(password);
         user.TokenValidTime = DateTime.Now;
         UserRepository.Update(user);
 
-        await MailService.SendMail(user!, "passwordChange", values =>
+        if (isSystemAction)
         {
-            values.Add("Ip", IdentityService.GetIp());
-            values.Add("Device", IdentityService.GetDevice());
-            values.Add("Location", "In your walls");
-        });
+            await AuditLogService.LogSystem(AuditLogType.ChangePassword, user.Email);
+        }
+        else
+        {
+            await MailService.SendMail(user!, "passwordChange", values =>
+            {
+                values.Add("Ip", IdentityService.GetIp());
+                values.Add("Device", IdentityService.GetDevice());
+                values.Add("Location", "In your walls");
+            });
 
-        await AuditLogService.Log(AuditLogType.ChangePassword, user.Email);
+            await AuditLogService.Log(AuditLogType.ChangePassword, user.Email);
+        }
     }
 
     public async Task<User> SftpLogin(int id, string password)
@@ -196,5 +204,30 @@ public class UserService
             .Encode();
 
         return token;
+    }
+
+    public async Task ResetPassword(string email)
+    {
+        email = email.ToLower();
+        
+        var user = UserRepository
+            .Get()
+            .FirstOrDefault(x => x.Email == email);
+
+        if (user == null)
+            throw new DisplayException("A user with this email can not be found");
+
+        var newPassword = StringHelper.GenerateString(16);
+        await ChangePassword(user, newPassword, true);
+
+        await AuditLogService.Log(AuditLogType.PasswordReset);
+
+        await MailService.SendMail(user, "passwordReset", values =>
+        {
+            values.Add("Ip", IdentityService.GetIp());
+            values.Add("Device", IdentityService.GetDevice());
+            values.Add("Location", "In your walls");
+            values.Add("Password", newPassword);
+        });
     }
 }
