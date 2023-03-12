@@ -141,6 +141,7 @@ namespace Moonlight
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseWebSockets();
 
             app.MapControllers();
             
