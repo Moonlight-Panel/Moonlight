@@ -67,13 +67,13 @@ public class UserService
             LastName = lastname,
             State = "",
             Status = UserStatus.Unverified,
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTime.UtcNow,
             DiscordDiscriminator = "",
             DiscordId = -1,
             DiscordUsername = "",
             TotpEnabled = false,
             TotpSecret = "",
-            UpdatedAt = DateTime.Now,
+            UpdatedAt = DateTime.UtcNow,
             TokenValidTime = DateTime.Now.AddDays(-5)
         });
 

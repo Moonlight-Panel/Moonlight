@@ -62,6 +62,8 @@ namespace Moonlight
             builder.Services.AddScoped<SubscriptionLimitRepository>();
             builder.Services.AddScoped<RevokeRepository>();
             builder.Services.AddScoped<NotificationRepository>();
+            builder.Services.AddScoped<AaPanelRepository>();
+            builder.Services.AddScoped<WebsiteRepository>();
 
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
@@ -100,6 +102,8 @@ namespace Moonlight
             builder.Services.AddScoped<ErrorLogService>();
             builder.Services.AddScoped<LogService>();
             builder.Services.AddScoped<MailService>();
+            builder.Services.AddSingleton<TrashMailDetectorService>();
+            builder.Services.AddScoped<WebsiteService>();
 
             // Support
             builder.Services.AddSingleton<SupportServerService>();

@@ -306,3 +306,20 @@ WinSCP cannot be launched here;WinSCP cannot be launched here
 Create a new folder;Create a new folder
 Enter a name;Enter a name
 File upload complete;File upload complete
+New server;New server
+Sessions;Sessions
+New user;New user
+Created at;Created at
+Mail template not found;Mail template not found
+Missing admin permissions. This attempt has been logged ;)
+Address;Address
+City;City
+State;State
+Country;Country
+Totp;Totp
+Discord;Discord
+Subscription;Subscription
+None;None
+No user with this id found;No user with this id found
+Back to list;Back to list
+New domain;New domain

@@ -39,6 +39,8 @@ public class DataContext : DbContext
     public DbSet<Revoke> Revokes { get; set; }
     public DbSet<NotificationClient> NotificationClients { get; set; }
     public DbSet<NotificationAction> NotificationActions { get; set; }
+    public DbSet<AaPanel> AaPanels { get; set; }
+    public DbSet<Website> Websites { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
