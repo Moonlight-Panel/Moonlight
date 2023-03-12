@@ -55,11 +55,9 @@ public class MailService
 
                 client.Host = Server;
                 client.Port = Port;
-                client.EnableSsl = false;
+                client.EnableSsl = true;
                 client.Credentials = new NetworkCredential(Email, Password);
 
-                Logger.Debug("Sending");
-                
                 await client.SendMailAsync(new MailMessage()
                 {
                     From = new MailAddress(Email),
@@ -69,16 +67,12 @@ public class MailService
                     Subject = $"Hey {user.FirstName}, there are news from moonlight",
                     To = { new MailAddress(user.Email) }
                 });
-                
-                Logger.Debug("Send!");
             }
             catch (Exception e)
             {
                 Logger.Warn("Error sending mail");
                 Logger.Warn(e);
             }
-            
-            Logger.Debug("Mail send task stopped");
         });
     }
 
