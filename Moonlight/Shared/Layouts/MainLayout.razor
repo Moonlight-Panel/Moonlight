@@ -62,6 +62,7 @@
                                         <PageErrorBoundary>
                                             <SoftErrorBoundary>
                                                 @if (uri.LocalPath != "/login" &&
+                                                     uri.LocalPath != "/passwordreset" &&
                                                      uri.LocalPath != "/register")
                                                 {
                                                     if (User == null)
@@ -93,6 +94,10 @@
                                                     else if (uri.LocalPath == "/register")
                                                     {
                                                         <Register></Register>
+                                                    }
+                                                    else if (uri.LocalPath == "/passwordreset")
+                                                    {
+                                                        <PasswordReset></PasswordReset>
                                                     }
                                                 }
                                             </SoftErrorBoundary>

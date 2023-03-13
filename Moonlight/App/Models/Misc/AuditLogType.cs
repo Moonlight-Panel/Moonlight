@@ -18,5 +18,6 @@ public enum AuditLogType
     DisableTotp,
     AddDomainRecord,
     UpdateDomainRecord,
-    DeleteDomainRecord
+    DeleteDomainRecord,
+    PasswordReset
 }

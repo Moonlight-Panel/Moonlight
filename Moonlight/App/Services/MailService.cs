@@ -52,7 +52,7 @@ public class MailService
             try
             {
                 using var client = new SmtpClient();
-        
+
                 client.Host = Server;
                 client.Port = Port;
                 client.EnableSsl = true;
@@ -67,8 +67,6 @@ public class MailService
                     Subject = $"Hey {user.FirstName}, there are news from moonlight",
                     To = { new MailAddress(user.Email) }
                 });
-                
-                Logger.Debug("Send!");
             }
             catch (Exception e)
             {

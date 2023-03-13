@@ -16,58 +16,77 @@
 <OnlyAdmin>
     <AdminSessionNavigation Index="1"/>
 
-    <div class="card card-body">
+    <div class="card">
         <LazyLoader Load="Load">
-            <button class="btn btn-primary mb-3" @onclick="Refresh">
-                <TL>Refresh</TL>
-            </button>
-            <button class="btn btn-warning mb-3" @onclick="MessageAll">
-                <TL>Send a message to all users</TL>
-            </button>
-
-            @if (AllSessions == null)
-            {
-                <div class="alert alert-info">
-                    <span class="spinner-border spinner-border-sm align-middle me-2"></span>
-                    <TL>Loading sessions</TL>
+            <div class="card-header border-0 pt-5">
+                <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bold fs-3 mb-1">
+                        <TL>Sessions</TL>
+                    </span>
+                </h3>
+                <div class="card-toolbar">
+                    <button class="btn btn-sm btn-primary me-3" @onclick="Refresh">
+                        <i class="bx bx-revision"></i>
+                        <TL>Refresh</TL>
+                    </button>
+                    <button class="btn btn-sm btn-warning" @onclick="MessageAll">
+                        <i class="bx bx-message-square-dots"></i>
+                        <TL>Send a message to all users</TL>
+                    </button>
                 </div>
-            }
-            else
-            {
-                <Table TableItem="Session" Items="AllSessions" PageSize="25" TableHeadClass="border-bottom border-gray-200 fs-6 text-gray-600 fw-bold bg-light bg-opacity-75">
-                    <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Email"))" Field="@(x => x.User.Id)" Sortable="true" Filterable="true" Width="20%">
-                        <Template>
-                            <span>@(context.User == null ? "" : context.User.Email)</span>
-                        </Template>
-                    </Column>
-                    <Column TableItem="Session" Title="@(SmartTranslateService.Translate("IP"))" Field="@(x => x.Ip)" Sortable="true" Filterable="true" Width="10%"/>
-                    <Column TableItem="Session" Title="@(SmartTranslateService.Translate("URL"))" Field="@(x => x.Url)" Sortable="true" Filterable="true" Width="10%"/>
-                    <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Device"))" Field="@(x => x.Device)" Sortable="true" Filterable="true" Width="10%"/>
-                    <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Time"))" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="true" Width="10%">
-                        <Template>
-                            @{
-                                var time = Formatter.FormatUptime((DateTime.Now - context.CreatedAt).TotalMilliseconds);
-                            }
-                            <span>@(time)</span>
-                        </Template>
-                    </Column>
-                    <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Actions"))" Field="@(x => x.Ip)" Sortable="false" Filterable="false" Width="10%">
-                        <Template>
-                            <button @onclick="() => Navigate(context)" class="btn btn-primary">
-                                <TL>Change url</TL>
-                            </button>
-                        </Template>
-                    </Column>
-                    <Column TableItem="Session" Title="" Field="@(x => x.Ip)" Sortable="false" Filterable="false" Width="10%">
-                        <Template>
-                            <button @onclick="() => Message(context)" class="btn btn-warning">
-                                <TL>Message</TL>
-                            </button>
-                        </Template>
-                    </Column>
-                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                </Table>
-            }
+            </div>
+            <div class="card-body pt-0">
+                @if (AllSessions == null)
+                {
+                    <div class="alert alert-info">
+                        <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+                        <TL>Loading sessions</TL>
+                    </div>
+                }
+                else
+                {
+                    <Table TableItem="Session" Items="AllSessions" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Email"))" Field="@(x => x.User.Id)" Sortable="true" Filterable="true" Width="20%">
+                            <Template>
+                                @if (context.User == null)
+                                {
+                                    <TL>Guest</TL>
+                                }
+                                else
+                                {
+                                    <a href="/admin/users/view/@(context.User.Id)">@(context.User.Email)</a>
+                                }
+                            </Template>
+                        </Column>
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("IP"))" Field="@(x => x.Ip)" Sortable="true" Filterable="true" Width="10%"/>
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("URL"))" Field="@(x => x.Url)" Sortable="true" Filterable="true" Width="10%"/>
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Device"))" Field="@(x => x.Device)" Sortable="true" Filterable="true" Width="10%"/>
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Time"))" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="true" Width="10%">
+                            <Template>
+                                @{
+                                    var time = Formatter.FormatUptime((DateTime.Now - context.CreatedAt).TotalMilliseconds);
+                                }
+                                <span>@(time)</span>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Actions"))" Field="@(x => x.Ip)" Sortable="false" Filterable="false" Width="10%">
+                            <Template>
+                                <button @onclick="() => Navigate(context)" class="btn btn-sm btn-primary">
+                                    <TL>Change url</TL>
+                                </button>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Session" Title="" Field="@(x => x.Ip)" Sortable="false" Filterable="false" Width="10%">
+                            <Template>
+                                <button @onclick="() => Message(context)" class="btn btn-sm btn-warning">
+                                    <TL>Message</TL>
+                                </button>
+                            </Template>
+                        </Column>
+                        <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                    </Table>
+                }
+            </div>
         </LazyLoader>
     </div>
 </OnlyAdmin>
@@ -79,7 +98,7 @@
     private Task Load(LazyLoader arg)
     {
         AllSessions = SessionService.GetAll();
-        
+
         Task.Run(async () =>
         {
             while (true)
@@ -96,7 +115,7 @@
                 }
             }
         });
-        
+
         return Task.CompletedTask;
     }
 
@@ -109,8 +128,8 @@
     private async Task Navigate(Session session)
     {
         var url = await AlertService.Text("URL", SmartTranslateService.Translate("Enter url"), "");
-        
-        if(url == null)
+
+        if (url == null)
             return;
 
         if (url == "")

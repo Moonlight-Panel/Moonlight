@@ -1,0 +1,66 @@
+﻿@page "/admin/users/new"
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject SmartTranslateService SmartTranslateService
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService
+@inject UserService UserService
+
+<OnlyAdmin>
+    <div class="row mb-5">
+        <div class="card card-body p-10">
+            <label class="form-label">
+                <TL>First name</TL>
+            </label>
+            <div class="input-group mb-5">
+                <input @bind="User.FirstName" type="text" class="form-control">
+            </div>
+            <label class="form-label">
+                <TL>Last name</TL>
+            </label>
+            <div class="input-group mb-5">
+                <input @bind="User.LastName" type="text" class="form-control">
+            </div>
+            <label class="form-label">
+                <TL>Email</TL>
+            </label>
+            <div class="input-group mb-5">
+                <input @bind="User.Email" type="email" class="form-control">
+            </div>
+            <label class="form-label">
+                <TL>Password</TL>
+            </label>
+            <div class="input-group mb-5">
+                <input @bind="User.Password" type="password" class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="card card-body">
+            <div class="d-flex justify-content-end">
+                <a href="/admin/users" class="btn btn-danger me-3">
+                    <TL>Cancel</TL>
+                </a>
+                <WButton Text="@(SmartTranslateService.Translate("Create"))"
+                         WorkingText="@(SmartTranslateService.Translate("Creating"))"
+                         CssClasses="btn-success"
+                         OnClick="Create">
+                </WButton>
+            </div>
+        </div>
+    </div>
+</OnlyAdmin>
+
+@code
+{
+    private User User = new();
+
+    private async Task Create()
+    {
+        await UserService.Register(User.Email, User.Password, User.FirstName, User.LastName);
+        await ToastService.Success(SmartTranslateService.Translate("User successfully created"));
+        NavigationManager.NavigateTo("/admin/users");
+    }
+}

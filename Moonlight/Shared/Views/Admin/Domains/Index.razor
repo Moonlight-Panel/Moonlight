@@ -10,38 +10,54 @@
 
 <OnlyAdmin>
     <LazyLoader Load="Load">
-        <div class="row mb-5">
-            <a class="btn btn-success" href="/admin/domains/new">Add new domain</a>
-        </div>
-        <div class="row mb-5">
-            <Table TableItem="Domain" Items="Domains" PageSize="25" TableHeadClass="border-bottom border-gray-200 fs-6 text-gray-600 fw-bold bg-light bg-opacity-75">
-                <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%"/>
-                <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true" Width="10%"/>
-                <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Shared domain"))" Field="@(x => x.SharedDomain)" Sortable="true" Filterable="true" Width="10%">
-                    <Template>
-                        <span>@(context.SharedDomain.Name)</span>
-                    </Template>
-                </Column>
-                <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Owner)" Sortable="true" Filterable="true" Width="10%">
-                    <Template>
-                        <a class="invisible-a" href="/admin/users/view/@(context.Owner.Id)">@(context.Owner.Email)</a>
-                    </Template>
-                </Column>
-                <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
-                    <Template>
-                        <a class="invisible-a" href="/domain/@(context.Id)">Manage</a>
-                    </Template>
-                </Column>
-                <Column TableItem="Domain" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
-                    <Template>
-                        <WButton Text="@(SmartTranslateService.Translate("Delete"))"
-                                 WorkingText="@(SmartTranslateService.Translate("Deleting"))"
-                                 CssClasses="btn-danger"
-                                 OnClick="() => Delete(context)">
-                        </WButton>
-                    </Template>
-                </Column>
-            </Table>
+        <div class="row">
+            <div class="card">
+                <div class="card-header border-0 pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-3 mb-1">
+                            <TL>Domains</TL>
+                        </span>
+                    </h3>
+                    <div class="card-toolbar">
+                        <a href="/admin/domains/new" class="btn btn-sm btn-light-success">
+                            <i class="bx bx-layer-plus"></i>
+                            <TL>New domain</TL>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <Table TableItem="Domain" Items="Domains" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                            <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%"/>
+                            <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true" Width="10%"/>
+                            <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Shared domain"))" Field="@(x => x.SharedDomain)" Sortable="true" Filterable="true" Width="10%">
+                                <Template>
+                                    <span>@(context.SharedDomain.Name)</span>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Owner)" Sortable="true" Filterable="true" Width="10%">
+                                <Template>
+                                    <a href="/admin/users/view/@(context.Owner.Id)">@(context.Owner.Email)</a>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Domain" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                                <Template>
+                                    <a href="/domain/@(context.Id)">Manage</a>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Domain" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                                <Template>
+                                    <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                                             CssClasses="btn-sm btn-danger"
+                                             OnClick="() => Delete(context)">
+                                    </WButton>
+                                </Template>
+                            </Column>
+                        </Table>
+                    </div>
+                </div>
+            </div>
         </div>
     </LazyLoader>
 </OnlyAdmin>

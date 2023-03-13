@@ -125,37 +125,45 @@
             </div>
         </div>
 
-        @if (Image != null)
-        {
-            <div class="mt-9 row d-flex">
-                @foreach (var vars in ServerVariables.Chunk(4))
+        <div class="row mb-5">
+            <div class="card card-body">
+                @if (Image != null)
                 {
-                    <div class="row mb-3">
-                        @foreach (var variable in vars)
+                    <div class="mt-9 row d-flex">
+                        @foreach (var vars in ServerVariables.Chunk(4))
                         {
-                            <div class="col">
-                                <div class="card card-body">
-                                    <label class="form-label"><TL>Name</TL></label>
-                                    <div class="input-group mb-5">
-                                        <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                            <div class="row mb-3">
+                                @foreach (var variable in vars)
+                                {
+                                    <div class="col">
+                                        <div class="card card-body">
+                                            <label class="form-label">
+                                                <TL>Name</TL>
+                                            </label>
+                                            <div class="input-group mb-5">
+                                                <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                                            </div>
+                                            <label class="form-label">
+                                                <TL>Value</TL>
+                                            </label>
+                                            <div class="input-group mb-5">
+                                                <input @bind="variable.Value" type="text" class="form-control">
+                                            </div>
+                                        </div>
                                     </div>
-                                    <label class="form-label"><TL>Value</TL></label>
-                                    <div class="input-group mb-5">
-                                        <input @bind="variable.Value" type="text" class="form-control">
-                                    </div>
-                                </div>
+                                }
                             </div>
                         }
                     </div>
                 }
             </div>
-        }
+        </div>
 
         <div class="row">
             <div class="card card-body">
-                <div class="btn-group">
-                    <a class="btn btn-primary" href="/admin/servers">
-                        <TL>Back</TL>
+                <div class="d-flex justify-content-end">
+                    <a href="/admin/servers" class="btn btn-danger me-3">
+                        <TL>Cancel</TL>
                     </a>
                     <WButton Text="@(SmartTranslateService.Translate("Create"))"
                              WorkingText="@(SmartTranslateService.Translate("Creating"))"
@@ -201,7 +209,7 @@
                 RebuildVariables();
 
 
-                InvokeAsync(StateHasChanged);
+            InvokeAsync(StateHasChanged);
         }
     }
 
@@ -253,7 +261,7 @@
         User = Users.FirstOrDefault();
 
         Image = Images.FirstOrDefault();
-        
+
         RebuildVariables();
 
         if (Image != null)
