@@ -330,3 +330,26 @@ Wrong here?;Wrong here?
 A user with this email can not be found;A user with this email can not be found
 Passwort reset successfull. Check your mail;Passwort reset successfull. Check your mail
 Discord bot;Discord bot
+New image;New image
+Description;Description
+Uuid;Uuid
+Enter tag name;Enter tag name
+Remove;Remove
+No tags found;No tags found
+Enter docker image name;Enter docker image name
+Tags;Tags
+Docker images;Docker images
+Default image;Default image
+Startup command;Startup command
+Install container;Install container
+Install entry;Install entry
+Configuration files;Configuration files
+Startup detection;Startup detection
+Stop command;Stop command
+Successfully saved image;Successfully saved image
+No docker images found;No docker images found
+Key;Key
+Default value;Default value
+Allocations;Allocations
+No variables found;No variables found
+Successfully added image;Successfully added image

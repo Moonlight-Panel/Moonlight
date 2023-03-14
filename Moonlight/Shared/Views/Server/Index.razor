@@ -11,6 +11,7 @@
 @using Moonlight.App.Services.Sessions
 @using Moonlight.Shared.Components.Xterm
 @using Moonlight.Shared.Components.ServerControl
+@using Newtonsoft.Json
 
 @inject ImageRepository ImageRepository
 @inject ServerRepository ServerRepository
@@ -190,18 +191,11 @@
         {
             await lazyLoader.SetText("Requesting tags");
 
-            var tags = new List<string>();
             var image = ImageRepository
                 .Get()
-                .Include(x => x.Tags)
                 .First(x => x.Id == CurrentServer.Image.Id);
 
-            foreach (var tag in image.Tags)
-            {
-                tags.Add(tag.Name);
-            }
-
-            Tags = tags.ToArray();
+            Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
             Image = image;
 
             await lazyLoader.SetText("Connecting to console");
