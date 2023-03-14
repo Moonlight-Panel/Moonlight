@@ -1,0 +1,340 @@
+﻿@page "/admin/servers/images/new"
+@using Moonlight.App.Repositories
+@using Moonlight.Shared.Components.FileManagerPartials
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+@using Newtonsoft.Json
+
+@inject ImageRepository ImageRepository
+@inject SmartTranslateService SmartTranslateService
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService
+
+<OnlyAdmin>
+<div class="row">
+<LazyLoader @ref="LazyLoader" Load="Load">
+<div class="row">
+    <div class="col-xl-6 mb-5 mb-xl-10">
+        <div class="card card-body">
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Name</TL>
+                </label>
+                <input @bind="Image.Name" type="text" class="form-control">
+            </div>
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Description</TL>
+                </label>
+                <textarea @bind="Image.Description" type="text" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-5 mb-xl-10">
+        <div class="card card-body">
+            <label class="form-label">
+                <TL>Tags</TL>
+            </label>
+            <div class="input-group mb-5">
+                <input @bind="AddTagName" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter tag name"))">
+                <button @onclick="AddTag" class="btn btn-primary">
+                    <TL>Add</TL>
+                </button>
+            </div>
+            <div>
+                @if (Tags.Any())
+                {
+                    <div class="row">
+                        @foreach (var tag in Tags)
+                        {
+                            <button @onclick="() => RemoveTag(tag)" class="col m-3 btn btn-outline-primary mw-25">
+                                @(tag)
+                            </button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-primary">
+                        <TL>No tags found</TL>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-6 mb-5 mb-xl-10">
+        <div class="card card-body">
+            <label class="form-label">
+                <TL>Docker images</TL>
+            </label>
+            <div class="input-group mb-5">
+                <input @bind="NewDockerImage.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter docker image name"))">
+                <button @onclick="AddDockerImage" class="btn btn-primary">
+                    <TL>Add</TL>
+                </button>
+            </div>
+            <div>
+                @if (Image.DockerImages.Any())
+                {
+                    <div class="row">
+                        @foreach (var imageDocker in Image.DockerImages)
+                        {
+                            <button @onclick="() => RemoveDockerImage(imageDocker)" class="col m-3 btn btn-outline-primary mw-25">
+                                @(imageDocker.Name)
+                            </button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-primary">
+                        <TL>No docker images found</TL>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-5 mb-xl-10">
+        <div class="card card-body">
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Default image</TL>
+                </label>
+                <select @bind="DefaultImageIndex" class="form-select">
+                    @foreach (var image in Image.DockerImages)
+                    {
+                        <option value="@(image.Id)">@(image.Name)</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Allocations</TL>
+                </label>
+                <input @bind="Image.Allocations" type="number" class="form-control">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mx-0">
+    <div class="card card-body">
+        <div class="mb-10">
+            <label class="form-label">
+                <TL>Startup command</TL>
+            </label>
+            <input @bind="Image.Startup" type="text" class="form-control">
+        </div>
+
+        <div class="row">
+            <div class="col-xl-6 mb-5 mb-xl-10">
+                <div class="mb-10">
+                    <label class="form-label">
+                        <TL>Install container</TL>
+                    </label>
+                    <input @bind="Image.InstallDockerImage" type="text" class="form-control">
+                </div>
+            </div>
+            <div class="col-xl-6 mb-5 mb-xl-10">
+                <div class="mb-10">
+                    <label class="form-label">
+                        <TL>Install entry</TL>
+                    </label>
+                    <input @bind="Image.InstallEntrypoint" type="text" class="form-control">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card card-flush">
+            <FileEditor @ref="Editor" Language="shell" InitialData="@(Image.InstallScript)" HideControls="true"/>
+        </div>
+    </div>
+</div>
+<div class="row my-8">
+    <div class="col-xl-6 mb-5 mb-xl-10">
+        <div class="card card-body">
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Configuration files</TL>
+                </label>
+                <textarea @bind="Image.ConfigFiles" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 mb-5 mb-xl-10">
+        <div class="card card-body">
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Startup detection</TL>
+                </label>
+                <input @bind="Image.StartupDetection" type="text" class="form-control">
+            </div>
+            <div class="mb-10">
+                <label class="form-label">
+                    <TL>Stop command</TL>
+                </label>
+                <input @bind="Image.StopCommand" type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row my-6">
+    <div class="card card-body">
+        <div class="input-group mb-5">
+            <input type="text" @bind="ImageVariable.Key" placeholder="@(SmartTranslateService.Translate("Key"))" class="form-control">
+            <input type="text" @bind="ImageVariable.DefaultValue" placeholder="@(SmartTranslateService.Translate("Default value"))" class="form-control">
+            <button @onclick="AddVariable" class="btn btn-primary">
+                <TL>Add</TL>
+            </button>
+        </div>
+
+        <div>
+            @if (Image!.Variables.Any())
+            {
+                <div class="row">
+                    @foreach (var variable in Image!.Variables)
+                    {
+                        <div class="input-group mb-3">
+                            <input type="text" @bind="variable.Key" placeholder="@(SmartTranslateService.Translate("Key"))" class="form-control">
+                            <input type="text" @bind="variable.DefaultValue" placeholder="@(SmartTranslateService.Translate("Default value"))" class="form-control">
+                            <button @onclick="() => RemoveVariable(variable)" class="btn btn-danger">
+                                <TL>Remove</TL>
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-primary">
+                    <TL>No variables found</TL>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="card card-body">
+        <div class="d-flex justify-content-end">
+            <a href="/admin/servers/images" class="btn btn-danger me-3">
+                <TL>Cancel</TL>
+            </a>
+            <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                     WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                     CssClasses="btn-success"
+                     OnClick="Save">
+            </WButton>
+        </div>
+    </div>
+</div>
+</LazyLoader>
+</div>
+</OnlyAdmin>
+
+@code
+{
+    private Image Image = new()
+    {
+        Variables = new(),
+        DockerImages = new(),
+        InstallScript = "# install script here",
+        Name = "Name",
+        TagsJson = "[]",
+        Description = "Description",
+        Startup = "",
+        Uuid = Guid.NewGuid(),
+        ConfigFiles = "{}",
+        InstallEntrypoint = "ash",
+        StartupDetection = "Done",
+        StopCommand = "^C",
+        InstallDockerImage = "ghcr.io/pterodactyl/installers:alpine"
+    };
+
+    private List<string> Tags;
+    private string AddTagName = "";
+
+    private DockerImage NewDockerImage = new();
+    private ImageVariable ImageVariable = new();
+
+    private FileEditor Editor;
+
+    private int DefaultImageIndex
+    {
+        get
+        {
+            var i = Image.DockerImages.FirstOrDefault(x => x.Default);
+            return i?.Id ?? -1;
+        }
+        set
+        {
+            foreach (var image in Image!.DockerImages)
+            {
+                image.Default = false;
+            }
+
+            var i = Image.DockerImages.FirstOrDefault(x => x.Id == value);
+
+            if (i != null)
+                i.Default = true;
+        }
+    }
+
+    private LazyLoader LazyLoader;
+
+    private Task Load(LazyLoader arg)
+    {
+        Tags = new();
+
+        return Task.CompletedTask;
+    }
+
+    private void AddTag()
+    {
+        Tags.Add(AddTagName);
+    }
+
+    private void RemoveTag(string tag)
+    {
+        Tags.Remove(tag);
+    }
+
+    private void AddDockerImage()
+    {
+        Image!.DockerImages.Add(NewDockerImage);
+        NewDockerImage = new();
+    }
+
+    private void RemoveDockerImage(DockerImage image)
+    {
+        Image!.DockerImages.Remove(image);
+    }
+
+    private void AddVariable()
+    {
+        Image!.Variables.Add(ImageVariable);
+        ImageVariable = new();
+    }
+
+    private void RemoveVariable(ImageVariable variable)
+    {
+        Image!.Variables.Remove(variable);
+    }
+
+    private async Task Save()
+    {
+        if (Image == null)
+            return;
+
+        Image.TagsJson = JsonConvert.SerializeObject(Tags);
+        Image.InstallScript = await Editor.GetData();
+
+        ImageRepository.Add(Image);
+
+        await ToastService.Success(SmartTranslateService.Translate("Successfully added image"));
+
+        NavigationManager.NavigateTo("/admin/servers/images");
+    }
+}

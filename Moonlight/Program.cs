@@ -152,7 +152,7 @@ namespace Moonlight
             var supportServerService = app.Services.GetRequiredService<SupportServerService>();
             
             // Discord bot service
-            var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
+            //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
 
             app.Run();
         }
