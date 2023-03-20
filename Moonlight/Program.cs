@@ -118,6 +118,7 @@ namespace Moonlight
             builder.Services.AddScoped<WingsConsoleHelper>();
             builder.Services.AddSingleton<PaperApiHelper>();
             builder.Services.AddSingleton<HostSystemHelper>();
+            builder.Services.AddScoped<DaemonApiHelper>();
             
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();

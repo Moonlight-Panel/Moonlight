@@ -1,12 +1,11 @@
 ﻿@page "/admin/nodes"
 @using Moonlight.App.Repositories
 @using Moonlight.App.Database.Entities
-@using Moonlight.App.Helpers
-@using Moonlight.App.Models.Node
 @using Moonlight.App.Models.Wings.Resources
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
 @using Logging.Net
+@using BlazorTable
 
 @inject NodeRepository NodeRepository
 @inject AlertService AlertService
@@ -14,168 +13,85 @@
 @inject SmartTranslateService SmartTranslateService
 
 <OnlyAdmin>
-    <div class="row mb-5">
-        <div class="card card-body">
-            <a class="btn btn-primary" href="/admin/nodes/new">
-                <TL>Add a new node</TL>
-            </a>
-        </div>
-    </div>
     <div class="row">
         <LazyLoader @ref="LazyLoader" Load="Load">
-            @if (!Nodes.Any())
-            {
-                <div class="card card-body">
-                    <div class="alert alert-info">
-                        <TL>No nodes found. Start with adding a new node</TL>
+            <div class="card">
+                <div class="card-header border-0 pt-5">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-3 mb-1">
+                            <TL>Nodes</TL>
+                        </span>
+                    </h3>
+                    <div class="card-toolbar">
+                        <a href="/admin/nodes/new" class="btn btn-sm btn-light-success">
+                            <i class="bx bx-layer-plus"></i>
+                            <TL>New node</TL>
+                        </a>
                     </div>
                 </div>
-            }
-            else
-            {
-                foreach (var node in Nodes)
-                {
-                    <div class="col-xl-6 mb-xl-10">
-                        <div class="card card-flush h-xl-100">
-                            <div class="card-header pt-5">
-                                <h4 class="card-title d-flex align-items-start flex-column">
-                                    <span class="card-label fw-bold text-gray-800">@(node.Name) - (ID: @(node.Id))</span>
-                                </h4>
-                            </div>
-                            <div class="card-body pt-6">
-                                <div class="d-flex flex-stack">
-                                    <div class="d-flex align-items-center me-3">
-                                        <div class="flex-grow-1">
-                                            <span class="text-gray-800 fs-5 fw-bold lh-0">
-                                                <TL>Status</TL>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center w-100 mw-125px">
-                                        <span class="text-white-400 fw-semibold">
-                                            @{
-                                                var ss = StatusCache.ContainsKey(node) ? StatusCache[node] : null;
-                                            }
+                <div class="card-body pt-0">
+                    @if (Nodes.Any())
+                    {
+                        <div class="table-responsive">
+                            <Table TableItem="Node" Items="Nodes" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                                <Column TableItem="Node" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                                <Column TableItem="Node" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Id)" Sortable="true" Filterable="true">
+                                    <Template>
+                                        @{
+                                            var ss = StatusCache.ContainsKey(context) ? StatusCache[context] : null;
+                                        }
 
-                                            @if (ss == null)
-                                            {
-                                                <span class="text-danger">Offline</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-success">Online (@(ss.Version))</span>
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="separator separator-dashed my-3"></div>
-                                <div class="d-flex flex-stack">
-                                    <div class="d-flex align-items-center me-3">
-                                        <div class="flex-grow-1">
-                                            <span class="text-gray-800 fs-5 fw-bold lh-0">
-                                                <TL>CPU Usage</TL>
-                                            </span>
-                                            <span class="text-gray-400 fw-semibold d-block fs-6">
-                                                <TL>In %</TL>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center w-100 mw-125px">
-                                        <span class="text-white-400 fw-semibold">
-                                            @{
-                                                var cpu = CpuCache.ContainsKey(node) ? CpuCache[node] : null;
-                                            }
-
-                                            @if (cpu == null)
-                                            {
-                                                <span>Loading</span>
-                                            }
-                                            else
-                                            {
-                                                <span>@(cpu.CpuUsage)%</span>
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="separator separator-dashed my-3"></div>
-                                <div class="d-flex flex-stack">
-                                    <div class="d-flex align-items-center me-3">
-                                        <div class="flex-grow-1">
-                                            <span class="text-gray-800 fs-5 fw-bold lh-0">
-                                                <TL>Memory</TL>
-                                            </span>
-                                            <span class="text-gray-400 fw-semibold d-block fs-6">
-                                                <TL>Used / Available memory</TL>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center w-100 mw-125px">
-                                        <span class="text-white-400 fw-semibold">
-                                            @{
-                                                var memory = MemoryCache.ContainsKey(node) ? MemoryCache[node] : null;
-                                            }
-
-                                            @if (memory == null)
-                                            {
-                                                <span>Loading</span>
-                                            }
-                                            else
-                                            {
-                                                <span>@(Formatter.FormatSize(memory.Total - memory.Free)) / @(Formatter.FormatSize(memory.Total))</span>
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="separator separator-dashed my-3"></div>
-                                <div class="d-flex flex-stack">
-                                    <div class="d-flex align-items-center me-3">
-                                        <div class="flex-grow-1">
-                                            <span class="text-gray-800 fs-5 fw-bold lh-0">
-                                                <TL>Storage</TL>
-                                            </span>
-                                            <span class="text-gray-400 fw-semibold d-block fs-6">
-                                                <TL>Available storage</TL>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center w-100 mw-125px">
-                                        <span class="text-white-400 fw-semibold">
-                                            @{
-                                                var disk = DiskCache.ContainsKey(node) ? DiskCache[node] : null;
-                                            }
-
-                                            @if (disk == null)
-                                            {
-                                                <span>Loading</span>
-                                            }
-                                            else
-                                            {
-                                                <span>@(Formatter.FormatSize(disk.FreeBytes))</span>
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="separator my-5"></div>
-                                <div class="d-flex flex-stack">
-                                    <div class="align-items-start">
-                                        <a class="btn btn-primary" href="/admin/nodes/edit/@(node.Id)">
-                                            <TL>Edit</TL>
+                                        @if (ss == null)
+                                        {
+                                            <span class="text-danger">Offline</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success">Online (@(ss.Version))</span>
+                                        }
+                                    </Template>
+                                </Column>
+                                <Column TableItem="Node" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true">
+                                    <Template>
+                                        <a href="/admin/nodes/view/@(context.Id)">@(context.Name)</a>
+                                    </Template>
+                                </Column>
+                                <Column TableItem="Node" Title="@(SmartTranslateService.Translate("Fqdn"))" Field="@(x => x.Fqdn)" Sortable="true" Filterable="true"/>
+                                <Column TableItem="Node" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                    <Template>
+                                        <a href="/admin/nodes/edit/@(context.Id)">
+                                            @(SmartTranslateService.Translate("Edit"))
                                         </a>
-                                        <a class="btn btn-success" href="/admin/nodes/setup/@(node.Id)">
-                                            <TL>Setup</TL>
+                                    </Template>
+                                </Column>
+                                <Column TableItem="Node" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                    <Template>
+                                        <a href="/admin/nodes/setup/@(context.Id)">
+                                            @(SmartTranslateService.Translate("Setup"))
                                         </a>
+                                    </Template>
+                                </Column>
+                                <Column TableItem="Node" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                    <Template>
                                         <WButton Text="@(SmartTranslateService.Translate("Delete"))"
                                                  WorkingText="@(SmartTranslateService.Translate("Deleting"))"
-                                                 CssClasses="btn-danger"
-                                                 OnClick="() => Delete(node)">
+                                                 CssClasses="btn-sm btn-danger"
+                                                 OnClick="() => Delete(context)">
                                         </WButton>
-                                    </div>
-                                </div>
-                            </div>
+                                    </Template>
+                                </Column>
+                                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                            </Table>
                         </div>
-                    </div>
-                }
-            }
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <TL>No nodes found</TL>
+                        </div>
+                    }
+                </div>
+            </div>
         </LazyLoader>
     </div>
 </OnlyAdmin>
@@ -186,17 +102,10 @@
 
     private LazyLoader LazyLoader;
 
-    private Dictionary<Node, CpuStats> CpuCache = new();
-    private Dictionary<Node, MemoryStats> MemoryCache = new();
-    private Dictionary<Node, DiskStats> DiskCache = new();
     private Dictionary<Node, SystemStatus?> StatusCache = new();
 
     private Task Load(LazyLoader lazyLoader)
     {
-        CpuCache.Clear();
-        MemoryCache.Clear();
-        DiskCache.Clear();
-
         lock (StatusCache)
         {
             StatusCache.Clear();
@@ -222,11 +131,6 @@
                     catch (Exception e)
                     {
                         Logger.Debug(e.Message);
-
-                        lock (StatusCache)
-                        {
-                            StatusCache.Add(node, null);
-                        }
                     }
 
                     await InvokeAsync(StateHasChanged);
