@@ -366,3 +366,11 @@ Docker containers running;Docker containers running
 details;details
 1;1
 2;2
+DDos;DDos
+No ddos attacks found;No ddos attacks found
+Node;Node
+Date;Date
+DDos attack started;DDos attack started
+packets;packets
+DDos attack stopped;DDos attack stopped
+ packets; packets

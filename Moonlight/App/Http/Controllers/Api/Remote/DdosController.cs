@@ -1,5 +1,6 @@
 ﻿using Logging.Net;
 using Microsoft.AspNetCore.Mvc;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Http.Requests.Daemon;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
@@ -12,11 +13,13 @@ public class DdosController : Controller
 {
     private readonly NodeRepository NodeRepository;
     private readonly MessageService MessageService;
+    private readonly DdosAttackRepository DdosAttackRepository;
 
-    public DdosController(NodeRepository nodeRepository, MessageService messageService)
+    public DdosController(NodeRepository nodeRepository, MessageService messageService, DdosAttackRepository ddosAttackRepository)
     {
         NodeRepository = nodeRepository;
         MessageService = messageService;
+        DdosAttackRepository = ddosAttackRepository;
     }
 
     [HttpPost("update")]
@@ -34,7 +37,17 @@ public class DdosController : Controller
         if (token != node.Token)
             return Unauthorized();
 
-        await MessageService.Emit("node.ddos", ddosStatus);
+        var ddosAttack = new DdosAttack()
+        {
+            Ongoing = ddosStatus.Ongoing,
+            Data = ddosStatus.Data,
+            Ip = ddosStatus.Ip,
+            Node = node
+        };
+
+        ddosAttack = DdosAttackRepository.Add(ddosAttack);
+
+        await MessageService.Emit("node.ddos", ddosAttack);
         
         return Ok();
     }
