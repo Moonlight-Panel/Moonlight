@@ -374,3 +374,13 @@ DDos attack started;DDos attack started
 packets;packets
 DDos attack stopped;DDos attack stopped
  packets; packets
+Stop all;Stop all
+Kill all;Kill all
+Network in;Network in
+Network out;Network out
+Kill all servers;Kill all servers
+Do you really want to kill all running servers?;Do you really want to kill all running servers?
+Change power state for;Change power state for
+to;to
+Stop all servers;Stop all servers
+Do you really want to stop all running servers?;Do you really want to stop all running servers?

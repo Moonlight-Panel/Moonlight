@@ -6,7 +6,7 @@ public class ContainerStats
     
     public class Container
     {
-        public Guid Name { get; set; }
+        public string Name { get; set; }
         public long Memory { get; set; }
         public double Cpu { get; set; }
         public long NetworkIn { get; set; }
