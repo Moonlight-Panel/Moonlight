@@ -41,7 +41,7 @@
                         <Column TableItem="User" Title="@(SmartTranslateService.Translate("Created at"))" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="true"/>
                         <Column TableItem="User" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                             <Template>
-                                <a href="/admin/users/@(context.Id)/edit">
+                                <a href="/admin/users/edit/@(context.Id)/">
                                     <TL>Manage</TL>
                                 </a>
                             </Template>
