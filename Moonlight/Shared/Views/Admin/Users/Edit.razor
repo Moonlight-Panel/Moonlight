@@ -1,0 +1,187 @@
+﻿@page "/admin/users/edit/{Id:int}"
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Sessions
+
+@inject UserRepository UserRepository
+@inject SessionService SessionService
+@inject ToastService ToastService
+@inject SmartTranslateService SmartTranslateService
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        @if (User == null)
+        {
+            <div class="alert alert-danger">
+                <TL>No user with this id found</TL>
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header border-0 py-0">
+                    <h3 class="card-title align-items-start flex-column">
+                        <span class="card-label fw-bold fs-3">
+                            <TL>Manage user </TL> <span class="text-primary">@(User.Email)</span>
+                        </span>
+                    </h3>
+                </div>
+            </div>
+
+            <div class="mt-5 row">
+                <div class="col-xl-6 mb-5 mb-xl-10">
+                    <div class="card card-body p-10">
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>First name</TL>
+                            </label>
+                            <input @bind="User.FirstName" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Last name</TL>
+                            </label>
+                            <input @bind="User.LastName" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Email</TL>
+                            </label>
+                            <input @bind="User.Email" type="email" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mt-5 card card-body p-10">
+                        <div class="input-group">
+                            <select @bind="User.Status" class="form-select">
+                                @foreach (var status in (UserStatus[])Enum.GetValues(typeof(UserStatus)))
+                                {
+                                    if (User.Status == status)
+                                    {
+                                        <option value="@(status)" selected="">@(status)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@(status)">@(status)</option>
+                                    }
+                                }
+                            </select>
+                            <WButton Text="@(SmartTranslateService.Translate("Change"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Reloading"))"
+                                     CssClasses="btn-primary"
+                                     OnClick="UpdateStatus">
+                            </WButton>
+                        </div>
+                    </div>
+                    <div class="mt-5 card card-body p-10">
+                                    <div class="d-flex justify-content-end">
+                                        <a href="/admin/users" class="btn btn-danger me-3">
+                                            <TL>Cancel</TL>
+                                        </a>
+                                        <WButton Text="@(SmartTranslateService.Translate("Update"))"
+                                                 WorkingText="@(SmartTranslateService.Translate("Updating"))"
+                                                 CssClasses="btn-success"
+                                                 OnClick="Update">
+                                        </WButton>
+                                    </div>
+                                </div>
+                </div>
+                <div class="col-xl-6 mb-5 mb-xl-10">
+                    <div class="card card-body p-10">
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Address</TL>
+                            </label>
+                            <input @bind="User.Address" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>City</TL>
+                            </label>
+                            <input @bind="User.City" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>State</TL>
+                            </label>
+                            <input @bind="User.State" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Country</TL>
+                            </label>
+                            <input @bind="User.Country" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <input @bind="User.TotpEnabled" type="checkbox" class="form-check-input">
+                            <label class="form-label">
+                                <TL>Totp</TL>
+                            </label>
+                        </div>
+                        <div class="mb-10">
+                            <input @bind="User.Admin" type="checkbox" class="form-check-input">
+                            <label class="form-label">
+                                <TL>Admin</TL>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-5 card card-body p-10">
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Discord id</TL>
+                            </label>
+                            <input @bind="User.DiscordId" type="number" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Discord username</TL>
+                            </label>
+                            <input @bind="User.DiscordUsername" type="text" class="form-control">
+                        </div>
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Discord discriminator</TL>
+                            </label>
+                            <input @bind="User.DiscordDiscriminator" type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private User? User;
+
+    private Task Load(LazyLoader arg)
+    {
+        User = UserRepository.Get().FirstOrDefault(x => x.Id == Id);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task UpdateStatus()
+    {
+        var user = UserRepository.Get().FirstOrDefault(x => x.Id == User!.Id)!;
+        user.Status = User!.Status;
+        UserRepository.Update(user);
+
+        SessionService.ReloadUserSessions(User);
+
+        await ToastService.Success(SmartTranslateService.Translate("Successfully updated user"));
+    }
+
+    private async Task Update()
+    {
+        UserRepository.Update(User!);
+
+        await ToastService.Success(SmartTranslateService.Translate("Successfully updated user"));
+    }
+}

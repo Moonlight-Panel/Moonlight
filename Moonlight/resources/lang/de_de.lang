@@ -384,3 +384,12 @@ Change power state for;Change power state for
 to;to
 Stop all servers;Stop all servers
 Do you really want to stop all running servers?;Do you really want to stop all running servers?
+Manage ;Manage 
+Manage user ;Manage user 
+Reloading;Reloading
+Update;Update
+Updating;Updating
+Successfully updated user;Successfully updated user
+Discord id;Discord id
+Discord username;Discord username
+Discord discriminator;Discord discriminator
