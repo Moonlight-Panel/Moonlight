@@ -1,0 +1,43 @@
+﻿@typeparam TItem
+
+<select class="form-select" @bind="Binding">
+    @foreach(var item in Items)
+    {
+        <option value="@(item!.GetHashCode())">@(DisplayField(item))</option>
+    }
+</select>
+
+@code
+{
+    [Parameter]
+    public TItem[] Items { get; set; }
+    
+    [Parameter]
+    public Func<TItem, string> DisplayField { get; set; }
+    
+    [Parameter]
+    public Action<TItem> OnChange { get; set; }
+
+    private int Binding
+    {
+        get
+        {
+            if (Value == null)
+                return -1;
+
+            return Value.GetHashCode();
+        }
+        set
+        {
+            var i = Items.FirstOrDefault(x => x!.GetHashCode() == value);
+
+            if (i != null)
+            {
+                Value = i;
+                OnChange?.Invoke(Value);
+            }
+        }
+    }
+
+    private TItem Value;
+}

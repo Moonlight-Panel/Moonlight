@@ -1,0 +1,93 @@
+﻿@page "/admin/websites/"
+
+@using Moonlight.Shared.Components.Navigations
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject WebsiteRepository WebsiteRepository
+@inject SmartTranslateService SmartTranslateService
+@inject ToastService ToastService
+@inject WebsiteService WebsiteService
+
+<OnlyAdmin>
+    <AdminWebsiteNavigation Index="0"/>
+
+    <LazyLoader @ref="LazyLoader" Load="Load">
+        <div class="card">
+            <div class="card-header border-0 pt-5">
+                <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bold fs-3 mb-1">
+                        <TL>Websites</TL>
+                    </span>
+                </h3>
+                <div class="card-toolbar">
+                    <a href="/admin/websites/new" class="btn btn-sm btn-light-success">
+                        <i class="bx bx-layer-plus"></i>
+                        <TL>Add new website</TL>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <div class="table-responsive">
+                    <Table TableItem="Website" Items="Websites" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                        <Column TableItem="Website" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true">
+                            <Template>
+                                <a href="/website/@(context.Id)">@(context.Id)</a>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Website" Title="@(SmartTranslateService.Translate("Plesk id"))" Field="@(x => x.PleskId)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="Website" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Owner)" Sortable="true" Filterable="true">
+                            <Template>
+                                <a href="/admin/users/view/@(context.Owner.Id)">@(context.Owner.Email)</a>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Website" Title="@(SmartTranslateService.Translate("Plesk server"))" Field="@(x => x.PleskServer)" Sortable="true" Filterable="true">
+                            <Template>
+                                <a href="/admin/websites/servers/edit/@(context.PleskServer.Id)">@(context.PleskServer.Name)</a>
+                            </Template>
+                        </Column>
+                        <Column TableItem="Website" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                            <Template>
+                                <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                                         CssClasses="btn-danger"
+                                         OnClick="() => Delete(context)">
+                                </WButton>
+                            </Template>
+                        </Column>
+                        <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                    </Table>
+                </div>
+            </div>
+        </div>
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    private LazyLoader LazyLoader;
+
+    private Website[] Websites;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        Websites = WebsiteRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Include(x => x.PleskServer)
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Delete(Website website)
+    {
+        await WebsiteService.Delete(website);
+        await ToastService.Success(SmartTranslateService.Translate("Successfully deleted website"));
+        await LazyLoader.Reload();
+    }
+}
