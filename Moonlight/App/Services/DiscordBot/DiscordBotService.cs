@@ -77,7 +77,7 @@ public class DiscordBotService
         
         var type = this.GetType();
         var properties = type.GetProperties();
-        Logger.Debug("Start Initializing Commands (1 Command/s)");
+        Logger.Debug("Start Initializing Commands");
         foreach (var property in properties)
         {
             if (property.PropertyType.IsSubclassOf(typeof(BaseModule)))
