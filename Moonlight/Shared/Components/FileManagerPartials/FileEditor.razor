@@ -8,19 +8,22 @@
     <MonacoEditor CssClass="h-100" @ref="Editor" Id="vseditor" ConstructionOptions="(x) => EditorOptions"/>
 </div>
 
-<div class="card-footer pt-0">
-    <div class="btn-group">
-        <WButton 
-            Text="@(TranslationService.Translate("Save"))" 
-            WorkingText="@(TranslationService.Translate("Saving"))" 
-            OnClick="Submit"></WButton>
-        <WButton 
-            CssClasses="btn-danger" 
-            Text="@(TranslationService.Translate("Cancel"))" 
-            WorkingText="@(TranslationService.Translate("Canceling"))" 
-            OnClick="Cancel"></WButton>
+@if (!HideControls)
+{
+    <div class="card-footer pt-0">
+        <div class="btn-group">
+            <WButton 
+                Text="@(TranslationService.Translate("Save"))" 
+                WorkingText="@(TranslationService.Translate("Saving"))" 
+                OnClick="Submit"></WButton>
+            <WButton 
+                CssClasses="btn-danger" 
+                Text="@(TranslationService.Translate("Cancel"))" 
+                WorkingText="@(TranslationService.Translate("Canceling"))" 
+                OnClick="Cancel"></WButton>
+        </div>
     </div>
-</div>
+}
 
 @code
 {
@@ -29,6 +32,9 @@
     
     [Parameter]
     public string Language { get; set; }
+
+    [Parameter]
+    public bool HideControls { get; set; } = false;
     
     // Events
     [Parameter]
@@ -94,5 +100,10 @@
     private async Task Cancel()
     {
         await InvokeAsync(() => OnCancel?.Invoke());
+    }
+
+    public async Task<string> GetData()
+    {
+        return await Editor.GetValue();
     }
 }

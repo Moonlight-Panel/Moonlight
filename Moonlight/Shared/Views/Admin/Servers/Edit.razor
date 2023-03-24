@@ -141,8 +141,10 @@
             </div>
             <div class="row">
                 <div class="card card-body">
-                    <div class="btn-group">
-                        <a class="btn btn-primary" href="/admin/servers">Back</a>
+                    <div class="d-flex justify-content-end">
+                        <a href="/admin/servers/images" class="btn btn-danger me-3">
+                            <TL>Cancel</TL>
+                        </a>
                         <WButton Text="@(SmartTranslateService.Translate("Save"))"
                                  WorkingText="@(SmartTranslateService.Translate("Saving"))"
                                  CssClasses="btn-success"

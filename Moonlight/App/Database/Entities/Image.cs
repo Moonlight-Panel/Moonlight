@@ -13,8 +13,8 @@ public class Image
     public string InstallDockerImage { get; set; } = "";
     public string InstallEntrypoint { get; set; } = "";
     public string Startup { get; set; } = "";
-
+    public int Allocations { get; set; } = 1; 
     public List<DockerImage> DockerImages { get; set; } = new();
     public List<ImageVariable> Variables { get; set; } = new();
-    public List<ImageTag> Tags { get; set; } = new();
+    public string TagsJson { get; set; } = "";
 }

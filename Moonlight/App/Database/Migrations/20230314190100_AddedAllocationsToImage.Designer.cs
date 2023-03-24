@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230314190100_AddedAllocationsToImage")]
+    partial class AddedAllocationsToImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,35 +71,6 @@ namespace Moonlight.App.Database.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Databases");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.DdosAttack", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<long>("Data")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Ip")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("NodeId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Ongoing")
-                        .HasColumnType("tinyint(1)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NodeId");
-
-                    b.ToTable("DdosAttacks");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.DockerImage", b =>
@@ -846,17 +820,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("AaPanel");
 
                     b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.DdosAttack", b =>
-                {
-                    b.HasOne("Moonlight.App.Database.Entities.Node", "Node")
-                        .WithMany()
-                        .HasForeignKey("NodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Node");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.DockerImage", b =>

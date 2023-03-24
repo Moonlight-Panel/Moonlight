@@ -330,3 +330,66 @@ Wrong here?;Wrong here?
 A user with this email can not be found;A user with this email can not be found
 Passwort reset successfull. Check your mail;Passwort reset successfull. Check your mail
 Discord bot;Discord bot
+New image;New image
+Description;Description
+Uuid;Uuid
+Enter tag name;Enter tag name
+Remove;Remove
+No tags found;No tags found
+Enter docker image name;Enter docker image name
+Tags;Tags
+Docker images;Docker images
+Default image;Default image
+Startup command;Startup command
+Install container;Install container
+Install entry;Install entry
+Configuration files;Configuration files
+Startup detection;Startup detection
+Stop command;Stop command
+Successfully saved image;Successfully saved image
+No docker images found;No docker images found
+Key;Key
+Default value;Default value
+Allocations;Allocations
+No variables found;No variables found
+Successfully added image;Successfully added image
+Password change for;Password change for
+of;of
+New node;New node
+Fqdn;Fqdn
+Cores used;Cores used
+used;used
+5.15.90.1-microsoft-standard-WSL2 - amd64;5.15.90.1-microsoft-standard-WSL2 - amd64
+Host system information;Host system information
+0;0
+Docker containers running;Docker containers running
+details;details
+1;1
+2;2
+DDos;DDos
+No ddos attacks found;No ddos attacks found
+Node;Node
+Date;Date
+DDos attack started;DDos attack started
+packets;packets
+DDos attack stopped;DDos attack stopped
+ packets; packets
+Stop all;Stop all
+Kill all;Kill all
+Network in;Network in
+Network out;Network out
+Kill all servers;Kill all servers
+Do you really want to kill all running servers?;Do you really want to kill all running servers?
+Change power state for;Change power state for
+to;to
+Stop all servers;Stop all servers
+Do you really want to stop all running servers?;Do you really want to stop all running servers?
+Manage ;Manage 
+Manage user ;Manage user 
+Reloading;Reloading
+Update;Update
+Updating;Updating
+Successfully updated user;Successfully updated user
+Discord id;Discord id
+Discord username;Discord username
+Discord discriminator;Discord discriminator

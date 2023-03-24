@@ -88,4 +88,25 @@ public static class Formatter
         
         return $"{i2s(e.Day)}.{i2s(e.Month)}.{e.Year}";
     }
+
+    public static string FormatSize(double bytes)
+    {
+        var i = Math.Abs(bytes) / 1024D;
+        if (i < 1)
+        {
+            return bytes + " B";
+        }
+        else if (i / 1024D < 1)
+        {
+            return i.Round(2) + " KB";
+        }
+        else if (i / (1024D * 1024D) < 1)
+        {
+            return (i / 1024D).Round(2) + " MB";
+        }
+        else
+        {
+            return (i / (1024D * 1024D)).Round(2) + " GB";
+        }
+    }
 }
