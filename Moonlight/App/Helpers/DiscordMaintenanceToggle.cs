@@ -7,15 +7,7 @@ public class DiscordMaintenanceToggle
 {
     private Task MaintenanceModeToggle(SocketSlashCommand command)
     {
-        if (DiscordBotService.MaintenanceMode)
-        {
-            DiscordBotService.MaintenanceMode = false;
-        }
-        else
-        {
-            DiscordBotService.MaintenanceMode = true;
-        }
+        DiscordBotService.MaintenanceMode = !DiscordBotService.MaintenanceMode;
         return Task.CompletedTask;
     }
-
 }
