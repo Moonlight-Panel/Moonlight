@@ -65,7 +65,6 @@ namespace Moonlight
             builder.Services.AddScoped<AaPanelRepository>();
             builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<DdosAttackRepository>();
-            builder.Services.AddScoped<PleskServerRepository>();
 
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
@@ -121,7 +120,6 @@ namespace Moonlight
             builder.Services.AddSingleton<PaperApiHelper>();
             builder.Services.AddSingleton<HostSystemHelper>();
             builder.Services.AddScoped<DaemonApiHelper>();
-            builder.Services.AddScoped<PleskApiHelper>();
             
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();
