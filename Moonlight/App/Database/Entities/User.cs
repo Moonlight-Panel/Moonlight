@@ -30,6 +30,8 @@ public class User
     
     // Discord
     public long DiscordId { get; set; } = -1;
+    public string DiscordUsername { get; set; } = "";
+    public string DiscordDiscriminator { get; set; } = "";
     
     // Date stuff
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

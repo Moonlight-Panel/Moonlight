@@ -3,7 +3,6 @@ using Logging.Net;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Models.Google.Requests;
-using Moonlight.App.Models.Misc;
 using RestSharp;
 
 namespace Moonlight.App.Services.OAuth2;
@@ -113,10 +112,8 @@ public class DiscordOAuth2Service
         return new User()
         {
             Email = getData.GetValue<string>("email"),
-            FirstName = "User",
-            LastName = "User",
-            DiscordId = getData.GetValue<long>("id"),
-            Status = UserStatus.DataPending
+            FirstName = getData.GetValue<string>("username"),
+            LastName = getData.GetValue<string>("discriminator")
         };
     }
 

@@ -746,8 +746,16 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("DiscordDiscriminator")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<long>("DiscordId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("DiscordUsername")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
                         .IsRequired()

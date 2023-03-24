@@ -8,6 +8,5 @@ public enum UserStatus
     VerifyFailed,
     Warned,
     Banned,
-    Disabled,
-    DataPending
+    Disabled
 }

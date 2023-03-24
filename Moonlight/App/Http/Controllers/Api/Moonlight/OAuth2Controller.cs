@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
-using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using Moonlight.App.Services.OAuth2;
@@ -105,14 +104,6 @@ public class OAuth2Controller : Controller
                         userData.FirstName,
                         userData.LastName
                     );
-
-                    var newUser = UserRepository
-                        .Get()
-                        .First(x => x.Email == userData.Email);
-
-                    newUser.Status = UserStatus.DataPending;
-                    
-                    UserRepository.Update(newUser);
                 }
                 else
                 {
