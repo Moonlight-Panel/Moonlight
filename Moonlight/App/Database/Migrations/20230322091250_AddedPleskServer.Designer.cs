@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230322091250_AddedPleskServer")]
+    partial class AddedPleskServer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -460,10 +463,6 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.HasKey("Id");
 
                     b.ToTable("PleskServers");
@@ -746,8 +745,16 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("DiscordDiscriminator")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<long>("DiscordId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("DiscordUsername")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -810,24 +817,36 @@ namespace Moonlight.App.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("BaseDomain")
+                    b.Property<int>("AaPanelId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DomainName")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<string>("FtpPassword")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FtpUsername")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("InternalAaPanelId")
+                        .HasColumnType("int");
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PleskId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PleskServerId")
-                        .HasColumnType("int");
+                    b.Property<string>("PhpVersion")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("AaPanelId");
 
-                    b.HasIndex("PleskServerId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Websites");
                 });
@@ -1018,21 +1037,21 @@ namespace Moonlight.App.Database.Migrations
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Website", b =>
                 {
+                    b.HasOne("Moonlight.App.Database.Entities.AaPanel", "AaPanel")
+                        .WithMany()
+                        .HasForeignKey("AaPanelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Moonlight.App.Database.Entities.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Moonlight.App.Database.Entities.PleskServer", "PleskServer")
-                        .WithMany()
-                        .HasForeignKey("PleskServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AaPanel");
 
                     b.Navigation("Owner");
-
-                    b.Navigation("PleskServer");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Image", b =>
