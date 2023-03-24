@@ -1,2 +1,55 @@
 ﻿@page "/test"
+@using Moonlight.App.Services.Interop
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories.Domains
 
+@inject ToastService ToastService
+@inject SharedDomainRepository SharedDomainRepository
+
+<LazyLoader Load="Load">
+    <SmartForm Model="Domain" OnValidSubmit="Callback">
+        <div class="mb-3">
+            <label class="form-label">
+                <TL>Domain name</TL>
+            </label>
+            <InputText @bind-Value="Domain.Name" class="form-control"></InputText>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                <TL>Shared domain</TL>
+            </label>
+            <SmartSelect TField="SharedDomain"
+                         @bind-Value="Domain.SharedDomain"
+                         Items="SharedDomains"
+                         DisplayField="@(x => x.Name)">
+            </SmartSelect>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </SmartForm>
+</LazyLoader>
+
+@code
+{
+    private App.Database.Entities.Domain Domain = new();
+
+    private SharedDomain[] SharedDomains;
+
+    private async Task Callback(EditContext obj)
+    {
+        Console.WriteLine(Domain.Name);
+        Console.WriteLine(Domain.SharedDomain.Name);
+        
+        await ToastService.Success("SUCCESS");
+    }
+
+    private Task Load(LazyLoader arg)
+    {
+        SharedDomains = SharedDomainRepository
+            .Get()
+            .ToArray();
+        
+        return Task.CompletedTask;
+    }
+}
