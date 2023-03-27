@@ -9,6 +9,7 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Exceptions
 @using Logging.Net
+@using Moonlight.App.Database.Entities
 @using Moonlight.App.Services.OAuth2
 @using Moonlight.App.Services.Sessions
 
@@ -24,10 +25,10 @@
     <div class="card rounded-3 w-md-550px">
         <div class="card-body">
             <div class="d-flex flex-center flex-column-fluid pb-15 pb-lg-20">
-                <div class="form w-100 fv-plugins-bootstrap5 fv-plugins-framework" novalidate="novalidate">
+                <SmartForm Model="User" OnValidSubmit="DoLogin">
                     @if (!TotpRequired)
                     {
-                        <div class="text-center mb-11">
+                        <div class="text-center mt-3 mb-11">
                             <h1 class="text-dark fw-bolder mb-3">
                                 <TL>Sign In</TL>
                             </h1>
@@ -61,12 +62,12 @@
                             </span>
                         </div>
 
-                        <div class="fv-row mb-8 fv-plugins-icon-container">
-                            <input @bind="Email" type="text" placeholder="@(SmartTranslateService.Translate("Email"))" class="form-control bg-transparent">
+                        <div class="mt-3 mb-3">
+                            <InputText @bind-Value="User.Email" type="email" placeholder="@(SmartTranslateService.Translate("Email"))" class="form-control bg-transparent"/>
                         </div>
 
-                        <div class="fv-row mb-3 fv-plugins-icon-container">
-                            <input @bind="Password" type="password" placeholder="@(SmartTranslateService.Translate("Password"))" class="form-control bg-transparent">
+                        <div class="mb-3">
+                            <InputText @bind-Value="User.Password" type="password" placeholder="@(SmartTranslateService.Translate("Password"))" class="form-control bg-transparent"/>
                         </div>
 
                         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
@@ -78,11 +79,9 @@
                         </div>
 
                         <div class="d-grid mb-10">
-                            <WButton Text="@(SmartTranslateService.Translate("Sign-in"))"
-                                     WorkingText="@(SmartTranslateService.Translate("Working"))"
-                                     CssClasses="btn-primary"
-                                     OnClick="DoLogin">
-                            </WButton>
+                            <button type="submit" class="btn btn-primary">
+                                <TL>Sign-in</TL>
+                            </button>
                         </div>
                     }
                     else
@@ -106,7 +105,7 @@
                             <TL>Sign up</TL>
                         </a>
                     </div>
-                </div>
+                </SmartForm>
             </div>
         </div>
     </div>
@@ -114,8 +113,7 @@
 
 @code
 {
-    private string Email = "";
-    private string Password = "";
+    private User User = new();
 
     private bool TotpRequired = false;
     private string TotpCode = "";
@@ -124,16 +122,16 @@
     {
         try
         {
-            Email = Email.ToLower().Trim();
-            
-            TotpRequired = await UserService.CheckTotp(Email, Password);
+            User.Email = User.Email.ToLower().Trim();
+
+            TotpRequired = await UserService.CheckTotp(User.Email, User.Password);
 
             if (!TotpRequired)
             {
-                var token = await UserService.Login(Email, Password);
+                var token = await UserService.Login(User.Email, User.Password);
                 await CookieService.SetValue("token", token, 10);
-                
-                if(NavigationManager.Uri.EndsWith("login"))
+
+                if (NavigationManager.Uri.EndsWith("login"))
                     NavigationManager.NavigateTo("/", true);
                 else
                     NavigationManager.NavigateTo(NavigationManager.Uri, true);
@@ -167,7 +165,7 @@
         var url = await GoogleOAuth2Service.GetUrl();
         NavigationManager.NavigateTo(url, true);
     }
-    
+
     private async Task DoDiscord()
     {
         var url = await DiscordOAuth2Service.GetUrl();
