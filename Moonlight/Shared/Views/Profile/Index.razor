@@ -1,4 +1,94 @@
 ﻿@page "/profile"
+
 @using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+
+@inject IdentityService IdentityService
+@inject UserRepository UserRepository
 
 <ProfileNavigation Index="0" />
+
+<LazyLoader Load="Load">
+    <SmartForm OnValidSubmit="Save" Model="User">
+        <div class="card mb-5 mb-xl-10">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="fw-bold m-0 text-gray-800">Persönliche Daten</h3>
+                </div>
+            </div>
+            <div class="card-body border-top p-9">
+                <div class="row">
+                    <div class="col-lg-6 fv-row fv-plugins-icon-container">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <TL>First name</TL>
+                            </label>
+                            <InputText @bind-Value="User.FirstName" class="form-control"></InputText>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 fv-row fv-plugins-icon-container">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <TL>Last name</TL>
+                            </label>
+                            <InputText @bind-Value="User.LastName" class="form-control"></InputText>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <TL>Email address</TL>
+                    </label>
+                    <InputText @bind-Value="User.Email" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <TL>Address</TL>
+                    </label>
+                    <InputText @bind-Value="User.Address" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <TL>City</TL>
+                    </label>
+                    <InputText @bind-Value="User.City" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <TL>State</TL>
+                    </label>
+                    <InputText @bind-Value="User.State" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        <TL>Country</TL>
+                    </label>
+                    <InputText @bind-Value="User.Country" class="form-control"></InputText>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end py-6 px-9">
+                <button type="submit" class="btn btn-primary">
+                    <TL>Save</TL>
+                </button>
+            </div>
+        </div>
+    </SmartForm>
+</LazyLoader>
+
+@code
+{
+    private User User = new User();
+
+
+    private async Task Load(LazyLoader loader)
+    {
+        User = await IdentityService.Get();
+    }
+
+    private void Save()
+    {
+        UserRepository.Update(User);
+    }
+}
