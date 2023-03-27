@@ -1,13 +1,17 @@
 ﻿@page "/profile"
+
 @using Moonlight.Shared.Components.Navigations
 @using Moonlight.App.Services.Sessions
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+
 @inject IdentityService IdentityService
+@inject UserRepository UserRepository
 
 <ProfileNavigation Index="0" />
 
 <LazyLoader Load="Load">
-    <SmartForm Model="User">
+    <SmartForm OnValidSubmit="Save" Model="User">
         <div class="card mb-5 mb-xl-10">
             <div class="card-header">
                 <div class="card-title">
@@ -81,5 +85,10 @@
     private async Task Load(LazyLoader loader)
     {
         User = await IdentityService.Get();
+    }
+
+    private void Save()
+    {
+        UserRepository.Update(User);
     }
 }
