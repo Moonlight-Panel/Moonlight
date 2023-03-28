@@ -394,6 +394,11 @@ Discord id;Discord id
 Discord username;Discord username
 Discord discriminator;Discord discriminator
 The Name field is required.;The Name field is required.
+An error occured while logging you in;An error occured while logging you in
+You need to enter an email address;You need to enter an email address
+You need to enter a password;You need to enter a password
+You need to enter a password with minimum 8 characters in lenght;You need to enter a password with minimum 8 characters in lenght
+Proccessing;Proccessing
 The FirstName field is required.;The FirstName field is required.
 The LastName field is required.;The LastName field is required.
 The Address field is required.;The Address field is required.
