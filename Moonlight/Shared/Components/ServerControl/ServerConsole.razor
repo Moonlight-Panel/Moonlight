@@ -15,21 +15,20 @@
 @inject AlertService AlertService
 @inject SmartTranslateService TranslationService
 
-<div class="row g-5 g-xl-10 mb-xl-10">
-    <Terminal @ref="Terminal" RunOnFirstRender="RunOnFirstRender"></Terminal>
-
-    <div class="mt-3 row">
-        <div class="ms-2 input-group">
+<div class="card card-body rounded bg-black p-3">
+    <div class="d-flex flex-column">
+        <Terminal @ref="Terminal" RunOnFirstRender="RunOnFirstRender"></Terminal>
+        <div class="input-group">
             <script suppress-error="BL9992">
-                                                                function checkEnter(event) {
-                                                                    if (event.keyCode === 13) {
-                                                                        event.preventDefault();
-                                                                        document.getElementById("sendCmd").click();
-                                                                    }
-                                                                }
-                                                            </script>
-            <input @bind="@CommandInput" class="form-control" onkeyup="checkEnter(event)" placeholder="@(TranslationService.Translate("Enter command"))"/>
-            
+                                        function checkEnter(event) 
+                                        {
+                                            if (event.keyCode === 13) {
+                                                event.preventDefault();
+                                                document.getElementById("sendCmd").click();
+                                            }
+                                        }
+                                    </script>
+            <input @bind="@CommandInput" class="form-control rounded-start" onkeyup="checkEnter(event)" placeholder="@(TranslationService.Translate("Enter command"))"/>
             <button id="sendCmd" @onclick="SendCommand" class="input-group-text btn btn-primary">@(TranslationService.Translate("Execute"))</button>
         </div>
     </div>

@@ -407,3 +407,5 @@ The State field is required.;The State field is required.
 The Country field is required.;The Country field is required.
 Street and house number requered;Street and house number requered
 Max lenght reached;Max lenght reached
+Server not found;Server not found
+A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you have no access for this server

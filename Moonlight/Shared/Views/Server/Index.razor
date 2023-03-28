@@ -8,7 +8,6 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
-@using Moonlight.App.Services.Sessions
 @using Moonlight.Shared.Components.Xterm
 @using Moonlight.Shared.Components.ServerControl
 @using Newtonsoft.Json
@@ -16,13 +15,20 @@
 @inject ImageRepository ImageRepository
 @inject ServerRepository ServerRepository
 @inject WingsConsoleHelper WingsConsoleHelper
-@inject IdentityService IdentityService
 
 <LazyLoader Load="LoadData">
     @if (CurrentServer == null)
     {
-        <div class="alert alert-danger">
-            <TL>Server not found</TL>
+        <div class="d-flex justify-content-center flex-center">
+            <div class="card">
+                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-25 mx-auto pt-5" alt="Not found image" />
+                <div class="card-body text-center">
+                    <h4 class="card-title"><TL>Server not found</TL></h4>
+                    <p class="card-text">
+                        <TL>A server with that id cannot be found or you have no access for this server</TL>
+                    </p>
+                </div>
+            </div>
         </div>
     }
     else
