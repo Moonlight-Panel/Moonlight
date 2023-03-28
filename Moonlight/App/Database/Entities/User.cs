@@ -9,7 +9,14 @@ public class User
     
     // Personal data
     
+    [Required]
+    [MinLength(3, ErrorMessage = "Invalid first name")]
+    [MaxLength(64, ErrorMessage = "Max lenght reached")]
     public string FirstName { get; set; } = "";
+    
+    [Required]
+    [MinLength(3, ErrorMessage = "Invalid last name")]
+    [MaxLength(64, ErrorMessage = "Max lenght reached")]
     public string LastName { get; set; } = "";
     
     [Required(ErrorMessage = "You need to enter an email address")]
@@ -19,9 +26,26 @@ public class User
     [Required(ErrorMessage = "You need to enter a password")]
     [MinLength(8, ErrorMessage = "You need to enter a password with minimum 8 characters in lenght")]
     public string Password { get; set; } = "";
+    
+    [Required]
+    [RegularExpression(@"^(?:[A-Z] \d|[^\W\d_]{2,}\.?)(?:[- &#39;’][^\W\d_]+\.?)*\s+[1-9]\d{0,3} ?[a-zA-Z]?(?: ?[/-] ?[1-9]\d{0,3} ?[a-zA-Z]?)?$", 
+        ErrorMessage = "Street and house number required")]
+    [MaxLength(128, ErrorMessage = "Max lenght reached")]
     public string Address { get; set; } = "";
+    
+    [Required]
+    [MinLength(3, ErrorMessage = "Invalid city")]
+    [MaxLength(128, ErrorMessage = "Max lenght reached")]
     public string City { get; set; } = "";
+    
+    [Required]
+    [MinLength(3, ErrorMessage = "Invalid state")]
+    [MaxLength(64, ErrorMessage = "Max lenght reached")]
     public string State { get; set; } = "";
+    
+    [Required]
+    [MinLength(3, ErrorMessage = "Invalid country")]
+    [MaxLength(64, ErrorMessage = "Max lenght reached")]
     public string Country { get; set; } = "";
     
     // States
