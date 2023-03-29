@@ -96,8 +96,8 @@
                                                 case "network":
                                                     <ServerNetwork></ServerNetwork>
                                                     break;
-                                                case "plugins":
-                                                    <ServerPlugins></ServerPlugins>
+                                                case "addons":
+                                                    <ServerAddons></ServerAddons>
                                                     break;
                                                 case "settings":
                                                     <ServerSettings></ServerSettings>
@@ -185,7 +185,7 @@
                 .Include(x => x.Owner)
                 .First(x => x.Uuid == uuid);
 
-            if (CurrentServer.Owner.Id != User!.Id)
+            if (CurrentServer.Owner.Id != User!.Id && User.Admin)
                 CurrentServer = null;
         }
         catch (Exception)

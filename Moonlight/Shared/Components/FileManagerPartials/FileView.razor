@@ -1,0 +1,223 @@
+﻿@using Moonlight.App.Helpers.Files
+@using Logging.Net
+@using BlazorContextMenu
+@using Moonlight.App.Helpers
+
+<div class="table-responsive">
+    <div class="dataTables_scroll">
+        <div class="dataTables_scrollHead">
+            <div class="dataTables_scrollHeadInner">
+                <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer">
+                    <thead>
+                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                        <th class="w-10px pe-2 sorting_disabled">
+                            <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                @if (AllToggled)
+                                {
+                                    <input @onclick="() => SetToggleState(false)" class="form-check-input" type="checkbox" checked="">
+                                }
+                                else
+                                {
+                                    <input @onclick="() => SetToggleState(true)" class="form-check-input" type="checkbox">
+                                }
+                            </div>
+                        </th>
+                        <th class="min-w-250px sorting_disabled">Name</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="dataTables_scrollBody" style="position: relative; overflow: auto; max-height: 700px; width: 100%;">
+            <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" style="width: 100%;">
+                <tbody class="fw-semibold text-gray-600">
+                <LazyLoader Load="Load">
+                    <tr class="even">
+                        <td class="w-10px">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="icon-wrapper">
+                                    <i class="bx bx-md bx-folder text-primary"></i>
+                                </span>
+                                <a href="#" @onclick:preventDefault @onclick="GoUp" class="ms-3 text-gray-800 text-hover-primary">
+                                    <TL>Go up</TL>
+                                </a>
+                            </div>
+                        </td>
+                        <td></td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end">
+                                <div class="ms-2">
+
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    @foreach (var file in Data)
+                    {
+                        <tr class="even">
+                            <td class="w-10px">
+                                <div class="form-check form-check-sm form-check-custom form-check-solid">
+                                    @{
+                                        var toggle = ToggleStatusCache.ContainsKey(file) && ToggleStatusCache[file];
+                                    }
+
+                                    @if (toggle)
+                                    {
+                                        <input @onclick="() => SetToggleState(file, false)" class="form-check-input" type="checkbox" checked="checked">
+                                    }
+                                    else
+                                    {
+                                        <input @onclick="() => SetToggleState(file, true)" class="form-check-input" type="checkbox">
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="icon-wrapper">
+                                        @if (file.IsFile)
+                                        {
+                                            <i class="bx bx-md bx-file text-primary"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bx bx-md bx-folder text-primary"></i>
+                                        }
+                                    </span>
+                                    <a href="#" @onclick:preventDefault @onclick="() => OnClicked(file)" class="ms-3 text-gray-800 text-hover-primary">@(file.Name)</a>
+                                </div>
+                            </td>
+                            <td>@(Formatter.FormatSize(file.Size))</td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end">
+                                    <div class="ms-2 me-7">
+                                        <ContextMenuTrigger MenuId="triggerMenu" MouseButtonTrigger="MouseButtonTrigger.Both" Data="file">
+                                            <button class="btn btn-sm btn-icon btn-light btn-active-light-primary me-2">
+                                                <span class="svg-icon svg-icon-5 m-0">
+                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <rect x="10" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                        <rect x="17" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                        <rect x="3" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                    </svg>
+                                                </span>
+                                            </button>
+                                        </ContextMenuTrigger>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </LazyLoader>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<ContextMenu Id="triggerMenu" CssClass="bg-secondary z-10">
+    @foreach (var action in ContextActions)
+    {
+        <Item Id="@action.Id" OnClick="OnContextMenuClick">
+            <TL>@action.Name</TL>
+        </Item>
+    }
+</ContextMenu>
+
+@code
+{
+    [Parameter]
+    public IFileAccess Access { get; set; }
+
+    [Parameter]
+    public Func<FileData, Task<bool>>? OnElementClicked { get; set; }
+    
+    [Parameter]
+    public Action<string>? OnPathChanged { get; set; }
+
+    [Parameter]
+    public ContextAction[] ContextActions { get; set; } = Array.Empty<ContextAction>();
+
+    private FileData[] Data = Array.Empty<FileData>();
+
+    private Dictionary<FileData, bool> ToggleStatusCache = new();
+    private bool AllToggled = false;
+
+    public async Task Refresh()
+    {
+        Data = await Access.Ls();
+        ToggleStatusCache.Clear();
+
+        foreach (var fileData in Data)
+        {
+            ToggleStatusCache.Add(fileData, false);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Load(LazyLoader arg)
+    {
+        await Refresh();
+    }
+
+    private async Task SetToggleState(FileData fileData, bool status)
+    {
+        if (ToggleStatusCache.ContainsKey(fileData))
+            ToggleStatusCache[fileData] = status;
+        else
+            ToggleStatusCache.Add(fileData, status);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SetToggleState(bool status)
+    {
+        AllToggled = status;
+
+        foreach (var fd in ToggleStatusCache.Keys)
+        {
+            ToggleStatusCache[fd] = status;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnClicked(FileData fileData)
+    {
+        if (OnElementClicked != null)
+        {
+            var canceled = await OnElementClicked.Invoke(fileData);
+
+            if (canceled)
+                return;
+        }
+
+        if (!fileData.IsFile)
+        {
+            await Access.Cd(fileData.Name);
+            await Refresh();
+            OnPathChanged?.Invoke(await Access.Pwd());
+        }
+    }
+
+    private async Task GoUp()
+    {
+        await Access.Up();
+        await Refresh();
+        
+        OnPathChanged?.Invoke(await Access.Pwd());
+    }
+
+    private Task OnContextMenuClick(ItemClickEventArgs eventArgs)
+    {
+        var action = ContextActions.FirstOrDefault(x => x.Id == eventArgs.MenuItem.Id);
+
+        if (action != null)
+        {
+            action.Action.Invoke((FileData)eventArgs.Data);
+        }
+
+        return Task.CompletedTask;
+    }
+}

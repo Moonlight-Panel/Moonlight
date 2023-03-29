@@ -1,0 +1,529 @@
+﻿@using Moonlight.App.Helpers
+@using BlazorContextMenu
+@using BlazorDownloadFile
+@using Logging.Net
+@using Moonlight.App.Models.Files
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject AlertService AlertService
+@inject ToastService ToastService
+@inject NavigationManager NavigationManager
+@inject SmartTranslateService TranslationService
+@inject IBlazorDownloadFileService FileService
+
+<div class="card card-flush">
+@if (Editing == null)
+{
+    <div class="card-header pt-8">
+        <div class="card-title">
+            <div class="d-flex align-items-center position-relative my-1">
+                <span class="svg-icon svg-icon-1 position-absolute ms-6">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2" rx="1" transform="rotate(45 17.0365 15.1223)" fill="currentColor"></rect>
+                        <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+                <input type="text" @bind="Search" @bind:event="oninput" class="form-control form-control-solid w-250px ps-15" placeholder="@(TranslationService.Translate("Search files and folders"))">
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @if (SelectedFiles.Count == 0)
+            {
+                <div class="d-flex justify-content-end">
+                    <button type="button" @onclick="Launch" class="btn btn-light-primary me-3">
+                        <span class="svg-icon svg-icon-muted svg-icon-2hx">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="0.3" d="M5 16C3.3 16 2 14.7 2 13C2 11.3 3.3 10 5 10H5.1C5 9.7 5 9.3 5 9C5 6.2 7.2 4 10 4C11.9 4 13.5 5 14.3 6.5C14.8 6.2 15.4 6 16 6C17.7 6 19 7.3 19 9C19 9.4 18.9 9.7 18.8 10C18.9 10 18.9 10 19 10C20.7 10 22 11.3 22 13C22 14.7 20.7 16 19 16H5ZM8 13.6H16L12.7 10.3C12.3 9.89999 11.7 9.89999 11.3 10.3L8 13.6Z" fill="currentColor"/>
+                                <path d="M11 13.6V19C11 19.6 11.4 20 12 20C12.6 20 13 19.6 13 19V13.6H11Z" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <TL>Launch WinSCP</TL>
+                    </button>
+
+                    <button type="button" @onclick="CreateFolder" class="btn btn-light-primary me-3">
+                        <span class="svg-icon svg-icon-2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
+                                <path d="M10.4 3.60001L12 6H21C21.6 6 22 6.4 22 7V19C22 19.6 21.6 20 21 20H3C2.4 20 2 19.6 2 19V4C2 3.4 2.4 3 3 3H9.2C9.7 3 10.2 3.20001 10.4 3.60001ZM16 12H13V9C13 8.4 12.6 8 12 8C11.4 8 11 8.4 11 9V12H8C7.4 12 7 12.4 7 13C7 13.6 7.4 14 8 14H11V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V14H16C16.6 14 17 13.6 17 13C17 12.4 16.6 12 16 12Z" fill="currentColor"></path>
+                                <path opacity="0.3" d="M11 14H8C7.4 14 7 13.6 7 13C7 12.4 7.4 12 8 12H11V14ZM16 12H13V14H16C16.6 14 17 13.6 17 13C17 12.4 16.6 12 16 12Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                        <TL>New folder</TL>
+                    </button>
+
+                    <InputFile OnChange="OnFileChanged" type="file" id="fileUpload" hidden="" multiple=""/>
+                    <label for="fileUpload" class="btn btn-primary me-3 pt-5 @(Uploading ? "disabled" : "")">
+                        @if (Uploading)
+                        {
+                            <span>@(Percent)%</span>
+                        }
+                        else
+                        {
+                            <span class="svg-icon svg-icon-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
+                                    <path d="M10.4 3.60001L12 6H21C21.6 6 22 6.4 22 7V19C22 19.6 21.6 20 21 20H3C2.4 20 2 19.6 2 19V4C2 3.4 2.4 3 3 3H9.20001C9.70001 3 10.2 3.20001 10.4 3.60001ZM16 11.6L12.7 8.29999C12.3 7.89999 11.7 7.89999 11.3 8.29999L8 11.6H11V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H16Z" fill="currentColor"></path>
+                                    <path opacity="0.3" d="M11 11.6V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H11Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                            <TL>Upload</TL>
+                        }
+                    </label>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="fw-bold me-5">
+                        <span class="me-2">
+                            @(SelectedFiles.Count)
+                        </span>
+                        <TL>Selected</TL>
+                    </div>
+                    <button type="button" class="btn btn-primary me-3">
+                        <TL>Move deleted</TL>
+                    </button>
+                    <button type="button" class="btn btn-danger">
+                        <TL>Delete selected</TL>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-stack">
+            <div class="badge badge-lg badge-light-primary">
+                <div class="d-flex align-items-center flex-wrap">
+                    @{
+                        var vx = "/";
+                    }
+                    <a @onclick:preventDefault @onclick="() => SetPath(vx)" href="#">/</a>
+                    <span class="svg-icon svg-icon-2x svg-icon-primary mx-1">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.6343 12.5657L8.45001 16.75C8.0358 17.1642 8.0358 17.8358 8.45001 18.25C8.86423 18.6642 9.5358 18.6642 9.95001 18.25L15.4929 12.7071C15.8834 12.3166 15.8834 11.6834 15.4929 11.2929L9.95001 5.75C9.5358 5.33579 8.86423 5.33579 8.45001 5.75C8.0358 6.16421 8.0358 6.83579 8.45001 7.25L12.6343 11.4343C12.9467 11.7467 12.9467 12.2533 12.6343 12.5657Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                    @{
+                        var cp = "/";
+                        var lp = "/";
+                        var pathParts = CurrentPath.Replace("\\", "/").Split('/', StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var path in pathParts)
+                        {
+                            lp = cp;
+                            <a @onclick:preventDefault @onclick="() => SetPath(lp)" href="#">@(path)</a>
+                            <span class="svg-icon svg-icon-2x svg-icon-primary mx-1">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.6343 12.5657L8.45001 16.75C8.0358 17.1642 8.0358 17.8358 8.45001 18.25C8.86423 18.6642 9.5358 18.6642 9.95001 18.25L15.4929 12.7071C15.8834 12.3166 15.8834 11.6834 15.4929 11.2929L9.95001 5.75C9.5358 5.33579 8.86423 5.33579 8.45001 5.75C8.0358 6.16421 8.0358 6.83579 8.45001 7.25L12.6343 11.4343C12.9467 11.7467 12.9467 12.2533 12.6343 12.5657Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+
+                            cp += path + "/";
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="dt-bootstrap4 no-footer">
+            @if (Loading)
+            {
+                <div class="mt-5 alert alert-info">
+                    <span>
+                        <TL>Loading</TL> <span class="spinner-grow align-middle ms-2"></span>
+                    </span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer">
+                        <thead>
+                        <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                            <th class="w-10px pe-2">
+                                <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                    <input class="form-check-input" type="checkbox" @onchange="OnAllFileToggle">
+                                </div>
+                            </th>
+                            <th class="min-w-250px">
+                                <TL>File name</TL>
+                            </th>
+                            <th class="min-w-10px">
+                                <TL>File size</TL>
+                            </th>
+                            <th class="min-w-125px">
+                                <TL>Last modified</TL>
+                            </th>
+                            <th class="w-125px"></th>
+                        </tr>
+                        </thead>
+                        <tbody class="fw-semibold text-gray-600">
+                        @foreach (var obj in Objects.Where(x => x.Name.Contains(Search)))
+                        {
+                            <tr class="odd">
+                                <td>
+                                    <div class="form-check form-check-sm form-check-custom form-check-solid">
+                                        <input class="form-check-input" type="checkbox" @onchange="(e) => OnFileToggle(e, obj)">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (obj.IsFile)
+                                        {
+                                            <span class="svg-icon svg-icon-2x svg-icon-primary me-4">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path opacity="0.3" d="M19 22H5C4.4 22 4 21.6 4 21V3C4 2.4 4.4 2 5 2H14L20 8V21C20 21.6 19.6 22 19 22Z" fill="currentColor"></path>
+                                                    <path d="M15 8H20L14 2V7C14 7.6 14.4 8 15 8Z" fill="currentColor"></path>
+                                                </svg>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="svg-icon svg-icon-2x svg-icon-primary me-4">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
+                                                    <path d="M9.2 3H3C2.4 3 2 3.4 2 4V19C2 19.6 2.4 20 3 20H21C21.6 20 22 19.6 22 19V7C22 6.4 21.6 6 21 6H12L10.4 3.60001C10.2 3.20001 9.7 3 9.2 3Z" fill="currentColor"></path>
+                                                </svg>
+                                            </span>
+                                        }
+
+                                        @if (obj.IsFile)
+                                        {
+                                            <a href="#" @onclick:preventDefault @onclick="() => OpenFile(obj)" class="text-gray-800 text-hover-primary">@(obj.Name)</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="#" @onclick:preventDefault @onclick="() => CdPath(obj.Name)" class="text-gray-800 text-hover-primary">@(obj.Name)</a>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @(Formatter.FormatSize(obj.Size))
+                                </td>
+                                <td>
+                                    @(obj.UpdatedAt.ToShortDateString()) @(obj.UpdatedAt.ToShortTimeString())
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end">
+                                        <div class="ms-2">
+                                            <ContextMenuTrigger MenuId="triggerMenu" MouseButtonTrigger="MouseButtonTrigger.Both" Data="obj">
+                                                <button class="btn btn-sm btn-icon btn-light btn-active-light-primary me-2">
+                                                    <span class="svg-icon svg-icon-5 m-0">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <rect x="10" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                            <rect x="17" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                            <rect x="3" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                            </ContextMenuTrigger>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    if (Loading)
+    {
+        <div class="mt-5 alert alert-info">
+            <span>
+                <TL>Loading</TL> <span class="spinner-grow align-middle ms-2"></span>
+            </span>
+        </div>
+    }
+    else
+    {
+        <FileEditor OnSubmit="SaveFile" OnCancel="CloseFile" InitialData="@(InitialEditorData)" Language="@(Language)"></FileEditor>
+    }
+}
+</div>
+
+<ContextMenu Id="triggerMenu" CssClass="bg-secondary z-10">
+    <Item Id="rename" OnClick="OnContextMenuClick"><TL>Rename</TL></Item>
+    <Item Id="move" OnClick="OnContextMenuClick"><TL>Move</TL></Item>
+    <Item Id="archive" OnClick="OnContextMenuClick"><TL>Archive</TL></Item>
+    <Item Id="unarchive" OnClick="OnContextMenuClick"><TL>Unarchive</TL></Item>
+    <Item Id="download" OnClick="OnContextMenuClick"><TL>Download</TL></Item>
+    <Item Id="delete" OnClick="OnContextMenuClick"><TL>Delete</TL></Item>
+</ContextMenu>
+
+@code
+{
+    [Parameter]
+    public IFileAccess FileAccess { get; set; }
+
+    // Data
+
+    private List<FileManagerObject> SelectedFiles { get; set; } = new();
+    private List<FileManagerObject> Objects { get; set; } = new();
+    private string CurrentPath = "";
+
+    // Search
+    private string SearchValue = "";
+
+    private string Search
+    {
+        get { return SearchValue; }
+        set
+        {
+            SearchValue = value;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // States
+    private bool Loading = false;
+
+    // States - Editor
+    private FileManagerObject? Editing = null;
+    private string InitialEditorData = "";
+    private string Language = "plaintext";
+
+    // States - File Upload
+    private bool Uploading = false;
+    private int Percent = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshActive();
+        }
+    }
+
+    private async Task RefreshActive()
+    {
+        Loading = true;
+        await InvokeAsync(StateHasChanged);
+
+        await Refresh(false);
+
+        Loading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Refresh(bool rerender = true)
+    {
+        SelectedFiles.Clear();
+        Objects.Clear();
+        CurrentPath = await FileAccess.GetCurrentPath();
+
+        var data = await FileAccess.GetDirectoryContent();
+        Objects = data.ToList();
+
+        if (rerender)
+            await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CdPath(string path)
+    {
+        await FileAccess.ChangeDirectory(path);
+        await RefreshActive();
+    }
+
+    private async Task SetPath(string path)
+    {
+        await FileAccess.SetDirectory(path);
+        await RefreshActive();
+    }
+
+    private async Task OnContextMenuClick(ItemClickEventArgs e)
+    {
+        var data = e.Data as FileManagerObject;
+
+        if (data == null)
+            return;
+
+        switch (e.MenuItem.Id)
+        {
+            case "delete":
+                await FileAccess.Delete(data);
+                break;
+            case "download":
+                if (data.IsFile)
+                {
+                    try
+                    {
+                        var stream = await FileAccess.GetDownloadStream(data);
+                        await ToastService.Info(TranslationService.Translate("Starting download"));
+                        await FileService.AddBuffer(stream);
+                        await FileService.DownloadBinaryBuffers(data.Name);
+                    }
+                    catch (NotImplementedException)
+                    {
+                        try
+                        {
+                            var url = await FileAccess.GetDownloadUrl(data);
+                            NavigationManager.NavigateTo(url, true);
+                            await ToastService.Info(TranslationService.Translate("Starting download"));
+                        }
+                        catch (Exception exception)
+                        {
+                            await ToastService.Error(TranslationService.Translate("Error starting download"));
+                            Logger.Error("Error downloading file");
+                            Logger.Error(exception.Message);
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        await ToastService.Error(TranslationService.Translate("Error starting download"));
+                        Logger.Error("Error downloading file stream");
+                        Logger.Error(exception.Message);
+                    }
+                }
+                break;
+            case "rename":
+                var newName = await AlertService.Text(TranslationService.Translate("Rename"), TranslationService.Translate("Enter a new name"), data.Name);
+                var path = await FileAccess.GetCurrentPath();
+                await FileAccess.Move(data, path + "/" + newName);
+                break;
+        }
+
+        await Refresh(false);
+    }
+
+    private async Task OnFileToggle(ChangeEventArgs obj, FileManagerObject o)
+    {
+        if ((bool)obj.Value)
+        {
+            if (SelectedFiles.Contains(o))
+                return;
+
+            SelectedFiles.Add(o);
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            if (!SelectedFiles.Contains(o))
+                return;
+
+            SelectedFiles.Remove(o);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnAllFileToggle(ChangeEventArgs obj)
+    {
+        if ((bool)obj.Value)
+        {
+            foreach (var o in Objects)
+            {
+                if (SelectedFiles.Contains(o))
+                    continue;
+
+                SelectedFiles.Add(o);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            foreach (var o in Objects)
+            {
+                if (!SelectedFiles.Contains(o))
+                    continue;
+
+                SelectedFiles.Remove(o);
+            }
+
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task CreateFolder()
+    {
+        var name = await AlertService.Text(TranslationService.Translate("Create a new folder"), TranslationService.Translate("Enter a name"), "");
+
+        if (string.IsNullOrEmpty(name))
+            return;
+
+        await FileAccess.CreateDirectory(name);
+        await Refresh();
+    }
+
+    private async void SaveFile(string data)
+    {
+        if (Editing == null)
+            return;
+
+        await FileAccess.WriteFile(Editing, data);
+        Editing = null;
+        await Refresh();
+    }
+
+    private async Task OpenFile(FileManagerObject o)
+    {
+        Editing = o;
+        Loading = true;
+        await InvokeAsync(StateHasChanged);
+
+        InitialEditorData = await FileAccess.ReadFile(Editing);
+        Language = MonacoTypeHelper.GetEditorType(Editing.Name);
+
+        Loading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void CloseFile()
+    {
+        Editing = null;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Launch()
+    {
+        NavigationManager.NavigateTo(await FileAccess.GetLaunchUrl());
+    }
+
+    private async Task OnFileChanged(InputFileChangeEventArgs arg)
+    {
+        Uploading = true;
+        await InvokeAsync(StateHasChanged);
+
+        foreach (var browserFile in arg.GetMultipleFiles())
+        {
+            if (browserFile.Size < 1024 * 1024 * 100)
+            {
+                Percent = 0;
+
+                try
+                {
+                    await FileAccess.UploadFile(
+                        browserFile.Name,
+                        browserFile.OpenReadStream(1024 * 1024 * 100),
+                        async (i) =>
+                        {
+                            Percent = i;
+
+                            Task.Run(() => { InvokeAsync(StateHasChanged); });
+                        });
+
+                    await Refresh();
+                }
+                catch (Exception e)
+                {
+                    await ToastService.Error(TranslationService.Translate("An unknown error occured while uploading a file"));
+                    Logger.Error("Error uploading file");
+                    Logger.Error(e);
+                }
+            }
+            else
+            {
+                await ToastService.Error(TranslationService.Translate("The uploaded file should not be bigger than 100MB"));
+            }
+        }
+
+        Uploading = false;
+        await InvokeAsync(StateHasChanged);
+
+        await ToastService.Success(TranslationService.Translate("File upload complete"));
+    }
+}
