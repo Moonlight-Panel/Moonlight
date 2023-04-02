@@ -104,7 +104,6 @@ public class CleanupService
             // Get repos from dependency injection
             var serverRepository = scope.ServiceProvider.GetRequiredService<ServerRepository>();
             var nodeRepository = scope.ServiceProvider.GetRequiredService<NodeRepository>();
-            var cleanupExceptionRepository = scope.ServiceProvider.GetRequiredService<CleanupExceptionRepository>();
             var nodeService = scope.ServiceProvider.GetRequiredService<NodeService>();
             var imageRepo = scope.ServiceProvider.GetRequiredService<ImageRepository>();
             var serverService = scope.ServiceProvider.GetRequiredService<ServerService>();
@@ -114,7 +113,7 @@ public class CleanupService
                 .Include(x => x.Image)
                 .ToArray();
             var nodes = nodeRepository.Get().ToArray();
-            var exceptions = cleanupExceptionRepository.Get().ToArray();
+            var exceptions = servers.Where(x => x.IsCleanupException);
             var images = imageRepo.Get().ToArray();
 
             var nodeCount = nodes.Count();
@@ -228,7 +227,7 @@ public class CleanupService
                     var players = GetPlayers(serverData.Node, serverData.MainAllocation);
                     var stats = await serverService.GetDetails(server);
                     
-                    var exception = exceptions.FirstOrDefault(x => x.ServerId == server.Id) != null;
+                    var exception = exceptions.FirstOrDefault(x => x.Id == server.Id) != null;
 
                     if (stats != null)
                     {

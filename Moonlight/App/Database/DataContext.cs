@@ -43,7 +43,6 @@ public class DataContext : DbContext
     public DbSet<AaPanel> AaPanels { get; set; }
     public DbSet<Website> Websites { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
-    public DbSet<CleanupException> CleanupExceptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

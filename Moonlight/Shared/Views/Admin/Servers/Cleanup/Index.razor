@@ -10,7 +10,9 @@
 
 @implements IDisposable
 
-<PageTitle><TL>Cleanup</TL></PageTitle>
+<PageTitle>
+    <TL>Cleanup</TL>
+</PageTitle>
 
 <IsAdmin>
     <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
@@ -25,8 +27,12 @@
                     <div class="d-flex align-items-center">
                         <span class="fs-4hx text-white fw-bold me-6">@(CleanupService.ServersCleaned)</span>
                         <div class="fw-bold fs-6 text-white">
-                            <span class="d-block"><TL>Servers</TL></span>
-                            <span><TL>stopped</TL></span>
+                            <span class="d-block">
+                                <TL>Servers</TL>
+                            </span>
+                            <span>
+                                <TL>stopped</TL>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -43,8 +49,12 @@
                     <div class="d-flex align-items-center">
                         <span class="fs-4hx text-white fw-bold me-6">@(CleanupService.CleanupsPerformed)</span>
                         <div class="fw-bold fs-6 text-white">
-                            <span class="d-block"><TL>Cleanups</TL></span>
-                            <span><TL>executed</TL></span>
+                            <span class="d-block">
+                                <TL>Cleanups</TL>
+                            </span>
+                            <span>
+                                <TL>executed</TL>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -61,8 +71,12 @@
                     <div class="d-flex align-items-center">
                         <span class="fs-4hx text-white fw-bold me-6">@(CleanupService.ServersRunning)</span>
                         <div class="fw-bold fs-6 text-white">
-                            <span class="d-block"><TL>Used clanup</TL></span>
-                            <span><TL>Servers</TL></span>
+                            <span class="d-block">
+                                <TL>Used clanup</TL>
+                            </span>
+                            <span>
+                                <TL>Servers</TL>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -142,6 +156,7 @@
 
 @code
 {
+
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

@@ -111,6 +111,10 @@
                             <option value="@(DockerImages.IndexOf(image))">@(image.Name)</option>
                         }
                     </select>
+                    <label class="form-label">
+                        <TL>Cleanup exception</TL>
+                    </label>
+                    <input @bind="Server.IsCleanupException" class="form-control" type="checkbox" />
                 </div>
             </div>
             <div class="row mb-5">
