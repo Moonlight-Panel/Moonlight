@@ -407,3 +407,18 @@ The State field is required.;The State field is required.
 The Country field is required.;The Country field is required.
 Street and house number requered;Street and house number requered
 Max lenght reached;Max lenght reached
+Server;Server
+stopped;stopped
+Cleanups;Cleanups
+executed;executed
+Used clanup;Used clanup
+Enable;Enable
+Disabble;Disabble
+Disable;Disable
+Addons;Addons
+Javascript version;Javascript version
+Javascript file;Javascript file
+Select javascript file to execute on start;Select javascript file to execute on start
+Submit;Submit
+Processing;Processing
+Go up;Go up

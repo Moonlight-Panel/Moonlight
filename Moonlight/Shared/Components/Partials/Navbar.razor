@@ -9,6 +9,34 @@
 @inject NavigationManager NavigationManager
 @inject CookieService CookieService
 
+<div class="menu menu-column justify-content-center"
+     data-kt-menu="true">
+    <div class="menu-item">
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <TL>Create</TL>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item py-2" href="/servers/create">
+                        <TL>Server</TL>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2" href="/domains/create">
+                        <TL>Domain</TL>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2" href="/websites/create">
+                        <TL>Website</TL>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <div class="app-navbar flex-shrink-0">
     <div class="app-navbar-item ms-1 ms-lg-3">
         <ThemeSwitcher
@@ -24,7 +52,7 @@
                 <i class="bx bx-support"></i>
             </a>
         </div>
-        
+
         <div class="app-navbar-item ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
             <div class="cursor-pointer symbol symbol-35px symbol-md-40px" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                 <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)"/>
@@ -39,7 +67,7 @@
                         <div class="d-flex flex-column">
                             <div class="fw-bold d-flex align-items-center fs-5">
                                 @(User.FirstName) @(User.LastName)
-                                
+
                                 @if (User.Admin)
                                 {
                                     <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Admin</span>
@@ -51,10 +79,14 @@
                 </div>
                 <div class="separator my-2"></div>
                 <div class="menu-item px-5 my-1">
-                    <a href="/profile" class="menu-link px-5"><TL>Profile</TL></a>
+                    <a href="/profile" class="menu-link px-5">
+                        <TL>Profile</TL>
+                    </a>
                 </div>
                 <div class="menu-item px-5">
-                    <a @onclick="Logout" class="menu-link px-5"><TL>Logout</TL></a>
+                    <a @onclick="Logout" class="menu-link px-5">
+                        <TL>Logout</TL>
+                    </a>
                 </div>
             </div>
         </div>
