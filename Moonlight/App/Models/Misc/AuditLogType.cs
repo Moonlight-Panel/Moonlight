@@ -23,4 +23,5 @@ public enum AuditLogType
     CleanupEnabled,
     CleanupDisabled,
     CleanupTriggered,
+    PasswordChange,
 }

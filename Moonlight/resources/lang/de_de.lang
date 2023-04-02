@@ -407,3 +407,17 @@ The State field is required.;The State field is required.
 The Country field is required.;The Country field is required.
 Street and house number requered;Street and house number requered
 Max lenght reached;Max lenght reached
+Security;Security
+Subscriptions;Subscriptions
+Secure your account;Secure your account
+2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.;2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.
+enable;enable
+Activate 2fa;Activate 2fa
+2fa apps;2fa apps
+Use an app like ;Use an app like 
+or;or
+and scan the following QR Code;and scan the following QR Code
+If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:;If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:
+Finish activation;Finish activation
+New password;New password
+Enable;Enable
