@@ -19,5 +19,8 @@ public enum AuditLogType
     AddDomainRecord,
     UpdateDomainRecord,
     DeleteDomainRecord,
-    PasswordReset
+    PasswordReset,
+    CleanupEnabled,
+    CleanupDisabled,
+    CleanupTriggered,
 }

@@ -37,12 +37,8 @@ public class CleanupService
     {
         ServiceScopeFactory = serviceScopeFactory;
         ConfigService = configService;
-        
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
 
-        var config = configuration.GetSection("Cleanup");
+        var config = configService.GetSection("Moonlight").GetSection("Cleanup");
 
         RequiredCpu = config.GetValue<int>("Cpu");
         RequiredMemory = config.GetValue<long>("Memory");
@@ -71,9 +67,9 @@ public class CleanupService
 
             try
             {
-                await Task.Delay((int)TimeSpan.FromMinutes(WaitTime).TotalMilliseconds);
+                await Task.Delay((int) TimeSpan.FromMinutes(WaitTime).TotalMilliseconds);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
             }
         }
@@ -338,7 +334,7 @@ public class CleanupService
             
             watch.Stop();
             
-            Status = $"Cleanup finifhed. Duration: {Math.Round(TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds).TotalMinutes, 2)} Minuten";
+            Status = $"Cleanup finished. Duration: {Math.Round(TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds).TotalMinutes, 2)} Minutes";
             PercentProgress = 100;
             OnUpdated?.Invoke(this, null);
         }
