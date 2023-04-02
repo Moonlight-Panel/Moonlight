@@ -46,13 +46,20 @@ public class TotpService
     public async Task Enable()
     {
         var user = (await IdentityService.Get())!;
-
-        user.TotpEnabled = true;
+        
         user.TotpSecret = GenerateSecret();
         
         UserRepository.Update(user);
 
         await AuditLogService.Log(AuditLogType.EnableTotp, user.Email);
+    }
+
+    public async Task EnforceTotpLogin()
+    {
+        var user = (await IdentityService.Get())!;
+
+        user.TotpEnabled = true;
+        UserRepository.Update(user);
     }
 
     public async Task Disable()
