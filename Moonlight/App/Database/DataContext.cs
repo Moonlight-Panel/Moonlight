@@ -2,6 +2,7 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.LogsEntries;
 using Moonlight.App.Database.Entities.Notification;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Database;

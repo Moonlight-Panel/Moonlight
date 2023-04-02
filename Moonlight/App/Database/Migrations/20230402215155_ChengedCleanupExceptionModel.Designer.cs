@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230402215155_ChengedCleanupExceptionModel")]
+    partial class ChengedCleanupExceptionModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -482,9 +485,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<bool>("Installing")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsCleanupException")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<int>("MainAllocationId")
                         .HasColumnType("int");
 
@@ -830,6 +830,29 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("Websites");
                 });
 
+            modelBuilder.Entity("Moonlight.App.Models.Misc.CleanupException", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ServerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("CleanupExceptions");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.Database", b =>
                 {
                     b.HasOne("Moonlight.App.Database.Entities.AaPanel", "AaPanel")
@@ -1031,6 +1054,17 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("AaPanel");
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Models.Misc.CleanupException", b =>
+                {
+                    b.HasOne("Moonlight.App.Database.Entities.Server", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Server");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Image", b =>

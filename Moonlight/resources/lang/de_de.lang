@@ -407,28 +407,3 @@ The State field is required.;The State field is required.
 The Country field is required.;The Country field is required.
 Street and house number requered;Street and house number requered
 Max lenght reached;Max lenght reached
-Server not found;Server not found
-A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you have no access for this server
-Addons;Addons
-Go up;Go up
-Uploading files;Uploading files
-complete;complete
-Upload complete;Upload complete
-Moving;Moving
-selected;selected
-Select folder to move the file(s) to;Select folder to move the file(s) to
-Submit;Submit
-Processing;Processing
-Error from daemon;Error from daemon
-Enter a new name;Enter a new name
-The uploaded file should not be bigger than 100MB;The uploaded file should not be bigger than 100MB
-Compress;Compress
-Compressing;Compressing
-Decompress;Decompress
-Paper version;Paper version
-Error creating server on wings;Error creating server on wings
-Javascript version;Javascript version
-Javascript file;Javascript file
-Select javascript file to execute on start;Select javascript file to execute on start
-Javascript Version;Javascript Version
-Join2Start;Join2Start

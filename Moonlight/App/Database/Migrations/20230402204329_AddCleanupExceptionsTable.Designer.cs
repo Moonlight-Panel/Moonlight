@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230402204329_AddCleanupExceptionsTable")]
+    partial class AddCleanupExceptionsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -482,9 +485,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<bool>("Installing")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsCleanupException")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<int>("MainAllocationId")
                         .HasColumnType("int");
 
@@ -828,6 +828,24 @@ namespace Moonlight.App.Database.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Websites");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Models.Misc.CleanupException", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ServerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CleanupExceptions");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Database", b =>
