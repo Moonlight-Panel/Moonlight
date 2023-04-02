@@ -1,0 +1,132 @@
+﻿@using Moonlight.App.Helpers.Files
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject ModalService ModalService
+@inject SmartTranslateService SmartTranslateService
+
+<div class="modal" id="fileView@(Id)" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @(Title)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <FileView @ref="FileView"
+                          Access="Access"
+                          HideSelect="true"
+                          Filter="DoFilter"
+                          OnElementClicked="OnElementClicked">
+                </FileView>
+            </div>
+            <div class="modal-footer">
+                <WButton Text="@(SmartTranslateService.Translate("Submit"))"
+                         WorkingText="@(SmartTranslateService.Translate("Processing"))"
+                         CssClasses="btn-primary"
+                         OnClick="Submit">
+                </WButton>
+                <WButton Text="@(SmartTranslateService.Translate("Cancel"))"
+                         WorkingText="@(SmartTranslateService.Translate("Processing"))"
+                         CssClasses="btn-danger"
+                         OnClick="Cancel">
+                </WButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public FileAccess Access { get; set; }
+
+    [Parameter]
+    public bool OnlyFolder { get; set; } = false;
+
+    [Parameter]
+    public Func<FileData, bool>? Filter { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Select file or folder";
+
+    [Parameter]
+    public Func<string, Task>? OnSubmit { get; set; }
+
+    [Parameter]
+    public Func<Task>? OnCancel { get; set; }
+
+    private int Id = 0;
+    private string Result = "/";
+
+    private FileView FileView;
+
+    protected override void OnInitialized()
+    {
+        Id = this.GetHashCode();
+    }
+
+    public async Task Show()
+    {
+        // Reset
+        Result = "/";
+        await Access.SetDir("/");
+        await FileView.Refresh();
+        
+        await ModalService.Show("fileView" + Id);
+    }
+
+    public async Task Hide()
+    {
+        await Cancel();
+    }
+
+    private async Task Cancel()
+    {
+        await ModalService.Hide("fileView" + Id);
+        await OnCancel?.Invoke()!;
+    }
+
+    private async Task Submit()
+    {
+        await ModalService.Hide("fileView" + Id);
+        await OnSubmit?.Invoke(Result)!;
+    }
+
+    private bool DoFilter(FileData file)
+    {
+        if (OnlyFolder)
+        {
+            if (file.IsFile)
+                return false;
+            else
+            {
+                if (Filter != null)
+                    return Filter.Invoke(file);
+                else
+                    return true;
+            }
+        }
+        else
+        {
+            if (Filter != null)
+                return Filter.Invoke(file);
+            else
+                return true;
+        }
+    }
+
+    private async Task<bool> OnElementClicked(FileData file)
+    {
+        Result = Access.CurrentPath + file.Name + (file.IsFile ? "" : "/");
+
+        if (!OnlyFolder && file.IsFile)
+        {
+            await Submit();
+        }
+
+        return false;
+    }
+}

@@ -1,6 +1,4 @@
 ﻿@using Moonlight.App.Services
-@using Task = System.Threading.Tasks.Task
-@using Moonlight.Shared.Components.Partials
 @using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Servers
@@ -15,24 +13,29 @@
     <div class="card card-body">
         <LazyLoader @ref="LazyLoader" Load="Load">
             <label class="mb-2 form-label"><TL>Python version</TL></label>
-            <select class="mb-2 form-select" @bind="Image">
-                @foreach (var image in Images)
+            <select @bind="ImageIndex" class="form-select mb-2">
+                @foreach (var image in DockerImages)
                 {
-                    if (image == Image)
+                    if (image.Id == SelectedImage.Id)
                     {
-                        <option value="@(image)" selected="">@(image)</option>
+                        <option value="@(image.Id)" selected="selected">
+                            @(ParseHelper.FirstPartStartingWithNumber(image.Name))
+                        </option>
                     }
                     else
                     {
-                        <option value="@(image)">@(image)</option>
+                        <option value="@(image.Id)">
+                            @(ParseHelper.FirstPartStartingWithNumber(image.Name))
+                        </option>
                     }
                 }
             </select>
-            <WButton 
-                OnClick="Save" 
-                Text="@(TranslationService.Translate("Change"))" 
-                WorkingText="@(TranslationService.Translate("Changing"))" 
-                CssClasses="btn-primary"></WButton>
+            <WButton
+                OnClick="Save"
+                Text="@(TranslationService.Translate("Change"))"
+                WorkingText="@(TranslationService.Translate("Changing"))"
+                CssClasses="btn-primary">
+            </WButton>
         </LazyLoader>
     </div>
 </div>
@@ -42,43 +45,36 @@
     [CascadingParameter]
     public Server CurrentServer { get; set; }
 
-    private string[] Images;
-    private string Image;
-
     private LazyLoader LazyLoader;
+    private List<DockerImage> DockerImages;
+    private DockerImage SelectedImage;
 
-    private async Task Load(LazyLoader lazyLoader)
+    private int ImageIndex
     {
-        var serverImage = ImageRepository
+        get => SelectedImage.Id;
+        set { SelectedImage = DockerImages.First(x => x.Id == value); }
+    }
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        var image = ImageRepository
             .Get()
             .Include(x => x.DockerImages)
             .First(x => x.Id == CurrentServer.Image.Id);
-        
-        Image = ParseHelper.FirstPartStartingWithNumber(serverImage.DockerImages.First(x => x.Id == CurrentServer.DockerImageIndex).Name);
-        
-        var res = new List<string>();
-        foreach (var image in serverImage.DockerImages)
-        {
-            res.Add(ParseHelper.FirstPartStartingWithNumber(image.Name));
-        }
-        Images = res.ToArray();
 
-        await InvokeAsync(StateHasChanged);
+        DockerImages = image.DockerImages;
+
+        SelectedImage = DockerImages[CurrentServer.DockerImageIndex];
+        
+        return Task.CompletedTask;
     }
 
     private async Task Save()
     {
-        var serverImage = ImageRepository
-            .Get()
-            .Include(x => x.DockerImages)
-            .First(x => x.Id == CurrentServer.Image.Id);
-        
-        var allImages = serverImage.DockerImages;
-        var imageToUse = allImages.First(x => x.Name.EndsWith(Image));
-        CurrentServer.DockerImageIndex = allImages.IndexOf(imageToUse);
-        
-        ServerRepository.Update(CurrentServer);
+        CurrentServer.DockerImageIndex = DockerImages.IndexOf(SelectedImage);
 
+        ServerRepository.Update(CurrentServer);
+        
         await LazyLoader.Reload();
     }
 }

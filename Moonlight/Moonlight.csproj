@@ -68,7 +68,6 @@
     <Folder Include="App\Models\Google\Resources" />
     <Folder Include="App\Services\DiscordBot\Modules" />
     <Folder Include="resources\lang" />
-    <Folder Include="wwwroot\assets\media" />
   </ItemGroup>
 
 </Project>

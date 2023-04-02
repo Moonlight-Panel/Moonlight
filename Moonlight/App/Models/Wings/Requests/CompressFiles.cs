@@ -2,10 +2,11 @@
 
 namespace Moonlight.App.Models.Wings.Requests;
 
-public class DeleteFilesRequest
+public class CompressFiles
 {
     [JsonProperty("root")]
     public string Root { get; set; }
 
-    [JsonProperty("files")] public List<string> Files { get; set; } = new();
+    [JsonProperty("files")]
+    public string[] Files { get; set; }
 }
