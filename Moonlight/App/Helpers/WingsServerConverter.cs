@@ -80,6 +80,13 @@ public class WingsServerConverter
                 wingsServer.Settings.Environment.Add(v.Key, v.Value);
             }
         }
+
+        int i = 0;
+        foreach (var allocation in server.Allocations)
+        {
+            wingsServer.Settings.Environment.Add("ML_PORT_" + i, allocation.Port.ToString());
+            i++;
+        }
         
         // Stop
         if (image.StopCommand.StartsWith("!"))
