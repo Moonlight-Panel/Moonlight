@@ -1,0 +1,82 @@
+﻿@using Task = System.Threading.Tasks.Task
+@using Moonlight.App.Repositories.Servers
+@using Moonlight.Shared.Components.FileManagerPartials
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+@using Moonlight.App.Helpers.Files
+@using Moonlight.App.Services
+
+@inject ServerRepository ServerRepository
+@inject WingsApiHelper WingsApiHelper
+@inject SmartTranslateService SmartTranslateService
+
+<div class="col">
+    <div class="card card-body">
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            <label class="mb-2 form-label">
+                <TL>Javascript file</TL>
+            </label>
+            <input type="text" class="mb-2 form-control disabled" disabled="" value="@(PathAndFile)"/>
+            <button @onclick="Show" class="btn btn-primary"><TL>Change</TL></button>
+        </LazyLoader>
+    </div>
+</div>
+
+<FileSelectModal @ref="FileSelectModal"
+                 Access="Access"
+                 Filter="@(x => !x.IsFile || x.Name.EndsWith(".js"))"
+                 Title="@(SmartTranslateService.Translate("Select javascript file to execute on start"))"
+                 OnlyFolder="false"
+                 OnCancel="() => { return Task.CompletedTask; }"
+                 OnSubmit="OnSubmit">
+</FileSelectModal>
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    private string PathAndFile;
+    private FileAccess Access;
+    
+    private FileSelectModal FileSelectModal;
+    private LazyLoader LazyLoader;
+
+    protected override void OnInitialized()
+    {
+        Access = new WingsFileAccess(WingsApiHelper,
+            null!,
+            CurrentServer,
+            null!,
+            null!
+        );
+    }
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        var v = CurrentServer.Variables.FirstOrDefault(x => x.Key == "BOT_JS_FILE");
+        
+        PathAndFile = v != null ? v.Value : "";
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Show()
+    {
+        await FileSelectModal.Show();
+    }
+
+    private async Task OnSubmit(string path)
+    {
+        var v = CurrentServer.Variables.FirstOrDefault(x => x.Key == "BOT_JS_FILE");
+
+        if (v != null)
+        {
+            v.Value = path.TrimStart("/"[0]);
+            
+            ServerRepository.Update(CurrentServer);
+        }
+        
+        await LazyLoader.Reload();
+    }
+}

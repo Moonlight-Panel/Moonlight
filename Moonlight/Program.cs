@@ -93,6 +93,7 @@ namespace Moonlight
             builder.Services.AddSingleton<NotificationServerService>();
             builder.Services.AddScoped<NotificationAdminService>();
             builder.Services.AddScoped<NotificationClientService>();
+            builder.Services.AddScoped<ModalService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();

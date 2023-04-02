@@ -24,11 +24,11 @@ public class PaperApiHelper
         else
             requrl = ApiUrl + "/" + url;
 
-        RestRequest request = new(requrl);
+        RestRequest request = new(requrl, Method.Get);
 
         request.AddHeader("Content-Type", "application/json");
 
-        var response = await client.GetAsync(request);
+        var response = await client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {

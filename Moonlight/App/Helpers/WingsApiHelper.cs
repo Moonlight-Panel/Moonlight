@@ -14,24 +14,13 @@ public class WingsApiHelper
         Client = new();
     }
 
-    private string GetApiUrl(Node node)
-    {
-        if(node.Ssl)
-            return $"https://{node.Fqdn}:{node.HttpPort}/";
-        else
-            return $"http://{node.Fqdn}:{node.HttpPort}/";
-        //return $"https://{node.Fqdn}:{node.HttpPort}/";
-    }
-
     public async Task<T> Get<T>(Node node, string resource)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Get;
 
-        var response = await Client.GetAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -53,13 +42,11 @@ public class WingsApiHelper
 
     public async Task<string> GetRaw(Node node, string resource)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Get;
 
-        var response = await Client.GetAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -81,18 +68,16 @@ public class WingsApiHelper
 
     public async Task<T> Post<T>(Node node, string resource, object? body)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Post;
 
         request.AddParameter("text/plain",
             JsonConvert.SerializeObject(body),
             ParameterType.RequestBody
         );
 
-        var response = await Client.PostAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -114,16 +99,14 @@ public class WingsApiHelper
 
     public async Task Post(Node node, string resource, object? body)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Post;
 
-       if(body != null)
+        if(body != null)
            request.AddParameter("text/plain", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
 
-        var response = await Client.PostAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -143,15 +126,13 @@ public class WingsApiHelper
 
     public async Task PostRaw(Node node, string resource, object body)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Post;
 
         request.AddParameter("text/plain", body, ParameterType.RequestBody);
 
-        var response = await Client.PostAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -171,16 +152,14 @@ public class WingsApiHelper
 
     public async Task Delete(Node node, string resource, object? body)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Delete;
 
-       if(body != null)
+        if(body != null)
            request.AddParameter("text/plain", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
 
-        var response = await Client.DeleteAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -200,15 +179,13 @@ public class WingsApiHelper
 
     public async Task Put(Node node, string resource, object? body)
     {
-        RestRequest request = new(GetApiUrl(node) + resource);
+        var request = CreateRequest(node, resource);
 
-        request.AddHeader("Content-Type", "application/json");
-        request.AddHeader("Accept", "application/json");
-        request.AddHeader("Authorization", "Bearer " + node.Token);
+        request.Method = Method.Put;
 
         request.AddParameter("text/plain", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
 
-        var response = await Client.PutAsync(request);
+        var response = await Client.ExecuteAsync(request);
 
         if (!response.IsSuccessful)
         {
@@ -224,5 +201,21 @@ public class WingsApiHelper
                 throw new Exception($"An internal error occured: {response.ErrorMessage}");
             }
         }
+    }
+
+    private RestRequest CreateRequest(Node node, string resource)
+    {
+        var url = (node.Ssl ? "https" : "http") + $"://{node.Fqdn}:{node.HttpPort}/" + resource;
+
+        var request = new RestRequest(url)
+        {
+            Timeout = 60 * 15
+        };
+
+        request.AddHeader("Content-Type", "application/json");
+        request.AddHeader("Accept", "application/json");
+        request.AddHeader("Authorization", "Bearer " + node.Token);
+
+        return request;
     }
 }

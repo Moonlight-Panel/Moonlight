@@ -75,11 +75,11 @@ public class ServerService
             return s;
     }
 
-    public async Task<ServerDetailsResponse> GetDetails(Server s)
+    public async Task<ServerDetails> GetDetails(Server s)
     {
         Server server = EnsureNodeData(s);
 
-        return await WingsApiHelper.Get<ServerDetailsResponse>(
+        return await WingsApiHelper.Get<ServerDetails>(
             server.Node,
             $"api/servers/{server.Uuid}"
         );
@@ -91,7 +91,7 @@ public class ServerService
 
         var rawSignal = signal.ToString().ToLower();
 
-        await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/power", new ServerPowerRequest()
+        await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/power", new ServerPower()
         {
             Action = rawSignal
         });
@@ -118,7 +118,7 @@ public class ServerService
         serverData.Backups.Add(backup);
         ServerRepository.Update(serverData);
 
-        await WingsApiHelper.Post(serverData.Node, $"api/servers/{serverData.Uuid}/backup", new CreateBackupRequest()
+        await WingsApiHelper.Post(serverData.Node, $"api/servers/{serverData.Uuid}/backup", new CreateBackup()
         {
             Adapter = "wings",
             Uuid = backup.Uuid,
@@ -158,7 +158,7 @@ public class ServerService
         Server server = EnsureNodeData(s);
 
         await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/backup/{serverBackup.Uuid}/restore",
-            new RestoreBackupRequest()
+            new RestoreBackup()
             {
                 Adapter = "wings"
             });
@@ -299,7 +299,7 @@ public class ServerService
 
         try
         {
-            await WingsApiHelper.Post(node, $"api/servers", new CreateServerRequest()
+            await WingsApiHelper.Post(node, $"api/servers", new CreateServer()
             {
                 Uuid = newServerData.Uuid,
                 StartOnCompletion = false

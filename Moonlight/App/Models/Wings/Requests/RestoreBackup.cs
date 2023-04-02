@@ -2,7 +2,7 @@
 
 namespace Moonlight.App.Models.Wings.Requests;
 
-public class RestoreBackupRequest
+public class RestoreBackup
 {
     [JsonProperty("adapter")]
     public string Adapter { get; set; }
