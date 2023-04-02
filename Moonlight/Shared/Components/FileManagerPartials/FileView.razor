@@ -11,16 +11,19 @@
                     <thead>
                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                         <th class="w-10px pe-2 sorting_disabled">
-                            <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
-                                @if (AllToggled)
-                                {
-                                    <input @onclick="() => SetToggleState(false)" class="form-check-input" type="checkbox" checked="">
-                                }
-                                else
-                                {
-                                    <input @onclick="() => SetToggleState(true)" class="form-check-input" type="checkbox">
-                                }
-                            </div>
+                            @if (!HideSelect)
+                            {
+                                <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                    @if (AllToggled)
+                                    {
+                                        <input @onclick="() => SetToggleState(false)" class="form-check-input" type="checkbox" checked="">
+                                    }
+                                    else
+                                    {
+                                        <input @onclick="() => SetToggleState(true)" class="form-check-input" type="checkbox">
+                                    }
+                                </div>
+                            }
                         </th>
                         <th class="min-w-250px sorting_disabled">Name</th>
                     </tr>
@@ -28,7 +31,7 @@
                 </table>
             </div>
         </div>
-        <div class="dataTables_scrollBody" style="position: relative; overflow: auto; max-height: 700px; width: 100%;">
+        <div class="dataTables_scrollBody" style="@(DisableScrolling ? "" : "position: relative; overflow: auto; max-height: 700px; width: 100%;")">
             <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" style="width: 100%;">
                 <tbody class="fw-semibold text-gray-600">
                 <LazyLoader Load="Load">
@@ -38,7 +41,7 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <span class="icon-wrapper">
-                                    <i class="bx bx-md bx-folder text-primary"></i>
+                                    <i class="bx bx-md bx-up-arrow-alt text-primary"></i>
                                 </span>
                                 <a href="#" @onclick:preventDefault @onclick="GoUp" class="ms-3 text-gray-800 text-hover-primary">
                                     <TL>Go up</TL>
@@ -58,20 +61,23 @@
                     {
                         <tr class="even">
                             <td class="w-10px">
-                                <div class="form-check form-check-sm form-check-custom form-check-solid">
-                                    @{
-                                        var toggle = ToggleStatusCache.ContainsKey(file) && ToggleStatusCache[file];
-                                    }
+                                @if (!HideSelect)
+                                {
+                                    <div class="form-check form-check-sm form-check-custom form-check-solid">
+                                        @{
+                                            var toggle = ToggleStatusCache.ContainsKey(file) && ToggleStatusCache[file];
+                                        }
 
-                                    @if (toggle)
-                                    {
-                                        <input @onclick="() => SetToggleState(file, false)" class="form-check-input" type="checkbox" checked="checked">
-                                    }
-                                    else
-                                    {
-                                        <input @onclick="() => SetToggleState(file, true)" class="form-check-input" type="checkbox">
-                                    }
-                                </div>
+                                        @if (toggle)
+                                        {
+                                            <input @onclick="() => SetToggleState(file, false)" class="form-check-input" type="checkbox" checked="checked">
+                                        }
+                                        else
+                                        {
+                                            <input @onclick="() => SetToggleState(file, true)" class="form-check-input" type="checkbox">
+                                        }
+                                    </div>
+                                }
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
@@ -92,17 +98,20 @@
                             <td class="text-end">
                                 <div class="d-flex justify-content-end">
                                     <div class="ms-2 me-7">
-                                        <ContextMenuTrigger MenuId="triggerMenu" MouseButtonTrigger="MouseButtonTrigger.Both" Data="file">
-                                            <button class="btn btn-sm btn-icon btn-light btn-active-light-primary me-2">
-                                                <span class="svg-icon svg-icon-5 m-0">
-                                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <rect x="10" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
-                                                        <rect x="17" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
-                                                        <rect x="3" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
-                                                    </svg>
-                                                </span>
-                                            </button>
-                                        </ContextMenuTrigger>
+                                        @if (ContextActions.Any())
+                                        {
+                                            <ContextMenuTrigger MenuId="triggerMenu" MouseButtonTrigger="MouseButtonTrigger.Both" Data="file">
+                                                <button class="btn btn-sm btn-icon btn-light btn-active-light-primary me-2">
+                                                    <span class="svg-icon svg-icon-5 m-0">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <rect x="10" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                            <rect x="17" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                            <rect x="3" y="10" width="4" height="4" rx="2" fill="currentColor"></rect>
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                            </ContextMenuTrigger>
+                                        }
                                     </div>
                                 </div>
                             </td>
@@ -115,28 +124,45 @@
     </div>
 </div>
 
-<ContextMenu Id="triggerMenu" CssClass="bg-secondary z-10">
-    @foreach (var action in ContextActions)
-    {
-        <Item Id="@action.Id" OnClick="OnContextMenuClick">
-            <TL>@action.Name</TL>
-        </Item>
-    }
-</ContextMenu>
+@if (ContextActions.Any())
+{
+    <ContextMenu Id="triggerMenu" CssClass="bg-secondary z-10">
+        @foreach (var action in ContextActions)
+        {
+            <Item Id="@action.Id" OnClick="OnContextMenuClick">
+                <TL>@action.Name</TL>
+            </Item>
+        }
+    </ContextMenu>
+}
 
 @code
 {
     [Parameter]
-    public IFileAccess Access { get; set; }
+    public FileAccess Access { get; set; }
 
     [Parameter]
     public Func<FileData, Task<bool>>? OnElementClicked { get; set; }
     
     [Parameter]
-    public Action<string>? OnPathChanged { get; set; }
+    public Func<Task>? OnSelectionChanged { get; set; }
 
     [Parameter]
     public ContextAction[] ContextActions { get; set; } = Array.Empty<ContextAction>();
+
+    [Parameter]
+    public bool HideSelect { get; set; } = false;
+
+    [Parameter]
+    public bool DisableScrolling { get; set; } = false;
+    
+    [Parameter]
+    public Func<FileData, bool>? Filter { get; set; }
+
+    public FileData[] SelectedFiles => ToggleStatusCache
+        .Where(x => x.Value)
+        .Select(x => x.Key)
+        .ToArray();
 
     private FileData[] Data = Array.Empty<FileData>();
 
@@ -145,8 +171,23 @@
 
     public async Task Refresh()
     {
-        Data = await Access.Ls();
+        var list = new List<FileData>();
+        
+        foreach (var fileData in await Access.Ls())
+        {
+            if (Filter != null)
+            {
+                if(Filter.Invoke(fileData))
+                    list.Add(fileData);
+            }
+            else
+                list.Add(fileData);
+        }
+
+        Data = list.ToArray();
+        
         ToggleStatusCache.Clear();
+        AllToggled = false;
 
         foreach (var fileData in Data)
         {
@@ -154,6 +195,7 @@
         }
 
         await InvokeAsync(StateHasChanged);
+        OnSelectionChanged?.Invoke();
     }
 
     private async Task Load(LazyLoader arg)
@@ -169,6 +211,7 @@
             ToggleStatusCache.Add(fileData, status);
 
         await InvokeAsync(StateHasChanged);
+        OnSelectionChanged?.Invoke();
     }
 
     private async Task SetToggleState(bool status)
@@ -181,6 +224,7 @@
         }
 
         await InvokeAsync(StateHasChanged);
+        OnSelectionChanged?.Invoke();
     }
 
     private async Task OnClicked(FileData fileData)
@@ -197,16 +241,25 @@
         {
             await Access.Cd(fileData.Name);
             await Refresh();
-            OnPathChanged?.Invoke(await Access.Pwd());
         }
     }
 
     private async Task GoUp()
     {
+        if (OnElementClicked != null)
+        {
+            var canceled = await OnElementClicked.Invoke(new()
+            {
+                Name = "..",
+                IsFile = false
+            });
+
+            if (canceled)
+                return;
+        }
+        
         await Access.Up();
         await Refresh();
-        
-        OnPathChanged?.Invoke(await Access.Pwd());
     }
 
     private Task OnContextMenuClick(ItemClickEventArgs eventArgs)

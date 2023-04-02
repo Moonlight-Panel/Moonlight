@@ -2,7 +2,7 @@
 
 namespace Moonlight.App.Models.Wings.Resources;
 
-public class ServerDetailsResponse
+public class ServerDetails
 {
     [JsonProperty("state")]
     public string State { get; set; }
@@ -11,9 +11,9 @@ public class ServerDetailsResponse
     public bool IsSuspended { get; set; }
 
     [JsonProperty("utilization")]
-    public ServerDetailsResponseUtilization Utilization { get; set; }
+    public ServerDetailsUtilization Utilization { get; set; }
     
-    public class ServerDetailsResponseUtilization
+    public class ServerDetailsUtilization
     {
         [JsonProperty("memory_bytes")]
         public long MemoryBytes { get; set; }
@@ -25,7 +25,7 @@ public class ServerDetailsResponse
         public double CpuAbsolute { get; set; }
 
         [JsonProperty("network")]
-        public ServerDetailsResponseNetwork Network { get; set; }
+        public ServerDetailsNetwork Network { get; set; }
 
         [JsonProperty("uptime")]
         public long Uptime { get; set; }
@@ -37,7 +37,7 @@ public class ServerDetailsResponse
         public long DiskBytes { get; set; }
     }
     
-    public class ServerDetailsResponseNetwork
+    public class ServerDetailsNetwork
     {
         [JsonProperty("rx_bytes")]
         public long RxBytes { get; set; }

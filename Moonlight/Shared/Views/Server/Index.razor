@@ -8,6 +8,7 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
+@using Moonlight.App.Services
 @using Moonlight.Shared.Components.Xterm
 @using Moonlight.Shared.Components.ServerControl
 @using Newtonsoft.Json
@@ -15,6 +16,10 @@
 @inject ImageRepository ImageRepository
 @inject ServerRepository ServerRepository
 @inject WingsConsoleHelper WingsConsoleHelper
+@inject MessageService MessageService
+@inject NavigationManager NavigationManager
+
+@implements IDisposable
 
 <LazyLoader Load="LoadData">
     @if (CurrentServer == null)
@@ -36,6 +41,21 @@
         if (Console.ConnectionState == ConnectionState.Connected)
         {
             if (Console.ServerState == ServerState.Installing)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-10">
+                            <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                                <span class="me-2">
+                                    <TL>Server installation is currently running</TL>
+                                </span>
+                            </div>
+                        </div>
+                        <Terminal @ref="InstallConsole"></Terminal>
+                    </div>
+                </div>
+            } 
+            else if (CurrentServer.Installing)
             {
                 <div class="card">
                     <div class="card-body">
@@ -72,7 +92,7 @@
                                                 case "network":
                                                     index = 3;
                                                     break;
-                                                case "plugins":
+                                                case "addons":
                                                     index = 4;
                                                     break;
                                                 case "settings":
@@ -207,10 +227,28 @@
             await lazyLoader.SetText("Connecting to console");
 
             await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
+            
+            MessageService.Subscribe<Index, Server>($"server.{CurrentServer.Uuid}.installcomplete", this, server =>
+            {
+                Task.Run(() =>
+                {
+                    NavigationManager.NavigateTo(NavigationManager.Uri);
+                });
+                
+                return Task.CompletedTask;
+            });
         }
         else
         {
             Logger.Debug("Server is null");
+        }
+    }
+
+    public void Dispose()
+    {
+        if (CurrentServer != null)
+        {
+            MessageService.Unsubscribe($"server.{CurrentServer.Uuid}.installcomplete", this);
         }
     }
 }

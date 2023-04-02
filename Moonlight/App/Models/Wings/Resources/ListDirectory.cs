@@ -2,7 +2,7 @@
 
 namespace Moonlight.App.Models.Wings.Resources;
 
-public class ListDirectoryRequest
+public class ListDirectory
 {
     [JsonProperty("name")]
     public string Name { get; set; }

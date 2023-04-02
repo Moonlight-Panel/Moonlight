@@ -1,21 +1,32 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using System.Web;
+using Moonlight.App.Database.Entities;
+using Moonlight.App.Models.Wings.Requests;
 using Moonlight.App.Models.Wings.Resources;
+using Moonlight.App.Services;
+using RestSharp;
 
 namespace Moonlight.App.Helpers.Files;
 
-public class WingsFileAccess : IFileAccess
+public class WingsFileAccess : FileAccess
 {
     private readonly WingsApiHelper WingsApiHelper;
     private readonly WingsJwtHelper WingsJwtHelper;
+    private readonly ConfigService ConfigService;
     private readonly Server Server;
+    private readonly User User;
 
-    private string CurrentPath = "/";
-
-    public WingsFileAccess(WingsApiHelper wingsApiHelper, WingsJwtHelper wingsJwtHelper,Server server)
+    public WingsFileAccess(
+        WingsApiHelper wingsApiHelper, 
+        WingsJwtHelper wingsJwtHelper, 
+        Server server,
+        ConfigService configService, 
+        User user)
     {
         WingsApiHelper = wingsApiHelper;
         WingsJwtHelper = wingsJwtHelper;
         Server = server;
+        ConfigService = configService;
+        User = user;
 
         if (server.Node == null)
         {
@@ -23,9 +34,9 @@ public class WingsFileAccess : IFileAccess
         }
     }
 
-    public async Task<FileData[]> Ls()
+    public override async Task<FileData[]> Ls()
     {
-        var res = await WingsApiHelper.Get<ListDirectoryRequest[]>(
+        var res = await WingsApiHelper.Get<ListDirectory[]>(
             Server.Node,
             $"api/servers/{Server.Uuid}/files/list-directory?directory={CurrentPath}"
         );
@@ -45,7 +56,7 @@ public class WingsFileAccess : IFileAccess
         return x.ToArray();
     }
 
-    public Task Cd(string dir)
+    public override Task Cd(string dir)
     {
         var x = Path.Combine(CurrentPath, dir).Replace("\\", "/") + "/";
         x = x.Replace("//", "/");
@@ -54,65 +65,168 @@ public class WingsFileAccess : IFileAccess
         return Task.CompletedTask;
     }
 
-    public Task Up()
+    public override Task Up()
     {
         CurrentPath = Path.GetFullPath(Path.Combine(CurrentPath, "..")).Replace("\\", "/").Replace("C:", "");
         return Task.CompletedTask;
     }
-    
-    public Task SetDir(string dir)
+
+    public override Task SetDir(string dir)
     {
         CurrentPath = dir;
         return Task.CompletedTask;
     }
 
-    public async Task<string> Read(FileData fileData)
+    public override async Task<string> Read(FileData fileData)
     {
-        return await WingsApiHelper.GetRaw(Server.Node,$"api/servers/{Server.Uuid}/files/contents?file={CurrentPath}{fileData.Name}");
+        return await WingsApiHelper.GetRaw(Server.Node,
+            $"api/servers/{Server.Uuid}/files/contents?file={CurrentPath}{fileData.Name}");
     }
 
-    public async Task Write(FileData fileData, string content)
+    public override async Task Write(FileData fileData, string content)
     {
-        await WingsApiHelper.PostRaw(Server.Node,$"api/servers/{Server.Uuid}/files/write?file={CurrentPath}{fileData.Name}", content);
+        await WingsApiHelper.PostRaw(Server.Node,
+            $"api/servers/{Server.Uuid}/files/write?file={CurrentPath}{fileData.Name}", content);
     }
 
-    public Task Upload(string name, Stream stream, Action<int>? progressUpdated = null)
+    public override async Task Upload(string name, Stream dataStream, Action<int>? progressUpdated = null)
     {
-        throw new NotImplementedException();
+        var token = WingsJwtHelper.Generate(
+            Server.Node.Token,
+            claims => { claims.Add("server_uuid", Server.Uuid.ToString()); }
+        );
+
+        var client = new RestClient();
+        var request = new RestRequest();
+
+        if (Server.Node.Ssl)
+            request.Resource =
+                $"https://{Server.Node.Fqdn}:{Server.Node.HttpPort}/upload/file?token={token}&directory={CurrentPath}";
+        else
+            request.Resource =
+                $"http://{Server.Node.Fqdn}:{Server.Node.HttpPort}/upload/file?token={token}&directory={CurrentPath}";
+
+        request.AddParameter("name", "files");
+        request.AddParameter("filename", name);
+        request.AddHeader("Content-Type", "multipart/form-data");
+        request.AddHeader("Origin", ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl"));
+        request.AddFile("files", () =>
+        {
+            return new StreamProgressHelper(dataStream)
+            {
+                Progress = i => { progressUpdated?.Invoke(i); }
+            };
+        }, name);
+
+        await client.ExecutePostAsync(request);
+
+        client.Dispose();
+        dataStream.Close();
     }
 
-    public Task MkDir(string name)
+    public override async Task MkDir(string name)
     {
-        throw new NotImplementedException();
+        await WingsApiHelper.Post(Server.Node, $"api/servers/{Server.Uuid}/files/create-directory",
+            new CreateDirectory()
+            {
+                Name = name,
+                Path = CurrentPath
+            }
+        );
     }
 
-    public Task<string> Pwd()
+    public override Task<string> Pwd()
     {
         return Task.FromResult(CurrentPath);
     }
 
-    public Task<string> DownloadUrl(FileData fileData)
+    public override Task<string> DownloadUrl(FileData fileData)
+    {
+        var token = WingsJwtHelper.Generate(Server.Node.Token, claims =>
+        {
+            claims.Add("server_uuid", Server.Uuid.ToString());
+            claims.Add("file_path", CurrentPath + "/" + fileData.Name);
+        });
+
+        if (Server.Node.Ssl)
+        {
+            return Task.FromResult(
+                $"https://{Server.Node.Fqdn}:{Server.Node.HttpPort}/download/file?token={token}"
+            );
+        }
+        else
+        {
+            return Task.FromResult(
+                $"http://{Server.Node.Fqdn}:{Server.Node.HttpPort}/download/file?token={token}"
+            );
+        }
+    }
+
+    public override Task<Stream> DownloadStream(FileData fileData)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Stream> DownloadStream(FileData fileData)
+    public override async Task Delete(FileData fileData)
     {
-        throw new NotImplementedException();
+        await WingsApiHelper.Post(Server.Node, $"api/servers/{Server.Uuid}/files/delete", new DeleteFiles()
+        {
+            Root = CurrentPath,
+            Files = new()
+            {
+                fileData.Name
+            }
+        });
     }
 
-    public Task Delete(FileData fileData)
+    public override async Task Move(FileData fileData, string newPath)
     {
-        throw new NotImplementedException();
+        var req = new RenameFiles()
+        {
+            Root = "/",
+            Files = new[]
+            {
+                new RenameFilesData()
+                {
+                    From = (CurrentPath + fileData.Name),
+                    To = newPath
+                }
+            }
+        };
+        
+        await WingsApiHelper.Put(Server.Node, $"api/servers/{Server.Uuid}/files/rename", req);
     }
 
-    public Task Move(FileData fileData, string newPath)
+    public override async Task Compress(params FileData[] files)
     {
-        throw new NotImplementedException();
+        var req = new CompressFiles()
+        {
+            Root = CurrentPath,
+            Files = files.Select(x => x.Name).ToArray()
+        };
+
+        await WingsApiHelper.Post(Server.Node, $"api/servers/{Server.Uuid}/files/compress", req);
     }
 
-    public Task<string> GetLaunchUrl()
+    public override async Task Decompress(FileData fileData)
     {
-        throw new NotImplementedException();
+        var req = new DecompressFile()
+        {
+            Root = CurrentPath,
+            File = fileData.Name
+        };
+
+        await WingsApiHelper.Post(Server.Node, $"api/servers/{Server.Uuid}/files/decompress", req);
+    }
+
+    public override Task<string> GetLaunchUrl()
+    {
+        return Task.FromResult(
+                    $"sftp://{User.Id}.{StringHelper.IntToStringWithLeadingZeros(Server.Id, 8)}@{Server.Node.Fqdn}:{Server.Node.SftpPort}");
+    }
+
+    public override object Clone()
+    {
+        return new WingsFileAccess(WingsApiHelper, WingsJwtHelper, Server, ConfigService, User);
     }
 }

@@ -30,4 +30,19 @@ public class ToastService
     {
         await JsRuntime.InvokeVoidAsync("showSuccessToast", message);
     }
+
+    public async Task CreateProcessToast(string id, string text)
+    {
+        await JsRuntime.InvokeVoidAsync("createToast", id, text);
+    }
+
+    public async Task UpdateProcessToast(string id, string text)
+    {
+        await JsRuntime.InvokeVoidAsync("modifyToast", id, text);
+    }
+    
+    public async Task RemoveProcessToast(string id)
+    {
+        await JsRuntime.InvokeVoidAsync("removeToast", id);
+    }
 }

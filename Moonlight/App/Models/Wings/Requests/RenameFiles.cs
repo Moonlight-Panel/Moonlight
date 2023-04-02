@@ -2,7 +2,7 @@
 
 namespace Moonlight.App.Models.Wings.Requests;
 
-public class RenameFilesRequest
+public class RenameFiles
 {
     [JsonProperty("root")]
     public string Root { get; set; }
