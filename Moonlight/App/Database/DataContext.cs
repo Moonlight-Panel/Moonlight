@@ -2,6 +2,7 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.LogsEntries;
 using Moonlight.App.Database.Entities.Notification;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Database;
@@ -42,6 +43,7 @@ public class DataContext : DbContext
     public DbSet<AaPanel> AaPanels { get; set; }
     public DbSet<Website> Websites { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
+    public DbSet<CleanupException> CleanupExceptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

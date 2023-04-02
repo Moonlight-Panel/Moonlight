@@ -97,6 +97,8 @@ namespace Moonlight
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
 
+            builder.Services.AddSingleton<CleanupService>();
+
             // Loggers
             builder.Services.AddScoped<SecurityLogService>();
             builder.Services.AddScoped<AuditLogService>();
@@ -152,6 +154,9 @@ namespace Moonlight
             
             // Support service
             var supportServerService = app.Services.GetRequiredService<SupportServerService>();
+            
+            // cleanup service
+            _ = app.Services.GetRequiredService<CleanupService>();
             
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
