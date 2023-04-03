@@ -426,3 +426,5 @@ anyone write a fancy text here?;anyone write a fancy text here?
 Disable;Disable
 You need to enter a 2fa code;You need to enter a 2fa code
 2FA code invalid;2FA code invalid
+2fa Code;2fa Code
+2fa Code requiered;2fa Code requiered

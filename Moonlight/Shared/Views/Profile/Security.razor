@@ -148,7 +148,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <a class="btn btn-primary px-6 align-self-center text-nowrap float-end" data-bs-toggle="modal" data-bs-target="#test">
                                         <TL>Next</TL>
                                     </a>
@@ -176,12 +176,22 @@
                             </div>
                             <div class="modal-body scroll-y pt-10 pb-15 px-lg-17">
                                 <div class="text-gray-500 fw-semibold fs-6 mb-10">
-                                    To finish activating, enter the current TOTP code <br/>
-                                    <input type="text" class="form-control form-control-lg form-control-solid" @bind="currentTotp"/>
-                                    
+                                    <div class="alert alert-primary d-flex align-items-center p-5 mb-10">
+                                        <i class="bx bx-info-circle fs-2hx text-primary me-4">
+                                            <span class="path1"></span><span class="path2"></span>
+                                        </i>
+                                        <div class="d-flex flex-column">
+                                            <h4 class="mb-1 text-primary">
+                                                <TL>2fa Code requiered</TL>
+                                            </h4>
+                                            <span>In order to finish the activation of 2fa, you need to enter the code your 2fa app shows you.</span>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control form-control-lg form-control-solid" placeholder="@SmartTranslateService.Translate("2fa Code")" @bind="currentTotp"/>
+
                                     <br/>
-                                    
-                                    <WButton CssClasses="btn btn-primary px-6 align-self-center text-nowrap float end" WorkingText="@SmartTranslateService.Translate("Saving")" Text="@SmartTranslateService.Translate("Save")" OnClick="CheckAndSaveTotp">
+
+                                    <WButton CssClasses="btn btn-primary px-6 align-self-center text-nowrap float-end" WorkingText="@SmartTranslateService.Translate("Saving")" Text="@SmartTranslateService.Translate("Finish")" OnClick="CheckAndSaveTotp">
                                     </WButton>
                                 </div>
                             </div>
@@ -239,9 +249,10 @@
         if (await TotpService.Verify(TotpSecret, currentTotp))
         {
             await TotpService.EnforceTotpLogin();
-            TotpEnabled = await TotpService.GetEnabled();
+            TotpEnabled = true;
             TotpSecret = await TotpService.GetSecret();
             await ToastService.Success("Successfully enabled 2fa!");
+            StateHasChanged();
         }
         else
         {
