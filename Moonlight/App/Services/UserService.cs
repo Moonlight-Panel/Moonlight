@@ -158,7 +158,10 @@ public class UserService
 
         if (isSystemAction)
         {
-            await AuditLogService.LogSystem(AuditLogType.ChangePassword, user.Email);
+            await AuditLogService.LogSystem(AuditLogType.ChangePassword, x=>
+            {
+                x.Add<User>(user.Email);
+            });
         }
         else
         {
@@ -188,7 +191,10 @@ public class UserService
         
         if (BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
-            await AuditLogService.LogSystem(AuditLogType.Login, user.Email);
+            await AuditLogService.LogSystem(AuditLogType.Login, x =>
+            {
+                x.Add<User>(user.Email);
+            });
             return user;
         }
         

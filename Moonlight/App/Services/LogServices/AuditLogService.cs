@@ -39,13 +39,16 @@ public class AuditLogService
         return Task.CompletedTask;
     }
     
-    public Task LogSystem(AuditLogType type, params object[] data)
+    public Task LogSystem(AuditLogType type, Action<AuditLogParameters> data)
     {
+        var al = new AuditLogParameters();
+        data(al);
+        
         var entry = new AuditLogEntry()
         {
             Type = type,
             System = true,
-            JsonData = data.Length == 0 ? "" : JsonConvert.SerializeObject(data)
+            JsonData = al.Build()
         };
 
         Repository.Add(entry);
