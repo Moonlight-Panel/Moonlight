@@ -179,7 +179,7 @@
                     .Where(x => x.Owner.Id == User.Id)
                     .Count(x => x.Image.Id == image.Id);
                 
-                if(serversCount < limit.Amount)
+                if(serversCount <= limit.Amount)
                     Images.Add(image, limit);
             }
         }
