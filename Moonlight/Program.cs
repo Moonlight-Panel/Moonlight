@@ -9,7 +9,6 @@ using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Domains;
 using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Repositories.Servers;
-using Moonlight.App.Repositories.Subscriptions;
 using Moonlight.App.Services;
 using Moonlight.App.Services.DiscordBot;
 using Moonlight.App.Services.Interop;
@@ -58,13 +57,12 @@ namespace Moonlight
             builder.Services.AddScoped<SupportMessageRepository>();
             builder.Services.AddScoped<DomainRepository>();
             builder.Services.AddScoped<SharedDomainRepository>();
-            builder.Services.AddScoped<SubscriptionRepository>();
-            builder.Services.AddScoped<SubscriptionLimitRepository>();
             builder.Services.AddScoped<RevokeRepository>();
             builder.Services.AddScoped<NotificationRepository>();
             builder.Services.AddScoped<AaPanelRepository>();
             builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<DdosAttackRepository>();
+            builder.Services.AddScoped<SubscriptionRepository>();
 
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
@@ -89,13 +87,18 @@ namespace Moonlight
             builder.Services.AddSingleton<ResourceService>();
             builder.Services.AddScoped<DomainService>();
             builder.Services.AddScoped<OneTimeJwtService>();
-            builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddSingleton<NotificationServerService>();
             builder.Services.AddScoped<NotificationAdminService>();
             builder.Services.AddScoped<NotificationClientService>();
+            builder.Services.AddScoped<ModalService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
+
+            builder.Services.AddScoped<SubscriptionService>();
+            builder.Services.AddScoped<SubscriptionAdminService>();
+
+            builder.Services.AddSingleton<CleanupService>();
 
             // Loggers
             builder.Services.AddScoped<SecurityLogService>();
@@ -152,6 +155,9 @@ namespace Moonlight
             
             // Support service
             var supportServerService = app.Services.GetRequiredService<SupportServerService>();
+            
+            // cleanup service
+            _ = app.Services.GetRequiredService<CleanupService>();
             
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();

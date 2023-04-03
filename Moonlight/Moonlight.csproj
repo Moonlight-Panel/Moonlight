@@ -58,6 +58,8 @@
     <_ContentIncludedByDefault Remove="wwwroot\css\site.css" />
     <_ContentIncludedByDefault Remove="Shared\Components\Tables\Column.razor" />
     <_ContentIncludedByDefault Remove="Shared\Components\Tables\Table.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Views\Admin\Servers\Cleanup\Exceptions\Add.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Views\Admin\Servers\Cleanup\Exceptions\Edit.razor" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,7 +68,6 @@
     <Folder Include="App\Models\Google\Resources" />
     <Folder Include="App\Services\DiscordBot\Commands" />
     <Folder Include="resources\lang" />
-    <Folder Include="wwwroot\assets\media" />
   </ItemGroup>
 
 </Project>

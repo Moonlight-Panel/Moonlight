@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Models.Misc;
+﻿using System.ComponentModel.DataAnnotations;
+using Moonlight.App.Models.Misc;
 
 namespace Moonlight.App.Database.Entities;
 
@@ -7,14 +8,21 @@ public class User
     public int Id { get; set; }
     
     // Personal data
-    
+
     public string FirstName { get; set; } = "";
+    
     public string LastName { get; set; } = "";
+    
     public string Email { get; set; } = "";
+    
     public string Password { get; set; } = "";
+    
     public string Address { get; set; } = "";
+    
     public string City { get; set; } = "";
+    
     public string State { get; set; } = "";
+    
     public string Country { get; set; } = "";
     
     // States
@@ -34,9 +42,10 @@ public class User
     // Date stuff
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
+    
     // Subscriptions
-    public Subscription? Subscription { get; set; } = null;
-    public DateTime? SubscriptionSince { get; set; }
+
+    public Subscription? CurrentSubscription { get; set; } = null;
+    public DateTime SubscriptionSince { get; set; } = DateTime.Now;
     public int SubscriptionDuration { get; set; }
 }

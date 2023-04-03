@@ -75,11 +75,11 @@ public class ServerService
             return s;
     }
 
-    public async Task<ServerDetailsResponse> GetDetails(Server s)
+    public async Task<ServerDetails> GetDetails(Server s)
     {
         Server server = EnsureNodeData(s);
 
-        return await WingsApiHelper.Get<ServerDetailsResponse>(
+        return await WingsApiHelper.Get<ServerDetails>(
             server.Node,
             $"api/servers/{server.Uuid}"
         );
@@ -91,12 +91,16 @@ public class ServerService
 
         var rawSignal = signal.ToString().ToLower();
 
-        await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/power", new ServerPowerRequest()
+        await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/power", new ServerPower()
         {
             Action = rawSignal
         });
 
-        await AuditLogService.Log(AuditLogType.ChangePowerState, new[] { server.Uuid.ToString(), rawSignal });
+        await AuditLogService.Log(AuditLogType.ChangePowerState, x =>
+        {
+            x.Add<Server>(server.Uuid);
+            x.Add<PowerSignal>(rawSignal);
+        });
     }
 
     public async Task<ServerBackup> CreateBackup(Server server)
@@ -118,7 +122,7 @@ public class ServerService
         serverData.Backups.Add(backup);
         ServerRepository.Update(serverData);
 
-        await WingsApiHelper.Post(serverData.Node, $"api/servers/{serverData.Uuid}/backup", new CreateBackupRequest()
+        await WingsApiHelper.Post(serverData.Node, $"api/servers/{serverData.Uuid}/backup", new CreateBackup()
         {
             Adapter = "wings",
             Uuid = backup.Uuid,
@@ -126,7 +130,11 @@ public class ServerService
         });
 
         await AuditLogService.Log(AuditLogType.CreateBackup,
-            new[] { serverData.Uuid.ToString(), backup.Uuid.ToString() });
+            x =>
+            {
+                x.Add<Server>(server.Uuid);
+                x.Add<ServerBackup>(backup.Uuid);
+            });
 
         return backup;
     }
@@ -158,13 +166,17 @@ public class ServerService
         Server server = EnsureNodeData(s);
 
         await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/backup/{serverBackup.Uuid}/restore",
-            new RestoreBackupRequest()
+            new RestoreBackup()
             {
                 Adapter = "wings"
             });
 
         await AuditLogService.Log(AuditLogType.RestoreBackup,
-            new[] { s.Uuid.ToString(), serverBackup.Uuid.ToString() });
+            x =>
+            {
+                x.Add<Server>(server.Uuid);
+                x.Add<ServerBackup>(serverBackup.Uuid);
+            });
     }
 
     public async Task DeleteBackup(Server server, ServerBackup serverBackup)
@@ -186,7 +198,11 @@ public class ServerService
         await MessageService.Emit("wings.backups.delete", backup);
         
         await AuditLogService.Log(AuditLogType.DeleteBackup,
-            new[] { serverBackup.Uuid.ToString(), serverBackup.Uuid.ToString() });
+            x =>
+            {
+                x.Add<Server>(server.Uuid);
+                x.Add<ServerBackup>(backup.Uuid);
+            });
     }
 
     public async Task<string> DownloadBackup(Server s, ServerBackup serverBackup)
@@ -200,7 +216,11 @@ public class ServerService
         });
         
         await AuditLogService.Log(AuditLogType.DownloadBackup,
-            new[] { serverBackup.Uuid.ToString(), serverBackup.Uuid.ToString() });
+            x =>
+            {
+                x.Add<Server>(server.Uuid);
+                x.Add<ServerBackup>(serverBackup.Uuid);
+            });
 
         return $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
     }
@@ -299,19 +319,26 @@ public class ServerService
 
         try
         {
-            await WingsApiHelper.Post(node, $"api/servers", new CreateServerRequest()
+            await WingsApiHelper.Post(node, $"api/servers", new CreateServer()
             {
                 Uuid = newServerData.Uuid,
                 StartOnCompletion = false
             });
 
-            await AuditLogService.Log(AuditLogType.CreateServer, newServerData.Uuid.ToString());
+            await AuditLogService.Log(AuditLogType.CreateServer, x =>
+            {
+                x.Add<Server>(newServerData.Uuid);
+            });
 
             return newServerData;
         }
         catch (Exception e)
         {
-            await ErrorLogService.Log(e, new[] { newServerData.Uuid.ToString(), node.Id.ToString() });
+            await ErrorLogService.Log(e, x =>
+            {
+                x.Add<Server>(newServerData.Uuid); 
+                x.Add<Node>(node.Id);
+            });
 
             ServerRepository.Delete(newServerData);
 
@@ -325,7 +352,10 @@ public class ServerService
 
         await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/reinstall", null);
 
-        await AuditLogService.Log(AuditLogType.ReinstallServer, server.Uuid.ToString());
+        await AuditLogService.Log(AuditLogType.ReinstallServer, x =>
+        {
+            x.Add<Server>(server.Uuid);
+        });
     }
 
     public async Task<Server> SftpServerLogin(int serverId, int id, string password)
@@ -334,7 +364,10 @@ public class ServerService
 
         if (server == null)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, serverId);
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
+            {
+                x.Add<int>(id);
+            });
             throw new Exception("Server not found");
         }
 

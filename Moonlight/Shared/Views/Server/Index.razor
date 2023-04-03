@@ -8,7 +8,7 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
-@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Services
 @using Moonlight.Shared.Components.Xterm
 @using Moonlight.Shared.Components.ServerControl
 @using Newtonsoft.Json
@@ -16,13 +16,24 @@
 @inject ImageRepository ImageRepository
 @inject ServerRepository ServerRepository
 @inject WingsConsoleHelper WingsConsoleHelper
-@inject IdentityService IdentityService
+@inject MessageService MessageService
+@inject NavigationManager NavigationManager
+
+@implements IDisposable
 
 <LazyLoader Load="LoadData">
     @if (CurrentServer == null)
     {
-        <div class="alert alert-danger">
-            <TL>Server not found</TL>
+        <div class="d-flex justify-content-center flex-center">
+            <div class="card">
+                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-25 mx-auto pt-5" alt="Not found image" />
+                <div class="card-body text-center">
+                    <h4 class="card-title"><TL>Server not found</TL></h4>
+                    <p class="card-text">
+                        <TL>A server with that id cannot be found or you have no access for this server</TL>
+                    </p>
+                </div>
+            </div>
         </div>
     }
     else
@@ -30,6 +41,21 @@
         if (Console.ConnectionState == ConnectionState.Connected)
         {
             if (Console.ServerState == ServerState.Installing)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-10">
+                            <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                                <span class="me-2">
+                                    <TL>Server installation is currently running</TL>
+                                </span>
+                            </div>
+                        </div>
+                        <Terminal @ref="InstallConsole"></Terminal>
+                    </div>
+                </div>
+            } 
+            else if (CurrentServer.Installing)
             {
                 <div class="card">
                     <div class="card-body">
@@ -66,7 +92,7 @@
                                                 case "network":
                                                     index = 3;
                                                     break;
-                                                case "plugins":
+                                                case "addons":
                                                     index = 4;
                                                     break;
                                                 case "settings":
@@ -90,8 +116,8 @@
                                                 case "network":
                                                     <ServerNetwork></ServerNetwork>
                                                     break;
-                                                case "plugins":
-                                                    <ServerPlugins></ServerPlugins>
+                                                case "addons":
+                                                    <ServerAddons></ServerAddons>
                                                     break;
                                                 case "settings":
                                                     <ServerSettings></ServerSettings>
@@ -179,7 +205,7 @@
                 .Include(x => x.Owner)
                 .First(x => x.Uuid == uuid);
 
-            if (CurrentServer.Owner.Id != User!.Id)
+            if (CurrentServer.Owner.Id != User!.Id && User.Admin)
                 CurrentServer = null;
         }
         catch (Exception)
@@ -201,10 +227,28 @@
             await lazyLoader.SetText("Connecting to console");
 
             await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
+            
+            MessageService.Subscribe<Index, Server>($"server.{CurrentServer.Uuid}.installcomplete", this, server =>
+            {
+                Task.Run(() =>
+                {
+                    NavigationManager.NavigateTo(NavigationManager.Uri);
+                });
+                
+                return Task.CompletedTask;
+            });
         }
         else
         {
             Logger.Debug("Server is null");
+        }
+    }
+
+    public void Dispose()
+    {
+        if (CurrentServer != null)
+        {
+            MessageService.Unsubscribe($"server.{CurrentServer.Uuid}.installcomplete", this);
         }
     }
 }

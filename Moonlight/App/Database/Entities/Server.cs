@@ -20,4 +20,5 @@ public class Server
     public NodeAllocation MainAllocation { get; set; } = null!;
     public Node Node { get; set; } = null!;
     public User Owner { get; set; } = null!;
+    public bool IsCleanupException { get; set; } = false;
 }

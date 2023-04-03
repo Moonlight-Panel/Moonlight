@@ -1,51 +1,66 @@
 ﻿@using PteroConsole.NET
 @using Moonlight.App.Database.Entities
 @using Moonlight.Shared.Components.ServerControl.Settings
+@using Microsoft.AspNetCore.Components.Rendering
 
-<div class="row mb-5">
-    @if (Tags.Contains("paperversion"))
-    {
-        <PaperVersionSetting></PaperVersionSetting>
-    }
-
-    @if (Tags.Contains("pythonversion"))
-    {
-        <PythonVersionSetting></PythonVersionSetting>
-    }
-
-@{
-    /*
-     *     @if (Tags.Contains("pythonfile"))
-    {
-        <PythonFileSetting></PythonFileSetting>
-    }
-
-    @if (Tags.Contains("javascriptfile"))
-    {
-        <JavascriptFileSetting></JavascriptFileSetting>
-    }
-     */
-}
-
-    @if (Tags.Contains("javascriptversion"))
-    {
-        <JavascriptVersionSetting></JavascriptVersionSetting>
-    }
-
-    @if (Tags.Contains("join2start"))
-    {
-        <Join2StartSetting></Join2StartSetting>
-    }
-</div>
+<LazyLoader Load="Load">
+    <div class="accordion" id="serverSetting">
+        @foreach (var setting in Settings)
+        {
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="serverSetting-header@(setting.GetHashCode())">
+                    <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#serverSetting-body@(setting.GetHashCode())" aria-expanded="true" aria-controls="serverSetting-body@(setting.GetHashCode())">
+                        <TL>@(setting.Key)</TL>
+                    </button>
+                </h2>
+                <div id="serverSetting-body@(setting.GetHashCode())" class="accordion-collapse collapse" aria-labelledby="serverSetting-header@(setting.GetHashCode())" data-bs-parent="#serverSetting">
+                    <div class="accordion-body">
+                        @(GetComponent(setting.Value))
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</LazyLoader>
 
 @code
 {
-    [CascadingParameter]
-    public PteroConsole Console { get; set; }
-
     [CascadingParameter]
     public Server CurrentServer { get; set; }
 
     [CascadingParameter]
     public string[] Tags { get; set; }
+
+    private Dictionary<string, Type> Settings = new();
+    
+    private Task Load(LazyLoader lazyLoader)
+    {
+        if(Tags.Contains("paperversion"))
+            Settings.Add("Paper version", typeof(PaperVersionSetting));
+        
+        if(Tags.Contains("join2start"))
+            Settings.Add("Join2Start", typeof(Join2StartSetting));
+        
+        if(Tags.Contains("javascriptversion"))
+            Settings.Add("Javascript version", typeof(JavascriptVersionSetting));
+        
+        if(Tags.Contains("javascriptfile"))
+            Settings.Add("Javascript file", typeof(JavascriptFileSetting));
+        
+        if(Tags.Contains("pythonversion"))
+            Settings.Add("Python version", typeof(PythonVersionSetting));
+        
+        if(Tags.Contains("pythonfile"))
+            Settings.Add("Python file", typeof(PythonFileSetting));
+        
+        Settings.Add("Server reset", typeof(ServerResetSetting));
+
+        return Task.CompletedTask;
+    }
+
+    private RenderFragment GetComponent(Type type) => builder =>
+    {
+        builder.OpenComponent(0, type);
+        builder.CloseComponent();
+    };
 }

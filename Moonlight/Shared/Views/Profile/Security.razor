@@ -1,0 +1,299 @@
+﻿@page "/profile/security"
+
+@using Moonlight.Shared.Components.Navigations
+@using QRCoder
+@using Moonlight.App.Services.LogServices
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+@using System.Text.RegularExpressions
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Misc
+
+@inject SmartTranslateService SmartTranslateService
+@inject AuditLogService AuditLogService
+@inject TotpService TotpService
+@inject NavigationManager NavigationManager
+@inject IdentityService IdentityService
+@inject UserService UserService
+@inject AlertService AlertService
+@inject ToastService ToastService
+
+<ProfileNavigation Index="1"/>
+
+<div class="card mb-5 mb-xl-10">
+    <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
+        <div class="card-title m-0">
+            <h3 class="fw-bold m-0">
+                <TL>Security</TL>
+            </h3>
+        </div>
+    </div>
+
+    <LazyLoader Load="Load">
+        <div class="card mb-5 mb-xl-10">
+            <div class="card-body border-top p-9">
+                @if (TotpEnabled)
+                {
+                    <div class="alert alert-success d-flex rounded p-6">
+                        <span class="svg-icon svg-icon-2tx svg-icon-primary me-4">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
+                                <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                            <div class="mb-3 mb-md-0 fw-semibold">
+                                <h4 class="text-gray-900 fw-bold">
+                                    <TL>Your account is secured with 2fa</TL>
+                                </h4>
+                                <div class="fs-6 text-gray-700 pe-7">
+                                    <TL>anyone write a fancy text here?</TL>
+                                </div>
+                            </div>
+
+                            <button @onclick="Disable" class="btn btn-danger px-6 align-self-center text-nowrap">
+                                <TL>Disable</TL>
+                            </button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-primary d-flex rounded p-6">
+                        <span class="svg-icon svg-icon-2tx svg-icon-primary me-4">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
+                                <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                            <div class="mb-3 mb-md-0 fw-semibold">
+                                <h4 class="text-gray-900 fw-bold">
+                                    <TL>Secure your account</TL>
+                                </h4>
+                                <div class="fs-6 text-gray-700 pe-7">
+                                    <TL>2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.</TL>
+                                </div>
+                            </div>
+
+                            <a @onclick="Enable" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#twofactorauth">
+                                <TL>Enable</TL>
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                <div class="modal fade" id="twofactorauth" tabindex="-1" style="display: none;" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered mw-650px">
+                        <div class="modal-content">
+                            <div class="modal-header flex-stack">
+                                <h2>
+                                    <TL>Activate 2fa</TL>
+                                </h2>
+                                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                                    <span class="svg-icon svg-icon-1">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
+                                            <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="modal-body scroll-y pt-10 pb-15 px-lg-17">
+                                <div>
+                                    <h3 class="text-dark fw-bold mb-7">
+                                        <TL>2fa apps</TL>
+                                    </h3>
+                                    <div class="text-gray-500 fw-semibold fs-6 mb-10">
+                                        <TL>Use an app like </TL>
+                                        <a href="https://support.google.com/accounts/answer/1066447?hl=en" target="_blank">Google Authenticator</a>,
+                                        <a href="https://www.microsoft.com/en-us/account/authenticator" target="_blank">Microsoft Authenticator</a>,
+                                        <a href="https://authy.com/download/" target="_blank">Authy</a>, <TL>or</TL>
+                                        <a href="https://support.1password.com/one-time-passwords/" target="_blank">1Password</a> <TL>and scan the following QR Code</TL>
+                                        @if (EnablingTotp)
+                                        {
+                                            <div class="pt-5 text-center">
+                                                @{
+                                                    QRCodeGenerator qrGenerator = new QRCodeGenerator();
+
+                                                    var qrCodeData = qrGenerator.CreateQrCode
+                                                        (
+                                                            $"otpauth://totp/{Uri.EscapeDataString(User.Email)}?secret={TotpSecret}&issuer={Uri.EscapeDataString(Issuer)}",
+                                                            QRCodeGenerator.ECCLevel.Q
+                                                        );
+
+                                                    PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
+                                                    byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(20);
+                                                    var base64 = Convert.ToBase64String(qrCodeAsPngByteArr);
+                                                }
+                                                <img src="data:image/png;base64,@(base64)" alt="" class="mw-150px">
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed mb-10 p-6">
+                                        <span class="svg-icon svg-icon-2tx svg-icon-warning me-4">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor"></rect>
+                                                <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="currentColor"></rect>
+                                                <rect x="11" y="17" width="2" height="2" rx="1" transform="rotate(-90 11 17)" fill="currentColor"></rect>
+                                            </svg>
+                                        </span>
+                                        <div class="d-flex flex-stack flex-grow-1">
+                                            <div class="fw-semibold">
+                                                <div class="fs-6 text-gray-700">
+                                                    <TL>If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:</TL>
+                                                    <div class="fw-bold text-dark pt-2">@(TotpSecret)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <a class="btn btn-primary px-6 align-self-center text-nowrap float-end" data-bs-toggle="modal" data-bs-target="#test">
+                                        <TL>Next</TL>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="test" tabindex="-1" style="display: none;" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered mw-650px">
+                        <div class="modal-content">
+                            <div class="modal-header flex-stack">
+                                <h2>
+                                    <TL>Finish activation</TL>
+                                </h2>
+                                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                                    <span class="svg-icon svg-icon-1">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
+                                            <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="modal-body scroll-y pt-10 pb-15 px-lg-17">
+                                <div class="text-gray-500 fw-semibold fs-6 mb-10">
+                                    <div class="alert alert-primary d-flex align-items-center p-5 mb-10">
+                                        <i class="bx bx-info-circle fs-2hx text-primary me-4">
+                                            <span class="path1"></span><span class="path2"></span>
+                                        </i>
+                                        <div class="d-flex flex-column">
+                                            <h4 class="mb-1 text-primary">
+                                                <TL>2fa Code requiered</TL>
+                                            </h4>
+                                            <span>In order to finish the activation of 2fa, you need to enter the code your 2fa app shows you.</span>
+                                        </div>
+                                    </div>
+                                    <input type="text" class="form-control form-control-lg form-control-solid" placeholder="@SmartTranslateService.Translate("2fa Code")" @bind="currentTotp"/>
+
+                                    <br/>
+
+                                    <WButton CssClasses="btn btn-primary px-6 align-self-center text-nowrap float-end" WorkingText="@SmartTranslateService.Translate("Saving")" Text="@SmartTranslateService.Translate("Finish")" OnClick="CheckAndSaveTotp">
+                                    </WButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-5 mb-xl-10">
+            <div class="card-body border-top p-9">
+                <div class="row mb-6">
+                    <label class="col-lg-4 col-form-label fw-semibold fs-6">
+                        <TL>New password</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-lg-6 fv-row fv-plugins-icon-container">
+                                <input @bind="Password" type="password" class="form-control form-control-lg form-control-solid">
+                            </div>
+                            <div class="col-lg-6 fv-row fv-plugins-icon-container">
+                                <WButton OnClick="ChangePassword" CssClasses="btn-danger" Text="@SmartTranslateService.Translate("Change")" WorkingText="@SmartTranslateService.Translate("Changing")"></WButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </LazyLoader>
+</div>
+
+@code
+{
+    private bool TotpEnabled = false;
+    private bool EnablingTotp = false;
+    private string TotpSecret = "";
+    private User User;
+    private string Issuer = "Moonlight";
+    private string currentTotp = "";
+
+    private string Password = "";
+
+    private async void Enable()
+    {
+        await AuditLogService.Log(AuditLogType.EnableTotp, x => x.Add<string>("Totp enabled"));
+        await TotpService.Enable();
+        TotpEnabled = await TotpService.GetEnabled();
+        TotpSecret = await TotpService.GetSecret();
+        EnablingTotp = true;
+        StateHasChanged();
+    }
+
+    public async Task CheckAndSaveTotp()
+    {
+        if (await TotpService.Verify(TotpSecret, currentTotp))
+        {
+            await TotpService.EnforceTotpLogin();
+            TotpEnabled = true;
+            TotpSecret = await TotpService.GetSecret();
+            await ToastService.Success("Successfully enabled 2fa!");
+            StateHasChanged();
+        }
+        else
+        {
+            await AlertService.Error("2fa code incorrect", "The given 2fa code is incorrect. Maybe check if the code in your 2fa app has changed.");
+        }
+    }
+
+    private async void Disable()
+    {
+        await AuditLogService.Log(AuditLogType.DisableTotp, x => x.Add<string>("Totp disabled"));
+        await TotpService.Disable();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Requesting secrets");
+
+        TotpEnabled = await TotpService.GetEnabled();
+        TotpSecret = await TotpService.GetSecret();
+
+        await lazyLoader.SetText("Requesting identity");
+        User = await IdentityService.Get();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ChangePassword()
+    {
+        if (Regex.IsMatch(Password, @"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z@$!%*#.,?&\d]{8,}$"))
+        {
+            await UserService.ChangePassword(User, Password);
+
+            await AuditLogService.Log(AuditLogType.PasswordChange, x => x.Add<string>("The password has been set to a new one"));
+
+    // Reload to make the user login again
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
+        }
+        else
+        {
+            await AlertService.Error("Error", "Your password must be at least 8 characters and must contain a number");
+        }
+    }
+}

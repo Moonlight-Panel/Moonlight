@@ -39,6 +39,6 @@ div.wave .dot:nth-child(3) {
         transform: initial;
     }
     30% {
-        transform: translateY(-15px);
+        transform: translateY(-8px);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Moonlight.App.Database.Entities.LogsEntries;
+using Moonlight.App.Models.Log;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Services.Sessions;
@@ -17,16 +18,18 @@ public class SecurityLogService
         HttpContextAccessor = httpContextAccessor;
     }
 
-    public Task Log(SecurityLogType type, params object[] data)
+    public Task Log(SecurityLogType type, Action<SecurityLogParameters> data)
     {
         var ip = GetIp();
+        var al = new SecurityLogParameters();
+        data(al);
         
         var entry = new SecurityLogEntry()
         {
             Ip = ip,
             Type = type,
             System = false,
-            JsonData = data.Length == 0 ? "" : JsonConvert.SerializeObject(data)
+            JsonData = al.Build()
         };
 
         Repository.Add(entry);
@@ -34,13 +37,16 @@ public class SecurityLogService
         return Task.CompletedTask;
     }
     
-    public Task LogSystem(SecurityLogType type, params object[] data)
+    public Task LogSystem(SecurityLogType type, Action<SecurityLogParameters> data)
     {
+        var al = new SecurityLogParameters();
+        data(al);
+        
         var entry = new SecurityLogEntry()
         {
             Type = type,
             System = true,
-            JsonData = data.Length == 0 ? "" : JsonConvert.SerializeObject(data)
+            JsonData = al.Build()
         };
 
         Repository.Add(entry);
@@ -59,5 +65,25 @@ public class SecurityLogService
         }
         
         return HttpContextAccessor.HttpContext.Connection.RemoteIpAddress!.ToString();
+    }
+    
+    
+    public class SecurityLogParameters
+    {
+        private List<LogData> Data = new List<LogData>();
+
+        public void Add<T>(object data)
+        {
+            Data.Add(new LogData()
+            {
+                Type = typeof(T),
+                Value = data.ToString()
+            });
+        }
+
+        internal string Build()
+        {
+            return JsonConvert.SerializeObject(Data);
+        }
     }
 }

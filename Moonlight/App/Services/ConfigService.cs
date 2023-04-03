@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Logging.Net;
 using Microsoft.Extensions.Primitives;
 using Moonlight.App.Helpers;
 
@@ -21,6 +22,9 @@ public class ConfigService : IConfiguration
 
         if (debugVar != null)
             DebugMode = bool.Parse(debugVar);
+        
+        if(DebugMode)
+            Logger.Debug("Debug mode enabled");
     }
     
     public IEnumerable<IConfigurationSection> GetChildren()

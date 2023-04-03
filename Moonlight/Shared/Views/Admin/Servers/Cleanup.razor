@@ -1,0 +1,103 @@
+﻿@page "/admin/servers/cleanup"
+
+@using Moonlight.App.Services
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services.LogServices
+
+@inject CleanupService CleanupService
+@inject AuditLogService AuditLogService
+@inject MessageService MessageService
+
+@implements IDisposable
+
+<OnlyAdmin>
+    <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
+        <div class="col-xl-3">
+            <div class="card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end h-xl-100" style="background-color: #170049;">
+                <div class="card-header pt-5 mb-3">
+                    <div class="d-flex flex-center rounded-circle h-80px w-80px" style="border: 1px rgba(255, 255, 255, 0.4);background-color: #7239EA">
+                        <i class="text-white bx bxs-skull bx-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body d-flex align-items-end mb-3">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-4hx text-white fw-bold me-6">@(CleanupService.ServersCleaned)</span>
+                        <div class="fw-bold fs-6 text-white">
+                            <span class="d-block">
+                                <TL>Servers</TL>
+                            </span>
+                            <span>
+                                <TL>stopped</TL>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3">
+            <div class="card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end h-xl-100" style="background-color: #170049;">
+                <div class="card-header pt-5 mb-3">
+                    <div class="d-flex flex-center rounded-circle h-80px w-80px" style="border: 1px rgba(255, 255, 255, 0.4);background-color: #7239EA">
+                        <i class="text-white bx bx-transfer bx-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body d-flex align-items-end mb-3">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-4hx text-white fw-bold me-6">@(CleanupService.CleanupsPerformed)</span>
+                        <div class="fw-bold fs-6 text-white">
+                            <span class="d-block">
+                                <TL>Cleanups</TL>
+                            </span>
+                            <span>
+                                <TL>executed</TL>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3">
+            <div class="card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end h-xl-100" style="background-color: #170049;">
+                <div class="card-header pt-5 mb-3">
+                    <div class="d-flex flex-center rounded-circle h-80px w-80px" style="border: 1px rgba(255, 255, 255, 0.4);background-color: #7239EA">
+                        <i class="text-white bx bx-rocket bx-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body d-flex align-items-end mb-3">
+                    <div class="d-flex align-items-center">
+                        <span class="fs-4hx text-white fw-bold me-6">@(CleanupService.ServersRunning)</span>
+                        <div class="fw-bold fs-6 text-white">
+                            <span class="d-block">
+                                <TL>Running cleanup</TL>
+                            </span>
+                            <span>
+                                <TL>servers</TL>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</OnlyAdmin>
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        MessageService.Subscribe<Cleanup, Object>("cleanup.updated", this, _ =>
+        {
+            Task.Run(async () =>
+            {
+                await InvokeAsync(StateHasChanged);
+            });
+            
+            return Task.CompletedTask;
+        });
+    }
+
+    public void Dispose()
+    {
+        MessageService.Unsubscribe("cleanup.updated", this);
+    }
+}

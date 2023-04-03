@@ -1,2 +1,39 @@
 ﻿@page "/test"
 
+@using Moonlight.Shared.Components.FileManagerPartials
+@using Moonlight.App.Repositories.Servers
+@using Moonlight.App.Helpers.Files
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Helpers
+@using Moonlight.App.Services
+@using User = Moonlight.App.Database.Entities.User
+
+@inject ServerRepository ServerRepository
+@inject WingsApiHelper WingsApiHelper
+@inject WingsJwtHelper WingsJwtHelper
+@inject ConfigService ConfigService
+
+<LazyLoader Load="Load">
+    <FileManager Access="FileAccess">
+    </FileManager>
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter]
+    public User User { get; set; }
+    
+    private FileAccess FileAccess;
+
+    private Task Load(LazyLoader arg)
+    {
+        var server = ServerRepository
+            .Get()
+            .Include(x => x.Node)
+            .First();
+
+        FileAccess = new WingsFileAccess(WingsApiHelper, WingsJwtHelper, server, ConfigService, User);
+
+        return Task.CompletedTask;
+    }
+}

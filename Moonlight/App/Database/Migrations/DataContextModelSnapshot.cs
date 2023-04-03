@@ -482,6 +482,9 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<bool>("Installing")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsCleanupException")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("MainAllocationId")
                         .HasColumnType("int");
 
@@ -606,53 +609,17 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("LimitsJson")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("SellPassId")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
                     b.ToTable("Subscriptions");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.SubscriptionLimit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Cpu")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Disk")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ImageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Memory")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SubscriptionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImageId");
-
-                    b.HasIndex("SubscriptionId");
-
-                    b.ToTable("SubscriptionLimits");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.SupportMessage", b =>
@@ -723,6 +690,9 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("CurrentSubscriptionId")
+                        .HasColumnType("int");
+
                     b.Property<long>("DiscordId")
                         .HasColumnType("bigint");
 
@@ -752,10 +722,7 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<int>("SubscriptionDuration")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubscriptionId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SubscriptionSince")
+                    b.Property<DateTime>("SubscriptionSince")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("SupportPending")
@@ -776,7 +743,7 @@ namespace Moonlight.App.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubscriptionId");
+                    b.HasIndex("CurrentSubscriptionId");
 
                     b.ToTable("Users");
                 });
@@ -966,21 +933,6 @@ namespace Moonlight.App.Database.Migrations
                         .HasForeignKey("ServerId");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.SubscriptionLimit", b =>
-                {
-                    b.HasOne("Moonlight.App.Database.Entities.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Moonlight.App.Database.Entities.Subscription", null)
-                        .WithMany("Limits")
-                        .HasForeignKey("SubscriptionId");
-
-                    b.Navigation("Image");
-                });
-
             modelBuilder.Entity("Moonlight.App.Database.Entities.SupportMessage", b =>
                 {
                     b.HasOne("Moonlight.App.Database.Entities.User", "Recipient")
@@ -998,11 +950,11 @@ namespace Moonlight.App.Database.Migrations
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.User", b =>
                 {
-                    b.HasOne("Moonlight.App.Database.Entities.Subscription", "Subscription")
+                    b.HasOne("Moonlight.App.Database.Entities.Subscription", "CurrentSubscription")
                         .WithMany()
-                        .HasForeignKey("SubscriptionId");
+                        .HasForeignKey("CurrentSubscriptionId");
 
-                    b.Navigation("Subscription");
+                    b.Navigation("CurrentSubscription");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Website", b =>
@@ -1043,11 +995,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("Backups");
 
                     b.Navigation("Variables");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.Subscription", b =>
-                {
-                    b.Navigation("Limits");
                 });
 #pragma warning restore 612, 618
         }

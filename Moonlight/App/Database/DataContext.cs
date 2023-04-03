@@ -2,6 +2,7 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.LogsEntries;
 using Moonlight.App.Database.Entities.Notification;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Database;
@@ -34,14 +35,13 @@ public class DataContext : DbContext
     
     public DbSet<SharedDomain> SharedDomains { get; set; }
     public DbSet<Domain> Domains { get; set; }
-    public DbSet<Subscription> Subscriptions { get; set; }
-    public DbSet<SubscriptionLimit> SubscriptionLimits { get; set; }
     public DbSet<Revoke> Revokes { get; set; }
     public DbSet<NotificationClient> NotificationClients { get; set; }
     public DbSet<NotificationAction> NotificationActions { get; set; }
     public DbSet<AaPanel> AaPanels { get; set; }
     public DbSet<Website> Websites { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -393,3 +393,77 @@ Successfully updated user;Successfully updated user
 Discord id;Discord id
 Discord username;Discord username
 Discord discriminator;Discord discriminator
+The Name field is required.;The Name field is required.
+An error occured while logging you in;An error occured while logging you in
+You need to enter an email address;You need to enter an email address
+You need to enter a password;You need to enter a password
+You need to enter a password with minimum 8 characters in lenght;You need to enter a password with minimum 8 characters in lenght
+Proccessing;Proccessing
+The FirstName field is required.;The FirstName field is required.
+The LastName field is required.;The LastName field is required.
+The Address field is required.;The Address field is required.
+The City field is required.;The City field is required.
+The State field is required.;The State field is required.
+The Country field is required.;The Country field is required.
+Street and house number requered;Street and house number requered
+Max lenght reached;Max lenght reached
+Server;Server
+stopped;stopped
+Cleanups;Cleanups
+executed;executed
+Used clanup;Used clanup
+Enable;Enable
+Disabble;Disabble
+Disable;Disable
+Addons;Addons
+Javascript version;Javascript version
+Javascript file;Javascript file
+Select javascript file to execute on start;Select javascript file to execute on start
+Submit;Submit
+Processing;Processing
+Go up;Go up
+Running cleanup;Running cleanup
+servers;servers
+Select folder to move the file(s) to;Select folder to move the file(s) to
+Paper version;Paper version
+Join2Start;Join2Start
+Server reset;Server reset
+Reset;Reset
+Resetting;Resetting
+Are you sure you want to reset this server?;Are you sure you want to reset this server?
+Are you sure? This cannot be undone;Are you sure? This cannot be undone
+Resetting server;Resetting server
+Deleted file;Deleted file
+Reinstalling server;Reinstalling server
+Uploading files;Uploading files
+complete;complete
+Upload complete;Upload complete
+Security;Security
+Subscriptions;Subscriptions
+2fa Code;2fa Code
+Your account is secured with 2fa;Your account is secured with 2fa
+anyone write a fancy text here?;anyone write a fancy text here?
+Activate 2fa;Activate 2fa
+2fa apps;2fa apps
+Use an app like ;Use an app like 
+or;or
+and scan the following QR Code;and scan the following QR Code
+If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:;If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:
+Finish activation;Finish activation
+2fa Code requiered;2fa Code requiered
+New password;New password
+Secure your account;Secure your account
+2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.;2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.
+New subscription;New subscription
+You need to enter a name;You need to enter a name
+You need to enter a description;You need to enter a description
+Add new limit;Add new limit
+Create subscription;Create subscription
+Options;Options
+Amount;Amount
+Do you really want to delete it?;Do you really want to delete it?
+Change your password;Change your password
+You need to change your password in order to use moonlight;You need to change your password in order to use moonlight
+You need to enter your full name in order to use moonlight;You need to enter your full name in order to use moonlight
+Enter your information;Enter your information
+The field FirstName must be a string or array type with a minimum length of '2'.;The field FirstName must be a string or array type with a minimum length of '2'.

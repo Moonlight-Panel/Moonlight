@@ -39,7 +39,7 @@ public class WingsFileAccess : IFileAccess
 
     public async Task<FileManagerObject[]> GetDirectoryContent()
     {
-        var res = await WingsApiHelper.Get<ListDirectoryRequest[]>(Node,
+        var res = await WingsApiHelper.Get<ListDirectory[]>(Node,
             $"api/servers/{Server.Uuid}/files/list-directory?directory={Path}");
 
         var x = new List<FileManagerObject>();
@@ -130,7 +130,7 @@ public class WingsFileAccess : IFileAccess
     public async Task CreateDirectory(string name)
     {
         await WingsApiHelper.Post(Node, $"api/servers/{Server.Uuid}/files/create-directory",
-            new CreateDirectoryRequest()
+            new CreateDirectory()
             {
                 Name = name,
                 Path = Path
@@ -171,7 +171,7 @@ public class WingsFileAccess : IFileAccess
 
     public async Task Delete(FileManagerObject managerObject)
     {
-        await WingsApiHelper.Post(Node, $"api/servers/{Server.Uuid}/files/delete", new DeleteFilesRequest()
+        await WingsApiHelper.Post(Node, $"api/servers/{Server.Uuid}/files/delete", new DeleteFiles()
         {
             Root = Path,
             Files = new()
@@ -183,7 +183,7 @@ public class WingsFileAccess : IFileAccess
 
     public async Task Move(FileManagerObject managerObject, string newPath)
     {
-        await WingsApiHelper.Put(Node, $"api/servers/{Server.Uuid}/files/rename", new RenameFilesRequest()
+        await WingsApiHelper.Put(Node, $"api/servers/{Server.Uuid}/files/rename", new RenameFiles()
         {
             Root = "/",
             Files = new[]
