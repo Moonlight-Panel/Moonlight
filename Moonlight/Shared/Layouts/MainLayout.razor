@@ -153,7 +153,8 @@
                 await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-page-loading");
                 await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
                 await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
-                await JsRuntime.InvokeVoidAsync("createSnow");
+                
+                //await JsRuntime.InvokeVoidAsync("createSnow");
 
                 await SessionService.Register();
 

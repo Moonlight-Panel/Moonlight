@@ -463,3 +463,15 @@ Options;Options
 Amount;Amount
 Do you really want to delete it?;Do you really want to delete it?
 Save subscription;Save subscription
+Loading your subscription;Loading your subscription
+Searching for deploy node;Searching for deploy node
+Searching for available images;Searching for available images
+Server details;Server details
+Configure your server;Configure your server
+Default;Default
+No images available;No images available
+You reached the maximum amount of servers for every image of your subscription;You reached the maximum amount of servers for every image of your subscription
+No node found;No node found
+No node found to deploy to found;No node found to deploy to found
+You need to specify a server image;You need to specify a server image
+CPU;CPU

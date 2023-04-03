@@ -82,16 +82,19 @@ public class SubscriptionService
     {
         var configSection = ConfigService.GetSection("Moonlight").GetSection("Subscriptions");
         
-        var defaultLimits = configSection.GetValue<SubscriptionLimit[]>("defaultLimits");
+        var defaultLimits = configSection.GetValue<SubscriptionLimit[]>("DefaultLimits");
 
         var subscription = await GetCurrent();
 
         if (subscription == null)
         {
-            var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
+            if (defaultLimits != null)
+            {
+                var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
 
-            if (foundDefault != null)
-                return foundDefault;
+                if (foundDefault != null)
+                    return foundDefault;
+            }
 
             return new()
             {
@@ -109,11 +112,14 @@ public class SubscriptionService
 
             if (foundLimit != null)
                 return foundLimit;
-            
-            var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
 
-            if (foundDefault != null)
-                return foundDefault;
+            if (defaultLimits != null)
+            {
+                var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+                if (foundDefault != null)
+                    return foundDefault;
+            }
 
             return new()
             {
