@@ -33,13 +33,13 @@
     public object Model { get; set; }
 
     [Parameter]
-    public EventCallback<EditContext> OnValidSubmit { get; set; }
+    public Func<Task>? OnValidSubmit { get; set; }
 
     [Parameter]
-    public EventCallback<EditContext> OnInvalidSubmit { get; set; }
+    public Func<Task>? OnInvalidSubmit { get; set; }
 
     [Parameter]
-    public EventCallback<EditContext> OnSubmit { get; set; }
+    public Func<Task>? OnSubmit { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -67,8 +67,14 @@
 
         await Task.Run(async () =>
         {
-            await InvokeAsync(() => OnValidSubmit.InvokeAsync(context));
-            await InvokeAsync(() => OnSubmit.InvokeAsync(context));
+            await InvokeAsync(async () =>
+            {
+                if (OnValidSubmit != null)
+                    await OnValidSubmit.Invoke();
+                
+                if (OnSubmit != null)
+                    await OnSubmit.Invoke();
+            });
 
             Working = false;
             await InvokeAsync(StateHasChanged);
@@ -87,7 +93,10 @@
 
         await InvokeAsync(StateHasChanged);
 
-        await OnInvalidSubmit.InvokeAsync(context);
-        await OnSubmit.InvokeAsync(context);
+        if (OnInvalidSubmit != null)
+            await OnInvalidSubmit.Invoke();
+        
+        if (OnSubmit != null)
+            await OnSubmit.Invoke();
     }
 }

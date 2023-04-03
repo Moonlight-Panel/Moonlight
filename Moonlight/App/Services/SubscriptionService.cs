@@ -3,126 +3,138 @@ using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
-using Moonlight.App.Repositories.Subscriptions;
-using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Sessions;
+using Newtonsoft.Json;
 
 namespace Moonlight.App.Services;
 
 public class SubscriptionService
 {
     private readonly SubscriptionRepository SubscriptionRepository;
-    private readonly UserRepository UserRepository;
-    private readonly IdentityService IdentityService;
-    private readonly ConfigService ConfigService;
     private readonly OneTimeJwtService OneTimeJwtService;
-    private readonly AuditLogService AuditLogService;
+    private readonly IdentityService IdentityService;
+    private readonly UserRepository UserRepository;
+    private readonly ConfigService ConfigService;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository, 
-        UserRepository userRepository, 
-        IdentityService identityService, 
-        ConfigService configService, 
+    public SubscriptionService(
+        SubscriptionRepository subscriptionRepository,
         OneTimeJwtService oneTimeJwtService,
-        AuditLogService auditLogService)
+        IdentityService identityService,
+        UserRepository userRepository,
+        ConfigService configService)
     {
         SubscriptionRepository = subscriptionRepository;
-        UserRepository = userRepository;
-        IdentityService = identityService;
-        ConfigService = configService;
         OneTimeJwtService = oneTimeJwtService;
-        AuditLogService = auditLogService;
+        IdentityService = identityService;
+        UserRepository = userRepository;
+        ConfigService = configService;
     }
 
-    public async Task<Subscription?> Get()
+    public async Task<Subscription?> GetCurrent()
     {
-        var user = await IdentityService.Get();
-        var advancedUser = UserRepository
-            .Get()
-            .Include(x => x.Subscription)
-            .First(x => x.Id == user!.Id);
+        var user = await GetCurrentUser();
 
-        if (advancedUser.Subscription == null)
+        if (user == null || user.CurrentSubscription == null)
             return null;
 
-        return SubscriptionRepository
-            .Get()
-            .Include(x => x.Limits)
-            .Include("Limits.Image")
-            .First(x => x.Id == advancedUser.Subscription.Id);
-    }
-    public async Task Cancel()
-    {
-        var user = await IdentityService.Get();
-        user!.Subscription = null;
-        UserRepository.Update(user!);
+        var subscriptionEnd = user.SubscriptionSince.ToUniversalTime().AddDays(user.SubscriptionDuration);
 
-        await AuditLogService.Log(AuditLogType.CancelSubscription, new[] { user.Email });
-    }
-    public Task<Subscription[]> GetAvailable()
-    {
-        return Task.FromResult(
-            SubscriptionRepository
-                .Get()
-                .Include(x => x.Limits)
-                .ToArray()
-        );
-    }
-    public Task<string> GenerateBuyUrl(Subscription subscription)
-    {
-        var url = ConfigService
-            .GetSection("Moonlight")
-            .GetSection("Payments")
-            .GetValue<string>("BaseUrl");
+        if (subscriptionEnd > DateTime.UtcNow)
+        {
+            return user.CurrentSubscription;
+        }
 
-        return Task.FromResult<string>($"{url}/products/{subscription.SellPassId}");
-    }
-    public Task<string> ProcessGenerate(int subscriptionId)
-    {
-        var subscription = SubscriptionRepository
-            .Get()
-            .FirstOrDefault(x => x.Id == subscriptionId);
-
-        if (subscription == null)
-            throw new DisplayException("Unknown subscription id");
-
-        var token = OneTimeJwtService.Generate(
-            options =>
-            {
-                options.Add("id", subscription.Id.ToString());
-            }
-        );
-
-        return Task.FromResult(token);
+        return null;
     }
 
     public async Task ApplyCode(string code)
     {
-        var user = (await IdentityService.Get())!;
-        var values = await OneTimeJwtService.Validate(code);
+        var data = await OneTimeJwtService.Validate(code);
 
-        if (values == null)
-            throw new DisplayException("Invalid subscription code");
+        if (data == null)
+            throw new DisplayException("Invalid or expired subscription code");
 
-        if (!values.ContainsKey("id"))
-            throw new DisplayException("Subscription code is missing the id");
-
-        var id = int.Parse(values["id"]);
+        var id = int.Parse(data["subscription"]);
+        var duration = int.Parse(data["duration"]);
 
         var subscription = SubscriptionRepository
             .Get()
             .FirstOrDefault(x => x.Id == id);
 
         if (subscription == null)
-            throw new DisplayException("The subscription the code is referring does not exist");
+            throw new DisplayException("The subscription the code is associated with does not exist");
 
-        user.Subscription = subscription;
-        user.SubscriptionDuration = subscription.Duration;
-        user.SubscriptionSince = DateTime.Now;
+        var user = await GetCurrentUser();
+
+        if (user == null)
+            throw new DisplayException("Unable to determine current user");
+
+        user.CurrentSubscription = subscription;
+        user.SubscriptionDuration = duration;
+        user.SubscriptionSince = DateTime.UtcNow;
         
         UserRepository.Update(user);
-        
-        await OneTimeJwtService.Revoke(code);
 
-        await AuditLogService.Log(AuditLogType.ApplySubscriptionCode, new[] { user.Email, subscription.Id.ToString() });
+        await OneTimeJwtService.Revoke(code);
+    }
+
+    public async Task<SubscriptionLimit> GetLimit(string identifier)
+    {
+        var configSection = ConfigService.GetSection("Moonlight").GetSection("Subscriptions");
+        
+        var defaultLimits = configSection.GetValue<SubscriptionLimit[]>("defaultLimits");
+
+        var subscription = await GetCurrent();
+
+        if (subscription == null)
+        {
+            var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+            if (foundDefault != null)
+                return foundDefault;
+
+            return new()
+            {
+                Identifier = identifier,
+                Amount = 0
+            };
+        }
+        else
+        {
+            var subscriptionLimits = 
+                JsonConvert.DeserializeObject<SubscriptionLimit[]>(subscription.LimitsJson) 
+                ?? Array.Empty<SubscriptionLimit>();
+
+            var foundLimit = subscriptionLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+            if (foundLimit != null)
+                return foundLimit;
+            
+            var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+            if (foundDefault != null)
+                return foundDefault;
+
+            return new()
+            {
+                Identifier = identifier,
+                Amount = 0
+            };
+        }
+    }
+
+    private async Task<User?> GetCurrentUser()
+    {
+        var user = await IdentityService.Get();
+
+        if (user == null)
+            return null;
+
+        var userWithData = UserRepository
+            .Get()
+            .Include(x => x.CurrentSubscription)
+            .First(x => x.Id == user.Id);
+
+        return userWithData;
     }
 }

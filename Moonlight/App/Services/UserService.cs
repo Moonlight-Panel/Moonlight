@@ -77,7 +77,10 @@ public class UserService
         });
 
         await MailService.SendMail(user!, "register", values => {});
-        await AuditLogService.Log(AuditLogType.Register, user.Email);
+        await AuditLogService.Log(AuditLogType.Register, x =>
+        {
+            x.Add<User>(user.Email);
+        });
 
         return await GenerateToken(user);
     }
@@ -91,7 +94,11 @@ public class UserService
 
         if (user == null)
         {
-            await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
+            await SecurityLogService.Log(SecurityLogType.LoginFail, x =>
+            {
+                x.Add<User>(email);
+                x.Add<string>(password);
+            });
             throw new DisplayException("Email and password combination not found");
         }
 
@@ -100,7 +107,11 @@ public class UserService
             return user.TotpEnabled;
         }
 
-        await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
+        await SecurityLogService.Log(SecurityLogType.LoginFail, x =>
+        {
+            x.Add<User>(email);
+            x.Add<string>(password);
+        });
         throw new DisplayException("Email and password combination not found");;
     }
 
@@ -125,18 +136,28 @@ public class UserService
 
             if (totpCodeValid)
             {
-                await AuditLogService.Log(AuditLogType.Login, email);
+                await AuditLogService.Log(AuditLogType.Login, x =>
+                {
+                    x.Add<User>(email);
+                });
                 return await GenerateToken(user, true);
             }
             else
             {
-                await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
+                await SecurityLogService.Log(SecurityLogType.LoginFail, x =>
+                {
+                    x.Add<User>(email);
+                    x.Add<string>(password);
+                });
                 throw new DisplayException("2FA code invalid");
             }
         }
         else
         {
-            await AuditLogService.Log(AuditLogType.Login, email);
+            await AuditLogService.Log(AuditLogType.Login, x =>
+            {
+                x.Add<User>(email);
+            });
             return await GenerateToken(user!, true);
         }
     }
@@ -149,7 +170,10 @@ public class UserService
 
         if (isSystemAction)
         {
-            await AuditLogService.LogSystem(AuditLogType.ChangePassword, user.Email);
+            await AuditLogService.LogSystem(AuditLogType.ChangePassword, x=>
+            {
+                x.Add<User>(user.Email);
+            });
         }
         else
         {
@@ -160,7 +184,10 @@ public class UserService
                 values.Add("Location", "In your walls");
             });
 
-            await AuditLogService.Log(AuditLogType.ChangePassword, user.Email);
+            await AuditLogService.Log(AuditLogType.ChangePassword, x =>
+            {
+                x.Add<User>(user.Email);
+            });
         }
     }
 
@@ -170,17 +197,27 @@ public class UserService
 
         if (user == null)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, id);
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
+            {
+                x.Add<int>(id);
+            });
             throw new Exception("Invalid username");
         }
         
         if (BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
-            await AuditLogService.LogSystem(AuditLogType.Login, user.Email);
+            await AuditLogService.LogSystem(AuditLogType.Login, x =>
+            {
+                x.Add<User>(user.Email);
+            });
             return user;
         }
         
-        await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, new[] { id.ToString(), password });
+        await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
+        {
+            x.Add<int>(id);
+            x.Add<string>(password);
+        });
         throw new Exception("Invalid userid or password");
     }
 
@@ -218,7 +255,7 @@ public class UserService
         var newPassword = StringHelper.GenerateString(16);
         await ChangePassword(user, newPassword, true);
 
-        await AuditLogService.Log(AuditLogType.PasswordReset);
+        await AuditLogService.Log(AuditLogType.PasswordReset, x => {});
 
         await MailService.SendMail(user, "passwordReset", values =>
         {
