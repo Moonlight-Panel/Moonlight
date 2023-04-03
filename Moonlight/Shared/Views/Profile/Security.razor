@@ -236,7 +236,7 @@
 
     private async void Enable()
     {
-        await AuditLogService.Log(AuditLogType.EnableTotp, "Totp enabled");
+        await AuditLogService.Log(AuditLogType.EnableTotp, x => x.Add<string>("Totp enabled"));
         await TotpService.Enable();
         TotpEnabled = await TotpService.GetEnabled();
         TotpSecret = await TotpService.GetSecret();
@@ -262,7 +262,7 @@
 
     private async void Disable()
     {
-        await AuditLogService.Log(AuditLogType.DisableTotp, "Totp disabled");
+        await AuditLogService.Log(AuditLogType.DisableTotp, x => x.Add<string>("Totp disabled"));
         await TotpService.Disable();
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
@@ -286,7 +286,7 @@
         {
             await UserService.ChangePassword(User, Password);
 
-            await AuditLogService.Log(AuditLogType.PasswordChange, "The password has been set to a new one");
+            await AuditLogService.Log(AuditLogType.PasswordChange, x => x.Add<string>("The password has been set to a new one"));
 
     // Reload to make the user login again
             NavigationManager.NavigateTo(NavigationManager.Uri, true);

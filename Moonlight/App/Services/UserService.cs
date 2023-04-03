@@ -77,7 +77,10 @@ public class UserService
         });
 
         await MailService.SendMail(user!, "register", values => {});
-        await AuditLogService.Log(AuditLogType.Register, user.Email);
+        await AuditLogService.Log(AuditLogType.Register, x =>
+        {
+            x.Add<User>(user.Email);
+        });
 
         return await GenerateToken(user);
     }
@@ -125,7 +128,10 @@ public class UserService
 
             if (totpCodeValid)
             {
-                await AuditLogService.Log(AuditLogType.Login, email);
+                await AuditLogService.Log(AuditLogType.Login, x =>
+                {
+                    x.Add<User>(email);
+                });
                 return await GenerateToken(user, true);
             }
             else
@@ -136,7 +142,10 @@ public class UserService
         }
         else
         {
-            await AuditLogService.Log(AuditLogType.Login, email);
+            await AuditLogService.Log(AuditLogType.Login, x =>
+            {
+                x.Add<User>(email);
+            });
             return await GenerateToken(user!, true);
         }
     }
@@ -160,7 +169,10 @@ public class UserService
                 values.Add("Location", "In your walls");
             });
 
-            await AuditLogService.Log(AuditLogType.ChangePassword, user.Email);
+            await AuditLogService.Log(AuditLogType.ChangePassword, x =>
+            {
+                x.Add<User>(user.Email);
+            });
         }
     }
 
@@ -218,7 +230,7 @@ public class UserService
         var newPassword = StringHelper.GenerateString(16);
         await ChangePassword(user, newPassword, true);
 
-        await AuditLogService.Log(AuditLogType.PasswordReset);
+        await AuditLogService.Log(AuditLogType.PasswordReset, x => {});
 
         await MailService.SendMail(user, "passwordReset", values =>
         {
