@@ -110,7 +110,7 @@ public class AlertService
         
         var input = await Text(
             SmartTranslateService.Translate("Confirm"),
-            SmartTranslateService.Translate($"{i1} + {i2} ="),
+            $"{i1} + {i2} =",
             ""
         );
 
