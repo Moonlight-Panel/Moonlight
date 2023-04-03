@@ -87,8 +87,10 @@
         User = await IdentityService.Get();
     }
 
-    private void Save()
+    private Task Save()
     {
         UserRepository.Update(User);
+        
+        return Task.CompletedTask;
     }
 }
