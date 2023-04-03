@@ -1,14 +1,20 @@
-﻿@page "/servers/new"
+﻿@page "/servers/create"
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Models.Misc
 @using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Servers
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Exceptions
 
 @inject SubscriptionService SubscriptionService
 @inject ImageRepository ImageRepository
 @inject SmartTranslateService SmartTranslateService
 @inject SmartDeployService SmartDeployService
+@inject ServerRepository ServerRepository
+@inject NavigationManager NavigationManager
+@inject ServerService ServerService
 
 <LazyLoader Load="Load">
     @if (DeployNode == null)
@@ -133,6 +139,9 @@
 
 @code
 {
+    [CascadingParameter]
+    public User User { get; set; }
+    
     private Node? DeployNode;
     private Subscription? Subscription;
 
@@ -163,12 +172,55 @@
 
             if (limit.Amount > 0)
             {
-                Images.Add(image, limit);
+                var serversCount = ServerRepository
+                    .Get()
+                    .Include(x => x.Owner)
+                    .Include(x => x.Image)
+                    .Where(x => x.Owner.Id == User.Id)
+                    .Count(x => x.Image.Id == image.Id);
+                
+                if(serversCount < limit.Amount)
+                    Images.Add(image, limit);
             }
         }
     }
 
     private async Task OnValidSubmit()
     {
+        var limit = await SubscriptionService.GetLimit("image." + Model.Image.Id);
+
+        if (limit.Amount > 0)
+        {
+            var serversCount = ServerRepository
+                .Get()
+                .Include(x => x.Owner)
+                .Include(x => x.Image)
+                .Where(x => x.Owner.Id == User.Id)
+                .Count(x => x.Image.Id == Model.Image.Id);
+
+            if (serversCount < limit.Amount)
+            {
+                if(int.TryParse(limit.ReadValue("cpu"), out int cpu) &&
+                    int.TryParse(limit.ReadValue("memory"), out int memory) &&
+                    int.TryParse(limit.ReadValue("disk"), out int disk))
+                {
+                    var server = await ServerService.Create(
+                        Model.Name,
+                        cpu,
+                        memory,
+                        disk,
+                        User,
+                        Model.Image,
+                        DeployNode
+                    );
+                    
+                    NavigationManager.NavigateTo($"/server/{server.Uuid}");
+                }
+                else
+                {
+                    throw new DisplayException("Limits cannot be parsed");
+                }
+            }
+        }
     }
 }

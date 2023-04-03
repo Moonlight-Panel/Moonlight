@@ -78,55 +78,45 @@ public class SubscriptionService
         await OneTimeJwtService.Revoke(code);
     }
 
+    public async Task Cancel()
+    {
+        if (await GetCurrent() != null)
+        {
+            var user = await GetCurrentUser();
+
+            user.CurrentSubscription = null;
+            
+            UserRepository.Update(user);
+        }
+    }
+
     public async Task<SubscriptionLimit> GetLimit(string identifier)
     {
-        var configSection = ConfigService.GetSection("Moonlight").GetSection("Subscriptions");
-        
-        var defaultLimits = configSection.GetValue<SubscriptionLimit[]>("DefaultLimits");
-
         var subscription = await GetCurrent();
 
         if (subscription == null)
         {
-            if (defaultLimits != null)
-            {
-                var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
-
-                if (foundDefault != null)
-                    return foundDefault;
-            }
-
             return new()
             {
                 Identifier = identifier,
                 Amount = 0
             };
         }
-        else
+
+        var subscriptionLimits = 
+            JsonConvert.DeserializeObject<SubscriptionLimit[]>(subscription.LimitsJson) 
+            ?? Array.Empty<SubscriptionLimit>();
+
+        var foundLimit = subscriptionLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+        if (foundLimit != null)
+            return foundLimit;
+
+        return new()
         {
-            var subscriptionLimits = 
-                JsonConvert.DeserializeObject<SubscriptionLimit[]>(subscription.LimitsJson) 
-                ?? Array.Empty<SubscriptionLimit>();
-
-            var foundLimit = subscriptionLimits.FirstOrDefault(x => x.Identifier == identifier);
-
-            if (foundLimit != null)
-                return foundLimit;
-
-            if (defaultLimits != null)
-            {
-                var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
-
-                if (foundDefault != null)
-                    return foundDefault;
-            }
-
-            return new()
-            {
-                Identifier = identifier,
-                Amount = 0
-            };
-        }
+            Identifier = identifier,
+            Amount = 0
+        };
     }
 
     private async Task<User?> GetCurrentUser()

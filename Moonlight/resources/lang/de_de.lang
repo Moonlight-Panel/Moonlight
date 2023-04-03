@@ -475,3 +475,19 @@ No node found;No node found
 No node found to deploy to found;No node found to deploy to found
 You need to specify a server image;You need to specify a server image
 CPU;CPU
+Compress;Compress
+Decompress;Decompress
+Cleanup exception;Cleanup exception
+Error creating server on wings;Error creating server on wings
+Enter code;Enter code
+Create code;Create code
+Duration;Duration
+Enter duration of subscription;Enter duration of subscription
+Copied code to clipboard;Copied code to clipboard
+Current subscription;Current subscription
+7 + 7 =;7 + 7 =
+1 + 8 =;1 + 8 =
+8 + 4 =;8 + 4 =
+8 + 1 =;8 + 1 =
+1 + 1 =;1 + 1 =
+6 + 6 =;6 + 6 =
