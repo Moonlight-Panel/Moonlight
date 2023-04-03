@@ -53,6 +53,8 @@
         if(Tags.Contains("pythonfile"))
             Settings.Add("Python file", typeof(PythonFileSetting));
         
+        Settings.Add("Server rename", typeof(ServerRenameSetting));
+        
         Settings.Add("Server reset", typeof(ServerResetSetting));
 
         return Task.CompletedTask;
