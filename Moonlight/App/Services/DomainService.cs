@@ -169,7 +169,11 @@ public class DomainService
             }));
         }
 
-        await AuditLogService.Log(AuditLogType.AddDomainRecord, new[] { d.Id.ToString(), dnsRecord.Name });
+        await AuditLogService.Log(AuditLogType.AddDomainRecord, x =>
+        {
+            x.Add<Domain>(d.Id);
+            x.Add<DnsRecord>(dnsRecord.Name);
+        });
     }
 
     public async Task UpdateDnsRecord(Domain d, DnsRecord dnsRecord)
@@ -199,7 +203,11 @@ public class DomainService
                 }));
         }
         
-        await AuditLogService.Log(AuditLogType.UpdateDomainRecord, new[] { d.Id.ToString(), dnsRecord.Name });
+        await AuditLogService.Log(AuditLogType.UpdateDomainRecord, x =>
+        {
+            x.Add<Domain>(d.Id);
+            x.Add<DnsRecord>(dnsRecord.Name);
+        });
     }
 
     public async Task DeleteDnsRecord(Domain d, DnsRecord dnsRecord)
@@ -210,7 +218,11 @@ public class DomainService
             await Client.Zones.DnsRecords.DeleteAsync(domain.SharedDomain.CloudflareId, dnsRecord.Id)
         );
         
-        await AuditLogService.Log(AuditLogType.DeleteDomainRecord, new[] { d.Id.ToString(), dnsRecord.Name });
+        await AuditLogService.Log(AuditLogType.DeleteDomainRecord, x =>
+        {
+            x.Add<Domain>(d.Id);
+            x.Add<DnsRecord>(dnsRecord.Name);
+        });
     }
 
     private Domain EnsureData(Domain domain)

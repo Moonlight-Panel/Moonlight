@@ -76,7 +76,10 @@ public class OneTimeJwtService
         }
         catch (SignatureVerificationException)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.ManipulatedJwt, token);
+            await SecurityLogService.LogSystem(SecurityLogType.ManipulatedJwt, x =>
+            {
+                x.Add<string>(token);
+            });
             return null;
         }
         catch (Exception e)

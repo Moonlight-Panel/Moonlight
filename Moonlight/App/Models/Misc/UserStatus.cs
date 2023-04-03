@@ -9,5 +9,6 @@ public enum UserStatus
     Warned,
     Banned,
     Disabled,
-    DataPending
+    DataPending, 
+    PasswordPending
 }

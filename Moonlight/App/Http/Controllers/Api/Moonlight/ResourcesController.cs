@@ -21,7 +21,10 @@ public class ResourcesController : Controller
     {
         if (name.Contains(".."))
         {
-            await SecurityLogService.Log(SecurityLogType.PathTransversal, name);
+            await SecurityLogService.Log(SecurityLogType.PathTransversal, x =>
+            {
+                x.Add<string>(name);
+            });
             return NotFound();
         }
 
