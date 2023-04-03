@@ -2,7 +2,7 @@
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;
 
-namespace Moonlight.App.Repositories.Subscriptions;
+namespace Moonlight.App.Repositories;
 
 public class SubscriptionRepository : IDisposable
 {

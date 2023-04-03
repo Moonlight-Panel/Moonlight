@@ -3,6 +3,7 @@
 @using Moonlight.App.Repositories
 @using Newtonsoft.Json
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Log
 
 @inject UserRepository UserRepository
 
@@ -18,7 +19,7 @@
             <div class="fs-5 fw-semibold mb-2">
                 @if (User == null)
                 {
-                    <TL>Register for</TL> @(Data[0])
+                    <TL>Register for</TL> @(Data[0].Value)
                 }
                 else
                 {
@@ -38,18 +39,18 @@
     public AuditLogEntry Entry { get; set; }
 
     private User? User;
-    private string[] Data;
+    private LogData[] Data;
 
     protected override void OnInitialized()
     {
-        Data = JsonConvert.DeserializeObject<string[]>(Entry.JsonData)!;
+        Data = JsonConvert.DeserializeObject<LogData[]>(Entry.JsonData)!;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            User = UserRepository.Get().FirstOrDefault(x => x.Email == Data[0]);
+            User = UserRepository.Get().FirstOrDefault(x => x.Email == Data[0].Value);
 
             await InvokeAsync(StateHasChanged);
         }

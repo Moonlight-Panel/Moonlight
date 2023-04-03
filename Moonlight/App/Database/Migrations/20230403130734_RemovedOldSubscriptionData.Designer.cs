@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230403130734_RemovedOldSubscriptionData")]
+    partial class RemovedOldSubscriptionData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -599,29 +602,6 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("SharedDomains");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.Subscription", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("LimitsJson")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Subscriptions");
-                });
-
             modelBuilder.Entity("Moonlight.App.Database.Entities.SupportMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -690,9 +670,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("CurrentSubscriptionId")
-                        .HasColumnType("int");
-
                     b.Property<long>("DiscordId")
                         .HasColumnType("bigint");
 
@@ -719,12 +696,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("SubscriptionDuration")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SubscriptionSince")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<bool>("SupportPending")
                         .HasColumnType("tinyint(1)");
 
@@ -742,8 +713,6 @@ namespace Moonlight.App.Database.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurrentSubscriptionId");
 
                     b.ToTable("Users");
                 });
@@ -946,15 +915,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("Recipient");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.User", b =>
-                {
-                    b.HasOne("Moonlight.App.Database.Entities.Subscription", "CurrentSubscription")
-                        .WithMany()
-                        .HasForeignKey("CurrentSubscriptionId");
-
-                    b.Navigation("CurrentSubscription");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Website", b =>
