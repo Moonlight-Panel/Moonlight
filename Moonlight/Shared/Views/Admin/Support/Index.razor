@@ -14,45 +14,53 @@
     <LazyLoader @ref="LazyLoader" Load="Load">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex flex-column flex-xl-row p-7">
+                <div class="d-flex flex-column flex-xl-row p-5 pb-0">
                     <div class="flex-lg-row-fluid me-xl-15 mb-20 mb-xl-0">
                         <div class="mb-0">
-                            <h1 class="text-dark mb-10">
+                            <h1 class="text-dark mb-6">
                                 <TL>Open tickets</TL>
                             </h1>
-                            <div class="mb-10">
+                            <div class="separator"></div>
+                            <div class="mb-5">
                                 @if (Users.Any())
                                 {
                                     foreach (var user in Users)
                                     {
-                                        <div class="d-flex mb-10">
-                                            <span class="svg-icon svg-icon-2x me-5 ms-n1 mt-2 svg-icon-success">
-                                                <i class="text-primary bx bx-md bx-message-dots"></i>
-                                            </span>
-    
-                                            <div class="d-flex flex-column">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <a href="/admin/support/view/@(user.Id)" class="text-dark text-hover-primary fs-4 me-3 fw-semibold">
-                                                        @(user.FirstName) @(user.LastName)
-                                                    </a>
-                                                </div>
-    
-                                                <span class="text-muted fw-semibold fs-6">
-                                                    @{
-                                                        var lastMessage = MessageCache.ContainsKey(user) ? MessageCache[user] : null;
-                                                    }
-    
-                                                    @if (lastMessage == null)
-                                                    {
-                                                        <TL>No message sent yet</TL>
-                                                    }
-                                                    else
-                                                    {
-                                                        @(lastMessage.Message)
-                                                    }
-                                                </span>
-                                            </div>
+                                        <div class="d-flex mt-3 mb-3 ms-2 me-2">
+                                            <table>
+                                                <tr>
+                                                    <td rowspan="2">
+                                                        <span class="svg-icon svg-icon-2x me-5 ms-n1 svg-icon-success">
+                                                            <i class="text-primary bx bx-md bx-message-dots"></i>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="/admin/support/view/@(user.Id)" class="text-dark text-hover-primary fs-4 me-3 fw-semibold">
+                                                            @(user.FirstName) @(user.LastName)
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="text-muted fw-semibold fs-6">
+                                                            @{
+                                                                var lastMessage = MessageCache.ContainsKey(user) ? MessageCache[user] : null;
+                                                            }
+
+                                                            @if (lastMessage == null)
+                                                            {
+                                                                <TL>No message sent yet</TL>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(lastMessage.Message)
+                                                            }
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </table>
                                         </div>
+                                        <div class="separator"></div>
                                     }
                                 }
                                 else
@@ -61,39 +69,6 @@
                                         <TL>No support ticket is currently open</TL>
                                     </div>
                                 }
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="flex-column flex-lg-row-auto w-100 mw-lg-300px mw-xxl-350px">
-    
-                        <div class="card-rounded bg-primary bg-opacity-5 p-10 mb-15">
-                            <h2 class="text-dark fw-bold mb-11">
-                                <TL>Actions</TL>
-                            </h2>
-    
-                            <div class="d-flex align-items-center mb-10">
-                                <!--begin::Icon-->
-                                <i class="bi bi-file-earmark-text text-primary fs-1 me-5"></i>
-                                <!--end::SymIconbol-->
-    
-                                <!--begin::Info-->
-                                <div class="d-flex flex-column">
-                                    <h5 class="text-gray-800 fw-bold">Project Briefing</h5>
-    
-                                    <!--begin::Section-->
-                                    <div class="fw-semibold">
-                                        <!--begin::Desc-->
-                                        <span class="text-muted">Check out our</span>
-                                        <!--end::Desc-->
-    
-                                        <!--begin::Link-->
-                                        <a href="#" class="link-primary">Support Policy</a>
-                                        <!--end::Link-->
-                                    </div>
-                                    <!--end::Section-->
-                                </div>
-                                <!--end::Info-->
                             </div>
                         </div>
                     </div>
