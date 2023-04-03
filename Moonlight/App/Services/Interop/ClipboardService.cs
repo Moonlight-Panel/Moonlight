@@ -15,4 +15,9 @@ public class ClipboardService
     {
         await JsRuntime.InvokeVoidAsync("copyTextToClipboard", data);
     }
+    public async Task Copy(string data)
+    {
+        await JsRuntime.InvokeVoidAsync("copyTextToClipboard", data);
+    }
+    
 }
