@@ -83,6 +83,10 @@
                                                         {
                                                             <PasswordChangeView></PasswordChangeView>
                                                         }
+                                                        else if (User.Status == UserStatus.DataPending)
+                                                        {
+                                                            <UserDataSetView></UserDataSetView>
+                                                        }
                                                         else
                                                         {
                                                             @Body
