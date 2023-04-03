@@ -334,7 +334,11 @@ public class ServerService
         }
         catch (Exception e)
         {
-            await ErrorLogService.Log(e, new[] { newServerData.Uuid.ToString(), node.Id.ToString() });
+            await ErrorLogService.Log(e, x =>
+            {
+                x.Add<Server>(newServerData.Uuid); 
+                x.Add<Node>(node.Id);
+            });
 
             ServerRepository.Delete(newServerData);
 

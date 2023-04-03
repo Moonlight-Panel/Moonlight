@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using Moonlight.App.Database.Entities.LogsEntries;
+using Moonlight.App.Models.Log;
 using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Services.Sessions;
 using Newtonsoft.Json;
@@ -18,15 +19,17 @@ public class ErrorLogService
         HttpContextAccessor = httpContextAccessor;
     }
     
-    public Task Log(Exception exception, params object[] objects)
+    public Task Log(Exception exception, Action<ErrorLogParameters> data)
     {
         var ip = GetIp();
+        var al = new ErrorLogParameters();
+        data(al);
         
         var entry = new ErrorLogEntry()
         {
             Ip = ip,
             System = false,
-            JsonData = !objects.Any() ? "" : JsonConvert.SerializeObject(objects),
+            JsonData = al.Build(),
             Class = NameOfCallingClass(),
             Stacktrace = exception.ToStringDemystified()
         };
@@ -36,12 +39,15 @@ public class ErrorLogService
         return Task.CompletedTask;
     }
     
-    public Task LogSystem(Exception exception, params object[] objects)
+    public Task LogSystem(Exception exception, Action<ErrorLogParameters> data)
     {
+        var al = new ErrorLogParameters();
+        data(al);
+        
         var entry = new ErrorLogEntry()
         {
             System = true,
-            JsonData = !objects.Any() ? "" : JsonConvert.SerializeObject(objects),
+            JsonData = al.Build(),
             Class = NameOfCallingClass(),
             Stacktrace = exception.ToStringDemystified()
         };
@@ -86,5 +92,24 @@ public class ErrorLogService
         }
         
         return HttpContextAccessor.HttpContext.Connection.RemoteIpAddress!.ToString();
+    }
+    
+    public class ErrorLogParameters
+    {
+        private List<LogData> Data = new List<LogData>();
+
+        public void Add<T>(object data)
+        {
+            Data.Add(new LogData()
+            {
+                Type = typeof(T),
+                Value = data.ToString()
+            });
+        }
+
+        internal string Build()
+        {
+            return JsonConvert.SerializeObject(Data);
+        }
     }
 }

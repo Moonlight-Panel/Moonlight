@@ -94,7 +94,7 @@ public class IdentityService
             }
             catch (Exception e)
             {
-                await ErrorLogService.Log(e);
+                await ErrorLogService.Log(e, x => {});
                 return null;
             }
 
@@ -130,7 +130,7 @@ public class IdentityService
         }
         catch (Exception e)
         {
-            await ErrorLogService.Log(e);
+            await ErrorLogService.Log(e, x => {});
             return null;
         }
     }
