@@ -22,11 +22,11 @@
         {
             <div class="row">
                 <div class="d-flex flex-column flex-xl-row p-7">
-                    <div class="flex-lg-row-fluid me-xl-15 mb-20 mb-xl-0">
+                    <div class="flex-lg-row-fluid me-6 mb-20 mb-xl-0">
                         <div class="card">
                             <div class="card-body">
                                 <LazyLoader Load="LoadMessages">
-                                    <div class="scroll-y me-n5 pe-5" style="max-height: 65vh; display: flex; flex-direction: column-reverse;">
+                                    <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
                                         @foreach (var message in Messages)
                                         {
                                             if (message.IsSystem || message.IsSupport)
@@ -99,10 +99,10 @@
                                 @if (typingUsers.Any())
                                 {
                                     <span class="mb-5 fs-5 d-flex flex-row">
-                                        <div class="wave me-3">
-                                            <div class="dot"></div>
-                                            <div class="dot"></div>
-                                            <div class="dot"></div>
+                                        <div class="wave me-1">
+                                            <div class="dot h-5px w-5px" style="margin-right: 1px;"></div>
+                                            <div class="dot h-5px w-5px" style="margin-right: 1px;"></div>
+                                            <div class="dot h-5px w-5px"></div>
                                         </div>
                                         @if (typingUsers.Length > 1)
                                         {
@@ -118,52 +118,56 @@
                                         }
                                     </span>
                                 }
-                                <textarea @bind="Content" @oninput="OnTyping" class="form-control mb-3" rows="1" placeholder="Type a message">            
-                                </textarea>
+
                                 <div class="d-flex flex-stack">
-                                    <div class="d-flex align-items-center me-2">
-                                        <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button">
-                                            <i class="bx bx-upload fs-3"></i>
-                                        </button>
-                                    </div>
-                                    <WButton Text="@(SmartTranslateService.Translate("Send"))"
-                                             WorkingText="@(SmartTranslateService.Translate("Sending"))"
-                                             CssClasses="btn-primary"
-                                             OnClick="Send">
-                                    </WButton>
+                                    <table class="w-100">
+                                        <tr>
+                                            <td class="align-top">
+                                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button">
+                                                    <i class="bx bx-upload fs-3"></i>
+                                                </button>
+                                            </td>
+                                            <td class="w-100">
+                                                <textarea @bind="Content" @oninput="OnTyping" class="form-control mb-3 form-control-flush" rows="1" placeholder="Type a message">            
+                                                </textarea>
+                                            </td>
+                                            <td class="align-top">
+                                                <WButton Text="@(SmartTranslateService.Translate("Send"))"
+                                                         WorkingText="@(SmartTranslateService.Translate("Sending"))"
+                                                         CssClasses="btn-primary ms-2"
+                                                         OnClick="Send">
+                                                </WButton>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="flex-column flex-lg-row-auto w-100 mw-lg-300px mw-xxl-350px">
-                        <div class="card p-10 mb-15">
-                            <h2 class="text-dark fw-bold mb-11">
+                        <div class="card p-10 mb-15 pb-8">
+                            <h2 class="text-dark fw-bold mb-2">
                                 <TL>User information</TL>
                             </h2>
 
-                            <div class="d-flex align-items-center mb-6">
-                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
-                                    <TL>Firstname</TL>: @(User.FirstName)
-                                </spna>
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="fw-semibold text-gray-800 fs-5 m-0">
+                                    <TL>Name</TL>: @(User.FirstName) @User.LastName
+                                </span>
                             </div>
-                            <div class="d-flex align-items-center mb-6">
-                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
-                                    <TL>Lastname</TL>: @(User.LastName)
-                                </spna>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="fw-semibold text-gray-800 fs-5 m-0">
+                                    <TL>Email</TL>: <a href="/admin/users/view/@User.Id">@(User.Email)</a> 
+                                </span>
                             </div>
-                            <div class="d-flex align-items-center mb-6">
-                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
-                                    <TL>Email</TL>: @(User.Email)
-                                </spna>
-                            </div>
-                            <div class="d-flex align-items-center mb-6">
-                                <spna class="fw-semibold text-gray-800 fs-5 m-0">
+                            <div class="align-items-center mt-3">
+                                <span class="fw-semibold text-gray-800 fs-5 m-0">
                                     <WButton Text="@(SmartTranslateService.Translate("Close ticket"))"
                                              WorkingText="@(SmartTranslateService.Translate("Closing"))"
-                                             CssClasses="btn-danger"
+                                             CssClasses="btn-danger float-end"
                                              OnClick="CloseTicket">
                                     </WButton>
-                                </spna>
+                                </span>
                             </div>
                         </div>
                     </div>
