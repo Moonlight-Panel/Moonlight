@@ -42,4 +42,10 @@ public class User
     // Date stuff
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    
+    // Subscriptions
+
+    public Subscription? CurrentSubscription { get; set; } = null;
+    public DateTime SubscriptionSince { get; set; } = DateTime.Now;
+    public int SubscriptionDuration { get; set; }
 }

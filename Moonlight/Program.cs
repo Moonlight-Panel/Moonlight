@@ -62,6 +62,7 @@ namespace Moonlight
             builder.Services.AddScoped<AaPanelRepository>();
             builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<DdosAttackRepository>();
+            builder.Services.AddScoped<SubscriptionRepository>();
 
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
@@ -93,6 +94,9 @@ namespace Moonlight
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
+
+            builder.Services.AddScoped<SubscriptionService>();
+            builder.Services.AddScoped<SubscriptionAdminService>();
 
             builder.Services.AddSingleton<CleanupService>();
 

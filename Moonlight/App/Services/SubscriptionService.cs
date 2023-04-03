@@ -1,0 +1,140 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Moonlight.App.Database.Entities;
+using Moonlight.App.Exceptions;
+using Moonlight.App.Models.Misc;
+using Moonlight.App.Repositories;
+using Moonlight.App.Services.Sessions;
+using Newtonsoft.Json;
+
+namespace Moonlight.App.Services;
+
+public class SubscriptionService
+{
+    private readonly SubscriptionRepository SubscriptionRepository;
+    private readonly OneTimeJwtService OneTimeJwtService;
+    private readonly IdentityService IdentityService;
+    private readonly UserRepository UserRepository;
+    private readonly ConfigService ConfigService;
+
+    public SubscriptionService(
+        SubscriptionRepository subscriptionRepository,
+        OneTimeJwtService oneTimeJwtService,
+        IdentityService identityService,
+        UserRepository userRepository,
+        ConfigService configService)
+    {
+        SubscriptionRepository = subscriptionRepository;
+        OneTimeJwtService = oneTimeJwtService;
+        IdentityService = identityService;
+        UserRepository = userRepository;
+        ConfigService = configService;
+    }
+
+    public async Task<Subscription?> GetCurrent()
+    {
+        var user = await GetCurrentUser();
+
+        if (user == null || user.CurrentSubscription == null)
+            return null;
+
+        var subscriptionEnd = user.SubscriptionSince.ToUniversalTime().AddDays(user.SubscriptionDuration);
+
+        if (subscriptionEnd > DateTime.UtcNow)
+        {
+            return user.CurrentSubscription;
+        }
+
+        return null;
+    }
+
+    public async Task ApplyCode(string code)
+    {
+        var data = await OneTimeJwtService.Validate(code);
+
+        if (data == null)
+            throw new DisplayException("Invalid or expired subscription code");
+
+        var id = int.Parse(data["subscription"]);
+        var duration = int.Parse(data["duration"]);
+
+        var subscription = SubscriptionRepository
+            .Get()
+            .FirstOrDefault(x => x.Id == id);
+
+        if (subscription == null)
+            throw new DisplayException("The subscription the code is associated with does not exist");
+
+        var user = await GetCurrentUser();
+
+        if (user == null)
+            throw new DisplayException("Unable to determine current user");
+
+        user.CurrentSubscription = subscription;
+        user.SubscriptionDuration = duration;
+        user.SubscriptionSince = DateTime.UtcNow;
+        
+        UserRepository.Update(user);
+
+        await OneTimeJwtService.Revoke(code);
+    }
+
+    public async Task<SubscriptionLimit> GetLimit(string identifier)
+    {
+        var configSection = ConfigService.GetSection("Moonlight").GetSection("Subscriptions");
+        
+        var defaultLimits = configSection.GetValue<SubscriptionLimit[]>("defaultLimits");
+
+        var subscription = await GetCurrent();
+
+        if (subscription == null)
+        {
+            var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+            if (foundDefault != null)
+                return foundDefault;
+
+            return new()
+            {
+                Identifier = identifier,
+                Amount = 0
+            };
+        }
+        else
+        {
+            var subscriptionLimits = 
+                JsonConvert.DeserializeObject<SubscriptionLimit[]>(subscription.LimitsJson) 
+                ?? Array.Empty<SubscriptionLimit>();
+
+            var foundLimit = subscriptionLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+            if (foundLimit != null)
+                return foundLimit;
+            
+            var foundDefault = defaultLimits.FirstOrDefault(x => x.Identifier == identifier);
+
+            if (foundDefault != null)
+                return foundDefault;
+
+            return new()
+            {
+                Identifier = identifier,
+                Amount = 0
+            };
+        }
+    }
+
+    private async Task<User?> GetCurrentUser()
+    {
+        var user = await IdentityService.Get();
+
+        if (user == null)
+            return null;
+
+        var userWithData = UserRepository
+            .Get()
+            .Include(x => x.CurrentSubscription)
+            .First(x => x.Id == user.Id);
+
+        return userWithData;
+    }
+}

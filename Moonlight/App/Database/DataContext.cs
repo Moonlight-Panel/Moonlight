@@ -41,6 +41,7 @@ public class DataContext : DbContext
     public DbSet<AaPanel> AaPanels { get; set; }
     public DbSet<Website> Websites { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
