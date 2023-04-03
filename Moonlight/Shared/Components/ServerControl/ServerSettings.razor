@@ -52,6 +52,8 @@
         
         if(Tags.Contains("pythonfile"))
             Settings.Add("Python file", typeof(PythonFileSetting));
+        
+        Settings.Add("Server reset", typeof(ServerResetSetting));
 
         return Task.CompletedTask;
     }

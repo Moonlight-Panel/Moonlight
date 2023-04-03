@@ -424,3 +424,17 @@ Processing;Processing
 Go up;Go up
 Running cleanup;Running cleanup
 servers;servers
+Select folder to move the file(s) to;Select folder to move the file(s) to
+Paper version;Paper version
+Join2Start;Join2Start
+Server reset;Server reset
+Reset;Reset
+Resetting;Resetting
+Are you sure you want to reset this server?;Are you sure you want to reset this server?
+Are you sure? This cannot be undone;Are you sure? This cannot be undone
+Resetting server;Resetting server
+Deleted file;Deleted file
+Reinstalling server;Reinstalling server
+Uploading files;Uploading files
+complete;complete
+Upload complete;Upload complete
