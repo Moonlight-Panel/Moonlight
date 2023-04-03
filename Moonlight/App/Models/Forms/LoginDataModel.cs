@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Moonlight.App.Models.Misc;
+namespace Moonlight.App.Models.Forms;
 
 public class LoginDataModel
 {
