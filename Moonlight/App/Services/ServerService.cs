@@ -364,7 +364,10 @@ public class ServerService
 
         if (server == null)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, serverId);
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
+            {
+                x.Add<int>(id);
+            });
             throw new Exception("Server not found");
         }
 

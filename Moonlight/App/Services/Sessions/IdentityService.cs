@@ -89,7 +89,10 @@ public class IdentityService
             }
             catch (SignatureVerificationException)
             {
-                await SecurityLogService.Log(SecurityLogType.ManipulatedJwt, token);
+                await SecurityLogService.Log(SecurityLogType.ManipulatedJwt, x =>
+                {
+                    x.Add<string>(token);
+                });
                 return null;
             }
             catch (Exception e)

@@ -94,7 +94,11 @@ public class UserService
 
         if (user == null)
         {
-            await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
+            await SecurityLogService.Log(SecurityLogType.LoginFail, x =>
+            {
+                x.Add<User>(email);
+                x.Add<string>(password);
+            });
             throw new DisplayException("Email and password combination not found");
         }
 
@@ -103,7 +107,11 @@ public class UserService
             return user.TotpEnabled;
         }
 
-        await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
+        await SecurityLogService.Log(SecurityLogType.LoginFail, x =>
+        {
+            x.Add<User>(email);
+            x.Add<string>(password);
+        });
         throw new DisplayException("Email and password combination not found");;
     }
 
@@ -136,7 +144,11 @@ public class UserService
             }
             else
             {
-                await SecurityLogService.Log(SecurityLogType.LoginFail, new[] { email, password });
+                await SecurityLogService.Log(SecurityLogType.LoginFail, x =>
+                {
+                    x.Add<User>(email);
+                    x.Add<string>(password);
+                });
                 throw new DisplayException("2FA code invalid");
             }
         }
@@ -185,7 +197,10 @@ public class UserService
 
         if (user == null)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, id);
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
+            {
+                x.Add<int>(id);
+            });
             throw new Exception("Invalid username");
         }
         
@@ -198,7 +213,11 @@ public class UserService
             return user;
         }
         
-        await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, new[] { id.ToString(), password });
+        await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
+        {
+            x.Add<int>(id);
+            x.Add<string>(password);
+        });
         throw new Exception("Invalid userid or password");
     }
 
