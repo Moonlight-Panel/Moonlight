@@ -462,3 +462,8 @@ Create subscription;Create subscription
 Options;Options
 Amount;Amount
 Do you really want to delete it?;Do you really want to delete it?
+Change your password;Change your password
+You need to change your password in order to use moonlight;You need to change your password in order to use moonlight
+You need to enter your full name in order to use moonlight;You need to enter your full name in order to use moonlight
+Enter your information;Enter your information
+The field FirstName must be a string or array type with a minimum length of '2'.;The field FirstName must be a string or array type with a minimum length of '2'.

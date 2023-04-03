@@ -79,6 +79,14 @@
                                                         {
                                                             <DisabledAlert></DisabledAlert>
                                                         }
+                                                        else if (User.Status == UserStatus.PasswordPending)
+                                                        {
+                                                            <PasswordChangeView></PasswordChangeView>
+                                                        }
+                                                        else if (User.Status == UserStatus.DataPending)
+                                                        {
+                                                            <UserDataSetView></UserDataSetView>
+                                                        }
                                                         else
                                                         {
                                                             @Body

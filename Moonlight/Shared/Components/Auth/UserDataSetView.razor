@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Forms
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Sessions
+
+@inject IdentityService IdentityService
+@inject UserRepository UserRepository
+@inject SmartTranslateService SmartTranslateService
+@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-center">
+    <div class="card rounded-3 w-md-550px">
+        <div class="card-body">
+            <div class="d-flex flex-center flex-column-fluid">
+                <LazyLoader Load="Load">
+                    <SmartForm Model="Name" OnValidSubmit="SetName">
+                        <div class="text-center mt-3 mb-11">
+                            <h1 class="text-dark fw-bolder mb-3">
+                                <TL>Enter your information</TL>
+                            </h1>
+                            <div class="text-gray-500 fw-semibold fs-6">
+                                <TL>You need to enter your full name in order to use moonlight</TL>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col">
+                                <InputText @bind-Value="Name.FirstName" type="text" placeholder="@(SmartTranslateService.Translate("First name"))" class="form-control bg-transparent"/>
+                            </div>
+                            
+                            <div class="col">
+                                <InputText @bind-Value="Name.LastName" type="text" placeholder="@(SmartTranslateService.Translate("Last name"))" class="form-control bg-transparent"/>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary float-end mt-3">
+                            <TL>Change</TL>
+                        </button>
+                    </SmartForm>
+                </LazyLoader>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private User User;
+    private NameModel Name = new ();
+    
+    private async Task Load(LazyLoader loader)
+    {
+        User = await IdentityService.Get();
+    }
+
+    private async Task SetName()
+    {
+        User.FirstName = Name.FirstName;
+        User.LastName = Name.LastName;
+        User.Status = UserStatus.Unverified;
+        
+        UserRepository.Update(User);
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+}
