@@ -7,5 +7,4 @@ public class Subscription
     public string Description { get; set; } = "";
     public string SellPassId { get; set; } = "";
     public int Duration { get; set; }
-    public List<SubscriptionLimit> Limits { get; set; } = new();
 }

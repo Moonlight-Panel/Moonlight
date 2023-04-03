@@ -35,8 +35,6 @@ public class DataContext : DbContext
     
     public DbSet<SharedDomain> SharedDomains { get; set; }
     public DbSet<Domain> Domains { get; set; }
-    public DbSet<Subscription> Subscriptions { get; set; }
-    public DbSet<SubscriptionLimit> SubscriptionLimits { get; set; }
     public DbSet<Revoke> Revokes { get; set; }
     public DbSet<NotificationClient> NotificationClients { get; set; }
     public DbSet<NotificationAction> NotificationActions { get; set; }
