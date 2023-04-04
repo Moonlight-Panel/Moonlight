@@ -52,15 +52,12 @@ namespace Moonlight
             builder.Services.AddScoped<NodeRepository>();
             builder.Services.AddScoped<ServerRepository>();
             builder.Services.AddScoped<ServerBackupRepository>();
-            builder.Services.AddScoped<DatabaseRepository>();
             builder.Services.AddScoped<ImageRepository>();
             builder.Services.AddScoped<SupportMessageRepository>();
             builder.Services.AddScoped<DomainRepository>();
             builder.Services.AddScoped<SharedDomainRepository>();
             builder.Services.AddScoped<RevokeRepository>();
             builder.Services.AddScoped<NotificationRepository>();
-            builder.Services.AddScoped<AaPanelRepository>();
-            builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<DdosAttackRepository>();
             builder.Services.AddScoped<SubscriptionRepository>();
 
@@ -108,7 +105,6 @@ namespace Moonlight
             builder.Services.AddScoped<LogService>();
             builder.Services.AddScoped<MailService>();
             builder.Services.AddSingleton<TrashMailDetectorService>();
-            builder.Services.AddScoped<WebsiteService>();
 
             // Support
             builder.Services.AddSingleton<SupportServerService>();
