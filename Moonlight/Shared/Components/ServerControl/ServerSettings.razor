@@ -1,5 +1,4 @@
-﻿@using PteroConsole.NET
-@using Moonlight.App.Database.Entities
+﻿@using Moonlight.App.Database.Entities
 @using Moonlight.Shared.Components.ServerControl.Settings
 @using Microsoft.AspNetCore.Components.Rendering
 
@@ -53,7 +52,11 @@
         if(Tags.Contains("pythonfile"))
             Settings.Add("Python file", typeof(PythonFileSetting));
         
-        Settings.Add("Server reset", typeof(ServerResetSetting));
+        Settings.Add("Rename", typeof(ServerRenameSetting));
+        
+        Settings.Add("Reset", typeof(ServerResetSetting));
+        
+        Settings.Add("Delete", typeof(ServerDeleteSetting));
 
         return Task.CompletedTask;
     }

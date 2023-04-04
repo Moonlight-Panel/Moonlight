@@ -1,0 +1,41 @@
+﻿@using Moonlight.App.Repositories.Servers
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Forms
+
+@inject ServerRepository ServerRepository
+
+<div class="input-group mb-3">
+    <LazyLoader @ref="LazyLoader" Load="Load">
+        <SmartForm Model="Model" OnValidSubmit="Rename">
+            <div class="input-group mb-3">
+                <InputText @bind-Value="Model.Name" type="text" class="form-control"></InputText>
+                <button class="btn btn-primary" type="submit"><TL>Rename</TL></button>
+            </div>
+        </SmartForm>
+    </LazyLoader>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    private ServerRenameDataModel Model = new();
+    private LazyLoader LazyLoader;
+
+    private Task Load(LazyLoader arg)
+    {
+        Model.Name = CurrentServer.Name;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Rename()
+    {
+        CurrentServer.Name = Model.Name;
+
+        ServerRepository.Update(CurrentServer);
+
+        await LazyLoader.Reload();
+    }
+}

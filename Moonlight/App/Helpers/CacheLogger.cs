@@ -29,8 +29,11 @@ public class CacheLogger : ILogger
         }
     }
 
-    public void Info(string s)
+    public void Info(string? s)
     {
+        if (s == null)
+            return;
+
         lock (Messages)
         {
             Messages.Add(new()
@@ -39,12 +42,15 @@ public class CacheLogger : ILogger
                 Message = s
             });
         }
-        
+
         SbLogger.Info(s);
     }
 
-    public void Debug(string s)
+    public void Debug(string? s)
     {
+        if (s == null)
+            return;
+
         lock (Messages)
         {
             Messages.Add(new()
@@ -53,12 +59,15 @@ public class CacheLogger : ILogger
                 Message = s
             });
         }
-        
+
         SbLogger.Debug(s);
     }
 
-    public void Warn(string s)
+    public void Warn(string? s)
     {
+        if (s == null)
+            return;
+
         lock (Messages)
         {
             Messages.Add(new()
@@ -67,12 +76,15 @@ public class CacheLogger : ILogger
                 Message = s
             });
         }
-        
+
         SbLogger.Warn(s);
     }
 
-    public void Error(string s)
+    public void Error(string? s)
     {
+        if (s == null)
+            return;
+
         lock (Messages)
         {
             Messages.Add(new()
@@ -81,12 +93,15 @@ public class CacheLogger : ILogger
                 Message = s
             });
         }
-        
+
         SbLogger.Error(s);
     }
 
-    public void Fatal(string s)
+    public void Fatal(string? s)
     {
+        if (s == null)
+            return;
+
         lock (Messages)
         {
             Messages.Add(new()
@@ -95,7 +110,7 @@ public class CacheLogger : ILogger
                 Message = s
             });
         }
-        
+
         SbLogger.Fatal(s);
     }
 
@@ -109,7 +124,7 @@ public class CacheLogger : ILogger
                 Message = ex.ToStringDemystified()
             });
         }
-        
+
         SbLogger.InfoEx(ex);
     }
 
@@ -123,7 +138,7 @@ public class CacheLogger : ILogger
                 Message = ex.ToStringDemystified()
             });
         }
-        
+
         SbLogger.DebugEx(ex);
     }
 
@@ -137,7 +152,7 @@ public class CacheLogger : ILogger
                 Message = ex.ToStringDemystified()
             });
         }
-        
+
         SbLogger.WarnEx(ex);
     }
 
@@ -151,7 +166,7 @@ public class CacheLogger : ILogger
                 Message = ex.ToStringDemystified()
             });
         }
-        
+
         SbLogger.ErrorEx(ex);
     }
 
@@ -165,7 +180,7 @@ public class CacheLogger : ILogger
                 Message = ex.ToStringDemystified()
             });
         }
-        
+
         SbLogger.FatalEx(ex);
     }
 

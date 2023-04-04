@@ -3,9 +3,14 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Repositories
 @using BlazorTable
+@using Moonlight.App.Services.Interop
 
 @inject SmartTranslateService SmartTranslateService
 @inject SubscriptionRepository SubscriptionRepository
+
+@inject SubscriptionAdminService SubscriptionAdminService
+@inject AlertService AlertService
+@inject ClipboardService ClipboardService
 
 <OnlyAdmin>
     <div class="card">
@@ -36,9 +41,16 @@
                                 </a>
                             </Template>
                         </Column>
-                        <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                        <Column TableItem="Subscription" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                             <Template>
-                                <DeleteButton Confirm="true" OnClick="() => Delete(context)" />
+                                <div class="float-end">
+                                    <WButton Text="@(SmartTranslateService.Translate("Create code"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
+                                             CssClasses="btn-primary"
+                                             OnClick="() => GenerateCode(context)">
+                                    </WButton>
+                                    <DeleteButton Confirm="true" OnClick="() => Delete(context)"/>
+                                </div>
                             </Template>
                         </Column>
                         <Pager ShowPageNumber="true" ShowTotalCount="true"/>
@@ -66,7 +78,24 @@
     private async Task Delete(Subscription subscription)
     {
         SubscriptionRepository.Delete(subscription);
-        
+
         await LazyLoader.Reload();
+    }
+
+    private async Task GenerateCode(Subscription subscription)
+    {
+        var durationText = await AlertService.Text(
+            SmartTranslateService.Translate("Duration"),
+            SmartTranslateService.Translate("Enter duration of subscription"),
+            "30"
+            );
+
+        if (int.TryParse(durationText, out int duration))
+        {
+            var code = await SubscriptionAdminService.GenerateCode(subscription, duration);
+
+            await ClipboardService.Copy(code);
+            await AlertService.Success(SmartTranslateService.Translate("Copied code to clipboard"));
+        }
     }
 }

@@ -1,11 +1,9 @@
-﻿using Logging.Net;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
-using Moonlight.App.Models.Files;
-using Moonlight.App.Models.Files.Accesses;
+using Moonlight.App.Helpers.Files;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Models.Wings;
 using Moonlight.App.Models.Wings.Requests;
@@ -13,6 +11,7 @@ using Moonlight.App.Models.Wings.Resources;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services.LogServices;
+using FileAccess = Moonlight.App.Helpers.Files.FileAccess;
 
 namespace Moonlight.App.Services;
 
@@ -30,7 +29,6 @@ public class ServerService
     private readonly SecurityLogService SecurityLogService;
     private readonly AuditLogService AuditLogService;
     private readonly ErrorLogService ErrorLogService;
-    private readonly string AppUrl;
 
     public ServerService(
         ServerRepository serverRepository,
@@ -58,8 +56,6 @@ public class ServerService
         SecurityLogService = securityLogService;
         AuditLogService = auditLogService;
         ErrorLogService = errorLogService;
-
-        AppUrl = ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl");
     }
 
     private Server EnsureNodeData(Server s)
@@ -225,17 +221,17 @@ public class ServerService
         return $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
     }
 
-    public Task<IFileAccess> CreateFileAccess(Server s, User user) // We need the user to create the launch url
+    public Task<FileAccess> CreateFileAccess(Server s, User user) // We need the user to create the launch url
     {
         Server server = EnsureNodeData(s);
 
         return Task.FromResult(
-            (IFileAccess)new WingsFileAccess(
+            (FileAccess)new WingsFileAccess(
                 WingsApiHelper,
-                server,
-                user,
                 WingsJwtHelper,
-                AppUrl
+                server,
+                ConfigService,
+                user
             )
         );
     }
@@ -382,5 +378,21 @@ public class ServerService
             //TODO: Decide if logging
             throw new Exception("User and owner id do not match");
         }
+    }
+
+    public async Task Sync(Server s)
+    {
+        var server = EnsureNodeData(s);
+
+        await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/sync", null);
+    }
+
+    public async Task Delete(Server s)
+    {
+        var server = EnsureNodeData(s);
+
+        await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
+        
+        ServerRepository.Delete(s);
     }
 }
