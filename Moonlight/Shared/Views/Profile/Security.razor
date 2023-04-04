@@ -22,202 +22,223 @@
 <ProfileNavigation Index="1"/>
 
 <div class="card mb-5 mb-xl-10">
-    <div class="card-header border-0 cursor-pointer" role="button" data-bs-toggle="collapse" data-bs-target="#kt_account_profile_details" aria-expanded="true" aria-controls="kt_account_profile_details">
-        <div class="card-title m-0">
-            <h3 class="fw-bold m-0">
-                <TL>Security</TL>
-            </h3>
-        </div>
-    </div>
-
     <LazyLoader Load="Load">
-        <div class="card mb-5 mb-xl-10">
-            <div class="card-body border-top p-9">
-                @if (TotpEnabled)
-                {
-                    <div class="alert alert-success d-flex rounded p-6">
-                        <span class="svg-icon svg-icon-2tx svg-icon-primary me-4">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
-                                <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
-                            </svg>
-                        </span>
-                        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-                            <div class="mb-3 mb-md-0 fw-semibold">
-                                <h4 class="text-gray-900 fw-bold">
-                                    <TL>Your account is secured with 2fa</TL>
-                                </h4>
-                                <div class="fs-6 text-gray-700 pe-7">
-                                    <TL>anyone write a fancy text here?</TL>
-                                </div>
-                            </div>
-
-                            <button @onclick="Disable" class="btn btn-danger px-6 align-self-center text-nowrap">
+        @if (TotpEnabled)
+        {
+            <div class="alert alert-primary d-flex rounded ms-6 me-6 mt-6 mb-8">
+                <table class="w-100">
+                    <tr>
+                        <td rowspan="2">
+                            <span class="svg-icon svg-icon-2tx svg-icon-primary">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
+                                    <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </td>
+                        <td class="w-100">
+                            <h4 class="text-gray-900 fw-bold ms-4">
+                                <TL>Your account is secured with 2fa</TL>
+                            </h4>
+                        </td>
+                        <td rowspan="2">
+                            <a @onclick="Disable" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#twofactorauth">
                                 <TL>Disable</TL>
-                            </button>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="alert alert-primary d-flex rounded p-6">
-                        <span class="svg-icon svg-icon-2tx svg-icon-primary me-4">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
-                                <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
-                            </svg>
-                        </span>
-                        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-                            <div class="mb-3 mb-md-0 fw-semibold">
-                                <h4 class="text-gray-900 fw-bold">
-                                    <TL>Secure your account</TL>
-                                </h4>
-                                <div class="fs-6 text-gray-700 pe-7">
-                                    <TL>2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.</TL>
-                                </div>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fs-6 text-gray-700 pe-7 ms-4">
+                                <TL>anyone write a fancy text here?</TL>
                             </div>
-
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-primary d-flex rounded ms-6 me-6 mt-6 mb-8">
+                <table class="w-100">
+                    <tr>
+                        <td rowspan="2">
+                            <span class="svg-icon svg-icon-2tx svg-icon-primary">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
+                                    <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </td>
+                        <td class="w-100">
+                            <h4 class="text-gray-900 fw-bold ms-4">
+                                <TL>Secure your account</TL>
+                            </h4>
+                        </td>
+                        <td rowspan="2">
                             <a @onclick="Enable" class="btn btn-primary px-6 align-self-center text-nowrap" data-bs-toggle="modal" data-bs-target="#twofactorauth">
                                 <TL>Enable</TL>
                             </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fs-6 text-gray-700 pe-7 ms-4">
+                                <TL>2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.</TL>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        }
+
+        <div class="modal fade" id="twofactorauth" tabindex="-1" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered mw-650px">
+                <div class="modal-content">
+                    <div class="modal-header flex-stack py-6">
+                        <h2 class="ms-3">
+                            <TL>Activate 2fa</TL>
+                        </h2>
+                        <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                            <span class="svg-icon svg-icon-1">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
+                                    <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
+                                </svg>
+                            </span>
                         </div>
                     </div>
-                }
+                    <div class="modal-body scroll-y ps-10 pe-10 pb-10">
+                        <div>
+                            <h3 class="text-dark fw-bold mb-3 mt-2">
+                                <TL>2fa apps</TL>
+                            </h3>
+                            <div class="text-gray-500 fw-semibold fs-6 mb-10">
+                                <TL>Use an app like </TL>
+                                <a href="https://support.google.com/accounts/answer/1066447?hl=en" target="_blank">Google Authenticator</a>,
+                                <a href="https://www.microsoft.com/en-us/account/authenticator" target="_blank">Microsoft Authenticator</a>,
+                                <a href="https://authy.com/download/" target="_blank">Authy</a>, <TL>or</TL>
+                                <a href="https://support.1password.com/one-time-passwords/" target="_blank">1Password</a> <TL>and scan the following QR Code</TL>
+                                @if (EnablingTotp)
+                                {
+                                    <div class="pt-5 text-center">
+                                        @{
+                                            QRCodeGenerator qrGenerator = new QRCodeGenerator();
 
-                <div class="modal fade" id="twofactorauth" tabindex="-1" style="display: none;" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered mw-650px">
-                        <div class="modal-content">
-                            <div class="modal-header flex-stack">
-                                <h2>
-                                    <TL>Activate 2fa</TL>
-                                </h2>
-                                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
-                                    <span class="svg-icon svg-icon-1">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
-                                            <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="modal-body scroll-y pt-10 pb-15 px-lg-17">
-                                <div>
-                                    <h3 class="text-dark fw-bold mb-7">
-                                        <TL>2fa apps</TL>
-                                    </h3>
-                                    <div class="text-gray-500 fw-semibold fs-6 mb-10">
-                                        <TL>Use an app like </TL>
-                                        <a href="https://support.google.com/accounts/answer/1066447?hl=en" target="_blank">Google Authenticator</a>,
-                                        <a href="https://www.microsoft.com/en-us/account/authenticator" target="_blank">Microsoft Authenticator</a>,
-                                        <a href="https://authy.com/download/" target="_blank">Authy</a>, <TL>or</TL>
-                                        <a href="https://support.1password.com/one-time-passwords/" target="_blank">1Password</a> <TL>and scan the following QR Code</TL>
-                                        @if (EnablingTotp)
-                                        {
-                                            <div class="pt-5 text-center">
-                                                @{
-                                                    QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                                            var qrCodeData = qrGenerator.CreateQrCode
+                                                (
+                                                    $"otpauth://totp/{Uri.EscapeDataString(User.Email)}?secret={TotpSecret}&issuer={Uri.EscapeDataString(Issuer)}",
+                                                    QRCodeGenerator.ECCLevel.Q
+                                                );
 
-                                                    var qrCodeData = qrGenerator.CreateQrCode
-                                                        (
-                                                            $"otpauth://totp/{Uri.EscapeDataString(User.Email)}?secret={TotpSecret}&issuer={Uri.EscapeDataString(Issuer)}",
-                                                            QRCodeGenerator.ECCLevel.Q
-                                                        );
-
-                                                    PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
-                                                    byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(20);
-                                                    var base64 = Convert.ToBase64String(qrCodeAsPngByteArr);
-                                                }
-                                                <img src="data:image/png;base64,@(base64)" alt="" class="mw-150px">
-                                            </div>
+                                            PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
+                                            byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(20);
+                                            var base64 = Convert.ToBase64String(qrCodeAsPngByteArr);
                                         }
+                                        <img src="data:image/png;base64,@(base64)" alt="" class="mw-200px mt-2">
                                     </div>
-                                    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed mb-10 p-6">
-                                        <span class="svg-icon svg-icon-2tx svg-icon-warning me-4">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor"></rect>
-                                                <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="currentColor"></rect>
-                                                <rect x="11" y="17" width="2" height="2" rx="1" transform="rotate(-90 11 17)" fill="currentColor"></rect>
-                                            </svg>
-                                        </span>
-                                        <div class="d-flex flex-stack flex-grow-1">
-                                            <div class="fw-semibold">
-                                                <div class="fs-6 text-gray-700">
-                                                    <TL>If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:</TL>
-                                                    <div class="fw-bold text-dark pt-2">@(TotpSecret)</div>
-                                                </div>
-                                            </div>
+                                }
+                            </div>
+                            <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed mb-8 p-6">
+                                <span class="svg-icon svg-icon-2tx svg-icon-warning me-4">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="10" fill="currentColor"></rect>
+                                        <rect x="11" y="14" width="7" height="2" rx="1" transform="rotate(-90 11 14)" fill="currentColor"></rect>
+                                        <rect x="11" y="17" width="2" height="2" rx="1" transform="rotate(-90 11 17)" fill="currentColor"></rect>
+                                    </svg>
+                                </span>
+                                <div class="d-flex flex-stack flex-grow-1">
+                                    <div class="fw-semibold">
+                                        <div class="fs-6 text-gray-700">
+                                            <TL>If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:</TL>
+                                            <div class="fw-bold text-dark pt-2">@(TotpSecret)</div>
                                         </div>
                                     </div>
-
-                                    <a class="btn btn-primary px-6 align-self-center text-nowrap float-end" data-bs-toggle="modal" data-bs-target="#test">
-                                        <TL>Next</TL>
-                                    </a>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="modal fade" id="test" tabindex="-1" style="display: none;" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered mw-650px">
-                        <div class="modal-content">
-                            <div class="modal-header flex-stack">
-                                <h2>
-                                    <TL>Finish activation</TL>
-                                </h2>
-                                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
-                                    <span class="svg-icon svg-icon-1">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
-                                            <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="modal-body scroll-y pt-10 pb-15 px-lg-17">
-                                <div class="text-gray-500 fw-semibold fs-6 mb-10">
-                                    <div class="alert alert-primary d-flex align-items-center p-5 mb-10">
-                                        <i class="bx bx-info-circle fs-2hx text-primary me-4">
-                                            <span class="path1"></span><span class="path2"></span>
-                                        </i>
-                                        <div class="d-flex flex-column">
-                                            <h4 class="mb-1 text-primary">
-                                                <TL>2fa Code requiered</TL>
-                                            </h4>
-                                            <span>In order to finish the activation of 2fa, you need to enter the code your 2fa app shows you.</span>
-                                        </div>
-                                    </div>
-                                    <input type="text" class="form-control form-control-lg form-control-solid" placeholder="@SmartTranslateService.Translate("2fa Code")" @bind="currentTotp"/>
-
-                                    <br/>
-
-                                    <WButton CssClasses="btn btn-primary px-6 align-self-center text-nowrap float-end" WorkingText="@SmartTranslateService.Translate("Saving")" Text="@SmartTranslateService.Translate("Finish")" OnClick="CheckAndSaveTotp">
-                                    </WButton>
-                                </div>
-                            </div>
+                            <a class="btn btn-primary px-6 align-self-center text-nowrap float-end" data-bs-toggle="modal" data-bs-target="#test">
+                                <TL>Next</TL>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card mb-5 mb-xl-10">
-            <div class="card-body border-top p-9">
-                <div class="row mb-6">
-                    <label class="col-lg-4 col-form-label fw-semibold fs-6">
-                        <TL>New password</TL>
-                    </label>
-                    <div class="col-lg-8">
-                        <div class="row">
-                            <div class="col-lg-6 fv-row fv-plugins-icon-container">
-                                <input @bind="Password" type="password" class="form-control form-control-lg form-control-solid">
+        <div class="modal fade" id="test" tabindex="-1" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered mw-650px">
+                <div class="modal-content">
+                    <div class="modal-header flex-stack py-6">
+                        <h2 class="ms-3">
+                            <TL>Finish activation</TL>
+                        </h2>
+                        <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                            <span class="svg-icon svg-icon-1">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="currentColor"></rect>
+                                    <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="currentColor"></rect>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="modal-body scroll-y ps-10 pe-10 pb-10">
+                        <div class="text-gray-500 fw-semibold fs-6 mb-10">
+                            <div class="alert alert-primary d-flex align-items-center p-5 mb-6">
+                                <i class="bx bx-info-circle fs-2hx text-primary me-4">
+                                    <span class="path1"></span><span class="path2"></span>
+                                </i>
+                                <div class="d-flex flex-column">
+                                    <h4 class="mb-1 text-primary">
+                                        <TL>2fa Code requiered</TL>
+                                    </h4>
+                                    <span>In order to finish the activation of 2fa, you need to enter the code your 2fa app shows you.</span>
+                                </div>
                             </div>
-                            <div class="col-lg-6 fv-row fv-plugins-icon-container">
-                                <WButton OnClick="ChangePassword" CssClasses="btn-danger" Text="@SmartTranslateService.Translate("Change")" WorkingText="@SmartTranslateService.Translate("Changing")"></WButton>
-                            </div>
+                            <input type="text" class="form-control form-control-lg form-control-solid mb-0" placeholder="@SmartTranslateService.Translate("2fa Code")" @bind="currentTotp"/>
+
+                            <br/>
+
+                            <WButton CssClasses="btn btn-primary mb-2 align-self-center text-nowrap float-end" WorkingText="@SmartTranslateService.Translate("Saving")" Text="@SmartTranslateService.Translate("Finish")" OnClick="CheckAndSaveTotp">
+                            </WButton>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+
+        <div class="separator mt-2"></div>
+
+        <div class="alert alert-danger d-flex rounded ms-6 me-6 mt-6 mb-8 bg-body">
+            <div class="w-100">
+                <table>
+                    <tr>
+                        <td>
+                            <span class="svg-icon svg-icon-2tx svg-icon-body">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.3" d="M20.5543 4.37824L12.1798 2.02473C12.0626 1.99176 11.9376 1.99176 11.8203 2.02473L3.44572 4.37824C3.18118 4.45258 3 4.6807 3 4.93945V13.569C3 14.6914 3.48509 15.8404 4.4417 16.984C5.17231 17.8575 6.18314 18.7345 7.446 19.5909C9.56752 21.0295 11.6566 21.912 11.7445 21.9488C11.8258 21.9829 11.9129 22 12.0001 22C12.0872 22 12.1744 21.983 12.2557 21.9488C12.3435 21.912 14.4326 21.0295 16.5541 19.5909C17.8169 18.7345 18.8277 17.8575 19.5584 16.984C20.515 15.8404 21 14.6914 21 13.569V4.93945C21 4.6807 20.8189 4.45258 20.5543 4.37824Z" fill="currentColor"></path>
+                                    <path d="M10.5606 11.3042L9.57283 10.3018C9.28174 10.0065 8.80522 10.0065 8.51412 10.3018C8.22897 10.5912 8.22897 11.0559 8.51412 11.3452L10.4182 13.2773C10.8099 13.6747 11.451 13.6747 11.8427 13.2773L15.4859 9.58051C15.771 9.29117 15.771 8.82648 15.4859 8.53714C15.1948 8.24176 14.7183 8.24176 14.4272 8.53714L11.7002 11.3042C11.3869 11.6221 10.874 11.6221 10.5606 11.3042Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </td>
+                        <td class="w-25">
+                            <span class="text-gray-700 fw-semibold fs-6 ms-4 me-2">
+                                <TL>New password</TL>
+                            </span>
+                        </td>
+                        <td class="w-75">
+                            <input @bind="Password" type="password" class="form-control">
+                        </td>
+                        <td class="">
+                            <WButton OnClick="ChangePassword"
+                                     CssClasses="btn-danger ms-4"
+                                     Text="@SmartTranslateService.Translate("Change")"
+                                     WorkingText="@SmartTranslateService.Translate("Changing")">
+                            </WButton>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
     </LazyLoader>
