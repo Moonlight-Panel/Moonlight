@@ -17,6 +17,7 @@
 @inject ServerRepository ServerRepository
 @inject WingsConsoleHelper WingsConsoleHelper
 @inject MessageService MessageService
+@inject NodeService NodeService
 @inject NavigationManager NavigationManager
 
 @implements IDisposable
@@ -26,10 +27,12 @@
     {
         <div class="d-flex justify-content-center flex-center">
             <div class="card">
-                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-25 mx-auto pt-5" alt="Not found image" />
+                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
                 <div class="card-body text-center">
-                    <h4 class="card-title"><TL>Server not found</TL></h4>
-                    <p class="card-text">
+                    <h1 class="card-title">
+                        <TL>Server not found</TL>
+                    </h1>
+                    <p class="card-text fs-4">
                         <TL>A server with that id cannot be found or you have no access for this server</TL>
                     </p>
                 </div>
@@ -38,107 +41,126 @@
     }
     else
     {
-        if (Console.ConnectionState == ConnectionState.Connected)
+        if (NodeOnline)
         {
-            if (Console.ServerState == ServerState.Installing)
+            if (Console.ConnectionState == ConnectionState.Connected)
             {
-                <div class="card">
-                    <div class="card-body">
-                        <div class="mb-10">
-                            <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
-                                <span class="me-2">
-                                    <TL>Server installation is currently running</TL>
-                                </span>
+                if (Console.ServerState == ServerState.Installing)
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-10">
+                                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                                    <span class="me-2">
+                                        <TL>Server installation is currently running</TL>
+                                    </span>
+                                </div>
                             </div>
+                            <Terminal @ref="InstallConsole"></Terminal>
                         </div>
-                        <Terminal @ref="InstallConsole"></Terminal>
                     </div>
-                </div>
-            } 
-            else if (CurrentServer.Installing)
-            {
-                <div class="card">
-                    <div class="card-body">
-                        <div class="mb-10">
-                            <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
-                                <span class="me-2">
-                                    <TL>Server installation is currently running</TL>
-                                </span>
+                }
+                else if (CurrentServer.Installing)
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-10">
+                                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                                    <span class="me-2">
+                                        <TL>Server installation is currently running</TL>
+                                    </span>
+                                </div>
                             </div>
+                            <Terminal @ref="InstallConsole"></Terminal>
                         </div>
-                        <Terminal @ref="InstallConsole"></Terminal>
                     </div>
-                </div>
-            }
-            else
-            {
-                <CascadingValue Value="Console">
-                    <CascadingValue Value="CurrentServer">
-                        <CascadingValue Value="Tags">
-                            <CascadingValue Value="Node">
-                                <CascadingValue Value="Image">
-                                    <CascadingValue Value="NodeAllocation">
-                                        @{
-                                            var index = 0;
+                }
+                else
+                {
+                    <CascadingValue Value="Console">
+                        <CascadingValue Value="CurrentServer">
+                            <CascadingValue Value="Tags">
+                                <CascadingValue Value="Node">
+                                    <CascadingValue Value="Image">
+                                        <CascadingValue Value="NodeAllocation">
+                                            @{
+                                                var index = 0;
 
-                                            switch (Route)
-                                            {
-                                                case "files":
-                                                    index = 1;
-                                                    break;
-                                                case "backups":
-                                                    index = 2;
-                                                    break;
-                                                case "network":
-                                                    index = 3;
-                                                    break;
-                                                case "addons":
-                                                    index = 4;
-                                                    break;
-                                                case "settings":
-                                                    index = 5;
-                                                    break;
-                                                default:
-                                                    index = 0;
-                                                    break;
+                                                switch (Route)
+                                                {
+                                                    case "files":
+                                                        index = 1;
+                                                        break;
+                                                    case "backups":
+                                                        index = 2;
+                                                        break;
+                                                    case "network":
+                                                        index = 3;
+                                                        break;
+                                                    case "addons":
+                                                        index = 4;
+                                                        break;
+                                                    case "settings":
+                                                        index = 5;
+                                                        break;
+                                                    default:
+                                                        index = 0;
+                                                        break;
+                                                }
                                             }
-                                        }
 
-                                        <ServerNavigation Index="index">
-                                            @switch (Route)
-                                            {
-                                                case "files":
-                                                    <ServerFiles></ServerFiles>
-                                                    break;
-                                                case "backups":
-                                                    <ServerBackups></ServerBackups>
-                                                    break;
-                                                case "network":
-                                                    <ServerNetwork></ServerNetwork>
-                                                    break;
-                                                case "addons":
-                                                    <ServerAddons></ServerAddons>
-                                                    break;
-                                                case "settings":
-                                                    <ServerSettings></ServerSettings>
-                                                    break;
-                                                default:
-                                                    <ServerConsole></ServerConsole>
-                                                    break;
-                                            }
-                                        </ServerNavigation>
+                                            <ServerNavigation Index="index">
+                                                @switch (Route)
+                                                {
+                                                    case "files":
+                                                        <ServerFiles></ServerFiles>
+                                                        break;
+                                                    case "backups":
+                                                        <ServerBackups></ServerBackups>
+                                                        break;
+                                                    case "network":
+                                                        <ServerNetwork></ServerNetwork>
+                                                        break;
+                                                    case "addons":
+                                                        <ServerAddons></ServerAddons>
+                                                        break;
+                                                    case "settings":
+                                                        <ServerSettings></ServerSettings>
+                                                        break;
+                                                    default:
+                                                        <ServerConsole></ServerConsole>
+                                                        break;
+                                                }
+                                            </ServerNavigation>
+                                        </CascadingValue>
                                     </CascadingValue>
                                 </CascadingValue>
                             </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
-                </CascadingValue>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <TL>Connecting</TL>
+                </div>
             }
         }
         else
         {
-            <div class="alert alert-info">
-                <TL>Connecting</TL>
+            <div class="d-flex justify-content-center flex-center">
+                <div class="card">
+                    <img src="/assets/media/svg/serverdown.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
+                    <div class="card-body text-center">
+                        <h1 class="card-title">
+                            <TL>Node offline</TL>
+                        </h1>
+                        <p class="card-text fs-4">
+                            <TL>The node the server is running on is currently offline</TL>
+                        </p>
+                    </div>
+                </div>
             </div>
         }
     }
@@ -149,7 +171,7 @@
 
     [Parameter]
     public string ServerUuid { get; set; }
-    
+
     [CascadingParameter]
     public User User { get; set; }
 
@@ -159,6 +181,7 @@
     private PteroConsole? Console;
     private Server? CurrentServer;
     private Node Node;
+    private bool NodeOnline = false;
     private Image Image;
     private NodeAllocation NodeAllocation;
     private string[] Tags;
@@ -205,7 +228,7 @@
                 .Include(x => x.Owner)
                 .First(x => x.Uuid == uuid);
 
-            if (CurrentServer.Owner.Id != User!.Id && User.Admin)
+            if (CurrentServer.Owner.Id != User!.Id && !User.Admin)
                 CurrentServer = null;
         }
         catch (Exception)
@@ -215,28 +238,43 @@
 
         if (CurrentServer != null)
         {
-            await lazyLoader.SetText("Requesting tags");
+            await lazyLoader.SetText("Checking node online status");
 
-            var image = ImageRepository
-                .Get()
-                .First(x => x.Id == CurrentServer.Image.Id);
-
-            Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
-            Image = image;
-
-            await lazyLoader.SetText("Connecting to console");
-
-            await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
-            
-            MessageService.Subscribe<Index, Server>($"server.{CurrentServer.Uuid}.installcomplete", this, server =>
+            try
             {
-                Task.Run(() =>
+                //TODO: Implement status caching
+                var data = await NodeService.GetStatus(CurrentServer.Node);
+
+                if (data != null)
+                    NodeOnline = true;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            if (NodeOnline)
+            {
+                await lazyLoader.SetText("Requesting tags");
+
+                var image = ImageRepository
+                    .Get()
+                    .First(x => x.Id == CurrentServer.Image.Id);
+
+                Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
+                Image = image;
+
+                await lazyLoader.SetText("Connecting to console");
+
+                await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
+
+                MessageService.Subscribe<Index, Server>($"server.{CurrentServer.Uuid}.installcomplete", this, server =>
                 {
-                    NavigationManager.NavigateTo(NavigationManager.Uri);
+                    Task.Run(() => { NavigationManager.NavigateTo(NavigationManager.Uri); });
+
+                    return Task.CompletedTask;
                 });
-                
-                return Task.CompletedTask;
-            });
+            }
         }
         else
         {

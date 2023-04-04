@@ -478,3 +478,7 @@ Enter your information;Enter your information
 You need to enter your full name in order to use moonlight;You need to enter your full name in order to use moonlight
 No node found;No node found
 No node found to deploy to found;No node found to deploy to found
+Node offline;Node offline
+The node the server is running on is currently offline;The node the server is running on is currently offline
+Server not found;Server not found
+A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you have no access for this server

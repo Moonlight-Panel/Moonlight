@@ -30,7 +30,6 @@ public class DataContext : DbContext
     public DbSet<AuditLogEntry> AuditLog { get; set; }
     public DbSet<ErrorLogEntry> ErrorLog { get; set; }
     public DbSet<SecurityLogEntry> SecurityLog { get; set; }
-    public DbSet<Entities.Database> Databases { get; set; }
     public DbSet<SupportMessage> SupportMessages { get; set; }
     
     public DbSet<SharedDomain> SharedDomains { get; set; }
@@ -38,8 +37,6 @@ public class DataContext : DbContext
     public DbSet<Revoke> Revokes { get; set; }
     public DbSet<NotificationClient> NotificationClients { get; set; }
     public DbSet<NotificationAction> NotificationActions { get; set; }
-    public DbSet<AaPanel> AaPanels { get; set; }
-    public DbSet<Website> Websites { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
 

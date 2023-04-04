@@ -1,11 +1,9 @@
 ﻿@page "/"
-@using Moonlight.App.Repositories
+
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Database.Entities
-@using Moonlight.App.Services.Sessions
 
-@inject DatabaseRepository DatabaseRepository
 @inject ServerRepository ServerRepository
 
 <LazyLoader Load="Load">
@@ -246,10 +244,7 @@
 
     private async Task Load(LazyLoader lazyLoader)
     {
-        DatabaseCount = DatabaseRepository
-            .Get()
-            .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id);
+        DatabaseCount = 0;
         
         ServerCount = ServerRepository
             .Get()
