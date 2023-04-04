@@ -3,7 +3,6 @@
 @using Moonlight.App.Repositories
 
 @inject ServerRepository ServerRepository
-@inject DatabaseRepository DatabaseRepository
 @inject UserRepository UserRepository
 
 <OnlyAdmin>
@@ -126,7 +125,7 @@
 
     private Task Load(LazyLoader lazyLoader)
     {
-        DatabaseCount = DatabaseRepository.Get().Count();
+        DatabaseCount = 0;
         ServerCount = ServerRepository.Get().Count();
         UserCount = UserRepository.Get().Count();
 
