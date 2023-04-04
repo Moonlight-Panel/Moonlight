@@ -8,6 +8,7 @@
 
 @inject SmartTranslateService SmartTranslateService
 @inject ServerRepository ServerRepository
+@inject ServerService ServerService
 @inject ImageRepository ImageRepository
 
 <OnlyAdmin>
@@ -197,7 +198,8 @@
 
     private async Task Save()
     {
-        ServerRepository.Update(Server);
+        ServerRepository.Update(Server!);
+        //await ServerService.Sync(Server!); I dont know if we need this, because wings should resync the data while restarting anyway
 
         await LazyLoader.Reload();
     }
