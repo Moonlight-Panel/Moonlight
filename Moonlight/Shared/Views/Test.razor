@@ -27,12 +27,7 @@
 
     private Task Load(LazyLoader arg)
     {
-        var server = ServerRepository
-            .Get()
-            .Include(x => x.Node)
-            .First();
-
-        FileAccess = new WingsFileAccess(WingsApiHelper, WingsJwtHelper, server, ConfigService, User);
+        FileAccess = new FtpFileAccess("vps01.so.host.endelon.link", 21, "example.com", "61P8JZzfjSNyhtZl");
 
         return Task.CompletedTask;
     }
