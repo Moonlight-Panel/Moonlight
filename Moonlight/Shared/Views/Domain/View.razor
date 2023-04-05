@@ -60,7 +60,7 @@
                             <input class="form-control" type="number" placeholder="@(SmartTranslateService.Translate("Priority"))" @bind="NewRecord.Priority"/>
                         </div>
                     </div>
-                    <div class="d-flex">
+                    <div class="d-flex me-2">
                         <div class="mt-3 ms-auto">
                             <WButton Text="@(SmartTranslateService.Translate("Add"))"
                                      WorkingText="@(SmartTranslateService.Translate("Adding"))"
@@ -79,7 +79,7 @@
                                 <div class="separator"></div>
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="heading@(record.Id)">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(record.Id)" aria-expanded="false" aria-controls="collapse@(record.Id)">
+                                        <button class="accordion-button ps-6 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(record.Id)" aria-expanded="false" aria-controls="collapse@(record.Id)">
                                             <div class="row w-100">
                                                 <div class="ms-5 col">
                                                     @(record.Type.ToString().ToUpper())
@@ -103,7 +103,7 @@
                                         </button>
                                     </h2>
                                     <div id="collapse@(record.Id)" class="accordion-collapse collapse" aria-labelledby="heading@(record.Id)" data-bs-parent="#accordionDomain">
-                                        <div class="accordion-body">
+                                        <div class="accordion-body ms-3 me-3">
                                             <div class="w-100 d-flex flex-row justify-content-between align-items-center">
                                                 <div class="p-2">
                                                     <input class="form-control" type="text" value="@(record.Type.ToString().ToUpper())" disabled=""/>
@@ -129,8 +129,8 @@
                                             </div>
                                         </div>
                                         <div class="separator mx-5"></div>
-                                        <div class="accordion-body">
-                                            <div class="d-flex">
+                                        <div class="accordion-body me-0 ms-5">
+                                            <div class="d-flex me-2">
                                                 <div class="me-auto">
                                                     <WButton Text="@(SmartTranslateService.Translate("Delete"))"
                                                              WorkingText="@(SmartTranslateService.Translate("Deleting"))"
@@ -138,9 +138,9 @@
                                                              OnClick="() => Delete(record)">
                                                     </WButton>
                                                 </div>
-                                                <div>
+                                                <div class="me-3 ms-3">
                                                     <button class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#collapse@(record.Id)">
-                                                        <TL>Cancle</TL>
+                                                        <TL>Cancel</TL>
                                                     </button>
                                                     <WButton Text="@(SmartTranslateService.Translate("Save"))"
                                                              WorkingText="@(SmartTranslateService.Translate("Saving"))"
