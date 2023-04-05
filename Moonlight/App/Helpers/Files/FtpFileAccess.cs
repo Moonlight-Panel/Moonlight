@@ -33,7 +33,7 @@ public class FtpFileAccess : FileAccess
         
         var x = new List<FileData>();
         
-        foreach (FtpListItem item in await Client.GetListing(CurrentPath))
+        foreach (FtpListItem item in (await Client.GetListing(CurrentPath)).OrderBy(x => x.Type + " " + x.Name))
         {
             long size = 0;
             
