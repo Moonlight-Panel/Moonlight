@@ -1,0 +1,129 @@
+﻿@page "/website/{Id:int}/{Route?}"
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.WebsiteControl
+@using Microsoft.EntityFrameworkCore
+
+@inject WebsiteRepository WebsiteRepository
+@inject WebsiteService WebsiteService
+
+<LazyLoader Load="Load">
+    @if (CurrentWebsite == null)
+    {
+        <div class="d-flex justify-content-center flex-center">
+            <div class="card">
+                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
+                <div class="card-body text-center">
+                    <h1 class="card-title">
+                        <TL>Website not found</TL>
+                    </h1>
+                    <p class="card-text fs-4">
+                        <TL>A website with that id cannot be found or you have no access for this server</TL>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        if (HostOnline)
+        {
+            <CascadingValue Value="CurrentWebsite">
+                @{
+                    var index = 0;
+
+                    switch (Route)
+                    {
+                        case "files":
+                            index = 1;
+                            break;
+                        case "ftp":
+                            index = 2;
+                            break;
+                        case "databases":
+                            index = 3;
+                            break;
+                        default:
+                            index = 0;
+                            break;
+                    }
+                    
+                    <WebsiteNavigation Index="index" Website="CurrentWebsite" />
+                    
+                    @switch (Route)
+                    {
+                        case "files":
+                            <WebsiteFiles />
+                            break;
+                        case "ftp":
+                            <WebsiteFtp />
+                            break;
+                        case "databases":
+                            break;
+                        default:
+                            <WebsiteDashboard />
+                            break;
+                    }
+                }
+            </CascadingValue>
+        }
+        else
+        {
+            <div class="d-flex justify-content-center flex-center">
+                <div class="card">
+                    <img src="/assets/media/svg/serverdown.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
+                    <div class="card-body text-center">
+                        <h1 class="card-title">
+                            <TL>Host system offline</TL>
+                        </h1>
+                        <p class="card-text fs-4">
+                            <TL>The host system the website is running on is currently offline</TL>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public string? Route { get; set; }
+
+    [CascadingParameter]
+    public User User { get; set; }
+
+    private Website? CurrentWebsite;
+    private bool HostOnline = false;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        CurrentWebsite = WebsiteRepository
+            .Get()
+            .Include(x => x.PleskServer)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (CurrentWebsite != null)
+        {
+            if (CurrentWebsite.Owner.Id != User!.Id && !User.Admin)
+                CurrentWebsite = null;
+        }
+
+        if (CurrentWebsite != null)
+        {
+            await lazyLoader.SetText("Checking host system online status");
+
+            HostOnline = await WebsiteService.IsHostUp(CurrentWebsite);
+
+            if (HostOnline)
+            {
+            }
+        }
+    }
+}

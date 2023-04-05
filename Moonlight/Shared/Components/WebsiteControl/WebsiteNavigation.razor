@@ -1,0 +1,57 @@
+﻿@using Moonlight.App.Database.Entities
+
+<div class="card card-body me-6">
+    <div class="row">
+        <div class="col-8">
+            <div class="d-flex align-items-center">
+                <div class="symbol symbol-circle me-5">
+                    <div class="symbol-label bg-transparent text-primary border border-secondary border-dashed">
+                        <i class="bx bx-globe bx-md"></i>
+                    </div>
+                </div>
+                <div class="d-flex flex-column">
+                    <div class="mb-1 fs-4">@(Website.BaseDomain)</div>
+                    <div class="text-muted fs-5">@(Website.PleskServer.Name)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="separator my-5"></div>
+</div>
+<div class="card mb-5 mb-xl-10">
+    <div class="card-body pt-0 pb-0">
+        <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 0 ? "active" : "")" href="/website/@(Website.Id)">
+                    <TL>Dashboard</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 1 ? "active" : "")" href="/website/@(Website.Id)/files">
+                    <TL>Files</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 2 ? "active" : "")" href="/website/@(Website.Id)/ftp">
+                    <TL>Ftp</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 3 ? "active" : "")" href="/website/@(Website.Id)/databases">
+                    <TL>Databases</TL>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public int Index { get; set; }
+
+    [Parameter]
+    public Website Website { get; set; }
+}

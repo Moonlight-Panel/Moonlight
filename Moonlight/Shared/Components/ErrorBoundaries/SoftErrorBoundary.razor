@@ -36,6 +36,13 @@
                 wingsException.Message
                 );
         }
+        else if (exception is PleskException pleskException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from plesk"),
+                pleskException.Message
+                );
+        }
         else
         {
             throw exception;
