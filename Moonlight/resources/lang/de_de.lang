@@ -482,3 +482,5 @@ Node offline;Node offline
 The node the server is running on is currently offline;The node the server is running on is currently offline
 Server not found;Server not found
 A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you have no access for this server
+Compress;Compress
+Decompress;Decompress
