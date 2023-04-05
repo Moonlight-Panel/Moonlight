@@ -66,7 +66,6 @@
     <Folder Include="App\Http\Middleware" />
     <Folder Include="App\Models\Daemon\Requests" />
     <Folder Include="App\Models\Google\Resources" />
-    <Folder Include="App\Services\DiscordBot\Commands" />
     <Folder Include="resources\lang" />
   </ItemGroup>
 
