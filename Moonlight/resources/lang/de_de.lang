@@ -484,3 +484,6 @@ Server not found;Server not found
 A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you have no access for this server
 Compress;Compress
 Decompress;Decompress
+Moving;Moving
+Compressing;Compressing
+selected;selected
