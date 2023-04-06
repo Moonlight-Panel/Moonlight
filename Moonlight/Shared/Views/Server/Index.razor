@@ -17,7 +17,7 @@
 @inject ServerRepository ServerRepository
 @inject WingsConsoleHelper WingsConsoleHelper
 @inject MessageService MessageService
-@inject NodeService NodeService
+@inject ServerService ServerService
 @inject NavigationManager NavigationManager
 
 @implements IDisposable
@@ -227,9 +227,6 @@
                 .Include(x => x.MainAllocation)
                 .Include(x => x.Owner)
                 .First(x => x.Uuid == uuid);
-
-            if (CurrentServer.Owner.Id != User!.Id && !User.Admin)
-                CurrentServer = null;
         }
         catch (Exception)
         {
@@ -238,20 +235,15 @@
 
         if (CurrentServer != null)
         {
+            if (CurrentServer.Owner.Id != User!.Id && !User.Admin)
+                CurrentServer = null;
+        }
+
+        if (CurrentServer != null)
+        {
             await lazyLoader.SetText("Checking node online status");
 
-            try
-            {
-                //TODO: Implement status caching
-                var data = await NodeService.GetStatus(CurrentServer.Node);
-
-                if (data != null)
-                    NodeOnline = true;
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+            NodeOnline = await ServerService.IsHostUp(CurrentServer);
 
             if (NodeOnline)
             {

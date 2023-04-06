@@ -37,7 +37,7 @@ public class DaemonApiHelper
         {
             if (response.StatusCode != 0)
             {
-                throw new WingsException(
+                throw new DaemonException(
                     $"An error occured: ({response.StatusCode}) {response.Content}",
                     (int)response.StatusCode
                 );

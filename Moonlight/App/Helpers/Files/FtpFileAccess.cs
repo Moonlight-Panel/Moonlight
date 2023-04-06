@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using FluentFTP;
+using Moonlight.App.Exceptions;
 
 namespace Moonlight.App.Helpers.Files;
 
@@ -78,10 +79,10 @@ public class FtpFileAccess : FileAccess
     {
         await EnsureConnect();
 
-        var s = new MemoryStream();
+        var s = new MemoryStream(8 * 1024 * 1204); //TODO: Add config option
         await Client.DownloadStream(s, CurrentPath.TrimEnd('/') + "/" + fileData.Name);
         var data = s.ToArray();
-        s.Dispose();
+        await s.DisposeAsync();
         var str = Encoding.UTF8.GetString(data);
         return str;
     }
@@ -90,11 +91,11 @@ public class FtpFileAccess : FileAccess
     {
         await EnsureConnect();
 
-        var s = new MemoryStream();
+        var s = new MemoryStream(8 * 1024 * 1204); //TODO: Add config option
         s.Write(Encoding.UTF8.GetBytes(content));
         s.Position = 0;
         await Client.UploadStream(s, CurrentPath.TrimEnd('/') + "/" + fileData.Name, FtpRemoteExists.Overwrite);
-        s.Dispose();
+        await s.DisposeAsync();
     }
 
     public override async Task Upload(string name, Stream dataStream, Action<int>? progressUpdated = null)
@@ -103,10 +104,9 @@ public class FtpFileAccess : FileAccess
 
         IProgress<FtpProgress> progress = new Progress<FtpProgress>(x =>
         {
-            progressUpdated((int) x.Progress);
+            progressUpdated?.Invoke((int)x.Progress);
         });
         await Client.UploadStream(dataStream, CurrentPath.TrimEnd('/') + "/" + name, FtpRemoteExists.Overwrite, false, progress);
-        dataStream.Dispose();
     }
 
     public override async Task MkDir(string name)
@@ -121,10 +121,8 @@ public class FtpFileAccess : FileAccess
         return Task.FromResult(CurrentPath);
     }
 
-    public override async Task<string> DownloadUrl(FileData fileData)
+    public override Task<string> DownloadUrl(FileData fileData)
     {
-        await EnsureConnect();
-
         throw new NotImplementedException();
     }
 
@@ -132,8 +130,12 @@ public class FtpFileAccess : FileAccess
     {
         await EnsureConnect();
 
-        var s = new MemoryStream();
-        await Client.DownloadStream(s, CurrentPath.TrimEnd('/') + "/" + fileData.Name);
+        var s = new MemoryStream(8 * 1024 * 1204); //TODO: Add config option
+        var downloaded = await Client.DownloadStream(s, CurrentPath.TrimEnd('/') + "/" + fileData.Name);
+
+        if (!downloaded)
+            throw new DisplayException("Unable to download file");
+        
         return s;
     }
 
@@ -157,17 +159,13 @@ public class FtpFileAccess : FileAccess
             await Client.MoveDirectory(CurrentPath.TrimEnd('/') + "/" + fileData.Name, newPath);
     }
 
-    public override async Task Compress(params FileData[] files)
+    public override Task Compress(params FileData[] files)
     {
-        await EnsureConnect();
-
         throw new NotImplementedException();
     }
 
-    public override async Task Decompress(FileData fileData)
+    public override Task Decompress(FileData fileData)
     {
-        await EnsureConnect();
-
         throw new NotImplementedException();
     }
 

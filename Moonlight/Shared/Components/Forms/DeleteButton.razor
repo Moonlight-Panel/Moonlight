@@ -35,12 +35,7 @@ else
         {
             if (Confirm)
             {
-                var b = await AlertService.YesNo(
-                    SmartTranslateService.Translate("Are you sure?"),
-                    SmartTranslateService.Translate("Do you really want to delete it?"),
-                    SmartTranslateService.Translate("Yes"),
-                    SmartTranslateService.Translate("No")
-                    );
+                var b = await AlertService.ConfirmMath();
 
                 if (b)
                 {

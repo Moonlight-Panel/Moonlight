@@ -1,0 +1,135 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Forms
+@using Moonlight.App.Models.Plesk.Resources
+@using Moonlight.App.Services
+
+@inject SmartTranslateService SmartTranslateService
+@inject WebsiteService WebsiteService
+
+<div class="card card-flush h-xl-100">
+    <LazyLoader @ref="LazyLoader" Load="Load">
+        <div class="card-header">
+            <span class="card-toolbar">
+                <div class="mt-4">
+                    <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
+                        <div class="input-group">
+                            <InputText @bind-Value="Model.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Name"))"></InputText>
+                            <InputText @bind-Value="Model.Password" type="password" class="form-control" placeholder="@(SmartTranslateService.Translate("Password"))"></InputText>
+                            <button class="btn btn-primary" type="submit">
+                                <TL>Create</TL>
+                            </button>
+                        </div>
+                    </SmartForm>
+                </div>
+            </span>
+        </div>
+        <div class="card-body pt-2">
+            @if (Databases.Any())
+            {
+                <div class="accordion" id="databases">
+                    @foreach (var database in Databases)
+                    {
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="databases_header_@(database.Id)">
+                                <button class="accordion-button fs-4 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#databases_body_@(database.Id)">
+                                    @(database.Name) - @(database.Type.ToUpper())
+                                </button>
+                            </h2>
+                            <div id="databases_body_@(database.Id)" class="accordion-collapse collapse" data-bs-parent="#databases">
+                                <div class="accordion-body">
+                                    <div class="mt-7 row fv-row mb-7">
+                                        <div class="col-md-3 text-md-start">
+                                            <label class="fs-6 fw-semibold form-label mt-3">
+                                                <TL>Host</TL>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(Host)">
+                                        </div>
+                                    </div>
+                                    <div class="mt-7 row fv-row mb-7">
+                                        <div class="col-md-3 text-md-start">
+                                            <label class="fs-6 fw-semibold form-label mt-3">
+                                                <TL>Port</TL>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(DatabaseServer.Port)">
+                                        </div>
+                                    </div>
+                                    <div class="mt-7 row fv-row mb-7">
+                                        <div class="col-md-3 text-md-start">
+                                            <label class="fs-6 fw-semibold form-label mt-3">
+                                                <TL>Username</TL>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(database.Name)">
+                                        </div>
+                                    </div>
+                                    <div class="mt-7 row fv-row mb-7">
+                                        <div class="col-md-3 text-md-start">
+                                            <label class="fs-6 fw-semibold form-label mt-3">
+                                                <TL>Database</TL>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(database.Name)">
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <DeleteButton Confirm="true" OnClick="() => DeleteDatabase(database)" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <TL>No databases found for this website</TL>
+                </div>
+            }
+        </div>
+    </LazyLoader>
+
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Website CurrentWebsite { get; set; }
+
+    private LazyLoader LazyLoader;
+    private Database[] Databases;
+    private DatabaseServer DatabaseServer;
+    private string Host;
+
+    private DatabaseDataModel Model = new();
+
+    private async Task Load(LazyLoader arg)
+    {
+        Databases = await WebsiteService.GetDatabases(CurrentWebsite);
+
+        if (Databases.Any())
+        {
+            DatabaseServer = (await WebsiteService.GetDefaultDatabaseServer(CurrentWebsite))!;
+            Host = await WebsiteService.GetHost(CurrentWebsite);
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        await WebsiteService.CreateDatabase(CurrentWebsite, Model.Name, Model.Password);
+        Model = new();
+        await LazyLoader.Reload();
+    }
+
+    private async Task DeleteDatabase(Database database)
+    {
+        await WebsiteService.DeleteDatabase(CurrentWebsite, database);
+        await LazyLoader.Reload();
+    }
+}
