@@ -62,6 +62,7 @@ namespace Moonlight
             builder.Services.AddScoped<SubscriptionRepository>();
             builder.Services.AddScoped<PleskServerRepository>();
             builder.Services.AddScoped<WebsiteRepository>();
+            builder.Services.AddScoped<LoadingMessageRepository>();
 
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
@@ -129,7 +130,6 @@ namespace Moonlight
             builder.Services.AddSingleton<DiscordBotService>();
 
             // Third party services
-
             builder.Services.AddBlazorTable();
             builder.Services.AddSweetAlert2(options => { options.Theme = SweetAlertTheme.Dark; });
             builder.Services.AddBlazorContextMenu();
@@ -157,8 +157,9 @@ namespace Moonlight
             // Support service
             var supportServerService = app.Services.GetRequiredService<SupportServerService>();
             
-            // cleanup service
+            // AutoStart services
             _ = app.Services.GetRequiredService<CleanupService>();
+            _ = app.Services.GetRequiredService<DiscordBotService>();
             
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();

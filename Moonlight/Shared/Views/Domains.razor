@@ -1,2 +1,51 @@
 ﻿@page "/domains"
 
+@using Moonlight.App.Repositories.Domains
+@using Moonlight.App.Database.Entities
+@using Microsoft.EntityFrameworkCore
+@using BlazorTable
+@using Moonlight.App.Services
+@using domain = Moonlight.App.Database.Entities.Domain
+
+@inject DomainRepository DomainRepository
+@inject DomainService DomainService
+@inject SmartTranslateService SmartTranslateService
+
+<LazyLoader Load="Load">
+    @foreach (var domain in domains)
+    {
+        <div class="row px-5 mb-5">
+            <div class="card card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="d-flex align-items-center">
+                            <div class="symbol symbol-50px me-3">
+                                <i class="bx bx-md bx-purchase-tag"></i>
+                            </div>
+                            <div class="d-flex justify-content-start flex-column">
+                                <a href="/domain/@domain.Id" class="text-gray-800 text-hover-primary mb-1 fs-5">@domain.Name.@domain.SharedDomain.Name</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code {
+    [CascadingParameter]
+    public User? User { get; set; }
+    
+    private domain[] domains { get; set; }
+    
+    public async Task Load(LazyLoader loader)
+    {
+        domains = DomainRepository
+            .Get()
+            .Include(x => x.SharedDomain)
+            .Include(x => x.Owner)
+            .Where(x => x.Owner == User)
+            .ToArray();
+    }
+}
