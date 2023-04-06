@@ -96,6 +96,7 @@ namespace Moonlight
             builder.Services.AddScoped<ModalService>();
             builder.Services.AddScoped<SmartDeployService>();
             builder.Services.AddScoped<WebsiteService>();
+            builder.Services.AddScoped<StatisticsViewService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();

@@ -27,7 +27,7 @@ public class StatisticsRepository : IDisposable
 
     public StatisticsData Add(string chart, double value)
     {
-        return Add(new StatisticsData() {Chart = chart, Value = value});
+        return Add(new StatisticsData() {Chart = chart, Value = value, Date = DateTime.Now});
     }
 
     public void Dispose()

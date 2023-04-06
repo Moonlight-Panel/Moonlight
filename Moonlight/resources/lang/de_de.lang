@@ -512,3 +512,8 @@ The name should only contain of lower case characters and numbers;The name shoul
 Error from plesk;Error from plesk
 Host;Host
 Username;Username
+Hour;Hour
+Day;Day
+Month;Month
+Year;Year
+All time;All time
