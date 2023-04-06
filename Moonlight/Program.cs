@@ -16,6 +16,7 @@ using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Notifications;
 using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;
+using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.Support;
 
 namespace Moonlight
@@ -64,6 +65,8 @@ namespace Moonlight
             builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<LoadingMessageRepository>();
 
+            builder.Services.AddScoped<StatisticsRepository>();
+            
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
             builder.Services.AddScoped<SecurityLogEntryRepository>();
@@ -93,6 +96,7 @@ namespace Moonlight
             builder.Services.AddScoped<ModalService>();
             builder.Services.AddScoped<SmartDeployService>();
             builder.Services.AddScoped<WebsiteService>();
+            builder.Services.AddScoped<StatisticsViewService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
@@ -128,6 +132,7 @@ namespace Moonlight
             
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();
+            builder.Services.AddSingleton<StatisticsCaptureService>();
 
             // Third party services
             builder.Services.AddBlazorTable();
@@ -160,6 +165,7 @@ namespace Moonlight
             // AutoStart services
             _ = app.Services.GetRequiredService<CleanupService>();
             _ = app.Services.GetRequiredService<DiscordBotService>();
+            _ = app.Services.GetRequiredService<StatisticsCaptureService>();
             
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
