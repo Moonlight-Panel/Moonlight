@@ -130,10 +130,21 @@ public class WebsiteService
         return false;
     }
     
+    #region Get host
+    
     public async Task<string> GetHost(PleskServer pleskServer)
     {
         return (await PleskApiHelper.Get<ServerStatus>(pleskServer, "server")).Hostname;
     }
+    
+    public async Task<string> GetHost(Website w)
+    {
+        var website = EnsureData(w);
+
+        return await GetHost(website.PleskServer);
+    }
+    
+    #endregion
 
     private async Task<int> GetAdminAccount(PleskServer pleskServer)
     {
@@ -147,6 +158,7 @@ public class WebsiteService
         return user.Id;
     }
 
+    #region SSL
     public async Task<string[]> GetSslCertificates(Website w)
     {
         var website = EnsureData(w);
@@ -241,6 +253,90 @@ public class WebsiteService
             throw new DisplayException("An unknown error occured while disabling ssl certificate");
         }
     }
+    
+    #endregion
+
+    #region Databases
+
+    public async Task<Models.Plesk.Resources.Database[]> GetDatabases(Website w)
+    {
+        var website = EnsureData(w);
+
+        var dbs = await PleskApiHelper.Get<Models.Plesk.Resources.Database[]>(
+            website.PleskServer, 
+            $"databases?domain={w.BaseDomain}"
+        );
+
+        return dbs;
+    }
+
+    public async Task CreateDatabase(Website w, string name, string password)
+    {
+        var website = EnsureData(w);
+
+        var server = await GetDefaultDatabaseServer(website);
+
+        if (server == null)
+            throw new DisplayException("No database server marked as default found");
+
+        var dbReq = new CreateDatabase()
+        {
+            Name = name,
+            Type = "mysql",
+            ParentDomain = new()
+            {
+                Name = website.BaseDomain
+            },
+            ServerId = server.Id
+        };
+
+        var db = await PleskApiHelper.Post<Models.Plesk.Resources.Database>(website.PleskServer, "databases", dbReq);
+
+        if (db == null)
+            throw new DisplayException("Unable to create database via api");
+
+        var dbUserReq = new CreateDatabaseUser()
+        {
+            DatabaseId = db.Id,
+            Login = name,
+            Password = password
+        };
+
+        await PleskApiHelper.Post(website.PleskServer, "dbusers", dbUserReq);
+    }
+
+    public async Task DeleteDatabase(Website w, Models.Plesk.Resources.Database database)
+    {
+        var website = EnsureData(w);
+
+        var dbUsers = await PleskApiHelper.Get<DatabaseUser[]>(
+            website.PleskServer,
+            $"dbusers?dbId={database.Id}"
+        );
+
+        foreach (var dbUser in dbUsers)
+        {
+            await PleskApiHelper.Delete(website.PleskServer, $"dbusers/{dbUser.Id}", null);
+        }
+
+        await PleskApiHelper.Delete(website.PleskServer, $"databases/{database.Id}", null);
+    }
+
+    public async Task<DatabaseServer?> GetDefaultDatabaseServer(PleskServer pleskServer)
+    {
+        var dbServers = await PleskApiHelper.Get<DatabaseServer[]>(pleskServer, "dbservers");
+
+        return dbServers.FirstOrDefault(x => x.IsDefault);
+    }
+
+    public async Task<DatabaseServer?> GetDefaultDatabaseServer(Website w)
+    {
+        var website = EnsureData(w);
+
+        return await GetDefaultDatabaseServer(website.PleskServer);
+    }
+
+    #endregion
 
     public async Task<FileAccess> CreateFileAccess(Website w)
     {

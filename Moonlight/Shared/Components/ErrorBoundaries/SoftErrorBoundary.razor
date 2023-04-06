@@ -43,6 +43,10 @@
                 pleskException.Message
                 );
         }
+        else if (exception is NotImplementedException)
+        {
+            await AlertService.Error(SmartTranslateService.Translate("This function is not implemented"));
+        }
         else
         {
             throw exception;

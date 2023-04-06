@@ -506,3 +506,9 @@ Api url;Api url
 Host system offline;Host system offline
 The host system the website is running on is currently offline;The host system the website is running on is currently offline
 No SSL certificates found;No SSL certificates found
+No databases found for this website;No databases found for this website
+The name should be at least 8 characters long;The name should be at least 8 characters long
+The name should only contain of lower case characters and numbers;The name should only contain of lower case characters and numbers
+Error from plesk;Error from plesk
+Host;Host
+Username;Username
