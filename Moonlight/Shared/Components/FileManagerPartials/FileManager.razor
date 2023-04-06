@@ -166,8 +166,8 @@ else
                     {
                         var stream = await Access.DownloadStream(x);
                         await ToastService.Info(SmartTranslateService.Translate("Starting download"));
-                        await FileService.AddBuffer(stream);
-                        await FileService.DownloadBinaryBuffers(x.Name);
+                        stream.Position = 0;
+                        await FileService.DownloadFile(fileName: x.Name, stream: stream, contentType: "application/octet-stream");
                     }
                     catch (NotImplementedException)
                     {
