@@ -1,14 +1,14 @@
 ﻿@page "/admin/system/resources"
 
-@using Moonlight.Shared.Components.Navigations
 @using Moonlight.Shared.Components.FileManagerPartials
-@using Moonlight.App.Models.Files.Accesses
+@using Moonlight.App.Helpers.Files
+@using Moonlight.Shared.Components.Navigations
 
 <OnlyAdmin>
     <AdminSystemNavigation Index="5" />
     
     <div class="card card-body">
-        <FileManager FileAccess="@(new HostFileAccess("resources"))">
+        <FileManager Access="@(new HostFileAccess("resources"))">
         </FileManager>        
     </div>
 </OnlyAdmin>
