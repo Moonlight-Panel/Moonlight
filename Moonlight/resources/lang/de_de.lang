@@ -512,4 +512,9 @@ The name should only contain of lower case characters and numbers;The name shoul
 Error from plesk;Error from plesk
 Host;Host
 Username;Username
+Hour;Hour
+Day;Day
+Month;Month
+Year;Year
+All time;All time
 SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one;SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one
