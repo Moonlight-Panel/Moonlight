@@ -69,7 +69,7 @@ public class UserService
             State = "",
             Status = UserStatus.Unverified,
             CreatedAt = DateTime.UtcNow,
-            DiscordId = -1,
+            DiscordId = 0,
             TotpEnabled = false,
             TotpSecret = "",
             UpdatedAt = DateTime.UtcNow,
