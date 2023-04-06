@@ -7,7 +7,7 @@
 @using Moonlight.App.Services
 
 @inject ServerRepository ServerRepository
-@inject WingsApiHelper WingsApiHelper
+@inject ServerService ServerService
 @inject SmartTranslateService SmartTranslateService
 
 <div class="col">
@@ -42,14 +42,9 @@
     private FileSelectModal FileSelectModal;
     private LazyLoader LazyLoader;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Access = new WingsFileAccess(WingsApiHelper,
-            null!,
-            CurrentServer,
-            null!,
-            null!
-        );
+        Access = await ServerService.CreateFileAccess(CurrentServer, null!);
     }
 
     private async Task Load(LazyLoader lazyLoader)
