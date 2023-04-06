@@ -3,8 +3,12 @@
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Domains
 
 @inject ServerRepository ServerRepository
+@inject WebsiteRepository WebsiteRepository
+@inject DomainRepository DomainRepository
 
 <LazyLoader Load="Load">
 <div class="row mb-5">
@@ -38,7 +42,7 @@
                             <TL>Websites</TL>
                         </h6>
                         <span class="h2 mb-0">
-                            0
+                            @(WebsiteCount)
                         </span>
                     </div>
                     <div class="col-auto">
@@ -51,27 +55,6 @@
         </a>
     </div>
     <div class="col-12 col-lg-6 col-xl">
-        <div class="mt-4 card" href="/databases">
-            <div class="card-body">
-                <div class="row align-items-center gx-0">
-                    <div class="col">
-                        <h6 class="text-uppercase text-muted mb-2">
-                            <TL>Databases</TL>
-                        </h6>
-                        <span class="h2 mb-0">
-                            @(DatabaseCount)
-                        </span>
-                    </div>
-                    <div class="col-auto">
-                        <span class="h2 text-muted mb-0">
-                            <i class="text-primary bx bx-data bx-lg"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-6 col-xl">
         <a class="mt-4 card" href="/domains">
             <div class="card-body">
                 <div class="row align-items-center gx-0">
@@ -80,7 +63,7 @@
                             <TL>Domains</TL>
                         </h6>
                         <span class="h2 mb-0">
-                            0
+                            @(DomainCount)
                         </span>
                     </div>
                     <div class="col-auto">
@@ -115,20 +98,6 @@
                     </a>
                     <span class="text-gray-400 fw-semibold d-block fs-6">
                         <TL>A new gameserver in just a few minutes</TL>
-                    </span>
-                </div>
-            </div>
-            <div class="separator mb-2 mt-2"></div>
-            <div class="d-flex align-items-center">
-                <div class="symbol symbol-50px me-3">
-                    <i class="bx bx-md bx-data"></i>
-                </div>
-                <div class="d-flex justify-content-start flex-column">
-                    <a href="/databases/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
-                        <TL>Create a database</TL>
-                    </a>
-                    <span class="text-gray-400 fw-semibold d-block fs-6">
-                        <TL>A quick way to store your data and manage it from all around the world</TL>
                     </span>
                 </div>
             </div>
@@ -190,20 +159,6 @@
             <div class="separator mb-2 mt-2"></div>
             <div class="d-flex align-items-center">
                 <div class="symbol symbol-50px me-3">
-                    <i class="bx bx-md bx-data"></i>
-                </div>
-                <div class="d-flex justify-content-start flex-column">
-                    <a href="/databases" class="text-gray-800 text-hover-primary mb-1 fs-5">
-                        <TL>Manage your databases</TL>
-                    </a>
-                    <span class="text-gray-400 fw-semibold d-block fs-6">
-                        <TL>Insert, delete and update the data in your databases</TL>
-                    </span>
-                </div>
-            </div>
-            <div class="separator mb-2 mt-2"></div>
-            <div class="d-flex align-items-center">
-                <div class="symbol symbol-50px me-3">
                     <i class="bx bx-md bx-globe"></i>
                 </div>
                 <div class="d-flex justify-content-start flex-column">
@@ -239,16 +194,27 @@
     [CascadingParameter]
     public User User { get; set; }
     
-    private int DatabaseCount = 0;
     private int ServerCount = 0;
+    private int DomainCount = 0;
+    private int WebsiteCount = 0;
 
-    private async Task Load(LazyLoader lazyLoader)
+    private Task Load(LazyLoader lazyLoader)
     {
-        DatabaseCount = 0;
-        
         ServerCount = ServerRepository
             .Get()
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id);
+
+        DomainCount = DomainRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Count(x => x.Owner.Id == User.Id);
+
+        WebsiteCount = WebsiteRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Count(x => x.Owner.Id == User.Id);
+        
+        return Task.CompletedTask;
     }
 }
