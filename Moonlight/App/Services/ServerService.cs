@@ -29,6 +29,7 @@ public class ServerService
     private readonly SecurityLogService SecurityLogService;
     private readonly AuditLogService AuditLogService;
     private readonly ErrorLogService ErrorLogService;
+    private readonly NodeService NodeService;
 
     public ServerService(
         ServerRepository serverRepository,
@@ -42,7 +43,8 @@ public class ServerService
         WingsJwtHelper wingsJwtHelper,
         SecurityLogService securityLogService,
         AuditLogService auditLogService,
-        ErrorLogService errorLogService)
+        ErrorLogService errorLogService,
+        NodeService nodeService)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -56,6 +58,7 @@ public class ServerService
         SecurityLogService = securityLogService;
         AuditLogService = auditLogService;
         ErrorLogService = errorLogService;
+        NodeService = nodeService;
     }
 
     private Server EnsureNodeData(Server s)
@@ -253,15 +256,13 @@ public class ServerService
 
         if (n == null)
         {
-            node = NodeRepository.Get().Include(x => x.Allocations).First(); //TODO: Smart deploy
-        }
-        else
-        {
             node = NodeRepository
                 .Get()
                 .Include(x => x.Allocations)
                 .First(x => x.Id == n.Id);
         }
+        else
+            node = n;
 
         NodeAllocation freeAllo;
 
@@ -394,5 +395,12 @@ public class ServerService
         await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
         
         ServerRepository.Delete(s);
+    }
+
+    public async Task<bool> IsHostUp(Server s)
+    {
+        var server = EnsureNodeData(s);
+
+        return await NodeService.IsHostUp(server.Node);
     }
 }

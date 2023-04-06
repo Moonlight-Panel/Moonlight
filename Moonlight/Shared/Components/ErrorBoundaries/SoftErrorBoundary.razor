@@ -36,6 +36,17 @@
                 wingsException.Message
                 );
         }
+        else if (exception is PleskException pleskException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from plesk"),
+                pleskException.Message
+                );
+        }
+        else if (exception is NotImplementedException)
+        {
+            await AlertService.Error(SmartTranslateService.Translate("This function is not implemented"));
+        }
         else
         {
             throw exception;

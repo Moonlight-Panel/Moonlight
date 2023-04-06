@@ -41,4 +41,22 @@ public class NodeService
     {
         return await DaemonApiHelper.Get<ContainerStats>(node, "stats/container");
     }
+
+    public async Task<bool> IsHostUp(Node node)
+    {
+        try
+        {
+            //TODO: Implement status caching
+            var data = await GetStatus(node);
+
+            if (data != null)
+                return true;
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
+        return false;
+    }
 }

@@ -39,6 +39,8 @@ public class DataContext : DbContext
     public DbSet<NotificationAction> NotificationActions { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<PleskServer> PleskServers { get; set; }
+    public DbSet<Website> Websites { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
