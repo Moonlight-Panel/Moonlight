@@ -4,9 +4,11 @@
 @using Moonlight.App.Services
 @using Moonlight.Shared.Components.WebsiteControl
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Interop
 
 @inject WebsiteRepository WebsiteRepository
 @inject WebsiteService WebsiteService
+@inject ToastService ToastService
 
 <LazyLoader Load="Load">
     @if (CurrentWebsite == null)

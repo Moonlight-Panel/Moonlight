@@ -15,11 +15,20 @@
     <div class="col-xl-8 mb-5 mb-xl-10">
         <div class="card card-flush h-xl-100">
             <div class="card-body pt-2">
-                <LazyLoader Load="Load">
+                <LazyLoader @ref="LazyLoader" Load="Load">
                     <div class="row mt-5">
                         <div class="card border">
                             <div class="card-header">
-                                <span class="card-title"><TL>SSL certificates</TL></span>
+                                <span class="card-title">
+                                    <TL>SSL certificates</TL>
+                                </span>
+                                <div class="card-toolbar">
+                                    <WButton Text="@(SmartTranslateService.Translate("Issue certificate"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
+                                             CssClasses="btn-success"
+                                             OnClick="CreateCertificate">
+                                    </WButton>
+                                </div>
                             </div>
                             <div class="card-body">
                                 @if (Certs.Any())
@@ -47,11 +56,6 @@
                                                     <span class="text-dark fw-bold fs-6">@(cert)</span>
                                                 </td>
                                                 <td class="text-end">
-                                                    <WButton Text="@(SmartTranslateService.Translate("Use"))"
-                                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
-                                                             CssClasses="btn btn-light"
-                                                             OnClick="() => UseCertificate(cert)">
-                                                    </WButton>
                                                     <WButton Text="@(SmartTranslateService.Translate("Delete"))"
                                                              WorkingText="@(SmartTranslateService.Translate("Working"))"
                                                              CssClasses="btn btn-danger"
@@ -66,7 +70,7 @@
                                 else
                                 {
                                     <div class="alert alert-warning">
-                                        <TL>No SSL certificate found</TL>
+                                        <TL>No SSL certificates found</TL>
                                     </div>
                                 }
                             </div>
@@ -85,17 +89,23 @@
 
     private string[] Certs;
 
+    private LazyLoader LazyLoader;
+
     private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Loading certificates");
         Certs = await WebsiteService.GetSslCertificates(CurrentWebsite);
     }
 
-    private async Task UseCertificate(string name)
+    private async Task CreateCertificate()
     {
+        await WebsiteService.CreateSslCertificate(CurrentWebsite);
+        await LazyLoader.Reload();
     }
 
     private async Task DeleteCertificate(string name)
     {
+        await WebsiteService.DeleteSslCertificate(CurrentWebsite, name);
+        await LazyLoader.Reload();
     }
 }

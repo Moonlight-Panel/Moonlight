@@ -16,12 +16,14 @@ public class WebsiteService
     private readonly WebsiteRepository WebsiteRepository;
     private readonly PleskServerRepository PleskServerRepository;
     private readonly PleskApiHelper PleskApiHelper;
+    private readonly UserRepository UserRepository;
 
-    public WebsiteService(WebsiteRepository websiteRepository, PleskApiHelper pleskApiHelper, PleskServerRepository pleskServerRepository)
+    public WebsiteService(WebsiteRepository websiteRepository, PleskApiHelper pleskApiHelper, PleskServerRepository pleskServerRepository, UserRepository userRepository)
     {
         WebsiteRepository = websiteRepository;
         PleskApiHelper = pleskApiHelper;
         PleskServerRepository = pleskServerRepository;
+        UserRepository = userRepository;
     }
 
     public async Task<Website> Create(string baseDomain, User owner, PleskServer? ps = null)
@@ -149,8 +151,6 @@ public class WebsiteService
     {
         var website = EnsureData(w);
         var certs = new List<string>();
-        
-        Logger.Debug("1");
 
         var data = await ExecuteCli(website.PleskServer, "certificate", p =>
         {
@@ -158,9 +158,7 @@ public class WebsiteService
             p.Add("-domain");
             p.Add(w.BaseDomain);
         });
-        
-        Logger.Debug("2");
-        
+
         string[] lines = data.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
         
         foreach (string line in lines)
@@ -169,11 +167,6 @@ public class WebsiteService
             {
                 string[] parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
-                foreach (var part in parts)
-                {
-                    Logger.Debug(part);
-                }
-                
                 if(parts.Length > 6)
                     certs.Add($"{parts[4]} {parts[5]} {parts[6]}");
             }
@@ -187,9 +180,66 @@ public class WebsiteService
         return certs.ToArray();
     }
 
-    public async Task CreateSslCertificate()
+    public async Task CreateSslCertificate(Website w)
     {
-        
+        var website = EnsureData(w);
+
+        await ExecuteCli(website.PleskServer, "extension", p =>
+        {
+            p.Add("--exec");
+            p.Add("letsencrypt");
+            p.Add("cli.php");
+            p.Add("-d");
+            p.Add(website.BaseDomain);
+            p.Add("-m");
+            p.Add(website.Owner.Email);
+        });
+    }
+
+    public async Task DeleteSslCertificate(Website w, string name)
+    {
+        var website = EnsureData(w);
+
+        try
+        {
+            await ExecuteCli(website.PleskServer, "site", p =>
+            {
+                p.Add("-u");
+                p.Add(website.BaseDomain);
+                p.Add("-ssl");
+                p.Add("false");
+            });
+
+            try
+            {
+                await ExecuteCli(website.PleskServer, "certificate", p =>
+                {
+                    p.Add("--remove");
+                    p.Add(name);
+                    p.Add("-domain");
+                    p.Add(website.BaseDomain);
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Warn("Error removing ssl certificate");
+                Logger.Warn(e);
+
+                throw new DisplayException("An unknown error occured while removing ssl certificate");
+            }
+        }
+        catch (DisplayException)
+        {
+            // Redirect all display exception to soft error handler
+            throw;
+        }
+        catch (Exception e)
+        {
+            Logger.Warn("Error disabling ssl certificate");
+            Logger.Warn(e);
+
+            throw new DisplayException("An unknown error occured while disabling ssl certificate");
+        }
     }
 
     public async Task<FileAccess> CreateFileAccess(Website w)
@@ -225,10 +275,11 @@ public class WebsiteService
 
     private Website EnsureData(Website website)
     {
-        if (website.PleskServer == null)
+        if (website.PleskServer == null || website.Owner == null)
             return WebsiteRepository
                 .Get()
                 .Include(x => x.PleskServer)
+                .Include(x => x.Owner)
                 .First(x => x.Id == website.Id);
         
         return website;

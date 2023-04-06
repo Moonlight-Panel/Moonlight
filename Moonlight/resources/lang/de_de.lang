@@ -500,3 +500,9 @@ Ftp Password;Ftp Password
 Use;Use
 SSL Certificates;SSL Certificates
 SSL certificates;SSL certificates
+Issue certificate;Issue certificate
+New plesk server;New plesk server
+Api url;Api url
+Host system offline;Host system offline
+The host system the website is running on is currently offline;The host system the website is running on is currently offline
+No SSL certificates found;No SSL certificates found
