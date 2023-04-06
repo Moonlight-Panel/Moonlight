@@ -7,8 +7,6 @@
 @inject SmartTranslateService SmartTranslateService
 @inject AlertService AlertService
 @inject ToastService ToastService
-@inject WingsApiHelper WingsApiHelper
-@inject ConfigService ConfigService
 @inject ServerService ServerService
 
 <WButton Text="@(SmartTranslateService.Translate("Reset"))"
@@ -34,14 +32,8 @@
         if (b)
         {
             await ToastService.CreateProcessToast("serverReset", SmartTranslateService.Translate("Resetting server"));
-            
-            var access = new WingsFileAccess(
-                WingsApiHelper, 
-                null!,
-                CurrentServer,
-                ConfigService,
-                null!
-            );
+
+            var access = await ServerService.CreateFileAccess(CurrentServer, null!);
 
             var files = await access.Ls();
 
