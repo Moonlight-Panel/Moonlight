@@ -525,3 +525,9 @@ Invalid or expired subscription code;Invalid or expired subscription code
 Current subscription;Current subscription
 You need to specify a server image;You need to specify a server image
 CPU;CPU
+Hour;Hour
+Day;Day
+Month;Month
+Year;Year
+All time;All time
+This function is not implemented;This function is not implemented

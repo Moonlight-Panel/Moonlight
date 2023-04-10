@@ -115,7 +115,7 @@ public class DiscordOAuth2Service
             Email = getData.GetValue<string>("email"),
             FirstName = "User",
             LastName = "User",
-            DiscordId = getData.GetValue<long>("id"),
+            DiscordId = getData.GetValue<ulong>("id"),
             Status = UserStatus.DataPending
         };
     }

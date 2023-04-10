@@ -37,7 +37,7 @@ public class User
     public DateTime TokenValidTime { get; set; } = DateTime.Now;
     
     // Discord
-    public long DiscordId { get; set; } = -1;
+    public ulong DiscordId { get; set; }
     
     // Date stuff
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
