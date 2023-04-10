@@ -10,12 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor-ApexCharts" Version="0.9.16-beta" />
-    <PackageReference Include="aaPanelSharp" Version="1.0.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="Blazor.ContextMenu" Version="1.15.0" />
     <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
-    <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
     <PackageReference Include="BlazorMonaco" Version="2.1.0" />
     <PackageReference Include="BlazorTable" Version="1.17.0" />
     <PackageReference Include="CloudFlare.Client" Version="6.1.4" />
@@ -25,6 +23,7 @@
     <PackageReference Include="GravatarSharp.Core" Version="1.0.1.2" />
     <PackageReference Include="JWT" Version="10.0.2" />
     <PackageReference Include="Logging.Net" Version="1.1.0" />
+    <PackageReference Include="Mappy.Net" Version="1.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
