@@ -1,0 +1,138 @@
+﻿@page "/websites/create"
+@using Moonlight.App.Services
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Forms
+@using Moonlight.App.Repositories
+
+@inject SubscriptionService SubscriptionService
+@inject WebsiteService WebsiteService
+@inject WebsiteRepository WebsiteRepository
+@inject SmartDeployService SmartDeployService
+@inject SmartTranslateService SmartTranslateService
+@inject NavigationManager NavigationManager
+
+<LazyLoader Load="Load">
+    @if (PleskServer == null)
+    {
+        <div class="d-flex justify-content-center flex-center">
+            <div class="card">
+                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-25 mx-auto pt-5" alt="Not found image"/>
+                <div class="card-body text-center">
+                    <h4 class="card-title">
+                        <TL>No plesk server found</TL>
+                    </h4>
+                    <p class="card-text">
+                        <TL>No plesk server found to deploy to</TL>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column flex-lg-row">
+            <div class="w-100 flex-lg-row-auto w-lg-300px mb-7 me-7 me-lg-10">
+                <div class="card card-flush py-4">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2>
+                                <TL>Website details</TL>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="d-flex flex-column gap-10">
+                            <div class="fv-row">
+                                <label class="form-label">
+                                    <TL>Plesk server</TL>
+                                </label>
+                                <div class="fw-bold fs-3">@(PleskServer.Name)</div>
+                            </div>
+                            @if (AllowOrder)
+                            {
+                                <div class="fv-row">
+                                    <label class="form-label">
+                                        <TL>Domain</TL>
+                                    </label>
+                                    <div class="fw-bold fs-3">@(Model.BaseDomain)</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex flex-column flex-lg-row-fluid gap-7 gap-lg-10">
+                <div class="card card-flush py-4">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h2>
+                                <TL>Configure your website</TL>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
+                            @if (AllowOrder)
+                            {
+                                <label class="form-label">
+                                    <TL>Domain</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <InputText @bind-Value="Model.BaseDomain" class="form-control"></InputText>
+                                </div>
+                                
+                                <button type="submit" class="mt-5 float-end btn btn-primary">
+                                    <TL>Create</TL>
+                                </button>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning d-flex align-items-center p-5 mb-10">
+                                    <span>
+                                        <TL>You reached the maximum amount of websites in your subscription</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
+                                    </span>
+                                </div>
+                            }
+                        </SmartForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter]
+    public User User { get; set; }
+
+    private Subscription? Subscription;
+    private PleskServer? PleskServer;
+    private bool AllowOrder = false;
+
+    private WebsiteOrderDataModel Model = new();
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+    // Reset state
+        Model = new();
+
+        await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
+        Subscription = await SubscriptionService.GetCurrent();
+
+        await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy plesk server"));
+        PleskServer = await SmartDeployService.GetPleskServer();
+
+        AllowOrder = WebsiteRepository.Get().Count() < (await SubscriptionService.GetLimit("websites")).Amount;
+    }
+
+    private async Task OnValidSubmit()
+    {
+        if (WebsiteRepository.Get().Count() < (await SubscriptionService.GetLimit("websites")).Amount)
+        {
+            var website = await WebsiteService.Create(Model.BaseDomain, User, PleskServer);
+
+            NavigationManager.NavigateTo($"/website/{website.Id}");
+        }
+    }
+}
