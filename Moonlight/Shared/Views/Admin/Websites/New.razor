@@ -2,7 +2,6 @@
 
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Services
-@using Blazored.Typeahead
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Repositories
 
@@ -24,15 +23,11 @@
                     <TL>Owner</TL>
                 </label>
                 <div class="input-group mb-5">
-                    <BlazoredTypeahead SearchMethod="SearchUsers"
-                                       @bind-Value="Model.User">
-                        <SelectedTemplate>
-                            @(context.Email)
-                        </SelectedTemplate>
-                        <ResultTemplate>
-                            @(context.Email)
-                        </ResultTemplate>
-                    </BlazoredTypeahead>
+                    <SmartDropdown @bind-Value="Model.User"
+                                   Items="Users"
+                                   DisplayFunc="@(x => x.Email)"
+                                   SearchProp="@(x => x.Email)">
+                    </SmartDropdown>
                 </div>
                 <div>
                     <button type="submit" class="btn btn-primary float-end">
@@ -63,17 +58,5 @@
             .ToArray();
 
         return Task.CompletedTask;
-    }
-
-    private Task<IEnumerable<User>> SearchUsers(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-        {
-            return Task.FromResult(Array.Empty<User>().Cast<User>());
-        }
-        else
-        {
-            return Task.FromResult(Users.Where(x => x.Email.ToLower().StartsWith(input)));
-        }
     }
 }

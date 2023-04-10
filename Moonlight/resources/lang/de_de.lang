@@ -513,3 +513,15 @@ Error from plesk;Error from plesk
 Host;Host
 Username;Username
 SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one;SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one
+The User field is required.;The User field is required.
+You need to specify a owner;You need to specify a owner
+You need to specify a image;You need to specify a image
+Api Url;Api Url
+Api Key;Api Key
+Duration;Duration
+Enter duration of subscription;Enter duration of subscription
+Copied code to clipboard;Copied code to clipboard
+Invalid or expired subscription code;Invalid or expired subscription code
+Current subscription;Current subscription
+You need to specify a server image;You need to specify a server image
+CPU;CPU

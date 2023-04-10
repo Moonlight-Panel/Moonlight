@@ -46,7 +46,7 @@ public class WingsServerConverter
         }
         
         // Build
-        wingsServer.Settings.Build.Swap = server.Memory * 2;
+        wingsServer.Settings.Build.Swap = server.Memory * 2; //TODO: Add config option
         wingsServer.Settings.Build.Threads = null!;
         wingsServer.Settings.Build.Cpu_Limit = server.Cpu;
         wingsServer.Settings.Build.Disk_Space = server.Disk;

@@ -1,0 +1,93 @@
+﻿@typeparam T
+@using Logging.Net
+@inherits InputBase<T>
+
+<div class="dropdown w-100">
+    <div class="input-group">
+        @if (CurrentValue == null)
+        {
+            <input class="form-control" type="text" @bind-value="SearchTerm" @bind-value:event="oninput" placeholder="Search...">
+        }
+        else
+        {
+            <input class="form-control" type="text" value="@(DisplayFunc(CurrentValue))">
+            <button class="btn btn-primary" @onclick="() => SelectItem(default(T)!)">
+                <i class="bx bx-md bx-x"></i>
+            </button>
+        }
+    </div>
+
+    @{
+        var anyItems = FilteredItems.Any();
+    }
+
+    <div class="dropdown-menu w-100 @(anyItems ? "show" : "")" style="max-height: 200px; overflow-y: auto;">
+        @if (anyItems)
+        {
+            foreach (var item in FilteredItems)
+            {
+                <button class="dropdown-item py-2" type="button" @onclick="(() => SelectItem(item))">@DisplayFunc(item)</button>
+            }
+        }
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public IEnumerable<T> Items { get; set; }
+
+    [Parameter]
+    public Func<T, string> DisplayFunc { get; set; }
+
+    [Parameter]
+    public Func<T, string> SearchProp { get; set; }
+
+    private string SearchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            FilteredItems = Items.Where(i => SearchProp(i).Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+            searchTerm = value;
+        }
+    }
+
+    private string searchTerm = "";
+
+    private List<T> FilteredItems = new();
+
+    private void SelectItem(T item)
+    {
+        CurrentValue = item;
+        SearchTerm = "";
+        FilteredItems.Clear();
+    }
+
+    protected override bool TryParseValueFromString(string? value, out T result, out string? validationErrorMessage)
+    {
+    // Check if the value is null or empty
+        if (string.IsNullOrEmpty(value))
+        {
+            result = default(T)!;
+            validationErrorMessage = "Value cannot be null or empty";
+            return false;
+        }
+
+    // Try to find an item that matches the search term
+        var item = FilteredItems.FirstOrDefault(i => SearchProp(i).Equals(value, StringComparison.OrdinalIgnoreCase));
+        if (item != null)
+        {
+            result = item;
+            validationErrorMessage = null;
+            return true;
+        }
+        else
+        {
+            result = default(T)!;
+            validationErrorMessage = $"No item found for search term '{value}'";
+            return false;
+        }
+    }
+
+}
