@@ -1,29 +1,29 @@
-﻿@page "/websites/create"
+﻿@page "/domains/create"
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Forms
-@using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Domains
 @using Microsoft.EntityFrameworkCore
 
 @inject SubscriptionService SubscriptionService
-@inject WebsiteService WebsiteService
-@inject WebsiteRepository WebsiteRepository
-@inject SmartDeployService SmartDeployService
-@inject SmartTranslateService SmartTranslateService
+@inject DomainService DomainService
+@inject DomainRepository DomainRepository
+@inject SharedDomainRepository SharedDomainRepository
 @inject NavigationManager NavigationManager
+@inject SmartTranslateService SmartTranslateService
 
 <LazyLoader Load="Load">
-    @if (PleskServer == null)
+    @if (!SharedDomains.Any())
     {
         <div class="d-flex justify-content-center flex-center">
             <div class="card">
                 <img src="/assets/media/svg/nodata.svg" class="card-img-top w-25 mx-auto pt-5" alt="Not found image"/>
                 <div class="card-body text-center">
                     <h4 class="card-title">
-                        <TL>No plesk server found</TL>
+                        <TL>No shared domain found</TL>
                     </h4>
                     <p class="card-text">
-                        <TL>No plesk server found to deploy to</TL>
+                        <TL>No shared domain found</TL>
                     </p>
                 </div>
             </div>
@@ -37,25 +37,25 @@
                     <div class="card-header">
                         <div class="card-title">
                             <h2>
-                                <TL>Website details</TL>
+                                <TL>Domain details</TL>
                             </h2>
                         </div>
                     </div>
                     <div class="card-body pt-0">
                         <div class="d-flex flex-column gap-10">
-                            <div class="fv-row">
-                                <label class="form-label">
-                                    <TL>Plesk server</TL>
-                                </label>
-                                <div class="fw-bold fs-3">@(PleskServer.Name)</div>
-                            </div>
                             @if (AllowOrder)
                             {
                                 <div class="fv-row">
                                     <label class="form-label">
-                                        <TL>Domain</TL>
+                                        <TL>Name</TL>
                                     </label>
-                                    <div class="fw-bold fs-3">@(Model.BaseDomain)</div>
+                                    <div class="fw-bold fs-3">@(Model.Name)</div>
+                                </div>
+                                <div class="fv-row">
+                                    <label class="form-label">
+                                        <TL>Shared domain</TL>
+                                    </label>
+                                    <div class="fw-bold fs-3">@(Model.SharedDomain == null ? "" : Model.SharedDomain.Name)</div>
                                 </div>
                             }
                         </div>
@@ -67,7 +67,7 @@
                     <div class="card-header">
                         <div class="card-title">
                             <h2>
-                                <TL>Configure your website</TL>
+                                <TL>Configure your domain</TL>
                             </h2>
                         </div>
                     </div>
@@ -79,7 +79,17 @@
                                     <TL>Domain</TL>
                                 </label>
                                 <div class="input-group mb-5">
-                                    <InputText @bind-Value="Model.BaseDomain" class="form-control"></InputText>
+                                    <InputText @bind-Value="Model.Name" class="form-control"></InputText>
+                                </div>
+                                
+                                <div class="mb-5">
+                                    <label class="form-label">
+                                        <TL>Shared domain</TL>
+                                    </label>
+                                    <SmartSelect @bind-Value="Model.SharedDomain"
+                                                 Items="SharedDomains"
+                                                 DisplayField="@(x => x.Name)">
+                                    </SmartSelect>
                                 </div>
                                 
                                 <button type="submit" class="mt-5 float-end btn btn-primary">
@@ -90,7 +100,7 @@
                             {
                                 <div class="alert alert-warning d-flex align-items-center p-5 mb-10">
                                     <span>
-                                        <TL>You reached the maximum amount of websites in your subscription</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
+                                        <TL>You reached the maximum amount of domains in your subscription</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
                                     </span>
                                 </div>
                             }
@@ -106,37 +116,41 @@
 {
     [CascadingParameter]
     public User User { get; set; }
-
+    
+    private SharedDomain[] SharedDomains;
+    
     private Subscription? Subscription;
-    private PleskServer? PleskServer;
+
     private bool AllowOrder = false;
 
-    private WebsiteOrderDataModel Model = new();
+    private DomainOrderDataModel Model = new();
 
     private async Task Load(LazyLoader lazyLoader)
     {
-    // Reset state
         Model = new();
-
+        
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
         Subscription = await SubscriptionService.GetCurrent();
-
-        await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy plesk server"));
-        PleskServer = await SmartDeployService.GetPleskServer();
-
-        AllowOrder = WebsiteRepository
+        
+        AllowOrder = DomainRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount;
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("domains")).Amount;
+
+        await lazyLoader.SetText("Loading shared domains");
+        SharedDomains = SharedDomainRepository.Get().ToArray();
     }
 
     private async Task OnValidSubmit()
     {
-        if (WebsiteRepository.Get().Count() < (await SubscriptionService.GetLimit("websites")).Amount)
+        if (DomainRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("domains")).Amount)
         {
-            var website = await WebsiteService.Create(Model.BaseDomain, User, PleskServer);
-
-            NavigationManager.NavigateTo($"/website/{website.Id}");
+            var domain = await DomainService.Create(Model.Name, Model.SharedDomain, User);
+            
+            NavigationManager.NavigateTo($"/domain/{domain.Id}");
         }
     }
 }

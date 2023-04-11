@@ -48,6 +48,28 @@ public class DomainService
         );
     }
 
+    public Task<Domain> Create(string domain, SharedDomain sharedDomain, User user)
+    {
+        if (DomainRepository.Get().Where(x => x.SharedDomain.Id == sharedDomain.Id).Any(x => x.Name == domain))
+            throw new DisplayException("A domain with this name does already exist for this shared domain");
+        
+        var res = DomainRepository.Add(new()
+        {
+            Name = domain,
+            SharedDomain = sharedDomain,
+            Owner = user
+        });
+
+        return Task.FromResult(res);
+    }
+
+    public Task Delete(Domain domain)
+    {
+        DomainRepository.Delete(domain);
+        
+        return Task.CompletedTask;
+    }
+
     public async Task<Zone[]>
         GetAvailableDomains() // This method returns all available domains which are not added as a shared domain
     {

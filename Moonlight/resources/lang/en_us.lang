@@ -19,3 +19,67 @@ Forgot password?;Forgot password?
 Sign-in;Sign-in
 Not registered yet?;Not registered yet?
 Sign up;Sign up
+Profile;Profile
+Logout;Logout
+Dashboard;Dashboard
+Servers;Servers
+Websites;Websites
+Domains;Domains
+Changelog;Changelog
+Admin;Admin
+System;System
+Overview;Overview
+Manager;Manager
+Cleanup;Cleanup
+Nodes;Nodes
+Images;Images
+Users;Users
+Shared domains;Shared domains
+Support;Support
+Subscriptions;Subscriptions
+Statistics;Statistics
+Create something new;Create something new
+Create a gameserver;Create a gameserver
+A new gameserver in just a few minutes;A new gameserver in just a few minutes
+Create a website;Create a website
+Make your own websites with a webspace;Make your own websites with a webspace
+Create a domain;Create a domain
+Make your servvices accessible throught your own domain;Make your servvices accessible throught your own domain
+Manage your services;Manage your services
+Manage your gameservers;Manage your gameservers
+Adjust your gameservers;Adjust your gameservers
+Manage your websites;Manage your websites
+Modify the content of your websites;Modify the content of your websites
+Manage your domains;Manage your domains
+Add, edit and delete dns records;Add, edit and delete dns records
+New server;New server
+Id;Id
+Name;Name
+Cores;Cores
+Memory;Memory
+Disk;Disk
+Owner;Owner
+Manage;Manage
+Node offline;Node offline
+The node the server is running on is currently offline;The node the server is running on is currently offline
+Sessions;Sessions
+New user;New user
+First name;First name
+Last name;Last name
+Created at;Created at
+Refresh;Refresh
+Send a message to all users;Send a message to all users
+IP;IP
+URL;URL
+Device;Device
+Time;Time
+Actions;Actions
+Change url;Change url
+Message;Message
+Enter url;Enter url
+Send;Send
+Sending;Sending
+Welcome to the support chat. Ask your question here and we will help you;Welcome to the support chat. Ask your question here and we will help you
+less than a minute ago;less than a minute ago
+The support team has been notified. Please be patient;The support team has been notified. Please be patient
+is typing;is typing
