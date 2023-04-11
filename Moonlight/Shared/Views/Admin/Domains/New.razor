@@ -4,13 +4,12 @@
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
-@using Mappy.Net
 
 @inject SmartTranslateService SmartTranslateService
 @inject SharedDomainRepository SharedDomainRepository
-@inject DomainRepository DomainRepository
 @inject UserRepository UserRepository
 @inject NavigationManager NavigationManager
+@inject DomainService DomainService
 
 <OnlyAdmin>
     <div class="row mb-5">
@@ -66,14 +65,10 @@
         return Task.CompletedTask;
     }
 
-    private Task Add()
+    private async Task Add()
     {
-        var domain = Mapper.Map<Domain>(Model);
-
-        DomainRepository.Add(domain);
+        await DomainService.Create(Model.Name, Model.SharedDomain, Model.Owner);
 
         NavigationManager.NavigateTo("/admin/domains");
-
-        return Task.CompletedTask;
     }
 }
