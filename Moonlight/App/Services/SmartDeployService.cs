@@ -6,12 +6,18 @@ namespace Moonlight.App.Services;
 public class SmartDeployService
 {
     private readonly NodeRepository NodeRepository;
+    private readonly PleskServerRepository PleskServerRepository;
+    private readonly WebsiteService WebsiteService;
     private readonly NodeService NodeService;
 
-    public SmartDeployService(NodeRepository nodeRepository, NodeService nodeService)
+    public SmartDeployService(
+        NodeRepository nodeRepository,
+        NodeService nodeService, PleskServerRepository pleskServerRepository, WebsiteService websiteService)
     {
         NodeRepository = nodeRepository;
         NodeService = nodeService;
+        PleskServerRepository = pleskServerRepository;
+        WebsiteService = websiteService;
     }
 
     public async Task<Node?> GetNode()
@@ -30,6 +36,21 @@ public class SmartDeployService
             return null;
 
         return data.MaxBy(x => x.Value).Key;
+    }
+
+    public async Task<PleskServer?> GetPleskServer()
+    {
+        var result = new List<PleskServer>();
+        
+        foreach (var pleskServer in PleskServerRepository.Get().ToArray())
+        {
+            if (await WebsiteService.IsHostUp(pleskServer))
+            {
+                result.Add(pleskServer);
+            }
+        }
+
+        return result.FirstOrDefault();
     }
 
     private async Task<double> GetUsageScore(Node node)
