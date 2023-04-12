@@ -21,7 +21,9 @@ public class SmartTranslateHelper
                 foreach (var line in lines)
                 {
                     var parts = line.Split(";");
-                    content.Add(parts[0], parts[1]);
+                    
+                    if(!content.ContainsKey(parts[0]))
+                        content.Add(parts[0], parts[1]);
                 }
                 
                 Languages.Add(langKey, content);
