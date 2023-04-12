@@ -64,6 +64,7 @@ namespace Moonlight
             builder.Services.AddScoped<PleskServerRepository>();
             builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<LoadingMessageRepository>();
+            builder.Services.AddScoped<NewsEntryRepository>();
 
             builder.Services.AddScoped<StatisticsRepository>();
             
