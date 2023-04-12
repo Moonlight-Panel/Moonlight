@@ -540,3 +540,13 @@ The Email field is required.;The Email field is required.
 The Password field is required.;The Password field is required.
 The ConfirmPassword field is required.;The ConfirmPassword field is required.
 Passwords need to match;Passwords need to match
+Cleanup exception;Cleanup exception
+No shared domain found;No shared domain found
+Searching for deploy plesk server;Searching for deploy plesk server
+No plesk server found;No plesk server found
+No plesk server found to deploy to;No plesk server found to deploy to
+No node found to deploy to;No node found to deploy to
+Website details;Website details
+Configure your website;Configure your website
+The name cannot be longer that 32 characters;The name cannot be longer that 32 characters
+The name should only consist of lower case characters;The name should only consist of lower case characters

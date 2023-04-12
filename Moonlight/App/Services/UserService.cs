@@ -18,6 +18,7 @@ public class UserService
     private readonly AuditLogService AuditLogService;
     private readonly MailService MailService;
     private readonly IdentityService IdentityService;
+    private readonly IpLocateService IpLocateService;
 
     private readonly string JwtSecret;
 
@@ -28,7 +29,7 @@ public class UserService
         SecurityLogService securityLogService,
         AuditLogService auditLogService,
         MailService mailService,
-        IdentityService identityService)
+        IdentityService identityService, IpLocateService ipLocateService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
@@ -36,6 +37,7 @@ public class UserService
         AuditLogService = auditLogService;
         MailService = mailService;
         IdentityService = identityService;
+        IpLocateService = ipLocateService;
 
         JwtSecret = configService
             .GetSection("Moonlight")
@@ -77,6 +79,7 @@ public class UserService
         });
 
         await MailService.SendMail(user!, "register", values => {});
+        
         await AuditLogService.Log(AuditLogType.Register, x =>
         {
             x.Add<User>(user.Email);
@@ -177,11 +180,13 @@ public class UserService
         }
         else
         {
+            var location = await IpLocateService.GetLocation();
+            
             await MailService.SendMail(user!, "passwordChange", values =>
             {
                 values.Add("Ip", IdentityService.GetIp());
                 values.Add("Device", IdentityService.GetDevice());
-                values.Add("Location", "In your walls");
+                values.Add("Location", location);
             });
 
             await AuditLogService.Log(AuditLogType.ChangePassword, x =>
@@ -201,6 +206,7 @@ public class UserService
             {
                 x.Add<int>(id);
             });
+            
             throw new Exception("Invalid username");
         }
         
@@ -223,12 +229,17 @@ public class UserService
 
     public async Task<string> GenerateToken(User user, bool sendMail = false)
     {
-        await MailService.SendMail(user!, "login", values =>
+        var location = await IpLocateService.GetLocation();
+
+        if (sendMail)
         {
-            values.Add("Ip", IdentityService.GetIp());
-            values.Add("Device", IdentityService.GetDevice());
-            values.Add("Location", "In your walls");
-        });
+            await MailService.SendMail(user!, "login", values =>
+            {
+                values.Add("Ip", IdentityService.GetIp());
+                values.Add("Device", IdentityService.GetDevice());
+                values.Add("Location", location);
+            });
+        }
         
         var token = JwtBuilder.Create()
             .WithAlgorithm(new HMACSHA256Algorithm())
@@ -257,11 +268,13 @@ public class UserService
 
         await AuditLogService.Log(AuditLogType.PasswordReset, x => {});
 
+        var location = await IpLocateService.GetLocation();
+
         await MailService.SendMail(user, "passwordReset", values =>
         {
             values.Add("Ip", IdentityService.GetIp());
             values.Add("Device", IdentityService.GetDevice());
-            values.Add("Location", "In your walls");
+            values.Add("Location", location);
             values.Add("Password", newPassword);
         });
     }
