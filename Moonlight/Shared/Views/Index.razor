@@ -3,14 +3,62 @@
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
+@using Markdig
 
 @inject ServerRepository ServerRepository
 @inject WebsiteRepository WebsiteRepository
 @inject DomainRepository DomainRepository
+@inject NewsEntryRepository NewsEntryRepository
 
 <LazyLoader Load="Load">
+@if (NewsEntries.Any())
+{
+    if (CurrentNewsIndex > NewsEntries.Count - 1)
+        CurrentNewsIndex = 0;
+
+    if (CurrentNewsIndex < 0)
+        CurrentNewsIndex = NewsEntries.Count - 1;
+
+    var currentEntry = NewsEntries[CurrentNewsIndex];
+
+    <div class="mb-5">
+        <div class="card">
+            <div class="card-header card-header-stretch">
+                <div class="card-title d-flex align-items-center">
+                    <span class="me-3 lh-0">
+                        <i class="bx bx-md bx-calendar"></i>
+                    </span>
+                    <h3 class="fw-bold m-0 text-gray-800">@(Formatter.FormatDateOnly(currentEntry.Date))</h3>
+                </div>
+                <div class="card-toolbar m-0">
+                    <ul class="nav nav-tabs nav-line-tabs nav-stretch fs-6 border-0 fw-bold">
+                        <li class="nav-item">
+                            <button @onclick="() => ChangeNewsIndex(-1)" class="nav-link justify-content-center text-active-gray-800">
+                                <i class="bx bx-md bx-left-arrow"></i>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button @onclick="() => ChangeNewsIndex(1)" class="nav-link justify-content-center text-active-gray-800">
+                                <i class="bx bx-md bx-right-arrow"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                @{
+                    var html = (MarkupString)Markdown.ToHtml(currentEntry.Markdown);
+                }
+
+                @(html)
+            </div>
+        </div>
+    </div>
+}
+
 <div class="row mb-5">
     <div class="col-12 col-lg-6 col-xl">
         <a class="mt-4 card" href="/servers">
@@ -193,10 +241,13 @@
 {
     [CascadingParameter]
     public User User { get; set; }
-    
+
     private int ServerCount = 0;
     private int DomainCount = 0;
     private int WebsiteCount = 0;
+
+    private List<NewsEntry> NewsEntries;
+    private int CurrentNewsIndex = 0;
 
     private Task Load(LazyLoader lazyLoader)
     {
@@ -214,7 +265,15 @@
             .Get()
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id);
-        
+
+        NewsEntries = NewsEntryRepository.Get().ToList();
+
         return Task.CompletedTask;
+    }
+
+    private async Task ChangeNewsIndex(int i)
+    {
+        CurrentNewsIndex += i;
+        await InvokeAsync(StateHasChanged);
     }
 }

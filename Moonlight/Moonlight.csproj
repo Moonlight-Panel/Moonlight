@@ -62,6 +62,8 @@
     <_ContentIncludedByDefault Remove="Shared\Components\Tables\Table.razor" />
     <_ContentIncludedByDefault Remove="Shared\Views\Admin\Servers\Cleanup\Exceptions\Add.razor" />
     <_ContentIncludedByDefault Remove="Shared\Views\Admin\Servers\Cleanup\Exceptions\Edit.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\News\NewsEditor.razor" />
+    <_ContentIncludedByDefault Remove="Shared\News\Edit.razor" />
   </ItemGroup>
 
   <ItemGroup>
