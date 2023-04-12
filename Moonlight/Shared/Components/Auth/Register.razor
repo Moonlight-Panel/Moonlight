@@ -7,11 +7,17 @@
 
 @using Moonlight.App.Services
 @using Moonlight.App.Services.OAuth2
+@using Moonlight.App.Models.Forms
+@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Sessions
 
 @inject SmartTranslateService SmartTranslateService
 @inject GoogleOAuth2Service GoogleOAuth2Service
 @inject NavigationManager NavigationManager
 @inject DiscordOAuth2Service DiscordOAuth2Service
+@inject AlertService AlertService
+@inject UserService UserService
+@inject CookieService CookieService
 
 <div class="d-flex flex-center">
     <div class="card rounded-3 w-md-550px">
@@ -46,38 +52,44 @@
                         </div>
                     </div>
 
-                    <div class="separator separator-content my-14">
+                    <div class="separator separator-content my-10">
                         <span class="w-125px text-gray-500 fw-semibold fs-7">
                             <TL>Or with email</TL>
                         </span>
                     </div>
+                    
+                    <SmartForm Model="UserRegisterModel" OnValidSubmit="CreateUser">
+                        <div class="fv-row mb-4 fv-plugins-icon-container">
+                            <InputText @bind-Value="UserRegisterModel.Email" placeholder="@(SmartTranslateService.Translate("Email"))" name="email" autocomplete="off" class="form-control bg-transparent" />
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
+                                <InputText @bind-Value="UserRegisterModel.FirstName" type="text" placeholder="@(SmartTranslateService.Translate("Firstname"))" name="text" class="form-control bg-transparent" />
+                            </div>
 
-                    <div class="fv-row mb-8 fv-plugins-icon-container">
-                        <input type="text" placeholder="@(SmartTranslateService.Translate("Firstname"))" name="text" class="form-control bg-transparent">
-                    </div>
+                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
+                                <InputText @bind-Value="UserRegisterModel.LastName" type="text" placeholder="@(SmartTranslateService.Translate("Lastname"))" name="text"class="form-control bg-transparent" />
+                            </div>
+                        </div>
 
-                    <div class="fv-row mb-8 fv-plugins-icon-container">
-                        <input type="text" placeholder="@(SmartTranslateService.Translate("Lastname"))" name="text"class="form-control bg-transparent">
-                    </div>
+                        <div class="row">
+                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
+                                <InputText @bind-Value="UserRegisterModel.Password" type="password" placeholder="@(SmartTranslateService.Translate("Password"))" name="password" autocomplete="off" class="form-control bg-transparent" />
+                            </div>
 
-                    <div class="fv-row mb-8 fv-plugins-icon-container">
-                        <input type="text" placeholder="@(SmartTranslateService.Translate("Email"))" name="email" autocomplete="off" class="form-control bg-transparent">
-                    </div>
-
-                    <div class="fv-row mb-3 fv-plugins-icon-container">
-                        <input type="password" placeholder="@(SmartTranslateService.Translate("Password"))" name="password" autocomplete="off" class="form-control bg-transparent">
-                    </div>
-
-                    <div class="fv-row mb-5 fv-plugins-icon-container">
-                        <input type="password" placeholder="@(SmartTranslateService.Translate("Repeat password"))" name="password" autocomplete="off" class="form-control bg-transparent">
-                    </div>
-
-                    <div class="d-grid mb-10">
-                        <button class="btn btn-primary">
-                            <TL>Sign-up</TL>
-                        </button>
-                    </div>
-
+                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
+                                <InputText @bind-Value="UserRegisterModel.ConfirmPassword" type="password" placeholder="@(SmartTranslateService.Translate("Repeat password"))" name="password" autocomplete="off" class="form-control bg-transparent" />
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mb-6">
+                            <button type="submit" class="btn btn-primary">
+                                <TL>Sign-up</TL>
+                            </button>
+                        </div>
+                    </SmartForm>
+                    
                     <div class="text-gray-500 text-center fw-semibold fs-6">
                         <TL>Already registered?</TL>
 
@@ -93,6 +105,8 @@
 
 @code
 {
+    private UserRegisterModel UserRegisterModel = new();
+    
     private async Task DoGoogle()
     {
         var url = await GoogleOAuth2Service.GetUrl();
@@ -103,5 +117,22 @@
     {
         var url = await DiscordOAuth2Service.GetUrl();
         NavigationManager.NavigateTo(url, true);
+    }
+
+    private async Task CreateUser()
+    {
+        if (UserRegisterModel.ConfirmPassword != UserRegisterModel.Password)
+        {
+            await AlertService.Error(SmartTranslateService.Translate("Passwords need to match"));
+            return;
+        }
+        
+        var token = await UserService.Register(UserRegisterModel.Email, UserRegisterModel.Password, UserRegisterModel.FirstName, UserRegisterModel.LastName);
+        await CookieService.SetValue("token", token, 10);
+
+        if (NavigationManager.Uri.EndsWith("register"))
+            NavigationManager.NavigateTo("/", true);
+        else
+            NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 }
