@@ -73,8 +73,15 @@
     }
     else
     {
-        <div class="alert alert-info">
-            No servers found
+        <div class="alert bg-info d-flex flex-column flex-sm-row w-100 p-5">
+            <div class="d-flex flex-column pe-0 pe-sm-10">
+                <h4 class="fw-semibold">
+                    <TL>You have no servers</TL>
+                </h4>
+                <span>
+                    <TL>We were not able to find any servers associated with your account</TL>
+                </span>
+            </div>
         </div>
     }
 </LazyLoader>
@@ -84,8 +91,8 @@
     [CascadingParameter]
     public User User { get; set; }
     
-    private App.Database.Entities.Server[] AllServers;
-    private readonly Dictionary<App.Database.Entities.Server, string> StatusCache = new();
+    private Server[] AllServers;
+    private readonly Dictionary<Server, string> StatusCache = new();
 
     private Task Load(LazyLoader arg)
     {
