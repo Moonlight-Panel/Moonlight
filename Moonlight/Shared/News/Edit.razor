@@ -1,0 +1,32 @@
+﻿@page "/news/edit/{Id:int}"
+
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.Shared.Components.News
+
+@inject NewsEntryRepository NewsEntryRepository
+@inject NavigationManager NavigationManager
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        <NewsEditor Model="Entry" Save="DoSave"></NewsEditor>
+    </LazyLoader>
+</OnlyAdmin>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private NewsEntry Entry;
+
+    private async Task Load(LazyLoader loader)
+    {
+        Entry = NewsEntryRepository.Get().First(x => x.Id == Id);
+    }
+
+    private async Task DoSave(NewsEntry entry)
+    {
+        NewsEntryRepository.Update(entry);
+        NavigationManager.NavigateTo("/news");
+    }
+}

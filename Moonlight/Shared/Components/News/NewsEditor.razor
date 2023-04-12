@@ -1,0 +1,98 @@
+﻿@using Moonlight.App.Services
+@using Moonlight.App.Database.Entities
+@using BlazorMonaco
+
+@inject SmartTranslateService SmartTranslateService
+@inject IJSRuntime JsRuntime
+
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 class="card-title w-75">
+            <input type="text" @bind="Model.Title" placeholder="@SmartTranslateService.Translate("Title...")" class="form-control form-control-flush"/>
+        </h3>
+        <div class="card-toolbar">
+            @{
+                string dateInt(int i) => i.ToString().Length < 2 ? "0" + i : i.ToString();
+                var date = Model.Date == default ? DateTime.Now : Model.Date;
+            }
+            <span class="text-gray-600 fw-semibold">@dateInt(date.Day).@dateInt(date.Month).@date.Year</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <MonacoEditor CssClass="h-50" @ref="Editor" Id="vseditor" ConstructionOptions="(x) => EditorOptions"/>
+    </div>
+    <div class="card-footer">
+        <WButton CssClasses="btn btn-primary float-end" OnClick="DoSave" Text="@SmartTranslateService.Translate("Save")" WorkingText="@SmartTranslateService.Translate("Saving...")"></WButton>
+    </div>
+</div>
+
+@code {
+    // Monaco Editor
+    private MonacoEditor Editor;
+    private StandaloneEditorConstructionOptions EditorOptions;
+    
+    [Parameter]
+    public NewsEntry Model { get; set; }
+
+    [Parameter]
+    public Func<NewsEntry, Task> Save { get; set; }
+
+    protected override void OnInitialized()
+    {
+        EditorOptions = new()
+        {
+            AutomaticLayout = true,
+            Language = "plaintext",
+            Value = "Loading content",
+            Theme = "moonlight-theme",
+            Contextmenu = false,
+            Minimap = new()
+            {
+                Enabled = false
+            },
+            AutoIndent = true
+        };
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("initMonacoTheme");
+            
+            Editor.OnDidInit = new EventCallback<MonacoEditorBase>(this, async () =>
+            {
+                EditorOptions.Language = "markdown";
+        
+                var model = await Editor.GetModel();
+                await MonacoEditorBase.SetModelLanguage(model, EditorOptions.Language);
+                await Editor.SetPosition(new Position()
+                {
+                    Column = 0,
+                    LineNumber = 1
+                });
+        
+                await Editor.SetValue(string.IsNullOrWhiteSpace(Model.Markdown) ? "*enter your markdown here*" : Model.Markdown);
+        
+                await Editor.Layout(new Dimension()
+                {
+                    Height = 500,
+                    Width = 1000
+                }); 
+            });
+        }
+    }
+
+    private async Task DoSave()
+    {
+        Model.Date = Model.Date == default ? DateTime.Now : Model.Date;
+        Model.Markdown = await Editor.GetValue();
+        
+        Save?.Invoke(Model);
+    }
+
+    public async Task UpdateMonacoText()
+    {
+        await Editor.SetValue(Model.Markdown);
+    }
+}
