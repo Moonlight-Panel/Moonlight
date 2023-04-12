@@ -1,1 +1,69 @@
 ﻿@page "/websites"
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Microsoft.EntityFrameworkCore
+
+@inject WebsiteRepository WebsiteRepository
+
+<LazyLoader Load="Load">
+    @if (Websites.Any())
+    {
+        foreach (var website in Websites)
+        {
+            <div class="row px-5 mb-5">
+                <a class="card card-body" href="/website/@(website.Id)">
+                    <div class="row">
+                        <div class="col">
+                            <div class="d-flex align-items-center">
+                                <div class="symbol symbol-50px me-3">
+                                    <i class="bx bx-md bx-globe"></i>
+                                </div>
+                                <div class="d-flex justify-content-start flex-column">
+                                    <span class="text-gray-800 text-hover-primary mb-1 fs-5">
+                                        @(website.BaseDomain)
+                                    </span>
+                                    <span class="text-gray-400 fw-semibold d-block fs-6">
+                                        <span class="text-gray-700">@(website.PleskServer.Name)</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert bg-info d-flex flex-column flex-sm-row w-100 p-5">
+            <div class="d-flex flex-column pe-0 pe-sm-10">
+                <h4 class="fw-semibold">
+                    <TL>You have no websites</TL>
+                </h4>
+                <span>
+                    <TL>We were not able to find any websites associated with your account</TL>
+                </span>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter]
+    public User User { get; set; }
+    
+    private Website[] Websites;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        Websites = WebsiteRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Include(x => x.PleskServer)
+            .Where(x => x.Owner.Id == User.Id)
+            .ToArray();
+        
+        return Task.CompletedTask;
+    }
+}
