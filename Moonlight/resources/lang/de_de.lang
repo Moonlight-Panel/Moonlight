@@ -536,6 +536,10 @@ Configure your domain;Configure your domain
 You reached the maximum amount of domains in your subscription;You reached the maximum amount of domains in your subscription
 You need to specify a shared domain;You need to specify a shared domain
 A domain with this name does already exist for this shared domain;A domain with this name does already exist for this shared domain
+The Email field is required.;The Email field is required.
+The Password field is required.;The Password field is required.
+The ConfirmPassword field is required.;The ConfirmPassword field is required.
+Passwords need to match;Passwords need to match
 Cleanup exception;Cleanup exception
 No shared domain found;No shared domain found
 Searching for deploy plesk server;Searching for deploy plesk server
@@ -550,3 +554,4 @@ You have no domains;You have no domains
 We were not able to find any domains associated with your account;We were not able to find any domains associated with your account
 You have no websites;You have no websites
 We were not able to find any websites associated with your account;We were not able to find any websites associated with your account
+The name should only consist of lower case characters;The name should only consist of lower case characters
