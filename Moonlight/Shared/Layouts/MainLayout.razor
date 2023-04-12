@@ -59,57 +59,55 @@
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <div id="kt_app_content_container" class="app-container container-fluid">
                                     <div class="mt-10">
-                                        <PageErrorBoundary>
-                                            <SoftErrorBoundary>
-                                                @if (uri.LocalPath != "/login" &&
-                                                     uri.LocalPath != "/passwordreset" &&
-                                                     uri.LocalPath != "/register")
+                                        <SoftErrorBoundary>
+                                            @if (uri.LocalPath != "/login" &&
+                                                 uri.LocalPath != "/passwordreset" &&
+                                                 uri.LocalPath != "/register")
+                                            {
+                                                if (User == null)
                                                 {
-                                                    if (User == null)
-                                                    {
-                                                        <Login></Login>
-                                                    }
-                                                    else
-                                                    {
-                                                        if (User.Status == UserStatus.Banned)
-                                                        {
-                                                            <BannedAlert></BannedAlert>
-                                                        }
-                                                        else if (User.Status == UserStatus.Disabled)
-                                                        {
-                                                            <DisabledAlert></DisabledAlert>
-                                                        }
-                                                        else if (User.Status == UserStatus.PasswordPending)
-                                                        {
-                                                            <PasswordChangeView></PasswordChangeView>
-                                                        }
-                                                        else if (User.Status == UserStatus.DataPending)
-                                                        {
-                                                            <UserDataSetView></UserDataSetView>
-                                                        }
-                                                        else
-                                                        {
-                                                            @Body
-                                                        }
-                                                    }
+                                                    <Login></Login>
                                                 }
                                                 else
                                                 {
-                                                    if (uri.LocalPath == "/login")
+                                                    if (User.Status == UserStatus.Banned)
                                                     {
-                                                        <Login></Login>
+                                                        <BannedAlert></BannedAlert>
                                                     }
-                                                    else if (uri.LocalPath == "/register")
+                                                    else if (User.Status == UserStatus.Disabled)
                                                     {
-                                                        <Register></Register>
+                                                        <DisabledAlert></DisabledAlert>
                                                     }
-                                                    else if (uri.LocalPath == "/passwordreset")
+                                                    else if (User.Status == UserStatus.PasswordPending)
                                                     {
-                                                        <PasswordReset></PasswordReset>
+                                                        <PasswordChangeView></PasswordChangeView>
+                                                    }
+                                                    else if (User.Status == UserStatus.DataPending)
+                                                    {
+                                                        <UserDataSetView></UserDataSetView>
+                                                    }
+                                                    else
+                                                    {
+                                                        @Body
                                                     }
                                                 }
-                                            </SoftErrorBoundary>
-                                        </PageErrorBoundary>
+                                            }
+                                            else
+                                            {
+                                                if (uri.LocalPath == "/login")
+                                                {
+                                                    <Login></Login>
+                                                }
+                                                else if (uri.LocalPath == "/register")
+                                                {
+                                                    <Register></Register>
+                                                }
+                                                else if (uri.LocalPath == "/passwordreset")
+                                                {
+                                                    <PasswordReset></PasswordReset>
+                                                }
+                                            }
+                                        </SoftErrorBoundary>
                                     </div>
                                 </div>
                             </div>
@@ -161,8 +159,8 @@
                 await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-page-loading");
                 await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
                 await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
-                
-                //await JsRuntime.InvokeVoidAsync("createSnow");
+
+    //await JsRuntime.InvokeVoidAsync("createSnow");
 
                 await SessionService.Register();
 
