@@ -42,6 +42,7 @@ public class DataContext : DbContext
     public DbSet<PleskServer> PleskServers { get; set; }
     public DbSet<Website> Websites { get; set; }
     public DbSet<StatisticsData> Statistics { get; set; }
+    public DbSet<NewsEntry> NewsEntries { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

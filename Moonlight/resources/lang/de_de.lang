@@ -550,6 +550,13 @@ Website details;Website details
 Configure your website;Configure your website
 The name cannot be longer that 32 characters;The name cannot be longer that 32 characters
 The name should only consist of lower case characters;The name should only consist of lower case characters
+News;News
+Title...;Title...
+Enter text...;Enter text...
+Saving...;Saving...
+Deleting...;Deleting...
+Delete post;Delete post
+Do you really want to delete the post ";Do you really want to delete the post "
 You have no domains;You have no domains
 We were not able to find any domains associated with your account;We were not able to find any domains associated with your account
 You have no websites;You have no websites
