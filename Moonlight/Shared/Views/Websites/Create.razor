@@ -132,7 +132,10 @@
 
     private async Task OnValidSubmit()
     {
-        if (WebsiteRepository.Get().Count() < (await SubscriptionService.GetLimit("websites")).Amount)
+        if (WebsiteRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount)
         {
             var website = await WebsiteService.Create(Model.BaseDomain, User, PleskServer);
 
