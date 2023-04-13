@@ -39,7 +39,7 @@ public class StorageService
 
     private bool IsEmpty(string path)
     {
-        return !Directory.EnumerateFiles(path).Any();
+        return !Directory.EnumerateFileSystemEntries(path).Any();
     }
     private static void CopyFilesRecursively(string sourcePath, string targetPath)
     {
