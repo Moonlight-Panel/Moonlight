@@ -70,7 +70,7 @@
     <Folder Include="App\Http\Middleware" />
     <Folder Include="App\Models\Daemon\Requests" />
     <Folder Include="App\Models\Google\Resources" />
-    <Folder Include="resources\lang" />
+    <Folder Include="deleteme_resources\lang" />
   </ItemGroup>
 
 </Project>

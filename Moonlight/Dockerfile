@@ -19,4 +19,6 @@ RUN dotnet publish "Moonlight.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir /app/storage
+RUN rm -r /app/storage/*
 ENTRYPOINT ["dotnet", "Moonlight.dll"]

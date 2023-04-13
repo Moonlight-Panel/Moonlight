@@ -3,12 +3,13 @@
 @using Moonlight.Shared.Components.FileManagerPartials
 @using Moonlight.App.Helpers.Files
 @using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Helpers
 
 <OnlyAdmin>
     <AdminSystemNavigation Index="5" />
     
     <div class="card card-body">
-        <FileManager Access="@(new HostFileAccess("resources"))">
-        </FileManager>        
+        <FileManager Access="@(new HostFileAccess(PathBuilder.Dir("storage")))">
+        </FileManager>
     </div>
 </OnlyAdmin>
