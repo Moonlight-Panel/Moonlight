@@ -49,6 +49,7 @@
                             <Column TableItem="Domain" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
                                 <Template>
                                     <DeleteButton Confirm="true"
+                                                  AdditionalCssClasses="float-end"
                                                   OnClick="() => Delete(context)">
                                     </DeleteButton>
                                 </Template>
