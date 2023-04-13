@@ -74,6 +74,7 @@ namespace Moonlight
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
+            builder.Services.AddSingleton<StorageService>();
             builder.Services.AddScoped<CookieService>();
             builder.Services.AddScoped<IdentityService>();
             builder.Services.AddScoped<IpLocateService>();

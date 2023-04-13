@@ -1,5 +1,6 @@
 ﻿using Logging.Net;
 using Microsoft.AspNetCore.Mvc;
+using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Services.LogServices;
 
@@ -28,14 +29,13 @@ public class ResourcesController : Controller
             return NotFound();
         }
 
-        if (System.IO.File.Exists($"resources/public/images/{name}"))
+        if (System.IO.File.Exists(PathBuilder.File("storage", "resources", "public", "images", name)))
         {
-            var fs = new FileStream($"resources/public/images/{name}", FileMode.Open);
+            var fs = new FileStream(PathBuilder.File("storage", "resources", "public", "images", name), FileMode.Open);
         
             return File(fs, MimeTypes.GetMimeType(name), name);
         }
-        
-        Logger.Debug("404 on resources");
+
         return NotFound();
     }
 }
