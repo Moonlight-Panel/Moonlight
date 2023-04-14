@@ -138,7 +138,15 @@ public class ServersController : Controller
 
         await MessageService.Emit($"wings.{node.Id}.serverfetch", server);
 
-        return Converter.FromServer(server);
+        try //TODO: Remove
+        {
+            return Converter.FromServer(server);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     [HttpGet("{uuid}/install")]

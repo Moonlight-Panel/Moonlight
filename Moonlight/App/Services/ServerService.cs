@@ -201,7 +201,8 @@ public class ServerService
             {
                 x.Add<Server>(server.Uuid);
                 x.Add<ServerBackup>(backup.Uuid);
-            });
+            }
+        );
     }
 
     public async Task<string> DownloadBackup(Server s, ServerBackup serverBackup)
@@ -262,10 +263,15 @@ public class ServerService
             node = NodeRepository
                 .Get()
                 .Include(x => x.Allocations)
-                .First(x => x.Id == n.Id);
+                .First(); //TODO: Add smart deploy maybe
         }
         else
-            node = n;
+        {
+            node = NodeRepository
+                .Get()
+                .Include(x => x.Allocations)
+                .First(x => x.Id == n.Id);
+        }
 
         NodeAllocation[] freeAllocations;
 
@@ -339,7 +345,7 @@ public class ServerService
                 x.Add<Node>(node.Id);
             });
 
-            ServerRepository.Delete(newServerData);
+            ServerRepository.Delete(newServerData); //TODO Remove unsinged table stuff
 
             throw new DisplayException("Error creating server on wings");
         }
@@ -388,9 +394,32 @@ public class ServerService
     {
         var server = EnsureNodeData(s);
 
+        var backups = await GetBackups(server);
+
+        foreach (var backup in backups)
+        {
+            try
+            {
+                await DeleteBackup(server, backup);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
         await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
 
-        ServerRepository.Delete(s);
+        //TODO: Fix empty data models
+        
+        server.Allocations = new();
+        server.MainAllocation = null;
+        server.Variables = new();
+        server.Backups = new();
+
+        ServerRepository.Update(server);
+
+        ServerRepository.Delete(server);
     }
 
     public async Task<bool> IsHostUp(Server s)
