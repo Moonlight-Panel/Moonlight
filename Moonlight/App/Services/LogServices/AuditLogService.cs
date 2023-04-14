@@ -73,8 +73,11 @@ public class AuditLogService
     {
         private List<LogData> Data = new List<LogData>();
 
-        public void Add<T>(object data)
+        public void Add<T>(object? data)
         {
+            if(data == null)
+                return;
+            
             Data.Add(new LogData()
             {
                 Type = typeof(T),
