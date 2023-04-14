@@ -392,6 +392,8 @@ public class ServerService
 
     public async Task Delete(Server s)
     {
+        throw new DisplayException("Deleting a server is currently a bit buggy. So its disabled for your safety");
+        
         var server = EnsureNodeData(s);
 
         var backups = await GetBackups(server);

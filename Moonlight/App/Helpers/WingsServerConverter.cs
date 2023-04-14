@@ -118,12 +118,15 @@ public class WingsServerConverter
 
             foreach (var section in child.GetSection("find").GetChildren())
             {
-                replaces.Add(new()
+                if (section.Value != null)
                 {
-                    Match = section.Key,
-                    Replace_With = section.Value
-                        .Replace("{{server.build.default.port}}", def.Port.ToString())
-                });
+                    replaces.Add(new()
+                    {
+                        Match = section.Key,
+                        Replace_With = section.Value
+                            .Replace("{{server.build.default.port}}", def.Port.ToString())
+                    });
+                }
             }
             
             wingsServer.Process_Configuration.Configs.Add(new()
