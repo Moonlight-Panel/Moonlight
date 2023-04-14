@@ -6,14 +6,14 @@
 
 @if (!Working)
 {
-    <button class="btn btn-danger" @onclick="Do">
-        <i class="bx bx-trash"></i>
+    <button class="btn btn-danger p-4 @AdditionalCssClasses" @onclick="Do">
+        <i class="bx bx-trash p-0 px-2"></i>
     </button>
 }
 else
 {
-    <button class="btn btn-danger disabled" disabled="">
-        <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+    <button class="btn btn-danger p-4 disabled @AdditionalCssClasses" disabled="">
+        <span class="spinner-border spinner-border-sm align-middle me-2 p-0 px-2"></span>
     </button>
 }
 
@@ -26,6 +26,9 @@ else
 
     [Parameter]
     public bool Confirm { get; set; } = false;
+
+    [Parameter]
+    public string AdditionalCssClasses { get; set; } = "";
 
     private async Task Do()
     {
