@@ -53,6 +53,7 @@ public class WingsServerConverter
         wingsServer.Settings.Build.Io_Weight = 500;
         wingsServer.Settings.Build.Memory_Limit = server.Memory;
         wingsServer.Settings.Build.Oom_Disabled = true;
+        wingsServer.Settings.Build.Oom_Killer = false;
 
         var image = ImageRepository
             .Get()
