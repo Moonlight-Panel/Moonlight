@@ -18,7 +18,6 @@ public class DataContext : DbContext
 
     public DbSet<DockerImage> DockerImages { get; set; }
     public DbSet<Image> Images { get; set; }
-    public DbSet<ImageTag> ImageTags { get; set; }
     public DbSet<ImageVariable> ImageVariables { get; set; }
     public DbSet<Node> Nodes { get; set; }
     public DbSet<NodeAllocation> NodeAllocations { get; set; }
