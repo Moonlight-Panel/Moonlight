@@ -208,7 +208,7 @@
     {
         var url = await ServerService.DownloadBackup(CurrentServer, serverBackup);
 
-        await ClipboardService.CopyToClipboard(url);
+        await ClipboardService.Copy(url);
         await AlertService.Success(
             SmartTranslateService.Translate("Success"), 
             SmartTranslateService.Translate("Backup URL successfully copied to your clipboard"));
