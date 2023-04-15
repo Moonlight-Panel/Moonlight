@@ -71,7 +71,7 @@
     {
         if (firstRender)
         {
-            await JsRuntime.InvokeVoidAsync("initMonacoTheme");
+            await JsRuntime.InvokeVoidAsync("moonlight.loading.loadMonaco");
             
             Editor.OnDidInit = new EventCallback<MonacoEditorBase>(this, async () =>
             {
