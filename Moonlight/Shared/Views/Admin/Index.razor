@@ -1,9 +1,12 @@
 ﻿@page "/admin"
 @using Moonlight.App.Repositories.Servers
 @using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Domains
 
 @inject ServerRepository ServerRepository
 @inject UserRepository UserRepository
+@inject WebsiteRepository WebsiteRepository
+@inject DomainRepository DomainRepository
 
 <OnlyAdmin>
     <LazyLoader Load="Load">
@@ -38,7 +41,7 @@
                                     <TL>Websites</TL>
                                 </h6>
                                 <span class="h2 mb-0">
-                                    0
+                                    @(WebsiteCount)
                                 </span>
                             </div>
                             <div class="col-auto">
@@ -51,27 +54,6 @@
                 </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <div class="mt-4 card" href="/databases">
-                    <div class="card-body">
-                        <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-2">
-                                    <TL>Databases</TL>
-                                </h6>
-                                <span class="h2 mb-0">
-                                    @(DatabaseCount)
-                                </span>
-                            </div>
-                            <div class="col-auto">
-                                <span class="h2 text-muted mb-0">
-                                    <i class="text-primary bx bx-data bx-lg"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
                 <a class="mt-4 card" href="/domains">
                     <div class="card-body">
                         <div class="row align-items-center gx-0">
@@ -80,7 +62,7 @@
                                     <TL>Domains</TL>
                                 </h6>
                                 <span class="h2 mb-0">
-                                    0
+                                    @(DomainCount)
                                 </span>
                             </div>
                             <div class="col-auto">
@@ -119,15 +101,17 @@
 
 @code
 {
-    private int DatabaseCount = 0;
     private int ServerCount = 0;
     private int UserCount = 0;
+    private int DomainCount = 0;
+    private int WebsiteCount = 0;
 
     private Task Load(LazyLoader lazyLoader)
     {
-        DatabaseCount = 0;
         ServerCount = ServerRepository.Get().Count();
         UserCount = UserRepository.Get().Count();
+        DomainCount = DomainRepository.Get().Count();
+        WebsiteCount = WebsiteRepository.Get().Count();
 
         return Task.CompletedTask;
     }

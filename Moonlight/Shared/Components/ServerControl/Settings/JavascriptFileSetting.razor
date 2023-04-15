@@ -2,13 +2,12 @@
 @using Moonlight.App.Repositories.Servers
 @using Moonlight.Shared.Components.FileManagerPartials
 @using Moonlight.App.Database.Entities
-@using Moonlight.App.Helpers
 @using Moonlight.App.Helpers.Files
 @using Moonlight.App.Services
 
 @inject ServerRepository ServerRepository
-@inject WingsApiHelper WingsApiHelper
 @inject SmartTranslateService SmartTranslateService
+@inject ServerService ServerService
 
 <div class="col">
     <div class="card card-body">
@@ -42,14 +41,9 @@
     private FileSelectModal FileSelectModal;
     private LazyLoader LazyLoader;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Access = new WingsFileAccess(WingsApiHelper,
-            null!,
-            CurrentServer,
-            null!,
-            null!
-        );
+        Access = await ServerService.CreateFileAccess(CurrentServer, null!);
     }
 
     private async Task Load(LazyLoader lazyLoader)

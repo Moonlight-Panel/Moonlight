@@ -18,7 +18,6 @@ public class DataContext : DbContext
 
     public DbSet<DockerImage> DockerImages { get; set; }
     public DbSet<Image> Images { get; set; }
-    public DbSet<ImageTag> ImageTags { get; set; }
     public DbSet<ImageVariable> ImageVariables { get; set; }
     public DbSet<Node> Nodes { get; set; }
     public DbSet<NodeAllocation> NodeAllocations { get; set; }
@@ -39,6 +38,10 @@ public class DataContext : DbContext
     public DbSet<NotificationAction> NotificationActions { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<PleskServer> PleskServers { get; set; }
+    public DbSet<Website> Websites { get; set; }
+    public DbSet<StatisticsData> Statistics { get; set; }
+    public DbSet<NewsEntry> NewsEntries { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

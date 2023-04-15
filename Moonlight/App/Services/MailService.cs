@@ -3,6 +3,7 @@ using System.Net.Mail;
 using Logging.Net;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services;
 
@@ -31,13 +32,13 @@ public class MailService
         Action<Dictionary<string, string>> values
     )
     {
-        if (!File.Exists($"resources/mail/{name}.html"))
+        if (!File.Exists(PathBuilder.File("storage", "resources", "mail", $"{name}.html")))
         {
             Logger.Warn($"Mail template '{name}' not found. Make sure to place one in the resources folder");
             throw new DisplayException("Mail template not found");
         }
 
-        var rawHtml = await File.ReadAllTextAsync($"resources/mail/{name}.html");
+        var rawHtml = await File.ReadAllTextAsync(PathBuilder.File("storage", "resources", "mail", $"{name}.html"));
 
         var val = new Dictionary<string, string>();
         values.Invoke(val);

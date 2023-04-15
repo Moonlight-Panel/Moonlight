@@ -7,26 +7,44 @@ namespace Moonlight.App.Services;
 
 public class ConfigService : IConfiguration
 {
+    private readonly StorageService StorageService;
+
     private IConfiguration Configuration;
 
     public bool DebugMode { get; private set; } = false;
-    
-    public ConfigService()
+
+    public ConfigService(StorageService storageService)
     {
-        Configuration = new ConfigurationBuilder().AddJsonStream(
-            new MemoryStream(Encoding.ASCII.GetBytes(File.ReadAllText("..\\..\\appsettings.json")))
-        ).Build();
+        StorageService = storageService;
+        StorageService.EnsureCreated();
+
+        Reload();
 
         // Env vars
         var debugVar = Environment.GetEnvironmentVariable("ML_DEBUG");
 
         if (debugVar != null)
             DebugMode = bool.Parse(debugVar);
-        
-        if(DebugMode)
+
+        if (DebugMode)
             Logger.Debug("Debug mode enabled");
     }
-    
+
+    public void Reload()
+    {
+        Logger.Info($"Reading config from '{PathBuilder.File("storage", "configs", "config.json")}'");
+        
+        Configuration = new ConfigurationBuilder().AddJsonStream(
+            new MemoryStream(Encoding.ASCII.GetBytes(
+                    File.ReadAllText(
+                        PathBuilder.File("storage", "configs", "config.json")
+                    )
+                )
+            )).Build();
+
+        Logger.Info("Reloaded configuration file");
+    }
+
     public IEnumerable<IConfigurationSection> GetChildren()
     {
         return Configuration.GetChildren();

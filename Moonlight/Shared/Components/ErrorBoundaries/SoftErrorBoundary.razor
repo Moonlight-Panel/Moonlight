@@ -7,13 +7,35 @@
 @inject AlertService AlertService
 @inject SmartTranslateService SmartTranslateService
 
-@ChildContent
+@if (Crashed)
+{
+    <div class="card card-flush h-md-100">
+        <div class="card-body d-flex flex-column justify-content-between mt-9 bgi-no-repeat bgi-size-cover bgi-position-x-center pb-0">
+            <div class="mb-10">
+                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
+                    <span class="me-2">
+                        <TL>Ooops. This page is crashed</TL>
+                    </span>
+                </div>
+                <div class="text-center">
+                    <TL>This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page</TL>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @ChildContent
+}
 
 @code
 {
+    private bool Crashed = false;
+    
     protected override async Task OnErrorAsync(Exception exception)
     {
-        Logger.Debug(exception);
+        Logger.Warn(exception);
         
         if (exception is DisplayException displayException)
         {
@@ -36,9 +58,21 @@
                 wingsException.Message
                 );
         }
+        else if (exception is PleskException pleskException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from plesk"),
+                pleskException.Message
+                );
+        }
+        else if (exception is NotImplementedException)
+        {
+            await AlertService.Error(SmartTranslateService.Translate("This function is not implemented"));
+        }
         else
         {
-            throw exception;
+            Crashed = true;
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

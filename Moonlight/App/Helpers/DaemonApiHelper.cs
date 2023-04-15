@@ -16,11 +16,13 @@ public class DaemonApiHelper
     
     private string GetApiUrl(Node node)
     {
+        /* SSL not implemented in moonlight daemon
         if(node.Ssl)
             return $"https://{node.Fqdn}:{node.MoonlightDaemonPort}/";
         else
-            return $"http://{node.Fqdn}:{node.MoonlightDaemonPort}/";
-        //return $"https://{node.Fqdn}:{node.HttpPort}/";
+            return $"http://{node.Fqdn}:{node.MoonlightDaemonPort}/";*/
+        
+        return $"http://{node.Fqdn}:{node.MoonlightDaemonPort}/";
     }
     
     public async Task<T> Get<T>(Node node, string resource)
@@ -37,7 +39,7 @@ public class DaemonApiHelper
         {
             if (response.StatusCode != 0)
             {
-                throw new WingsException(
+                throw new DaemonException(
                     $"An error occured: ({response.StatusCode}) {response.Content}",
                     (int)response.StatusCode
                 );

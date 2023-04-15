@@ -130,6 +130,9 @@ public class WingsServer
 
         [JsonPropertyName("oom_disabled")]
         public bool Oom_Disabled { get; set; }
+        
+        [JsonPropertyName("oom_killer")]
+        public bool Oom_Killer { get; set; }
     }
 
     public class WingsServerContainer

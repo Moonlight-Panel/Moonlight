@@ -58,7 +58,7 @@ public class OAuth2Controller : Controller
                 }
                 else
                 {
-                    token = await UserService.GenerateToken(user);
+                    token = await UserService.GenerateToken(user, true);
                 }
                 
                 Response.Cookies.Append("token", token, new ()
@@ -116,7 +116,7 @@ public class OAuth2Controller : Controller
                 }
                 else
                 {
-                    token = await UserService.GenerateToken(user);
+                    token = await UserService.GenerateToken(user, true);
                 }
                 
                 Response.Cookies.Append("token", token, new ()

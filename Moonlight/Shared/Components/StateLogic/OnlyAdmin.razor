@@ -7,7 +7,7 @@
     {
         @ChildContent
     }
-    else
+    else if(!Silent)
     {
         <div class="alert alert-danger">
             <TL>Missing admin permissions. This attempt has been logged ;)</TL>
@@ -22,4 +22,7 @@
 
     [CascadingParameter]
     public User? User { get; set; }
+
+    [Parameter]
+    public bool Silent { get; set; } = false;
 }

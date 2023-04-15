@@ -46,13 +46,14 @@ public class WingsServerConverter
         }
         
         // Build
-        wingsServer.Settings.Build.Swap = server.Memory * 2;
+        wingsServer.Settings.Build.Swap = server.Memory * 2; //TODO: Add config option
         wingsServer.Settings.Build.Threads = null!;
         wingsServer.Settings.Build.Cpu_Limit = server.Cpu;
         wingsServer.Settings.Build.Disk_Space = server.Disk;
         wingsServer.Settings.Build.Io_Weight = 500;
         wingsServer.Settings.Build.Memory_Limit = server.Memory;
         wingsServer.Settings.Build.Oom_Disabled = true;
+        wingsServer.Settings.Build.Oom_Killer = false;
 
         var image = ImageRepository
             .Get()
@@ -117,12 +118,15 @@ public class WingsServerConverter
 
             foreach (var section in child.GetSection("find").GetChildren())
             {
-                replaces.Add(new()
+                if (section.Value != null)
                 {
-                    Match = section.Key,
-                    Replace_With = section.Value
-                        .Replace("{{server.build.default.port}}", def.Port.ToString())
-                });
+                    replaces.Add(new()
+                    {
+                        Match = section.Key,
+                        Replace_With = section.Value
+                            .Replace("{{server.build.default.port}}", def.Port.ToString())
+                    });
+                }
             }
             
             wingsServer.Process_Configuration.Configs.Add(new()

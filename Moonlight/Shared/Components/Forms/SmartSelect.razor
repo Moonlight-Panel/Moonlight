@@ -11,10 +11,13 @@
 @code
 {
     [Parameter]
-    public TField[] Items { get; set; }
+    public IEnumerable<TField> Items { get; set; }
     
     [Parameter]
     public Func<TField, string> DisplayField { get; set; }
+    
+    [Parameter]
+    public Func<Task>? OnChange { get; set; }
 
     protected override void OnInitialized()
     {
@@ -53,6 +56,7 @@
             {
                 Value = i;
                 ValueChanged.InvokeAsync(i);
+                OnChange?.Invoke();
             }
         }
     }

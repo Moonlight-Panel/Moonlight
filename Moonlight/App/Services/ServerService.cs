@@ -29,6 +29,7 @@ public class ServerService
     private readonly SecurityLogService SecurityLogService;
     private readonly AuditLogService AuditLogService;
     private readonly ErrorLogService ErrorLogService;
+    private readonly NodeService NodeService;
 
     public ServerService(
         ServerRepository serverRepository,
@@ -42,7 +43,8 @@ public class ServerService
         WingsJwtHelper wingsJwtHelper,
         SecurityLogService securityLogService,
         AuditLogService auditLogService,
-        ErrorLogService errorLogService)
+        ErrorLogService errorLogService,
+        NodeService nodeService)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -56,6 +58,7 @@ public class ServerService
         SecurityLogService = securityLogService;
         AuditLogService = auditLogService;
         ErrorLogService = errorLogService;
+        NodeService = nodeService;
     }
 
     private Server EnsureNodeData(Server s)
@@ -192,13 +195,14 @@ public class ServerService
         ServerRepository.Update(serverData);
 
         await MessageService.Emit("wings.backups.delete", backup);
-        
+
         await AuditLogService.Log(AuditLogType.DeleteBackup,
             x =>
             {
                 x.Add<Server>(server.Uuid);
                 x.Add<ServerBackup>(backup.Uuid);
-            });
+            }
+        );
     }
 
     public async Task<string> DownloadBackup(Server s, ServerBackup serverBackup)
@@ -210,7 +214,7 @@ public class ServerService
             claims.Add("server_uuid", server.Uuid.ToString());
             claims.Add("backup_uuid", serverBackup.Uuid.ToString());
         });
-        
+
         await AuditLogService.Log(AuditLogType.DownloadBackup,
             x =>
             {
@@ -218,7 +222,10 @@ public class ServerService
                 x.Add<ServerBackup>(serverBackup.Uuid);
             });
 
-        return $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
+        if (server.Node.Ssl)
+            return $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
+        else
+            return $"http://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
     }
 
     public Task<FileAccess> CreateFileAccess(Server s, User user) // We need the user to create the launch url
@@ -237,7 +244,7 @@ public class ServerService
     }
 
     public async Task<Server> Create(string name, int cpu, long memory, long disk, User u, Image i, Node? n = null,
-        Action<Server>? modifyDetails = null)
+        Action<Server>? modifyDetails = null, int allocations = 1)
     {
         var user = UserRepository
             .Get()
@@ -253,7 +260,10 @@ public class ServerService
 
         if (n == null)
         {
-            node = NodeRepository.Get().Include(x => x.Allocations).First(); //TODO: Smart deploy
+            node = NodeRepository
+                .Get()
+                .Include(x => x.Allocations)
+                .First(); //TODO: Add smart deploy maybe
         }
         else
         {
@@ -263,21 +273,26 @@ public class ServerService
                 .First(x => x.Id == n.Id);
         }
 
-        NodeAllocation freeAllo;
+        NodeAllocation[] freeAllocations;
 
         try
         {
-            freeAllo = node.Allocations.First(a => !ServerRepository.Get()
-                .SelectMany(s => s.Allocations)
-                .Any(b => b.Id == a.Id)); // Thank you ChatGPT <3
+            freeAllocations = node.Allocations
+                .Where(a => !ServerRepository.Get()
+                    .SelectMany(s => s.Allocations)
+                    .Any(b => b.Id == a.Id))
+                .Take(allocations).ToArray();
         }
         catch (Exception)
         {
             throw new DisplayException("No allocation found");
         }
 
-        if (freeAllo == null)
+        if (!freeAllocations.Any())
             throw new DisplayException("No allocation found");
+
+        if (freeAllocations.Length != allocations)
+            throw new DisplayException("Not enough allocations found");
 
         var server = new Server()
         {
@@ -289,11 +304,8 @@ public class ServerService
             Owner = user,
             Node = node,
             Uuid = Guid.NewGuid(),
-            MainAllocation = freeAllo,
-            Allocations = new()
-            {
-                freeAllo
-            },
+            MainAllocation = freeAllocations.First(),
+            Allocations = freeAllocations.ToList(),
             Backups = new(),
             OverrideStartup = "",
             DockerImageIndex = image.DockerImages.FindIndex(x => x.Default)
@@ -321,10 +333,7 @@ public class ServerService
                 StartOnCompletion = false
             });
 
-            await AuditLogService.Log(AuditLogType.CreateServer, x =>
-            {
-                x.Add<Server>(newServerData.Uuid);
-            });
+            await AuditLogService.Log(AuditLogType.CreateServer, x => { x.Add<Server>(newServerData.Uuid); });
 
             return newServerData;
         }
@@ -332,11 +341,11 @@ public class ServerService
         {
             await ErrorLogService.Log(e, x =>
             {
-                x.Add<Server>(newServerData.Uuid); 
+                x.Add<Server>(newServerData.Uuid);
                 x.Add<Node>(node.Id);
             });
 
-            ServerRepository.Delete(newServerData);
+            ServerRepository.Delete(newServerData); //TODO Remove unsinged table stuff
 
             throw new DisplayException("Error creating server on wings");
         }
@@ -348,10 +357,7 @@ public class ServerService
 
         await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/reinstall", null);
 
-        await AuditLogService.Log(AuditLogType.ReinstallServer, x =>
-        {
-            x.Add<Server>(server.Uuid);
-        });
+        await AuditLogService.Log(AuditLogType.ReinstallServer, x => { x.Add<Server>(server.Uuid); });
     }
 
     public async Task<Server> SftpServerLogin(int serverId, int id, string password)
@@ -360,10 +366,7 @@ public class ServerService
 
         if (server == null)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x =>
-            {
-                x.Add<int>(id);
-            });
+            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x => { x.Add<int>(id); });
             throw new Exception("Server not found");
         }
 
@@ -389,10 +392,42 @@ public class ServerService
 
     public async Task Delete(Server s)
     {
+        throw new DisplayException("Deleting a server is currently a bit buggy. So its disabled for your safety");
+        
         var server = EnsureNodeData(s);
 
+        var backups = await GetBackups(server);
+
+        foreach (var backup in backups)
+        {
+            try
+            {
+                await DeleteBackup(server, backup);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
         await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
+
+        //TODO: Fix empty data models
         
-        ServerRepository.Delete(s);
+        server.Allocations = new();
+        server.MainAllocation = null;
+        server.Variables = new();
+        server.Backups = new();
+
+        ServerRepository.Update(server);
+
+        ServerRepository.Delete(server);
+    }
+
+    public async Task<bool> IsHostUp(Server s)
+    {
+        var server = EnsureNodeData(s);
+
+        return await NodeService.IsHostUp(server.Node);
     }
 }

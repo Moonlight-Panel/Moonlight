@@ -1,66 +1,50 @@
 ﻿@page "/admin/domains/new"
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
-@using Blazored.Typeahead
+@using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
 
 @inject SmartTranslateService SmartTranslateService
 @inject SharedDomainRepository SharedDomainRepository
-@inject DomainRepository DomainRepository
 @inject UserRepository UserRepository
+@inject NavigationManager NavigationManager
+@inject DomainService DomainService
 
 <OnlyAdmin>
     <div class="row mb-5">
         <div class="card card-body p-10">
             <LazyLoader Load="Load">
-                <label class="form-label">
-                    <TL>Domain name</TL>
-                </label>
-                <div class="input-group mb-5">
-                    <span class="input-group-text">
-                        <i class="bx bx-purchase-tag-alt"></i>
-                    </span>
-                    <input @bind="Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))" aria-label="Servername">
-                </div>
-                <div class="mb-5">
+                <SmartForm Model="Model" OnValidSubmit="Add">
                     <label class="form-label">
-                        <TL>Shared domain</TL>
+                        <TL>Domain name</TL>
                     </label>
-                    <select @bind="SharedDomainId" class="form-select">
-                        @if (SharedDomains.Any())
-                        {
-                            foreach (var sharedDomain in SharedDomains)
-                            {
-                                <option value="@(sharedDomain.Id)">@(sharedDomain.Name)</option>
-                            }
-                        }
-                        else
-                        {
-                            <option value="">
-                                <TL>No shared domains available</TL>
-                            </option>
-                        }
-                    </select>
-                </div>
-                <div class="input-group mb-5">
-                    <div class="form-select">
-                        <BlazoredTypeahead SearchMethod="SearchUsers"
-                                           @bind-Value="User">
-                            <SelectedTemplate>
-                                @(context.Email)
-                            </SelectedTemplate>
-                            <ResultTemplate>
-                                @(context.Email)
-                            </ResultTemplate>
-                        </BlazoredTypeahead>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-purchase-tag-alt"></i>
+                        </span>
+                        <InputText @bind-Value="Model.Name" class="form-control" placeholder="@(SmartTranslateService.Translate("Domain name"))"></InputText>
                     </div>
-                </div>
-                <WButton Text="@(SmartTranslateService.Translate("Add"))"
-                         WorkingText="@(SmartTranslateService.Translate("Adding"))"
-                         CssClasses="btn-success"
-                         OnClick="Add">
-                </WButton>
+                    <div class="mb-5">
+                        <label class="form-label">
+                            <TL>Shared domain</TL>
+                        </label>
+                        <SmartSelect @bind-Value="Model.SharedDomain"
+                                     Items="SharedDomains"
+                                     DisplayField="@(x => x.Name)">
+                        </SmartSelect>
+                    </div>
+                    <div class="input-group mb-5">
+                        <SmartDropdown @bind-Value="Model.Owner"
+                                       Items="Users"
+                                       DisplayFunc="@(x => x.Email)"
+                                       SearchProp="@(x => x.Email)">
+                        </SmartDropdown>
+                    </div>
+                    <button class="btn btn-success" type="submit">
+                        <TL>Create</TL>
+                    </button>
+                </SmartForm>
             </LazyLoader>
         </div>
     </div>
@@ -68,54 +52,23 @@
 
 @code
 {
-    private string Name;
+    private DomainDataModel Model = new();
 
-    private User? User;
     private User[] Users;
-
-    private List<SharedDomain> SharedDomains;
-
-    private SharedDomain? SharedDomain;
-
-    private int SharedDomainId
-    {
-        get => SharedDomain?.Id ?? -1;
-        set
-        {
-            SharedDomain = SharedDomains.FirstOrDefault(x => x.Id == value);
-            InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private Task<IEnumerable<User>> SearchUsers(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-        {
-            return Task.FromResult(Array.Empty<User>().Cast<User>());
-        }
-        else
-        {
-            return Task.FromResult(Users.Where(x => x.Email.ToLower().StartsWith(input)));
-        }
-    }
+    private SharedDomain[] SharedDomains;
 
     private Task Load(LazyLoader lazyLoader)
     {
         Users = UserRepository.Get().ToArray();
-        SharedDomains = SharedDomainRepository.Get().ToList();
+        SharedDomains = SharedDomainRepository.Get().ToArray();
 
         return Task.CompletedTask;
     }
 
-    private Task Add()
+    private async Task Add()
     {
-        DomainRepository.Add(new()
-        {
-            Name = Name.ToLower(),
-            Owner = User!,
-            SharedDomain = SharedDomain!
-        });
-        
-        return Task.CompletedTask;
+        await DomainService.Create(Model.Name, Model.SharedDomain, Model.Owner);
+
+        NavigationManager.NavigateTo("/admin/domains");
     }
 }

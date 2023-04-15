@@ -1,0 +1,78 @@
+﻿{
+  "Moonlight": {
+    "AppUrl": "http://your-moonlight-url.test",
+    "Database": {
+      "Database": "database_name",
+      "Host": "your-moonlight-database-host.de",
+      "Password": "s3cr3t",
+      "Port": "10324",
+      "Username": "user_name"
+    },
+    "DiscordBot": {
+      "Enable": "True",
+      "Token": "Discord.Token.Here"
+    },
+    "Domains": {
+      "_comment": "Cloudflare Api Credentials",
+      "AccountId": "Account Id here",
+      "Email": "Cloudflare Email here",
+      "Key": "Api Key Here"
+    },
+    "Html": {
+      "Headers": {
+        "Color": "#4b27e8",
+        "Description": "the next generation hosting panel",
+        "Keywords": "moonlight",
+        "Title": "Moonlight - moonlight.tld"
+      }
+    },
+    "Marketing": {
+      "BrandName": "My cool project",
+      "Imprint": "https://mycoolproject.de/imprint",
+      "Privacy": "https://mycoolproject.de/privacy",
+      "Website": "https://mycoolproject.de/"
+    },
+    "OAuth2": {
+      "Discord": {
+        "ClientId": "10324",
+        "ClientSecret": "s3cr3t",
+        "Enable": "True"
+      },
+      "Google": {
+        "ClientId": "xyz.apps.googleusercontent.com",
+        "ClientSecret": "s3cr3t",
+        "Enable": "True"
+      },
+      "EnableOverrideUrl": "True",
+      "OverrideUrl": "http://your-moonlight-url.test"
+    },
+    "Security": {
+      "Token": "RANDOM UUID HERE"
+    },
+    "SetupComplete": "True",
+    "SupportChat": {
+      "Enabled": "True"
+    },
+    "Mail": {
+      "Email": "no-reply@mycoolproject.de",
+      "Server": "mycoolproject.de",
+      "Password": "s3cr3t",
+      "Port": 25
+    },
+    "Cleanup": {
+      "Cpu": 90,
+      "Memory": 8192,
+      "Wait": 15,
+      "Uptime": 6,
+      "Enable": false,
+      "MinUptime": 10
+    },
+    "Subscriptions": {
+      "_comment": "Not implemented",
+      "SellPass": {
+        "Enable": false,
+        "Url": ""
+      }
+    }
+  }
+}

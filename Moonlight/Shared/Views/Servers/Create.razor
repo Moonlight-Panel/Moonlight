@@ -27,7 +27,7 @@
                         <TL>No node found</TL>
                     </h4>
                     <p class="card-text">
-                        <TL>No node found to deploy to found</TL>
+                        <TL>No node found to deploy to</TL>
                     </p>
                 </div>
             </div>
@@ -36,8 +36,8 @@
     else
     {
         <div class="d-flex flex-column flex-lg-row">
-            <div class="w-100 flex-lg-row-auto w-lg-300px mb-7 me-7 me-lg-10" data-select2-id="select2-data-131-dr2d">
-                <div class="card card-flush py-4" data-select2-id="select2-data-130-ru5y">
+            <div class="w-100 flex-lg-row-auto w-lg-300px mb-7 me-7 me-lg-10">
+                <div class="card card-flush py-4">
                     <div class="card-header">
                         <div class="card-title">
                             <h2>
@@ -48,7 +48,7 @@
                     <div class="card-body pt-0">
                         <div class="d-flex flex-column gap-10">
                             <div class="fv-row">
-                                <label class="form-label">Node</label>
+                                <label class="form-label"><TL>Node</TL></label>
                                 <div class="fw-bold fs-3">@(DeployNode.Name)</div>
                             </div>
                             @if (Model.Image != null)
@@ -159,11 +159,9 @@
         Subscription = await SubscriptionService.GetCurrent();
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy node"));
-
         DeployNode = await SmartDeployService.GetNode();
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Searching for available images"));
-
         var images = ImageRepository.Get().ToArray();
 
         foreach (var image in images)
@@ -179,7 +177,7 @@
                     .Where(x => x.Owner.Id == User.Id)
                     .Count(x => x.Image.Id == image.Id);
                 
-                if(serversCount <= limit.Amount) //TODO: FIX COUNTING
+                if(serversCount < limit.Amount)
                     Images.Add(image, limit);
             }
         }
@@ -211,7 +209,9 @@
                         disk,
                         User,
                         Model.Image,
-                        DeployNode
+                        DeployNode,
+                        null,
+                        Model.Image.Allocations
                     );
                     
                     NavigationManager.NavigateTo($"/server/{server.Uuid}");

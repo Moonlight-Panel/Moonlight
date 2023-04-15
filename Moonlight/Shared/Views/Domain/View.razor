@@ -1,0 +1,243 @@
+﻿@page "/domain/{Id:int}"
+@using Moonlight.App.Services.Sessions
+@using Moonlight.App.Repositories.Domains
+@using Moonlight.App.Database.Entities
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using CloudFlare.Client.Enumerators
+@using Moonlight.App.Services.Interop
+
+@inject DomainRepository DomainRepository
+@inject DomainService DomainService
+@inject SmartTranslateService SmartTranslateService
+
+<LazyLoader Load="Load">
+    @if (Domain == null)
+    {
+        <div class="alert alert-danger">
+            <TL>This domain does not exist or you have no access to it</TL>
+        </div>
+    }
+    else
+    {
+        var domainNameBuilt = $"{Domain.Name}.{Domain.SharedDomain.Name}";
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <TL>DNS records for</TL><span class="ms-3">@(domainNameBuilt)</span>
+                </span>
+            </div>
+            <div class="mt-5"></div>
+            <LazyLoader @ref="DnsLazyLoader" Load="LoadDnsRecords">
+                <div class="card-body">
+                    <div class="w-100 d-flex flex-row justify-content-between align-items-center">
+                        <div class="p-2">
+                            <select @bind="NewRecord.Type" class="form-select">
+                                @foreach (DnsRecordType type in (DnsRecordType[])Enum.GetValues(typeof(DnsRecordType)))
+                                {
+                                    <option value="@(type)">@(type.ToString().ToUpper())</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="p-2">
+                            <input class="form-control" type="text" placeholder="@domainNameBuilt" @bind="NewRecord.Name"/>
+                        </div>
+                        <div class="p-2">
+                            <input class="form-control" type="text" placeholder="@(SmartTranslateService.Translate("Content"))" @bind="NewRecord.Content"/>
+                        </div>
+                        <div class="form-check p-2 ms-10 me-10">
+                            <input class="form-check-input" type="checkbox" @bind="NewRecord.Proxied" id="cfCheckbox">
+                            <label class="form-check-label" for="cfCheckbox">
+                                <TL>CF Proxy</TL>
+                            </label>
+                        </div>
+                        <div class="p-2">
+                            <input class="form-control" type="number" placeholder="@(SmartTranslateService.Translate("Ttl"))" @bind="NewRecord.Ttl"/>
+                        </div>
+                        <div class="p-2">
+                            <input class="form-control" type="number" placeholder="@(SmartTranslateService.Translate("Priority"))" @bind="NewRecord.Priority"/>
+                        </div>
+                    </div>
+                    <div class="d-flex me-2">
+                        <div class="mt-3 ms-auto">
+                            <WButton Text="@(SmartTranslateService.Translate("Add"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Adding"))"
+                                     CssClasses="btn-success"
+                                     OnClick="Add">
+                            </WButton>
+                        </div>
+                    </div>
+                </div>
+                @if (DnsRecords.Any())
+                {
+                    <div class="row">
+                        <div class="accordion accordion-flush" id="accordionDomain">
+                            @foreach (var record in DnsRecords)
+                            {
+                                <div class="separator"></div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading@(record.Id)">
+                                        <button class="accordion-button ps-6 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(record.Id)" aria-expanded="false" aria-controls="collapse@(record.Id)">
+                                            <div class="row w-100">
+                                                <div class="ms-5 col">
+                                                    @(record.Type.ToString().ToUpper())
+                                                </div>
+                                                <div class="col">
+                                                    @(record.Name == "" ? domainNameBuilt : record.Name)
+                                                </div>
+                                                <div class="col">
+                                                    @(record.Content)
+                                                </div>
+                                                <div class="col">
+                                                    @(record.Proxied)
+                                                </div>
+                                                <div class="col">
+                                                    @(record.Ttl)
+                                                </div>
+                                                <div class="col pe-6">
+                                                    @(record.Priority)
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse@(record.Id)" class="accordion-collapse collapse" aria-labelledby="heading@(record.Id)" data-bs-parent="#accordionDomain">
+                                        <div class="accordion-body ms-3 me-3">
+                                            <div class="w-100 d-flex flex-row justify-content-between align-items-center">
+                                                <div class="p-2">
+                                                    <input class="form-control" type="text" value="@(record.Type.ToString().ToUpper())" disabled=""/>
+                                                </div>
+                                                <div class="p-2">
+                                                    <input class="form-control" type="text" placeholder="@domainNameBuilt" @bind="record.Name"/>
+                                                </div>
+                                                <div class="p-2">
+                                                    <input class="form-control" type="text" placeholder="@(SmartTranslateService.Translate("Content"))" @bind="record.Content"/>
+                                                </div>
+                                                <div class="form-check p-2 ms-10 me-10">
+                                                    <input class="form-check-input" type="checkbox" @bind="record.Proxied" id="cfCheckbox">
+                                                    <label class="form-check-label" for="cfCheckbox">
+                                                        <TL>CF Proxy</TL>
+                                                    </label>
+                                                </div>
+                                                <div class="p-2">
+                                                    <input class="form-control" type="number" placeholder="@(SmartTranslateService.Translate("Ttl"))" @bind="record.Ttl"/>
+                                                </div>
+                                                <div class="p-2">
+                                                    <input class="form-control" type="number" placeholder="@(SmartTranslateService.Translate("Priority"))" @bind="record.Priority"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="separator mx-5"></div>
+                                        <div class="accordion-body me-0 ms-5">
+                                            <div class="d-flex me-2">
+                                                <div class="me-auto">
+                                                    <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                                             WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                                                             CssClasses="btn-danger"
+                                                             OnClick="() => Delete(record)">
+                                                    </WButton>
+                                                </div>
+                                                <div class="me-3 ms-3">
+                                                    <button class="btn btn-light" data-bs-toggle="collapse" data-bs-target="#collapse@(record.Id)">
+                                                        <TL>Cancel</TL>
+                                                    </button>
+                                                    <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                                                             WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                                                             CssClasses="btn-success"
+                                                             OnClick="() => Save(record)">
+                                                    </WButton>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="separator"></div>
+                    <div class="mx-5 mt-5 alert alert-primary">
+                        <TL>No dns records found</TL>
+                    </div>
+                }
+            </LazyLoader>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+    
+    [CascadingParameter]
+    public User? User { get; set; }
+
+    private Domain? Domain;
+    private DnsRecord[] DnsRecords;
+    private DnsRecord NewRecord = new()
+    {
+        Ttl = 1,
+        Priority = 0
+    };
+
+    private LazyLoader DnsLazyLoader;
+
+    private async Task Load(LazyLoader arg)
+    {
+        Domain = DomainRepository
+            .Get()
+            .Include(x => x.SharedDomain)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (Domain == null)
+            return;
+
+        if (User == null)
+        {
+            Domain = null;
+            return;
+        }
+
+        if (Domain.Owner.Id != User.Id && !User.Admin)
+        {
+            Domain = null;
+            return;
+        }
+    }
+
+    private async Task LoadDnsRecords(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText(SmartTranslateService.Translate("Fetching dns records"));
+        DnsRecords = await DomainService.GetDnsRecords(Domain!);
+    }
+
+    private async Task Save(DnsRecord record)
+    {
+        await DomainService.UpdateDnsRecord(Domain!, record);
+        await DnsLazyLoader.Reload();
+    }
+
+    private async Task Add()
+    {
+        await DomainService.AddDnsRecord(Domain!, NewRecord);
+        
+        NewRecord = new()
+        {
+            Ttl = 1,
+            Priority = 0
+        };
+
+        await DnsLazyLoader.Reload();
+    }
+
+    private async Task Delete(DnsRecord record)
+    {
+        await DomainService.DeleteDnsRecord(Domain!, record);
+        await DnsLazyLoader.Reload();
+    }
+}

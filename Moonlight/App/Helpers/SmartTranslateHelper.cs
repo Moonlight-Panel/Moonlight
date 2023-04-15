@@ -8,7 +8,7 @@ public class SmartTranslateHelper
     {
         Languages = new();
         
-        foreach (var file in Directory.GetFiles("resources/lang"))
+        foreach (var file in Directory.GetFiles(PathBuilder.Dir("storage", "resources", "lang")))
         {
             if (Path.GetExtension(file) == ".lang")
             {
@@ -21,7 +21,9 @@ public class SmartTranslateHelper
                 foreach (var line in lines)
                 {
                     var parts = line.Split(";");
-                    content.Add(parts[0], parts[1]);
+                    
+                    if(!content.ContainsKey(parts[0]))
+                        content.Add(parts[0], parts[1]);
                 }
                 
                 Languages.Add(langKey, content);
@@ -38,7 +40,7 @@ public class SmartTranslateHelper
         {
             Languages[langKey].Add(content, content);
             
-            File.WriteAllLines($"resources/lang/{langKey}.lang", GenerateData(Languages[langKey]));
+            File.WriteAllLines(PathBuilder.File("storage", "resources", "lang", $"{langKey}.lang"), GenerateData(Languages[langKey]));
         }
 
         return Languages[langKey][content];

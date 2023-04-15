@@ -100,22 +100,29 @@
         {
             await lazyLoader.SetText(node.Name);
 
-            var containerStats = await NodeService.GetContainerStats(node);
-
-            foreach (var container in containerStats.Containers)
+            try
             {
-                if (Guid.TryParse(container.Name, out Guid uuid))
-                {
-                    var server = ServerRepository
-                        .Get()
-                        .Include(x => x.Owner)
-                        .FirstOrDefault(x => x.Uuid == uuid);
+                var containerStats = await NodeService.GetContainerStats(node);
 
-                    if (server != null)
+                foreach (var container in containerStats.Containers)
+                {
+                    if (Guid.TryParse(container.Name, out Guid uuid))
                     {
-                        Containers.Add(server, container);
+                        var server = ServerRepository
+                            .Get()
+                            .Include(x => x.Owner)
+                            .FirstOrDefault(x => x.Uuid == uuid);
+
+                        if (server != null)
+                        {
+                            Containers.Add(server, container);
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
     }
