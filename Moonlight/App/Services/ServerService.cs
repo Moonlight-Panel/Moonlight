@@ -186,9 +186,21 @@ public class ServerService
             .Include(x => x.Backups)
             .First(x => x.Id == server.Id);
 
-        await WingsApiHelper.Delete(serverData.Node, $"api/servers/{serverData.Uuid}/backup/{serverBackup.Uuid}",
-            null);
-
+        try
+        {
+            await WingsApiHelper.Delete(serverData.Node, $"api/servers/{serverData.Uuid}/backup/{serverBackup.Uuid}",
+                null);
+        }
+        catch (WingsException e)
+        {
+            // when a backup is not longer there we can
+            // safely delete the backup so we ignore this error
+            if (e.StatusCode != 404)
+            {
+                throw;
+            }
+        }
+        
         var backup = serverData.Backups.First(x => x.Uuid == serverBackup.Uuid);
         serverData.Backups.Remove(backup);
 
