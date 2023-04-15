@@ -57,6 +57,10 @@ else
                 SmartTranslateService.Translate("Error from daemon"),
                 wingsException.Message
                 );
+            
+            //TODO: Error log service
+            
+            Logger.Warn($"Wings exception status code: {wingsException.StatusCode}");
         }
         else if (exception is PleskException pleskException)
         {
