@@ -186,86 +186,94 @@
 
     private async Task Download(ServerBackup serverBackup)
     {
+        var url = await ServerService.DownloadBackup(CurrentServer, serverBackup);
+
+        NavigationManager.NavigateTo(url);
+        await ToastService.Success(SmartTranslateService.Translate("Backup download successfully started"));
+        
+        /*
         try
         {
-            var url = await ServerService.DownloadBackup(CurrentServer, serverBackup);
-
-            NavigationManager.NavigateTo(url);
-            await ToastService.Success(SmartTranslateService.Translate("Backup download successfully started"));
+            
         }
         catch (Exception e)
         {
             Logger.Warn("Error starting backup download");
             Logger.Warn(e);
             await ToastService.Error(SmartTranslateService.Translate("Backup download failed"));
-        }
+        }*/
     }
 
     private async Task CopyUrl(ServerBackup serverBackup)
     {
+        var url = await ServerService.DownloadBackup(CurrentServer, serverBackup);
+
+        await ClipboardService.CopyToClipboard(url);
+        await AlertService.Success(
+            SmartTranslateService.Translate("Success"), 
+            SmartTranslateService.Translate("Backup URL successfully copied to your clipboard"));
+        
+        /*
         try
         {
-            var url = await ServerService.DownloadBackup(CurrentServer, serverBackup);
-
-            await ClipboardService.CopyToClipboard(url);
-            await AlertService.Success(
-                SmartTranslateService.Translate("Success"), 
-                SmartTranslateService.Translate("Backup URL successfully copied to your clipboard"));
+            
         }
         catch (Exception e)
         {
             Logger.Warn("Error copying backup url");
             Logger.Warn(e);
             await ToastService.Error(SmartTranslateService.Translate("An unknown error occured while generating backup url"));
-        }
+        }*/
     }
 
     private async Task Delete(ServerBackup serverBackup)
     {
+        await ToastService.Info(SmartTranslateService.Translate("Backup deletion started"));
+        await ServerService.DeleteBackup(CurrentServer, serverBackup);
+        
+        /*
         try
         {
-            await ToastService.Info(SmartTranslateService.Translate("Backup deletion started"));
-            await ServerService.DeleteBackup(CurrentServer, serverBackup);
+            
         }
         catch (Exception e)
         {
             Logger.Warn("Error deleting backup");
             Logger.Warn(e);
             await ToastService.Error(SmartTranslateService.Translate("An unknown error occured while starting backup deletion"));
-        }
+        }*/
     }
 
     private async Task Restore(ServerBackup serverBackup)
     {
+        await ServerService.RestoreBackup(CurrentServer, serverBackup);
+        await ToastService.Info(SmartTranslateService.Translate("Backup restore started"));
+        
+        /*
         try
         {
-            await ServerService.RestoreBackup(CurrentServer, serverBackup);
-
-            await ToastService.Info(SmartTranslateService.Translate("Backup restore started"));
+            
         }
         catch (Exception e)
         {
             Logger.Warn("Error restoring backup");
             Logger.Warn(e);
             await ToastService.Error(SmartTranslateService.Translate("An unknown error occured while restoring a backup"));
-        }
+        }*/
     }
 
     private async Task Create()
     {
+        await ToastService.Info(SmartTranslateService.Translate("Started backup creation"));
+        await ServerService.CreateBackup(CurrentServer);
+        
+        /*
         try
         {
-            await ToastService.Info(SmartTranslateService.Translate("Started backup creation"));
-            var backup = await ServerService.CreateBackup(CurrentServer);
-
-    /*
-            
             // Modify the backup list so no reload needed. Also the create event will work
-            var list = AllBackups!.ToList();
-            list.Add(backup);
-            AllBackups = list.ToArray();
-            
-            */
+            //var list = AllBackups!.ToList();
+            //list.Add(backup);
+            //AllBackups = list.ToArray();
 
             await LazyLoader.Reload();
         }
@@ -274,7 +282,7 @@
             Logger.Warn("Error creating backup");
             Logger.Warn(e);
             await ToastService.Error(SmartTranslateService.Translate("An unknown error has occured while creating a backup"));
-        }
+        }*/
     }
 
     private async Task OnContextMenuClick(ItemClickEventArgs args)
