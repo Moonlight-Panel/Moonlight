@@ -1,9 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
+@using Moonlight.App.Extensions
+@using Moonlight.App.Repositories
 @using Moonlight.App.Services
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @inject ConfigService ConfigService
+@inject LoadingMessageRepository LoadingMessageRepository
 
 @{
     var headerConfig = ConfigService
@@ -73,9 +76,13 @@
 <div class="app-page-loader flex-column">
     <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-25px"/>
 
+    @{
+        var loadingMessage = LoadingMessageRepository.Get().Random();
+    }
+    
     <div class="d-flex align-items-center mt-5">
         <span class="spinner-border text-primary" role="status"></span>
-        <span class="text-muted fs-6 fw-semibold ms-5">CHANGEME</span>
+        <span class="text-muted fs-6 fw-semibold ms-5">@(loadingMessage.Message)</span>
     </div>
 </div>
 
