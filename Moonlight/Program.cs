@@ -41,7 +41,13 @@ namespace Moonlight
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-            builder.Services.AddServerSideBlazor();
+            builder.Services.AddServerSideBlazor()
+                .AddHubOptions(options =>
+                {
+                    options.MaximumReceiveMessageSize = 10000000;
+                    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+                    options.HandshakeTimeout = TimeSpan.FromSeconds(10);
+                });
             builder.Services.AddHttpContextAccessor();
             
             // Databases
