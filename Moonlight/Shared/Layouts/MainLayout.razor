@@ -160,8 +160,6 @@
                 await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
                 await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
 
-                await JsRuntime.InvokeVoidAsync("moonlight.loading.registerXterm");
-
                 await SessionService.Register();
 
                 NavigationManager.LocationChanged += (sender, args) => { SessionService.Refresh(); };

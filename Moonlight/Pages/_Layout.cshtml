@@ -54,7 +54,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <base href="~/"/>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered"/>
-    
+
     <title>Loading</title>
 </head>
 <body
@@ -79,7 +79,7 @@
     @{
         var loadingMessage = LoadingMessageRepository.Get().Random();
     }
-    
+
     <div class="d-flex align-items-center mt-5">
         <span class="spinner-border text-primary" role="status"></span>
         <span class="text-muted fs-6 fw-semibold ms-5">@(loadingMessage.Message)</span>
@@ -107,6 +107,10 @@
 
 <script src="/assets/js/scripts.bundle.js"></script>
 <script src="/assets/js/moonlight.js"></script>
+
+<script>
+moonlight.loading.registerXterm();
+</script>
 
 <script src="_content/Blazor-ApexCharts/js/apex-charts.min.js"></script>
 <script src="_content/Blazor-ApexCharts/js/blazor-apex-charts.js"></script>
