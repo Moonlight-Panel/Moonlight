@@ -71,9 +71,8 @@ namespace Moonlight
             builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<LoadingMessageRepository>();
             builder.Services.AddScoped<NewsEntryRepository>();
-
+            builder.Services.AddScoped<NodeAllocationRepository>();
             builder.Services.AddScoped<StatisticsRepository>();
-            
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
             builder.Services.AddScoped<SecurityLogEntryRepository>();

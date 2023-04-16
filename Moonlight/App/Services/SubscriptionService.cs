@@ -89,7 +89,7 @@ public class SubscriptionService
         }
     }
 
-    public async Task<SubscriptionLimit> GetLimit(string identifier)
+    public async Task<SubscriptionLimit> GetLimit(string identifier) // Cache, optimize sql code
     {
         var subscription = await GetCurrent();
         var defaultLimits = await GetDefaultLimits();

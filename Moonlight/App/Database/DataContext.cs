@@ -2,6 +2,7 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.LogsEntries;
 using Moonlight.App.Database.Entities.Notification;
+using Moonlight.App.Database.Interceptors;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
 
@@ -65,6 +66,9 @@ public class DataContext : DbContext
                     builder.EnableRetryOnFailure(5);
                 }
             );
+            
+            if(ConfigService.SqlDebugMode)
+                optionsBuilder.AddInterceptors(new SqlLoggingInterceptor());
         }
     }
 }

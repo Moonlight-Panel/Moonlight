@@ -17,12 +17,15 @@
       "applicationUrl": "http://moonlight.testy:5118;https://localhost:7118;http://localhost:5118",
       "dotnetRunMessages": true
     },
-    "IIS Express": {
-      "commandName": "IISExpress",
+    "Sql Debug": {
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ML_SQL_DEBUG": "true"
+      },
+      "applicationUrl": "http://moonlight.testy:5118;https://localhost:7118;http://localhost:5118",
+      "dotnetRunMessages": true
     },
     "Docker": {
       "commandName": "Docker",
