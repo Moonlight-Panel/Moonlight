@@ -259,7 +259,7 @@ public class ServerService
     }
 
     public async Task<Server> Create(string name, int cpu, long memory, long disk, User u, Image i, Node? n = null,
-        Action<Server>? modifyDetails = null, int allocations = 1)
+        Action<Server>? modifyDetails = null)
     {
         var user = UserRepository
             .Get()
@@ -270,6 +270,8 @@ public class ServerService
             .Include(x => x.Variables)
             .Include(x => x.DockerImages)
             .First(x => x.Id == i.Id);
+
+        var allocations = image.Allocations;
 
         Node node = n ?? NodeRepository.Get().First();
 
