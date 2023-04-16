@@ -1,11 +1,25 @@
 ﻿@page "/changelog"
 
 @{
-    List<string[]> changelog = new List<string[]>()
+    List<string[]> changelog = new List<string[]>
     {
-        new[] {"title", "body1", "body2"},
-        new[] {"title2", "body3", "body4", "body5"},
+        new[]
+        {
+            "Patch 1, 16.04.2023",
+            "Loading messages have been implemented",
+            "Default subscription config has been implemented",
+            "Blazor hub has been optimized for large amount of users",
+            "Backup error handling improved",
+            "Client side javascript sorted",
+            "Sorted user server list implemented"
+        },
+        new[]
+        {
+            "Patch 2, 16.04.2023",
+            "Fixed xterm addons"
+        }
     };
+    
     int i = 0;
 }
 
