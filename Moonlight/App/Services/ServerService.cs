@@ -21,6 +21,7 @@ public class ServerService
     private readonly UserRepository UserRepository;
     private readonly ImageRepository ImageRepository;
     private readonly NodeRepository NodeRepository;
+    private readonly NodeAllocationRepository NodeAllocationRepository;
     private readonly WingsApiHelper WingsApiHelper;
     private readonly MessageService MessageService;
     private readonly UserService UserService;
@@ -44,7 +45,8 @@ public class ServerService
         SecurityLogService securityLogService,
         AuditLogService auditLogService,
         ErrorLogService errorLogService,
-        NodeService nodeService)
+        NodeService nodeService,
+        NodeAllocationRepository nodeAllocationRepository)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -59,6 +61,7 @@ public class ServerService
         AuditLogService = auditLogService;
         ErrorLogService = errorLogService;
         NodeService = nodeService;
+        NodeAllocationRepository = nodeAllocationRepository;
     }
 
     private Server EnsureNodeData(Server s)
@@ -268,32 +271,19 @@ public class ServerService
             .Include(x => x.DockerImages)
             .First(x => x.Id == i.Id);
 
-        Node node;
-
-        if (n == null)
-        {
-            node = NodeRepository
-                .Get()
-                .Include(x => x.Allocations)
-                .First(); //TODO: Add smart deploy maybe
-        }
-        else
-        {
-            node = NodeRepository
-                .Get()
-                .Include(x => x.Allocations)
-                .First(x => x.Id == n.Id);
-        }
+        Node node = n ?? NodeRepository.Get().First();
 
         NodeAllocation[] freeAllocations;
 
         try
         {
-            freeAllocations = node.Allocations
-                .Where(a => !ServerRepository.Get()
-                    .SelectMany(s => s.Allocations)
-                    .Any(b => b.Id == a.Id))
-                .Take(allocations).ToArray();
+            // We have sadly no choice to use entity framework to do what the sql call does, there
+            // are only slower ways, so we will use a raw sql call as a exception
+            
+            freeAllocations = NodeAllocationRepository
+                .Get()
+                .FromSqlRaw($"SELECT * FROM `NodeAllocations` WHERE ServerId IS NULL AND NodeId={node.Id} LIMIT {allocations}")
+                .ToArray();
         }
         catch (Exception)
         {
