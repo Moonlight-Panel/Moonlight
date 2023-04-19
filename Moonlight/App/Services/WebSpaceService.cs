@@ -17,13 +17,16 @@ public class WebSpaceService
 {
     private readonly Repository<CloudPanel> CloudPanelRepository;
     private readonly Repository<WebSpace> WebSpaceRepository;
+    private readonly Repository<MySqlDatabase> DatabaseRepository;
+
     private readonly CloudPanelApiHelper CloudPanelApiHelper;
 
-    public WebSpaceService(Repository<CloudPanel> cloudPanelRepository, Repository<WebSpace> webSpaceRepository, CloudPanelApiHelper cloudPanelApiHelper)
+    public WebSpaceService(Repository<CloudPanel> cloudPanelRepository, Repository<WebSpace> webSpaceRepository, CloudPanelApiHelper cloudPanelApiHelper, Repository<MySqlDatabase> databaseRepository)
     {
         CloudPanelRepository = cloudPanelRepository;
         WebSpaceRepository = webSpaceRepository;
         CloudPanelApiHelper = cloudPanelApiHelper;
+        DatabaseRepository = databaseRepository;
     }
 
     public async Task<WebSpace> Create(string domain, User owner, CloudPanel? ps = null)
@@ -83,14 +86,16 @@ public class WebSpaceService
     {
         try
         {
-            //var res = await PleskApiHelper.Get<ServerStatus>(pleskServer, "server");
+            await CloudPanelApiHelper.Post(cloudPanel, "", null);
 
             return true;
-
-            //if (res != null)
-            //    return true;
         }
-        catch (Exception e)
+        catch (CloudPanelException e)
+        {
+            if (e.StatusCode == 404)
+                return true;
+        }
+        catch (Exception)
         {
             // ignored
         }
@@ -105,40 +110,60 @@ public class WebSpaceService
         return await IsHostUp(webSpace.CloudPanel);
     }
 
-    #region SSL
-    public async Task<string[]> GetSslCertificates(WebSpace w)
+    public async Task IssueSslCertificate(WebSpace w)
     {
-        var certs = new List<string>();
-        return certs.ToArray();
-    }
+        var webspace = EnsureData(w);
 
-    public async Task CreateSslCertificate(WebSpace w)
-    {
-        
+        await CloudPanelApiHelper.Post(webspace.CloudPanel, "letsencrypt/install/certificate", new InstallLetsEncrypt()
+        {
+            DomainName = webspace.Domain
+        });
     }
-
-    public async Task DeleteSslCertificate(WebSpace w, string name)
-    {
-        
-    }
-    
-    #endregion
 
     #region Databases
 
-    public async Task<Models.Plesk.Resources.Database[]> GetDatabases(WebSpace w)
+    public Task<MySqlDatabase[]> GetDatabases(WebSpace w)
     {
-        return Array.Empty<Models.Plesk.Resources.Database>();
+        return Task.FromResult(WebSpaceRepository
+            .Get()
+            .Include(x => x.Databases)
+            .First(x => x.Id == w.Id)
+            .Databases.ToArray());
     }
 
     public async Task CreateDatabase(WebSpace w, string name, string password)
     {
+        if (DatabaseRepository.Get().Any(x => x.UserName == name))
+            throw new DisplayException("A database with this name does already exist");
+
+        var webspace = EnsureData(w);
+
+        var database = new MySqlDatabase()
+        {
+            UserName = name,
+            Password = password
+        };
+
+        await CloudPanelApiHelper.Post(webspace.CloudPanel, "db", new AddDatabase()
+        {
+            DomainName = webspace.Domain,
+            DatabaseName = database.UserName,
+            DatabaseUserName = database.UserName,
+            DatabaseUserPassword = database.Password
+        });
         
+        webspace.Databases.Add(database);
+        WebSpaceRepository.Update(webspace);
     }
 
-    public async Task DeleteDatabase(WebSpace w, Models.Plesk.Resources.Database database)
+    public async Task DeleteDatabase(WebSpace w, MySqlDatabase database)
     {
+        var webspace = EnsureData(w);
         
+        await CloudPanelApiHelper.Delete(webspace.CloudPanel, $"db/{database.UserName}", null);
+
+        webspace.Databases.Remove(database);
+        WebSpaceRepository.Update(webspace);
     }
 
     #endregion

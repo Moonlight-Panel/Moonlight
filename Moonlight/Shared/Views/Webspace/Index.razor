@@ -8,7 +8,6 @@
 
 @inject Repository<WebSpace> WebSpaceRepository
 @inject WebSpaceService WebSpaceService
-@inject ToastService ToastService
 
 <LazyLoader Load="Load">
     @if (CurrentWebspace == null)
@@ -40,7 +39,7 @@
                         case "files":
                             index = 1;
                             break;
-                        case "ftp":
+                        case "sftp":
                             index = 2;
                             break;
                         case "databases":
@@ -58,8 +57,8 @@
                         case "files":
                             <WebSpaceFiles />
                             break;
-                        case "ftp":
-                            <WebSpaceFtp />
+                        case "sftp":
+                            <WebSpaceSftp />
                             break;
                         case "databases":
                             <WebSpaceDatabases />

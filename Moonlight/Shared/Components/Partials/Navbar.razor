@@ -9,33 +9,36 @@
 @inject NavigationManager NavigationManager
 @inject CookieService CookieService
 
-<div class="menu menu-column justify-content-center"
-     data-kt-menu="true">
-    <div class="menu-item">
-        <div class="dropdown">
-            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <TL>Create</TL>
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item py-2" href="/servers/create">
-                        <TL>Server</TL>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2" href="/domains/create">
-                        <TL>Domain</TL>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2" href="/websites/create">
-                        <TL>Website</TL>
-                    </a>
-                </li>
-            </ul>
+@if (User != null)
+{
+    <div class="menu menu-column justify-content-center"
+         data-kt-menu="true">
+        <div class="menu-item">
+            <div class="dropdown">
+                <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <TL>Create</TL>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item py-2" href="/servers/create">
+                            <TL>Server</TL>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2" href="/domains/create">
+                            <TL>Domain</TL>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2" href="/webspaces/create">
+                            <TL>Webspace</TL>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
+}
 
 <div class="app-navbar flex-shrink-0">
     <div class="app-navbar-item ms-1 ms-lg-3">
