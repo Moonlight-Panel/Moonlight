@@ -79,6 +79,7 @@
         WebSpaces = WebSpaceRepository
             .Get()
             .Include(x => x.CloudPanel)
+            .Include(x => x.Owner)
             .ToArray();
 
         return Task.CompletedTask;
