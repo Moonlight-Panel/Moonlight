@@ -2,6 +2,7 @@ using BlazorDownloadFile;
 using BlazorTable;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Logging.Net;
+using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.Database;
 using Moonlight.App.Helpers;
 using Moonlight.App.LogMigrator;
@@ -76,6 +77,7 @@ namespace Moonlight
             builder.Services.AddScoped<AuditLogEntryRepository>();
             builder.Services.AddScoped<ErrorLogEntryRepository>();
             builder.Services.AddScoped<SecurityLogEntryRepository>();
+            builder.Services.AddScoped(typeof(Repository<>));
             
             // Services
             builder.Services.AddSingleton<ConfigService>();
@@ -102,7 +104,7 @@ namespace Moonlight
             builder.Services.AddScoped<NotificationClientService>();
             builder.Services.AddScoped<ModalService>();
             builder.Services.AddScoped<SmartDeployService>();
-            builder.Services.AddScoped<WebsiteService>();
+            builder.Services.AddScoped<WebSpaceService>();
             builder.Services.AddScoped<StatisticsViewService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
@@ -136,6 +138,7 @@ namespace Moonlight
             builder.Services.AddSingleton<HostSystemHelper>();
             builder.Services.AddScoped<DaemonApiHelper>();
             builder.Services.AddScoped<PleskApiHelper>();
+            builder.Services.AddScoped<CloudPanelApiHelper>();
             
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();

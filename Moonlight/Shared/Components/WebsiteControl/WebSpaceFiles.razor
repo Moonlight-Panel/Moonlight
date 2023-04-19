@@ -3,7 +3,7 @@
 @using Moonlight.App.Services
 @using Moonlight.Shared.Components.FileManagerPartials
 
-@inject WebsiteService WebsiteService
+@inject WebSpaceService WebSpaceService
 
 <LazyLoader Load="Load">
     <FileManager Access="Access">
@@ -13,12 +13,12 @@
 @code
 {
     [CascadingParameter]
-    public Website CurrentWebsite { get; set; }
+    public WebSpace CurrentWebSpace { get; set; }
 
     private FileAccess Access;
 
     private async Task Load(LazyLoader arg)
     {
-        Access = await WebsiteService.CreateFileAccess(CurrentWebsite);
+        Access = await WebSpaceService.CreateFileAccess(CurrentWebSpace);
     }
 }

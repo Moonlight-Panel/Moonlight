@@ -4,12 +4,12 @@
 @using Moonlight.App.Services
 
 @inject SmartTranslateService SmartTranslateService
-@inject WebsiteService WebsiteService
+@inject WebSpaceService WebSpaceService
 
 <LazyLoader @ref="LazyLoader" Load="Load">
     <div class="card w-100 mb-4">
         <div class="card-body py-2">
-            
+
             <div class="my-4 w-100">
                 <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
                     <div class="input-group">
@@ -34,7 +34,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="card-title">
-                                    <span>@(database.Name) - @(database.Type.ToUpper().Replace("MYSQL", "MySQL"))</span>
+                                    <span>@(database.UserName) - @(database.UserName.ToUpper().Replace("MYSQL", "MySQL"))</span>
                                 </div>
                             </div>
                             <div class="card-body me-1">
@@ -46,7 +46,7 @@
                                             </label>
                                         </td>
                                         <td class="pb-2">
-                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(Host)">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(CurrentWebSpace.CloudPanel.Host)">
                                         </td>
                                     </tr>
                                     <tr>
@@ -56,7 +56,7 @@
                                             </label>
                                         </td>
                                         <td class="pb-2">
-                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(DatabaseServer.Port)">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="3306">
                                         </td>
                                     </tr>
                                     <tr>
@@ -66,7 +66,17 @@
                                             </label>
                                         </td>
                                         <td class="pb-2">
-                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(database.Name)">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(database.UserName)">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="fs-6 fw-semibold form-label mt-3">
+                                                <TL>Password</TL>
+                                            </label>
+                                        </td>
+                                        <td class="pb-2">
+                                            <input type="text" class="form-control form-control-solid disabled blur-unless-hover" disabled="disabled" value="@(database.Password)">
                                         </td>
                                     </tr>
                                     <tr>
@@ -76,7 +86,7 @@
                                             </label>
                                         </td>
                                         <td class="pb-2">
-                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(database.Name)">
+                                            <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(database.UserName)">
                                         </td>
                                     </tr>
                                 </table>
@@ -93,7 +103,7 @@
     else
     {
         <div class="alert alert-warning">
-            <TL>No databases found for this website</TL>
+            <TL>No databases found for this webspace</TL>
         </div>
     }
 </LazyLoader>
@@ -101,36 +111,28 @@
 @code
 {
     [CascadingParameter]
-    public Website CurrentWebsite { get; set; }
+    public WebSpace CurrentWebSpace { get; set; }
 
     private LazyLoader LazyLoader;
-    private Database[] Databases;
-    private DatabaseServer DatabaseServer;
-    private string Host;
+    private MySqlDatabase[] Databases;
 
     private DatabaseDataModel Model = new();
 
     private async Task Load(LazyLoader arg)
     {
-        Databases = await WebsiteService.GetDatabases(CurrentWebsite);
-
-        if (Databases.Any())
-        {
-            DatabaseServer = (await WebsiteService.GetDefaultDatabaseServer(CurrentWebsite))!;
-            Host = await WebsiteService.GetHost(CurrentWebsite);
-        }
+        Databases = await WebSpaceService.GetDatabases(CurrentWebSpace);
     }
 
     private async Task OnValidSubmit()
     {
-        await WebsiteService.CreateDatabase(CurrentWebsite, Model.Name, Model.Password);
+        await WebSpaceService.CreateDatabase(CurrentWebSpace, Model.Name, Model.Password);
         Model = new();
         await LazyLoader.Reload();
     }
 
-    private async Task DeleteDatabase(Database database)
+    private async Task DeleteDatabase(MySqlDatabase database)
     {
-        await WebsiteService.DeleteDatabase(CurrentWebsite, database);
+        await WebSpaceService.DeleteDatabase(CurrentWebSpace, database);
         await LazyLoader.Reload();
     }
 }

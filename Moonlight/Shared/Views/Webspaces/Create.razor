@@ -1,4 +1,4 @@
-﻿@page "/websites/create"
+﻿@page "/webspaces/create"
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Forms
@@ -6,24 +6,24 @@
 @using Microsoft.EntityFrameworkCore
 
 @inject SubscriptionService SubscriptionService
-@inject WebsiteService WebsiteService
-@inject WebsiteRepository WebsiteRepository
+@inject WebSpaceService WebSpaceService
+@inject Repository<WebSpace> WebSpaceRepository
 @inject SmartDeployService SmartDeployService
 @inject SmartTranslateService SmartTranslateService
 @inject NavigationManager NavigationManager
 
 <LazyLoader Load="Load">
-    @if (PleskServer == null)
+    @if (CloudPanel == null)
     {
         <div class="d-flex justify-content-center flex-center">
             <div class="card">
                 <img src="/assets/media/svg/nodata.svg" class="card-img-top w-25 mx-auto pt-5" alt="Not found image"/>
                 <div class="card-body text-center">
                     <h4 class="card-title">
-                        <TL>No plesk server found</TL>
+                        <TL>No web host found</TL>
                     </h4>
                     <p class="card-text">
-                        <TL>No plesk server found to deploy to</TL>
+                        <TL>No web host found to deploy to</TL>
                     </p>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                     <div class="card-header">
                         <div class="card-title">
                             <h2>
-                                <TL>Website details</TL>
+                                <TL>Webspace details</TL>
                             </h2>
                         </div>
                     </div>
@@ -45,9 +45,9 @@
                         <div class="d-flex flex-column gap-10">
                             <div class="fv-row">
                                 <label class="form-label">
-                                    <TL>Plesk server</TL>
+                                    <TL>Web host</TL>
                                 </label>
-                                <div class="fw-bold fs-3">@(PleskServer.Name)</div>
+                                <div class="fw-bold fs-3">@(CloudPanel.Name)</div>
                             </div>
                             @if (AllowOrder)
                             {
@@ -67,7 +67,7 @@
                     <div class="card-header">
                         <div class="card-title">
                             <h2>
-                                <TL>Configure your website</TL>
+                                <TL>Configure your webspaces</TL>
                             </h2>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
                             {
                                 <div class="alert alert-warning d-flex align-items-center p-5 mb-10">
                                     <span>
-                                        <TL>You reached the maximum amount of websites in your subscription</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
+                                        <TL>You reached the maximum amount of webspaces in your subscription</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
                                     </span>
                                 </div>
                             }
@@ -108,7 +108,7 @@
     public User User { get; set; }
 
     private Subscription? Subscription;
-    private PleskServer? PleskServer;
+    private CloudPanel? CloudPanel;
     private bool AllowOrder = false;
 
     private WebsiteOrderDataModel Model = new();
@@ -121,10 +121,10 @@
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
         Subscription = await SubscriptionService.GetCurrent();
 
-        await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy plesk server"));
-        PleskServer = await SmartDeployService.GetPleskServer();
+        await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy web host"));
+        CloudPanel = await SmartDeployService.GetCloudPanel();
 
-        AllowOrder = WebsiteRepository
+        AllowOrder = WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount;
@@ -132,14 +132,14 @@
 
     private async Task OnValidSubmit()
     {
-        if (WebsiteRepository
+        if (WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount)
         {
-            var website = await WebsiteService.Create(Model.BaseDomain, User, PleskServer);
+            var webSpace = await WebSpaceService.Create(Model.BaseDomain, User, CloudPanel);
 
-            NavigationManager.NavigateTo($"/website/{website.Id}");
+            NavigationManager.NavigateTo($"/webspace/{webSpace.Id}");
         }
     }
 }

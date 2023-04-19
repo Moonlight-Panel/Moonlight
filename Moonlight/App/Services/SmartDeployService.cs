@@ -6,18 +6,20 @@ namespace Moonlight.App.Services;
 public class SmartDeployService
 {
     private readonly NodeRepository NodeRepository;
-    private readonly PleskServerRepository PleskServerRepository;
-    private readonly WebsiteService WebsiteService;
+    private readonly Repository<CloudPanel> CloudPanelRepository;
+    private readonly WebSpaceService WebSpaceService;
     private readonly NodeService NodeService;
 
     public SmartDeployService(
         NodeRepository nodeRepository,
-        NodeService nodeService, PleskServerRepository pleskServerRepository, WebsiteService websiteService)
+        NodeService nodeService,
+        WebSpaceService webSpaceService,
+        Repository<CloudPanel> cloudPanelRepository)
     {
         NodeRepository = nodeRepository;
         NodeService = nodeService;
-        PleskServerRepository = pleskServerRepository;
-        WebsiteService = websiteService;
+        WebSpaceService = webSpaceService;
+        CloudPanelRepository = cloudPanelRepository;
     }
 
     public async Task<Node?> GetNode()
@@ -38,16 +40,14 @@ public class SmartDeployService
         return data.MaxBy(x => x.Value).Key;
     }
 
-    public async Task<PleskServer?> GetPleskServer()
+    public async Task<CloudPanel?> GetCloudPanel()
     {
-        var result = new List<PleskServer>();
+        var result = new List<CloudPanel>();
         
-        foreach (var pleskServer in PleskServerRepository.Get().ToArray())
+        foreach (var cloudPanel in CloudPanelRepository.Get().ToArray())
         {
-            if (await WebsiteService.IsHostUp(pleskServer))
-            {
-                result.Add(pleskServer);
-            }
+            if (await WebSpaceService.IsHostUp(cloudPanel))
+                result.Add(cloudPanel);
         }
 
         return result.FirstOrDefault();

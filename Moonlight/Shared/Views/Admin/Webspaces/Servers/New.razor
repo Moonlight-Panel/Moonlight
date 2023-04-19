@@ -1,8 +1,10 @@
-﻿@page "/admin/websites/servers/new"
+﻿@page "/admin/webspaces/servers/new"
 @using Moonlight.App.Repositories
 @using Moonlight.App.Models.Forms
+@using Moonlight.App.Database.Entities
+@using Mappy.Net
 
-@inject PleskServerRepository PleskServerRepository
+@inject Repository<CloudPanel> CloudPanelRepository
 @inject NavigationManager NavigationManager
 
 <OnlyAdmin>
@@ -13,6 +15,12 @@
             </label>
             <div class="input-group mb-5">
                 <InputText @bind-Value="Model.Name" class="form-control"></InputText>
+            </div>
+            <label class="form-label">
+                <TL>Host</TL>
+            </label>
+            <div class="input-group mb-5">
+                <InputText @bind-Value="Model.Host" class="form-control"></InputText>
             </div>
             <label class="form-label">
                 <TL>Api Url</TL>
@@ -37,18 +45,13 @@
 
 @code
 {
-    private PleskServerDataModel Model = new();
+    private CloudPanelDataModel Model = new();
 
     private Task OnValidSubmit()
     {
-        PleskServerRepository.Add(new()
-        {
-            Name = Model.Name,
-            ApiUrl = Model.ApiUrl,
-            ApiKey = Model.ApiKey
-        });
-        
-        NavigationManager.NavigateTo("/admin/websites/servers");
+        CloudPanelRepository.Add(Mapper.Map<CloudPanel>(Model));
+
+        NavigationManager.NavigateTo("/admin/webspaces/servers");
 
         return Task.CompletedTask;
     }

@@ -9,7 +9,7 @@ public class StatisticsCaptureService
     private readonly ConfigService ConfigService;
     private readonly StatisticsRepository StatisticsRepository;
     private readonly IServiceScopeFactory ServiceScopeFactory;
-    private readonly WebsiteService WebsiteService;
+    private readonly WebSpaceService WebSpaceService;
     private readonly PleskServerRepository PleskServerRepository;
     private PeriodicTimer Timer;
     
@@ -21,7 +21,7 @@ public class StatisticsCaptureService
         DataContext = provider.GetRequiredService<DataContext>();
         ConfigService = configService;
         StatisticsRepository = provider.GetRequiredService<StatisticsRepository>();
-        WebsiteService = provider.GetRequiredService<WebsiteService>();
+        WebSpaceService = provider.GetRequiredService<WebSpaceService>();
         PleskServerRepository = provider.GetRequiredService<PleskServerRepository>();
 
         var config = ConfigService.GetSection("Moonlight").GetSection("Statistics");
@@ -48,7 +48,7 @@ public class StatisticsCaptureService
             
             await foreach (var pleskServer in PleskServerRepository.Get())
             {
-                databases += (await WebsiteService.GetDefaultDatabaseServer(pleskServer)).DbCount;
+                //databases += (await WebsiteService.GetDefaultDatabaseServer(pleskServer)).DbCount;
             }
             
             StatisticsRepository.Add("statistics.databasesCount", databases);
