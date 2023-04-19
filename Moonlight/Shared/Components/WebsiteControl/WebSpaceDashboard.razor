@@ -1,14 +1,14 @@
 ﻿@using Moonlight.App.Database.Entities
 @using Moonlight.App.Services
 
-@inject WebsiteService WebsiteService
+@inject WebSpaceService WebSpaceService
 @inject SmartTranslateService SmartTranslateService
 
 <div class="row gy-5 g-xl-10">
     <div class="col-xl-4 mb-xl-10">
         <div class="card h-md-100">
             <div class="card-body d-flex flex-column flex-center">
-                <img class="img-fluid" src="https://image.thum.io/get/http://@(CurrentWebsite.BaseDomain)" alt="Website screenshot"/>
+                <img class="img-fluid" src="https://image.thum.io/get/http://@(CurrentWebSpace.Domain)" alt="Website screenshot"/>
             </div>
         </div>
     </div>
@@ -85,7 +85,7 @@
 @code
 {
     [CascadingParameter]
-    public Website CurrentWebsite { get; set; }
+    public WebSpace CurrentWebSpace { get; set; }
 
     private string[] Certs;
 
@@ -94,18 +94,18 @@
     private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Loading certificates");
-        Certs = await WebsiteService.GetSslCertificates(CurrentWebsite);
+        Certs = await WebSpaceService.GetSslCertificates(CurrentWebSpace);
     }
 
     private async Task CreateCertificate()
     {
-        await WebsiteService.CreateSslCertificate(CurrentWebsite);
+        await WebSpaceService.CreateSslCertificate(CurrentWebSpace);
         await LazyLoader.Reload();
     }
 
     private async Task DeleteCertificate(string name)
     {
-        await WebsiteService.DeleteSslCertificate(CurrentWebsite, name);
+        await WebSpaceService.DeleteSslCertificate(CurrentWebSpace, name);
         await LazyLoader.Reload();
     }
 }

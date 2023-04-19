@@ -1,4 +1,4 @@
-﻿@page "/websites/create"
+﻿@page "/webspaces/create"
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Forms
@@ -6,7 +6,7 @@
 @using Microsoft.EntityFrameworkCore
 
 @inject SubscriptionService SubscriptionService
-@inject WebsiteService WebsiteService
+@inject WebSpaceService WebSpaceService
 @inject WebsiteRepository WebsiteRepository
 @inject SmartDeployService SmartDeployService
 @inject SmartTranslateService SmartTranslateService
@@ -137,9 +137,9 @@
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount)
         {
-            var website = await WebsiteService.Create(Model.BaseDomain, User, PleskServer);
+            //var website = await WebsiteService.Create(Model.BaseDomain, User, PleskServer);
 
-            NavigationManager.NavigateTo($"/website/{website.Id}");
+            //NavigationManager.NavigateTo($"/website/{website.Id}");
         }
     }
 }

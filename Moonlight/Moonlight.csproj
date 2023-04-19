@@ -41,6 +41,7 @@
     <PackageReference Include="PteroConsole.NET" Version="1.0.4" />
     <PackageReference Include="QRCoder" Version="1.4.3" />
     <PackageReference Include="RestSharp" Version="109.0.0-preview.1" />
+    <PackageReference Include="SSH.NET" Version="2020.0.2" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="XtermBlazor" Version="1.6.1" />
   </ItemGroup>
@@ -67,6 +68,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="App\ApiClients\CloudPanel\Resources\" />
     <Folder Include="App\Http\Middleware" />
     <Folder Include="App\Models\Daemon\Requests" />
     <Folder Include="App\Models\Google\Resources" />

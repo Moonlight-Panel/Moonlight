@@ -1,4 +1,4 @@
-﻿@page "/admin/websites/servers"
+﻿@page "/admin/webspaces/servers"
 
 @using Moonlight.Shared.Components.Navigations
 @using Moonlight.App.Services
@@ -7,38 +7,39 @@
 @using BlazorTable
 
 @inject SmartTranslateService SmartTranslateService
-@inject PleskServerRepository PleskServerRepository
-@inject WebsiteService WebsiteService
+@inject Repository<CloudPanel> CloudPanelRepository
+@inject WebSpaceService WebSpaceService
 
 <OnlyAdmin>
-    <AdminWebsitesNavigation Index="1"/>
+    <AdminWebspacesNavigation Index="1"/>
 
     <div class="card">
         <div class="card-header border-0 pt-5">
             <h3 class="card-title align-items-start flex-column">
                 <span class="card-label fw-bold fs-3 mb-1">
-                    <TL>Plesk servers</TL>
+                    <TL>Cloud panels</TL>
                 </span>
             </h3>
             <div class="card-toolbar">
-                <a href="/admin/websites/servers/new" class="btn btn-sm btn-light-success">
+                <a href="/admin/webspaces/servers/new" class="btn btn-sm btn-light-success">
                     <i class="bx bx-user-plus"></i>
-                    <TL>New plesk server</TL>
+                    <TL>New cloud panel</TL>
                 </a>
             </div>
         </div>
         <div class="card-body">
             <LazyLoader @ref="LazyLoader" Load="Load">
                 <div class="table-responsive">
-                    <Table TableItem="PleskServer" Items="PleskServers" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                        <Column TableItem="PleskServer" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="PleskServer" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="PleskServer" Title="@(SmartTranslateService.Translate("Api url"))" Field="@(x => x.ApiUrl)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="PleskServer" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                    <Table TableItem="CloudPanel" Items="CloudPanels" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Host)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Api url"))" Field="@(x => x.ApiUrl)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                             <Template>
-                                @if (OnlineCache.ContainsKey(context))
+                                @if (OnlineCache.TryGetValue(context, out var value))
                                 {
-                                    if (OnlineCache[context])
+                                    if (value)
                                     {
                                         <span class="text-success">
                                             <TL>Online</TL>
@@ -59,14 +60,14 @@
                                 }
                             </Template>
                         </Column>
-                        <Column TableItem="PleskServer" Title="@(SmartTranslateService.Translate("Edit"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Edit"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                             <Template>
-                                <a href="/admin/websites/servers/edit/@(context.Id)/">
+                                <a href="/admin/webspaces/servers/edit/@(context.Id)/">
                                     <TL>Manage</TL>
                                 </a>
                             </Template>
                         </Column>
-                        <Column TableItem="PleskServer" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                             <Template>
                                 <DeleteButton Confirm="true" OnClick="() => OnClick(context)">
                                 </DeleteButton>
@@ -82,22 +83,22 @@
 
 @code
 {
-    private PleskServer[] PleskServers;
+    private CloudPanel[] CloudPanels;
 
     private LazyLoader LazyLoader;
-    private Dictionary<PleskServer, bool> OnlineCache = new();
+    private Dictionary<CloudPanel, bool> OnlineCache = new();
 
     private Task Load(LazyLoader arg)
     {
-        PleskServers = PleskServerRepository
+        CloudPanels = CloudPanelRepository
             .Get()
             .ToArray();
 
         Task.Run(async () =>
         {
-            foreach (var pleskServer in PleskServers)
+            foreach (var cloudPanel in CloudPanels)
             {
-                OnlineCache.Add(pleskServer, await WebsiteService.IsHostUp(pleskServer));
+                OnlineCache.Add(cloudPanel, await WebSpaceService.IsHostUp(cloudPanel));
 
                 await InvokeAsync(StateHasChanged);
             }
@@ -106,9 +107,9 @@
         return Task.CompletedTask;
     }
 
-    private async Task OnClick(PleskServer pleskServer)
+    private async Task OnClick(CloudPanel pleskServer)
     {
-        PleskServerRepository.Delete(pleskServer);
+        CloudPanelRepository.Delete(pleskServer);
 
         await LazyLoader.Reload();
     }

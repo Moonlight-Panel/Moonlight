@@ -43,6 +43,10 @@ public class DataContext : DbContext
     public DbSet<Website> Websites { get; set; }
     public DbSet<StatisticsData> Statistics { get; set; }
     public DbSet<NewsEntry> NewsEntries { get; set; }
+    
+    public DbSet<CloudPanel> CloudPanels { get; set; }
+    public DbSet<MySqlDatabase> Databases { get; set; }
+    public DbSet<WebSpace> WebSpaces { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

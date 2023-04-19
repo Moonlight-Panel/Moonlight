@@ -4,7 +4,7 @@
 @using Moonlight.App.Services
 
 @inject SmartTranslateService SmartTranslateService
-@inject WebsiteService WebsiteService
+@inject WebSpaceService WebSpaceService
 
 <LazyLoader @ref="LazyLoader" Load="Load">
     <div class="card w-100 mb-4">
@@ -93,7 +93,7 @@
     else
     {
         <div class="alert alert-warning">
-            <TL>No databases found for this website</TL>
+            <TL>No databases found for this webspace</TL>
         </div>
     }
 </LazyLoader>
@@ -101,7 +101,7 @@
 @code
 {
     [CascadingParameter]
-    public Website CurrentWebsite { get; set; }
+    public WebSpace CurrentWebSpace { get; set; }
 
     private LazyLoader LazyLoader;
     private Database[] Databases;
@@ -112,25 +112,19 @@
 
     private async Task Load(LazyLoader arg)
     {
-        Databases = await WebsiteService.GetDatabases(CurrentWebsite);
-
-        if (Databases.Any())
-        {
-            DatabaseServer = (await WebsiteService.GetDefaultDatabaseServer(CurrentWebsite))!;
-            Host = await WebsiteService.GetHost(CurrentWebsite);
-        }
+        Databases = await WebSpaceService.GetDatabases(CurrentWebSpace);
     }
 
     private async Task OnValidSubmit()
     {
-        await WebsiteService.CreateDatabase(CurrentWebsite, Model.Name, Model.Password);
+        await WebSpaceService.CreateDatabase(CurrentWebSpace, Model.Name, Model.Password);
         Model = new();
         await LazyLoader.Reload();
     }
 
     private async Task DeleteDatabase(Database database)
     {
-        await WebsiteService.DeleteDatabase(CurrentWebsite, database);
+        await WebSpaceService.DeleteDatabase(CurrentWebSpace, database);
         await LazyLoader.Reload();
     }
 }
