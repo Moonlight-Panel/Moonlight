@@ -19,6 +19,7 @@
     <PackageReference Include="CloudFlare.Client" Version="6.1.4" />
     <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
     <PackageReference Include="Discord.Net" Version="3.9.0" />
+    <PackageReference Include="DiscordWebhooks" Version="1.0.4" />
     <PackageReference Include="FluentFTP" Version="46.0.2" />
     <PackageReference Include="GravatarSharp.Core" Version="1.0.1.2" />
     <PackageReference Include="JWT" Version="10.0.2" />
