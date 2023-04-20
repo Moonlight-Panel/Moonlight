@@ -80,7 +80,15 @@ public class EventSystem
 
                 var del = (Delegate)subscriber.Action;
 
-                ((Task)del.DynamicInvoke(data)!).Wait();
+                try
+                {
+                    ((Task)del.DynamicInvoke(data)!).Wait();
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn($"Error emitting '{subscriber.Id} on {subscriber.Handle}'");
+                    Logger.Warn(e);
+                }
 
                 stopWatch.Stop();
 

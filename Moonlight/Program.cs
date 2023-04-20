@@ -20,6 +20,7 @@ using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.Support;
+using Moonlight.App.Services.SupportChat;
 
 namespace Moonlight
 {
@@ -124,10 +125,15 @@ namespace Moonlight
             builder.Services.AddScoped<MailService>();
             builder.Services.AddSingleton<TrashMailDetectorService>();
 
-            // Support
+            // Support TODO: Remove
             builder.Services.AddSingleton<SupportServerService>();
             builder.Services.AddScoped<SupportAdminService>();
             builder.Services.AddScoped<SupportClientService>();
+            
+            // Support chat
+            builder.Services.AddSingleton<SupportChatServerService>();
+            builder.Services.AddScoped<SupportChatClientService>();
+            builder.Services.AddScoped<SupportChatAdminService>();
 
             // Helpers
             builder.Services.AddSingleton<SmartTranslateHelper>();
@@ -143,6 +149,7 @@ namespace Moonlight
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();
             builder.Services.AddSingleton<StatisticsCaptureService>();
+            builder.Services.AddSingleton<DiscordNotificationService>();
 
             // Third party services
             builder.Services.AddBlazorTable();
@@ -176,6 +183,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<CleanupService>();
             _ = app.Services.GetRequiredService<DiscordBotService>();
             _ = app.Services.GetRequiredService<StatisticsCaptureService>();
+            _ = app.Services.GetRequiredService<DiscordNotificationService>();
             
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();

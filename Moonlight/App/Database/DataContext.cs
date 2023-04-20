@@ -45,6 +45,7 @@ public class DataContext : DbContext
     public DbSet<CloudPanel> CloudPanels { get; set; }
     public DbSet<MySqlDatabase> Databases { get; set; }
     public DbSet<WebSpace> WebSpaces { get; set; }
+    public DbSet<SupportChatMessage> SupportChatMessages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
