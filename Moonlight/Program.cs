@@ -68,8 +68,6 @@ namespace Moonlight
             builder.Services.AddScoped<NotificationRepository>();
             builder.Services.AddScoped<DdosAttackRepository>();
             builder.Services.AddScoped<SubscriptionRepository>();
-            builder.Services.AddScoped<PleskServerRepository>();
-            builder.Services.AddScoped<WebsiteRepository>();
             builder.Services.AddScoped<LoadingMessageRepository>();
             builder.Services.AddScoped<NewsEntryRepository>();
             builder.Services.AddScoped<NodeAllocationRepository>();
@@ -137,7 +135,6 @@ namespace Moonlight
             builder.Services.AddSingleton<PaperApiHelper>();
             builder.Services.AddSingleton<HostSystemHelper>();
             builder.Services.AddScoped<DaemonApiHelper>();
-            builder.Services.AddScoped<PleskApiHelper>();
             builder.Services.AddScoped<CloudPanelApiHelper>();
             
             // Background services
