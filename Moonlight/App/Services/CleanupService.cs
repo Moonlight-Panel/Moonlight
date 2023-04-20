@@ -24,20 +24,23 @@ public class CleanupService
     
     private readonly ConfigService ConfigService;
     private readonly MessageService MessageService;
+    private readonly DateTimeService DateTimeService;
     private readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly PeriodicTimer Timer;
 
     public CleanupService(
         ConfigService configService,
         IServiceScopeFactory serviceScopeFactory,
-        MessageService messageService)
+        MessageService messageService,
+        DateTimeService dateTimeService)
     {
         ServiceScopeFactory = serviceScopeFactory;
         MessageService = messageService;
+        DateTimeService = dateTimeService;
         ConfigService = configService;
         
-        StartedAt = DateTime.Now;
-        CompletedAt = DateTime.Now;
+        StartedAt = DateTimeService.GetCurrent();
+        CompletedAt = DateTimeService.GetCurrent();
         IsRunning = false;
         
         var config = ConfigService.GetSection("Moonlight").GetSection("Cleanup");
