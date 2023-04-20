@@ -4,6 +4,7 @@ using CurrieTechnologies.Razor.SweetAlert2;
 using Logging.Net;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.Database;
+using Moonlight.App.Events;
 using Moonlight.App.Helpers;
 using Moonlight.App.LogMigrator;
 using Moonlight.App.Repositories;
@@ -105,6 +106,7 @@ namespace Moonlight
             builder.Services.AddScoped<WebSpaceService>();
             builder.Services.AddScoped<StatisticsViewService>();
             builder.Services.AddSingleton<DateTimeService>();
+            builder.Services.AddSingleton<EventSystem>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
