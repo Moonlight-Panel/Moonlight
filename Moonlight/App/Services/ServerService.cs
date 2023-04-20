@@ -379,7 +379,7 @@ public class ServerService
 
         var user = await UserService.SftpLogin(id, password);
 
-        if (server.Owner.Id == user.Id)
+        if (server.Owner.Id == user.Id || user.Admin)
         {
             return server;
         }
