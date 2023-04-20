@@ -10,8 +10,7 @@ public class StatisticsCaptureService
     private readonly StatisticsRepository StatisticsRepository;
     private readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly WebSpaceService WebSpaceService;
-    private readonly PleskServerRepository PleskServerRepository;
-    private PeriodicTimer Timer;
+    private readonly PeriodicTimer Timer;
     
     public StatisticsCaptureService(IServiceScopeFactory serviceScopeFactory, ConfigService configService)
     {
@@ -22,7 +21,6 @@ public class StatisticsCaptureService
         ConfigService = configService;
         StatisticsRepository = provider.GetRequiredService<StatisticsRepository>();
         WebSpaceService = provider.GetRequiredService<WebSpaceService>();
-        PleskServerRepository = provider.GetRequiredService<PleskServerRepository>();
 
         var config = ConfigService.GetSection("Moonlight").GetSection("Statistics");
         if(!config.GetValue<bool>("Enabled"))
@@ -42,16 +40,8 @@ public class StatisticsCaptureService
             StatisticsRepository.Add("statistics.usersCount", DataContext.Users.Count());
             StatisticsRepository.Add("statistics.serversCount", DataContext.Servers.Count());
             StatisticsRepository.Add("statistics.domainsCount", DataContext.Domains.Count());
-            StatisticsRepository.Add("statistics.websitesCount", DataContext.Websites.Count());
-            
-            int databases = 0;
-            
-            await foreach (var pleskServer in PleskServerRepository.Get())
-            {
-                //databases += (await WebsiteService.GetDefaultDatabaseServer(pleskServer)).DbCount;
-            }
-            
-            StatisticsRepository.Add("statistics.databasesCount", databases);
+            StatisticsRepository.Add("statistics.webspacesCount", DataContext.WebSpaces.Count());
+            StatisticsRepository.Add("statistics.databasesCount", DataContext.Databases.Count());
         }
     }
 }
