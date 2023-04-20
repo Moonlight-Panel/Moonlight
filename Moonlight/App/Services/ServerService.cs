@@ -31,6 +31,7 @@ public class ServerService
     private readonly AuditLogService AuditLogService;
     private readonly ErrorLogService ErrorLogService;
     private readonly NodeService NodeService;
+    private readonly DateTimeService DateTimeService;
 
     public ServerService(
         ServerRepository serverRepository,
@@ -46,7 +47,8 @@ public class ServerService
         AuditLogService auditLogService,
         ErrorLogService errorLogService,
         NodeService nodeService,
-        NodeAllocationRepository nodeAllocationRepository)
+        NodeAllocationRepository nodeAllocationRepository,
+        DateTimeService dateTimeService)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -62,6 +64,7 @@ public class ServerService
         ErrorLogService = errorLogService;
         NodeService = nodeService;
         NodeAllocationRepository = nodeAllocationRepository;
+        DateTimeService = dateTimeService;
     }
 
     private Server EnsureNodeData(Server s)
@@ -115,9 +118,9 @@ public class ServerService
 
         var backup = new ServerBackup()
         {
-            Name = $"Created at {DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()}",
+            Name = $"Created at {DateTimeService.GetCurrent().ToShortDateString()} {DateTimeService.GetCurrent().ToShortTimeString()}",
             Uuid = Guid.NewGuid(),
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTimeService.GetCurrent(),
             Created = false
         };
 
