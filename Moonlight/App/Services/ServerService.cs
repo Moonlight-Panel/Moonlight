@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;
+using Moonlight.App.Events;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.Files;
@@ -23,7 +24,6 @@ public class ServerService
     private readonly NodeRepository NodeRepository;
     private readonly NodeAllocationRepository NodeAllocationRepository;
     private readonly WingsApiHelper WingsApiHelper;
-    private readonly MessageService MessageService;
     private readonly UserService UserService;
     private readonly ConfigService ConfigService;
     private readonly WingsJwtHelper WingsJwtHelper;
@@ -32,6 +32,7 @@ public class ServerService
     private readonly ErrorLogService ErrorLogService;
     private readonly NodeService NodeService;
     private readonly DateTimeService DateTimeService;
+    private readonly EventSystem Event;
 
     public ServerService(
         ServerRepository serverRepository,
@@ -39,7 +40,6 @@ public class ServerService
         UserRepository userRepository,
         ImageRepository imageRepository,
         NodeRepository nodeRepository,
-        MessageService messageService,
         UserService userService,
         ConfigService configService,
         WingsJwtHelper wingsJwtHelper,
@@ -48,14 +48,14 @@ public class ServerService
         ErrorLogService errorLogService,
         NodeService nodeService,
         NodeAllocationRepository nodeAllocationRepository,
-        DateTimeService dateTimeService)
+        DateTimeService dateTimeService,
+        EventSystem eventSystem)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
         UserRepository = userRepository;
         ImageRepository = imageRepository;
         NodeRepository = nodeRepository;
-        MessageService = messageService;
         UserService = userService;
         ConfigService = configService;
         WingsJwtHelper = wingsJwtHelper;
@@ -65,6 +65,7 @@ public class ServerService
         NodeService = nodeService;
         NodeAllocationRepository = nodeAllocationRepository;
         DateTimeService = dateTimeService;
+        Event = eventSystem;
     }
 
     private Server EnsureNodeData(Server s)
@@ -212,7 +213,7 @@ public class ServerService
 
         ServerRepository.Update(serverData);
 
-        await MessageService.Emit("wings.backups.delete", backup);
+        await Event.Emit("wings.backups.delete", backup);
 
         await AuditLogService.Log(AuditLogType.DeleteBackup,
             x =>

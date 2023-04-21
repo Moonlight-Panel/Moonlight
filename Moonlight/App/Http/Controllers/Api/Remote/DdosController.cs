@@ -1,6 +1,7 @@
 ﻿using Logging.Net;
 using Microsoft.AspNetCore.Mvc;
 using Moonlight.App.Database.Entities;
+using Moonlight.App.Events;
 using Moonlight.App.Http.Requests.Daemon;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
@@ -12,13 +13,13 @@ namespace Moonlight.App.Http.Controllers.Api.Remote;
 public class DdosController : Controller
 {
     private readonly NodeRepository NodeRepository;
-    private readonly MessageService MessageService;
+    private readonly EventSystem Event;
     private readonly DdosAttackRepository DdosAttackRepository;
 
-    public DdosController(NodeRepository nodeRepository, MessageService messageService, DdosAttackRepository ddosAttackRepository)
+    public DdosController(NodeRepository nodeRepository, EventSystem eventSystem, DdosAttackRepository ddosAttackRepository)
     {
         NodeRepository = nodeRepository;
-        MessageService = messageService;
+        Event = eventSystem;
         DdosAttackRepository = ddosAttackRepository;
     }
 
@@ -47,7 +48,7 @@ public class DdosController : Controller
 
         ddosAttack = DdosAttackRepository.Add(ddosAttack);
 
-        await MessageService.Emit("node.ddos", ddosAttack);
+        await Event.Emit("node.ddos", ddosAttack);
         
         return Ok();
     }

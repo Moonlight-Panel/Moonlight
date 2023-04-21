@@ -5,6 +5,7 @@
 @using BlazorTable
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Events
 @using Moonlight.App.Helpers
 @using Moonlight.App.Services
 
@@ -12,7 +13,7 @@
 
 @inject DdosAttackRepository DdosAttackRepository
 @inject SmartTranslateService SmartTranslateService
-@inject MessageService MessageService
+@inject EventSystem Event
 
 <OnlyAdmin>
     <AdminNodesNavigation Index="1"/>
@@ -75,11 +76,12 @@
     private DdosAttack[] DdosAttacks;
     private LazyLoader LazyLoader;
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        MessageService.Subscribe<Ddos, DdosAttack>("node.ddos", this, async attack => { Task.Run(async () => await LazyLoader.Reload()); });
-
-        return Task.CompletedTask;
+        if (firstRender)
+        {
+            await Event.On<DdosAttack>("node.ddos", this, async attack => await LazyLoader.Reload());
+        }
     }
 
     private Task Load(LazyLoader arg)
@@ -93,8 +95,8 @@
         return Task.CompletedTask;
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
-        MessageService.Unsubscribe("node.ddos", this);
+        await Event.Off("node.ddos", this);
     }
 }

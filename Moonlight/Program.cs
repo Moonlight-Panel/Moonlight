@@ -90,7 +90,6 @@ namespace Moonlight
             builder.Services.AddScoped<TotpService>();
             builder.Services.AddScoped<ToastService>();
             builder.Services.AddScoped<NodeService>();
-            builder.Services.AddSingleton<MessageService>();
             builder.Services.AddScoped<ServerService>();
             builder.Services.AddSingleton<PaperService>();
             builder.Services.AddScoped<ClipboardService>();

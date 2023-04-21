@@ -6,6 +6,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Logging.Net
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Events
 @using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
@@ -16,7 +17,7 @@
 @inject ImageRepository ImageRepository
 @inject ServerRepository ServerRepository
 @inject WingsConsoleHelper WingsConsoleHelper
-@inject MessageService MessageService
+@inject EventSystem Event
 @inject ServerService ServerService
 @inject NavigationManager NavigationManager
 
@@ -260,9 +261,9 @@
 
                 await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
 
-                MessageService.Subscribe<Index, Server>($"server.{CurrentServer.Uuid}.installcomplete", this, server =>
+                await Event.On<Server>($"server.{CurrentServer.Uuid}.installComplete", this, server =>
                 {
-                    Task.Run(() => { NavigationManager.NavigateTo(NavigationManager.Uri); });
+                    NavigationManager.NavigateTo(NavigationManager.Uri);
 
                     return Task.CompletedTask;
                 });
@@ -274,11 +275,11 @@
         }
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
         if (CurrentServer != null)
         {
-            MessageService.Unsubscribe($"server.{CurrentServer.Uuid}.installcomplete", this);
+            await Event.Off($"server.{CurrentServer.Uuid}.installComplete", this);
         }
     }
 }
