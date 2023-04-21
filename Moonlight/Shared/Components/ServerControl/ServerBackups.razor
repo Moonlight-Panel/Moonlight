@@ -5,6 +5,7 @@
 @using Logging.Net
 @using BlazorContextMenu
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Events
 @using Moonlight.App.Services.Interop
 
 @inject ServerService ServerService
@@ -12,7 +13,7 @@
 @inject AlertService AlertService
 @inject ToastService ToastService
 @inject ClipboardService ClipboardService
-@inject MessageService MessageService
+@inject EventSystem Event
 @inject SmartTranslateService SmartTranslateService
 
 @implements IDisposable
@@ -112,64 +113,51 @@
 
     protected override void OnInitialized()
     {
-        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.create", this, (backup) =>
-        {
-            if (AllBackups == null)
-                return Task.CompletedTask;
-
-            if (AllBackups.Any(x => x.Id == backup.Id))
-            {
-                Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    await ToastService.Success(SmartTranslateService.Translate("Backup successfully created"));
-                    await LazyLoader.Reload();
-                });
-            }
-            
-            return Task.CompletedTask;
-        });
-
-        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.createfailed", this, (backup) =>
-        {
-            if (AllBackups == null)
-                return Task.CompletedTask;
-
-            if (AllBackups.Any(x => x.Id == backup.Id))
-            {
-                Task.Run(async () =>
-                {
-                    await ToastService.Error(SmartTranslateService.Translate("Backup creation failed"));
-                    await LazyLoader.Reload();
-                });
-            }
-            
-            return Task.CompletedTask;
-        });
-
-        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.delete", this, async (backup) =>
+        Event.On<ServerBackup>("wings.backups.create", this, async (backup) =>
         {
             if (AllBackups == null)
                 return;
 
             if (AllBackups.Any(x => x.Id == backup.Id))
             {
-                Task.Run(async () =>
-                {
-                    await ToastService.Success(SmartTranslateService.Translate("Backup successfully deleted"));
-                    await LazyLoader.Reload();
-                });
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                await ToastService.Success(SmartTranslateService.Translate("Backup successfully created"));
+                await LazyLoader.Reload();
             }
         });
 
-        MessageService.Subscribe<ServerBackups, ServerBackup>("wings.backups.restore", this, async (backup) =>
+        Event.On<ServerBackup>("wings.backups.createFailed", this, async (backup) =>
         {
             if (AllBackups == null)
                 return;
 
             if (AllBackups.Any(x => x.Id == backup.Id))
             {
-                Task.Run(async () => { await ToastService.Success(SmartTranslateService.Translate("Backup successfully restored")); });
+                await ToastService.Error(SmartTranslateService.Translate("Backup creation failed"));
+                await LazyLoader.Reload();
+            }
+        });
+
+        Event.On<ServerBackup>("wings.backups.delete", this, async (backup) =>
+        {
+            if (AllBackups == null)
+                return;
+
+            if (AllBackups.Any(x => x.Id == backup.Id))
+            {
+                await ToastService.Success(SmartTranslateService.Translate("Backup successfully deleted"));
+                await LazyLoader.Reload();
+            }
+        });
+
+        Event.On<ServerBackup>("wings.backups.restore", this, async (backup) =>
+        {
+            if (AllBackups == null)
+                return;
+
+            if (AllBackups.Any(x => x.Id == backup.Id))
+            {
+                await ToastService.Success(SmartTranslateService.Translate("Backup successfully restored"));
             }
         });
     }
@@ -308,11 +296,11 @@
         await Refresh(LazyLoader);
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
-        MessageService.Unsubscribe("wings.backups.create", this);
-        MessageService.Unsubscribe("wings.backups.createfailed", this);
-        MessageService.Unsubscribe("wings.backups.restore", this);
-        MessageService.Unsubscribe("wings.backups.delete", this);
+        await Event.Off("wings.backups.create", this);
+        await Event.Off("wings.backups.createFailed", this);
+        await Event.Off("wings.backups.restore", this);
+        await Event.Off("wings.backups.delete", this);
     }
 }
