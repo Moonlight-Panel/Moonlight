@@ -19,7 +19,6 @@ using Moonlight.App.Services.Notifications;
 using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
-using Moonlight.App.Services.Support;
 using Moonlight.App.Services.SupportChat;
 
 namespace Moonlight
@@ -63,7 +62,6 @@ namespace Moonlight
             builder.Services.AddScoped<ServerRepository>();
             builder.Services.AddScoped<ServerBackupRepository>();
             builder.Services.AddScoped<ImageRepository>();
-            builder.Services.AddScoped<SupportMessageRepository>();
             builder.Services.AddScoped<DomainRepository>();
             builder.Services.AddScoped<SharedDomainRepository>();
             builder.Services.AddScoped<RevokeRepository>();
@@ -125,11 +123,6 @@ namespace Moonlight
             builder.Services.AddScoped<MailService>();
             builder.Services.AddSingleton<TrashMailDetectorService>();
 
-            // Support TODO: Remove
-            builder.Services.AddSingleton<SupportServerService>();
-            builder.Services.AddScoped<SupportAdminService>();
-            builder.Services.AddScoped<SupportClientService>();
-            
             // Support chat
             builder.Services.AddSingleton<SupportChatServerService>();
             builder.Services.AddScoped<SupportChatClientService>();
@@ -175,10 +168,7 @@ namespace Moonlight
             
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
-            
-            // Support service
-            var supportServerService = app.Services.GetRequiredService<SupportServerService>();
-            
+
             // AutoStart services
             _ = app.Services.GetRequiredService<CleanupService>();
             _ = app.Services.GetRequiredService<DiscordBotService>();

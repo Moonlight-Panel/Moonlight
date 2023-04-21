@@ -30,8 +30,7 @@ public class DataContext : DbContext
     public DbSet<AuditLogEntry> AuditLog { get; set; }
     public DbSet<ErrorLogEntry> ErrorLog { get; set; }
     public DbSet<SecurityLogEntry> SecurityLog { get; set; }
-    public DbSet<SupportMessage> SupportMessages { get; set; }
-    
+
     public DbSet<SharedDomain> SharedDomains { get; set; }
     public DbSet<Domain> Domains { get; set; }
     public DbSet<Revoke> Revokes { get; set; }

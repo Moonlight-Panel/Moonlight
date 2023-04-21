@@ -164,6 +164,7 @@
 
                 NavigationManager.LocationChanged += (sender, args) => { SessionService.Refresh(); };
 
+                /*
                 MessageService.Subscribe<MainLayout, SupportMessage>(
                     $"support.{User.Id}.message",
                     this,
@@ -173,7 +174,7 @@
                         {
                             await ToastService.Info($"Support: {message.Message}");
                         }
-                    });
+                    });*/
 
                 RunDelayedMenu(0);
                 RunDelayedMenu(1);
