@@ -8,7 +8,7 @@ public class EventSystem
     private Dictionary<int, object> Storage = new();
     private List<Subscriber> Subscribers = new();
 
-    private readonly bool Debug = true;
+    private readonly bool Debug = false;
     private readonly bool DisableWarning = false;
     private readonly TimeSpan TookToLongTime = TimeSpan.FromSeconds(1);
 
