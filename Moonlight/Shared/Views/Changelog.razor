@@ -5,39 +5,189 @@
     {
         new[]
         {
-            "Patch 5, 21.04.2023",
-            "Webspace count fixes",
-            "Rewrite of the support chat backend code",
-            "Added discord notifications"
+            "Patch 1, 13.03.2023",
+            "Service manager"
         },
         new[]
         {
-            "Patch 4, 19.04.2023",
-            "Switched from plesk to cloud panel (fuck you plesk ;) )",
-            "Domain regex fix",
-            "Hide create button on not auth state"
+            "Patch 2, 14.03.2023",
+            "Added new image manager. CRUD implemeted"
         },
         new[]
         {
-            "Patch 3, 16.04.2023",
-            "Fixed server allocation bug"
+            "Patch 3, 20.03.2023",
+            "Ddos detection",
+            "Implemented server manager"
         },
         new[]
         {
-            "Patch 2, 16.04.2023",
-            "Fixed xterm addons"
+            "Patch 4, 21.03.2023",
+            "Added user edit form. Fixed edit link"
         },
         new[]
         {
-            "Patch 1, 16.04.2023",
-            "Loading messages have been implemented",
-            "Default subscription config has been implemented",
-            "Blazor hub has been optimized for large amount of users",
-            "Backup error handling improved",
-            "Client side javascript sorted",
-            "Sorted user server list implemented"
+            "Patch 5, 24.03.2023",
+            "Update Discord Bot Branche",
+            "Removed discord id and discriminator. Fixed oauth2.",
+            "Updated discord bot branch",
+            "Updated smart form branch",
+            "Added smart form",
+            "Updating PleskIntegration branch",
+            "Revert \"Updating PleskIntegration branch\""
+        },
+        new[]
+        {
+            "Patch 6, 27.03.2023",
+            "Update Index.razor",
+            "User settings"
+        },
+        new[]
+        {
+            "Patch 7, 28.03.2023",
+            "Added form proccessing screen (not finished). Some ui changes. User m."
+        },
+        new[]
+        {
+            "Patch 8, 02.04.2023",
+            "Server manage enhancements",
+            "Cleanup system",
+            "Update WingsServerConverter.cs",
+            "Added quick create dropdown",
+            "fixed login form",
+            "Login form fix"
+        },
+        new[]
+        {
+            "Patch 9, 03.04.2023",
+            "Fixed cleanup",
+            "Added server reset setting",
+            "Totp",
+            "Update from upstream because of database models",
+            "Audit log",
+            "Audit log",
+            "Force password change",
+            "Support chat redesign",
+            "Subscriptions",
+            "Added server rename setting"
+        },
+        new[]
+        {
+            "Patch 10, 04.04.2023",
+            "Added server delete. Tweaked setting names",
+            "Added server node status screen check thingy",
+            "Update CacheLogger.cs",
+            "Update to upstream branch",
+            "Update View.razor",
+            "Update to upstream branch",
+            "Removed legacy aaPanel stuff",
+            "Update DesignFixes",
+            "Design fixes",
+            "Create Changelog.razor"
+        },
+        new[]
+        {
+            "Patch 11, 05.04.2023",
+            "Ftp file manager",
+            "Update to upstream branch",
+            "Added ActivityStatus"
+        },
+        new[]
+        {
+            "Patch 12, 06.04.2023",
+            "Domain overview",
+            "Plesk integration",
+            "Add websites to statistics branch",
+            "Removed legacy database ui",
+            "Replaced legacy dependency resolve with server service function for w.",
+            "masu is too stupid to use ulong",
+            "Statistic system",
+            "host file access + use in admin resource manager"
+        },
+        new[]
+        {
+            "Patch 13, 10.04.2023",
+            "Removed old typeahead. Added own solution. Lang file, notes",
+            "Implemented website order"
+        },
+        new[]
+        {
+            "Patch 14, 11.04.2023",
+            "Implemented domain order. Fixed some bugs"
+        },
+        new[]
+        {
+            "Patch 15, 12.04.2023",
+            "Implemented new soft error boundary crash handler",
+            "Added ip locate. Fixed oauth2 mail send. Fixed mail send when generat.",
+            "Implemented multi allocation",
+            "register",
+            "Fixed server lists",
+            "News page",
+            "Improved news system"
+        },
+        new[]
+        {
+            "Patch 16, 13.04.2023",
+            "domain view redesigned | fixed some masu at midnight",
+            "Persistent storage",
+            "Removed old file manager stuff",
+            "fixed design of delete button",
+            "redesigned shared domains screen | split in view/add"
+        },
+        new[]
+        {
+            "Patch 17, 14.04.2023",
+            "Removed legacy image tags",
+            "Fixed server deletion and creation allocation bugs"
+        },
+        new[]
+        {
+            "Patch 18, 15.04.2023",
+            "Update DiscordBot branch",
+            "Fix backup delete",
+            "Implemented default subscription",
+            "Implemented random loading message",
+            "Recode frontend js"
+        },
+        new[]
+        {
+            "Patch 19, 16.04.2023",
+            "Optimized allocation search. Added sql command log interception",
+            "Fixed my stupid mistakes",
+            "Implemented file view loading animation"
+        },
+        new[]
+        {
+            "Patch 20, 19.04.2023",
+            "Cloud panel interation"
+        },
+        new[]
+        {
+            "Patch 21, 20.04.2023",
+            "Removed legacy website",
+            "Added user change status try catch, implement logout. password change",
+            "Added admin check to sftp login system",
+            "Implemented new event system",
+            "Rewritten support chat backend. Added discord notifications"
+        },
+        new[]
+        {
+            "Patch 22, 21.04.2023",
+            "Removed old support system",
+            "Deleted old message system. Replaced it with new event system",
+            "Update ServerNavigation.razor",
+            "Switched from internal smtp client to MailKit. Added ssl config"
+        },
+        new[]
+        {
+            "Patch 23, 23.04.2023",
+            "Added missing refresh call",
+            "Added better reconnect screens",
+            "Removed useless logging. Switched to cache mode for support chat"
         }
     };
+
+    changelog.Reverse();
 
     int i = 0;
 }
