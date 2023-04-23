@@ -254,6 +254,7 @@
     {
         await ToastService.Info(SmartTranslateService.Translate("Started backup creation"));
         await ServerService.CreateBackup(CurrentServer);
+        await LazyLoader.Reload();
         
         /*
         try
@@ -262,8 +263,6 @@
             //var list = AllBackups!.ToList();
             //list.Add(backup);
             //AllBackups = list.ToArray();
-
-            await LazyLoader.Reload();
         }
         catch (Exception e)
         {
