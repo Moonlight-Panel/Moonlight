@@ -78,6 +78,10 @@
     "DiscordNotifications": {
       "Enable": false,
       "WebHook": ""
+    },
+    "Statistics": {
+      "Enabled": true,
+      "Wait": 15
     }
   }
 }
