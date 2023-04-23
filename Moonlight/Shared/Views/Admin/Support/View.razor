@@ -180,7 +180,7 @@
 
     private User? User;
 
-    private SupportChatMessage[] Messages = Array.Empty<SupportChatMessage>();
+    private List<SupportChatMessage> Messages = new();
     private string[] Typing = Array.Empty<string>();
 
     private string Content = "";
@@ -203,7 +203,7 @@
     
     private async Task LoadMessages(LazyLoader arg)
     {
-        Messages = await AdminService.GetMessages();
+        Messages = (await AdminService.GetMessages()).ToList();
     }
 
     private async Task OnTypingChanged(string[] typing)
@@ -215,7 +215,7 @@
 
     private async Task OnMessage(SupportChatMessage arg)
     {
-        Messages = await AdminService.GetMessages();
+        Messages.Insert(0, arg);
 
         //TODO: Sound when message from system or admin
 
@@ -224,8 +224,13 @@
     
     private async Task Send()
     {
-        await AdminService.SendMessage(Content);
+        if(string.IsNullOrEmpty(Content))
+            return;
+        
+        var message = await AdminService.SendMessage(Content);
         Content = "";
+        
+        Messages.Insert(0, message);
         
         await InvokeAsync(StateHasChanged);
     }

@@ -39,7 +39,7 @@ public class SupportChatServerService
         return Task.FromResult(messages);
     }
 
-    public async Task SendMessage(User recipient, string content, User? sender, string? attachment = null)
+    public async Task<SupportChatMessage> SendMessage(User recipient, string content, User? sender, string? attachment = null)
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var msgRepo = scope.ServiceProvider.GetRequiredService<Repository<SupportChatMessage>>();
@@ -86,6 +86,8 @@ public class SupportChatServerService
             await Event.Emit("supportChat.message", ticketStartFinal);
             await Event.Emit("supportChat.new", recipient);
         }
+
+        return finalMessage;
     }
 
     public Task<Dictionary<User, SupportChatMessage?>> GetOpenChats()
