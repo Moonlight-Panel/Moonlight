@@ -55,12 +55,14 @@ public class SupportChatAdminService
         return await ServerService.GetMessages(Recipient);
     }
 
-    public async Task SendMessage(string content)
+    public async Task<SupportChatMessage> SendMessage(string content)
     {
         if (User != null)
         {
-            await ServerService.SendMessage(Recipient, content, User);
+            return await ServerService.SendMessage(Recipient, content, User);
         }
+
+        return null!;
     }
     
     private Task HandleTyping(User user)

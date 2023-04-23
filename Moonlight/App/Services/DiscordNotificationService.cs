@@ -85,8 +85,6 @@ public class DiscordNotificationService
 
     private async Task SendNotification(string content, Action<EmbedBuilder>? embed = null)
     {
-        Logger.Debug(Client);
-        
         var e = new EmbedBuilder();
         embed?.Invoke(e);
 

@@ -3,6 +3,7 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Services.SupportChat
+@using Logging.Net
 
 @inject ResourceService ResourceService
 @inject SupportChatClientService ClientService
@@ -148,7 +149,7 @@
     [CascadingParameter]
     public User User { get; set; }
     
-    private SupportChatMessage[] Messages = Array.Empty<SupportChatMessage>();
+    private List<SupportChatMessage> Messages = new();
     private string[] Typing = Array.Empty<string>();
     
     private string Content = "";
@@ -166,7 +167,7 @@
     
     private async Task LoadMessages(LazyLoader arg)
     {
-        Messages = await ClientService.GetMessages();
+        Messages = (await ClientService.GetMessages()).ToList();
     }
 
     private async Task OnTypingChanged(string[] typing)
@@ -178,17 +179,22 @@
 
     private async Task OnMessage(SupportChatMessage message)
     {
-        Messages = await ClientService.GetMessages();
-        
-        //TODO: Sound when message from system or admin
+        Messages.Insert(0, message);
+
+    //TODO: Sound when message from system or admin
 
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task Send()
     {
-        await ClientService.SendMessage(Content);
+        if(string.IsNullOrEmpty(Content))
+            return;
+        
+        var message = await ClientService.SendMessage(Content);
         Content = "";
+        
+        Messages.Insert(0, message);
         
         await InvokeAsync(StateHasChanged);
     }

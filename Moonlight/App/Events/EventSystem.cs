@@ -116,7 +116,9 @@ public class EventSystem
         {
             Task.WaitAll(tasks.ToArray());
             Storage.Remove(hashCode);
-            Logger.Debug($"Completed all event tasks for '{id}' and removed object from storage");
+            
+            if(Debug)
+                Logger.Debug($"Completed all event tasks for '{id}' and removed object from storage");
         });
         
         if(Debug)

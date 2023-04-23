@@ -54,12 +54,14 @@ public class SupportChatClientService : IDisposable
         return await ServerService.GetMessages(User);
     }
 
-    public async Task SendMessage(string content)
+    public async Task<SupportChatMessage> SendMessage(string content)
     {
         if (User != null)
         {
-            await ServerService.SendMessage(User, content, User);
+            return await ServerService.SendMessage(User, content, User);
         }
+
+        return null!;
     }
     
     private Task HandleTyping(User user)
