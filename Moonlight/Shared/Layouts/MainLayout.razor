@@ -1,6 +1,4 @@
 ﻿@using Moonlight.Shared.Components.ErrorBoundaries
-@using Moonlight.Shared.Components.Partials
-@using Moonlight.Shared.Components.Alerts
 @using Moonlight.Shared.Components.Auth
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Extensions
@@ -8,7 +6,6 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Sessions
-@using Logging.Net
 @using Moonlight.App.Events
 
 @layout ThemeInit
@@ -21,6 +18,7 @@
 @inject NavigationManager NavigationManager
 @inject EventSystem Event
 @inject ToastService ToastService
+@inject SmartTranslateService SmartTranslateService
 
 <GlobalErrorBoundary>
     @{
@@ -61,52 +59,69 @@
                                 <div id="kt_app_content_container" class="app-container container-fluid">
                                     <div class="mt-10">
                                         <SoftErrorBoundary>
-                                            @if (uri.LocalPath != "/login" &&
-                                                 uri.LocalPath != "/passwordreset" &&
-                                                 uri.LocalPath != "/register")
+                                            @if (UserProcessed)
                                             {
-                                                if (User == null)
+                                                @if (uri.LocalPath != "/login" &&
+                                                     uri.LocalPath != "/passwordreset" &&
+                                                     uri.LocalPath != "/register")
                                                 {
-                                                    <Login></Login>
-                                                }
-                                                else
-                                                {
-                                                    if (User.Status == UserStatus.Banned)
+                                                    if (User == null)
                                                     {
-                                                        <BannedAlert></BannedAlert>
-                                                    }
-                                                    else if (User.Status == UserStatus.Disabled)
-                                                    {
-                                                        <DisabledAlert></DisabledAlert>
-                                                    }
-                                                    else if (User.Status == UserStatus.PasswordPending)
-                                                    {
-                                                        <PasswordChangeView></PasswordChangeView>
-                                                    }
-                                                    else if (User.Status == UserStatus.DataPending)
-                                                    {
-                                                        <UserDataSetView></UserDataSetView>
+                                                        <Login></Login>
                                                     }
                                                     else
                                                     {
-                                                        @Body
+                                                        if (User.Status == UserStatus.Banned)
+                                                        {
+                                                            <BannedAlert></BannedAlert>
+                                                        }
+                                                        else if (User.Status == UserStatus.Disabled)
+                                                        {
+                                                            <DisabledAlert></DisabledAlert>
+                                                        }
+                                                        else if (User.Status == UserStatus.PasswordPending)
+                                                        {
+                                                            <PasswordChangeView></PasswordChangeView>
+                                                        }
+                                                        else if (User.Status == UserStatus.DataPending)
+                                                        {
+                                                            <UserDataSetView></UserDataSetView>
+                                                        }
+                                                        else
+                                                        {
+                                                            @Body
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (uri.LocalPath == "/login")
+                                                    {
+                                                        <Login></Login>
+                                                    }
+                                                    else if (uri.LocalPath == "/register")
+                                                    {
+                                                        <Register></Register>
+                                                    }
+                                                    else if (uri.LocalPath == "/passwordreset")
+                                                    {
+                                                        <PasswordReset></PasswordReset>
                                                     }
                                                 }
                                             }
                                             else
                                             {
-                                                if (uri.LocalPath == "/login")
-                                                {
-                                                    <Login></Login>
-                                                }
-                                                else if (uri.LocalPath == "/register")
-                                                {
-                                                    <Register></Register>
-                                                }
-                                                else if (uri.LocalPath == "/passwordreset")
-                                                {
-                                                    <PasswordReset></PasswordReset>
-                                                }
+                                                <div class="modal d-block">
+                                                    <div class="modal-dialog modal-dialog-centered mw-900px">
+                                                        <div class="modal-content">
+                                                            <div class="pt-2 modal-body py-lg-10 px-lg-10">
+                                                                
+                                                                <h2>@(SmartTranslateService.Translate("Authenticating"))...</h2>
+                                                                <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("Verifying token, loading user data"))</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             }
                                         </SoftErrorBoundary>
                                     </div>
@@ -124,6 +139,7 @@
 @code
 {
     private User? User;
+    private bool UserProcessed = false;
 
     protected override void OnInitialized()
     {
@@ -154,6 +170,7 @@
             try
             {
                 User = await IdentityService.Get();
+                UserProcessed = true;
                 await InvokeAsync(StateHasChanged);
 
                 await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-reset-transition");
