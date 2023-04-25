@@ -4,9 +4,12 @@
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Repositories
+@using Moonlight.App.Repositories.Servers
 @using Moonlight.App.Services
 
-@inject ImageRepository ImageRepository
+@inject Repository<Image> ImageRepository
+@inject Repository<ImageVariable> ImageVariableRepository
+@inject Repository<Server> ServerRepository
 @inject SmartTranslateService SmartTranslateService
 
 <OnlyAdmin>
@@ -35,6 +38,16 @@
                                 <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
                                 <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Description"))" Field="@(x => x.Description)" Sortable="true" Filterable="true"/>
                                 <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Uuid"))" Field="@(x => x.Uuid)" Sortable="true" Filterable="true"/>
+                                <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Servers with this image"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                    <Template>
+                                        @{
+                                            var i = ServersCount.TryGetValue(context, out var value) ? value.ToString() : "N/A";
+                                        }
+                                        <span>
+                                            @(i)
+                                        </span>
+                                    </Template>
+                                </Column>
                                 <Column TableItem="Image" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                                     <Template>
                                         <a href="/admin/servers/images/edit/@(context.Id)">
@@ -72,19 +85,45 @@
     private Image[] Images;
     private LazyLoader LazyLoader;
 
-    private Task Load(LazyLoader arg)
+    private Dictionary<Image, int> ServersCount = new();
+
+    private async Task Load(LazyLoader lazyLoader)
     {
+        await lazyLoader.SetText("Loading images");
+        
         Images = ImageRepository
             .Get()
             .Include(x => x.DockerImages)
             .Include(x => x.Variables)
             .ToArray();
 
-        return Task.CompletedTask;
+        await lazyLoader.SetText("Counting image servers");
+        
+        ServersCount.Clear();
+
+        foreach (var image in Images)
+        {
+            var c = ServerRepository
+                .Get()
+                .Include(x => x.Image)
+                .Count(x => x.Image.Id == image.Id);
+
+            ServersCount.Add(image, c);
+        }
     }
 
     private async Task Delete(Image image)
     {
+        var variables = image.Variables.ToArray();
+        
+        image.Variables.Clear();
+        ImageRepository.Update(image);
+
+        foreach (var v in variables)
+        {
+            ImageVariableRepository.Delete(v);
+        }
+        
         ImageRepository.Delete(image);
         await LazyLoader.Reload();
     }
