@@ -45,9 +45,15 @@
                         <div class="d-flex flex-column gap-10">
                             <div class="fv-row">
                                 <label class="form-label">
-                                    <TL>Web host</TL>
+                                    <TL>Web system</TL>
                                 </label>
                                 <div class="fw-bold fs-3">@(CloudPanel.Name)</div>
+                            </div>
+                            <div class="fv-row">
+                                <label class="form-label">
+                                    <TL>Host</TL>
+                                </label>
+                                <div class="fw-bold fs-3">@(CloudPanel.Host)</div>
                             </div>
                             @if (AllowOrder)
                             {
@@ -81,7 +87,7 @@
                                 <div class="input-group mb-5">
                                     <InputText @bind-Value="Model.BaseDomain" class="form-control"></InputText>
                                 </div>
-                                
+
                                 <button type="submit" class="mt-5 float-end btn btn-primary">
                                     <TL>Create</TL>
                                 </button>
