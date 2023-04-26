@@ -10,6 +10,7 @@
 @inject ImageRepository ImageRepository
 @inject SmartTranslateService SmartTranslateService
 @inject ToastService ToastService
+@inject FileDownloadService FileDownloadService
 
 <OnlyAdmin>
     <div class="row">
@@ -230,6 +231,11 @@
                             <a href="/admin/servers/images" class="btn btn-danger me-3">
                                 <TL>Cancel</TL>
                             </a>
+                            <WButton Text="@(SmartTranslateService.Translate("Export"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Exporting"))"
+                                     CssClasses="btn-primary me-3"
+                                     OnClick="Export">
+                            </WButton>
                             <WButton Text="@(SmartTranslateService.Translate("Save"))"
                                      WorkingText="@(SmartTranslateService.Translate("Saving"))"
                                      CssClasses="btn-success"
@@ -349,5 +355,14 @@
         await ToastService.Success(SmartTranslateService.Translate("Successfully saved image"));
 
         await LazyLoader.Reload();
+    }
+
+    private async Task Export()
+    {
+        Image.TagsJson = JsonConvert.SerializeObject(Tags);
+        Image.InstallScript = await Editor.GetData();
+        
+        var json = JsonConvert.SerializeObject(Image, Formatting.Indented);
+        await FileDownloadService.DownloadString(Image.Name + ".json", json);
     }
 }
