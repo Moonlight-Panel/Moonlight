@@ -35,8 +35,13 @@ public class SupportChatClientService : IDisposable
         {
             await Event.On<SupportChatMessage>($"supportChat.{User.Id}.message", this, async message =>
             {
-                if(OnMessage != null)
+                if (OnMessage != null)
+                {
+                    if(message.Sender != null && message.Sender.Id == User.Id)
+                        return;
+                    
                     await OnMessage.Invoke(message);
+                }
             });
 
             await Event.On<User>($"supportChat.{User.Id}.typing", this, async user =>
