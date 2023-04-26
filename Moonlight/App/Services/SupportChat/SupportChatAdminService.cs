@@ -36,8 +36,13 @@ public class SupportChatAdminService
         {
             await Event.On<SupportChatMessage>($"supportChat.{Recipient.Id}.message", this, async message =>
             {
-                if(OnMessage != null)
+                if (OnMessage != null)
+                {
+                    if(message.Sender != null && message.Sender.Id == User.Id)
+                        return;
+                    
                     await OnMessage.Invoke(message);
+                }
             });
 
             await Event.On<User>($"supportChat.{Recipient.Id}.typing", this, async user =>
