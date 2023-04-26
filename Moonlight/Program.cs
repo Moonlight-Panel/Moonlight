@@ -106,14 +106,13 @@ namespace Moonlight
             builder.Services.AddSingleton<DateTimeService>();
             builder.Services.AddSingleton<EventSystem>();
             builder.Services.AddScoped<FileDownloadService>();
+            builder.Services.AddScoped<ForgeService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();
-
-            builder.Services.AddSingleton<CleanupService>();
 
             // Loggers
             builder.Services.AddScoped<SecurityLogService>();
@@ -143,6 +142,7 @@ namespace Moonlight
             builder.Services.AddSingleton<DiscordBotService>();
             builder.Services.AddSingleton<StatisticsCaptureService>();
             builder.Services.AddSingleton<DiscordNotificationService>();
+            builder.Services.AddSingleton<CleanupService>();
 
             // Third party services
             builder.Services.AddBlazorTable();
