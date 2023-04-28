@@ -29,10 +29,14 @@ public class ActivityStatusModule : BaseModule
     {
         while (await Timer.WaitForNextTickAsync())
         {
-            Random rand = new Random();
-            LoadingMessage random = LoadingMessages[rand.Next(LoadingMessages.Count)];
+            String random = "https://endelon-hosting.de";
+            if (LoadingMessages.Any())
+            {
+                Random rand = new Random();
+                random = LoadingMessages[rand.Next(LoadingMessages.Count)].Message;
+            }
             
-            await Client.SetGameAsync(random.Message, "https://www.endelon.team", ActivityType.Streaming);
+            await Client.SetGameAsync(random, "https://www.endelon.team", ActivityType.Streaming);
         }
     }
 

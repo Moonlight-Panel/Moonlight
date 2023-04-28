@@ -9,8 +9,9 @@
       "Username": "user_name"
     },
     "DiscordBot": {
-      "Enable": "True",
-      "Token": "Discord.Token.Here"
+      "Enable": false,
+      "Token": "Discord.Token.Here",
+      "PowerActions": false
     },
     "Domains": {
       "_comment": "Cloudflare Api Credentials",

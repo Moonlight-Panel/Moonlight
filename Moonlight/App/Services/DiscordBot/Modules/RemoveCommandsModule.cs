@@ -1,17 +1,17 @@
 ﻿using System.Diagnostics;
-using Discord;
 using Discord.WebSocket;
 using Logging.Net;
 
-namespace Moonlight.App.Services.DiscordBot.Commands;
+namespace Moonlight.App.Services.DiscordBot.Modules;
 
-public class RemoveCommandsModuels : BaseModule
+public class RemoveCommandsModule : BaseModule
 {
-    public RemoveCommandsModuels(DiscordSocketClient client, ConfigService configService, IServiceScope scope) : base(client, configService, scope) {}
+    public RemoveCommandsModule(DiscordSocketClient client, ConfigService configService, IServiceScope scope) : base(client, configService, scope) 
+        { }
     public override Task RegisterCommands()
         { return Task.CompletedTask; }
     
-    private async void VoidCommands()
+    public async void VoidCommands()
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();

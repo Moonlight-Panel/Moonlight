@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Logging.Net;
-using Moonlight.App.Repositories;
 using Moonlight.App.Services.DiscordBot.Commands;
 using Moonlight.App.Services.DiscordBot.Modules;
 
@@ -20,7 +20,14 @@ public class DiscordBotService
     private readonly DiscordSocketClient Client;
 
     // References
+    public RemoveCommandsModule RemoveCommandsModule { get; private set; }
+    public PermissionCheckModule PermissionCheckModule { get; private set; }
+    public EmbedBuilderModule EmbedBuilderModule { get; private set; }
+    public ServerListCommand ServerListCommand { get; private set; }
+    public ServerListComponentHandlerModule ServerListComponentHandlerModule { get; private set; }
     public ActivityStatusModule ActivityStatusModule { get; private set; }
+    public CommonComponentHandlerModule CommonComponentHandlerModule { get; private set; }
+    public ClearChannelCommand ClearChannelCommand { get; private set; }
 
 public DiscordBotService(
         IServiceScopeFactory serviceScopeFactory,
@@ -47,10 +54,17 @@ public DiscordBotService(
         Client.Log += Log;
         Client.Ready += OnReady;
 
-        //Commands
-
         //Module
+        ServerListCommand = new(Client, ConfigService, ServiceScope);
+        ClearChannelCommand = new(Client, ConfigService, ServiceScope);
+        
+        //Commands
+        EmbedBuilderModule = new(Client, ConfigService, ServiceScope);
+        PermissionCheckModule = new(Client, ConfigService, ServiceScope);
+        RemoveCommandsModule = new(Client, ConfigService, ServiceScope);
         ActivityStatusModule = new(Client, ConfigService, ServiceScope);
+        ServerListComponentHandlerModule = new(Client, ConfigService, ServiceScope);
+        CommonComponentHandlerModule = new(Client, ConfigService, ServiceScope);
 
         await ActivityStatusModule.UpdateActivityStatusList();
 
@@ -63,6 +77,7 @@ public DiscordBotService(
     {
         //await Client.SetGameAsync(name: "https://endelon-hosting.de", type: ActivityType.Watching);
         await Client.SetStatusAsync(UserStatus.Idle);
+        //await Client.SetStatusAsync(UserStatus.Online);
 
         Logger.Info($"Invite link: https://discord.com/api/oauth2/authorize?client_id={Client.CurrentUser.Id}&permissions=1099511696391&scope=bot%20applications.commands");
         Logger.Info($"Login as {Client.CurrentUser.Username}#{Client.CurrentUser.DiscriminatorValue}");
@@ -72,7 +87,17 @@ public DiscordBotService(
 
     private Task Log(LogMessage message)
     {
-        Logger.Debug(message.Message);
+        if (message.Exception is { } exception)
+        {
+            Logger.Error(exception);
+            if (exception.InnerException != null)
+            {
+                Logger.Error(exception.InnerException);
+            }
+            return Task.CompletedTask;
+        }
+        
+        Logger.Info(message.Message);
         return Task.CompletedTask;
     }
 
