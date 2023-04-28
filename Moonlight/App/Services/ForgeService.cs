@@ -15,12 +15,12 @@ public class ForgeService
     // Key: 1.9.4-recommended Value: 12.17.0.2317
     public async Task<Dictionary<string, string>> GetVersions()
     {
-        var data = await Client.GetAsync(
+        var data = await Client.GetStringAsync(
             "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json");
         
         var json = new ConfigurationBuilder().AddJsonStream(
             new MemoryStream(Encoding.ASCII.GetBytes(
-                    await data.Content.ReadAsStringAsync()
+                    data
                 )
             )
         ).Build();
