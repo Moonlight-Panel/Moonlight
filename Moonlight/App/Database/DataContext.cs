@@ -2,7 +2,6 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.LogsEntries;
 using Moonlight.App.Database.Entities.Notification;
-using Moonlight.App.Database.Interceptors;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
 
@@ -30,7 +29,8 @@ public class DataContext : DbContext
     public DbSet<AuditLogEntry> AuditLog { get; set; }
     public DbSet<ErrorLogEntry> ErrorLog { get; set; }
     public DbSet<SecurityLogEntry> SecurityLog { get; set; }
-
+    public DbSet<SupportMessage> SupportMessages { get; set; }
+    
     public DbSet<SharedDomain> SharedDomains { get; set; }
     public DbSet<Domain> Domains { get; set; }
     public DbSet<Revoke> Revokes { get; set; }
@@ -38,13 +38,10 @@ public class DataContext : DbContext
     public DbSet<NotificationAction> NotificationActions { get; set; }
     public DbSet<DdosAttack> DdosAttacks { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<PleskServer> PleskServers { get; set; }
+    public DbSet<Website> Websites { get; set; }
     public DbSet<StatisticsData> Statistics { get; set; }
     public DbSet<NewsEntry> NewsEntries { get; set; }
-    
-    public DbSet<CloudPanel> CloudPanels { get; set; }
-    public DbSet<MySqlDatabase> Databases { get; set; }
-    public DbSet<WebSpace> WebSpaces { get; set; }
-    public DbSet<SupportChatMessage> SupportChatMessages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -68,9 +65,6 @@ public class DataContext : DbContext
                     builder.EnableRetryOnFailure(5);
                 }
             );
-            
-            if(ConfigService.SqlDebugMode)
-                optionsBuilder.AddInterceptors(new SqlLoggingInterceptor());
         }
     }
 }

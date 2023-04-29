@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Models.Misc;
+﻿using System.ComponentModel.DataAnnotations;
+using Moonlight.App.Models.Misc;
 
 namespace Moonlight.App.Database.Entities;
 
@@ -33,7 +34,7 @@ public class User
     // Security
     public bool TotpEnabled { get; set; } = false;
     public string TotpSecret { get; set; } = "";
-    public DateTime TokenValidTime { get; set; } = DateTime.UtcNow;
+    public DateTime TokenValidTime { get; set; } = DateTime.Now;
     
     // Discord
     public ulong DiscordId { get; set; }

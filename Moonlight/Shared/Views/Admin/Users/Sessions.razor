@@ -64,7 +64,7 @@
                         <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Time"))" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="true" Width="10%">
                             <Template>
                                 @{
-                                    var time = Formatter.FormatUptime((DateTime.UtcNow - context.CreatedAt).TotalMilliseconds);
+                                    var time = Formatter.FormatUptime((DateTime.Now - context.CreatedAt).TotalMilliseconds);
                                 }
                                 <span>@(time)</span>
                             </Template>

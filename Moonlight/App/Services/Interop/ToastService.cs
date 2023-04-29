@@ -13,36 +13,36 @@ public class ToastService
     
     public async Task Info(string message)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.info", message);
+        await JsRuntime.InvokeVoidAsync("showInfoToast", message);
     }
     
     public async Task Error(string message)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.error", message);
+        await JsRuntime.InvokeVoidAsync("showErrorToast", message);
     }
     
     public async Task Warning(string message)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.warning", message);
+        await JsRuntime.InvokeVoidAsync("showWarningToast", message);
     }
     
     public async Task Success(string message)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.success", message);
+        await JsRuntime.InvokeVoidAsync("showSuccessToast", message);
     }
 
     public async Task CreateProcessToast(string id, string text)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.create", id, text);
+        await JsRuntime.InvokeVoidAsync("createToast", id, text);
     }
 
     public async Task UpdateProcessToast(string id, string text)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.modify", id, text);
+        await JsRuntime.InvokeVoidAsync("modifyToast", id, text);
     }
     
     public async Task RemoveProcessToast(string id)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.toasts.remove", id);
+        await JsRuntime.InvokeVoidAsync("removeToast", id);
     }
 }

@@ -209,8 +209,10 @@
                         disk,
                         User,
                         Model.Image,
-                        DeployNode
-                        );
+                        DeployNode,
+                        null,
+                        Model.Image.Allocations
+                    );
                     
                     NavigationManager.NavigateTo($"/server/{server.Uuid}");
                 }

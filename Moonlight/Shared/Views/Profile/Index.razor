@@ -1,17 +1,19 @@
 ﻿@page "/profile"
 
 @using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Services.Sessions
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
-@using Mappy.Net
+@using Moonlight.Shared.Components.Auth
 
+@inject IdentityService IdentityService
 @inject UserRepository UserRepository
 
 <ProfileNavigation Index="0" />
 
 <LazyLoader Load="Load">
-    <SmartForm OnValidSubmit="Save" Model="Model">
+    <SmartForm OnValidSubmit="Save" Model="User">
         <div class="card mb-5 mb-xl-10">
             <div class="card-body p-9">
                 <div class="row">
@@ -20,7 +22,7 @@
                             <label class="form-label">
                                 <TL>First name</TL>
                             </label>
-                            <InputText @bind-Value="Model.FirstName" class="form-control"></InputText>
+                            <InputText @bind-Value="User.FirstName" class="form-control"></InputText>
                         </div>
                     </div>
                     <div class="col-lg-6 fv-row fv-plugins-icon-container">
@@ -28,7 +30,7 @@
                             <label class="form-label">
                                 <TL>Last name</TL>
                             </label>
-                            <InputText @bind-Value="Model.LastName" class="form-control"></InputText>
+                            <InputText @bind-Value="User.LastName" class="form-control"></InputText>
                         </div>
                     </div>
                 </div>
@@ -36,31 +38,31 @@
                     <label class="form-label">
                         <TL>Email address</TL>
                     </label>
-                    <InputText @bind-Value="Model.Email" class="form-control"></InputText>
+                    <InputText @bind-Value="User.Email" class="form-control"></InputText>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">
                         <TL>Address</TL>
                     </label>
-                    <InputText @bind-Value="Model.Address" class="form-control"></InputText>
+                    <InputText @bind-Value="User.Address" class="form-control"></InputText>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">
                         <TL>City</TL>
                     </label>
-                    <InputText @bind-Value="Model.City" class="form-control"></InputText>
+                    <InputText @bind-Value="User.City" class="form-control"></InputText>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">
                         <TL>State</TL>
                     </label>
-                    <InputText @bind-Value="Model.State" class="form-control"></InputText>
+                    <InputText @bind-Value="User.State" class="form-control"></InputText>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">
                         <TL>Country</TL>
                     </label>
-                    <InputText @bind-Value="Model.Country" class="form-control"></InputText>
+                    <InputText @bind-Value="User.Country" class="form-control"></InputText>
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-end py-6 px-9">
@@ -74,25 +76,31 @@
 
 @code
 {
-    private UserDataModel Model = new UserDataModel();
-    
-    [CascadingParameter]
-    public User CurrentUser { get; set; }
+    private UserDataModel User = new UserDataModel();
+    private User CurrentUser;
 
 
-    private Task Load(LazyLoader loader)
+    private async Task Load(LazyLoader loader)
     {
-        Model = Mapper.Map<UserDataModel>(CurrentUser);
-        
-        return Task.CompletedTask;
+        CurrentUser = await IdentityService.Get();
+        User.FirstName = CurrentUser.FirstName;
+        User.LastName = CurrentUser.LastName;
+        User.Email = CurrentUser.Email;
+        User.Address = CurrentUser.Address;
+        User.City = CurrentUser.City;
+        User.State = CurrentUser.State;
+        User.Country = CurrentUser.Country;
     }
 
     private Task Save()
     {
-        CurrentUser = Mapper.Map(CurrentUser, Model);
-
-        CurrentUser.Email = CurrentUser.Email.ToLower();
-        
+        CurrentUser.FirstName = User.FirstName;
+        CurrentUser.LastName = User.LastName;
+        CurrentUser.Email = User.Email;
+        CurrentUser.Address = User.Address;
+        CurrentUser.City = User.City;
+        CurrentUser.State = User.State;
+        CurrentUser.Country = User.Country;
         UserRepository.Update(CurrentUser);
         
         return Task.CompletedTask;

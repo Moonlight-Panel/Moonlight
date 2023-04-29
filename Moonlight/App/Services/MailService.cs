@@ -1,11 +1,9 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using Logging.Net;
-using MimeKit;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
-using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Moonlight.App.Services;
 
@@ -15,7 +13,6 @@ public class MailService
     private readonly string Password;
     private readonly string Email;
     private readonly int Port;
-    private readonly bool Ssl;
 
     public MailService(ConfigService configService)
     {
@@ -27,7 +24,6 @@ public class MailService
         Password = mailConfig.GetValue<string>("Password");
         Email = mailConfig.GetValue<string>("Email");
         Port = mailConfig.GetValue<int>("Port");
-        Ssl = mailConfig.GetValue<bool>("Ssl");
     }
     
     public async Task SendMail(
@@ -58,24 +54,20 @@ public class MailService
             {
                 using var client = new SmtpClient();
 
-                var mailMessage = new MimeMessage();
-                mailMessage.From.Add(new MailboxAddress(Email, Email));
-                mailMessage.To.Add(new MailboxAddress(user.Email, user.Email));
-                mailMessage.Subject = $"Hey {user.FirstName}, there are news from moonlight";
-                
-                var body = new BodyBuilder
-                {
-                    HtmlBody = parsed
-                };
-                mailMessage.Body = body.ToMessageBody();
+                client.Host = Server;
+                client.Port = Port;
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential(Email, Password);
 
-                using (var smtpClient = new SmtpClient())
+                await client.SendMailAsync(new MailMessage()
                 {
-                    await smtpClient.ConnectAsync(Server, Port, Ssl);
-                    await smtpClient.AuthenticateAsync(Email, Password);
-                    await smtpClient.SendAsync(mailMessage);
-                    await smtpClient.DisconnectAsync(true);
-                }
+                    From = new MailAddress(Email),
+                    Sender = new MailAddress(Email),
+                    Body = parsed,
+                    IsBodyHtml = true,
+                    Subject = $"Hey {user.FirstName}, there are news from moonlight",
+                    To = { new MailAddress(user.Email) }
+                });
             }
             catch (Exception e)
             {

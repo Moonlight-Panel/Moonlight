@@ -10,9 +10,14 @@ public class ClipboardService
     {
         JsRuntime = jsRuntime;
     }
-    
+
+    public async Task CopyToClipboard(string data)
+    {
+        await JsRuntime.InvokeVoidAsync("copyTextToClipboard", data);
+    }
     public async Task Copy(string data)
     {
-        await JsRuntime.InvokeVoidAsync("moonlight.clipboard.copy", data);
+        await JsRuntime.InvokeVoidAsync("copyTextToClipboard", data);
     }
+    
 }

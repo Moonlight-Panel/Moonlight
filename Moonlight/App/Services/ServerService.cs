@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;
-using Moonlight.App.Events;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.Files;
@@ -22,8 +21,8 @@ public class ServerService
     private readonly UserRepository UserRepository;
     private readonly ImageRepository ImageRepository;
     private readonly NodeRepository NodeRepository;
-    private readonly NodeAllocationRepository NodeAllocationRepository;
     private readonly WingsApiHelper WingsApiHelper;
+    private readonly MessageService MessageService;
     private readonly UserService UserService;
     private readonly ConfigService ConfigService;
     private readonly WingsJwtHelper WingsJwtHelper;
@@ -31,8 +30,6 @@ public class ServerService
     private readonly AuditLogService AuditLogService;
     private readonly ErrorLogService ErrorLogService;
     private readonly NodeService NodeService;
-    private readonly DateTimeService DateTimeService;
-    private readonly EventSystem Event;
 
     public ServerService(
         ServerRepository serverRepository,
@@ -40,22 +37,21 @@ public class ServerService
         UserRepository userRepository,
         ImageRepository imageRepository,
         NodeRepository nodeRepository,
+        MessageService messageService,
         UserService userService,
         ConfigService configService,
         WingsJwtHelper wingsJwtHelper,
         SecurityLogService securityLogService,
         AuditLogService auditLogService,
         ErrorLogService errorLogService,
-        NodeService nodeService,
-        NodeAllocationRepository nodeAllocationRepository,
-        DateTimeService dateTimeService,
-        EventSystem eventSystem)
+        NodeService nodeService)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
         UserRepository = userRepository;
         ImageRepository = imageRepository;
         NodeRepository = nodeRepository;
+        MessageService = messageService;
         UserService = userService;
         ConfigService = configService;
         WingsJwtHelper = wingsJwtHelper;
@@ -63,9 +59,6 @@ public class ServerService
         AuditLogService = auditLogService;
         ErrorLogService = errorLogService;
         NodeService = nodeService;
-        NodeAllocationRepository = nodeAllocationRepository;
-        DateTimeService = dateTimeService;
-        Event = eventSystem;
     }
 
     private Server EnsureNodeData(Server s)
@@ -119,9 +112,9 @@ public class ServerService
 
         var backup = new ServerBackup()
         {
-            Name = $"Created at {DateTimeService.GetCurrent().ToShortDateString()} {DateTimeService.GetCurrent().ToShortTimeString()}",
+            Name = $"Created at {DateTime.Now.ToShortDateString()} {DateTime.Now.ToShortTimeString()}",
             Uuid = Guid.NewGuid(),
-            CreatedAt = DateTimeService.GetCurrent(),
+            CreatedAt = DateTime.Now,
             Created = false
         };
 
@@ -193,27 +186,15 @@ public class ServerService
             .Include(x => x.Backups)
             .First(x => x.Id == server.Id);
 
-        try
-        {
-            await WingsApiHelper.Delete(serverData.Node, $"api/servers/{serverData.Uuid}/backup/{serverBackup.Uuid}",
-                null);
-        }
-        catch (WingsException e)
-        {
-            // when a backup is not longer there we can
-            // safely delete the backup so we ignore this error
-            if (e.StatusCode != 404)
-            {
-                throw;
-            }
-        }
-        
+        await WingsApiHelper.Delete(serverData.Node, $"api/servers/{serverData.Uuid}/backup/{serverBackup.Uuid}",
+            null);
+
         var backup = serverData.Backups.First(x => x.Uuid == serverBackup.Uuid);
         serverData.Backups.Remove(backup);
 
         ServerRepository.Update(serverData);
 
-        await Event.Emit("wings.backups.delete", backup);
+        await MessageService.Emit("wings.backups.delete", backup);
 
         await AuditLogService.Log(AuditLogType.DeleteBackup,
             x =>
@@ -263,7 +244,7 @@ public class ServerService
     }
 
     public async Task<Server> Create(string name, int cpu, long memory, long disk, User u, Image i, Node? n = null,
-        Action<Server>? modifyDetails = null)
+        Action<Server>? modifyDetails = null, int allocations = 1)
     {
         var user = UserRepository
             .Get()
@@ -275,21 +256,32 @@ public class ServerService
             .Include(x => x.DockerImages)
             .First(x => x.Id == i.Id);
 
-        var allocations = image.Allocations;
+        Node node;
 
-        Node node = n ?? NodeRepository.Get().First();
+        if (n == null)
+        {
+            node = NodeRepository
+                .Get()
+                .Include(x => x.Allocations)
+                .First(); //TODO: Add smart deploy maybe
+        }
+        else
+        {
+            node = NodeRepository
+                .Get()
+                .Include(x => x.Allocations)
+                .First(x => x.Id == n.Id);
+        }
 
         NodeAllocation[] freeAllocations;
 
         try
         {
-            // We have sadly no choice to use entity framework to do what the sql call does, there
-            // are only slower ways, so we will use a raw sql call as a exception
-            
-            freeAllocations = NodeAllocationRepository
-                .Get()
-                .FromSqlRaw($"SELECT * FROM `NodeAllocations` WHERE ServerId IS NULL AND NodeId={node.Id} LIMIT {allocations}")
-                .ToArray();
+            freeAllocations = node.Allocations
+                .Where(a => !ServerRepository.Get()
+                    .SelectMany(s => s.Allocations)
+                    .Any(b => b.Id == a.Id))
+                .Take(allocations).ToArray();
         }
         catch (Exception)
         {
@@ -380,7 +372,7 @@ public class ServerService
 
         var user = await UserService.SftpLogin(id, password);
 
-        if (server.Owner.Id == user.Id || user.Admin)
+        if (server.Owner.Id == user.Id)
         {
             return server;
         }
