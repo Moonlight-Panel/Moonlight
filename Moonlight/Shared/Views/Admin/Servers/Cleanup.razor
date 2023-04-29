@@ -3,10 +3,11 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Models.Misc
 @using Moonlight.App.Services.LogServices
+@using Moonlight.App.Events
 
 @inject CleanupService CleanupService
 @inject AuditLogService AuditLogService
-@inject MessageService MessageService
+@inject EventSystem Event
 
 @implements IDisposable
 
@@ -83,21 +84,16 @@
 
 @code
 {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        MessageService.Subscribe<Cleanup, Object>("cleanup.updated", this, _ =>
+        await Event.On<Object>("cleanup.updated", this, async _ =>
         {
-            Task.Run(async () =>
-            {
-                await InvokeAsync(StateHasChanged);
-            });
-            
-            return Task.CompletedTask;
+            await InvokeAsync(StateHasChanged);
         });
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
-        MessageService.Unsubscribe("cleanup.updated", this);
+        await Event.Off("cleanup.updated", this);
     }
 }

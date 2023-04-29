@@ -12,6 +12,7 @@ public class SessionService
     private readonly IdentityService IdentityService;
     private readonly NavigationManager NavigationManager;
     private readonly AlertService AlertService;
+    private readonly DateTimeService DateTimeService;
 
     private Session? OwnSession;
 
@@ -19,12 +20,14 @@ public class SessionService
         SessionRepository sessionRepository, 
         IdentityService identityService, 
         NavigationManager navigationManager,
-        AlertService alertService)
+        AlertService alertService,
+        DateTimeService dateTimeService)
     {
         SessionRepository = sessionRepository;
         IdentityService = identityService;
         NavigationManager = navigationManager;
         AlertService = alertService;
+        DateTimeService = dateTimeService;
     }
 
     public async Task Register()
@@ -36,7 +39,7 @@ public class SessionService
             Ip = IdentityService.GetIp(),
             Url = NavigationManager.Uri,
             Device = IdentityService.GetDevice(),
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTimeService.GetCurrent(),
             User = user,
             Navigation = NavigationManager,
             AlertService = AlertService
@@ -64,10 +67,8 @@ public class SessionService
     {
         foreach (var session in SessionRepository.Get())
         {
-            if (session.User.Id == user.Id)
-            {
+            if(session.User != null && session.User.Id == user.Id)
                 session.Navigation.NavigateTo(session.Navigation.Uri, true);
-            }
         }
     }
 }

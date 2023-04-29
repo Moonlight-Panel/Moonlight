@@ -1,11 +1,11 @@
 ﻿@page "/admin/support/view/{Id:int}"
-@using Moonlight.App.Services.Support
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
+@using Moonlight.App.Services.SupportChat
 
-@inject SupportAdminService SupportAdminService
+@inject SupportChatAdminService AdminService
 @inject UserRepository UserRepository
 @inject SmartTranslateService SmartTranslateService
 @inject ResourceService ResourceService
@@ -29,7 +29,7 @@
                                     <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
                                         @foreach (var message in Messages)
                                         {
-                                            if (message.IsSystem || message.IsSupport)
+                                            if (message.Sender == null || message.Sender.Id != User.Id)
                                             {
                                                 <div class="d-flex justify-content-end mb-10 ">
                                                     <div class="d-flex flex-column align-items-end">
@@ -37,29 +37,29 @@
                                                             <div class="me-3">
                                                                 <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                                                                 <a class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">
-                                                                    @if (message.IsSupport && !message.IsSystem)
+                                                                    @if (message.Sender != null)
                                                                     {
-                                                                        <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                                        <span>@(message.Sender.FirstName) @(message.Sender.LastName)</span>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <span>System</span>
+                                                                        <span><TL>System</TL></span>
                                                                     }
                                                                 </a>
                                                             </div>
-                                                            <div class="symbol  symbol-35px symbol-circle ">
+                                                            <div class="symbol symbol-35px symbol-circle ">
                                                                 <img alt="Logo" src="@(ResourceService.Image("logo.svg"))">
                                                             </div>
                                                         </div>
 
                                                         <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
-                                                            @if (message.IsSystem)
+                                                            @if (message.Sender == null)
                                                             {
-                                                                <TL>@(message.Message)</TL>
+                                                                <TL>@(message.Content)</TL>
                                                             }
                                                             else
                                                             {
-                                                                @(message.Message)
+                                                                @(message.Content)
                                                             }
                                                         </div>
                                                     </div>
@@ -75,14 +75,14 @@
                                                             </div>
                                                             <div class="ms-3">
                                                                 <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
-                                                                    <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                                    <span>@(message.Sender.FirstName) @(message.Sender.LastName)</span>
                                                                 </a>
                                                                 <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                                                             </div>
                                                         </div>
 
                                                         <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
-                                                            @(message.Message)
+                                                            @(message.Content)
                                                         </div>
                                                     </div>
                                                 </div>
@@ -92,11 +92,7 @@
                                 </LazyLoader>
                             </div>
                             <div class="card-footer">
-                                @{
-                                    var typingUsers = SupportAdminService.GetTypingUsers();
-                                }
-
-                                @if (typingUsers.Any())
+                                @if (Typing.Any())
                                 {
                                     <span class="mb-5 fs-5 d-flex flex-row">
                                         <div class="wave me-1">
@@ -104,16 +100,16 @@
                                             <div class="dot h-5px w-5px" style="margin-right: 1px;"></div>
                                             <div class="dot h-5px w-5px"></div>
                                         </div>
-                                        @if (typingUsers.Length > 1)
+                                        @if (Typing.Length > 1)
                                         {
                                             <span>
-                                                @(typingUsers.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL>
+                                                @(Typing.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL>
                                             </span>
                                         }
                                         else
                                         {
                                             <span>
-                                                @(typingUsers.First()) <TL>is typing</TL>
+                                                @(Typing.First()) <TL>is typing</TL>
                                             </span>
                                         }
                                     </span>
@@ -157,7 +153,7 @@
                             </div>
                             <div class="d-flex align-items-center mb-2">
                                 <span class="fw-semibold text-gray-800 fs-5 m-0">
-                                    <TL>Email</TL>: <a href="/admin/users/view/@User.Id">@(User.Email)</a> 
+                                    <TL>Email</TL>: <a href="/admin/users/view/@User.Id">@(User.Email)</a>
                                 </span>
                             </div>
                             <div class="align-items-center mt-3">
@@ -183,9 +179,11 @@
     public int Id { get; set; }
 
     private User? User;
-    private SupportMessage[] Messages;
-    private string Content = "";
 
+    private List<SupportChatMessage> Messages = new();
+    private string[] Typing = Array.Empty<string>();
+
+    private string Content = "";
     private DateTime LastTypingTimestamp = DateTime.UtcNow.AddMinutes(-10);
 
     private async Task Load(LazyLoader arg)
@@ -196,55 +194,59 @@
 
         if (User != null)
         {
-            SupportAdminService.OnNewMessage += OnNewMessage;
-            SupportAdminService.OnUpdateTyping += OnUpdateTyping;
+            AdminService.OnMessage += OnMessage;
+            AdminService.OnTypingChanged += OnTypingChanged;
 
-            await SupportAdminService.Start(User);
+            await AdminService.Start(User);
         }
     }
     
-    #region Message handling
-
-    private async void OnNewMessage(object? sender, SupportMessage e)
+    private async Task LoadMessages(LazyLoader arg)
     {
-        Messages = (await SupportAdminService.GetMessages()).Reverse().ToArray();
+        Messages = (await AdminService.GetMessages()).ToList();
+    }
+
+    private async Task OnTypingChanged(string[] typing)
+    {
+        Typing = typing;
+
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task LoadMessages(LazyLoader arg)
+    private async Task OnMessage(SupportChatMessage arg)
     {
-        Messages = (await SupportAdminService.GetMessages()).Reverse().ToArray();
+        Messages.Insert(0, arg);
+
+        //TODO: Sound when message from system or admin
+
+        await InvokeAsync(StateHasChanged);
     }
     
-    #endregion
-
     private async Task Send()
     {
-        await SupportAdminService.SendMessage(Content);
+        if(string.IsNullOrEmpty(Content))
+            return;
+        
+        var message = await AdminService.SendMessage(Content);
         Content = "";
+        
+        Messages.Insert(0, message);
+        
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task CloseTicket()
     {
-        await SupportAdminService.Close();
+        await AdminService.Close();
     }
     
-    #region Typing
-
     private async Task OnTyping()
     {
         if ((DateTime.UtcNow - LastTypingTimestamp).TotalSeconds > 5)
         {
             LastTypingTimestamp = DateTime.UtcNow;
 
-            await SupportAdminService.TriggerTyping();
+            await AdminService.SendTyping();
         }
     }
-    
-    private async void OnUpdateTyping(object? sender, EventArgs e)
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-    
-    #endregion
 }

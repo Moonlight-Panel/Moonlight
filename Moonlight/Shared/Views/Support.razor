@@ -2,10 +2,11 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
-@using Moonlight.App.Services.Support
+@using Moonlight.App.Services.SupportChat
+@using Logging.Net
 
 @inject ResourceService ResourceService
-@inject SupportClientService SupportClientService
+@inject SupportChatClientService ClientService
 @inject SmartTranslateService SmartTranslateService
 
 <LazyLoader Load="Load">
@@ -16,7 +17,7 @@
                     <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
                         @foreach (var message in Messages)
                         {
-                            if (message.IsSystem || message.IsSupport)
+                            if (message.Sender == null || message.Sender.Id != User.Id)
                             {
                                 <div class="d-flex justify-content-start mb-10 ">
                                     <div class="d-flex flex-column align-items-start">
@@ -26,13 +27,13 @@
                                             </div>
                                             <div class="ms-3">
                                                 <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
-                                                    @if (message.IsSupport && !message.IsSystem)
+                                                    @if (message.Sender != null)
                                                     {
-                                                        <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                        <span>@(message.Sender.FirstName) @(message.Sender.LastName)</span>
                                                     }
                                                     else
                                                     {
-                                                        <span>System</span>
+                                                        <span><TL>System</TL></span>
                                                     }
                                                 </a>
                                                 <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
@@ -40,13 +41,13 @@
                                         </div>
 
                                         <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start">
-                                            @if (message.IsSystem)
+                                            @if (message.Sender == null)
                                             {
-                                                <TL>@(message.Message)</TL>
+                                                <TL>@(message.Content)</TL>
                                             }
                                             else
                                             {
-                                                @(message.Message)
+                                                @(message.Content)
                                             }
                                         </div>
                                     </div>
@@ -60,7 +61,7 @@
                                             <div class="me-3">
                                                 <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                                                 <a class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">
-                                                    <span>@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
+                                                    <span>@(message.Sender.FirstName) @(message.Sender.LastName)</span>
                                                 </a>
                                             </div>
                                             <div class="symbol  symbol-35px symbol-circle ">
@@ -69,7 +70,7 @@
                                         </div>
 
                                         <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
-                                            @(message.Message)
+                                            @(message.Content)
                                         </div>
                                     </div>
                                 </div>
@@ -83,7 +84,7 @@
                                     </div>
                                     <div class="ms-3">
                                         <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
-                                            <span>System</span>
+                                            <span><TL>System</TL></span>
                                         </a>
                                     </div>
                                 </div>
@@ -97,11 +98,7 @@
                 </LazyLoader>
             </div>
             <div class="card-footer">
-                @{
-                    var typingUsers = SupportClientService.GetTypingUsers();
-                }
-                
-                @if (typingUsers.Any())
+                @if (Typing.Any())
                 {
                     <span class="mb-5 fs-5 d-flex flex-row">
                         <div class="wave me-1">
@@ -109,13 +106,13 @@
                             <div class="dot h-5px w-5px" style="margin-right: 1px;"></div>
                             <div class="dot h-5px w-5px"></div>
                         </div>
-                        @if (typingUsers.Length > 1)
+                        @if (Typing.Length > 1)
                         {
-                            <span>@(typingUsers.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL></span>
+                            <span>@(Typing.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL></span>
                         }
                         else
                         {
-                            <span>@(typingUsers.First()) <TL>is typing</TL></span>
+                            <span>@(Typing.First()) <TL>is typing</TL></span>
                         }
                     </span>
                 }
@@ -149,59 +146,65 @@
 
 @code
 {
-    private SupportMessage[] Messages;
-    private string Content = "";
+    [CascadingParameter]
+    public User User { get; set; }
     
+    private List<SupportChatMessage> Messages = new();
+    private string[] Typing = Array.Empty<string>();
+    
+    private string Content = "";
     private DateTime LastTypingTimestamp = DateTime.UtcNow.AddMinutes(-10);
 
     private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Starting chat client");
+        
+        ClientService.OnMessage += OnMessage;
+        ClientService.OnTypingChanged += OnTypingChanged;
 
-        SupportClientService.OnNewMessage += OnNewMessage;
-        SupportClientService.OnUpdateTyping += OnUpdateTyping;
+        await ClientService.Start();
+    }
+    
+    private async Task LoadMessages(LazyLoader arg)
+    {
+        Messages = (await ClientService.GetMessages()).ToList();
+    }
 
-        await SupportClientService.Start();
+    private async Task OnTypingChanged(string[] typing)
+    {
+        Typing = typing;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnMessage(SupportChatMessage message)
+    {
+        Messages.Insert(0, message);
+
+    //TODO: Sound when message from system or admin
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task Send()
     {
-        await SupportClientService.SendMessage(Content);
+        if(string.IsNullOrEmpty(Content))
+            return;
+        
+        var message = await ClientService.SendMessage(Content);
         Content = "";
+        
+        Messages.Insert(0, message);
+        
         await InvokeAsync(StateHasChanged);
     }
     
-    #region Message handling
-    
-    private async void OnNewMessage(object? sender, SupportMessage e)
-    {
-        Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task LoadMessages(LazyLoader arg)
-    {
-        Messages = (await SupportClientService.GetMessages()).Reverse().ToArray();
-    }
-    
-    #endregion
-    
-    #region Typing
-    
-    private async void OnUpdateTyping(object? sender, EventArgs e)
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-
     private async void OnTyping()
     {
         if ((DateTime.UtcNow - LastTypingTimestamp).TotalSeconds > 5)
         {
             LastTypingTimestamp = DateTime.UtcNow;
-
-            await SupportClientService.TriggerTyping();
+            await ClientService.SendTyping();
         }
     }
-    
-    #endregion
 }

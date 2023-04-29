@@ -19,6 +19,33 @@ namespace Moonlight.App.Database.Migrations
                 .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Moonlight.App.Database.Entities.CloudPanel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ApiUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Host")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CloudPanels");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.DdosAttack", b =>
                 {
                     b.Property<int>("Id")
@@ -281,6 +308,30 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("SecurityLog");
                 });
 
+            modelBuilder.Entity("Moonlight.App.Database.Entities.MySqlDatabase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("WebSpaceId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WebSpaceId");
+
+                    b.ToTable("Databases");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.NewsEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -400,29 +451,6 @@ namespace Moonlight.App.Database.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("NotificationClients");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.PleskServer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("ApiKey")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ApiUrl")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PleskServers");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Revoke", b =>
@@ -622,7 +650,7 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("Subscriptions");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.SupportMessage", b =>
+            modelBuilder.Entity("Moonlight.App.Database.Entities.SupportChatMessage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -632,30 +660,31 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Attachment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<bool>("IsQuestion")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("IsSupport")
-                        .HasColumnType("tinyint(1)");
+                    b.Property<int>("QuestionType")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("IsSystem")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("RecipientId")
+                    b.Property<int>("RecipientId")
                         .HasColumnType("int");
 
                     b.Property<int?>("SenderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -663,7 +692,7 @@ namespace Moonlight.App.Database.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("SupportMessages");
+                    b.ToTable("SupportChatMessages");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.User", b =>
@@ -748,40 +777,41 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.Website", b =>
+            modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("BaseDomain")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("CloudPanelId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("FtpLogin")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FtpPassword")
+                    b.Property<string>("Domain")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PleskId")
-                        .HasColumnType("int");
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
-                    b.Property<int>("PleskServerId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("VHostTemplate")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CloudPanelId");
+
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("PleskServerId");
-
-                    b.ToTable("Websites");
+                    b.ToTable("WebSpaces");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.DdosAttack", b =>
@@ -826,6 +856,17 @@ namespace Moonlight.App.Database.Migrations
                     b.HasOne("Moonlight.App.Database.Entities.Image", null)
                         .WithMany("Variables")
                         .HasForeignKey("ImageId");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.MySqlDatabase", b =>
+                {
+                    b.HasOne("Moonlight.App.Database.Entities.WebSpace", "WebSpace")
+                        .WithMany("Databases")
+                        .HasForeignKey("WebSpaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WebSpace");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.NodeAllocation", b =>
@@ -908,11 +949,13 @@ namespace Moonlight.App.Database.Migrations
                         .HasForeignKey("ServerId");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.SupportMessage", b =>
+            modelBuilder.Entity("Moonlight.App.Database.Entities.SupportChatMessage", b =>
                 {
                     b.HasOne("Moonlight.App.Database.Entities.User", "Recipient")
                         .WithMany()
-                        .HasForeignKey("RecipientId");
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Moonlight.App.Database.Entities.User", "Sender")
                         .WithMany()
@@ -932,23 +975,23 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("CurrentSubscription");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.Website", b =>
+            modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>
                 {
+                    b.HasOne("Moonlight.App.Database.Entities.CloudPanel", "CloudPanel")
+                        .WithMany()
+                        .HasForeignKey("CloudPanelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Moonlight.App.Database.Entities.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Moonlight.App.Database.Entities.PleskServer", "PleskServer")
-                        .WithMany()
-                        .HasForeignKey("PleskServerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("CloudPanel");
 
                     b.Navigation("Owner");
-
-                    b.Navigation("PleskServer");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Image", b =>
@@ -970,6 +1013,11 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("Backups");
 
                     b.Navigation("Variables");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>
+                {
+                    b.Navigation("Databases");
                 });
 #pragma warning restore 612, 618
         }

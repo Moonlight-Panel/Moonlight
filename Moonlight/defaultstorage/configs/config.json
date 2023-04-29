@@ -58,7 +58,8 @@
       "Email": "no-reply@mycoolproject.de",
       "Server": "mycoolproject.de",
       "Password": "s3cr3t",
-      "Port": 25
+      "Port": 465,
+      "Ssl": true
     },
     "Cleanup": {
       "Cpu": 90,
@@ -74,6 +75,14 @@
         "Enable": false,
         "Url": ""
       }
+    },
+    "DiscordNotifications": {
+      "Enable": false,
+      "WebHook": ""
+    },
+    "Statistics": {
+      "Enabled": true,
+      "Wait": 15
     }
   }
 }

@@ -1,7 +1,10 @@
-﻿namespace Moonlight.App.Database.Entities;
+﻿using Newtonsoft.Json;
+
+namespace Moonlight.App.Database.Entities;
 
 public class Image
 {
+    [JsonIgnore]
     public int Id { get; set; }
     public Guid Uuid { get; set; }
     public string Name { get; set; } = "";

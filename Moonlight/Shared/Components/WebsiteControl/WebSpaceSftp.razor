@@ -1,0 +1,55 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+
+@inject WebSpaceService WebSpaceService
+
+<div class="card card-flush h-xl-100">
+    <div class="card-body pt-2">
+        <div class="mt-7 row fv-row mb-7">
+            <div class="col-md-3 text-md-start">
+                <label class="fs-6 fw-semibold form-label mt-3">
+                    <TL>Sftp Host</TL>
+                </label>
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(CurrentWebSpace.CloudPanel.Host)">
+            </div>
+        </div>
+        <div class="row fv-row mb-7">
+            <div class="col-md-3 text-md-start">
+                <label class="fs-6 fw-semibold form-label mt-3">
+                    <TL>Sftp Port</TL>
+                </label>
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="21">
+            </div>
+        </div>
+        <div class="row fv-row mb-7">
+            <div class="col-md-3 text-md-start">
+                <label class="fs-6 fw-semibold form-label mt-3">
+                    <TL>Sftp Username</TL>
+                </label>
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(CurrentWebSpace.UserName)">
+            </div>
+        </div>
+        <div class="row fv-row mb-7">
+            <div class="col-md-3 text-md-start">
+                <label class="fs-6 fw-semibold form-label mt-3">
+                    <TL>Sftp Password</TL>
+                </label>
+            </div>
+            <div class="col-md-9">
+                <input type="text" class="form-control form-control-solid disabled blur-unless-hover" disabled="disabled" value="@(CurrentWebSpace.Password)">
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public WebSpace CurrentWebSpace { get; set; }
+}
