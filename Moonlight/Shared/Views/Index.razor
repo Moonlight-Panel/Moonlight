@@ -9,7 +9,7 @@
 @using Markdig
 
 @inject ServerRepository ServerRepository
-@inject Repository<WebSpace> WebSpaceRepository
+@inject WebsiteRepository WebsiteRepository
 @inject DomainRepository DomainRepository
 @inject NewsEntryRepository NewsEntryRepository
 
@@ -82,15 +82,15 @@
         </a>
     </div>
     <div class="col-12 col-lg-6 col-xl">
-        <a class="mt-4 card" href="/webspaces">
+        <a class="mt-4 card" href="/websites">
             <div class="card-body">
                 <div class="row align-items-center gx-0">
                     <div class="col">
                         <h6 class="text-uppercase text-muted mb-2">
-                            <TL>Webspaces</TL>
+                            <TL>Websites</TL>
                         </h6>
                         <span class="h2 mb-0">
-                            @(WebSpaceCount)
+                            @(WebsiteCount)
                         </span>
                     </div>
                     <div class="col-auto">
@@ -155,8 +155,8 @@
                     <i class="bx bx-md bx-globe"></i>
                 </div>
                 <div class="d-flex justify-content-start flex-column">
-                    <a href="/webspaces/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
-                        <TL>Create a webspace</TL>
+                    <a href="/websites/create" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Create a website</TL>
                     </a>
                     <span class="text-gray-400 fw-semibold d-block fs-6">
                         <TL>Make your own websites with a webspace</TL>
@@ -210,11 +210,11 @@
                     <i class="bx bx-md bx-globe"></i>
                 </div>
                 <div class="d-flex justify-content-start flex-column">
-                    <a href="/webspaces" class="text-gray-800 text-hover-primary mb-1 fs-5">
-                        <TL>Manage your webspaces</TL>
+                    <a href="/websites" class="text-gray-800 text-hover-primary mb-1 fs-5">
+                        <TL>Manage your websites</TL>
                     </a>
                     <span class="text-gray-400 fw-semibold d-block fs-6">
-                        <TL>Modify the content of your webspaces</TL>
+                        <TL>Modify the content of your websites</TL>
                     </span>
                 </div>
             </div>
@@ -244,7 +244,7 @@
 
     private int ServerCount = 0;
     private int DomainCount = 0;
-    private int WebSpaceCount = 0;
+    private int WebsiteCount = 0;
 
     private List<NewsEntry> NewsEntries;
     private int CurrentNewsIndex = 0;
@@ -261,7 +261,7 @@
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id);
 
-        WebSpaceCount = WebSpaceRepository
+        WebsiteCount = WebsiteRepository
             .Get()
             .Include(x => x.Owner)
             .Count(x => x.Owner.Id == User.Id);

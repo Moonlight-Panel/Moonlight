@@ -7,7 +7,6 @@ using Moonlight.App.Models.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 using Logging.Net;
-using Moonlight.App.Events;
 using Newtonsoft.Json;
 
 namespace Moonlight.App.Services;
@@ -24,24 +23,21 @@ public class CleanupService
     #endregion
     
     private readonly ConfigService ConfigService;
-    private readonly DateTimeService DateTimeService;
-    private readonly EventSystem Event;
+    private readonly MessageService MessageService;
     private readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly PeriodicTimer Timer;
 
     public CleanupService(
         ConfigService configService,
         IServiceScopeFactory serviceScopeFactory,
-        DateTimeService dateTimeService,
-        EventSystem eventSystem)
+        MessageService messageService)
     {
         ServiceScopeFactory = serviceScopeFactory;
-        DateTimeService = dateTimeService;
+        MessageService = messageService;
         ConfigService = configService;
-        Event = eventSystem;
         
-        StartedAt = DateTimeService.GetCurrent();
-        CompletedAt = DateTimeService.GetCurrent();
+        StartedAt = DateTime.Now;
+        CompletedAt = DateTime.Now;
         IsRunning = false;
         
         var config = ConfigService.GetSection("Moonlight").GetSection("Cleanup");
@@ -149,7 +145,7 @@ public class CleanupService
                                             ServersRunning++;
                                         }
                                         
-                                        await Event.Emit("cleanup.updated");
+                                        await MessageService.Emit("cleanup.updated", null);
                                     }
                                 }
                                 else
@@ -179,7 +175,7 @@ public class CleanupService
                                             ServersRunning++;
                                         }
                                         
-                                        await Event.Emit("cleanup.updated");
+                                        await MessageService.Emit("cleanup.updated", null);
                                     }
                                 }
                             }
@@ -200,7 +196,7 @@ public class CleanupService
 
             IsRunning = false;
             CleanupsPerformed++;
-            await Event.Emit("cleanup.updated");
+            await MessageService.Emit("cleanup.updated", null);
         }
     }
 

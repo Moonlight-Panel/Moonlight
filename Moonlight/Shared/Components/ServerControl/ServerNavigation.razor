@@ -55,16 +55,7 @@
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Server ID</TL>:</span>
-                        <span class="ms-1 text-muted">
-                            @if (User.Admin)
-                            {
-                                <a href="/admin/servers/edit/@(CurrentServer.Id)">@(CurrentServer.Id)</a>
-                            }
-                            else
-                            {
-                                @(CurrentServer.Id)
-                            }
-                        </span>
+                        <span class="ms-1 text-muted">@(CurrentServer.Id)</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Status</TL>:</span>
@@ -173,9 +164,6 @@
 {
     [CascadingParameter]
     public Server CurrentServer { get; set; }
-    
-    [CascadingParameter]
-    public User User { get; set; }
 
     [CascadingParameter]
     public PteroConsole Console { get; set; }

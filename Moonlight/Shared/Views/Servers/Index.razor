@@ -103,7 +103,6 @@
             .Include(x => x.Node)
             .Include(x => x.Image)
             .Where(x => x.Owner.Id == User.Id)
-            .OrderBy(x => x.Name)
             .ToArray();
 
         foreach (var server in AllServers)

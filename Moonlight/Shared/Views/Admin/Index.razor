@@ -2,18 +2,17 @@
 @using Moonlight.App.Repositories.Servers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
-@using Moonlight.App.Database.Entities
 
 @inject ServerRepository ServerRepository
 @inject UserRepository UserRepository
-@inject Repository<WebSpace> WebSpaceRepository
+@inject WebsiteRepository WebsiteRepository
 @inject DomainRepository DomainRepository
 
 <OnlyAdmin>
     <LazyLoader Load="Load">
         <div class="row mb-5">
             <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/servers">
+                <a class="mt-4 card" href="/servers">
                     <div class="card-body">
                         <div class="row align-items-center gx-0">
                             <div class="col">
@@ -34,15 +33,15 @@
                 </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/webspaces">
+                <a class="mt-4 card" href="/websites">
                     <div class="card-body">
                         <div class="row align-items-center gx-0">
                             <div class="col">
                                 <h6 class="text-uppercase text-muted mb-2">
-                                    <TL>Webspaces</TL>
+                                    <TL>Websites</TL>
                                 </h6>
                                 <span class="h2 mb-0">
-                                    @(WebSpaceCount)
+                                    @(WebsiteCount)
                                 </span>
                             </div>
                             <div class="col-auto">
@@ -55,7 +54,7 @@
                 </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/domains">
+                <a class="mt-4 card" href="/domains">
                     <div class="card-body">
                         <div class="row align-items-center gx-0">
                             <div class="col">
@@ -76,7 +75,7 @@
                 </a>
             </div>
             <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/users">
+                <a class="mt-4 card" href="/domains">
                     <div class="card-body">
                         <div class="row align-items-center gx-0">
                             <div class="col">
@@ -105,14 +104,14 @@
     private int ServerCount = 0;
     private int UserCount = 0;
     private int DomainCount = 0;
-    private int WebSpaceCount = 0;
+    private int WebsiteCount = 0;
 
     private Task Load(LazyLoader lazyLoader)
     {
         ServerCount = ServerRepository.Get().Count();
         UserCount = UserRepository.Get().Count();
         DomainCount = DomainRepository.Get().Count();
-        WebSpaceCount = WebSpaceRepository.Get().Count();
+        WebsiteCount = WebsiteRepository.Get().Count();
 
         return Task.CompletedTask;
     }

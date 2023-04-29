@@ -1,54 +1,29 @@
 ﻿@page "/"
-@using Moonlight.App.Services
 @namespace Moonlight.Pages
-
-@inject SmartTranslateService SmartTranslateService
-
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     Layout = "_Layout";
 }
 
-<component type="typeof(BlazorApp)" render-mode="ServerPrerendered"/>
+<component type="typeof(BlazorApp)" render-mode="ServerPrerendered" />
 
 <div id="components-reconnect-modal" class="my-reconnect-modal components-reconnect-hide">
     <div class="show">
-        <div class="modal d-block">
-            <div class="modal-dialog modal-dialog-centered mw-900px">
-                <div class="modal-content">
-                    <img src="/assets/media/svg/loading.svg" class="card-img-top w-25 mx-auto pt-5" alt="...">
-                    <div class="pt-2 modal-body py-lg-10 px-lg-10">
-                        <h2>@(SmartTranslateService.Translate("Your connection has been paused"))</h2>
-                        <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("We paused your connection because of inactivity. The resume just focus the tab and wait a few seconds"))</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <p>
+            <br/>
+            Connecting to moonlight servers
+        </p>
     </div>
     <div class="failed">
-        <div class="modal d-block">
-            <div class="modal-dialog modal-dialog-centered mw-900px">
-                <div class="modal-content">
-                    <img src="/assets/media/svg/serverdown.svg" class="card-img-top w-25 mx-auto pt-5" alt="...">
-                    <div class="pt-2 modal-body py-lg-10 px-lg-10">
-                        <h2>@(SmartTranslateService.Translate("Failed to reconnect to the moonlight servers"))</h2>
-                        <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("We were unable to reconnect to moonlight. Please refresh the page"))</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <p>
+            <br />
+            Connection to moonlight servers failed
+        </p>
     </div>
     <div class="rejected">
-        <div class="modal d-block">
-            <div class="modal-dialog modal-dialog-centered mw-900px">
-                <div class="modal-content">
-                    <img src="/assets/media/svg/serverdown.svg" class="card-img-top w-25 mx-auto pt-5" alt="...">
-                    <div class="pt-2 modal-body py-lg-10 px-lg-10">
-                        <h2>@(SmartTranslateService.Translate("Failed to reconnect to the moonlight servers. The connection has been rejected"))</h2>
-                        <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("We were unable to reconnect to moonlight. Most of the time this is caused by an update of moonlight. Please refresh the page"))</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <p>
+            <br />
+            Connection to moonlight servers rejected
+        </p>
     </div>
 </div>

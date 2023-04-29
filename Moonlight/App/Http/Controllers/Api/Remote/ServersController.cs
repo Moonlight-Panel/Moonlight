@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Moonlight.App.Events;
 using Moonlight.App.Helpers;
 using Moonlight.App.Http.Resources.Wings;
 using Moonlight.App.Repositories;
@@ -16,18 +15,18 @@ public class ServersController : Controller
     private readonly WingsServerConverter Converter;
     private readonly ServerRepository ServerRepository;
     private readonly NodeRepository NodeRepository;
-    private readonly EventSystem Event;
+    private readonly MessageService MessageService;
 
     public ServersController(
         WingsServerConverter converter,
         ServerRepository serverRepository,
         NodeRepository nodeRepository,
-        EventSystem eventSystem)
+        MessageService messageService)
     {
         Converter = converter;
         ServerRepository = serverRepository;
         NodeRepository = nodeRepository;
-        Event = eventSystem;
+        MessageService = messageService;
     }
 
     [HttpGet]
@@ -69,7 +68,7 @@ public class ServersController : Controller
             totalPages = slice.Length - 1;
         }
 
-        await Event.Emit($"wings.{node.Id}.serverList", node);
+        await MessageService.Emit($"wings.{node.Id}.serverlist", node);
 
         //Logger.Debug($"[BRIDGE] Node '{node.Name}' is requesting server list page {page} with {perPage} items per page");
 
@@ -98,7 +97,7 @@ public class ServersController : Controller
         if (token != node.Token)
             return Unauthorized();
 
-        await Event.Emit($"wings.{node.Id}.stateReset", node);
+        await MessageService.Emit($"wings.{node.Id}.statereset", node);
 
         foreach (var server in ServerRepository
                      .Get()
@@ -137,7 +136,7 @@ public class ServersController : Controller
         if (server == null)
             return NotFound();
 
-        await Event.Emit($"wings.{node.Id}.serverFetch", server);
+        await MessageService.Emit($"wings.{node.Id}.serverfetch", server);
 
         try //TODO: Remove
         {
@@ -170,7 +169,7 @@ public class ServersController : Controller
         if (server == null)
             return NotFound();
 
-        await Event.Emit($"wings.{node.Id}.serverInstallFetch", server);
+        await MessageService.Emit($"wings.{node.Id}.serverinstallfetch", server);
 
         return new WingsServerInstall()
         {
@@ -203,8 +202,8 @@ public class ServersController : Controller
         server.Installing = false;
         ServerRepository.Update(server);
 
-        await Event.Emit($"wings.{node.Id}.serverInstallComplete", server);
-        await Event.Emit($"server.{server.Uuid}.installComplete", server);
+        await MessageService.Emit($"wings.{node.Id}.serverinstallcomplete", server);
+        await MessageService.Emit($"server.{server.Uuid}.installcomplete", server);
 
         return Ok();
     }
