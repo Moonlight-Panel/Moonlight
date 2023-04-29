@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
-using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.Sessions;
@@ -15,18 +14,20 @@ public class SubscriptionService
     private readonly OneTimeJwtService OneTimeJwtService;
     private readonly IdentityService IdentityService;
     private readonly UserRepository UserRepository;
+    private readonly ConfigService ConfigService;
 
     public SubscriptionService(
         SubscriptionRepository subscriptionRepository,
         OneTimeJwtService oneTimeJwtService,
         IdentityService identityService,
-        UserRepository userRepository
-    )
+        UserRepository userRepository,
+        ConfigService configService)
     {
         SubscriptionRepository = subscriptionRepository;
         OneTimeJwtService = oneTimeJwtService;
         IdentityService = identityService;
         UserRepository = userRepository;
+        ConfigService = configService;
     }
 
     public async Task<Subscription?> GetCurrent()
@@ -89,15 +90,13 @@ public class SubscriptionService
         }
     }
 
-    public async Task<SubscriptionLimit> GetLimit(string identifier) // Cache, optimize sql code
+    public async Task<SubscriptionLimit> GetLimit(string identifier)
     {
         var subscription = await GetCurrent();
-        var defaultLimits = await GetDefaultLimits();
 
         if (subscription == null)
         {
-            // If the default subscription limit with identifier is found, return it. if not, return empty
-            return defaultLimits.FirstOrDefault(x => x.Identifier == identifier) ?? new()
+            return new()
             {
                 Identifier = identifier,
                 Amount = 0
@@ -112,9 +111,8 @@ public class SubscriptionService
 
         if (foundLimit != null)
             return foundLimit;
-        
-        // If the default subscription limit with identifier is found, return it. if not, return empty
-        return defaultLimits.FirstOrDefault(x => x.Identifier == identifier) ?? new()
+
+        return new()
         {
             Identifier = identifier,
             Amount = 0
@@ -134,18 +132,5 @@ public class SubscriptionService
             .First(x => x.Id == user.Id);
 
         return userWithData;
-    }
-
-    private async Task<SubscriptionLimit[]> GetDefaultLimits() // Add cache and reload option
-    {
-        var defaultSubscriptionJson = "[]";
-
-        if (File.Exists(PathBuilder.File("storage", "configs", "default_subscription.json")))
-        {
-            defaultSubscriptionJson =
-                await File.ReadAllTextAsync(PathBuilder.File("storage", "configs", "default_subscription.json"));
-        }
-
-        return JsonConvert.DeserializeObject<SubscriptionLimit[]>(defaultSubscriptionJson) ?? Array.Empty<SubscriptionLimit>();
     }
 }

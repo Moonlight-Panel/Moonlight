@@ -1,125 +1,94 @@
 ﻿@page "/admin/statistics"
-
 @using Moonlight.App.Models.Misc
 @using Moonlight.App.Services.Statistics
 @using Moonlight.App.Database.Entities
 @using ApexCharts
-@using Moonlight.App.Helpers
-@using Moonlight.App.Services
 
 @inject StatisticsViewService StatisticsViewService
-@inject SmartTranslateService SmartTranslateService
 
 <OnlyAdmin>
     <div class="row mt-4 mb-2">
         <div class="col-12 col-lg-6 col-xl">
             <div class="card card-body">
-                <select class="form-select" @bind="TimeSpanBind">
-                    <option value="1">
-                        <TL>Hour</TL>
-                    </option>
-                    <option value="24">
-                        <TL>Day</TL>
-                    </option>
-                    <option value="744">
-                        <TL>Month</TL>
-                    </option>
-                    <option value="8760">
-                        <TL>Year</TL>
-                    </option>
-                    <option value="867240">
-                        <TL>All time</TL>
-                    </option>
+                <select class="form-select" @bind="bind">
+                    <option value="1"><TL>Hour</TL></option>
+                    <option value="24"><TL>Day</TL></option>
+                    <option value="744"><TL>Month</TL></option>
+                    <option value="8760"><TL>Year</TL></option>
+                    <option value="867240"><TL>All time</TL></option>
                 </select>
             </div>
         </div>
     </div>
-
+    
     <LazyLoader @ref="Loader" Load="Load">
-        @foreach (var charts in Charts.Chunk(2))
-        {
-            <div class="row">
-                @foreach (var chart in charts)
-                {
-                    <div class="col-sm-6">
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <TL>@chart.Key</TL>
+            @foreach (var charts in Charts.Chunk(2))
+            {
+                <div class="row">
+                    @foreach (var chart in charts)
+                    {
+                        <div class="col-sm-6">
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <div class="card-title">
+                                        <TL>@chart.Header</TL>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <ApexChart TItem="StatisticsData"
+                                               Options="GenerateOptions()"
+                                               OnRendered="OnChartRendered">
+                                        <ApexPointSeries TItem="StatisticsData"
+                                                         Items="chart.Data"
+                                                         SeriesType="SeriesType.Area"
+                                                         Name=""
+                                                         ShowDataLabels="false"
+                                                         XValue="@(e => FormatDate(e.Date))"
+                                                         YValue="@(e => (decimal) Math.Round(e.Value))"/>
+                                    </ApexChart>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <ApexChart TItem="StatisticsData"
-                                           Options="GenerateOptions()"
-                                           OnRendered="OnChartRendered">
-                                    <ApexPointSeries TItem="StatisticsData"
-                                                     Items="chart.Value"
-                                                     SeriesType="SeriesType.Area"
-                                                     Name=""
-                                                     ShowDataLabels="false"
-                                                     XValue="@(e => Formatter.FormatDate(e.Date))"
-                                                     YValue="@(e => (decimal)Math.Round(e.Value))"/>
-                                </ApexChart>
-                            </div>
                         </div>
-                    </div>
-                }
-            </div>
-        }
+                    }
+                </div>
+            }
     </LazyLoader>
 </OnlyAdmin>
 
-@code
-{
+@code {
     private StatisticsTimeSpan StatisticsTimeSpan = StatisticsTimeSpan.Day;
     private LazyLoader Loader;
-    private Dictionary<string, StatisticsData[]> Charts = new();
+    private List<(string Header, StatisticsData[] Data)> Charts = new();
 
-    private int TimeSpanBind
+    private int bind
     {
-        get => (int)StatisticsTimeSpan;
-        set
-        {
-            StatisticsTimeSpan = (StatisticsTimeSpan)value;
-            Task.Run(async () => await Loader.Reload());
+        get { return (int) StatisticsTimeSpan; }
+        set { StatisticsTimeSpan = (StatisticsTimeSpan) value;
+            Task.Run(async() => await Loader.Reload());
         }
     }
 
-    private Task Load(LazyLoader loader)
+    private async Task Load(LazyLoader loader)
     {
         Charts.Clear();
-
-        Charts.Add(
-            SmartTranslateService.Translate("Servers"),
-            StatisticsViewService.GetData("serversCount", StatisticsTimeSpan)
-            );
-
-        Charts.Add(
-            SmartTranslateService.Translate("Users"),
-            StatisticsViewService.GetData("usersCount", StatisticsTimeSpan)
-            );
-
-        Charts.Add(
-            SmartTranslateService.Translate("Domains"),
-            StatisticsViewService.GetData("domainsCount", StatisticsTimeSpan)
-            );
-
-        Charts.Add(
-            SmartTranslateService.Translate("Databases"),
-            StatisticsViewService.GetData("databasesCount", StatisticsTimeSpan)
-            );
-
-        Charts.Add(
-            SmartTranslateService.Translate("Webspaces"),
-            StatisticsViewService.GetData("webspacesCount", StatisticsTimeSpan)
-            );
-
-        Charts.Add(
-            SmartTranslateService.Translate("Sessions"),
-            StatisticsViewService.GetData("sessionsCount", StatisticsTimeSpan)
-            );
-
-        return Task.CompletedTask;
+        
+        Charts.Add(("Servers", StatisticsViewService.GetData("statistics.serversCount", StatisticsTimeSpan)));
+        Charts.Add(("Users", StatisticsViewService.GetData("statistics.usersCount", StatisticsTimeSpan)));
+        Charts.Add(("Domains", StatisticsViewService.GetData("statistics.domainsCount", StatisticsTimeSpan)));
+        Charts.Add(("Databases", StatisticsViewService.GetData("statistics.databasesCount", StatisticsTimeSpan)));
+        Charts.Add(("Websites", StatisticsViewService.GetData("statistics.websitesCount", StatisticsTimeSpan)));
+    }
+    
+    private string FormatDate(DateTime e)
+    {
+        string i2s(int i)
+        {
+            if (i.ToString().Length < 2)
+                return "0" + i;
+            return i.ToString();
+        }
+        
+        return $"{i2s(e.Day)}.{i2s(e.Month)}.{e.Year} {i2s(e.Hour)}:{i2s(e.Minute)}";
     }
 
     private ApexChartOptions<StatisticsData> GenerateOptions()
@@ -152,9 +121,8 @@
             }
         };
     }
-
-    private Task OnChartRendered()
+    
+    private async Task OnChartRendered()
     {
-        return Task.CompletedTask;
     }
 }

@@ -4,7 +4,6 @@ using JWT.Builder;
 using JWT.Exceptions;
 using Logging.Net;
 using Moonlight.App.Database.Entities;
-using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.LogServices;
@@ -124,9 +123,9 @@ public class IdentityService
                 return null;
             }
 
-            var iatD = DateTimeOffset.FromUnixTimeSeconds(iat).ToUniversalTime().DateTime;
-            
-            if (iatD < user.TokenValidTime)
+            var issuedAt = DateTimeOffset.FromUnixTimeSeconds(iat).DateTime;
+
+            if (issuedAt < user.TokenValidTime.ToUniversalTime())
                 return null;
 
             UserCache = user;

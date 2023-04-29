@@ -109,25 +109,6 @@
                                              OnClick="CreateAllocation">
                                     </WButton>
                                 </div>
-                                <div class="col-auto">
-                                    <label class="form-label">
-                                        <TL>Start</TL>
-                                    </label>
-                                    <input @bind="StartPort" type="number" class="col-auto form-control bg-transparent">
-                                </div>
-                                <div class="col-auto">
-                                    <label class="form-label">
-                                        <TL>End</TL>
-                                    </label>
-                                    <input @bind="EndPort" type="number" class="col-auto form-control bg-transparent">
-                                </div>
-                                <div class="col-auto">
-                                    <WButton Text="@(SmartTranslateService.Translate("Add"))"
-                                             WorkingText="@(SmartTranslateService.Translate("Adding"))"
-                                             CssClasses="col-auto btn-success"
-                                             OnClick="CreateAllocationRange">
-                                    </WButton>
-                                </div>
                             </div>
                         </div>
                         <Table TableItem="NodeAllocation" Items="Node.Allocations" PageSize="25" TableHeadClass="border-bottom border-gray-200 fs-6 text-gray-600 fw-bold bg-light bg-opacity-75">
@@ -160,9 +141,6 @@
     private LazyLoader LazyLoader;
 
     private int Port = 2000;
-
-    private int StartPort = 2000;
-    private int EndPort = 3000;
 
     private Task Load(LazyLoader arg)
     {
@@ -202,26 +180,6 @@
         NodeRepository.Update(Node);
 
         Port = 2000;
-
-        await LazyLoader.Reload();
-    }
-    
-    private async Task CreateAllocationRange()
-    {
-        for (int i = StartPort; i < EndPort; i++)
-        {
-            var nodeAllocation = new NodeAllocation()
-            {
-                Port = i
-            };
-
-            Node!.Allocations.Add(nodeAllocation);
-        }
-        
-        NodeRepository.Update(Node);
-
-        StartPort = 2000;
-        EndPort = 3000;
 
         await LazyLoader.Reload();
     }

@@ -1,11 +1,13 @@
 ﻿@page "/admin/support"
+@using Moonlight.App.Repositories
 @using Moonlight.App.Database.Entities
-@using Moonlight.App.Events
-@using Moonlight.App.Services.SupportChat
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Database
+@using Moonlight.App.Services
 
-@inject SupportChatServerService ServerService
-@inject EventSystem Event
-
+@inject SupportMessageRepository SupportMessageRepository
+@inject ConfigService ConfigService
+@inject MessageService MessageService
 @implements IDisposable
 
 <OnlyAdmin>
@@ -16,13 +18,13 @@
                     <div class="flex-lg-row-fluid me-xl-15 mb-20 mb-xl-0">
                         <div class="mb-0">
                             <h1 class="text-dark mb-6">
-                                <TL>Open chats</TL>
+                                <TL>Open tickets</TL>
                             </h1>
                             <div class="separator"></div>
                             <div class="mb-5">
-                                @if (OpenChats.Any())
+                                @if (Users.Any())
                                 {
-                                    foreach (var chat in OpenChats)
+                                    foreach (var user in Users)
                                     {
                                         <div class="d-flex mt-3 mb-3 ms-2 me-2">
                                             <table>
@@ -33,21 +35,25 @@
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <a href="/admin/support/view/@(chat.Key.Id)" class="text-dark text-hover-primary fs-4 me-3 fw-semibold">
-                                                            @(chat.Key.FirstName) @(chat.Key.LastName)
+                                                        <a href="/admin/support/view/@(user.Id)" class="text-dark text-hover-primary fs-4 me-3 fw-semibold">
+                                                            @(user.FirstName) @(user.LastName)
                                                         </a>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
                                                         <span class="text-muted fw-semibold fs-6">
-                                                            @if (chat.Value == null)
+                                                            @{
+                                                                var lastMessage = MessageCache.ContainsKey(user) ? MessageCache[user] : null;
+                                                            }
+
+                                                            @if (lastMessage == null)
                                                             {
                                                                 <TL>No message sent yet</TL>
                                                             }
                                                             else
                                                             {
-                                                                @(chat.Value.Content)
+                                                                @(lastMessage.Message)
                                                             }
                                                         </span>
                                                     </td>
@@ -60,7 +66,7 @@
                                 else
                                 {
                                     <div class="alert alert-info">
-                                        <TL>No support chat is currently open</TL>
+                                        <TL>No support ticket is currently open</TL>
                                     </div>
                                 }
                             </div>
@@ -74,28 +80,53 @@
 
 @code
 {
+    private User[] Users;
+    private Dictionary<User, SupportMessage?> MessageCache;
+
     private LazyLoader? LazyLoader;
-    private Dictionary<User, SupportChatMessage?> OpenChats = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await Event.On<User>("supportChat.new", this, async user =>
+        MessageCache = new();
+        
+        MessageService.Subscribe<Index, User>("support.new", this, async user =>
         {
-            //TODO: Play sound or smth. Add a config option
-
-            OpenChats = await ServerService.GetOpenChats();
-
-            await InvokeAsync(StateHasChanged);
+            if (LazyLoader != null)
+                await LazyLoader.Reload();
+        });
+        
+        MessageService.Subscribe<Index, User>("support.close", this, async user =>
+        {
+            if (LazyLoader != null)
+                await LazyLoader.Reload();
         });
     }
 
-    private async Task Load(LazyLoader arg) // Only for initial load
+    private Task Load(LazyLoader arg)
     {
-        OpenChats = await ServerService.GetOpenChats();
+        // We dont want cache here
+        Users = (new UserRepository(new DataContext(ConfigService)))
+            .Get()
+            .Where(x => x.SupportPending)
+            .ToArray();
+
+        foreach (var user in Users)
+        {
+            var lastMessage = SupportMessageRepository
+                .Get()
+                .Include(x => x.Recipient)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefault(x => x.Recipient!.Id == user.Id);
+
+            MessageCache.Add(user, lastMessage);
+        }
+
+        return Task.CompletedTask;
     }
 
-    public async void Dispose()
+    public void Dispose()
     {
-        await Event.Off("supportChat.new", this);
+        MessageService.Unsubscribe("support.new", this);
+        MessageService.Unsubscribe("support.close", this);
     }
 }

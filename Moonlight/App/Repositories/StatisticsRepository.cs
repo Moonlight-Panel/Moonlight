@@ -1,19 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;
-using Moonlight.App.Services;
 
 namespace Moonlight.App.Repositories;
 
 public class StatisticsRepository : IDisposable
 {
     private readonly DataContext DataContext;
-    private readonly DateTimeService DateTimeService;
 
-    public StatisticsRepository(DataContext dataContext, DateTimeService dateTimeService)
+    public StatisticsRepository(DataContext dataContext)
     {
         DataContext = dataContext;
-        DateTimeService = dateTimeService;
     }
 
     public DbSet<StatisticsData> Get()
@@ -30,7 +27,7 @@ public class StatisticsRepository : IDisposable
 
     public StatisticsData Add(string chart, double value)
     {
-        return Add(new StatisticsData() {Chart = chart, Value = value, Date = DateTimeService.GetCurrent()});
+        return Add(new StatisticsData() {Chart = chart, Value = value, Date = DateTime.Now});
     }
 
     public void Dispose()

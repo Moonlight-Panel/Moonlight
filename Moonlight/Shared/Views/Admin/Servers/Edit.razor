@@ -4,14 +4,12 @@
 @using Moonlight.App.Repositories.Servers
 @using Moonlight.App.Database.Entities
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
-@using Mappy.Net
 
 @inject SmartTranslateService SmartTranslateService
 @inject ServerRepository ServerRepository
+@inject ServerService ServerService
 @inject ImageRepository ImageRepository
-@inject Repository<User> UserRepository
 
 <OnlyAdmin>
     <LazyLoader @ref="LazyLoader" Load="Load">
@@ -23,152 +21,143 @@
         }
         else
         {
-            <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
-                <div class="row mb-5">
-                    <div class="card card-body p-10">
-                        <label class="form-label">
-                            <TL>Identifier</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-id-card"></i>
-                            </span>
-                            <input type="number" class="form-control disabled" disabled="" value="@(Server.Id)">
-                        </div>
-                        <label class="form-label">
-                            <TL>UuidIdentifier</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-id-card"></i>
-                            </span>
-                            <input type="text" class="form-control disabled" disabled="" value="@(Server.Uuid)">
-                        </div>
-                        <label class="form-label">
-                            <TL>Server name</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-purchase-tag-alt"></i>
-                            </span>
-                            <InputText @bind-Value="Model.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))"></InputText>
-                        </div>
-                        <label class="form-label">
-                            <TL>Owner</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <SmartDropdown T="User"
-                                           @bind-Value="Model.Owner"
-                                           Items="Users"
-                                           DisplayFunc="@(x => x.Email)"
-                                           SearchProp="@(x => x.Email)">
-                            </SmartDropdown>
-                        </div>
+            <div class="row mb-5">
+                <div class="card card-body p-10">
+                    <label class="form-label">
+                        <TL>Identifier</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-id-card"></i>
+                        </span>
+                        <input @bind="Server.Id" type="number" class="form-control disabled" disabled="">
+                    </div>
+                    <label class="form-label">
+                        <TL>UuidIdentifier</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-id-card"></i>
+                        </span>
+                        <input @bind="Server.Uuid" type="text" class="form-control disabled" disabled="">
+                    </div>
+                    <label class="form-label">
+                        <TL>Server name</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-purchase-tag-alt"></i>
+                        </span>
+                        <input @bind="Server.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))" aria-label="Servername">
                     </div>
                 </div>
-                <div class="row mb-5">
-                    <div class="card card-body p-10">
-                        <label class="form-label">
-                            <TL>Cpu cores</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-chip"></i>
-                            </span>
-                            <InputNumber @bind-Value="Model.Cpu" type="number" class="form-control"></InputNumber>
-                            <span class="input-group-text">
-                                <TL>CPU Cores (100% = 1 Core)</TL>
-                            </span>
-                        </div>
-                        <label class="form-label">
-                            <TL>Memory</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-microchip"></i>
-                            </span>
-                            <InputNumber @bind-Value="Model.Memory" type="number" class="form-control"></InputNumber>
-                            <span class="input-group-text">
-                                MB
-                            </span>
-                        </div>
-                        <label class="form-label">
-                            <TL>Disk</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-hdd"></i>
-                            </span>
-                            <InputNumber @bind-Value="Model.Disk" type="number" class="form-control"></InputNumber>
-                            <span class="input-group-text">
-                                MB
-                            </span>
-                        </div>
+            </div>
+            <div class="row mb-5">
+                <div class="card card-body p-10">
+                    <label class="form-label">
+                        <TL>Cpu cores</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-chip"></i>
+                        </span>
+                        <input @bind="Server.Cpu" type="number" class="form-control">
+                        <span class="input-group-text">
+                            <TL>CPU Cores (100% = 1 Core)</TL>
+                        </span>
+                    </div>
+                    <label class="form-label">
+                        <TL>Memory</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-microchip"></i>
+                        </span>
+                        <input @bind="Server.Memory" type="number" class="form-control">
+                        <span class="input-group-text">
+                            MB
+                        </span>
+                    </div>
+                    <label class="form-label">
+                        <TL>Disk</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-hdd"></i>
+                        </span>
+                        <input @bind="Server.Disk" type="number" class="form-control">
+                        <span class="input-group-text">
+                            MB
+                        </span>
                     </div>
                 </div>
-                <div class="row mb-5">
-                    <div class="card card-body p-10">
-                        <label class="form-label">
-                            <TL>Override startup command</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-terminal"></i>
-                            </span>
-                            <InputText @bind-Value="Model.OverrideStartup" type="text" class="form-control" placeholder="@(Server.Image.Startup)"></InputText>
-                        </div>
-                        <label class="form-label">
-                            <TL>Docker image</TL>
-                        </label>
-                        <select @bind="Model.DockerImageIndex" class="form-select">
-                            @foreach (var image in DockerImages)
-                            {
-                                <option value="@(DockerImages.IndexOf(image))">@(image.Name)</option>
-                            }
-                        </select>
-                        <label class="form-label">
-                            <TL>Cleanup exception</TL>
-                        </label>
-                        <input @bind="Model.IsCleanupException" class="form-check" type="checkbox"/>
+            </div>
+            <div class="row mb-5">
+                <div class="card card-body p-10">
+                    <label class="form-label">
+                        <TL>Override startup command</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <span class="input-group-text">
+                            <i class="bx bx-terminal"></i>
+                        </span>
+                        <input @bind="Server.OverrideStartup" type="text" class="form-control" placeholder="@(Server.Image.Startup)">
                     </div>
+                    <label class="form-label">
+                        <TL>Docker image</TL>
+                    </label>
+                    <select @bind="Server.DockerImageIndex" class="form-select">
+                        @foreach (var image in DockerImages)
+                        {
+                            <option value="@(DockerImages.IndexOf(image))">@(image.Name)</option>
+                        }
+                    </select>
+                    <label class="form-label">
+                        <TL>Cleanup exception</TL>
+                    </label>
+                    <input @bind="Server.IsCleanupException" class="form-control" type="checkbox" />
                 </div>
-                <div class="row mb-5">
-                    @foreach (var vars in Server.Variables.Chunk(4))
-                    {
-                        <div class="row mb-3">
-                            @foreach (var variable in vars)
-                            {
-                                <div class="col">
-                                    <div class="card card-body">
-                                        <label class="form-label">
-                                            <TL>Name</TL>
-                                        </label>
-                                        <div class="input-group mb-5">
-                                            <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
-                                        </div>
-                                        <label class="form-label">
-                                            <TL>Value</TL>
-                                        </label>
-                                        <div class="input-group mb-5">
-                                            <input @bind="variable.Value" type="text" class="form-control">
-                                        </div>
+            </div>
+            <div class="row mb-5">
+                @foreach (var vars in Server.Variables.Chunk(4))
+                {
+                    <div class="row mb-3">
+                        @foreach (var variable in vars)
+                        {
+                            <div class="col">
+                                <div class="card card-body">
+                                    <label class="form-label">
+                                        <TL>Name</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                                    </div>
+                                    <label class="form-label">
+                                        <TL>Value</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Value" type="text" class="form-control">
                                     </div>
                                 </div>
-                            }
-                        </div>
-                    }
-                </div>
-                <div class="row">
-                    <div class="card card-body">
-                        <div class="d-flex justify-content-end">
-                            <a href="/admin/servers/images" class="btn btn-danger me-3">
-                                <TL>Cancel</TL>
-                            </a>
-                            <button class="btn btn-success" type="submit"><TL>Save</TL></button>
-                        </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="row">
+                <div class="card card-body">
+                    <div class="d-flex justify-content-end">
+                        <a href="/admin/servers/images" class="btn btn-danger me-3">
+                            <TL>Cancel</TL>
+                        </a>
+                        <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                                 WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                                 CssClasses="btn-success"
+                                 OnClick="Save">
+                        </WButton>
                     </div>
                 </div>
-            </SmartForm>
+            </div>
         }
     </LazyLoader>
 </OnlyAdmin>
@@ -184,11 +173,7 @@
     private List<DockerImage> DockerImages;
     private List<Image> Images;
 
-    private User[] Users;
-
-    private ServerEditDataModel Model = new();
-
-    private async Task Load(LazyLoader lazyLoader)
+    private Task Load(LazyLoader arg)
     {
         Server = ServerRepository
             .Get()
@@ -197,34 +182,25 @@
 
         if (Server != null)
         {
-            await lazyLoader.SetText("Loading images");
-
             Images = ImageRepository
                 .Get()
                 .Include(x => x.Variables)
                 .Include(x => x.DockerImages)
                 .ToList();
 
-            await lazyLoader.SetText("Loading docker images");
-
             DockerImages = Images
                 .First(x => x.Id == Server.Image.Id).DockerImages
                 .ToList();
-
-            await lazyLoader.SetText("Loading users");
-
-            Users = UserRepository.Get().ToArray();
-
-            Model = Mapper.Map<ServerEditDataModel>(Server);
         }
+
+        return Task.CompletedTask;
     }
 
-    private async Task OnValidSubmit()
+    private async Task Save()
     {
-        // Overwrite data using mapper
-        Server = Mapper.Map(Server, Model);
-        
         ServerRepository.Update(Server!);
+        //await ServerService.Sync(Server!); I dont know if we need this, because wings should resync the data while restarting anyway
+
         await LazyLoader.Reload();
     }
 }

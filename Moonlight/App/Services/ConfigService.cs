@@ -12,7 +12,6 @@ public class ConfigService : IConfiguration
     private IConfiguration Configuration;
 
     public bool DebugMode { get; private set; } = false;
-    public bool SqlDebugMode { get; private set; } = false;
 
     public ConfigService(StorageService storageService)
     {
@@ -29,14 +28,6 @@ public class ConfigService : IConfiguration
 
         if (DebugMode)
             Logger.Debug("Debug mode enabled");
-        
-        var sqlDebugVar = Environment.GetEnvironmentVariable("ML_SQL_DEBUG");
-
-        if (sqlDebugVar != null)
-            SqlDebugMode = bool.Parse(sqlDebugVar);
-
-        if (SqlDebugMode)
-            Logger.Debug("Sql debug mode enabled");
     }
 
     public void Reload()

@@ -1,0 +1,111 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+
+@inject WebsiteService WebsiteService
+@inject SmartTranslateService SmartTranslateService
+
+<div class="row gy-5 g-xl-10">
+    <div class="col-xl-4 mb-xl-10">
+        <div class="card h-md-100">
+            <div class="card-body d-flex flex-column flex-center">
+                <img class="img-fluid" src="https://image.thum.io/get/http://@(CurrentWebsite.BaseDomain)" alt="Website screenshot"/>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 mb-5 mb-xl-10">
+        <div class="card card-flush h-xl-100">
+            <div class="card-body pt-2">
+                <LazyLoader @ref="LazyLoader" Load="Load">
+                    <div class="row mt-5">
+                        <div class="card border">
+                            <div class="card-header">
+                                <span class="card-title">
+                                    <TL>SSL certificates</TL>
+                                </span>
+                                <div class="card-toolbar">
+                                    <WButton Text="@(SmartTranslateService.Translate("Issue certificate"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
+                                             CssClasses="btn-success"
+                                             OnClick="CreateCertificate">
+                                    </WButton>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                @if (Certs.Any())
+                                {
+                                    <table class="table align-middle gs-0 gy-3">
+                                        <thead>
+                                        <tr>
+                                            <th class="p-0 w-50px"></th>
+                                            <th class="p-0 min-w-150px"></th>
+                                            <th class="p-0 min-w-120px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var cert in Certs)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="symbol symbol-50px me-2">
+                                                        <span class="symbol-label">
+                                                            <i class="bx bx-md bx-receipt text-dark"></i>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="text-dark fw-bold fs-6">@(cert)</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
+                                                             CssClasses="btn btn-danger"
+                                                             OnClick="() => DeleteCertificate(cert)">
+                                                    </WButton>
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        <TL>No SSL certificates found</TL>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </LazyLoader>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Website CurrentWebsite { get; set; }
+
+    private string[] Certs;
+
+    private LazyLoader LazyLoader;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading certificates");
+        Certs = await WebsiteService.GetSslCertificates(CurrentWebsite);
+    }
+
+    private async Task CreateCertificate()
+    {
+        await WebsiteService.CreateSslCertificate(CurrentWebsite);
+        await LazyLoader.Reload();
+    }
+
+    private async Task DeleteCertificate(string name)
+    {
+        await WebsiteService.DeleteSslCertificate(CurrentWebsite, name);
+        await LazyLoader.Reload();
+    }
+}

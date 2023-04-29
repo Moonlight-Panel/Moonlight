@@ -18,19 +18,17 @@ public class OAuth2Controller : Controller
     private readonly DiscordOAuth2Service DiscordOAuth2Service;
     private readonly UserRepository UserRepository;
     private readonly UserService UserService;
-    private readonly DateTimeService DateTimeService;
 
     public OAuth2Controller(
         GoogleOAuth2Service googleOAuth2Service, 
         UserRepository userRepository, 
         UserService userService,
-        DiscordOAuth2Service discordOAuth2Service, DateTimeService dateTimeService)
+        DiscordOAuth2Service discordOAuth2Service)
     {
         GoogleOAuth2Service = googleOAuth2Service;
         UserRepository = userRepository;
         UserService = userService;
         DiscordOAuth2Service = discordOAuth2Service;
-        DateTimeService = dateTimeService;
     }
 
     [HttpGet("google")]
@@ -65,7 +63,7 @@ public class OAuth2Controller : Controller
                 
                 Response.Cookies.Append("token", token, new ()
                 {
-                    Expires = new DateTimeOffset(DateTimeService.GetCurrent().AddDays(10))
+                    Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(10))
                 });
 
                 return Redirect("/");
@@ -123,7 +121,7 @@ public class OAuth2Controller : Controller
                 
                 Response.Cookies.Append("token", token, new ()
                 {
-                    Expires = new DateTimeOffset(DateTimeService.GetCurrent().AddDays(10))
+                    Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(10))
                 });
 
                 return Redirect("/");

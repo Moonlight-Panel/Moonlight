@@ -5,7 +5,7 @@ namespace Moonlight.App.Exceptions;
 [Serializable]
 public class WingsException : Exception
 {
-    public int StatusCode { get; set; }
+    public int StatusCode { private get; set; }
 
     public WingsException()
     {
