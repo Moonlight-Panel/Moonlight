@@ -1,0 +1,116 @@
+﻿@page "/admin/webspaces/servers"
+
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Services
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities
+@using BlazorTable
+
+@inject SmartTranslateService SmartTranslateService
+@inject Repository<CloudPanel> CloudPanelRepository
+@inject WebSpaceService WebSpaceService
+
+<OnlyAdmin>
+    <AdminWebspacesNavigation Index="1"/>
+
+    <div class="card">
+        <div class="card-header border-0 pt-5">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold fs-3 mb-1">
+                    <TL>Cloud panels</TL>
+                </span>
+            </h3>
+            <div class="card-toolbar">
+                <a href="/admin/webspaces/servers/new" class="btn btn-sm btn-light-success">
+                    <i class="bx bx-user-plus"></i>
+                    <TL>New cloud panel</TL>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <LazyLoader @ref="LazyLoader" Load="Load">
+                <div class="table-responsive">
+                    <Table TableItem="CloudPanel" Items="CloudPanels" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Host)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Api url"))" Field="@(x => x.ApiUrl)" Sortable="true" Filterable="true"/>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                            <Template>
+                                @if (OnlineCache.TryGetValue(context, out var value))
+                                {
+                                    if (value)
+                                    {
+                                        <span class="text-success">
+                                            <TL>Online</TL>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            <TL>Offline</TL>
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        <TL>Loading</TL>
+                                    </span>
+                                }
+                            </Template>
+                        </Column>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Edit"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                            <Template>
+                                <a href="/admin/webspaces/servers/edit/@(context.Id)/">
+                                    <TL>Manage</TL>
+                                </a>
+                            </Template>
+                        </Column>
+                        <Column TableItem="CloudPanel" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                            <Template>
+                                <DeleteButton Confirm="true" OnClick="() => OnClick(context)">
+                                </DeleteButton>
+                            </Template>
+                        </Column>
+                        <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                    </Table>
+                </div>
+            </LazyLoader>
+        </div>
+    </div>
+</OnlyAdmin>
+
+@code
+{
+    private CloudPanel[] CloudPanels;
+
+    private LazyLoader LazyLoader;
+    private Dictionary<CloudPanel, bool> OnlineCache = new();
+
+    private Task Load(LazyLoader arg)
+    {
+        CloudPanels = CloudPanelRepository
+            .Get()
+            .ToArray();
+
+        Task.Run(async () =>
+        {
+            foreach (var cloudPanel in CloudPanels)
+            {
+                OnlineCache.Add(cloudPanel, await WebSpaceService.IsHostUp(cloudPanel));
+
+                await InvokeAsync(StateHasChanged);
+            }
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnClick(CloudPanel pleskServer)
+    {
+        CloudPanelRepository.Delete(pleskServer);
+
+        await LazyLoader.Reload();
+    }
+}

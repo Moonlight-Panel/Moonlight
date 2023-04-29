@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Moonlight.App.Events;
 using Moonlight.App.Http.Requests.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
@@ -11,17 +12,17 @@ namespace Moonlight.App.Http.Controllers.Api.Remote;
 public class BackupController : Controller
 {
     private readonly ServerBackupRepository ServerBackupRepository;
-    private readonly MessageService MessageService;
+    private readonly EventSystem Event;
     private readonly NodeRepository NodeRepository;
 
     public BackupController(
         ServerBackupRepository serverBackupRepository, 
         NodeRepository nodeRepository,
-        MessageService messageService)
+        EventSystem eventSystem)
     {
         ServerBackupRepository = serverBackupRepository;
         NodeRepository = nodeRepository;
-        MessageService = messageService;
+        Event = eventSystem;
     }
 
     [HttpGet("{uuid}")]
@@ -57,11 +58,11 @@ public class BackupController : Controller
             
             ServerBackupRepository.Update(backup);
             
-            await MessageService.Emit($"wings.backups.create", backup);
+            await Event.Emit($"wings.backups.create", backup);
         }
         else
         {
-            await MessageService.Emit($"wings.backups.createfailed", backup);
+            await Event.Emit($"wings.backups.createFailed", backup);
             ServerBackupRepository.Delete(backup);
         }
 
@@ -88,7 +89,7 @@ public class BackupController : Controller
         if (backup == null)
             return NotFound();
         
-        await MessageService.Emit($"wings.backups.restore", backup);
+        await Event.Emit($"wings.backups.restore", backup);
 
         return NoContent();
     }

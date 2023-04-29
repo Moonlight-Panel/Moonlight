@@ -1,0 +1,127 @@
+﻿@page "/webspace/{Id:int}/{Route?}"
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.WebsiteControl
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Interop
+
+@inject Repository<WebSpace> WebSpaceRepository
+@inject WebSpaceService WebSpaceService
+
+<LazyLoader Load="Load">
+    @if (CurrentWebspace == null)
+    {
+        <div class="d-flex justify-content-center flex-center">
+            <div class="card">
+                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
+                <div class="card-body text-center">
+                    <h1 class="card-title">
+                        <TL>Webspace not found</TL>
+                    </h1>
+                    <p class="card-text fs-4">
+                        <TL>A webspace with that id cannot be found or you have no access for this webspace</TL>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        if (HostOnline)
+        {
+            <CascadingValue Value="CurrentWebspace">
+                @{
+                    var index = 0;
+
+                    switch (Route)
+                    {
+                        case "files":
+                            index = 1;
+                            break;
+                        case "sftp":
+                            index = 2;
+                            break;
+                        case "databases":
+                            index = 3;
+                            break;
+                        default:
+                            index = 0;
+                            break;
+                    }
+                    
+                    <WebSpaceNavigation Index="index" WebSpace="CurrentWebspace" />
+                    
+                    @switch (Route)
+                    {
+                        case "files":
+                            <WebSpaceFiles />
+                            break;
+                        case "sftp":
+                            <WebSpaceSftp />
+                            break;
+                        case "databases":
+                            <WebSpaceDatabases />
+                            break;
+                        default:
+                            <WebSpaceDashboard />
+                            break;
+                    }
+                }
+            </CascadingValue>
+        }
+        else
+        {
+            <div class="d-flex justify-content-center flex-center">
+                <div class="card">
+                    <img src="/assets/media/svg/serverdown.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
+                    <div class="card-body text-center">
+                        <h1 class="card-title">
+                            <TL>Host system offline</TL>
+                        </h1>
+                        <p class="card-text fs-4">
+                            <TL>The host system the website is running on is currently offline</TL>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public string? Route { get; set; }
+
+    [CascadingParameter]
+    public User User { get; set; }
+
+    private WebSpace? CurrentWebspace;
+    private bool HostOnline = false;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        CurrentWebspace = WebSpaceRepository
+            .Get()
+            .Include(x => x.CloudPanel)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (CurrentWebspace != null)
+        {
+            if (CurrentWebspace.Owner.Id != User!.Id && !User.Admin)
+                CurrentWebspace = null;
+        }
+
+        if (CurrentWebspace != null)
+        {
+            await lazyLoader.SetText("Checking host system online status");
+
+            HostOnline = await WebSpaceService.IsHostUp(CurrentWebspace);
+        }
+    }
+}

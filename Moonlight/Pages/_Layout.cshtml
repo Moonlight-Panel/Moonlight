@@ -1,9 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
+@using Moonlight.App.Extensions
+@using Moonlight.App.Repositories
 @using Moonlight.App.Services
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @inject ConfigService ConfigService
+@inject LoadingMessageRepository LoadingMessageRepository
 
 @{
     var headerConfig = ConfigService
@@ -51,7 +54,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <base href="~/"/>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered"/>
-    
+
     <title>Loading</title>
 </head>
 <body
@@ -73,9 +76,13 @@
 <div class="app-page-loader flex-column">
     <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-25px"/>
 
+    @{
+        var loadingMessage = LoadingMessageRepository.Get().Random();
+    }
+
     <div class="d-flex align-items-center mt-5">
         <span class="spinner-border text-primary" role="status"></span>
-        <span class="text-muted fs-6 fw-semibold ms-5">CHANGEME</span>
+        <span class="text-muted fs-6 fw-semibold ms-5">@(loadingMessage.Message)</span>
     </div>
 </div>
 
@@ -93,25 +100,18 @@
 <script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.8.2/lib/xterm-addon-search.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.5.0/lib/xterm-addon-web-links.min.js"></script>
 
-<script src="/assets/js/xtermAddons.js"></script>
-
 <script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
 <script>require.config({ paths: { 'vs': '/_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
 <script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
 <script src="/_content/BlazorMonaco/jsInterop.js"></script>
-<script src="/assets/js/monacoTheme.js"></script>
 
 <script src="/assets/js/scripts.bundle.js"></script>
-<script src="/assets/js/flashbang.js"></script>
-<script src="/assets/js/cookieUtils.js"></script>
-<script src="/assets/js/clipboard.js"></script>
-<script src="/assets/js/toastUtils.js"></script>
-<script src="/assets/js/alertUtils.js"></script>
-<script src="/assets/js/utils.js"></script>
-<script src="/assets/js/loggingUtils.js"></script>
-<script src="/assets/js/snow.js"></script>
-<script src="/assets/js/recaptcha.js"></script>
 <script src="/assets/js/moonlight.js"></script>
+
+<script>
+moonlight.loading.registerXterm();
+</script>
+
 <script src="_content/Blazor-ApexCharts/js/apex-charts.min.js"></script>
 <script src="_content/Blazor-ApexCharts/js/blazor-apex-charts.js"></script>
 </body>

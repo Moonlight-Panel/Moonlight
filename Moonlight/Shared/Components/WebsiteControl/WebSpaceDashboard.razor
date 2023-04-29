@@ -1,0 +1,60 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject WebSpaceService WebSpaceService
+@inject SmartTranslateService SmartTranslateService
+@inject AlertService AlertService
+
+<div class="row gy-5 g-xl-10">
+    <div class="col-xl-4 mb-xl-10">
+        <div class="card h-md-100">
+            <div class="card-body d-flex flex-column flex-center">
+                <img class="img-fluid" src="https://image.thum.io/get/http://@(CurrentWebSpace.Domain)" alt="Website screenshot"/>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 mb-5 mb-xl-10">
+        <div class="card card-flush h-xl-100">
+            <div class="card-body pt-2">
+                <LazyLoader @ref="LazyLoader" Load="Load">
+                    <div class="row mt-5">
+                        <div class="card border">
+                            <div class="card-header">
+                                <span class="card-title">
+                                    <TL>SSL certificates</TL>
+                                </span>
+                                <div class="card-toolbar">
+                                    <WButton Text="@(SmartTranslateService.Translate("Issue certificate"))"
+                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
+                                             CssClasses="btn-success"
+                                             OnClick="IssueCertificate">
+                                    </WButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </LazyLoader>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public WebSpace CurrentWebSpace { get; set; }
+
+    private LazyLoader LazyLoader;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task IssueCertificate()
+    {
+        await WebSpaceService.IssueSslCertificate(CurrentWebSpace);
+        await AlertService.Success(SmartTranslateService.Translate("Lets Encrypt certificate successfully issued"));
+    }
+}

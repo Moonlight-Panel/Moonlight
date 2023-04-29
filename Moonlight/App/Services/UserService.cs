@@ -19,6 +19,7 @@ public class UserService
     private readonly MailService MailService;
     private readonly IdentityService IdentityService;
     private readonly IpLocateService IpLocateService;
+    private readonly DateTimeService DateTimeService;
 
     private readonly string JwtSecret;
 
@@ -29,7 +30,9 @@ public class UserService
         SecurityLogService securityLogService,
         AuditLogService auditLogService,
         MailService mailService,
-        IdentityService identityService, IpLocateService ipLocateService)
+        IdentityService identityService,
+        IpLocateService ipLocateService,
+        DateTimeService dateTimeService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
@@ -38,6 +41,7 @@ public class UserService
         MailService = mailService;
         IdentityService = identityService;
         IpLocateService = ipLocateService;
+        DateTimeService = dateTimeService;
 
         JwtSecret = configService
             .GetSection("Moonlight")
@@ -70,12 +74,12 @@ public class UserService
             LastName = lastname,
             State = "",
             Status = UserStatus.Unverified,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeService.GetCurrent(),
             DiscordId = 0,
             TotpEnabled = false,
             TotpSecret = "",
-            UpdatedAt = DateTime.UtcNow,
-            TokenValidTime = DateTime.Now.AddDays(-5)
+            UpdatedAt = DateTimeService.GetCurrent(),
+            TokenValidTime = DateTimeService.GetCurrent().AddDays(-5)
         });
 
         await MailService.SendMail(user!, "register", values => {});
@@ -168,7 +172,7 @@ public class UserService
     public async Task ChangePassword(User user, string password, bool isSystemAction = false)
     {
         user.Password = BCrypt.Net.BCrypt.HashPassword(password);
-        user.TokenValidTime = DateTime.Now;
+        user.TokenValidTime = DateTimeService.GetCurrent();
         UserRepository.Update(user);
 
         if (isSystemAction)
@@ -244,8 +248,8 @@ public class UserService
         var token = JwtBuilder.Create()
             .WithAlgorithm(new HMACSHA256Algorithm())
             .WithSecret(JwtSecret)
-            .AddClaim("exp", DateTimeOffset.UtcNow.AddDays(10).ToUnixTimeSeconds())
-            .AddClaim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            .AddClaim("exp", new DateTimeOffset(DateTimeService.GetCurrent().AddDays(10)).ToUnixTimeSeconds())
+            .AddClaim("iat", DateTimeService.GetCurrentUnixSeconds())
             .AddClaim("userid", user.Id)
             .Encode();
 
