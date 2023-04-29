@@ -5,7 +5,7 @@ namespace Moonlight.App.Exceptions;
 [Serializable]
 public class PleskException : Exception
 {
-    public int StatusCode { private get; set; }
+    public int StatusCode { get; set; }
 
     public PleskException()
     {

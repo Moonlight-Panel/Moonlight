@@ -1,57 +1,78 @@
-﻿using Moonlight.App.Database;
+﻿using Logging.Net;
+using Moonlight.App.Database;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services.Statistics;
 
 public class StatisticsCaptureService
 {
-    private readonly DataContext DataContext;
-    private readonly ConfigService ConfigService;
-    private readonly StatisticsRepository StatisticsRepository;
     private readonly IServiceScopeFactory ServiceScopeFactory;
-    private readonly WebsiteService WebsiteService;
-    private readonly PleskServerRepository PleskServerRepository;
-    private PeriodicTimer Timer;
+    private readonly DateTimeService DateTimeService;
+    private readonly PeriodicTimer Timer;
     
-    public StatisticsCaptureService(IServiceScopeFactory serviceScopeFactory, ConfigService configService)
+    public StatisticsCaptureService(IServiceScopeFactory serviceScopeFactory, ConfigService configService, DateTimeService dateTimeService)
     {
         ServiceScopeFactory = serviceScopeFactory;
-        var provider = ServiceScopeFactory.CreateScope().ServiceProvider;
-            
-        DataContext = provider.GetRequiredService<DataContext>();
-        ConfigService = configService;
-        StatisticsRepository = provider.GetRequiredService<StatisticsRepository>();
-        WebsiteService = provider.GetRequiredService<WebsiteService>();
-        PleskServerRepository = provider.GetRequiredService<PleskServerRepository>();
+        DateTimeService = dateTimeService;
 
-        var config = ConfigService.GetSection("Moonlight").GetSection("Statistics");
+        var config = configService
+            .GetSection("Moonlight")
+            .GetSection("Statistics");
+        
         if(!config.GetValue<bool>("Enabled"))
             return;
-
-        var _period = config.GetValue<int>("Wait");
-        var period = TimeSpan.FromMinutes(_period);
+        
+        var period = TimeSpan.FromMinutes(config.GetValue<int>("Wait"));
         Timer = new(period);
 
+        Logger.Info("Starting statistics system");
         Task.Run(Run);
     }
 
     private async Task Run()
     {
-        while (await Timer.WaitForNextTickAsync())
+        try
         {
-            StatisticsRepository.Add("statistics.usersCount", DataContext.Users.Count());
-            StatisticsRepository.Add("statistics.serversCount", DataContext.Servers.Count());
-            StatisticsRepository.Add("statistics.domainsCount", DataContext.Domains.Count());
-            StatisticsRepository.Add("statistics.websitesCount", DataContext.Websites.Count());
-            
-            int databases = 0;
-            
-            await foreach (var pleskServer in PleskServerRepository.Get())
+            while (await Timer.WaitForNextTickAsync())
             {
-                databases += (await WebsiteService.GetDefaultDatabaseServer(pleskServer)).DbCount;
+                Logger.Warn("Creating statistics");
+                
+                using var scope = ServiceScopeFactory.CreateScope();
+
+                var statisticsRepo = scope.ServiceProvider.GetRequiredService<Repository<StatisticsData>>();
+                var usersRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
+                var serversRepo = scope.ServiceProvider.GetRequiredService<Repository<Server>>();
+                var domainsRepo = scope.ServiceProvider.GetRequiredService<Repository<Domain>>();
+                var webspacesRepo = scope.ServiceProvider.GetRequiredService<Repository<WebSpace>>();
+                var databasesRepo = scope.ServiceProvider.GetRequiredService<Repository<MySqlDatabase>>();
+                var sessionService = scope.ServiceProvider.GetRequiredService<SessionService>();
+            
+                void AddEntry(string chart, int value)
+                {
+                    statisticsRepo!.Add(new StatisticsData()
+                    {
+                        Chart = chart,
+                        Value = value,
+                        Date = DateTimeService.GetCurrent()
+                    });
+                }
+            
+                AddEntry("usersCount", usersRepo.Get().Count());
+                AddEntry("serversCount", serversRepo.Get().Count());
+                AddEntry("domainsCount", domainsRepo.Get().Count());
+                AddEntry("webspacesCount", webspacesRepo.Get().Count());
+                AddEntry("databasesCount", databasesRepo.Get().Count());
+                AddEntry("sessionsCount", sessionService.GetAll().Length);
             }
             
-            StatisticsRepository.Add("statistics.databasesCount", databases);
+            Logger.Log("Statistics are weird");
+        }
+        catch (Exception e)
+        {
+            Logger.Error("An unexpected error occured while capturing statistics");
+            Logger.Error(e);
         }
     }
 }

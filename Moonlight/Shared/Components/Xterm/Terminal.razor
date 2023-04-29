@@ -16,7 +16,7 @@
     [Parameter]
     public Action RunOnFirstRender { get; set; }
 
-    private TerminalOptions TerminalOptions = new TerminalOptions
+    private TerminalOptions TerminalOptions = new()
     {
         CursorBlink = false,
         CursorStyle = CursorStyle.Underline,
@@ -33,6 +33,7 @@
         }
         catch (Exception)
         {
+            // ignored
         }
     }
 
@@ -50,6 +51,7 @@
         }
         catch (Exception)
         {
+            // ignored
         }
     }
 }

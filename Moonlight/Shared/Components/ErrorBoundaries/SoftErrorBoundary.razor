@@ -2,6 +2,7 @@
 @using Moonlight.App.Exceptions
 @using Moonlight.App.Services
 @using Logging.Net
+@using Moonlight.App.ApiClients.CloudPanel
 @inherits ErrorBoundaryBase
 
 @inject AlertService AlertService
@@ -57,12 +58,16 @@ else
                 SmartTranslateService.Translate("Error from daemon"),
                 wingsException.Message
                 );
+            
+            //TODO: Error log service
+            
+            Logger.Warn($"Wings exception status code: {wingsException.StatusCode}");
         }
-        else if (exception is PleskException pleskException)
+        else if (exception is CloudPanelException cloudPanelException)
         {
             await AlertService.Error(
-                SmartTranslateService.Translate("Error from plesk"),
-                pleskException.Message
+                SmartTranslateService.Translate("Error from cloud panel"),
+                cloudPanelException.Message
                 );
         }
         else if (exception is NotImplementedException)

@@ -37,6 +37,12 @@
         if(Tags.Contains("paperversion"))
             Settings.Add("Paper version", typeof(PaperVersionSetting));
         
+        if(Tags.Contains("forgeversion"))
+            Settings.Add("Forge version", typeof(ForgeVersionSetting));
+        
+        if(Tags.Contains("fabricversion"))
+            Settings.Add("Fabric version", typeof(FabricVersionSetting));
+        
         if(Tags.Contains("join2start"))
             Settings.Add("Join2Start", typeof(Join2StartSetting));
         

@@ -7,6 +7,7 @@
 @using Moonlight.App.Services.Sessions
 
 @inject UserRepository UserRepository
+@inject UserService UserService
 @inject SessionService SessionService
 @inject ToastService ToastService
 @inject SmartTranslateService SmartTranslateService
@@ -76,17 +77,27 @@
                         </div>
                     </div>
                     <div class="mt-5 card card-body p-10">
-                                    <div class="d-flex justify-content-end">
-                                        <a href="/admin/users" class="btn btn-danger me-3">
-                                            <TL>Cancel</TL>
-                                        </a>
-                                        <WButton Text="@(SmartTranslateService.Translate("Update"))"
-                                                 WorkingText="@(SmartTranslateService.Translate("Updating"))"
-                                                 CssClasses="btn-success"
-                                                 OnClick="Update">
-                                        </WButton>
-                                    </div>
-                                </div>
+                        <div class="input-group">
+                            <input @bind="NewPassword" type="password" class="form-control" placeholder="@(SmartTranslateService.Translate("Password"))"/>
+                            <WButton Text="@(SmartTranslateService.Translate("Change"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Reloading"))"
+                                     CssClasses="btn-primary"
+                                     OnClick="ChangePassword">
+                            </WButton>
+                        </div>
+                    </div>
+                    <div class="mt-5 card card-body p-10">
+                        <div class="d-flex justify-content-end">
+                            <a href="/admin/users" class="btn btn-danger me-3">
+                                <TL>Cancel</TL>
+                            </a>
+                            <WButton Text="@(SmartTranslateService.Translate("Update"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Updating"))"
+                                     CssClasses="btn-success"
+                                     OnClick="Update">
+                            </WButton>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xl-6 mb-5 mb-xl-10">
                     <div class="card card-body p-10">
@@ -148,6 +159,8 @@
 
     private User? User;
 
+    private string NewPassword = "";
+
     private Task Load(LazyLoader arg)
     {
         User = UserRepository.Get().FirstOrDefault(x => x.Id == Id);
@@ -171,5 +184,15 @@
         UserRepository.Update(User!);
 
         await ToastService.Success(SmartTranslateService.Translate("Successfully updated user"));
+    }
+
+    private async Task ChangePassword()
+    {
+        await UserService.ChangePassword(User!, NewPassword, true);
+        NewPassword = "";
+        
+        SessionService.ReloadUserSessions(User);
+        
+        await ToastService.Success(SmartTranslateService.Translate("Successfully updated password"));
     }
 }

@@ -1,0 +1,52 @@
+﻿@if (AllowContentOverride)
+{
+    if (IsBlocking)
+    {
+        <div class="overlay overlay-block">
+            <div class="overlay-wrapper p-5">
+                @(ChildContent)
+            </div>
+            <div class="overlay-layer">
+                <div class="spinner-border text-primary" role="status">
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @ChildContent
+    }
+}
+else
+{
+    <div class="@(IsBlocking ? "overlay overlay-block" : "")">
+        <div class="@(IsBlocking ? "overlay-wrapper p-5" : "")">
+            @(ChildContent)
+        </div>
+        @if (IsBlocking)
+        {
+            <div class="overlay-layer">
+                <div class="spinner-border text-primary" role="status">
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public bool AllowContentOverride { get; set; } = false;
+
+    private bool IsBlocking = false;
+
+    public async Task SetBlocking(bool b)
+    {
+        IsBlocking = b;
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
