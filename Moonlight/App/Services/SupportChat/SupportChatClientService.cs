@@ -1,4 +1,5 @@
 ﻿using Logging.Net;
+using Microsoft.AspNetCore.Components.Forms;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
 using Moonlight.App.Services.Sessions;
@@ -8,9 +9,10 @@ namespace Moonlight.App.Services.SupportChat;
 public class SupportChatClientService : IDisposable
 {
     private readonly EventSystem Event;
+    private readonly BucketService BucketService;
     private readonly IdentityService IdentityService;
     private readonly SupportChatServerService ServerService;
-    
+
     public Func<SupportChatMessage, Task>? OnMessage { get; set; }
     public Func<string[], Task>? OnTypingChanged { get; set; }
 
@@ -20,11 +22,13 @@ public class SupportChatClientService : IDisposable
     public SupportChatClientService(
         EventSystem eventSystem,
         SupportChatServerService serverService,
-        IdentityService identityService)
+        IdentityService identityService,
+        BucketService bucketService)
     {
         Event = eventSystem;
         ServerService = serverService;
         IdentityService = identityService;
+        BucketService = bucketService;
     }
 
     public async Task Start()
@@ -59,11 +63,21 @@ public class SupportChatClientService : IDisposable
         return await ServerService.GetMessages(User);
     }
 
-    public async Task<SupportChatMessage> SendMessage(string content)
+    public async Task<SupportChatMessage> SendMessage(string content, IBrowserFile? browserFile = null)
     {
         if (User != null)
         {
-            return await ServerService.SendMessage(User, content, User);
+            string? attachment = null;
+
+            if (browserFile != null)
+            {
+                attachment = await BucketService.StoreFile(
+                    "supportChat", 
+                    browserFile.OpenReadStream(1024 * 1024 * 5),
+                    browserFile.Name);
+            }
+
+            return await ServerService.SendMessage(User, content, User, attachment);
         }
 
         return null!;
