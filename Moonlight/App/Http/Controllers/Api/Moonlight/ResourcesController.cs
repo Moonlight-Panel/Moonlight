@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
+using Moonlight.App.Services;
 using Moonlight.App.Services.LogServices;
 
 namespace Moonlight.App.Http.Controllers.Api.Moonlight;
@@ -11,10 +12,13 @@ namespace Moonlight.App.Http.Controllers.Api.Moonlight;
 public class ResourcesController : Controller
 {
     private readonly SecurityLogService SecurityLogService;
+    private readonly BucketService BucketService;
 
-    public ResourcesController(SecurityLogService securityLogService)
+    public ResourcesController(SecurityLogService securityLogService,
+        BucketService bucketService)
     {
         SecurityLogService = securityLogService;
+        BucketService = bucketService;
     }
 
     [HttpGet("images/{name}")]
@@ -26,6 +30,7 @@ public class ResourcesController : Controller
             {
                 x.Add<string>(name);
             });
+            
             return NotFound();
         }
 
@@ -37,5 +42,34 @@ public class ResourcesController : Controller
         }
 
         return NotFound();
+    }
+
+    [HttpGet("bucket/{bucket}/{name}")]
+    public async Task<ActionResult> GetBucket([FromRoute] string bucket, [FromRoute] string name)
+    {
+        if (name.Contains(".."))
+        {
+            await SecurityLogService.Log(SecurityLogType.PathTransversal, x =>
+            {
+                x.Add<string>(name);
+            });
+            
+            return NotFound();
+        }
+
+        try
+        {
+            var fs = await BucketService.GetFile(bucket, name);
+            
+            return File(fs, MimeTypes.GetMimeType(name), name);
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (Exception)
+        {
+            return Problem();
+        }
     }
 }

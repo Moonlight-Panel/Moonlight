@@ -4,10 +4,13 @@
 @using Moonlight.App.Helpers
 @using Moonlight.App.Services.SupportChat
 @using Logging.Net
+@using System.Text.RegularExpressions
 
 @inject ResourceService ResourceService
 @inject SupportChatClientService ClientService
 @inject SmartTranslateService SmartTranslateService
+
+@implements IDisposable
 
 <LazyLoader Load="Load">
     <div class="row">
@@ -15,7 +18,7 @@
             <div class="card-body">
                 <LazyLoader Load="LoadMessages">
                     <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
-                        @foreach (var message in Messages)
+                        @foreach (var message in Messages.ToArray())
                         {
                             if (message.Sender == null || message.Sender.Id != User.Id)
                             {
@@ -33,7 +36,9 @@
                                                     }
                                                     else
                                                     {
-                                                        <span><TL>System</TL></span>
+                                                        <span>
+                                                            <TL>System</TL>
+                                                        </span>
                                                     }
                                                 </a>
                                                 <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
@@ -47,7 +52,26 @@
                                             }
                                             else
                                             {
-                                                @(message.Content)
+                                                foreach (var line in message.Content.Split("\n"))
+                                                {
+                                                    @(line)<br/>
+                                                }
+
+                                                if (message.Attachment != "")
+                                                {
+                                                    <div class="mt-3">
+                                                        @if (Regex.IsMatch(message.Attachment, @"\.(jpg|jpeg|png|gif|bmp)$"))
+                                                        {
+                                                            <img src="@(ResourceService.BucketItem("supportChat", message.Attachment))" class="img-fluid" alt="Attachment"/>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a class="btn btn-secondary" href="@(ResourceService.BucketItem("supportChat", message.Attachment))">
+                                                                <i class="me-2 bx bx-download"></i> @(message.Attachment)
+                                                            </a>
+                                                        }
+                                                    </div>
+                                                }
                                             }
                                         </div>
                                     </div>
@@ -70,7 +94,26 @@
                                         </div>
 
                                         <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
-                                            @(message.Content)
+                                            @foreach (var line in message.Content.Split("\n"))
+                                            {
+                                                @(line)<br/>
+                                            }
+
+                                            @if (message.Attachment != "")
+                                            {
+                                                <div class="mt-3">
+                                                    @if (Regex.IsMatch(message.Attachment, @"\.(jpg|jpeg|png|gif|bmp)$"))
+                                                    {
+                                                        <img src="@(ResourceService.BucketItem("supportChat", message.Attachment))" class="img-fluid" alt="Attachment"/>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="btn btn-secondary" href="@(ResourceService.BucketItem("supportChat", message.Attachment))">
+                                                            <i class="me-2 bx bx-download"></i> @(message.Attachment)
+                                                        </a>
+                                                    }
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -84,7 +127,9 @@
                                     </div>
                                     <div class="ms-3">
                                         <a class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">
-                                            <span><TL>System</TL></span>
+                                            <span>
+                                                <TL>System</TL>
+                                            </span>
                                         </a>
                                     </div>
                                 </div>
@@ -108,11 +153,15 @@
                         </div>
                         @if (Typing.Length > 1)
                         {
-                            <span>@(Typing.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL></span>
+                            <span>
+                                @(Typing.Aggregate((current, next) => current + ", " + next)) <TL>are typing</TL>
+                            </span>
                         }
                         else
                         {
-                            <span>@(Typing.First()) <TL>is typing</TL></span>
+                            <span>
+                                @(Typing.First()) <TL>is typing</TL>
+                            </span>
                         }
                     </span>
                 }
@@ -120,11 +169,9 @@
                 <div class="d-flex flex-stack">
                     <table class="w-100">
                         <tr>
-                            <!--<td class="align-top">
-                                <button class="btn btn-sm btn-icon btn-active-light-primary me-1" type="button">
-                                    <i class="bx bx-upload fs-3"></i>
-                                </button>
-                            </td>-->
+                            <td class="align-top">
+                                <SmartFileSelect @ref="SmartFileSelect"></SmartFileSelect>
+                            </td>
                             <td class="w-100">
                                 <textarea @bind="Content" @oninput="OnTyping" class="form-control mb-3 form-control-flush" rows="1" placeholder="Type a message">            
                                                                 </textarea>
@@ -148,23 +195,25 @@
 {
     [CascadingParameter]
     public User User { get; set; }
-    
+
     private List<SupportChatMessage> Messages = new();
     private string[] Typing = Array.Empty<string>();
-    
+
     private string Content = "";
     private DateTime LastTypingTimestamp = DateTime.UtcNow.AddMinutes(-10);
+
+    private SmartFileSelect SmartFileSelect;
 
     private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Starting chat client");
-        
+
         ClientService.OnMessage += OnMessage;
         ClientService.OnTypingChanged += OnTypingChanged;
 
         await ClientService.Start();
     }
-    
+
     private async Task LoadMessages(LazyLoader arg)
     {
         Messages = (await ClientService.GetMessages()).ToList();
@@ -188,17 +237,19 @@
 
     private async Task Send()
     {
-        if(string.IsNullOrEmpty(Content))
-            return;
-        
-        var message = await ClientService.SendMessage(Content);
+        if (SmartFileSelect.SelectedFile != null && string.IsNullOrEmpty(Content))
+            Content = "File upload";
+
+        var message = await ClientService.SendMessage(Content, SmartFileSelect.SelectedFile);
         Content = "";
-        
+
+        await SmartFileSelect.RemoveSelection();
+
         Messages.Insert(0, message);
-        
+
         await InvokeAsync(StateHasChanged);
     }
-    
+
     private async void OnTyping()
     {
         if ((DateTime.UtcNow - LastTypingTimestamp).TotalSeconds > 5)
@@ -206,5 +257,14 @@
             LastTypingTimestamp = DateTime.UtcNow;
             await ClientService.SendTyping();
         }
+    }
+
+    public void Dispose()
+    {
+        ClientService?.Dispose();
+    }
+
+    private void OnFileChange(InputFileChangeEventArgs obj)
+    {
     }
 }

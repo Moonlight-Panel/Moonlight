@@ -1,14 +1,16 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
 using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services.SupportChat;
 
-public class SupportChatAdminService
+public class SupportChatAdminService : IDisposable
 {
     private readonly EventSystem Event;
     private readonly IdentityService IdentityService;
     private readonly SupportChatServerService ServerService;
+    private readonly BucketService BucketService;
     
     public Func<SupportChatMessage, Task>? OnMessage { get; set; }
     public Func<string[], Task>? OnTypingChanged { get; set; }
@@ -20,11 +22,13 @@ public class SupportChatAdminService
     public SupportChatAdminService(
         EventSystem eventSystem,
         SupportChatServerService serverService,
-        IdentityService identityService)
+        IdentityService identityService,
+        BucketService bucketService)
     {
         Event = eventSystem;
         ServerService = serverService;
         IdentityService = identityService;
+        BucketService = bucketService;
     }
 
     public async Task Start(User recipient)
@@ -60,11 +64,21 @@ public class SupportChatAdminService
         return await ServerService.GetMessages(Recipient);
     }
 
-    public async Task<SupportChatMessage> SendMessage(string content)
+    public async Task<SupportChatMessage> SendMessage(string content, IBrowserFile? browserFile = null)
     {
         if (User != null)
         {
-            return await ServerService.SendMessage(Recipient, content, User);
+            string? attachment = null;
+
+            if (browserFile != null)
+            {
+                attachment = await BucketService.StoreFile(
+                    "supportChat", 
+                    browserFile.OpenReadStream(1024 * 1024 * 5),
+                    browserFile.Name);
+            }
+            
+            return await ServerService.SendMessage(Recipient, content, User, attachment);
         }
 
         return null!;

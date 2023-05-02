@@ -20,4 +20,9 @@ public class ResourceService
     {
         return $"{AppUrl}/api/moonlight/avatar/{user.Id}";
     }
+
+    public string BucketItem(string bucket, string name)
+    {
+        return $"{AppUrl}/api/moonlight/resources/bucket/{bucket}/{name}";
+    }
 }
