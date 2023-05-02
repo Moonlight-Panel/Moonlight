@@ -252,7 +252,26 @@
 
                 var image = ImageRepository
                     .Get()
+                    .Include(x => x.Variables)
                     .First(x => x.Id == CurrentServer.Image.Id);
+
+                // Live variable migration
+                
+                foreach (var variable in image.Variables)
+                {
+                    if (!CurrentServer.Variables.Any(x => x.Key == variable.Key))
+                    {
+                        CurrentServer.Variables.Add(new ServerVariable()
+                        {
+                            Key = variable.Key,
+                            Value = variable.DefaultValue
+                        });
+                        
+                        ServerRepository.Update(CurrentServer);
+                    }
+                }
+                
+                // Tags
 
                 Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
                 Image = image;
@@ -263,7 +282,7 @@
 
                 await Event.On<Server>($"server.{CurrentServer.Uuid}.installComplete", this, server =>
                 {
-                    NavigationManager.NavigateTo(NavigationManager.Uri);
+                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
 
                     return Task.CompletedTask;
                 });
