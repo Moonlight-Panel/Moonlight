@@ -248,7 +248,7 @@
 
             if (NodeOnline)
             {
-                await lazyLoader.SetText("Requesting tags");
+                await lazyLoader.SetText("Checking server variables");
 
                 var image = ImageRepository
                     .Get()
@@ -272,6 +272,8 @@
                 }
                 
                 // Tags
+                
+                await lazyLoader.SetText("Requesting tags");
 
                 Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
                 Image = image;
