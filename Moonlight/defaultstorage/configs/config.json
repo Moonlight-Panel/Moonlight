@@ -83,6 +83,12 @@
     "Statistics": {
       "Enabled": true,
       "Wait": 15
+    },
+    "Rating": {
+      "Enabled": true,
+      "Url": "link-to-google.page",
+      "MinRating": 4,
+      "DaysSince": 5
     }
   }
 }
