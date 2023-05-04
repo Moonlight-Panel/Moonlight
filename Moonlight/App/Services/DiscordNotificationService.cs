@@ -33,11 +33,26 @@ public class DiscordNotificationService
             Event.On<User>("supportChat.new", this, OnNewSupportChat);
             Event.On<SupportChatMessage>("supportChat.message", this, OnSupportChatMessage);
             Event.On<User>("supportChat.close", this, OnSupportChatClose);
+            Event.On<User>("user.rating", this, OnUserRated);
         }
         else
         {
             Logger.Info("Discord notifications disabled");
         }
+    }
+
+    private async Task OnUserRated(User user)
+    {
+        await SendNotification("", builder =>
+        {
+            builder.Color = Color.Gold;
+            builder.Title = "New user rating";
+
+            builder.AddField("User", user.Email);
+            builder.AddField("Firstname", user.FirstName);
+            builder.AddField("Lastname", user.LastName);
+            builder.AddField("Rating", new string('⭐', user.Rating));
+        });
     }
 
     private async Task OnSupportChatClose(User user)

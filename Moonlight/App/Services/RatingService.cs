@@ -1,0 +1,86 @@
+﻿using Moonlight.App.Database.Entities;
+using Moonlight.App.Events;
+using Moonlight.App.Repositories;
+using Moonlight.App.Services.Sessions;
+
+namespace Moonlight.App.Services;
+
+public class RatingService
+{
+    private readonly IdentityService IdentityService;
+    private readonly EventSystem Event;
+    private readonly Repository<User> UserRepository;
+
+    private readonly bool Enabled = false;
+    private readonly string Url = "";
+    private readonly int MinRating = 4;
+    private readonly int DaysSince = 5;
+
+    public RatingService(
+        IdentityService identityService,
+        ConfigService configService,
+        EventSystem eventSystem,
+        Repository<User> userRepository)
+    {
+        IdentityService = identityService;
+        Event = eventSystem;
+        UserRepository = userRepository;
+
+        var config = configService.GetSection("Moonlight").GetSection("Rating");
+
+        Enabled = config.GetValue<bool>("Enabled");
+        Url = config.GetValue<string>("Url");
+        MinRating = config.GetValue<int>("MinRating");
+        DaysSince = config.GetValue<int>("DaysSince");
+    }
+
+    public async Task<bool> ShouldRate()
+    {
+        if (!Enabled)
+            return false;
+
+        var user = await IdentityService.Get();
+
+        if (user == null)
+            return false;
+
+        if (user.HasRated)
+            return false;
+
+        if ((DateTime.UtcNow - user.CreatedAt).TotalDays >= DaysSince)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public Task<string> GetRateUrl()
+    {
+        return Task.FromResult(Url);
+    }
+
+    public async Task<bool> Rate(int rate)
+    {
+        var user = await IdentityService.Get();
+        
+        // Double check states:
+        
+        if(user == null)
+            return false;
+        
+        if(user.HasRated)
+            return false;
+
+        user.HasRated = true;
+        user.Rating = rate;
+        
+        UserRepository.Update(user);
+        await Event.Emit("user.rating", user);
+
+        if (rate >= MinRating)
+            return true;
+
+        return false;
+    }
+}
