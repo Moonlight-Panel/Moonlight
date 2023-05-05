@@ -1,4 +1,4 @@
-﻿namespace Moonlight.App.Exceptions;
+﻿namespace Moonlight.App.ApiClients.Paper;
 
 public class PaperException : Exception
 {
