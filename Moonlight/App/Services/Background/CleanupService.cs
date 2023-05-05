@@ -1,16 +1,15 @@
-﻿using System.Diagnostics;
+﻿using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using MineStatLib;
-using Moonlight.App.Database.Entities;
-using Moonlight.App.Repositories;
-using Moonlight.App.Repositories.Servers;
-using Logging.Net;
 using Moonlight.App.ApiClients.Daemon.Resources;
 using Moonlight.App.ApiClients.Wings;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
+using Moonlight.App.Repositories;
+using Moonlight.App.Repositories.Servers;
 using Newtonsoft.Json;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Background;
 
 public class CleanupService
 {

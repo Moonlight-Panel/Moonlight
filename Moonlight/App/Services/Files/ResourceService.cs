@@ -1,6 +1,6 @@
 ﻿using Moonlight.App.Database.Entities;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Files;
 
 public class ResourceService
 {

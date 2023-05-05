@@ -1,13 +1,11 @@
-﻿using System.Net;
-using System.Net.Mail;
-using Logging.Net;
+﻿using Logging.Net;
 using MimeKit;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Mail;
 
 public class MailService
 {

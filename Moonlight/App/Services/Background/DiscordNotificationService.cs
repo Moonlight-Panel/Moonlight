@@ -3,8 +3,9 @@ using Discord.Webhook;
 using Logging.Net;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
+using Moonlight.App.Services.Files;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Background;
 
 public class DiscordNotificationService
 {

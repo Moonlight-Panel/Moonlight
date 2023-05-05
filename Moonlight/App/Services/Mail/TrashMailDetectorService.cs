@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Logging.Net;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Mail;
 
 public class TrashMailDetectorService
 {

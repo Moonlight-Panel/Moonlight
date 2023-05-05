@@ -6,6 +6,7 @@ using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.LogServices;
+using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services;

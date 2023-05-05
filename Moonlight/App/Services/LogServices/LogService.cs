@@ -2,7 +2,7 @@
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.LogServices;
 
 public class LogService
 {

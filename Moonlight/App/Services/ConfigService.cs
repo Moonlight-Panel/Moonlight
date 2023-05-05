@@ -2,6 +2,7 @@
 using Logging.Net;
 using Microsoft.Extensions.Primitives;
 using Moonlight.App.Helpers;
+using Moonlight.App.Services.Files;
 
 namespace Moonlight.App.Services;
 
