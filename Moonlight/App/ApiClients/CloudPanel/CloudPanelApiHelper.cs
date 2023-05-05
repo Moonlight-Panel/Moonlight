@@ -1,6 +1,4 @@
-﻿using Moonlight.App.Database.Entities;
-using Moonlight.App.Models.Plesk.Resources;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RestSharp;
 
 namespace Moonlight.App.ApiClients.CloudPanel;

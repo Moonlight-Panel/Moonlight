@@ -1,13 +1,10 @@
-﻿using Logging.Net;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.CloudPanel.Requests;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.Files;
-using Moonlight.App.Models.Plesk.Requests;
-using Moonlight.App.Models.Plesk.Resources;
 using Moonlight.App.Repositories;
 using FileAccess = Moonlight.App.Helpers.Files.FileAccess;
 
