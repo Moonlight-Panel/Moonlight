@@ -1,6 +1,6 @@
 ﻿@using Moonlight.App.Helpers
 
-<div class="form">
+<div class="form @CssClass">
     <EditForm @ref="EditForm" Model="Model" OnValidSubmit="ValidSubmit" OnInvalidSubmit="InvalidSubmit">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         @if (Working)
@@ -43,6 +43,9 @@
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; }
 
     private EditForm EditForm;
 

@@ -6,8 +6,8 @@
 
 <div class="input-group mb-3">
     <LazyLoader @ref="LazyLoader" Load="Load">
-        <SmartForm Model="Model" OnValidSubmit="Rename">
-            <div class="input-group mb-3">
+        <SmartForm CssClass="w-100" Model="Model" OnValidSubmit="Rename">
+            <div class="input-group mb-3 w-100">
                 <InputText @bind-Value="Model.Name" type="text" class="form-control"></InputText>
                 <button class="btn btn-primary" type="submit"><TL>Rename</TL></button>
             </div>
