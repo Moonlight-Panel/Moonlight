@@ -11,19 +11,27 @@
 @inject SmartTranslateService TranslationService
 
 <div class="col">
-    <div class="card card-body">
+    <div class="card card-body p-0">
         <LazyLoader @ref="Loader" Load="Load">
-            <div class="form-check form-check-custom form-check-solid mb-3">
-                <input @bind="Value" class="form-check-input" type="checkbox" value="1" id="j2sCheck"/>
-                <label class="form-check-label" for="j2sCheck">
-                    <TL>Join2Start</TL>
-                </label>
-            </div>
-            <WButton 
-                OnClick="Save" 
-                Text="@(TranslationService.Translate("Change"))" 
-                WorkingText="@(TranslationService.Translate("Changing"))" 
-                CssClasses="btn-primary"></WButton>
+            <table class="w-100">
+                <tr>
+                    <td class="w-100">
+                        <div class="form-check form-check-custom form-check-solid mb-3">
+                            <input @bind="Value" class="form-check-input" type="checkbox" value="1" id="j2sCheck"/>
+                            <label class="form-check-label" for="j2sCheck">
+                                <TL>Join2Start</TL>
+                            </label>
+                        </div>
+                    </td>
+                    <td>
+                        <WButton
+                            OnClick="Save"
+                            Text="@(TranslationService.Translate("Change"))"
+                            WorkingText="@(TranslationService.Translate("Changing"))"
+                            CssClasses="btn-primary"></WButton>
+                    </td>
+                </tr>
+            </table>
         </LazyLoader>
     </div>
 </div>

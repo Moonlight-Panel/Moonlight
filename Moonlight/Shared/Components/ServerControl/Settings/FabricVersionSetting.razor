@@ -13,38 +13,69 @@
 @inject SmartTranslateService TranslationService
 
 <div class="col">
-    <div class="card card-body">
+    <div class="card card-body p-0">
         <LazyLoader Load="Load">
-            <label class="mb-2 form-label">
-                <TL>Fabric version</TL>
-            </label>
-            <input class="mb-2 form-control" disabled="" value="@(FabricVersion)"/>
-            <label class="mb-2 form-label">
-                <TL>Fabric loader version</TL>
-            </label>
-            <input class="mb-2 form-control" disabled="" value="@(LoaderVersion)"/>
-            <label class="mb-2 form-label">
-                <TL>Minecraft version</TL>
-            </label>
-            <select class="mb-2 form-select" @bind="CurrentVersion">
-                @foreach (var version in Versions)
-                {
-                    if (version == CurrentVersion)
-                    {
-                        <option value="@(version)" selected="">@(version)</option>
-                    }
-                    else
-                    {
-                        <option value="@(version)">@(version)</option>
-                    }
-                }
-            </select>
-            <WButton
-                OnClick="Save"
-                Text="@(TranslationService.Translate("Change"))"
-                WorkingText="@(TranslationService.Translate("Changing"))"
-                CssClasses="btn-primary">
-            </WButton>
+            <table class="w-100">
+                <tr>
+                    <td colspan="2">
+                        <label class="form-label mb-0">
+                            <TL>Fabric version</TL>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="w-100" colspan="2">
+                        <input class="mb-2 form-control" disabled="" value="@(FabricVersion)"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label class="form-label mb-0">
+                            <TL>Fabric loader version</TL>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="w-100" colspan="2">
+                        <input class="mb-2 form-control" disabled="" value="@(LoaderVersion)"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <label class="form-label mb-0">
+                            <TL>Minecraft version</TL>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="w-100" colspan="2">
+                        <select class="mb-2 form-select" @bind="CurrentVersion">
+                            @foreach (var version in Versions)
+                            {
+                                if (version == CurrentVersion)
+                                {
+                                    <option value="@(version)" selected="">@(version)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(version)">@(version)</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="w-100"></td>
+                    <td>
+                        <WButton
+                            OnClick="Save"
+                            Text="@(TranslationService.Translate("Change"))"
+                            WorkingText="@(TranslationService.Translate("Changing"))"
+                            CssClasses="btn-primary mt-2">
+                        </WButton>
+                    </td>
+                </tr>
+            </table>
         </LazyLoader>
     </div>
 </div>

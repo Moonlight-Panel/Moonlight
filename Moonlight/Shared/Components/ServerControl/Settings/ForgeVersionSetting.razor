@@ -14,28 +14,36 @@
 @inject SmartTranslateService TranslationService
 
 <div class="col">
-    <div class="card card-body">
+    <div class="card card-body p-0">
         <LazyLoader Load="Load">
             <label class="mb-2 form-label"><TL>Forge version</TL></label>
-            <select class="mb-2 form-select" @bind="CurrentVersion">
-                @foreach (var version in Versions.Keys)
-                {
-                    if (DisplayToData(version) == CurrentVersion)
-                    {
-                        <option value="@(DisplayToData(version))" selected="">@(version)</option>
-                    }
-                    else
-                    {
-                        <option value="@(DisplayToData(version))">@(version)</option>
-                    }
-                }
-            </select>
-            <WButton
-                OnClick="Save"
-                Text="@(TranslationService.Translate("Change"))"
-                WorkingText="@(TranslationService.Translate("Changing"))"
-                CssClasses="btn-primary">
-            </WButton>
+            <table class="w-100">
+                <tr>
+                    <td class="w-100">
+                        <select class="form-select" @bind="CurrentVersion">
+                            @foreach (var version in Versions.Keys)
+                            {
+                                if (DisplayToData(version) == CurrentVersion)
+                                {
+                                    <option value="@(DisplayToData(version))" selected="">@(version)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(DisplayToData(version))">@(version)</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <WButton
+                            OnClick="Save"
+                            Text="@(TranslationService.Translate("Change"))"
+                            WorkingText="@(TranslationService.Translate("Changing"))"
+                            CssClasses="btn-primary ms-2">
+                        </WButton>
+                    </td>
+                </tr>
+            </table>
         </LazyLoader>
     </div>
 </div>

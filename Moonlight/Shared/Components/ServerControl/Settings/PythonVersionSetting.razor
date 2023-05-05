@@ -10,32 +10,40 @@
 @inject SmartTranslateService TranslationService
 
 <div class="col">
-    <div class="card card-body">
+    <div class="card card-body p-0">
         <LazyLoader @ref="LazyLoader" Load="Load">
             <label class="mb-2 form-label"><TL>Python version</TL></label>
-            <select @bind="ImageIndex" class="form-select mb-2">
-                @foreach (var image in DockerImages)
-                {
-                    if (image.Id == SelectedImage.Id)
-                    {
-                        <option value="@(image.Id)" selected="selected">
-                            @(ParseHelper.FirstPartStartingWithNumber(image.Name))
-                        </option>
-                    }
-                    else
-                    {
-                        <option value="@(image.Id)">
-                            @(ParseHelper.FirstPartStartingWithNumber(image.Name))
-                        </option>
-                    }
-                }
-            </select>
-            <WButton
-                OnClick="Save"
-                Text="@(TranslationService.Translate("Change"))"
-                WorkingText="@(TranslationService.Translate("Changing"))"
-                CssClasses="btn-primary">
-            </WButton>
+            <table class="w-100">
+                <tr>
+                    <td class="w-100">
+                        <select @bind="ImageIndex" class="form-select">
+                            @foreach (var image in DockerImages)
+                            {
+                                if (image.Id == SelectedImage.Id)
+                                {
+                                    <option value="@(image.Id)" selected="selected">
+                                        @(ParseHelper.FirstPartStartingWithNumber(image.Name))
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@(image.Id)">
+                                        @(ParseHelper.FirstPartStartingWithNumber(image.Name))
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <WButton
+                            OnClick="Save"
+                            Text="@(TranslationService.Translate("Change"))"
+                            WorkingText="@(TranslationService.Translate("Changing"))"
+                            CssClasses="btn-primary ms-2">
+                        </WButton>
+                    </td>
+                </tr>
+            </table>
         </LazyLoader>
     </div>
 </div>

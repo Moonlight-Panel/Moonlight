@@ -10,13 +10,21 @@
 @inject ServerService ServerService
 
 <div class="col">
-    <div class="card card-body">
+    <div class="card card-body p-0">
         <LazyLoader @ref="LazyLoader" Load="Load">
             <label class="mb-2 form-label">
                 <TL>Javascript file</TL>
             </label>
-            <input type="text" class="mb-2 form-control disabled" disabled="" value="@(PathAndFile)"/>
-            <button @onclick="Show" class="btn btn-primary"><TL>Change</TL></button>
+            <table class="w-100">
+                <tr>
+                    <td class="w-100">
+                        <input type="text" class="form-control disabled" disabled="" value="@(PathAndFile)"/>
+                    </td>
+                    <td>
+                        <button @onclick="Show" class="ms-2 btn btn-primary"><TL>Change</TL></button>
+                    </td>
+                </tr>
+            </table>
         </LazyLoader>
     </div>
 </div>
