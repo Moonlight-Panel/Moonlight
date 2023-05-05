@@ -73,7 +73,6 @@
     <Folder Include="App\ApiClients\CloudPanel\Resources\" />
     <Folder Include="App\ApiClients\Daemon\Requests\" />
     <Folder Include="App\Http\Middleware" />
-    <Folder Include="App\Models\Daemon\" />
     <Folder Include="App\Models\Google\Resources" />
   </ItemGroup>
 

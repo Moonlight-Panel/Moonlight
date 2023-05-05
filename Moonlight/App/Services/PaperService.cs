@@ -1,5 +1,6 @@
-﻿using Moonlight.App.Helpers;
-using Moonlight.App.Models.Paper.Resources;
+﻿using Moonlight.App.ApiClients.Paper;
+using Moonlight.App.ApiClients.Paper.Resources;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services;
 

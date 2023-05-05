@@ -4,6 +4,7 @@ using CurrieTechnologies.Razor.SweetAlert2;
 using Logging.Net;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
+using Moonlight.App.ApiClients.Paper;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Database;
 using Moonlight.App.Events;

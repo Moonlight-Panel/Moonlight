@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using RestSharp;
 
-namespace Moonlight.App.Helpers;
+namespace Moonlight.App.ApiClients.Paper;
 
 public class PaperApiHelper
 {

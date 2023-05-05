@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Moonlight.App.Models.Paper.Resources;
+namespace Moonlight.App.ApiClients.Paper.Resources;
 
 public class PaperBuilds
 {
