@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Moonlight.App.Models.Wings.Resources;
+namespace Moonlight.App.ApiClients.Wings.Resources;
 
 public class SystemStatus
 {

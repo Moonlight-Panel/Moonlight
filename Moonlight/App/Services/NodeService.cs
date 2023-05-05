@@ -1,7 +1,8 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using Moonlight.App.ApiClients.Wings;
+using Moonlight.App.ApiClients.Wings.Resources;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Daemon.Resources;
-using Moonlight.App.Models.Wings.Resources;
 using Moonlight.App.Repositories;
 
 namespace Moonlight.App.Services;

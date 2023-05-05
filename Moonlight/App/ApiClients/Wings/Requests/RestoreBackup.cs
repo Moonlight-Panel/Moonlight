@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Moonlight.App.Models.Wings.Requests;
+namespace Moonlight.App.ApiClients.Wings.Requests;
 
 public class RestoreBackup
 {

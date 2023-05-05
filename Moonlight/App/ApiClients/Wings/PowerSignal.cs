@@ -1,4 +1,4 @@
-﻿namespace Moonlight.App.Models.Wings;
+﻿namespace Moonlight.App.ApiClients.Wings;
 
 public enum PowerSignal
 {

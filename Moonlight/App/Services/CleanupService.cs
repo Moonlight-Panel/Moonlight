@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using MineStatLib;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Models.Daemon.Resources;
-using Moonlight.App.Models.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 using Logging.Net;
+using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Events;
 using Newtonsoft.Json;
 
