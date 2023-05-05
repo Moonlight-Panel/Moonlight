@@ -74,9 +74,4 @@ public class ConfigService : IConfiguration
         get => Configuration[key];
         set => Configuration[key] = value;
     }
-
-    public void Save()
-    {
-        ConfigUtils.SaveConfigurationAsJson(Configuration, "..\\..\\appsettings.json");
-    }
 }
