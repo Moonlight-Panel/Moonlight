@@ -1,7 +1,6 @@
 ﻿using System.Text;
-using Moonlight.App.Helpers;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Minecraft;
 
 public class ForgeService
 {

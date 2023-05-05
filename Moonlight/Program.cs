@@ -21,6 +21,7 @@ using Moonlight.App.Services.Files;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Mail;
+using Moonlight.App.Services.Minecraft;
 using Moonlight.App.Services.Notifications;
 using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;

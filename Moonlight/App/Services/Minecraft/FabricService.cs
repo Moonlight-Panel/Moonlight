@@ -3,7 +3,7 @@ using Moonlight.App.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Minecraft;
 
 public class FabricService
 {

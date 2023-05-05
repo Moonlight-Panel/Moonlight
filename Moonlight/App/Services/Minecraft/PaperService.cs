@@ -1,8 +1,7 @@
 ﻿using Moonlight.App.ApiClients.Paper;
 using Moonlight.App.ApiClients.Paper.Resources;
-using Moonlight.App.Helpers;
 
-namespace Moonlight.App.Services;
+namespace Moonlight.App.Services.Minecraft;
 
 public class PaperService
 {
