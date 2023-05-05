@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Moonlight.App.Models.IpLocate.Resources;
+using Moonlight.App.ApiClients.IpLocate.Resources;
 using Newtonsoft.Json;
 
 namespace Moonlight.App.Services.Sessions;

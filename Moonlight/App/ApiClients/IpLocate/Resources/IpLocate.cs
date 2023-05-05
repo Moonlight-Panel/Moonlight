@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Moonlight.App.Models.IpLocate.Resources;
+namespace Moonlight.App.ApiClients.IpLocate.Resources;
 
 public class IpLocate
 {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Moonlight.App.Models.Google.Requests;
+namespace Moonlight.App.ApiClients.Google.Requests;
 
 public class GoogleOAuth2CodePayload
 {
