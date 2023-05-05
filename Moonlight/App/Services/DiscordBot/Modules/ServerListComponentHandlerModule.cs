@@ -2,7 +2,7 @@
 using Discord.WebSocket;
 using Logging.Net;
 using Microsoft.EntityFrameworkCore;
-using Moonlight.App.Models.Wings;
+using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 

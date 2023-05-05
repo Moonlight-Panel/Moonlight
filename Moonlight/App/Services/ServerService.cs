@@ -1,4 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Moonlight.App.ApiClients.Wings;
+using Moonlight.App.ApiClients.Wings.Requests;
+using Moonlight.App.ApiClients.Wings.Resources;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
@@ -6,9 +9,6 @@ using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.Files;
 using Moonlight.App.Models.Misc;
-using Moonlight.App.Models.Wings;
-using Moonlight.App.Models.Wings.Requests;
-using Moonlight.App.Models.Wings.Resources;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services.LogServices;

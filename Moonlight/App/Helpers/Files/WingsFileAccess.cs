@@ -1,7 +1,8 @@
 ﻿using System.Web;
+using Moonlight.App.ApiClients.Wings;
+using Moonlight.App.ApiClients.Wings.Requests;
+using Moonlight.App.ApiClients.Wings.Resources;
 using Moonlight.App.Database.Entities;
-using Moonlight.App.Models.Wings.Requests;
-using Moonlight.App.Models.Wings.Resources;
 using Moonlight.App.Services;
 using RestSharp;
 

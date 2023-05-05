@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
+using Moonlight.App.Services.Files;
 using Moonlight.App.Services.LogServices;
 
 namespace Moonlight.App.Http.Controllers.Api.Moonlight;

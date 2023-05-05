@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
+using Moonlight.App.Services.Files;
 using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Services.SupportChat;
