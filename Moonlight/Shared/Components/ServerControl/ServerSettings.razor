@@ -55,8 +55,14 @@
         if(Tags.Contains("pythonversion"))
             Settings.Add("Python version", typeof(PythonVersionSetting));
         
+        if(Tags.Contains("javaversion"))
+            Settings.Add("Java version", typeof(JavaRuntimeVersionSetting));
+        
         if(Tags.Contains("pythonfile"))
             Settings.Add("Python file", typeof(PythonFileSetting));
+        
+        if(Tags.Contains("javafile"))
+            Settings.Add("Jar file", typeof(JavaFileSetting));
         
         Settings.Add("Rename", typeof(ServerRenameSetting));
         
