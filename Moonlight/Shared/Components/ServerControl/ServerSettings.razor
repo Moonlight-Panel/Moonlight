@@ -58,11 +58,17 @@
         if(Tags.Contains("javaversion"))
             Settings.Add("Java version", typeof(JavaRuntimeVersionSetting));
         
+        if(Tags.Contains("dotnetversion"))
+            Settings.Add("Dotnet version", typeof(DotnetVersionSetting));
+        
         if(Tags.Contains("pythonfile"))
             Settings.Add("Python file", typeof(PythonFileSetting));
         
         if(Tags.Contains("javafile"))
             Settings.Add("Jar file", typeof(JavaFileSetting));
+        
+        if(Tags.Contains("dotnetfile"))
+            Settings.Add("Dll file", typeof(DotnetFileSetting));
         
         Settings.Add("Rename", typeof(ServerRenameSetting));
         

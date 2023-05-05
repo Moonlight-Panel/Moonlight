@@ -37,6 +37,17 @@ public static class ParseHelper
 
         return res;
     }
+
+    public static string ToDotnetVersionName(string raw)
+    {
+        var dockerImageTag = raw.Split(":").Last();
+
+        var name = dockerImageTag.Replace("_", ".")
+            .Replace("dotnetcore", ".NET Core ")
+            .Replace("dotnet", ".NET ");
+
+        return name;
+    }
     
     public static string GetHighestVersion(string[] versions)
     {
