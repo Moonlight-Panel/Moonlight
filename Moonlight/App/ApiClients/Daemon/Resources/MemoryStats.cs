@@ -1,4 +1,4 @@
-﻿namespace Moonlight.App.Models.Daemon.Resources;
+﻿namespace Moonlight.App.ApiClients.Daemon.Resources;
 
 public class MemoryStats
 {
