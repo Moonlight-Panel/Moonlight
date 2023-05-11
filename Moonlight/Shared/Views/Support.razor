@@ -53,9 +53,15 @@
                                             }
                                             else
                                             {
-                                                foreach (var line in message.Content.Split("\n"))
+                                                int i = 0;
+                                                var arr = message.Content.Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                                                foreach (var line in arr)
                                                 {
-                                                    @(line)<br/>
+                                                    @line
+                                                    if (i++ != arr.Length - 1)
+                                                    {
+                                                        <br />
+                                                    }
                                                 }
 
                                                 if (message.Attachment != "")
