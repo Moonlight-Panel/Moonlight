@@ -82,6 +82,15 @@
                             MB
                         </span>
                     </div>
+                    <label class="form-label">
+                        <TL>Node</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <SmartSelect @bind-Value="Model.Node"
+                                     Items="Nodes"
+                                     DisplayField="@(x => x.Name)">
+                        </SmartSelect>
+                    </div>
                 </div>
             </div>
             <div class="row mb-5">
@@ -220,7 +229,7 @@
     {
         try
         {
-            await ServerService.Create(Model.Name, Model.Cpu, Model.Memory, Model.Disk, Model.Owner, Model.Image, null, server =>
+            await ServerService.Create(Model.Name, Model.Cpu, Model.Memory, Model.Disk, Model.Owner, Model.Image, Model.Node, server =>
             {
                 server.OverrideStartup = Model.OverrideStartup;
                 server.DockerImageIndex = Model.DockerImageIndex;
