@@ -170,7 +170,7 @@ public class WebSpaceService
         var webspace = EnsureData(w);
 
         return Task.FromResult<FileAccess>(
-            new SftpFileAccess(webspace.CloudPanel.Host, webspace.UserName, webspace.Password, 22, true)
+            new SftpFileAccess(webspace.CloudPanel.Host, webspace.UserName, webspace.Password, 22, true, $"/htdocs/{webspace.Domain}")
         );
     }
 

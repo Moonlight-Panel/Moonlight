@@ -11,6 +11,7 @@ public class SftpFileAccess : FileAccess
     private readonly string SftpPassword;
     private readonly int SftpPort;
     private readonly bool ForceUserDir;
+    private readonly string AdditionalPath;
 
     private readonly SftpClient Client;
 
@@ -19,20 +20,21 @@ public class SftpFileAccess : FileAccess
         get
         {
             if (ForceUserDir)
-                return $"/home/{SftpUser}{CurrentPath}";
+                return $"/home/{SftpUser}{AdditionalPath}{CurrentPath}";
 
             return InternalPath;
         }
     }
 
     public SftpFileAccess(string sftpHost, string sftpUser, string sftpPassword, int sftpPort,
-        bool forceUserDir = false)
+        bool forceUserDir = false, string additionalPath = "")
     {
         SftpHost = sftpHost;
         SftpUser = sftpUser;
         SftpPassword = sftpPassword;
         SftpPort = sftpPort;
         ForceUserDir = forceUserDir;
+        AdditionalPath = additionalPath;
 
         Client = new(
             new ConnectionInfo(
