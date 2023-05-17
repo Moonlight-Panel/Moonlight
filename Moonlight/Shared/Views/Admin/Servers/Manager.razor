@@ -9,6 +9,7 @@
 @using Moonlight.App.ApiClients.Daemon.Resources
 @using Moonlight.App.ApiClients.Wings
 @using Moonlight.App.Helpers
+@using Moonlight.App.Models.Misc
 
 @inject NodeRepository NodeRepository
 @inject NodeService NodeService
@@ -23,7 +24,7 @@
             <WButton Text="@(SmartTranslateService.Translate("Refresh"))"
                      WorkingText="@(SmartTranslateService.Translate("Working"))"
                      CssClasses="btn-primary"
-                     OnClick="() => LazyLoader.Reload()">
+                     OnClick="() => Task.Run(Scan)">
             </WButton>
             <WButton Text="@(SmartTranslateService.Translate("Stop all"))"
                      WorkingText="@(SmartTranslateService.Translate("Working"))"
@@ -37,68 +38,97 @@
             </WButton>
         </div>
     </div>
-    <LazyLoader @ref="LazyLoader" Load="Load">
-        <div class="card card-body">
-            <div class="table-responsive">
-                <Table TableItem="ContainerStats.Container" Items="Containers.Values" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                    <Column TableItem="ContainerStats.Container" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true">
-                        <Template>
-                            @{
-                                var server = Containers.First(x => x.Value == context).Key;
-                            }
-
-                            <a href="/server/@(server.Uuid)">@(server.Name)</a>
-                        </Template>
-                    </Column>
-                    <Column TableItem="ContainerStats.Container" Title="@(SmartTranslateService.Translate("Cpu usage"))" Field="@(x => x.Cpu)" Sortable="true" Filterable="true">
-                        <Template>
-                            <span>@(context.Cpu)%</span>
-                        </Template>
-                    </Column>
-                    <Column TableItem="ContainerStats.Container" Title="@(SmartTranslateService.Translate("Memory usage"))" Field="@(x => x.Memory)" Sortable="true" Filterable="true">
-                        <Template>
-                            <span>@(Formatter.FormatSize(context.Memory))</span>
-                        </Template>
-                    </Column>
-                    <Column TableItem="ContainerStats.Container" Title="@(SmartTranslateService.Translate("Network in"))" Field="@(x => x.NetworkIn)" Sortable="true" Filterable="true">
-                        <Template>
-                            <span>@(Formatter.FormatSize(context.NetworkIn))</span>
-                        </Template>
-                    </Column>
-                    <Column TableItem="ContainerStats.Container" Title="@(SmartTranslateService.Translate("Network out"))" Field="@(x => x.NetworkOut)" Sortable="true" Filterable="true">
-                        <Template>
-                            <span>@(Formatter.FormatSize(context.NetworkOut))</span>
-                        </Template>
-                    </Column>
-                    <Column TableItem="ContainerStats.Container" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Name)" Sortable="false" Filterable="false">
-                        <Template>
-                            @{
-                                var server = Containers.First(x => x.Value == context).Key;
-                            }
-
-                            <a href="/admin/users/view/@(server.Owner.Id)/">@server.Owner.Email</a>
-                        </Template>
-                    </Column>
-                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                </Table>
-            </div>
+    <div class="card mb-5 bg-secondary">
+        <div class="card-body d-flex align-items-center">
+            @if (IsRunning)
+            {
+                <h4><TL>Currently scanning</TL>: @(Node?.Name)</h4>
+            }
+            else
+            {
+                <TL>Scan complete</TL>
+            }
         </div>
-    </LazyLoader>
+    </div>
+    <div class="card card-body">
+        <div class="table-responsive">
+            <Table TableItem="RunningServer" Items="RunningServers" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Server.Name)" Sortable="true" Filterable="true">
+                    <Template>
+                        <a href="/server/@(context.Server.Uuid)">@(context.Server.Name)</a>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Cpu usage"))" Field="@(x => x.Container.Cpu)" Sortable="true" Filterable="true">
+                    <Template>
+                        <span>@(context.Container.Cpu)%</span>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Memory usage"))" Field="@(x => x.Container.Memory)" Sortable="true" Filterable="true">
+                    <Template>
+                        <span>@(Formatter.FormatSize(context.Container.Memory))</span>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Network in"))" Field="@(x => x.Container.NetworkIn)" Sortable="true" Filterable="true">
+                    <Template>
+                        <span>@(Formatter.FormatSize(context.Container.NetworkIn))</span>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Network out"))" Field="@(x => x.Container.NetworkOut)" Sortable="true" Filterable="true">
+                    <Template>
+                        <span>@(Formatter.FormatSize(context.Container.NetworkOut))</span>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Image"))" Field="@(x => x.Server.Image.Name)" Sortable="true" Filterable="true">
+                    <Template>
+                        <a href="/admin/servers/images/edit/@(context.Server.Image.Id)">@(context.Server.Image.Name)</a>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Node"))" Field="@(x => x.Server.Node.Name)" Sortable="true" Filterable="true">
+                    <Template>
+                        <a href="/admin/nodes/view/@(context.Server.Node.Id)">@(context.Server.Node.Name)</a>
+                    </Template>
+                </Column>
+                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Server.Owner.Email)" Sortable="true" Filterable="true">
+                    <Template>
+                        <a href="/admin/users/view/@(context.Server.Owner.Id)/">@context.Server.Owner.Email</a>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+            </Table>
+        </div>
+    </div>
 </OnlyAdmin>
 
 @code
 {
-    private LazyLoader LazyLoader;
+    private List<RunningServer> RunningServers = new();
+    private bool IsRunning;
+    private Node? Node;
 
-    private Dictionary<Server, ContainerStats.Container> Containers = new();
-
-    private async Task Load(LazyLoader lazyLoader)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Containers.Clear();
-
-        foreach (var node in NodeRepository.Get().ToArray())
+        if (firstRender)
         {
-            await lazyLoader.SetText(node.Name);
+            await Task.Run(Scan);
+        }
+    }
+
+    private async Task Scan()
+    {
+        IsRunning = true;
+        RunningServers.Clear();
+
+        await InvokeAsync(StateHasChanged);
+
+        var nodes = NodeRepository.Get().ToArray();
+
+        Node = nodes.First();
+
+        foreach (var node in nodes)
+        {
+            Node = node;
+
+            await InvokeAsync(StateHasChanged);
 
             try
             {
@@ -111,20 +141,31 @@
                         var server = ServerRepository
                             .Get()
                             .Include(x => x.Owner)
+                            .Include(x => x.Node)
+                            .Include(x => x.Image)
                             .FirstOrDefault(x => x.Uuid == uuid);
 
                         if (server != null)
                         {
-                            Containers.Add(server, container);
+                            RunningServers.Add(new()
+                            {
+                                Server = server,
+                                Container = container
+                            });
+
+                            await InvokeAsync(StateHasChanged);
                         }
                     }
                 }
             }
             catch (Exception)
             {
-                // ignored
+    // ignored
             }
         }
+
+        IsRunning = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task StopAll()
@@ -138,9 +179,9 @@
 
         if (b)
         {
-            foreach (var containerData in Containers)
+            foreach (var runningServer in RunningServers)
             {
-                await ServerService.SetPowerState(containerData.Key, PowerSignal.Stop);
+                await ServerService.SetPowerState(runningServer.Server, PowerSignal.Stop);
             }
         }
     }
@@ -156,9 +197,9 @@
 
         if (b)
         {
-            foreach (var containerData in Containers)
+            foreach (var runningServer in RunningServers)
             {
-                await ServerService.SetPowerState(containerData.Key, PowerSignal.Kill);
+                await ServerService.SetPowerState(runningServer.Server, PowerSignal.Kill);
             }
         }
     }
