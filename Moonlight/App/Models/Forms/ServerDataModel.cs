@@ -23,6 +23,9 @@ public class ServerDataModel
     
     [Required(ErrorMessage = "You need to specify a image")]
     public Image Image { get; set; }
+    
+    [Required(ErrorMessage = "You need to specify a node")]
+    public Node Node { get; set; }
 
     public string OverrideStartup { get; set; } = "";
     
