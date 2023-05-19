@@ -117,6 +117,7 @@ namespace Moonlight
             builder.Services.AddScoped<FabricService>();
             builder.Services.AddSingleton<BucketService>();
             builder.Services.AddScoped<RatingService>();
+            builder.Services.AddScoped<ReCaptchaService>();
             
             builder.Services.AddScoped<GoogleOAuth2Service>();
             builder.Services.AddScoped<DiscordOAuth2Service>();

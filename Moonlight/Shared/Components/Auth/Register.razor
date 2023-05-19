@@ -57,39 +57,44 @@
                             <TL>Or with email</TL>
                         </span>
                     </div>
-                    
+
                     <SmartForm Model="UserRegisterModel" OnValidSubmit="CreateUser">
                         <div class="fv-row mb-4 fv-plugins-icon-container">
-                            <InputText @bind-Value="UserRegisterModel.Email" placeholder="@(SmartTranslateService.Translate("Email"))" name="email" autocomplete="off" class="form-control bg-transparent" />
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
-                                <InputText @bind-Value="UserRegisterModel.FirstName" type="text" placeholder="@(SmartTranslateService.Translate("Firstname"))" name="text" class="form-control bg-transparent" />
-                            </div>
-
-                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
-                                <InputText @bind-Value="UserRegisterModel.LastName" type="text" placeholder="@(SmartTranslateService.Translate("Lastname"))" name="text"class="form-control bg-transparent" />
-                            </div>
+                            <InputText @bind-Value="UserRegisterModel.Email" placeholder="@(SmartTranslateService.Translate("Email"))" name="email" autocomplete="off" class="form-control bg-transparent"/>
                         </div>
 
                         <div class="row">
                             <div class="col-lg-6 mb-4 fv-plugins-icon-container">
-                                <InputText @bind-Value="UserRegisterModel.Password" type="password" placeholder="@(SmartTranslateService.Translate("Password"))" name="password" autocomplete="off" class="form-control bg-transparent" />
+                                <InputText @bind-Value="UserRegisterModel.FirstName" type="text" placeholder="@(SmartTranslateService.Translate("Firstname"))" name="text" class="form-control bg-transparent"/>
                             </div>
 
                             <div class="col-lg-6 mb-4 fv-plugins-icon-container">
-                                <InputText @bind-Value="UserRegisterModel.ConfirmPassword" type="password" placeholder="@(SmartTranslateService.Translate("Repeat password"))" name="password" autocomplete="off" class="form-control bg-transparent" />
+                                <InputText @bind-Value="UserRegisterModel.LastName" type="text" placeholder="@(SmartTranslateService.Translate("Lastname"))" name="text"class="form-control bg-transparent"/>
                             </div>
                         </div>
-                        
+
+                        <div class="row">
+                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
+                                <InputText @bind-Value="UserRegisterModel.Password" type="password" placeholder="@(SmartTranslateService.Translate("Password"))" name="password" autocomplete="off" class="form-control bg-transparent"/>
+                            </div>
+
+                            <div class="col-lg-6 mb-4 fv-plugins-icon-container">
+                                <InputText @bind-Value="UserRegisterModel.ConfirmPassword" type="password" placeholder="@(SmartTranslateService.Translate("Repeat password"))" name="password" autocomplete="off" class="form-control bg-transparent"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3 mb-3">
+                            <SmartReCaptcha @bind-Value="UserRegisterModel.Captcha">
+                            </SmartReCaptcha>
+                        </div>
+
                         <div class="d-grid mb-6">
                             <button type="submit" class="btn btn-primary">
                                 <TL>Sign-up</TL>
                             </button>
                         </div>
                     </SmartForm>
-                    
+
                     <div class="text-gray-500 text-center fw-semibold fs-6">
                         <TL>Already registered?</TL>
 
@@ -106,13 +111,13 @@
 @code
 {
     private UserRegisterModel UserRegisterModel = new();
-    
+
     private async Task DoGoogle()
     {
         var url = await GoogleOAuth2Service.GetUrl();
         NavigationManager.NavigateTo(url, true);
     }
-    
+
     private async Task DoDiscord()
     {
         var url = await DiscordOAuth2Service.GetUrl();
@@ -126,7 +131,7 @@
             await AlertService.Error(SmartTranslateService.Translate("Passwords need to match"));
             return;
         }
-        
+
         var token = await UserService.Register(UserRegisterModel.Email, UserRegisterModel.Password, UserRegisterModel.FirstName, UserRegisterModel.LastName);
         await CookieService.SetValue("token", token, 10);
 
