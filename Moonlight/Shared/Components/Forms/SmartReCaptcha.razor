@@ -1,0 +1,49 @@
+﻿@using Moonlight.App.Services.Interop
+@using Logging.Net
+
+@inject ReCaptchaService ReCaptchaService
+
+@inherits InputBase<bool>
+
+<div class="d-flex flex-center" id="@UniqueId"></div>
+
+@code
+{
+    private string UniqueId = Guid.NewGuid().ToString();
+    private string Id;
+
+    private async Task OnValid()
+    {
+        CurrentValue = true;
+        await ValueChanged.InvokeAsync(CurrentValue);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ReCaptchaService.OnValidResponse += OnValid;
+            
+            if(await ReCaptchaService.IsEnabled())
+                Id = await ReCaptchaService.Create(UniqueId);
+            else
+            {
+                await OnValid();
+            }
+        }
+    }
+
+    protected override bool TryParseValueFromString(string? value, out bool result, out string? validationErrorMessage)
+    {
+        if (bool.TryParse(value, out result))
+        {
+            validationErrorMessage = null;
+            return true;
+        }
+        else
+        {
+            validationErrorMessage = "Invalid value.";
+            return false;
+        }
+    }
+}
