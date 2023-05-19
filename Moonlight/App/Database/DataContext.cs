@@ -45,6 +45,7 @@ public class DataContext : DbContext
     public DbSet<MySqlDatabase> Databases { get; set; }
     public DbSet<WebSpace> WebSpaces { get; set; }
     public DbSet<SupportChatMessage> SupportChatMessages { get; set; }
+    public DbSet<IpBan> IpBans { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
