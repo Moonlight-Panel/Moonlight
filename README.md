@@ -1,6 +1,8 @@
 # Moonlight
 ### The next generation hosting panel
 
+(README.md not finished)
+
 #### About this project
 
 Moonlight is a new game server hosting panel, using Blazor Server Side and Bootstrap.
