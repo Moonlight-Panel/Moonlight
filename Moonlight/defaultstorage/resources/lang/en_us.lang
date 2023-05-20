@@ -27,12 +27,12 @@ Support chat;Support chat
 Finish;Finish
 Finalize installation;Finalize installation
 Moonlight basic settings successfully configured;Moonlight basic settings successfully configured
-Ooops. This page is crashed;Ooops. This page is crashed
-This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page;This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page
+Ooops. This page is crashed;Ooops. This page crashed
+This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page;This page crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page
 Setup complete;Setup complete
 It looks like this moonlight instance is ready to go;It looks like this moonlight instance is ready to go
 User successfully created;User successfully created
-Ooops. Your moonlight client is crashed;Ooops. Your moonlight client is crashed
+Ooops. Your moonlight client is crashed;Ooops. Your moonlight client crashed
 This error has been reported to the moonlight team;This error has been reported to the moonlight team
 Sign In;Sign In
 Sign in to start with moonlight;Sign in to start with moonlight
@@ -61,8 +61,8 @@ Websites;Websites
 Databases;Databases
 Domains;Domains
 Changelog;Changelog
-Firstname;Firstname
-Lastname;Lastname
+Firstname;First Name
+Lastname;Last Name
 Repeat password;Repeat password
 Sign Up;Sign Up
 Sign up to start with moonlight;Sign up to start with moonlight
@@ -84,7 +84,7 @@ Insert, delete and update the data in your databases;Insert, delete and update t
 Create a website;Create a website
 Make your own websites with a webspace;Make your own websites with a webspace
 Create a domain;Create a domain
-Make your servvices accessible throught your own domain;Make your servvices accessible throught your own domain
+Make your servvices accessible throught your own domain;Make your services accessible throught your own domain
 Manage your websites;Manage your websites
 Modify the content of your websites;Modify the content of your websites
 Manage your domains;Manage your domains
@@ -397,7 +397,7 @@ The Name field is required.;The Name field is required.
 An error occured while logging you in;An error occured while logging you in
 You need to enter an email address;You need to enter an email address
 You need to enter a password;You need to enter a password
-You need to enter a password with minimum 8 characters in lenght;You need to enter a password with minimum 8 characters in lenght
+You need to enter a password with minimum 8 characters in lenght;You need to enter a password with minimum 8 characters in length
 Proccessing;Proccessing
 The FirstName field is required.;The FirstName field is required.
 The LastName field is required.;The LastName field is required.
@@ -481,7 +481,7 @@ No node found to deploy to found;No node found to deploy to found
 Node offline;Node offline
 The node the server is running on is currently offline;The node the server is running on is currently offline
 Server not found;Server not found
-A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you have no access for this server
+A server with that id cannot be found or you have no access for this server;A server with that id cannot be found or you don't have access for this server
 Compress;Compress
 Decompress;Decompress
 Moving;Moving
@@ -557,7 +557,7 @@ Saving...;Saving...
 Deleting...;Deleting...
 Delete post;Delete post
 Do you really want to delete the post ";Do you really want to delete the post "
-You have no domains;You have no domains
+You have no domains;You don't have domains
 We were not able to find any domains associated with your account;We were not able to find any domains associated with your account
 You have no websites;You have no websites
 We were not able to find any websites associated with your account;We were not able to find any websites associated with your account
