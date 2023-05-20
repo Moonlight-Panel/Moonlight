@@ -14,7 +14,7 @@ It has been created as a private game panel for Endelon Hosting and split into a
   - Console
   - File Manager
   - Backups
-  - Server typ specific settings
+  - Server type specific settings
 - Create and manage websites using cloud panel
 - Subdomain manager using the cloudflare api
 - And many more
