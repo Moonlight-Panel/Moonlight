@@ -12,6 +12,7 @@ public class DatabaseCheckup
 {
     public static void Perform()
     {
+        // This will also copy all default config files
         var context = new DataContext(new ConfigService(new StorageService()));
 
         Logger.Info("Checking database");
