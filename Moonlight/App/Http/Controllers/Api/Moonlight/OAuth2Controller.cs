@@ -1,12 +1,6 @@
 ﻿using Logging.Net;
 using Microsoft.AspNetCore.Mvc;
-using Moonlight.App.Exceptions;
-using Moonlight.App.Helpers;
-using Moonlight.App.Models.Misc;
-using Moonlight.App.Repositories;
 using Moonlight.App.Services;
-using Moonlight.App.Services.OAuth2;
-using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Http.Controllers.Api.Moonlight;
 
@@ -14,130 +8,37 @@ namespace Moonlight.App.Http.Controllers.Api.Moonlight;
 [Route("api/moonlight/oauth2")]
 public class OAuth2Controller : Controller
 {
-    private readonly GoogleOAuth2Service GoogleOAuth2Service;
-    private readonly DiscordOAuth2Service DiscordOAuth2Service;
-    private readonly UserRepository UserRepository;
     private readonly UserService UserService;
+    private readonly OAuth2Service OAuth2Service;
     private readonly DateTimeService DateTimeService;
 
-    public OAuth2Controller(
-        GoogleOAuth2Service googleOAuth2Service, 
-        UserRepository userRepository, 
-        UserService userService,
-        DiscordOAuth2Service discordOAuth2Service, DateTimeService dateTimeService)
+    public OAuth2Controller(UserService userService, OAuth2Service oAuth2Service, DateTimeService dateTimeService)
     {
-        GoogleOAuth2Service = googleOAuth2Service;
-        UserRepository = userRepository;
         UserService = userService;
-        DiscordOAuth2Service = discordOAuth2Service;
+        OAuth2Service = oAuth2Service;
         DateTimeService = dateTimeService;
     }
 
-    [HttpGet("google")]
-    public async Task<ActionResult> Google([FromQuery] string code)
+    [HttpGet("{id}")]
+    public async Task<ActionResult> Hande([FromRoute] string id, [FromQuery] string code)
     {
         try
         {
-            var userData = await GoogleOAuth2Service.HandleCode(code);
+            var user = await OAuth2Service.HandleCode(id, code);
 
-            if (userData == null)
-                return Redirect("/login");
-
-            try
+            Response.Cookies.Append("token", await UserService.GenerateToken(user), new()
             {
-                var user = UserRepository.Get().FirstOrDefault(x => x.Email == userData.Email);
+                Expires = new DateTimeOffset(DateTimeService.GetCurrent().AddDays(10))
+            });
 
-                string token;
-                
-                if (user == null)
-                {
-                    token = await UserService.Register(
-                        userData.Email,
-                        StringHelper.GenerateString(32),
-                        userData.FirstName,
-                        userData.LastName
-                    );
-                }
-                else
-                {
-                    token = await UserService.GenerateToken(user, true);
-                }
-                
-                Response.Cookies.Append("token", token, new ()
-                {
-                    Expires = new DateTimeOffset(DateTimeService.GetCurrent().AddDays(10))
-                });
-
-                return Redirect("/");
-            }
-            catch (Exception e)
-            {
-                Logger.Warn(e.Message);
-                return Redirect("/login");
-            }
+            return Redirect("/");
         }
         catch (Exception e)
         {
+            Logger.Warn("An unexpected error occured while handling oauth2");
             Logger.Warn(e.Message);
-            return BadRequest();
-        }
-    }
 
-    [HttpGet("discord")]
-    public async Task<ActionResult> Discord([FromQuery] string code)
-    {
-        try
-        {
-            var userData = await DiscordOAuth2Service.HandleCode(code);
-
-            if (userData == null)
-                return Redirect("/login");
-
-            try
-            {
-                var user = UserRepository.Get().FirstOrDefault(x => x.Email == userData.Email);
-
-                string token;
-                
-                if (user == null)
-                {
-                    token = await UserService.Register(
-                        userData.Email,
-                        StringHelper.GenerateString(32),
-                        userData.FirstName,
-                        userData.LastName
-                    );
-
-                    var newUser = UserRepository
-                        .Get()
-                        .First(x => x.Email == userData.Email);
-
-                    newUser.Status = UserStatus.DataPending;
-                    
-                    UserRepository.Update(newUser);
-                }
-                else
-                {
-                    token = await UserService.GenerateToken(user, true);
-                }
-                
-                Response.Cookies.Append("token", token, new ()
-                {
-                    Expires = new DateTimeOffset(DateTimeService.GetCurrent().AddDays(10))
-                });
-
-                return Redirect("/");
-            }
-            catch (Exception e)
-            {
-                Logger.Warn(e.Message);
-                return Redirect("/login");
-            }
-        }
-        catch (Exception e)
-        {
-            Logger.Warn(e.Message);
-            return BadRequest();
+            return Redirect("/login");
         }
     }
 }

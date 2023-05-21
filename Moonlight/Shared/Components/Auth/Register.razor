@@ -6,18 +6,16 @@
 *@
 
 @using Moonlight.App.Services
-@using Moonlight.App.Services.OAuth2
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Sessions
 
 @inject SmartTranslateService SmartTranslateService
-@inject GoogleOAuth2Service GoogleOAuth2Service
 @inject NavigationManager NavigationManager
-@inject DiscordOAuth2Service DiscordOAuth2Service
 @inject AlertService AlertService
 @inject UserService UserService
 @inject CookieService CookieService
+@inject OAuth2Service OAuth2Service
 
 <div class="d-flex flex-center">
     <div class="card rounded-3 w-md-550px">
@@ -33,24 +31,22 @@
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-9">
-                        <div class="col-md-6">
-                            <a href="#" @onclick:preventDefault @onclick="DoDiscord" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
-                                <div class="h-15px me-3">
-                                    <i class="mb-1 bx bx-md bxl-discord-alt"></i>
+                    @foreach (var providers in OAuth2Service.Providers.Chunk(2))
+                    {
+                        <div class="row g-3 mb-9">
+                            @foreach (var provider in providers)
+                            {
+                                <div class="col-md-6">
+                                    <a href="#" @onclick:preventDefault @onclick="() => StartOAuth2(provider.Key)" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                                        <div class="h-15px me-3">
+                                            <i class="mb-1 bx bx-md bx-fingerprint"></i>
+                                        </div>
+                                        <TL>Sign in with</TL> @(provider.Value.DisplayName)
+                                    </a>
                                 </div>
-                                <TL>Sign up with Discord</TL>
-                            </a>
+                            }
                         </div>
-                        <div class="col-md-6">
-                            <a href="#" @onclick:preventDefault @onclick="DoGoogle" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
-                                <div class="h-15px me-3">
-                                    <i class="mb-1 bx bx-md bxl-google"></i>
-                                </div>
-                                <TL>Sign up with Google</TL>
-                            </a>
-                        </div>
-                    </div>
+                    }
 
                     <div class="separator separator-content my-10">
                         <span class="w-125px text-gray-500 fw-semibold fs-7">
@@ -112,16 +108,10 @@
 {
     private UserRegisterModel UserRegisterModel = new();
 
-    private async Task DoGoogle()
+    private async Task StartOAuth2(string id)
     {
-        var url = await GoogleOAuth2Service.GetUrl();
-        NavigationManager.NavigateTo(url, true);
-    }
-
-    private async Task DoDiscord()
-    {
-        var url = await DiscordOAuth2Service.GetUrl();
-        NavigationManager.NavigateTo(url, true);
+        var url = await OAuth2Service.GetUrl(id);
+        NavigationManager.NavigateTo(url ,true);
     }
 
     private async Task CreateUser()
