@@ -42,6 +42,9 @@ public class OAuth2Service
             string.IsNullOrEmpty(displayName) ?
                 StringHelper.CapitalizeFirstCharacter(id) : displayName;
         
+        if(Configs.All(x => x.Id != id))
+            return;
+        
         var provider = Activator.CreateInstance<T>()! as OAuth2Provider;
 
         if (provider == null)

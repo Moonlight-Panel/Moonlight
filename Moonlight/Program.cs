@@ -46,8 +46,8 @@ namespace Moonlight
             
             // Switch to logging.net injection
             // TODO: Enable in production
-            builder.Logging.ClearProviders();
-            builder.Logging.AddProvider(new LogMigratorProvider());
+            //builder.Logging.ClearProviders();
+            //builder.Logging.AddProvider(new LogMigratorProvider());
 
             // Add services to the container.
             builder.Services.AddRazorPages();
