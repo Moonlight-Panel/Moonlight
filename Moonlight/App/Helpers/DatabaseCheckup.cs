@@ -15,6 +15,19 @@ public class DatabaseCheckup
         var context = new DataContext(new ConfigService(new StorageService()));
 
         Logger.Info("Checking database");
+        
+        if (!context.Database.CanConnect())
+        {
+            Logger.Fatal("-----------------------------------------------");
+            Logger.Fatal("Unable to connect to mysql database");
+            Logger.Fatal("Please make sure the configuration is correct");
+            Logger.Fatal("");
+            Logger.Fatal("Moonlight will wait 1 minute, the exit");
+            Logger.Fatal("-----------------------------------------------");
+            
+            Thread.Sleep(TimeSpan.FromMinutes(1));
+            Environment.Exit(10324);
+        }
 
         Logger.Info("Checking for pending migrations");
 
