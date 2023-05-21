@@ -53,10 +53,6 @@
     "Security": {
       "Token": "RANDOM UUID HERE"
     },
-    "SetupComplete": "True",
-    "SupportChat": {
-      "Enabled": "True"
-    },
     "Mail": {
       "Email": "no-reply@mycoolproject.de",
       "Server": "mycoolproject.de",
