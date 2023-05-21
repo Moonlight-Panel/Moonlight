@@ -77,12 +77,21 @@
     <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-25px"/>
 
     @{
-        var loadingMessage = LoadingMessageRepository.Get().Random();
+        string loadingMessage;
+        
+        try
+        {
+            loadingMessage = LoadingMessageRepository.Get().Random().Message;
+        }
+        catch (Exception)
+        {
+            loadingMessage = "";
+        }
     }
 
     <div class="d-flex align-items-center mt-5">
         <span class="spinner-border text-primary" role="status"></span>
-        <span class="text-muted fs-6 fw-semibold ms-5">@(loadingMessage.Message)</span>
+        <span class="text-muted fs-6 fw-semibold ms-5">@(loadingMessage)</span>
     </div>
 </div>
 

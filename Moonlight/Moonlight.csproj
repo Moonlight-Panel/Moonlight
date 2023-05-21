@@ -37,6 +37,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MineStat" Version="3.1.1" />
+    <PackageReference Include="MySqlBackup.NET" Version="2.3.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
     <PackageReference Include="Otp.NET" Version="1.3.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
@@ -73,6 +74,7 @@
     <Folder Include="App\ApiClients\CloudPanel\Resources\" />
     <Folder Include="App\ApiClients\Daemon\Requests\" />
     <Folder Include="App\Http\Middleware" />
+    <Folder Include="storage\backups\" />
   </ItemGroup>
 
 </Project>
