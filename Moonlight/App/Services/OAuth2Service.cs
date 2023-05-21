@@ -26,7 +26,9 @@ public class OAuth2Service
 
         var config = ConfigService.GetSection("Moonlight").GetSection("OAuth2");
 
-        Configs = config.GetSection("Providers").Get<OAuth2ProviderConfig[]>();
+        Configs = config.GetSection("Providers").Get<OAuth2ProviderConfig[]>()
+                  ?? Array.Empty<OAuth2ProviderConfig>();
+
         OverrideUrl = config.GetValue<string>("OverrideUrl");
         EnableOverrideUrl = config.GetValue<bool>("EnableOverrideUrl");
         AppUrl = configService.GetSection("Moonlight").GetValue<string>("AppUrl");
