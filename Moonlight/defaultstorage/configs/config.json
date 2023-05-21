@@ -34,17 +34,20 @@
       "Website": "https://mycoolproject.de/"
     },
     "OAuth2": {
-      "Discord": {
-        "ClientId": "10324",
-        "ClientSecret": "s3cr3t",
-        "Enable": "True"
-      },
-      "Google": {
-        "ClientId": "xyz.apps.googleusercontent.com",
-        "ClientSecret": "s3cr3t",
-        "Enable": "True"
-      },
-      "EnableOverrideUrl": "True",
+      "_exampleProviders": [
+        {
+          "Id": "discord",
+          "ClientId": "",
+          "ClientSecret": ""
+        },
+        {
+          "Id": "google",
+          "ClientId": "",
+          "ClientSecret": ""
+        }
+      ],
+      "Providers": [],
+      "EnableOverrideUrl": false,
       "OverrideUrl": "http://your-moonlight-url.test"
     },
     "Security": {

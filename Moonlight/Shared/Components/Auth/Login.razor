@@ -11,7 +11,6 @@
 @using Logging.Net
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Misc
-@using Moonlight.App.Services.OAuth2
 @using Moonlight.App.Services.Sessions
 @using System.ComponentModel.DataAnnotations
 @using Moonlight.App.Models.Forms
@@ -21,8 +20,7 @@
 @inject SmartTranslateService SmartTranslateService
 @inject CookieService CookieService
 @inject NavigationManager NavigationManager
-@inject GoogleOAuth2Service GoogleOAuth2Service
-@inject DiscordOAuth2Service DiscordOAuth2Service
+@inject OAuth2Service OAuth2Service
 
 <div class="d-flex flex-center">
     <div class="card rounded-3 w-md-550px">
@@ -39,25 +37,23 @@
                                 <TL>Sign in to start with moonlight</TL>
                             </div>
                         </div>
-
-                        <div class="row g-3 mb-9">
-                            <div class="col-md-6">
-                                <a href="#" @onclick:preventDefault @onclick="DoDiscord" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
-                                    <div class="h-15px me-3">
-                                        <i class="mb-1 bx bx-md bxl-discord-alt"></i>
+                        
+                        @foreach (var providers in OAuth2Service.Providers.Chunk(2))
+                        {
+                            <div class="row g-3 mb-9">
+                                @foreach (var provider in providers)
+                                {
+                                    <div class="col">
+                                        <a href="#" @onclick:preventDefault @onclick="() => StartOAuth2(provider.Key)" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
+                                            <div class="h-15px me-3">
+                                                <i class="mb-1 bx bx-md bx-fingerprint"></i>
+                                            </div>
+                                            <TL>Sign in with</TL>&nbsp; @(provider.Value.DisplayName)
+                                        </a>
                                     </div>
-                                    <TL>Sign in with Discord</TL>
-                                </a>
+                                }
                             </div>
-                            <div class="col-md-6">
-                                <a href="#" @onclick:preventDefault @onclick="DoGoogle" class="btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100">
-                                    <div class="h-15px me-3">
-                                        <i class="mb-1 bx bx-md bxl-google"></i>
-                                    </div>
-                                    <TL>Sign in with Google</TL>
-                                </a>
-                            </div>
-                        </div>
+                        }
 
                         <div class="separator separator-content my-14">
                             <span class="w-125px text-gray-500 fw-semibold fs-7">
@@ -171,6 +167,9 @@
         }
         catch (Exception e)
         {
+            Logger.Error("Error while login");
+            Logger.Error(e);
+            
             // Reset state
             LoginData = new();
             TotpData = new();
@@ -180,21 +179,12 @@
                 SmartTranslateService.Translate("Error"),
                 SmartTranslateService.Translate("An error occured while logging you in")
                 );
-
-            Logger.Error("Error while login");
-            Logger.Error(e);
         }
     }
 
-    private async Task DoGoogle()
+    private async Task StartOAuth2(string id)
     {
-        var url = await GoogleOAuth2Service.GetUrl();
-        NavigationManager.NavigateTo(url, true);
-    }
-
-    private async Task DoDiscord()
-    {
-        var url = await DiscordOAuth2Service.GetUrl();
-        NavigationManager.NavigateTo(url, true);
+        var url = await OAuth2Service.GetUrl(id);
+        NavigationManager.NavigateTo(url ,true);
     }
 }

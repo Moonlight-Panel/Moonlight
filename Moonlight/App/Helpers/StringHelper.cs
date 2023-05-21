@@ -30,4 +30,17 @@ public static class StringHelper
 
         return result;
     }
+    
+    public static string CapitalizeFirstCharacter(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        char firstChar = char.ToUpper(input[0]);
+        string restOfString = input.Substring(1);
+
+        return firstChar + restOfString;
+    }
 }

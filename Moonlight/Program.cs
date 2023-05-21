@@ -23,7 +23,6 @@ using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Minecraft;
 using Moonlight.App.Services.Notifications;
-using Moonlight.App.Services.OAuth2;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.SupportChat;
@@ -119,9 +118,7 @@ namespace Moonlight
             builder.Services.AddScoped<RatingService>();
             builder.Services.AddScoped<ReCaptchaService>();
             builder.Services.AddScoped<IpBanService>();
-            
-            builder.Services.AddScoped<GoogleOAuth2Service>();
-            builder.Services.AddScoped<DiscordOAuth2Service>();
+            builder.Services.AddSingleton<OAuth2Service>();
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();
