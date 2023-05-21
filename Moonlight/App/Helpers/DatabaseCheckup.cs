@@ -22,7 +22,7 @@ public class DatabaseCheckup
             Logger.Fatal("Unable to connect to mysql database");
             Logger.Fatal("Please make sure the configuration is correct");
             Logger.Fatal("");
-            Logger.Fatal("Moonlight will wait 1 minute, the exit");
+            Logger.Fatal("Moonlight will wait 1 minute, then exit");
             Logger.Fatal("-----------------------------------------------");
             
             Thread.Sleep(TimeSpan.FromMinutes(1));
