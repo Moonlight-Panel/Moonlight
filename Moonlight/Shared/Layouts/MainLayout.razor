@@ -194,10 +194,10 @@
                 if(IsIpBanned)
                     await InvokeAsync(StateHasChanged);
                 
-                await Event.On<Object>("ipBan.update", this, async o =>
+                await Event.On<Object>("ipBan.update", this, async _ =>
                 {
                     IsIpBanned = await IpBanService.IsBanned();
-                    await InvokeAsync(StateHasChanged);
+                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
                 });
 
                 User = await IdentityService.Get();
