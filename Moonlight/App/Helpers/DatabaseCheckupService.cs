@@ -8,16 +8,22 @@ using MySql.Data.MySqlClient;
 
 namespace Moonlight.App.Helpers;
 
-public class DatabaseCheckup
+public class DatabaseCheckupService
 {
-    public static void Perform()
+    private readonly ConfigService ConfigService;
+
+    public DatabaseCheckupService(ConfigService configService)
     {
-        // This will also copy all default config files
-        var context = new DataContext(new ConfigService(new StorageService()));
+        ConfigService = configService;
+    }
+
+    public async Task Perform()
+    {
+        var context = new DataContext(ConfigService);
 
         Logger.Info("Checking database");
         
-        if (!context.Database.CanConnect())
+        if (!await context.Database.CanConnectAsync())
         {
             Logger.Fatal("-----------------------------------------------");
             Logger.Fatal("Unable to connect to mysql database");
@@ -32,19 +38,19 @@ public class DatabaseCheckup
 
         Logger.Info("Checking for pending migrations");
 
-        var migrations = context.Database
-            .GetPendingMigrations()
+        var migrations = (await context.Database
+            .GetPendingMigrationsAsync())
             .ToArray();
-        
+
         if (migrations.Any())
         {
             Logger.Info($"{migrations.Length} migrations pending. Updating now");
             
-            BackupDatabase();
+            await BackupDatabase();
             
             Logger.Info("Applying migrations");
             
-            context.Database.Migrate();
+            await context.Database.MigrateAsync();
             
             Logger.Info("Successfully applied migrations");
         }
@@ -54,7 +60,7 @@ public class DatabaseCheckup
         }
     }
 
-    public static void BackupDatabase()
+    public async Task BackupDatabase()
     {
         Logger.Info("Creating backup from database");
         
@@ -79,14 +85,14 @@ public class DatabaseCheckup
         var sw = new Stopwatch();
         sw.Start();
 
-        using MySqlConnection conn = new MySqlConnection(connectionString);
-        using MySqlCommand cmd = new MySqlCommand();
+        await using MySqlConnection conn = new MySqlConnection(connectionString);
+        await using MySqlCommand cmd = new MySqlCommand();
         using MySqlBackup mb = new MySqlBackup(cmd);
         
         cmd.Connection = conn;
-        conn.Open();
+        await conn.OpenAsync();
         mb.ExportToFile(file);
-        conn.Close();
+        await conn.CloseAsync();
 
         sw.Stop();
         Logger.Info($"Done. {sw.Elapsed.TotalSeconds}s");

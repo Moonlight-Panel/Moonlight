@@ -2,10 +2,12 @@
 @using Moonlight.App.Extensions
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Sessions
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @inject ConfigService ConfigService
+@inject BundleService BundleService
 @inject LoadingMessageRepository LoadingMessageRepository
 
 @{
@@ -36,20 +38,29 @@
 
     <link rel="shortcut icon" href="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg"/>
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"/>
-
-    <link rel="stylesheet" type="text/css" href="/assets/css/style.bundle.css"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/flashbang.css"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/snow.css"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/utils.css"/>
+    @*This import is not in the bundle because the files it references are linked relative to the current lath*@
     <link rel="stylesheet" type="text/css" href="/assets/css/boxicons.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/assets/css/blazor.css"/>
-
-    <link rel="stylesheet" type="text/css" href="/_content/XtermBlazor/XtermBlazor.css"/>
-    <link rel="stylesheet" type="text/css" href="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css"/>
-    <link rel="stylesheet" type="text/css" href="/_content/Blazor.ContextMenu/blazorContextMenu.min.css"/>
-
-    <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
+    
+    @if (BundleService.BundledFinished)
+    {
+        <link rel="stylesheet" type="text/css" href="/api/moonlight/resources/bundle/css?idontwannabecached=@(BundleService.CacheId)"/>
+    }
+    else
+    {
+        foreach (var cssFile in BundleService.CssFiles)
+        {
+            if (cssFile.StartsWith("http"))
+            {
+                <link rel="stylesheet" type="text/css" href="@(cssFile)">
+            }
+            else
+            {
+                <style>
+                    @cssFile
+                </style>
+            }
+        }
+    }
 
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <base href="~/"/>
@@ -78,7 +89,7 @@
 
     @{
         string loadingMessage;
-        
+
         try
         {
             loadingMessage = LoadingMessageRepository.Get().Random().Message;
@@ -95,33 +106,24 @@
     </div>
 </div>
 
-<script src="/_framework/blazor.server.js"></script>
-<script src="/assets/plugins/global/plugins.bundle.js"></script>
-<script src="/_content/XtermBlazor/XtermBlazor.min.js"></script>
-<script src="/_content/BlazorTable/BlazorTable.min.js"></script>
-<script src="/_content/BlazorInputFile/inputfile.js"></script>
-<script src="/_content/CurrieTechnologies.Razor.SweetAlert2/sweetAlert2.min.js"></script>
-<script src="/_content/Blazor.ContextMenu/blazorContextMenu.min.js"></script>
-
-<script src="https://www.google.com/recaptcha/api.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.5.0/lib/xterm-addon-fit.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.8.2/lib/xterm-addon-search.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.5.0/lib/xterm-addon-web-links.min.js"></script>
-
-<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
-<script>require.config({ paths: { 'vs': '/_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
-<script src="/_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
-<script src="/_content/BlazorMonaco/jsInterop.js"></script>
-
-<script src="/assets/js/scripts.bundle.js"></script>
-<script src="/assets/js/moonlight.js"></script>
-
-<script>
-moonlight.loading.registerXterm();
-</script>
-
-<script src="_content/Blazor-ApexCharts/js/apex-charts.min.js"></script>
-<script src="_content/Blazor-ApexCharts/js/blazor-apex-charts.js"></script>
+@if (BundleService.BundledFinished)
+{
+    <script src="/api/moonlight/resources/bundle/js?idontwannabecached=@(BundleService.CacheId)">
+    </script>
+}
+else
+{
+    foreach (var jsFile in BundleService.JsFiles)
+    {
+        if (jsFile.StartsWith("http"))
+        {
+            <script src="@(jsFile)"></script>
+        }
+        else
+        {
+            @Html.Raw("<script>" + jsFile +"</script>")
+        }
+    }
+}
 </body>
 </html>
