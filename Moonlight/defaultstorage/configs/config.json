@@ -8,6 +8,10 @@
       "Port": "10324",
       "Username": "user_name"
     },
+    "DiscordBotApi": {
+      "Enable": false,
+      "Token": "you api key here"
+    },
     "DiscordBot": {
       "Enable": false,
       "Token": "Discord.Token.Here",
