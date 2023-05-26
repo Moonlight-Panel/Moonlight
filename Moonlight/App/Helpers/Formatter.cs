@@ -8,7 +8,7 @@ public static class Formatter
     {
         TimeSpan t = TimeSpan.FromMilliseconds(uptime);
 
-        return $"{t.Hours}h {t.Minutes}m {t.Seconds}s";
+        return $"{t.Days}d  {t.Hours}h {t.Minutes}m {t.Seconds}s";
     }
 
     private static double Round(this double d, int decimals)
