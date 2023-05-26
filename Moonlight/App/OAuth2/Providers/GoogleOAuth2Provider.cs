@@ -4,7 +4,6 @@ using Moonlight.App.ApiClients.Google.Requests;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
-using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using RestSharp;
@@ -13,6 +12,11 @@ namespace Moonlight.App.OAuth2.Providers;
 
 public class GoogleOAuth2Provider : OAuth2Provider
 {
+    public GoogleOAuth2Provider()
+    {
+        CanBeLinked = false;
+    }
+    
     public override Task<string> GetUrl()
     {
         var endpoint = Url + "/api/moonlight/oauth2/google";
@@ -126,5 +130,10 @@ public class GoogleOAuth2Provider : OAuth2Provider
 
             return user;
         }
+    }
+
+    public override Task LinkToUser(User user, string code)
+    {
+        throw new NotImplementedException();
     }
 }

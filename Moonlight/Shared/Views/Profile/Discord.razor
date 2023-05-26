@@ -1,0 +1,77 @@
+﻿@page "/profile/discord"
+
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+
+@inject Repository<User> UserRepository
+@inject SmartTranslateService SmartTranslateService
+
+<ProfileNavigation Index="1"/>
+
+@if (User.DiscordId == 0)
+{
+    <div class="row">
+        <div class="col">
+            <div class="alert bg-warning d-flex flex-column flex-sm-row p-5 mb-10">
+                <i class="fs-2hx text-light me-4 mb-5 mb-sm-0 bx bx-error bx-lg"></i>
+
+                <div class="d-flex flex-column text-light pe-0 pe-sm-10">
+                    <h4 class="mb-2 light">
+                        <TL>Your account is currently not linked to discord</TL>
+                    </h4>
+                    <TL>To use features like the discord bot, link your moonlight account with your discord account</TL><br/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card card-body">
+                <a class="btn btn-primary" href="/api/moonlight/oauth2/discord/start">
+                    <TL>Link account</TL>
+                </a>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <div class="alert bg-success d-flex flex-column flex-sm-row p-5 mb-10">
+                <i class="fs-2hx text-light me-4 mb-5 mb-sm-0 bx bx-check bx-lg"></i>
+
+                <div class="d-flex flex-column text-light pe-0 pe-sm-10">
+                    <h4 class="mb-2 light">
+                        <TL>Your account is linked to a discord account</TL>
+                    </h4>
+                    <TL>You are able to use features like the discord bot of moonlight</TL>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card card-body">
+                <WButton CssClasses="btn-danger"
+                         Text="@(SmartTranslateService.Translate("Remove link"))"
+                         WorkingText="@(SmartTranslateService.Translate("Working"))"
+                         OnClick="RemoveLink">
+                </WButton>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [CascadingParameter]
+    public User User { get; set; }
+
+    private async Task RemoveLink()
+    {
+        User.DiscordId = 0;
+        UserRepository.Update(User);
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
