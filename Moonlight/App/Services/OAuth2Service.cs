@@ -80,6 +80,26 @@ public class OAuth2Service
         return await provider.HandleCode(code);
     }
 
+    public Task<bool> CanBeLinked(string id)
+    {
+        if (Providers.All(x => x.Key != id))
+            throw new DisplayException("Invalid oauth2 id");
+
+        var provider = Providers[id];
+
+        return Task.FromResult(provider.CanBeLinked);
+    }
+
+    public async Task LinkToUser(string id, User user, string code)
+    {
+        if (Providers.All(x => x.Key != id))
+            throw new DisplayException("Invalid oauth2 id");
+
+        var provider = Providers[id];
+
+        await provider.LinkToUser(user, code);
+    }
+
     private string GetAppUrl()
     {
         if (EnableOverrideUrl)
