@@ -4,7 +4,7 @@ using JWT.Algorithms;
 using JWT.Builder;
 using Moonlight.App.Services;
 
-namespace Moonlight.App.Helpers;
+namespace Moonlight.App.Helpers.Wings;
 
 public class WingsJwtHelper
 {

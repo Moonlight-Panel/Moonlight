@@ -5,7 +5,7 @@ using Moonlight.App.Http.Resources.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 
-namespace Moonlight.App.Helpers;
+namespace Moonlight.App.Helpers.Wings;
 
 public class WingsServerConverter
 {
