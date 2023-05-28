@@ -1,6 +1,4 @@
-﻿@using PteroConsole.NET
-@using Moonlight.App.Services
-@using Task = System.Threading.Tasks.Task
+﻿@using Moonlight.App.Services
 @using Moonlight.App.Helpers
 @using Logging.Net
 @using BlazorContextMenu
@@ -101,9 +99,6 @@
 
 @code
 {
-    [CascadingParameter]
-    public PteroConsole Console { get; set; }
-
     [CascadingParameter]
     public Server CurrentServer { get; set; }
 
