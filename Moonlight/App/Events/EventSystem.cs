@@ -5,7 +5,6 @@ namespace Moonlight.App.Events;
 
 public class EventSystem
 {
-    private Dictionary<int, object> Storage = new();
     private List<Subscriber> Subscribers = new();
 
     private readonly bool Debug = false;
@@ -33,16 +32,8 @@ public class EventSystem
         return Task.CompletedTask;
     }
 
-    public Task Emit(string id, object? d = null)
+    public Task Emit(string id, object? data = null)
     {
-        int hashCode = -1;
-
-        if (d != null)
-        {
-            hashCode = d.GetHashCode();
-            Storage.TryAdd(hashCode, d);
-        }
-
         Subscriber[] subscribers;
 
         lock (Subscribers)
@@ -58,23 +49,6 @@ public class EventSystem
         {
             tasks.Add(new Task(() =>
             {
-                int storageId = hashCode + 0; // To create a copy of the hash code
-
-                object? data = null;
-
-                if (storageId != -1)
-                {
-                    if (Storage.TryGetValue(storageId, out var value))
-                    {
-                        data = value;
-                    }
-                    else
-                    {
-                        Logger.Warn($"Object with the hash '{storageId}' was not present in the storage");
-                        return;
-                    }
-                }
-
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
@@ -115,8 +89,7 @@ public class EventSystem
         Task.Run(() =>
         {
             Task.WaitAll(tasks.ToArray());
-            Storage.Remove(hashCode);
-            
+
             if(Debug)
                 Logger.Debug($"Completed all event tasks for '{id}' and removed object from storage");
         });
