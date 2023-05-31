@@ -311,5 +311,10 @@
         {
             await Event.Off($"server.{CurrentServer.Uuid}.installComplete", this);
         }
+
+        if (Console != null)
+        {
+            Console.Dispose();
+        }
     }
 }
