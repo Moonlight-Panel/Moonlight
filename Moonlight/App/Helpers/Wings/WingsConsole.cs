@@ -346,6 +346,7 @@ public class WingsConsole : IDisposable
     public async Task Disconnect()
     {
         Disconnecting = true;
+        Messages.Clear();
 
         if (WebSocket != null)
         {
@@ -362,6 +363,7 @@ public class WingsConsole : IDisposable
     public void Dispose()
     {
         Disconnecting = true;
+        Messages.Clear();
 
         if (WebSocket != null)
         {
