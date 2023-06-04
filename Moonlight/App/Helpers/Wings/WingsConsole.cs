@@ -142,18 +142,28 @@ public class WingsConsole : IDisposable
                 switch (eventData.Event)
                 {
                     case "jwt error":
-                        await WebSocket.CloseAsync(WebSocketCloseStatus.Empty, "Jwt error detected",
-                            CancellationToken.None);
+                        if (WebSocket != null)
+                        {
+                            if (WebSocket.State == WebSocketState.Connecting || WebSocket.State == WebSocketState.Open)
+                                await WebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+            
+                            WebSocket.Dispose();
+                        }
                         
                         await UpdateServerState(ServerState.Offline);
                         await UpdateConsoleState(ConsoleState.Disconnected);
 
-                        await SaveMessage("Received a jwt error", true);
+                        await SaveMessage("Received a jwt error. Disconnected", true);
                         break;
 
                     case "token expired":
-                        await WebSocket.CloseAsync(WebSocketCloseStatus.Empty, "Jwt error detected",
-                            CancellationToken.None);
+                        if (WebSocket != null)
+                        {
+                            if (WebSocket.State == WebSocketState.Connecting || WebSocket.State == WebSocketState.Open)
+                                await WebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+            
+                            WebSocket.Dispose();
+                        }
                         
                         await UpdateServerState(ServerState.Offline);
                         await UpdateConsoleState(ConsoleState.Disconnected);
