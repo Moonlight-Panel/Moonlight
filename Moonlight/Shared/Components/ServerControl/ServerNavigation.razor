@@ -93,7 +93,7 @@
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Cpu</TL>:</span>
-                        <span class="ms-1 text-muted">@(Math.Round(Console.Resource.CpuAbsolute, 2))%</span>
+                        <span class="ms-1 text-muted">@(Math.Round(Console.Resource.CpuAbsolute / (CurrentServer.Cpu / 100f), 2))%</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Memory</TL>:</span>
