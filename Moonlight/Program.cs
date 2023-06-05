@@ -128,7 +128,6 @@ namespace Moonlight
             builder.Services.AddScoped<ReCaptchaService>();
             builder.Services.AddScoped<IpBanService>();
             builder.Services.AddSingleton<OAuth2Service>();
-            builder.Services.AddSingleton<BundleService>();
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();
