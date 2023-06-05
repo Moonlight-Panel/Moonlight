@@ -185,6 +185,8 @@ else
                         await ToastService.Info(SmartTranslateService.Translate("Starting download"));
                     }
                 }
+                else
+                    await ToastService.Error(SmartTranslateService.Translate("You are not able to download folders using the moonlight file manager"));
             }
         });
         
