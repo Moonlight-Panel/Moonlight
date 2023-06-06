@@ -3,11 +3,15 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using Newtonsoft.Json
 
 @inject ServerRepository ServerRepository
 @inject UserRepository UserRepository
 @inject Repository<WebSpace> WebSpaceRepository
 @inject DomainRepository DomainRepository
+@inject ConfigService ConfigService
 
 <OnlyAdmin>
     <LazyLoader Load="Load">
@@ -97,6 +101,7 @@
                 </a>
             </div>
         </div>
+        <HealthCheckView HealthCheck="@HealthCheckData" />
     </LazyLoader>
 </OnlyAdmin>
 
@@ -107,13 +112,33 @@
     private int DomainCount = 0;
     private int WebSpaceCount = 0;
 
-    private Task Load(LazyLoader lazyLoader)
+    private HealthCheck HealthCheckData;
+
+    private async Task Load(LazyLoader lazyLoader)
     {
         ServerCount = ServerRepository.Get().Count();
         UserCount = UserRepository.Get().Count();
         DomainCount = DomainRepository.Get().Count();
         WebSpaceCount = WebSpaceRepository.Get().Count();
 
-        return Task.CompletedTask;
+        var appUrl = ConfigService
+            .GetSection("Moonlight")
+            .GetValue<string>("AppUrl");
+
+        try
+        {
+            using var client = new HttpClient();
+            var json = await client.GetStringAsync($"{appUrl}/_health");
+            HealthCheckData = JsonConvert.DeserializeObject<HealthCheck>(json) ?? new();
+        }
+        catch (Exception)
+        {
+            HealthCheckData = new()
+            {
+                Status = "Healthy",
+                Entries = new(),
+                TotalDuration = TimeSpan.MinValue
+            };
+        }
     }
 }

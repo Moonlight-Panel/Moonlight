@@ -1,12 +1,14 @@
 using BlazorDownloadFile;
 using BlazorTable;
 using CurrieTechnologies.Razor.SweetAlert2;
+using HealthChecks.UI.Client;
 using Logging.Net;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
 using Moonlight.App.ApiClients.Paper;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Database;
+using Moonlight.App.Diagnostics.HealthChecks;
 using Moonlight.App.Events;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.Wings;
@@ -66,6 +68,9 @@ namespace Moonlight
                     options.HandshakeTimeout = TimeSpan.FromSeconds(10);
                 });
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHealthChecks()
+                .AddCheck<DatabaseHealthCheck>("Database")
+                .AddCheck<NodeHealthCheck>("Nodes");
 
             // Databases
             builder.Services.AddDbContext<DataContext>();
@@ -186,6 +191,10 @@ namespace Moonlight
 
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
+            app.MapHealthChecks("/_health", new()
+            {
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            });
 
             // AutoStart services
             _ = app.Services.GetRequiredService<CleanupService>();
