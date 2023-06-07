@@ -8,7 +8,14 @@ public static class Formatter
     {
         TimeSpan t = TimeSpan.FromMilliseconds(uptime);
 
-        return $"{t.Hours}h {t.Minutes}m {t.Seconds}s";
+        if (t.Days > 0)
+        {
+            return $"{t.Days}d  {t.Hours}h {t.Minutes}m {t.Seconds}s";
+        }
+        else
+        {
+            return $"{t.Hours}h {t.Minutes}m {t.Seconds}s";
+        }
     }
 
     private static double Round(this double d, int decimals)

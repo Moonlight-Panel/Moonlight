@@ -7,37 +7,34 @@ using Moonlight.App.Database.Entities;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
 
-namespace Moonlight.App.Helpers;
+namespace Moonlight.App.Helpers.Wings;
 
 public class WingsConsoleHelper
 {
     private readonly ServerRepository ServerRepository;
-    private readonly WingsJwtHelper WingsJwtHelper;
     private readonly string AppUrl;
 
     public WingsConsoleHelper(
         ServerRepository serverRepository,
-        ConfigService configService,
-        WingsJwtHelper wingsJwtHelper)
+        ConfigService configService)
     {
         ServerRepository = serverRepository;
-        WingsJwtHelper = wingsJwtHelper;
 
         AppUrl = configService.GetSection("Moonlight").GetValue<string>("AppUrl");
     }
 
-    public async Task ConnectWings(PteroConsole.NET.PteroConsole pteroConsole, Server server)
+    public async Task ConnectWings(WingsConsole console, Server server)
     {
         var serverData = ServerRepository
             .Get()
             .Include(x => x.Node)
             .First(x => x.Id == server.Id);
-
-        var token = GenerateToken(serverData);
+        
+        var token = await GenerateToken(serverData);
 
         if (serverData.Node.Ssl)
         {
-            await pteroConsole.Connect(
+            await console.Connect(
                 AppUrl,
                 $"wss://{serverData.Node.Fqdn}:{serverData.Node.HttpPort}/api/servers/{serverData.Uuid}/ws",
                 token
@@ -45,7 +42,7 @@ public class WingsConsoleHelper
         }
         else
         {
-            await pteroConsole.Connect(
+            await console.Connect(
                 AppUrl,
                 $"ws://{serverData.Node.Fqdn}:{serverData.Node.HttpPort}/api/servers/{serverData.Uuid}/ws",
                 token
@@ -53,20 +50,20 @@ public class WingsConsoleHelper
         }
     }
 
-    public string GenerateToken(Server server)
+    public async Task<string> GenerateToken(Server server)
     {
         var serverData = ServerRepository
             .Get()
             .Include(x => x.Node)
             .First(x => x.Id == server.Id);
-
+        
         var userid = 1;
         var secret = serverData.Node.Token;
         
 
         using (MD5 md5 = MD5.Create())
         {
-            var inputBytes = Encoding.ASCII.GetBytes(userid + serverData.Uuid.ToString());
+            var inputBytes = Encoding.ASCII.GetBytes(userid + server.Uuid.ToString());
             var outputBytes = md5.ComputeHash(inputBytes);
 
             var identifier = Convert.ToHexString(outputBytes).ToLower();
@@ -77,7 +74,7 @@ public class WingsConsoleHelper
                 .WithAlgorithm(new HMACSHA256Algorithm())
                 .WithSecret(secret)
                 .AddClaim("user_id", userid)
-                .AddClaim("server_uuid", serverData.Uuid.ToString())
+                .AddClaim("server_uuid", server.Uuid.ToString())
                 .AddClaim("permissions", new[]
                 {
                     "*",

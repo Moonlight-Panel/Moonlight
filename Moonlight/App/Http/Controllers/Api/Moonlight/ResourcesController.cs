@@ -16,14 +16,12 @@ public class ResourcesController : Controller
 {
     private readonly SecurityLogService SecurityLogService;
     private readonly BucketService BucketService;
-    private readonly BundleService BundleService;
 
     public ResourcesController(SecurityLogService securityLogService,
-        BucketService bucketService, BundleService bundleService)
+        BucketService bucketService)
     {
         SecurityLogService = securityLogService;
         BucketService = bucketService;
-        BundleService = bundleService;
     }
 
     [HttpGet("images/{name}")]
@@ -76,35 +74,5 @@ public class ResourcesController : Controller
         {
             return Problem();
         }
-    }
-
-    [HttpGet("bundle/js")]
-    public Task<ActionResult> GetJs()
-    {
-        if (BundleService.BundledFinished)
-        {
-            return Task.FromResult<ActionResult>(
-                File(Encoding.ASCII.GetBytes(BundleService.BundledJs), "text/javascript")
-            );
-        }
-
-        return Task.FromResult<ActionResult>(
-            NotFound()
-        );
-    }
-    
-    [HttpGet("bundle/css")]
-    public Task<ActionResult> GetCss()
-    {
-        if (BundleService.BundledFinished)
-        {
-            return Task.FromResult<ActionResult>(
-                File(Encoding.ASCII.GetBytes(BundleService.BundledCss), "text/css")
-            );
-        }
-
-        return Task.FromResult<ActionResult>(
-            NotFound()
-        );
     }
 }

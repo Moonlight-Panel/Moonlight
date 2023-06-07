@@ -9,7 +9,7 @@
                     <div class="d-flex flex-column">
                         <div class="d-flex align-items-center mb-2">
                             <a class="text-gray-900 fs-2 fw-bold me-1">@(User.FirstName) @(User.LastName)</a>
-                            
+
                             @if (User.Status == UserStatus.Verified)
                             {
                                 <i class="text-success bx bx-md bxs-badge-check"></i>
@@ -31,12 +31,17 @@
                 </a>
             </li>
             <li class="nav-item mt-2">
-                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 1 ? "active" : "")" href="/profile/security">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 1 ? "active" : "")" href="/profile/discord">
+                    <TL>Discord</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 2 ? "active" : "")" href="/profile/security">
                     <TL>Security</TL>
                 </a>
             </li>
             <li class="nav-item mt-2">
-                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 2 ? "active" : "")" href="/profile/subscriptions">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 3 ? "active" : "")" href="/profile/subscriptions">
                     <TL>Subscriptions</TL>
                 </a>
             </li>

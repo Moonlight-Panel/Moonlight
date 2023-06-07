@@ -1,11 +1,9 @@
-﻿@using PteroConsole.NET
-@using PteroConsole.NET.Enums
-@using Task = System.Threading.Tasks.Task
-@using Moonlight.App.Helpers
+﻿@using Moonlight.App.Helpers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
-@using Logging.Net
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers.Wings
+@using Moonlight.App.Helpers.Wings.Data
 @using Moonlight.App.Services.Interop
 @using Moonlight.Shared.Components.Xterm
 
@@ -37,7 +35,7 @@
 @code
 {
     [CascadingParameter]
-    public PteroConsole Console { get; set; }
+    public WingsConsole Console { get; set; }
 
     [CascadingParameter]
     public Server CurrentServer { get; set; }
@@ -51,21 +49,35 @@
         Console.OnMessage += OnMessage;
     }
 
-    private async void OnMessage(object? sender, string e)
+    private async void OnMessage(object? sender, ConsoleMessage message)
     {
         if (Terminal != null)
         {
-            var s = e;
+            if (message.IsInternal)
+            {
+                await Terminal.WriteLine("\x1b[38;5;16;48;5;135m\x1b[39m\x1b[1m Moonlight \x1b[0m " + message.Content + "\x1b[0m");
+            }
+            else
+            {
+                var s = message.Content;
 
-            s = s.Replace("Pterodactyl Daemon", "Moonlight Daemon");
-            s = s.Replace("Checking server disk space usage, this could take a few seconds...", TranslationService.Translate("Checking disk space"));
-            s = s.Replace("Updating process configuration files...", TranslationService.Translate("Updating config files"));
-            s = s.Replace("Ensuring file permissions are set correctly, this could take a few seconds...", TranslationService.Translate("Checking file permissions"));
-            s = s.Replace("Pulling Docker container image, this could take a few minutes to complete...", TranslationService.Translate("Downloading server image"));
-            s = s.Replace("Finished pulling Docker container image", TranslationService.Translate("Downloaded server image"));
-            s = s.Replace("container@pterodactyl~", "server@moonlight >");
+                if (s.Contains("Moonlight Daemon") || s.Contains("Pterodactyl Daemon"))
+                {
+                    s = s.Replace("[39m", "\x1b[0m");
+                    s = s.Replace("[33m", "[38;5;16;48;5;135m\x1b[39m");
+                }
 
-            await Terminal.WriteLine(s);
+                s = s.Replace("[Pterodactyl Daemon]:", " Moonlight ");
+                s = s.Replace("[Moonlight Daemon]:", " Moonlight ");
+                s = s.Replace("Checking server disk space usage, this could take a few seconds...", TranslationService.Translate("Checking disk space"));
+                s = s.Replace("Updating process configuration files...", TranslationService.Translate("Updating config files"));
+                s = s.Replace("Ensuring file permissions are set correctly, this could take a few seconds...", TranslationService.Translate("Checking file permissions"));
+                s = s.Replace("Pulling Docker container image, this could take a few minutes to complete...", TranslationService.Translate("Downloading server image"));
+                s = s.Replace("Finished pulling Docker container image", TranslationService.Translate("Downloaded server image"));
+                s = s.Replace("container@pterodactyl~", "server@moonlight >");
+
+                await Terminal.WriteLine(s);
+            }
         }
     }
 
@@ -85,9 +97,9 @@
 
     private void RunOnFirstRender()
     {
-        lock (Console.MessageCache)
+        lock (Console.Messages)
         {
-            foreach (var message in Console.MessageCache.TakeLast(30))
+            foreach (var message in Console.Messages)
             {
                 OnMessage(null, message);
             }

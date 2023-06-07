@@ -1,9 +1,8 @@
-﻿@using PteroConsole.NET
-@using PteroConsole.NET.Enums
-@using Task = System.Threading.Tasks.Task
-@using Moonlight.App.Services
+﻿@using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
+@using Moonlight.App.Helpers.Wings
+@using Moonlight.App.Helpers.Wings.Enums
 
 @inject SmartTranslateService TranslationService
 
@@ -77,32 +76,32 @@
 
                                 case ServerState.Starting:
                                     <span class="text-warning"><TL>Starting</TL></span>
-                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.ServerResource.Uptime)))</span>
+                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.Resource.Uptime)))</span>
                                     break;
 
                                 case ServerState.Stopping:
                                     <span class="text-warning"><TL>Stopping</TL></span>
-                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.ServerResource.Uptime)))</span>
+                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.Resource.Uptime)))</span>
                                     break;
 
                                 case ServerState.Running:
                                     <span class="text-success"><TL>Online</TL></span>
-                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.ServerResource.Uptime)))</span>
+                                    <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.Resource.Uptime)))</span>
                                     break;
                             }
                         </span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Cpu</TL>:</span>
-                        <span class="ms-1 text-muted">@(Math.Round(Console.ServerResource.CpuAbsolute, 2))%</span>
+                        <span class="ms-1 text-muted">@(Math.Round(Console.Resource.CpuAbsolute / (CurrentServer.Cpu / 100f), 2))%</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Memory</TL>:</span>
-                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.ServerResource.MemoryBytes)) / @(Formatter.FormatSize(Console.ServerResource.MemoryLimitBytes))</span>
+                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.Resource.MemoryBytes)) / @(Formatter.FormatSize(Console.Resource.MemoryLimitBytes))</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Disk</TL>:</span>
-                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.ServerResource.DiskBytes)) / @(Math.Round(CurrentServer.Disk / 1024f, 2)) GB</span>
+                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.Resource.DiskBytes)) / @(Math.Round(CurrentServer.Disk / 1024f, 2)) GB</span>
                     </div>
                 </div>
             </div>
@@ -178,7 +177,7 @@
     public User User { get; set; }
 
     [CascadingParameter]
-    public PteroConsole Console { get; set; }
+    public WingsConsole Console { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
@@ -190,8 +189,8 @@
 
     protected override void OnInitialized()
     {
-        Console.OnServerStateUpdated += async (sender, state) => { await InvokeAsync(StateHasChanged); };
-        Console.OnServerResourceUpdated += async (sender, x) => { await InvokeAsync(StateHasChanged); };
+        Console.OnServerStateUpdated += async (_, _) => { await InvokeAsync(StateHasChanged); };
+        Console.OnResourceUpdated += async (_, _) => { await InvokeAsync(StateHasChanged); };
     }
 
     #region Power Actions

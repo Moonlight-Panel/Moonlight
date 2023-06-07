@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Events;
 using Moonlight.App.Helpers;
+using Moonlight.App.Helpers.Wings;
 using Moonlight.App.Http.Resources.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;

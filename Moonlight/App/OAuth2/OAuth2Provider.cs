@@ -9,7 +9,9 @@ public abstract class OAuth2Provider
     public string Url { get; set; }
     public IServiceScopeFactory ServiceScopeFactory { get; set; }
     public string DisplayName { get; set; }
+    public bool CanBeLinked { get; set; } = false;
     
     public abstract Task<string> GetUrl();
     public abstract Task<User> HandleCode(string code);
+    public abstract Task LinkToUser(User user, string code);
 }

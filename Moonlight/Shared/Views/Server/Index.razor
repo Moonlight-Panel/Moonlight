@@ -1,13 +1,13 @@
 ﻿@page "/server/{ServerUuid}/{Route?}"
-@using PteroConsole.NET
 @using Task = System.Threading.Tasks.Task
 @using Moonlight.App.Repositories.Servers
-@using PteroConsole.NET.Enums
 @using Microsoft.EntityFrameworkCore
 @using Logging.Net
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Events
 @using Moonlight.App.Helpers
+@using Moonlight.App.Helpers.Wings
+@using Moonlight.App.Helpers.Wings.Enums
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
 @using Moonlight.Shared.Components.Xterm
@@ -44,7 +44,7 @@
     {
         if (NodeOnline)
         {
-            if (Console.ConnectionState == ConnectionState.Connected)
+            if (Console.ConsoleState == ConsoleState.Connected)
             {
                 if (Console.ServerState == ServerState.Installing)
                 {
@@ -179,7 +179,7 @@
     [Parameter]
     public string? Route { get; set; }
 
-    private PteroConsole? Console;
+    private WingsConsole? Console;
     private Server? CurrentServer;
     private Node Node;
     private bool NodeOnline = false;
@@ -193,11 +193,11 @@
     {
         Console = new();
 
-        Console.OnConnectionStateUpdated += (_, _) => { InvokeAsync(StateHasChanged); };
-        Console.OnServerResourceUpdated += async (_, _) => { await InvokeAsync(StateHasChanged); };
-        Console.OnServerStateUpdated += async (_, _) => { await InvokeAsync(StateHasChanged); };
+        Console.OnConsoleStateUpdated += (_, _) => { InvokeAsync(StateHasChanged); };
+        Console.OnResourceUpdated += (_, _) => { InvokeAsync(StateHasChanged); };
+        Console.OnServerStateUpdated += (_, _) => { InvokeAsync(StateHasChanged); };
 
-        Console.RequestToken += (_) => WingsConsoleHelper.GenerateToken(CurrentServer!);
+        Console.OnRequestNewToken += async _ => await WingsConsoleHelper.GenerateToken(CurrentServer!);
 
         Console.OnMessage += async (_, s) =>
         {
@@ -205,7 +205,10 @@
             {
                 if (InstallConsole != null)
                 {
-                    await InstallConsole.WriteLine(s);
+                    if (s.IsInternal)
+                        await InstallConsole.WriteLine("\x1b[38;5;16;48;5;135m\x1b[39m\x1b[1m Moonlight \x1b[0m " + s.Content + "\x1b[0m");
+                    else
+                        await InstallConsole.WriteLine(s.Content);
                 }
             }
         };
@@ -280,7 +283,7 @@
 
                 await lazyLoader.SetText("Connecting to console");
 
-                await WingsConsoleHelper.ConnectWings(Console!, CurrentServer);
+                await ReconnectConsole();
 
                 await Event.On<Server>($"server.{CurrentServer.Uuid}.installComplete", this, server =>
                 {
@@ -295,12 +298,23 @@
             Logger.Debug("Server is null");
         }
     }
+    
+    private async Task ReconnectConsole()
+    {
+        await Console!.Disconnect();
+        await WingsConsoleHelper.ConnectWings(Console!, CurrentServer!);
+    }
 
     public async void Dispose()
     {
         if (CurrentServer != null)
         {
             await Event.Off($"server.{CurrentServer.Uuid}.installComplete", this);
+        }
+
+        if (Console != null)
+        {
+            Console.Dispose();
         }
     }
 }

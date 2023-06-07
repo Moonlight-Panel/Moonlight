@@ -9,6 +9,7 @@ using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Database;
 using Moonlight.App.Events;
 using Moonlight.App.Helpers;
+using Moonlight.App.Helpers.Wings;
 using Moonlight.App.LogMigrator;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Domains;
@@ -127,7 +128,6 @@ namespace Moonlight
             builder.Services.AddScoped<ReCaptchaService>();
             builder.Services.AddScoped<IpBanService>();
             builder.Services.AddSingleton<OAuth2Service>();
-            builder.Services.AddSingleton<BundleService>();
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();

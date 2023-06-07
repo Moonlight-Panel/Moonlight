@@ -5,9 +5,11 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Servers
 @using Logging.Net
+@using Moonlight.App.ApiClients.Wings
 @using Moonlight.App.Database.Entities
 
 @inject ServerRepository ServerRepository
+@inject ServerService ServerService
 @inject SmartTranslateService TranslationService
 
 <div class="col">
@@ -28,7 +30,8 @@
                             OnClick="Save"
                             Text="@(TranslationService.Translate("Change"))"
                             WorkingText="@(TranslationService.Translate("Changing"))"
-                            CssClasses="btn-primary"></WButton>
+                            CssClasses="btn-primary">
+                        </WButton>
                     </td>
                 </tr>
             </table>
@@ -55,9 +58,23 @@
     private async Task Save()
     {
         CurrentServer.Variables.First(x => x.Key == "J2S").Value = Value ? "1" : "0";
-        
+
         ServerRepository.Update(CurrentServer);
-        
+
+        var details = await ServerService.GetDetails(CurrentServer);
+
+    // For better user experience, we start the j2s server right away when the user enables j2s
+        if (details.State == "offline")
+        {
+            await ServerService.SetPowerState(CurrentServer, PowerSignal.Start);
+        }
+
+    // For better user experience, we kill the j2s server right away when the user disables j2s and the server is starting
+        if (details.State == "starting")
+        {
+            await ServerService.SetPowerState(CurrentServer, PowerSignal.Kill);
+        }
+
         await Loader.Reload();
     }
 }

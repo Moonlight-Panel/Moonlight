@@ -3,6 +3,7 @@ using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.ApiClients.Wings.Requests;
 using Moonlight.App.ApiClients.Wings.Resources;
 using Moonlight.App.Database.Entities;
+using Moonlight.App.Helpers.Wings;
 using Moonlight.App.Services;
 using RestSharp;
 
@@ -211,13 +212,27 @@ public class WingsFileAccess : FileAccess
 
     public override async Task Decompress(FileData fileData)
     {
-        var req = new DecompressFile()
+        try
         {
-            Root = CurrentPath,
-            File = fileData.Name
-        };
+            var req = new DecompressFile()
+            {
+                Root = CurrentPath,
+                File = fileData.Name
+            };
 
-        await WingsApiHelper.Post(Server.Node, $"api/servers/{Server.Uuid}/files/decompress", req);
+            await WingsApiHelper.Post(Server.Node, $"api/servers/{Server.Uuid}/files/decompress", req);
+        }
+        catch (Exception e)
+        {
+            if (e.Message.ToLower().Contains("canceled"))
+            {
+                // ignore, maybe do smth better here, like showing a waiting thing or so
+            }
+            else
+            {
+                throw;
+            }
+        }
     }
 
     public override Task<string> GetLaunchUrl()
