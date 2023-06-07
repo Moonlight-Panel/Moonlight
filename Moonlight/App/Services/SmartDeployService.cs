@@ -9,21 +9,36 @@ public class SmartDeployService
     private readonly Repository<CloudPanel> CloudPanelRepository;
     private readonly WebSpaceService WebSpaceService;
     private readonly NodeService NodeService;
+    private readonly ConfigService ConfigService;
 
     public SmartDeployService(
         NodeRepository nodeRepository,
         NodeService nodeService,
         WebSpaceService webSpaceService,
-        Repository<CloudPanel> cloudPanelRepository)
+        Repository<CloudPanel> cloudPanelRepository,
+        ConfigService configService)
     {
         NodeRepository = nodeRepository;
         NodeService = nodeService;
         WebSpaceService = webSpaceService;
         CloudPanelRepository = cloudPanelRepository;
+        ConfigService = configService;
     }
 
     public async Task<Node?> GetNode()
     {
+        var config = ConfigService
+            .GetSection("Moonlight")
+            .GetSection("SmartDeploy")
+            .GetSection("Server");
+
+        if (config.GetValue<bool>("EnableOverride"))
+        {
+            var nodeId = config.GetValue<int>("OverrideNode");
+
+            return NodeRepository.Get().FirstOrDefault(x => x.Id == nodeId);
+        }
+        
         var data = new Dictionary<Node, double>();
 
         foreach (var node in NodeRepository.Get().ToArray())
