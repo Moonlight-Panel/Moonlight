@@ -1,4 +1,5 @@
 ﻿using Moonlight.App.ApiClients.Daemon;
+using Moonlight.App.ApiClients.Daemon.Requests;
 using Moonlight.App.ApiClients.Daemon.Resources;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.ApiClients.Wings.Resources;
@@ -24,35 +25,56 @@ public class NodeService
         return await WingsApiHelper.Get<SystemStatus>(node, "api/system");
     }
 
-    public async Task<CpuStats> GetCpuStats(Node node)
+    public async Task<CpuMetrics> GetCpuMetrics(Node node)
     {
-        return await DaemonApiHelper.Get<CpuStats>(node, "stats/cpu");
+        return await DaemonApiHelper.Get<CpuMetrics>(node, "metrics/cpu");
     }
     
-    public async Task<MemoryStats> GetMemoryStats(Node node)
+    public async Task<MemoryMetrics> GetMemoryMetrics(Node node)
     {
-        return await DaemonApiHelper.Get<MemoryStats>(node, "stats/memory");
+        return await DaemonApiHelper.Get<MemoryMetrics>(node, "metrics/memory");
     }
     
-    public async Task<DiskStats> GetDiskStats(Node node)
+    public async Task<DiskMetrics> GetDiskMetrics(Node node)
     {
-        return await DaemonApiHelper.Get<DiskStats>(node, "stats/disk");
+        return await DaemonApiHelper.Get<DiskMetrics>(node, "metrics/disk");
     }
     
-    public async Task<ContainerStats> GetContainerStats(Node node)
+    public async Task<SystemMetrics> GetSystemMetrics(Node node)
     {
-        return await DaemonApiHelper.Get<ContainerStats>(node, "stats/container");
+        return await DaemonApiHelper.Get<SystemMetrics>(node, "metrics/system");
+    }
+    
+    public async Task<DockerMetrics> GetDockerMetrics(Node node)
+    {
+        return await DaemonApiHelper.Get<DockerMetrics>(node, "metrics/docker");
+    }
+
+    public async Task Mount(Node node, string server, string serverPath, string path)
+    {
+        await DaemonApiHelper.Post(node, "mount", new Mount()
+        {
+            Server = server,
+            ServerPath = serverPath,
+            Path = path
+        });
+    }
+
+    public async Task Unmount(Node node, string path)
+    {
+        await DaemonApiHelper.Delete(node, "mount", new Unmount()
+        {
+            Path = path
+        });
     }
 
     public async Task<bool> IsHostUp(Node node)
     {
         try
         {
-            //TODO: Implement status caching
-            var data = await GetStatus(node);
+            await GetSystemMetrics(node);
 
-            if (data != null)
-                return true;
+            return true;
         }
         catch (Exception)
         {

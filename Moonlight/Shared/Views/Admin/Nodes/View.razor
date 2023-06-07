@@ -41,7 +41,7 @@ else
                 </div>
                 <div class="m-0">
                     <span class="fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                        @if (CpuStats == null)
+                        @if (CpuMetrics == null)
                         {
                             <span class="text-muted">
                                 <TL>Loading</TL>
@@ -50,12 +50,12 @@ else
                         else
                         {
                             <span>
-                                @(CpuStats.Usage)% <TL>of</TL> @(CpuStats.Cores) <TL>Cores used</TL>
+                                @(CpuMetrics.CpuUsage)% <TL>of CPU used</TL>
                             </span>
                         }
                     </span>
                     <span class="fw-semibold fs-6">
-                        @if (CpuStats == null)
+                        @if (CpuMetrics == null)
                         {
                             <span class="text-muted">
                                 <TL>Loading</TL>
@@ -63,7 +63,7 @@ else
                         }
                         else
                         {
-                            <span>@(CpuStats.Model)</span>
+                            <span>@(CpuMetrics.CpuModel)</span>
                         }
                     </span>
                 </div>
@@ -78,7 +78,7 @@ else
                 </div>
                 <div class="m-0">
                     <span class="fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                        @if (MemoryStats == null)
+                        @if (MemoryMetrics == null)
                         {
                             <span class="text-muted">
                                 <TL>Loading</TL>
@@ -87,32 +87,12 @@ else
                         else
                         {
                             <span>
-                                @(Formatter.FormatSize(MemoryStats.Used * 1024D * 1024D)) <TL>of</TL> @(Formatter.FormatSize(MemoryStats.Total * 1024D * 1024D)) <TL>used</TL>
+                                @(Formatter.FormatSize(MemoryMetrics.Used * 1024D * 1024D)) <TL>of</TL> @(Formatter.FormatSize(MemoryMetrics.Total * 1024D * 1024D)) <TL>used</TL>
                             </span>
                         }
                     </span>
                     <span class="fw-semibold fs-6">
-                        @if (MemoryStats == null)
-                        {
-                            <span class="text-muted">
-                                <TL>Loading</TL>
-                            </span>
-                        }
-                        else
-                        {
-                            if (MemoryStats.Sticks.Any())
-                            {
-                                foreach (var stick in SortMemorySticks(MemoryStats.Sticks))
-                                {
-                                    <span>@(stick)</span>
-                                    <br/>
-                                }
-                            }
-                            else
-                            {
-                                <span>No memory sticks detected</span>
-                            }
-                        }
+                        @*IDK what to put here*@
                     </span>
                 </div>
             </div>
@@ -126,7 +106,7 @@ else
                 </div>
                 <div class="m-0">
                     <span class="fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                        @if (DiskStats == null)
+                        @if (DiskMetrics == null)
                         {
                             <span class="text-muted">
                                 <TL>Loading</TL>
@@ -135,21 +115,12 @@ else
                         else
                         {
                             <span>
-                                @(Formatter.FormatSize(DiskStats.TotalSize - DiskStats.FreeBytes)) <TL>of</TL> @(Formatter.FormatSize(DiskStats.TotalSize)) <TL>used</TL>
+                                @(Formatter.FormatSize(DiskMetrics.Used)) <TL>of</TL> @(Formatter.FormatSize(DiskMetrics.Total)) <TL>used</TL>
                             </span>
                         }
                     </span>
                     <span class="fw-semibold fs-6">
-                        @if (DiskStats == null)
-                        {
-                            <span class="text-muted">
-                                <TL>Loading</TL>
-                            </span>
-                        }
-                        else
-                        {
-                            <span>@(DiskStats.Name) - @(DiskStats.DriveFormat)</span>
-                        }
+                        @*IDK what to put here*@
                     </span>
                 </div>
             </div>
@@ -239,7 +210,7 @@ else
                 </div>
                 <div class="m-0">
                     <span class="fw-bolder d-block fs-2qx lh-1 ls-n1 mb-1">
-                        @if (ContainerStats == null)
+                        @if (DockerMetrics == null)
                         {
                             <span class="text-muted">
                                 <TL>Loading</TL>
@@ -248,12 +219,12 @@ else
                         else
                         {
                             <span>
-                                <TL>@(ContainerStats.Containers.Count)</TL>
+                                <TL>@(DockerMetrics.Containers.Length)</TL>
                             </span>
                         }
                     </span>
                     <span class="fw-semibold fs-6">
-                        @if (ContainerStats == null)
+                        @if (DockerMetrics == null)
                         {
                             <span class="text-muted">
                                 <TL>Loading</TL>
@@ -290,11 +261,11 @@ else
 
     private Node? Node;
 
-    private CpuStats CpuStats;
-    private MemoryStats MemoryStats;
-    private DiskStats DiskStats;
+    private CpuMetrics CpuMetrics;
+    private MemoryMetrics MemoryMetrics;
+    private DiskMetrics DiskMetrics;
+    private DockerMetrics DockerMetrics;
     private SystemStatus SystemStatus;
-    private ContainerStats ContainerStats;
 
     private async Task Load(LazyLoader arg)
     {
@@ -311,16 +282,16 @@ else
                     SystemStatus = await NodeService.GetStatus(Node);
                     await InvokeAsync(StateHasChanged);
 
-                    CpuStats = await NodeService.GetCpuStats(Node);
+                    CpuMetrics = await NodeService.GetCpuMetrics(Node);
                     await InvokeAsync(StateHasChanged);
 
-                    MemoryStats = await NodeService.GetMemoryStats(Node);
+                    MemoryMetrics = await NodeService.GetMemoryMetrics(Node);
                     await InvokeAsync(StateHasChanged);
 
-                    DiskStats = await NodeService.GetDiskStats(Node);
+                    DiskMetrics = await NodeService.GetDiskMetrics(Node);
                     await InvokeAsync(StateHasChanged);
 
-                    ContainerStats = await NodeService.GetContainerStats(Node);
+                    DockerMetrics = await NodeService.GetDockerMetrics(Node);
                     await InvokeAsync(StateHasChanged);
                 }
                 catch (Exception e)
@@ -329,29 +300,5 @@ else
                 }
             });
         }
-    }
-
-    private List<string> SortMemorySticks(List<MemoryStats.MemoryStick> sticks)
-    {
-    // Thank you ChatGPT <3
-
-        var groupedMemory = sticks.GroupBy(memory => new { memory.Type, memory.Size })
-            .Select(group => new
-            {
-                Type = group.Key.Type,
-                Size = group.Key.Size,
-                Count = group.Count()
-            });
-
-        var sortedMemory = groupedMemory.OrderBy(memory => memory.Type)
-            .ThenBy(memory => memory.Size);
-
-        List<string> sortedList = sortedMemory.Select(memory =>
-        {
-            string sizeString = $"{memory.Size}GB";
-            return $"{memory.Count}x {memory.Type} {sizeString}";
-        }).ToList();
-
-        return sortedList;
     }
 }

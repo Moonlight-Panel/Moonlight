@@ -81,12 +81,12 @@ public class CleanupService
             {
                 try
                 {
-                    var cpuStats = await nodeService.GetCpuStats(node);
-                    var memoryStats = await nodeService.GetMemoryStats(node);
+                    var cpuMetrics = await nodeService.GetCpuMetrics(node);
+                    var memoryMetrics = await nodeService.GetMemoryMetrics(node);
 
-                    if (cpuStats.Usage > maxCpu || memoryStats.Free < minMemory)
+                    if (cpuMetrics.CpuUsage > maxCpu || (memoryMetrics.Total - memoryMetrics.Used) < minMemory)
                     {
-                        var containerStats = await nodeService.GetContainerStats(node);
+                        var dockerMetrics = await nodeService.GetDockerMetrics(node);
 
                         var serverRepository = scope.ServiceProvider.GetRequiredService<ServerRepository>();
                         var imageRepository = scope.ServiceProvider.GetRequiredService<ImageRepository>();
@@ -101,9 +101,9 @@ public class CleanupService
                             )
                             .ToArray();
                         
-                        var containerMappedToServers = new Dictionary<ContainerStats.Container, Server>();
+                        var containerMappedToServers = new Dictionary<Container, Server>();
 
-                        foreach (var container in containerStats.Containers)
+                        foreach (var container in dockerMetrics.Containers)
                         {
                             if (Guid.TryParse(container.Name, out Guid uuid))
                             {
