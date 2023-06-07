@@ -5,6 +5,7 @@ using Moonlight.App.ApiClients.Daemon.Resources;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
+using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
 using Newtonsoft.Json;
@@ -84,7 +85,7 @@ public class CleanupService
                     var cpuMetrics = await nodeService.GetCpuMetrics(node);
                     var memoryMetrics = await nodeService.GetMemoryMetrics(node);
 
-                    if (cpuMetrics.CpuUsage > maxCpu || (memoryMetrics.Total - memoryMetrics.Used) < minMemory)
+                    if (cpuMetrics.CpuUsage > maxCpu || (Formatter.BytesToGb(memoryMetrics.Total) - (Formatter.BytesToGb(memoryMetrics.Used))) < minMemory)
                     {
                         var dockerMetrics = await nodeService.GetDockerMetrics(node);
 
