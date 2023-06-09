@@ -3,11 +3,16 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
 @using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using Newtonsoft.Json
+@using Logging.Net
 
 @inject ServerRepository ServerRepository
 @inject UserRepository UserRepository
 @inject Repository<WebSpace> WebSpaceRepository
 @inject DomainRepository DomainRepository
+@inject ConfigService ConfigService
 
 <OnlyAdmin>
     <LazyLoader Load="Load">
@@ -97,6 +102,28 @@
                 </a>
             </div>
         </div>
+
+        <LazyLoader Load="LoadHealthCheckData">
+            @if (HealthCheckData == null)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <TL>Moonlight health</TL>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <TL>Unable to fetch health check data</TL>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <HealthCheckView HealthCheck="@HealthCheckData"/>
+            }
+        </LazyLoader>
     </LazyLoader>
 </OnlyAdmin>
 
@@ -107,6 +134,8 @@
     private int DomainCount = 0;
     private int WebSpaceCount = 0;
 
+    private HealthCheck? HealthCheckData;
+
     private Task Load(LazyLoader lazyLoader)
     {
         ServerCount = ServerRepository.Get().Count();
@@ -115,5 +144,27 @@
         WebSpaceCount = WebSpaceRepository.Get().Count();
 
         return Task.CompletedTask;
+    }
+
+    private async Task LoadHealthCheckData(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading health check data");
+
+        var appUrl = ConfigService
+            .GetSection("Moonlight")
+            .GetValue<string>("AppUrl");
+
+        try
+        {
+            using var client = new HttpClient();
+            var json = await client.GetStringAsync($"{appUrl}/_health");
+            HealthCheckData = JsonConvert.DeserializeObject<HealthCheck>(json) ?? new();
+        }
+        catch (Exception e)
+        {
+            HealthCheckData = null;
+            Logger.Warn("Unable to fetch health check data");
+            Logger.Warn(e);
+        }
     }
 }
