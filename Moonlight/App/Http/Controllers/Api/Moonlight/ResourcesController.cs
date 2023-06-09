@@ -46,6 +46,29 @@ public class ResourcesController : Controller
 
         return NotFound();
     }
+    
+    [HttpGet("background/{name}")]
+    public async Task<ActionResult> GetBackground([FromRoute] string name)
+    {
+        if (name.Contains(".."))
+        {
+            await SecurityLogService.Log(SecurityLogType.PathTransversal, x =>
+            {
+                x.Add<string>(name);
+            });
+            
+            return NotFound();
+        }
+
+        if (System.IO.File.Exists(PathBuilder.File("storage", "resources", "public", "background", name)))
+        {
+            var fs = new FileStream(PathBuilder.File("storage", "resources", "public", "background", name), FileMode.Open);
+        
+            return File(fs, MimeTypes.GetMimeType(name), name);
+        }
+
+        return NotFound();
+    }
 
     [HttpGet("bucket/{bucket}/{name}")]
     public async Task<ActionResult> GetBucket([FromRoute] string bucket, [FromRoute] string name)

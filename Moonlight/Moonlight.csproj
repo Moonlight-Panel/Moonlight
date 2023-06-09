@@ -74,6 +74,7 @@
     <Folder Include="App\ApiClients\CloudPanel\Resources\" />
     <Folder Include="App\Http\Middleware" />
     <Folder Include="storage\backups\" />
+    <Folder Include="storage\resources\public\background\" />
   </ItemGroup>
 
 </Project>

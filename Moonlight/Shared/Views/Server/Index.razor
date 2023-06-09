@@ -10,6 +10,7 @@
 @using Moonlight.App.Helpers.Wings.Enums
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Sessions
 @using Moonlight.Shared.Components.Xterm
 @using Moonlight.Shared.Components.ServerControl
 @using Newtonsoft.Json
@@ -20,6 +21,7 @@
 @inject EventSystem Event
 @inject ServerService ServerService
 @inject NavigationManager NavigationManager
+@inject DynamicBackgroundService DynamicBackgroundService
 
 @implements IDisposable
 
@@ -291,6 +293,11 @@
 
                     return Task.CompletedTask;
                 });
+
+                if (string.IsNullOrEmpty(Image.BackgroundImageUrl))
+                    await DynamicBackgroundService.Reset();
+                else
+                    await DynamicBackgroundService.Change(Image.BackgroundImageUrl);
             }
         }
         else

@@ -15,6 +15,11 @@ public class ResourceService
     {
         return $"{AppUrl}/api/moonlight/resources/images/{name}";
     }
+    
+    public string BackgroundImage(string name)
+    {
+        return $"{AppUrl}/api/moonlight/resources/background/{name}";
+    }
 
     public string Avatar(User user)
     {
