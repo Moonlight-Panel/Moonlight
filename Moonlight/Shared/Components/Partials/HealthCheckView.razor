@@ -33,7 +33,7 @@
                             @(entry.Key)
                         </button>
                     </h2>
-                    <div id="healthCheck_body_@(entry.Key.ToLower())" class="accordion-collapse collapse show" data-bs-parent="#healthCheck">
+                    <div id="healthCheck_body_@(entry.Key.ToLower())" class="accordion-collapse collapse" data-bs-parent="#healthCheck">
                         <div class="accordion-body">
                             <b><TL>Status</TL>:</b>&nbsp;<TL>@(entry.Value.Status)</TL><br/>
                             <b><TL>Description</TL>:</b>&nbsp;@(entry.Value.Description)<br/>

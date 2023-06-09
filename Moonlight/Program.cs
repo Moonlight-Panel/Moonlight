@@ -70,7 +70,8 @@ namespace Moonlight
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHealthChecks()
                 .AddCheck<DatabaseHealthCheck>("Database")
-                .AddCheck<NodeHealthCheck>("Nodes");
+                .AddCheck<NodeHealthCheck>("Nodes")
+                .AddCheck<DaemonHealthCheck>("Daemons");
 
             // Databases
             builder.Services.AddDbContext<DataContext>();
