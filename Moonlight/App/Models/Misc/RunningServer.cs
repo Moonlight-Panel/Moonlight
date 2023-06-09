@@ -6,5 +6,5 @@ namespace Moonlight.App.Models.Misc;
 public class RunningServer
 {
     public Server Server { get; set; }
-    public ContainerStats.Container Container { get; set; }
+    public Container Container { get; set; }
 }

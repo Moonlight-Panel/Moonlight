@@ -132,9 +132,9 @@
 
             try
             {
-                var containerStats = await NodeService.GetContainerStats(node);
+                var dockerMetrics = await NodeService.GetDockerMetrics(node);
 
-                foreach (var container in containerStats.Containers)
+                foreach (var container in dockerMetrics.Containers)
                 {
                     if (Guid.TryParse(container.Name, out Guid uuid))
                     {
