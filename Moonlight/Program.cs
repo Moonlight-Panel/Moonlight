@@ -167,6 +167,7 @@ namespace Moonlight
             builder.Services.AddSingleton<StatisticsCaptureService>();
             builder.Services.AddSingleton<DiscordNotificationService>();
             builder.Services.AddSingleton<CleanupService>();
+            builder.Services.AddSingleton<UptimeService>();
 
             // Third party services
             builder.Services.AddBlazorTable();
@@ -202,6 +203,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<DiscordBotService>();
             _ = app.Services.GetRequiredService<StatisticsCaptureService>();
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
+            _ = app.Services.GetRequiredService<UptimeService>();
 
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
