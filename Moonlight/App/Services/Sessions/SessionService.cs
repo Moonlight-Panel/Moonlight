@@ -9,6 +9,7 @@ namespace Moonlight.App.Services.Sessions;
 public class SessionService
 {
     private readonly SessionRepository SessionRepository;
+    private Repository<User> UserRepository;
     private readonly IdentityService IdentityService;
     private readonly NavigationManager NavigationManager;
     private readonly AlertService AlertService;
@@ -21,13 +22,15 @@ public class SessionService
         IdentityService identityService, 
         NavigationManager navigationManager,
         AlertService alertService,
-        DateTimeService dateTimeService)
+        DateTimeService dateTimeService,
+        Repository<User> userRepository)
     {
         SessionRepository = sessionRepository;
         IdentityService = identityService;
         NavigationManager = navigationManager;
         AlertService = alertService;
         DateTimeService = dateTimeService;
+        UserRepository = userRepository;
     }
 
     public async Task Register()
@@ -46,6 +49,12 @@ public class SessionService
         };
         
         SessionRepository.Add(OwnSession);
+
+        if (user != null) // Track last session init of user as last visited timestamp
+        {
+            user.LastVisitedAt = DateTimeService.GetCurrent();
+            UserRepository.Update(user);
+        }
     }
 
     public void Refresh()
