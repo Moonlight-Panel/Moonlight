@@ -66,6 +66,20 @@
                 }
             </div>
         }
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <TL>Active users</TL>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="fs-2">@(ActiveUsers)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </LazyLoader>
 </OnlyAdmin>
 
@@ -73,7 +87,9 @@
 {
     private StatisticsTimeSpan StatisticsTimeSpan = StatisticsTimeSpan.Day;
     private LazyLoader Loader;
+
     private Dictionary<string, StatisticsData[]> Charts = new();
+    private int ActiveUsers = 0;
 
     private int TimeSpanBind
     {
@@ -91,33 +107,47 @@
 
         Charts.Add(
             SmartTranslateService.Translate("Servers"),
-            StatisticsViewService.GetData("serversCount", StatisticsTimeSpan)
+            AvgHelper.Calculate(
+                StatisticsViewService.GetData("serversCount", StatisticsTimeSpan)
+                )
             );
 
         Charts.Add(
             SmartTranslateService.Translate("Users"),
-            StatisticsViewService.GetData("usersCount", StatisticsTimeSpan)
+            AvgHelper.Calculate(
+                StatisticsViewService.GetData("usersCount", StatisticsTimeSpan)
+                )
             );
 
         Charts.Add(
             SmartTranslateService.Translate("Domains"),
-            StatisticsViewService.GetData("domainsCount", StatisticsTimeSpan)
+            AvgHelper.Calculate(
+                StatisticsViewService.GetData("domainsCount", StatisticsTimeSpan)
+                )
             );
 
         Charts.Add(
             SmartTranslateService.Translate("Databases"),
-            StatisticsViewService.GetData("databasesCount", StatisticsTimeSpan)
+            AvgHelper.Calculate(
+                StatisticsViewService.GetData("databasesCount", StatisticsTimeSpan)
+                )
             );
 
         Charts.Add(
             SmartTranslateService.Translate("Webspaces"),
-            StatisticsViewService.GetData("webspacesCount", StatisticsTimeSpan)
+            AvgHelper.Calculate(
+                StatisticsViewService.GetData("webspacesCount", StatisticsTimeSpan)
+                )
             );
 
         Charts.Add(
             SmartTranslateService.Translate("Sessions"),
-            StatisticsViewService.GetData("sessionsCount", StatisticsTimeSpan)
+            AvgHelper.Calculate(
+                StatisticsViewService.GetData("sessionsCount", StatisticsTimeSpan)
+                )
             );
+
+        ActiveUsers = StatisticsViewService.GetActiveUsers(StatisticsTimeSpan);
 
         return Task.CompletedTask;
     }
