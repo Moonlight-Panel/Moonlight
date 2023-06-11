@@ -72,11 +72,21 @@ public class WebSpaceService
 
     public async Task Delete(WebSpace w)
     {
-        var website = EnsureData(w);
+        var webSpace = WebSpaceRepository
+            .Get()
+            .Include(x => x.Databases)
+            .Include(x => x.CloudPanel)
+            .Include(x => x.Owner)
+            .First(x => x.Id == w.Id);
+
+        foreach (var database in webSpace.Databases.ToArray())
+        {
+            await DeleteDatabase(webSpace, database);
+        }
         
-        await CloudPanelApiHelper.Delete(website.CloudPanel, $"site/{website.Domain}", null);
+        await CloudPanelApiHelper.Delete(webSpace.CloudPanel, $"site/{webSpace.Domain}", null);
         
-        WebSpaceRepository.Delete(website);
+        WebSpaceRepository.Delete(webSpace);
     }
 
     public async Task<bool> IsHostUp(CloudPanel cloudPanel)
