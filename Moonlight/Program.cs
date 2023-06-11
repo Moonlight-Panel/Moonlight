@@ -34,9 +34,6 @@ namespace Moonlight
 {
     public class Program
     {
-        // App version. Change for release
-        public static readonly string AppVersion = $"InDev {Formatter.FormatDateOnly(DateTime.Now.Date)}";
-
         public static async Task Main(string[] args)
         {
             Logger.UsedLogger = new CacheLogger();
@@ -168,7 +165,9 @@ namespace Moonlight
             builder.Services.AddSingleton<StatisticsCaptureService>();
             builder.Services.AddSingleton<DiscordNotificationService>();
             builder.Services.AddSingleton<CleanupService>();
-            builder.Services.AddSingleton<UptimeService>();
+            
+            // Other
+            builder.Services.AddSingleton<MoonlightService>();
 
             // Third party services
             builder.Services.AddBlazorTable();
@@ -204,7 +203,8 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<DiscordBotService>();
             _ = app.Services.GetRequiredService<StatisticsCaptureService>();
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
-            _ = app.Services.GetRequiredService<UptimeService>();
+            
+            _ = app.Services.GetRequiredService<MoonlightService>();
 
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
