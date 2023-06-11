@@ -1,5 +1,4 @@
 ﻿@page "/domain/{Id:int}"
-@using Moonlight.App.Services.Sessions
 @using Moonlight.App.Repositories.Domains
 @using Moonlight.App.Database.Entities
 @using Microsoft.EntityFrameworkCore
@@ -11,6 +10,8 @@
 @inject DomainRepository DomainRepository
 @inject DomainService DomainService
 @inject SmartTranslateService SmartTranslateService
+@inject NavigationManager NavigationManager
+@inject AlertService AlertService
 
 <LazyLoader Load="Load">
     @if (Domain == null)
@@ -28,6 +29,13 @@
                 <span class="card-title">
                     <TL>DNS records for</TL><span class="ms-3">@(domainNameBuilt)</span>
                 </span>
+                <div class="card-toolbar">
+                    <WButton Text="@(SmartTranslateService.Translate("Delete domain"))"
+                             WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                             CssClasses="btn-danger"
+                             OnClick="Delete">
+                    </WButton>
+                </div>
             </div>
             <div class="mt-5"></div>
             <LazyLoader @ref="DnsLazyLoader" Load="LoadDnsRecords">
@@ -239,5 +247,14 @@
     {
         await DomainService.DeleteDnsRecord(Domain!, record);
         await DnsLazyLoader.Reload();
+    }
+
+    private async Task Delete()
+    {
+        if (await AlertService.ConfirmMath())
+        {
+            await DomainService.Delete(Domain!);
+            NavigationManager.NavigateTo("/domains");
+        }
     }
 }
