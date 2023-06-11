@@ -17,6 +17,9 @@ public class DynamicBackgroundService
 
     public Task Change(string url)
     {
+        if(BackgroundImageUrl == url) // Prevent unnecessary updates
+            return Task.CompletedTask;
+        
         BackgroundImageUrl = url;
         OnBackgroundImageChanged?.Invoke(this, null!);
 
@@ -25,6 +28,9 @@ public class DynamicBackgroundService
 
     public Task Reset()
     {
+        if(BackgroundImageUrl == DefaultBackgroundImageUrl) // Prevent unnecessary updates
+            return Task.CompletedTask;
+        
         BackgroundImageUrl = DefaultBackgroundImageUrl;
         OnBackgroundImageChanged?.Invoke(this, null!);
 
