@@ -23,7 +23,7 @@
         if (await AlertService.ConfirmMath())
         {
             await ServerService.Delete(CurrentServer);
-            NavigationManager.NavigateTo("/servers", true);
+            NavigationManager.NavigateTo("/servers");
         }
     }
 }
