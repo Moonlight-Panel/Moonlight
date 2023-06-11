@@ -22,5 +22,6 @@ COPY --from=publish /app/publish .
 RUN mkdir -p /app/storage
 RUN touch /app/storage/donttriggeranyerrors
 RUN rm -r /app/storage/*
+COPY version /app/version
 COPY "Moonlight/defaultstorage" "/app/defaultstorage"
 ENTRYPOINT ["dotnet", "Moonlight.dll"]
