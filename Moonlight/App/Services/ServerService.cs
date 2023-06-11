@@ -19,6 +19,7 @@ namespace Moonlight.App.Services;
 
 public class ServerService
 {
+    private readonly Repository<ServerVariable> ServerVariablesRepository;
     private readonly ServerRepository ServerRepository;
     private readonly UserRepository UserRepository;
     private readonly ImageRepository ImageRepository;
@@ -50,7 +51,8 @@ public class ServerService
         NodeService nodeService,
         NodeAllocationRepository nodeAllocationRepository,
         DateTimeService dateTimeService,
-        EventSystem eventSystem)
+        EventSystem eventSystem,
+        Repository<ServerVariable> serverVariablesRepository)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -67,6 +69,7 @@ public class ServerService
         NodeAllocationRepository = nodeAllocationRepository;
         DateTimeService = dateTimeService;
         Event = eventSystem;
+        ServerVariablesRepository = serverVariablesRepository;
     }
 
     private Server EnsureNodeData(Server s)
@@ -401,17 +404,13 @@ public class ServerService
 
     public async Task Delete(Server s)
     {
-        throw new DisplayException("Deleting a server is currently a bit buggy. So its disabled for your safety");
-        
-        var server = EnsureNodeData(s);
-
-        var backups = await GetBackups(server);
+        var backups = await GetBackups(s);
 
         foreach (var backup in backups)
         {
             try
             {
-                await DeleteBackup(server, backup);
+                await DeleteBackup(s, backup);
             }
             catch (Exception)
             {
@@ -419,17 +418,25 @@ public class ServerService
             }
         }
 
+        var server = ServerRepository
+            .Get()
+            .Include(x => x.Variables)
+            .Include(x => x.Node)
+            .First(x => x.Id == s.Id);
+
         await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
 
-        //TODO: Fix empty data models
-        
+        foreach (var variable in server.Variables.ToArray())
+        {
+            ServerVariablesRepository.Delete(variable);
+        }
+
         server.Allocations = new();
         server.MainAllocation = null;
         server.Variables = new();
         server.Backups = new();
 
         ServerRepository.Update(server);
-
         ServerRepository.Delete(server);
     }
 
