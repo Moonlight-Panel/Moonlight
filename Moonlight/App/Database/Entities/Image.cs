@@ -20,4 +20,5 @@ public class Image
     public List<DockerImage> DockerImages { get; set; } = new();
     public List<ImageVariable> Variables { get; set; } = new();
     public string TagsJson { get; set; } = "";
+    public string BackgroundImageUrl { get; set; } = "";
 }
