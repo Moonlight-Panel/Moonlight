@@ -46,7 +46,7 @@
                 else
                 {
                     <Table TableItem="Session" Items="AllSessions" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Email"))" Field="@(x => x.User.Id)" Sortable="true" Filterable="true" Width="20%">
+                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Email"))" Field="@(x => x.User.Email)" Sortable="true" Filterable="true" Width="20%">
                             <Template>
                                 @if (context.User == null)
                                 {
