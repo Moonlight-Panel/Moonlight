@@ -102,7 +102,7 @@ public class DiscordBotController : Controller
             return BadRequest();
     }
 
-    [HttpGet("{id}/servers/{uuid}")]
+    [HttpGet("{id}/servers/{uuid}/details")]
     public async Task<ActionResult<ServerDetails>> GetServerDetails(ulong id, Guid uuid)
     {
         if (!await IsAuth(Request))
@@ -122,6 +122,33 @@ public class DiscordBotController : Controller
             return NotFound();
 
         return await ServerService.GetDetails(server);
+    }
+    
+    [HttpGet("{id}/servers/{uuid}")]
+    public async Task<ActionResult<ServerDetails>> GetServer(ulong id, Guid uuid)
+    {
+        if (!await IsAuth(Request))
+            return StatusCode(403);
+        
+        var user = await GetUserFromDiscordId(id);
+
+        if (user == null)
+            return BadRequest();
+
+        var server = ServerRepository
+            .Get()
+            .Include(x => x.Owner)
+            .Include(x => x.Image)
+            .Include(x => x.Node)
+            .FirstOrDefault(x => x.Owner.Id == user.Id && x.Uuid == uuid);
+
+        if (server == null)
+            return NotFound();
+
+        server.Node.Token = "";
+        server.Node.TokenId = "";
+
+        return Ok(server);
     }
 
     private Task<User?> GetUserFromDiscordId(ulong discordId)
