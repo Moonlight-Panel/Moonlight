@@ -89,6 +89,10 @@ public class WingsConsole : IDisposable
             {
                 await Work();
             }
+            catch (JsonReaderException)
+            {
+                // ignore
+            }
             catch (Exception e)
             {
                 Logger.Warn("Error connecting to wings console");
