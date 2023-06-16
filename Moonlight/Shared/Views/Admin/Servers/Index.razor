@@ -44,7 +44,7 @@
                                 </Column>
                                 <Column TableItem="Server" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
                                     <Template>
-                                        <a href="/admin/servers/edit/@(context.Id)">
+                                        <a href="/admin/servers/view/@(context.Id)">
                                             @(SmartTranslateService.Translate("Manage"))
                                         </a>
                                     </Template>

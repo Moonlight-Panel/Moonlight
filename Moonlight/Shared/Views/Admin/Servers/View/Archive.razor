@@ -1,0 +1,68 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject ServerService ServerService
+@inject SmartTranslateService SmartTranslateService
+@inject AlertService AlertService
+
+<div class="card">
+    <div class="card-body">
+        @if (Server.IsArchived)
+        {
+            <span class="fs-5 text-warning"><TL>Server is currently archived</TL></span>
+        }
+        else
+        {
+            <span class="fs-5"><TL>Server is currently not archived</TL></span>
+        }
+    </div>
+    <div class="card-footer">
+        <div class="text-end">
+            @if (Server.IsArchived)
+            {
+                <WButton Text="@(SmartTranslateService.Translate("Unarchive"))"
+                         WorkingText="@(SmartTranslateService.Translate("Unarchiving"))"
+                         CssClasses="btn-success"
+                         OnClick="UnArchiveServer">
+                </WButton>
+            }
+            else
+            {
+                <WButton Text="@(SmartTranslateService.Translate("Archive"))"
+                         WorkingText="@(SmartTranslateService.Translate("Archiving"))"
+                         CssClasses="btn-danger"
+                         OnClick="ArchiveServer">
+                </WButton>
+            }
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server Server { get; set; }
+
+    private async Task ArchiveServer()
+    {
+        await ServerService.ArchiveServer(Server);
+        
+        await InvokeAsync(StateHasChanged);
+
+        await AlertService.Success(
+            SmartTranslateService.Translate("Successfully archived the server")
+            );
+    }
+    
+    private async Task UnArchiveServer()
+    {
+        await ServerService.UnArchiveServer(Server);
+        
+        await InvokeAsync(StateHasChanged);
+        
+        await AlertService.Success(
+            SmartTranslateService.Translate("Successfully unarchived the server")
+            );
+    }
+}
