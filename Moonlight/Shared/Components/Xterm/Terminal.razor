@@ -5,7 +5,7 @@
 <Xterm
     @ref="Xterm"
     Options="TerminalOptions"
-    AddonIds="@(new[] { "xterm-addon-fit", "xterm-addon-search", "xterm-addon-web-links" })"
+    AddonIds="@(new[] { "xterm-addon-fit" })"
     OnFirstRender="OnFirstRender">
 </Xterm>
 
@@ -48,6 +48,18 @@
         {
             await Xterm.InvokeAddonFunctionVoidAsync("xterm-addon-fit", "fit");
             RunOnFirstRender.Invoke();
+
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(1000);
+                    await Xterm.InvokeAddonFunctionVoidAsync("xterm-addon-fit", "fit");
+                    await Task.Delay(1000);
+                    await Xterm.InvokeAddonFunctionVoidAsync("xterm-addon-fit", "fit");
+                }
+                catch (Exception){}
+            });
         }
         catch (Exception)
         {
