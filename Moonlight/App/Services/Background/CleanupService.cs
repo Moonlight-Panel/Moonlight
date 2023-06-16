@@ -46,11 +46,13 @@ public class CleanupService
         
         var config = ConfigService.GetSection("Moonlight").GetSection("Cleanup");
 
-        if (!config.GetValue<bool>("Enable") || ConfigService.DebugMode)
+        /*
+         * if (!config.GetValue<bool>("Enable") || ConfigService.DebugMode)
         {
             Logger.Info("Disabling cleanup service");
             return;
         }
+         */
         
         Timer = new(TimeSpan.FromMinutes(config.GetValue<int>("Wait")));
 
@@ -85,7 +87,30 @@ public class CleanupService
                     var cpuMetrics = await nodeService.GetCpuMetrics(node);
                     var memoryMetrics = await nodeService.GetMemoryMetrics(node);
 
-                    if (cpuMetrics.CpuUsage > maxCpu || (Formatter.BytesToGb(memoryMetrics.Total) - (Formatter.BytesToGb(memoryMetrics.Used))) < minMemory)
+                    bool executeCleanup;
+                    
+                    if (cpuMetrics.CpuUsage > maxCpu)
+                    {
+                        Logger.Debug($"{node.Name}: CPU Usage is too high");
+                        Logger.Debug($"Usage:  {cpuMetrics.CpuUsage}");
+                        Logger.Debug($"Max CPU:  {maxCpu}");
+                        executeCleanup = true;
+                    }
+                    else if (Formatter.BytesToGb(memoryMetrics.Total) - Formatter.BytesToGb(memoryMetrics.Used) <
+                             minMemory / 1024D)
+                    {
+                        Logger.Debug($"{node.Name}: Memory Usage is too high");
+                        Logger.Debug($"Memory (Total):  {Formatter.BytesToGb(memoryMetrics.Total)}");
+                        Logger.Debug($"Memory (Used):  {Formatter.BytesToGb(memoryMetrics.Used)}");
+                        Logger.Debug(
+                            $"Memory (Free):  {Formatter.BytesToGb(memoryMetrics.Total) - Formatter.BytesToGb(memoryMetrics.Used)}");
+                        Logger.Debug($"Min Memory:  {minMemory}");
+                        executeCleanup = true;
+                    }
+                    else
+                        executeCleanup = false;
+                    
+                    if (executeCleanup)
                     {
                         var dockerMetrics = await nodeService.GetDockerMetrics(node);
 
@@ -140,6 +165,7 @@ public class CleanupService
 
                                         if (players == 0)
                                         {
+                                            Logger.Debug($"Restarted {server.Name} ({server.Uuid}) on node {node.Name}");
                                             await serverService.SetPowerState(server, PowerSignal.Restart);
                                             
                                             ServersCleaned++;
@@ -165,10 +191,12 @@ public class CleanupService
 
                                             if (handleJ2S)
                                             {
+                                                Logger.Debug($"Restarted (cleanup) {server.Name} ({server.Uuid}) on node {node.Name}");
                                                 await serverService.SetPowerState(server, PowerSignal.Restart);
                                             }
                                             else
                                             {
+                                                Logger.Debug($"Stopped {server.Name} ({server.Uuid}) on node {node.Name}");
                                                 await serverService.SetPowerState(server, PowerSignal.Stop);
                                             }
 
