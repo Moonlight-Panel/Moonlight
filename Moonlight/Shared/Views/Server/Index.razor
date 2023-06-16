@@ -22,6 +22,7 @@
 @inject ServerService ServerService
 @inject NavigationManager NavigationManager
 @inject DynamicBackgroundService DynamicBackgroundService
+@inject SmartTranslateService SmartTranslateService
 
 @implements IDisposable
 
@@ -75,6 +76,28 @@
                                 </div>
                             </div>
                             <Terminal @ref="InstallConsole"></Terminal>
+                        </div>
+                    </div>
+                }
+                else if (CurrentServer.IsArchived)
+                {
+                    <div class="d-flex justify-content-center flex-center">
+                        <div class="card">
+                            <img src="/assets/media/svg/archive.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
+                            <div class="card-body text-center">
+                                <h1 class="card-title">
+                                    <TL>Server is currently archived</TL>
+                                </h1>
+                                <p class="card-text fs-4">
+                                    <TL>This server is archived. The data of this server is stored as a backup. To restore click the unarchive button an be patient</TL>
+                                </p>
+
+                                <WButton Text="@(SmartTranslateService.Translate("Unarchive"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Please wait"))"
+                                         CssClasses="btn-primary"
+                                         OnClick="UnArchive">
+                                </WButton>
+                            </div>
                         </div>
                     </div>
                 }
@@ -236,7 +259,7 @@
         }
         catch (Exception)
         {
-            // ignored
+    // ignored
         }
 
         if (CurrentServer != null)
@@ -260,8 +283,8 @@
                     .Include(x => x.Variables)
                     .First(x => x.Id == CurrentServer.Image.Id);
 
-                // Live variable migration
-                
+    // Live variable migration
+
                 foreach (var variable in image.Variables)
                 {
                     if (!CurrentServer.Variables.Any(x => x.Key == variable.Key))
@@ -271,13 +294,13 @@
                             Key = variable.Key,
                             Value = variable.DefaultValue
                         });
-                        
+
                         ServerRepository.Update(CurrentServer);
                     }
                 }
-                
-                // Tags
-                
+
+    // Tags
+
                 await lazyLoader.SetText("Requesting tags");
 
                 Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
@@ -288,6 +311,13 @@
                 await ReconnectConsole();
 
                 await Event.On<Server>($"server.{CurrentServer.Uuid}.installComplete", this, server =>
+                {
+                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
+
+                    return Task.CompletedTask;
+                });
+
+                await Event.On<Server>($"server.{CurrentServer.Uuid}.archiveStatusChanged", this, server =>
                 {
                     NavigationManager.NavigateTo(NavigationManager.Uri, true);
 
@@ -305,7 +335,7 @@
             Logger.Debug("Server is null");
         }
     }
-    
+
     private async Task ReconnectConsole()
     {
         await Console!.Disconnect();
@@ -317,11 +347,17 @@
         if (CurrentServer != null)
         {
             await Event.Off($"server.{CurrentServer.Uuid}.installComplete", this);
+            await Event.Off($"server.{CurrentServer.Uuid}.archiveStatusChanged", this);
         }
 
         if (Console != null)
         {
             Console.Dispose();
         }
+    }
+
+    private async Task UnArchive()
+    {
+        await ServerService.UnArchiveServer(CurrentServer!);
     }
 }

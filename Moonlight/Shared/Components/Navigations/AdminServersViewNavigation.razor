@@ -1,0 +1,51 @@
+﻿@using Moonlight.App.Database.Entities
+<div class="card mb-5 mb-xl-10">
+    <div class="card-body pt-0 pb-0">
+        <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 0 ? "active" : "")" href="/admin/servers/view/@(Server.Id)">
+                    <TL>Overview</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 1 ? "active" : "")" href="/admin/servers/view/@(Server.Id)/image">
+                    <TL>Image</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 2 ? "active" : "")" href="/admin/servers/view/@(Server.Id)/resources">
+                    <TL>Resources</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 3 ? "active" : "")" href="/admin/servers/view/@(Server.Id)/allocations">
+                    <TL>Allocations</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 4 ? "active" : "")" href="/admin/servers/view/@(Server.Id)/archive">
+                    <TL>Archive</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 5 ? "active" : "")" href="/admin/servers/view/@(Server.Id)/debug">
+                    <TL>Debug</TL>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 6 ? "active" : "")" href="/admin/servers/view/@(Server.Id)/delete">
+                    <TL>Delete</TL>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public int Index { get; set; }
+
+    [Parameter]
+    public Server Server { get; set; }
+}

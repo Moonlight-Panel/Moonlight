@@ -1,0 +1,88 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Models.Forms
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+@using Mappy.Net
+
+@inject Repository<Server> ServerRepository
+@inject SmartTranslateService SmartTranslateService
+@inject ToastService ToastService
+
+<LazyLoader Load="Load">
+    <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
+        <div class="card">
+            <div class="card-body p-10">
+                <label class="form-label">
+                    <TL>Cpu cores</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-chip"></i>
+                    </span>
+                    <InputNumber @bind-Value="Model.Cpu" type="number" class="form-control"></InputNumber>
+                    <span class="input-group-text">
+                        <TL>CPU Cores (100% = 1 Core)</TL>
+                    </span>
+                </div>
+                <label class="form-label">
+                    <TL>Memory</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-microchip"></i>
+                    </span>
+                    <InputNumber @bind-Value="Model.Memory" type="number" class="form-control"></InputNumber>
+                    <span class="input-group-text">
+                        MB
+                    </span>
+                </div>
+                <label class="form-label">
+                    <TL>Disk</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-hdd"></i>
+                    </span>
+                    <InputNumber @bind-Value="Model.Disk" type="number" class="form-control"></InputNumber>
+                    <span class="input-group-text">
+                        MB
+                    </span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">
+                        <TL>Save changes</TL>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </SmartForm>
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter]
+    public Server Server { get; set; }
+
+    private ServerResourcesDataModel Model;
+
+    private Task Load(LazyLoader arg)
+    {
+        Model = Mapper.Map<ServerResourcesDataModel>(Server);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnValidSubmit()
+    {
+        Server = Mapper.Map(Server, Model);
+
+        ServerRepository.Update(Server);
+
+        await ToastService.Success(
+            SmartTranslateService.Translate("Successfully saved changes")
+            );
+    }
+}

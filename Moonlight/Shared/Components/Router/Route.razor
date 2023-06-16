@@ -1,0 +1,20 @@
+﻿@{
+    var route = "/" + (Router.Route ?? "");
+}
+
+@if (route == Path)
+{
+    @ChildContent
+}
+
+@code
+{
+    [CascadingParameter]
+    public SmartRouter Router { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    
+    [Parameter]
+    public string Path { get; set; }
+}

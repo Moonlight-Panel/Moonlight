@@ -1,0 +1,111 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Models.Forms
+@using Mappy.Net
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject Repository<Moonlight.App.Database.Entities.Image> ImageRepository
+@inject Repository<Server> ServerRepository
+@inject SmartTranslateService SmartTranslateService
+@inject ToastService ToastService
+
+<LazyLoader Load="Load">
+    <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
+        <div class="card">
+            <div class="card-body p-10">
+                <label class="form-label">
+                    <TL>Override startup command</TL>
+                </label>
+                <div class="input-group mb-5">
+                    <span class="input-group-text">
+                        <i class="bx bx-terminal"></i>
+                    </span>
+                    <InputText @bind-Value="Model.OverrideStartup" type="text" class="form-control" placeholder="@(Server.Image.Startup)"></InputText>
+                </div>
+                <label class="form-label">
+                    <TL>Docker image</TL>
+                </label>
+                <select @bind="Model.DockerImageIndex" class="form-select">
+                    @foreach (var image in DockerImages)
+                    {
+                        <option value="@(DockerImages.IndexOf(image))">@(image.Name)</option>
+                    }
+                </select>
+            </div>
+            <div class="card-body">
+                @foreach (var vars in Server.Variables.Chunk(4))
+                {
+                    <div class="row mb-3">
+                        @foreach (var variable in vars)
+                        {
+                            <div class="col">
+                                <div class="card card-body">
+                                    <label class="form-label">
+                                        <TL>Name</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                                    </div>
+                                    <label class="form-label">
+                                        <TL>Value</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <input @bind="variable.Value" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="card-footer">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">
+                        <TL>Save changes</TL>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </SmartForm>
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter]
+    public Server Server { get; set; }
+
+    private List<DockerImage> DockerImages;
+    private List<Moonlight.App.Database.Entities.Image> Images;
+
+    private ServerImageDataModel Model;
+
+    private Task Load(LazyLoader arg)
+    {
+        Images = ImageRepository
+            .Get()
+            .Include(x => x.Variables)
+            .Include(x => x.DockerImages)
+            .ToList();
+
+        DockerImages = Images
+            .First(x => x.Id == Server.Image.Id).DockerImages
+            .ToList();
+
+        Model = Mapper.Map<ServerImageDataModel>(Server);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnValidSubmit()
+    {
+        Server = Mapper.Map(Server, Model);
+        
+        ServerRepository.Update(Server);
+
+        await ToastService.Success(
+            SmartTranslateService.Translate("Successfully saved changes")
+            );
+    }
+}

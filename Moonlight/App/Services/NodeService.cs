@@ -72,7 +72,7 @@ public class NodeService
     {
         try
         {
-            await GetSystemMetrics(node);
+            await GetStatus(node);
 
             return true;
         }

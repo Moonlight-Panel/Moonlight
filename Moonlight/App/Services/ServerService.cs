@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Logging.Net;
+using Microsoft.EntityFrameworkCore;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.ApiClients.Wings.Requests;
 using Moonlight.App.ApiClients.Wings.Resources;
@@ -445,5 +446,66 @@ public class ServerService
         var server = EnsureNodeData(s);
 
         return await NodeService.IsHostUp(server.Node);
+    }
+
+    public async Task ArchiveServer(Server server)
+    {
+        if (server.IsArchived)
+            throw new DisplayException("Unable to archive an already archived server");
+        
+        // Archive server
+        
+        var backup = await CreateBackup(server);
+        server.IsArchived = true;
+        server.Archive = backup;
+        
+        ServerRepository.Update(server);
+
+        await Event.WaitForEvent<ServerBackup>("wings.backups.create", this, x => backup.Id == x.Id);
+
+        // Reset server
+        
+        var access = await CreateFileAccess(server, null!);
+        var files = await access.Ls();
+        foreach (var file in files)
+        {
+            try
+            {
+                await access.Delete(file);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+        
+        await Event.Emit($"server.{server.Uuid}.archiveStatusChanged", server);
+    }
+
+    public async Task UnArchiveServer(Server s)
+    {
+        if (!s.IsArchived)
+            throw new DisplayException("Unable to unarchive a server which is not archived");
+
+        var server = ServerRepository
+            .Get()
+            .Include(x => x.Archive)
+            .First(x => x.Id == s.Id);
+
+        if (server.Archive == null)
+            throw new DisplayException("Archive from server not found");
+
+        if (!server.Archive.Created)
+            throw new DisplayException("Creating the server archive is in progress");
+
+        await RestoreBackup(server, server.Archive);
+
+        await Event.WaitForEvent<ServerBackup>("wings.backups.restore", this, 
+            x => x.Id == server.Archive.Id);
+
+        server.IsArchived = false;
+        ServerRepository.Update(server);
+
+        await Event.Emit($"server.{server.Uuid}.archiveStatusChanged", server);
     }
 }

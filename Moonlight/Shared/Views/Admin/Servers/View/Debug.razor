@@ -1,0 +1,31 @@
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+
+@inject ServerService ServerService
+@inject SmartTranslateService SmartTranslateService
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">
+            <TL>Reinstall</TL>
+        </span>
+    </div>
+    <div class="card-footer">
+        <WButton Text="@(SmartTranslateService.Translate("Reinstall"))"
+                 WorkingText="@(SmartTranslateService.Translate("Reinstalling"))"
+                 CssClasses="btn-warning"
+                 OnClick="Reinstall">
+        </WButton>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server Server { get; set; }
+
+    private async Task Reinstall()
+    {
+        await ServerService.Reinstall(Server!);
+    }
+}
