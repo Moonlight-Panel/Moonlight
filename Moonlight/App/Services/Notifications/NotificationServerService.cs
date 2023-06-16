@@ -36,6 +36,11 @@ public class NotificationServerService
 
     private List<NotificationClientService> connectedClients = new();
 
+    public List<NotificationClientService> GetConnectedClients()
+    {
+        return connectedClients.ToList();
+    }
+
     public List<NotificationClientService> GetConnectedClients(User user)
     {
         return connectedClients.Where(x => x.User == user).ToList();
