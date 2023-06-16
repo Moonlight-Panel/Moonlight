@@ -1,0 +1,33 @@
+﻿@page "/admin/notifications/debugging"
+@using Moonlight.App.Services.Notifications
+
+@inject NotificationServerService NotificationServerService
+
+<OnlyAdmin>
+    <LazyLoader Load="Load">
+        <h1>Notification Debugging</h1>
+        @foreach (var client in Clients)
+        {
+            <hr/>
+            <div>
+                <p>Id: @client.NotificationClient.Id User: @client.User.Email</p>
+                <button @onclick="async () => await SendSampleNotification(client)"></button>
+            </div>
+        }
+    </LazyLoader>
+</OnlyAdmin>
+
+    
+@code {
+    private List<NotificationClientService> Clients;
+
+    private async Task Load(LazyLoader loader)
+    {
+        Clients = NotificationServerService.GetConnectedClients();
+    }
+
+    private async Task SendSampleNotification(NotificationClientService client)
+    {
+        await client.SendAction(@"{""action"": ""notify"",""notification"":{""id"":999,""channel"":""Sample Channel"",""content"":""This is a sample Notification"",""title"":""Sample Notification""}}");
+    }
+}
