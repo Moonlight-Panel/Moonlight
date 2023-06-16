@@ -79,4 +79,22 @@
     <Folder Include="storage\resources\public\background\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Include="Shared\Views\Server\Settings\DotnetFileSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\DotnetVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\FabricVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\ForgeVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\JavaFileSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\JavaRuntimeVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\JavascriptFileSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\JavascriptVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\Join2StartSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\PaperVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\PythonFileSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\PythonVersionSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\ServerDeleteSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\ServerRenameSetting.razor" />
+    <AdditionalFiles Include="Shared\Views\Server\Settings\ServerResetSetting.razor" />
+  </ItemGroup>
+
 </Project>
