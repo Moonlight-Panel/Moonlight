@@ -405,6 +405,8 @@ public class ServerService
 
     public async Task Delete(Server s)
     {
+        throw new DisplayException("Deleting servers is currently disabled");
+        
         var backups = await GetBackups(s);
 
         foreach (var backup in backups)
