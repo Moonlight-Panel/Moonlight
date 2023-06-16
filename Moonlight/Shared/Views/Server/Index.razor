@@ -5,14 +5,12 @@
 @using Logging.Net
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Events
-@using Moonlight.App.Helpers
 @using Moonlight.App.Helpers.Wings
 @using Moonlight.App.Helpers.Wings.Enums
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Sessions
 @using Moonlight.Shared.Components.Xterm
-@using Moonlight.Shared.Components.ServerControl
 @using Newtonsoft.Json
 
 @inject ImageRepository ImageRepository
@@ -106,61 +104,38 @@
                     <CascadingValue Value="Console">
                         <CascadingValue Value="CurrentServer">
                             <CascadingValue Value="Tags">
-                                <CascadingValue Value="Node">
-                                    <CascadingValue Value="Image">
-                                        <CascadingValue Value="NodeAllocation">
-                                            @{
-                                                var index = 0;
-
-                                                switch (Route)
-                                                {
-                                                    case "files":
-                                                        index = 1;
-                                                        break;
-                                                    case "backups":
-                                                        index = 2;
-                                                        break;
-                                                    case "network":
-                                                        index = 3;
-                                                        break;
-                                                    case "addons":
-                                                        index = 4;
-                                                        break;
-                                                    case "settings":
-                                                        index = 5;
-                                                        break;
-                                                    default:
-                                                        index = 0;
-                                                        break;
-                                                }
-                                            }
-
-                                            <ServerNavigation Index="index">
-                                                @switch (Route)
-                                                {
-                                                    case "files":
-                                                        <ServerFiles></ServerFiles>
-                                                        break;
-                                                    case "backups":
-                                                        <ServerBackups></ServerBackups>
-                                                        break;
-                                                    case "network":
-                                                        <ServerNetwork></ServerNetwork>
-                                                        break;
-                                                    case "addons":
-                                                        <ServerAddons></ServerAddons>
-                                                        break;
-                                                    case "settings":
-                                                        <ServerSettings></ServerSettings>
-                                                        break;
-                                                    default:
-                                                        <ServerConsole></ServerConsole>
-                                                        break;
-                                                }
-                                            </ServerNavigation>
-                                        </CascadingValue>
-                                    </CascadingValue>
-                                </CascadingValue>
+                                <SmartRouter Route="@Route">
+                                    <Route Path="/">
+                                        <ServerNavigation Index="0">
+                                            <ServerConsole/>
+                                        </ServerNavigation>
+                                    </Route>
+                                    <Route Path="/files">
+                                        <ServerNavigation Index="1">
+                                            <ServerFiles/>
+                                        </ServerNavigation>
+                                    </Route>
+                                    <Route Path="/backups">
+                                        <ServerNavigation Index="2">
+                                             <ServerBackups/>
+                                        </ServerNavigation>
+                                    </Route>
+                                    <Route Path="/network">
+                                        <ServerNavigation Index="3">
+                                            <ServerNetwork/>
+                                        </ServerNavigation>
+                                    </Route>
+                                    <Route Path="/addons">
+                                        <ServerNavigation Index="4">
+                                            <ServerAddons/>
+                                        </ServerNavigation>
+                                    </Route>
+                                    <Route Path="/settings">
+                                        <ServerNavigation Index="5">
+                                            <ServerSettings/>
+                                        </ServerNavigation>
+                                    </Route>
+                                </SmartRouter>
                             </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
