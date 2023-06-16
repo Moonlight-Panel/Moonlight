@@ -3,10 +3,13 @@
 @using Moonlight.App.Services
 @using Logging.Net
 @using Moonlight.App.ApiClients.CloudPanel
+@using Moonlight.App.ApiClients.Daemon
+@using Moonlight.App.ApiClients.Modrinth
 @using Moonlight.App.ApiClients.Wings
 @inherits ErrorBoundaryBase
 
 @inject AlertService AlertService
+@inject ConfigService ConfigService
 @inject SmartTranslateService SmartTranslateService
 
 @if (Crashed)
@@ -37,12 +40,14 @@ else
     
     protected override async Task OnErrorAsync(Exception exception)
     {
-        Logger.Warn(exception);
+        if (ConfigService.DebugMode)
+        {
+            Logger.Warn(exception);
+        }
         
         if (exception is DisplayException displayException)
         {
             await AlertService.Error(
-                SmartTranslateService.Translate("Error"),
                 SmartTranslateService.Translate(displayException.Message)
                 );
         }
@@ -56,13 +61,29 @@ else
         else if (exception is WingsException wingsException)
         {
             await AlertService.Error(
-                SmartTranslateService.Translate("Error from daemon"),
+                SmartTranslateService.Translate("Error from wings"),
                 wingsException.Message
                 );
             
             //TODO: Error log service
             
             Logger.Warn($"Wings exception status code: {wingsException.StatusCode}");
+        }
+        else if (exception is DaemonException daemonException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from daemon"),
+                daemonException.Message
+                );
+
+            Logger.Warn($"Wings exception status code: {daemonException.StatusCode}");
+        }
+        else if (exception is ModrinthException modrinthException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Error from modrinth"),
+                modrinthException.Message
+                );
         }
         else if (exception is CloudPanelException cloudPanelException)
         {
@@ -77,6 +98,7 @@ else
         }
         else
         {
+            Logger.Warn(exception);
             Crashed = true;
             await InvokeAsync(StateHasChanged);
         }

@@ -1,10 +1,158 @@
-﻿<div class="alert alert-primary d-flex rounded p-6">
-    <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
-        <div class="mb-3 mb-md-0 fw-semibold">
-            <h4 class="text-gray-900 fw-bold"><TL>Addons</TL></h4>
-            <div class="fs-6 text-gray-700 pe-7">
-                <TL>This feature is currently not available</TL>
+﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Addon
+@using Moonlight.App.ApiClients.Modrinth.Resources
+@using Logging.Net
+@using Moonlight.App.Services.Interop
+
+@inject ServerAddonPluginService AddonPluginService
+@inject SmartTranslateService SmartTranslateService
+@inject ServerService ServerService
+@inject ToastService ToastService
+
+@if (Tags.Contains("addon-plugins"))
+{
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">
+                <TL>Plugins</TL>
+            </span>
+            <div class="card-toolbar">
+                <div class="input-group">
+                    <i class="bx bx-sm bx-search input-group-text"></i>
+                    <input class="form-control"
+                           placeholder="@(SmartTranslateService.Translate("Search for plugins"))"
+                           @bind="PluginsSearch"/>
+                    <WButton Text="@(SmartTranslateService.Translate("Search"))"
+                             WorkingText="@(SmartTranslateService.Translate("Searching"))"
+                             CssClasses="btn-primary"
+                             OnClick="SearchPlugins">
+                    </WButton>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <LazyLoader @ref="PluginsLazyLoader" Load="LoadPlugins">
+                @foreach (var pluginsPart in Plugins.Chunk(3))
+                {
+                    <div class="row">
+                        @foreach (var plugin in pluginsPart)
+                        {
+                            <div class="col">
+                                <div class="card p-2 card-bordered border-active">
+                                    <div class="d-flex justify-content-center">
+                                        <img height="100" width="100" src="@(plugin.IconUrl)" alt="@(plugin.Title)"/>
+                                    </div>
+                                    <div class="card-body">
+                                        <span class="card-title">@(plugin.Title)</span>
+                                        <p class="card-text">
+                                            @(plugin.Description)
+                                        </p>
+                                        <WButton Text="@(SmartTranslateService.Translate("Install"))"
+                                                 WorkingText="@(SmartTranslateService.Translate("Installing"))"
+                                                 CssClasses="btn-primary"
+                                                 OnClick="() => InstallPlugin(plugin)">
+                                        </WButton>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </LazyLoader>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-primary d-flex rounded p-6">
+        <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+            <div class="mb-3 mb-md-0 fw-semibold">
+                <h4 class="text-gray-900 fw-bold">
+                    <TL>Addons</TL>
+                </h4>
+                <div class="fs-6 text-gray-700 pe-7">
+                    <TL>This feature is not available for</TL>&nbsp;<b>@(CurrentServer.Image.Name)</b>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+
+@code
+{
+    [CascadingParameter]
+    public Server CurrentServer { get; set; }
+
+    [CascadingParameter]
+    public string[] Tags { get; set; }
+
+    private string PluginsSearch = "";
+    private Project[] Plugins = Array.Empty<Project>();
+    private LazyLoader PluginsLazyLoader;
+    private bool IsPluginInstalling = false;
+
+    private async Task LoadPlugins(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText(SmartTranslateService.Translate("Searching"));
+
+        var version = CurrentServer.Variables.First(x => x.Key == "MINECRAFT_VERSION").Value;
+
+        if (string.IsNullOrEmpty(version) || version == "latest")
+            version = "1.20.1"; // This should NOT be called at any time if all the images have the correct tags
+        
+        Plugins = await AddonPluginService.GetPluginsForVersion(version, PluginsSearch);
+    }
+
+    private async Task SearchPlugins()
+    {
+        await PluginsLazyLoader.Reload();
+    }
+
+    private async Task InstallPlugin(Project project)
+    {
+        if (IsPluginInstalling)
+        {
+            await ToastService.Error(
+                SmartTranslateService.Translate("Please wait until the other plugin is installed"));
+            return;
+        }
+        
+        IsPluginInstalling = true;
+
+        try
+        {
+            var fileAccess = await ServerService.CreateFileAccess(CurrentServer, null!);
+
+            var version = CurrentServer.Variables.First(x => x.Key == "MINECRAFT_VERSION").Value;
+
+            if (string.IsNullOrEmpty(version) || version == "latest")
+                version = "1.20.1"; // This should NOT be called at any time if all the images have the correct tags
+
+            await ToastService.CreateProcessToast("pluginDownload", "Preparing");
+
+            await AddonPluginService.InstallPlugin(fileAccess, version, project, delegate(string s)
+            {
+                Task.Run(async () =>
+                {
+                    await ToastService.UpdateProcessToast("pluginDownload", s);
+                });
+            });
+
+            await ToastService.Success(
+                SmartTranslateService.Translate("Successfully installed " + project.Slug)
+                );
+        }
+        catch (Exception e)
+        {
+            Logger.Info(e.Message);
+            throw;
+        }
+        finally
+        {
+            IsPluginInstalling = false;
+            await ToastService.RemoveProcessToast("pluginDownload");
+        }
+    }
+}
+

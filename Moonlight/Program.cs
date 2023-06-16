@@ -5,6 +5,7 @@ using HealthChecks.UI.Client;
 using Logging.Net;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
+using Moonlight.App.ApiClients.Modrinth;
 using Moonlight.App.ApiClients.Paper;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Database;
@@ -18,6 +19,7 @@ using Moonlight.App.Repositories.Domains;
 using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
+using Moonlight.App.Services.Addon;
 using Moonlight.App.Services.Background;
 using Moonlight.App.Services.DiscordBot;
 using Moonlight.App.Services.Files;
@@ -132,6 +134,7 @@ namespace Moonlight
             builder.Services.AddScoped<IpBanService>();
             builder.Services.AddSingleton<OAuth2Service>();
             builder.Services.AddScoped<DynamicBackgroundService>();
+            builder.Services.AddScoped<ServerAddonPluginService>();
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();
@@ -159,6 +162,7 @@ namespace Moonlight
             builder.Services.AddSingleton<HostSystemHelper>();
             builder.Services.AddScoped<DaemonApiHelper>();
             builder.Services.AddScoped<CloudPanelApiHelper>();
+            builder.Services.AddScoped<ModrinthApiHelper>();
 
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();
