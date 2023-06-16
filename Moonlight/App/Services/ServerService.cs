@@ -370,6 +370,9 @@ public class ServerService
 
         await WingsApiHelper.Post(server.Node, $"api/servers/{server.Uuid}/reinstall", null);
 
+        server.Installing = true;
+        ServerRepository.Update(server);
+        
         await AuditLogService.Log(AuditLogType.ReinstallServer, x => { x.Add<Server>(server.Uuid); });
     }
 
