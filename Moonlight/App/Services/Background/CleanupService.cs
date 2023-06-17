@@ -46,13 +46,11 @@ public class CleanupService
         
         var config = ConfigService.GetSection("Moonlight").GetSection("Cleanup");
 
-        /*
-         * if (!config.GetValue<bool>("Enable") || ConfigService.DebugMode)
+        if (!config.GetValue<bool>("Enable") || ConfigService.DebugMode)
         {
             Logger.Info("Disabling cleanup service");
             return;
         }
-         */
         
         Timer = new(TimeSpan.FromMinutes(config.GetValue<int>("Wait")));
 
