@@ -28,6 +28,6 @@
 
     private async Task SendSampleNotification(NotificationClientService client)
     {
-        await client.SendAction(@"{""action"": ""notify"",""notification"":{""id"":999,""channel"":""Sample Channel"",""content"":""This is a sample Notification"",""title"":""Sample Notification""}}");
+        await client.SendAction(@"{""action"": ""notify"",""notification"":{""id"":999,""channel"":""Sample Channel"",""content"":""This is a sample Notification"",""title"":""Sample Notification"",""url"":""server/9b724fe2-d882-49c9-8c34-3414c7e4a17e""}}");
     }
 }
