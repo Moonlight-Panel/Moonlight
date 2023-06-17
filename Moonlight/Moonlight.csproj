@@ -21,6 +21,7 @@
     <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
     <PackageReference Include="Discord.Net" Version="3.10.0" />
     <PackageReference Include="Discord.Net.Webhook" Version="3.10.0" />
+    <PackageReference Include="DnsClient" Version="1.7.0" />
     <PackageReference Include="FluentFTP" Version="46.0.2" />
     <PackageReference Include="GravatarSharp.Core" Version="1.0.1.2" />
     <PackageReference Include="JWT" Version="10.0.2" />

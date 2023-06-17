@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Net;
+using DnsClient;
+using Logging.Net;
+using Microsoft.EntityFrameworkCore;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.CloudPanel.Requests;
 using Moonlight.App.Database.Entities;
@@ -18,7 +21,8 @@ public class WebSpaceService
 
     private readonly CloudPanelApiHelper CloudPanelApiHelper;
 
-    public WebSpaceService(Repository<CloudPanel> cloudPanelRepository, Repository<WebSpace> webSpaceRepository, CloudPanelApiHelper cloudPanelApiHelper, Repository<MySqlDatabase> databaseRepository)
+    public WebSpaceService(Repository<CloudPanel> cloudPanelRepository, Repository<WebSpace> webSpaceRepository,
+        CloudPanelApiHelper cloudPanelApiHelper, Repository<MySqlDatabase> databaseRepository)
     {
         CloudPanelRepository = cloudPanelRepository;
         WebSpaceRepository = webSpaceRepository;
@@ -37,7 +41,7 @@ public class WebSpaceService
         var ftpPassword = StringHelper.GenerateString(16);
 
         var phpVersion = "8.1"; // TODO: Add config option or smth
-        
+
         var w = new WebSpace()
         {
             CloudPanel = cloudPanel,
@@ -83,9 +87,9 @@ public class WebSpaceService
         {
             await DeleteDatabase(webSpace, database);
         }
-        
+
         await CloudPanelApiHelper.Delete(webSpace.CloudPanel, $"site/{webSpace.Domain}", null);
-        
+
         WebSpaceRepository.Delete(webSpace);
     }
 
@@ -109,7 +113,7 @@ public class WebSpaceService
 
         return false;
     }
-    
+
     public async Task<bool> IsHostUp(WebSpace w)
     {
         var webSpace = EnsureData(w);
@@ -120,6 +124,52 @@ public class WebSpaceService
     public async Task IssueSslCertificate(WebSpace w)
     {
         var webspace = EnsureData(w);
+
+        var dns = new LookupClient(new LookupClientOptions()
+        {
+            CacheFailedResults = false,
+            UseCache = false
+        });
+
+        var ipOfWebspaceQuery = await dns.QueryAsync(
+            webspace.Domain,
+            QueryType.A
+        );
+
+        var ipOfWebspaceWwwQuery = await dns.QueryAsync(
+            "www." + webspace.Domain,
+            QueryType.CNAME
+        );
+
+        var ipOfWebspace = ipOfWebspaceQuery.Answers.ARecords().FirstOrDefault();
+        var ipOfWebspaceWww = ipOfWebspaceWwwQuery.Answers.CnameRecords().FirstOrDefault();
+
+        if (ipOfWebspace == null)
+            throw new DisplayException($"Unable to find any a records for {webspace.Domain}", true);
+
+        if (ipOfWebspaceWww == null)
+            throw new DisplayException($"Unable to find any cname records for www.{webspace.Domain}", true);
+
+        var ipOfHostQuery = await dns.QueryAsync(
+            webspace.CloudPanel.Host,
+            QueryType.A
+        );
+
+        var ipOfHost = ipOfHostQuery.Answers.ARecords().FirstOrDefault();
+
+
+        if (ipOfHost == null)
+            throw new DisplayException("Unable to find a record of host system");
+
+        if (ipOfHost.Address.ToString() != ipOfWebspace.Address.ToString())
+            throw new DisplayException("The dns records of your webspace do not point to the host system");
+
+        Logger.Debug($"{ipOfWebspaceWww.CanonicalName.Value}");
+
+        if (ipOfWebspaceWww.CanonicalName.Value != webspace.CloudPanel.Host + ".")
+            throw new DisplayException(
+                $"The dns record www.{webspace.Domain} does not point to {webspace.CloudPanel.Host}", true);
+
 
         await CloudPanelApiHelper.Post(webspace.CloudPanel, "letsencrypt/install/certificate", new InstallLetsEncrypt()
         {
@@ -158,7 +208,7 @@ public class WebSpaceService
             DatabaseUserName = database.UserName,
             DatabaseUserPassword = database.Password
         });
-        
+
         webspace.Databases.Add(database);
         WebSpaceRepository.Update(webspace);
     }
@@ -166,7 +216,7 @@ public class WebSpaceService
     public async Task DeleteDatabase(WebSpace w, MySqlDatabase database)
     {
         var webspace = EnsureData(w);
-        
+
         await CloudPanelApiHelper.Delete(webspace.CloudPanel, $"db/{database.UserName}", null);
 
         webspace.Databases.Remove(database);
@@ -180,7 +230,8 @@ public class WebSpaceService
         var webspace = EnsureData(w);
 
         return Task.FromResult<FileAccess>(
-            new SftpFileAccess(webspace.CloudPanel.Host, webspace.UserName, webspace.Password, 22, true, $"/htdocs/{webspace.Domain}")
+            new SftpFileAccess(webspace.CloudPanel.Host, webspace.UserName, webspace.Password, 22, true,
+                $"/htdocs/{webspace.Domain}")
         );
     }
 
@@ -192,7 +243,7 @@ public class WebSpaceService
                 .Include(x => x.CloudPanel)
                 .Include(x => x.Owner)
                 .First(x => x.Id == webSpace.Id);
-        
+
         return webSpace;
     }
 }
