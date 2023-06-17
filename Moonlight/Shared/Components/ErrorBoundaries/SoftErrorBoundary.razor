@@ -47,9 +47,18 @@ else
         
         if (exception is DisplayException displayException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate(displayException.Message)
-                );
+            if (displayException.DoNotTranslate)
+            {
+                await AlertService.Error(
+                    displayException.Message
+                    );
+            }
+            else
+            {
+                await AlertService.Error(
+                    SmartTranslateService.Translate(displayException.Message)
+                    );
+            }
         }
         else if (exception is CloudflareException cloudflareException)
         {
