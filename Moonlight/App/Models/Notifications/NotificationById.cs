@@ -1,6 +1,9 @@
-﻿namespace Moonlight.App.Models.Notifications;
+﻿using Newtonsoft.Json;
+
+namespace Moonlight.App.Models.Notifications;
 
 public class NotificationById : BasicWSModel
 {
-    public int notification { get; set; }
+    [JsonProperty("notification")]
+    public int Notification { get; set; }
 }

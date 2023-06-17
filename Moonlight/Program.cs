@@ -118,7 +118,6 @@ namespace Moonlight
             builder.Services.AddScoped<OneTimeJwtService>();
             builder.Services.AddSingleton<NotificationServerService>();
             builder.Services.AddScoped<NotificationAdminService>();
-            builder.Services.AddScoped<NotificationClientService>();
             builder.Services.AddScoped<ModalService>();
             builder.Services.AddScoped<SmartDeployService>();
             builder.Services.AddScoped<WebSpaceService>();

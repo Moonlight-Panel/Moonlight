@@ -1,6 +1,8 @@
-﻿namespace Moonlight.App.Models.Notifications;
+﻿using Newtonsoft.Json;
+
+namespace Moonlight.App.Models.Notifications;
 
 public class Login : BasicWSModel
 {
-    public string token { get; set; }
+    [JsonProperty("token")] public string Token { get; set; } = "";
 }

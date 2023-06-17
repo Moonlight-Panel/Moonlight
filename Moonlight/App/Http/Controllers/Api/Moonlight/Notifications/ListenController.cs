@@ -1,7 +1,9 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
+using Logging.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Notification;
 using Moonlight.App.Models.Notifications;
 using Moonlight.App.Repositories;
@@ -12,135 +14,156 @@ using Newtonsoft.Json;
 
 namespace Moonlight.App.Http.Controllers.Api.Moonlight.Notifications;
 
-public class ListenController : ControllerBase
+[ApiController]
+[Route("api/moonlight/notification/listen")]
+public class ListenController : Controller
 {
-    internal WebSocket ws;
-    private bool active = true;
-    private bool isAuth = false;
+    private WebSocket WebSocket;
     private NotificationClient Client;
-    
-    private readonly IdentityService IdentityService;
-    private readonly NotificationRepository NotificationRepository;
-    private readonly OneTimeJwtService OneTimeJwtService;
-    private readonly NotificationClientService NotificationClientService;
-    private readonly NotificationServerService NotificationServerService;
+    private CancellationTokenSource CancellationTokenSource = new();
 
-    public ListenController(IdentityService identityService, 
-        NotificationRepository notificationRepository, 
-        OneTimeJwtService oneTimeJwtService, 
-        NotificationClientService notificationClientService,
-        NotificationServerService notificationServerService)
+    private User? CurrentUser;
+
+    private readonly OneTimeJwtService OneTimeJwtService;
+    private readonly NotificationServerService NotificationServerService;
+    private readonly Repository<NotificationClient> NotificationClientRepository;
+
+    public ListenController(
+        OneTimeJwtService oneTimeJwtService,
+        NotificationServerService notificationServerService, Repository<NotificationClient> notificationClientRepository)
     {
-        IdentityService = identityService;
-        NotificationRepository = notificationRepository;
         OneTimeJwtService = oneTimeJwtService;
-        NotificationClientService = notificationClientService;
         NotificationServerService = notificationServerService;
+        NotificationClientRepository = notificationClientRepository;
     }
-    
+
     [Route("/api/moonlight/notifications/listen")]
-    public async Task Get()
+    public async Task<ActionResult> Get()
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
-            using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            ws = webSocket;
-            await Echo();
+            WebSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+
+            await ProcessWebsocket();
+
+            return new EmptyResult();
         }
         else
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return StatusCode(400);
         }
     }
 
-    private async Task Echo()
+    private async Task ProcessWebsocket()
     {
-        while (active)
+        while (!CancellationTokenSource.Token.IsCancellationRequested && WebSocket.State == WebSocketState.Open)
         {
-            byte[] bytes = new byte[1024 * 16]; 
-            var asg = new ArraySegment<byte>(bytes);
-            var res = await ws.ReceiveAsync(asg, CancellationToken.None);
-
-            var text = Encoding.UTF8.GetString(bytes).Trim('\0');
-
-            var obj = JsonConvert.DeserializeObject<BasicWSModel>(text);
-
-            if (!string.IsNullOrWhiteSpace(obj.Action))
+            try
             {
-                await HandleRequest(text, obj.Action);
+                byte[] buffer = new byte[1024 * 16];
+                _ = await WebSocket.ReceiveAsync(buffer, CancellationTokenSource.Token);
+                var text = Encoding.UTF8.GetString(buffer).Trim('\0');
+
+                var basicWsModel = JsonConvert.DeserializeObject<BasicWSModel>(text) ?? new();
+
+                if (!string.IsNullOrWhiteSpace(basicWsModel.Action))
+                {
+                    await HandleRequest(text, basicWsModel.Action);
+                }
+
+                if (WebSocket.State != WebSocketState.Open)
+                {
+                    CancellationTokenSource.Cancel();
+                }
             }
-            
-            active = ws.State == WebSocketState.Open;
+            catch (WebSocketException e)
+            {
+                CancellationTokenSource.Cancel();
+            }
         }
+
+        await NotificationServerService.UnRegisterClient(Client);
     }
 
     private async Task HandleRequest(string text, string action)
     {
-        if (!isAuth && action == "login")
-            await Login(text);
-        else if (!isAuth)
-            await ws.SendAsync(Encoding.UTF8.GetBytes("{\"error\": \"Unauthorised\"}"), WebSocketMessageType.Text,
-                WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
-        else switch (action)
+        if (CurrentUser == null && action != "login")
         {
+            await Send("{\"error\": \"Unauthorised\"}");
+        }
+
+        switch (action)
+        {
+            case "login":
+                await Login(text);
+                break;
             case "received":
                 await Received(text);
                 break;
             case "read":
                 await Read(text);
                 break;
-            default:
-                break;
         }
+    }
+
+    private async Task Send(string text)
+    {
+        await WebSocket.SendAsync(
+            Encoding.UTF8.GetBytes(text),
+            WebSocketMessageType.Text,
+            WebSocketMessageFlags.EndOfMessage, CancellationTokenSource.Token
+        );
     }
 
     private async Task Login(string json)
     {
-        var jwt = JsonConvert.DeserializeObject<Login>(json).token;
-        
-        var dict = await OneTimeJwtService.Validate(jwt);
+        var loginModel = JsonConvert.DeserializeObject<Login>(json) ?? new();
+
+        var dict = await OneTimeJwtService.Validate(loginModel.Token);
 
         if (dict == null)
         {
-            string error = "{\"status\":false}";
-            var bytes = Encoding.UTF8.GetBytes(error);
-            await ws.SendAsync(bytes, WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
+            await Send("{\"status\":false}");
             return;
         }
 
-        var _clientId = dict["clientId"];
-        var clientId = int.Parse(_clientId);
+        if (!int.TryParse(dict["clientId"], out int clientId))
+        {
+            await Send("{\"status\":false}");
+            return;
+        }
 
-        var client = NotificationRepository.GetClients().Include(x => x.User).First(x => x.Id == clientId);
+        Client = NotificationClientRepository
+            .Get()
+            .Include(x => x.User)
+            .First(x => x.Id == clientId);
 
-        Client = client;
-        await InitWebsocket();
-        
-        string success = "{\"status\":true}";
-        var byt = Encoding.UTF8.GetBytes(success);
-        await ws.SendAsync(byt, WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, CancellationToken.None);
-    }
+        CurrentUser = Client.User;
 
-    private async Task InitWebsocket()
-    {
-        NotificationClientService.listenController = this;
-        NotificationClientService.WebsocketReady(Client);
+        await NotificationServerService.RegisterClient(WebSocket, Client);
 
-        isAuth = true;
+        await Send("{\"status\":true}");
     }
 
     private async Task Received(string json)
     {
-        var id = JsonConvert.DeserializeObject<NotificationById>(json).notification;
-        
+        var id = JsonConvert.DeserializeObject<NotificationById>(json).Notification;
+
         //TODO: Implement ws notification received
     }
 
     private async Task Read(string json)
     {
-        var id = JsonConvert.DeserializeObject<NotificationById>(json).notification;
+        var model = JsonConvert.DeserializeObject<NotificationById>(json) ?? new();
 
-        await NotificationServerService.SendAction(NotificationClientService.User,
-            JsonConvert.SerializeObject(new NotificationById() {Action = "hide", notification = id}));
+        await NotificationServerService.SendAction(
+            CurrentUser!,
+            JsonConvert.SerializeObject(
+                new NotificationById()
+                {
+                    Action = "hide", Notification = model.Notification
+                }
+            )
+        );
     }
 }
