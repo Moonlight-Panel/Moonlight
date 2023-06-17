@@ -159,8 +159,17 @@ public class IdentityService
 
         try
         {
+            var userAgent = HttpContextAccessor.HttpContext.Request.Headers.UserAgent.ToString();
+
+            if (userAgent.Contains("Moonlight.App"))
+            {
+                var version = userAgent.Remove(0, "Moonlight.App/".Length).Split(' ').FirstOrDefault();
+
+                return "Moonlight App " + version;
+            }
+            
             var uaParser = Parser.GetDefault();
-            var info = uaParser.Parse(HttpContextAccessor.HttpContext.Request.Headers.UserAgent);
+            var info = uaParser.Parse(userAgent);
 
             return $"{info.OS} - {info.Device}";
         }
