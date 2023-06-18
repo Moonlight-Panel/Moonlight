@@ -33,9 +33,6 @@ public class MoonlightService
 
     private async Task FetchChangeLog()
     {
-        if(AppVersion == "unknown")
-            return;
-
         if (ConfigService.DebugMode)
         {
             ChangeLog.Add(new[]
