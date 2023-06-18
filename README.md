@@ -61,7 +61,7 @@ A full guide how to install moonlight can be found here:
 
 Quick installers/updaters:
 
-Moonlight
+Moonlight:
 `curl https://install.moonlightpanel.xyz/moonlight | bash`
 
 Daemon (not wings):
@@ -88,7 +88,7 @@ The roudmap can be found here:
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/Moonlight-Panel/Moonlight/blob/main/LICENSE.md) for more information.
+Distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License. See [LICENSE](https://github.com/Moonlight-Panel/Moonlight/blob/main/LICENSE.md) for more information.
 
 ## Authors
 
