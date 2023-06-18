@@ -1,33 +1,74 @@
 ﻿@page "/admin/notifications/debugging"
 @using Moonlight.App.Services.Notifications
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Events
+@using BlazorTable
+@using Moonlight.App.Database.Entities.Notification
+@using Moonlight.App.Services
 
 @inject NotificationServerService NotificationServerService
+@inject SmartTranslateService SmartTranslateService
+@inject EventSystem Event
+
+@implements IDisposable
 
 <OnlyAdmin>
     <LazyLoader Load="Load">
-        <h1>Notification Debugging</h1>
-        @foreach (var client in Clients)
-        {
-            <hr/>
-            <div>
-                <p>Id: @client.NotificationClient.Id User: @client.User.Email</p>
-                <button @onclick="async () => await SendSampleNotification(client)"></button>
-            </div>
-        }
+        <div class="card card-body">
+            <Table TableItem="ActiveNotificationClient" Items="Clients" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                <Column TableItem="ActiveNotificationClient" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Client.Id)" Sortable="false" Filterable="true"/>
+                <Column TableItem="ActiveNotificationClient" Title="@(SmartTranslateService.Translate("User"))" Field="@(x => x.Client.User.Email)" Sortable="false" Filterable="true"/>
+                <Column TableItem="ActiveNotificationClient" Title="" Field="@(x => x.Client.Id)" Sortable="false" Filterable="false">
+                    <Template>
+                        <WButton Text="@(SmartTranslateService.Translate("Send notification"))"
+                                 WorkingText="@(SmartTranslateService.Translate("Working"))"
+                                 CssClasses="btn-primary"
+                                 OnClick="() => SendSampleNotification(context)">
+                        </WButton>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+            </Table>
+        </div>
     </LazyLoader>
 </OnlyAdmin>
 
-    
-@code {
-    private List<NotificationClientService> Clients;
+
+@code
+{
+    private ActiveNotificationClient[] Clients;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Event.On<NotificationClient>("notifications.addClient", this, async client =>
+            {
+                Clients = await NotificationServerService.GetActiveClients();
+                await InvokeAsync(StateHasChanged);
+            });
+
+            await Event.On<NotificationClient>("notifications.removeClient", this, async client =>
+            {
+                Clients = await NotificationServerService.GetActiveClients();
+                await InvokeAsync(StateHasChanged);
+            });
+        }
+    }
 
     private async Task Load(LazyLoader loader)
     {
-        Clients = NotificationServerService.GetConnectedClients();
+        Clients = await NotificationServerService.GetActiveClients();
     }
 
-    private async Task SendSampleNotification(NotificationClientService client)
+    private async Task SendSampleNotification(ActiveNotificationClient client)
     {
-        await client.SendAction(@"{""action"": ""notify"",""notification"":{""id"":999,""channel"":""Sample Channel"",""content"":""This is a sample Notification"",""title"":""Sample Notification""}}");
+        await client.SendAction(@"{""action"": ""notify"",""notification"":{""id"":999,""channel"":""Sample Channel"",""content"":""This is a sample Notification"",""title"":""Sample Notification"",""url"":""server/9b724fe2-d882-49c9-8c34-3414c7e4a17e""}}");
+    }
+
+    public async void Dispose()
+    {
+        await Event.Off("notifications.addClient", this);
+        await Event.Off("notifications.removeClient", this);
     }
 }
