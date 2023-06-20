@@ -31,6 +31,20 @@
       },
       "applicationUrl": "http://moonlight.testy:5118;https://localhost:7118;http://localhost:5118",
       "dotnetRunMessages": true
+    },
+    "Watch": {
+      "commandName": "Executable",
+      "executablePath": "dotnet",
+      "workingDirectory": "$(ProjectDir)",
+      "hotReloadEnabled": true,
+      "hotReloadProfile": "aspnetcore",
+      "commandLineArgs": "watch run",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ML_DEBUG": "true"
+      },
+      "applicationUrl": "http://moonlight.testy:5118;https://localhost:7118;http://localhost:5118"
     }
   }
 }
