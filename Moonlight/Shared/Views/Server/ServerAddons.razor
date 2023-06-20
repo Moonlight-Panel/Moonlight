@@ -33,14 +33,14 @@
         </div>
         <div class="card-body">
             <LazyLoader @ref="PluginsLazyLoader" Load="LoadPlugins">
-                @foreach (var pluginsPart in Plugins.Chunk(3))
+                @if (Plugins.Any())
                 {
                     <div class="row">
-                        @foreach (var plugin in pluginsPart)
+                        @foreach (var plugin in Plugins)
                         {
-                            <div class="col">
-                                <div class="card p-2 card-bordered border-active">
-                                    <div class="d-flex justify-content-center">
+                            <div class="col-12 col-md-4 p-3">
+                                <div class="card bg-hover-secondary position-relative">
+                                    <div class="d-flex justify-content-center pt-5">
                                         <img height="100" width="100" src="@(plugin.IconUrl)" alt="@(plugin.Title)"/>
                                     </div>
                                     <div class="card-body">
@@ -48,16 +48,24 @@
                                         <p class="card-text">
                                             @(plugin.Description)
                                         </p>
-                                        <WButton Text="@(SmartTranslateService.Translate("Install"))"
-                                                 WorkingText="@(SmartTranslateService.Translate("Installing"))"
-                                                 CssClasses="btn-primary"
+                                    </div>
+                                    <div class="position-absolute top-0 end-0 mt-3 me-3">
+                                        <a href="https://modrinth.com/plugin/@(plugin.Slug)" class="btn btn-primary p-2" target="_blank">
+                                            <i class="ps-1 bx bx-sm bx-link"></i>
+                                        </a>
+                                        <WButton CssClasses="btn-success p-2"
                                                  OnClick="() => InstallPlugin(plugin)">
+                                            <i class="ps-1 bx bx-sm bx-download"></i>
                                         </WButton>
                                     </div>
                                 </div>
                             </div>
                         }
                     </div>
+                }
+                else
+                {
+                    <NotFoundAlert />
                 }
             </LazyLoader>
         </div>
@@ -100,7 +108,7 @@ else
 
         if (string.IsNullOrEmpty(version) || version == "latest")
             version = "1.20.1"; // This should NOT be called at any time if all the images have the correct tags
-        
+
         Plugins = await AddonPluginService.GetPluginsForVersion(version, PluginsSearch);
     }
 
@@ -117,7 +125,7 @@ else
                 SmartTranslateService.Translate("Please wait until the other plugin is installed"));
             return;
         }
-        
+
         IsPluginInstalling = true;
 
         try
@@ -131,13 +139,7 @@ else
 
             await ToastService.CreateProcessToast("pluginDownload", "Preparing");
 
-            await AddonPluginService.InstallPlugin(fileAccess, version, project, delegate(string s)
-            {
-                Task.Run(async () =>
-                {
-                    await ToastService.UpdateProcessToast("pluginDownload", s);
-                });
-            });
+            await AddonPluginService.InstallPlugin(fileAccess, version, project, delegate(string s) { Task.Run(async () => { await ToastService.UpdateProcessToast("pluginDownload", s); }); });
 
             await ToastService.Success(
                 SmartTranslateService.Translate("Successfully installed " + project.Slug)
@@ -155,4 +157,3 @@ else
         }
     }
 }
-

@@ -27,19 +27,7 @@
 <LazyLoader Load="LoadData">
     @if (CurrentServer == null)
     {
-        <div class="d-flex justify-content-center flex-center">
-            <div class="card">
-                <img src="/assets/media/svg/nodata.svg" class="card-img-top w-50 mx-auto pt-5" alt="Not found image"/>
-                <div class="card-body text-center">
-                    <h1 class="card-title">
-                        <TL>Server not found</TL>
-                    </h1>
-                    <p class="card-text fs-4">
-                        <TL>A server with that id cannot be found or you have no access for this server</TL>
-                    </p>
-                </div>
-            </div>
-        </div>
+        <NotFoundAlert />
     }
     else
     {
