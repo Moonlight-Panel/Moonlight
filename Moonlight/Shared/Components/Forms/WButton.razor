@@ -2,6 +2,7 @@
 {
     <button class="btn @(CssClasses)" @onclick="Do">
         @Text
+        @ChildContent
     </button>
 }
 else
@@ -20,13 +21,16 @@ else
     public string CssClasses { get; set; } = "btn-primary";
 
     [Parameter]
-    public string Text { get; set; } = "Mache was";
+    public string Text { get; set; } = "";
 
     [Parameter]
-    public string WorkingText { get; set; } = "Verarbeite...";
+    public string WorkingText { get; set; } = "";
     
     [Parameter]
     public Func<Task>? OnClick { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 
     private async Task Do()
     {
