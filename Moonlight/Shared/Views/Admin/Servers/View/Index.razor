@@ -33,6 +33,7 @@
                     </Route>
                     <Route Path="/allocations">
                         <AdminServersViewNavigation Index="3" Server="Server"/>
+                        <Allocations />
                     </Route>
                     <Route Path="/archive">
                         <AdminServersViewNavigation Index="4" Server="Server"/>
@@ -72,6 +73,7 @@
             .Include(x => x.Allocations)
             .Include(x => x.MainAllocation)
             .Include(x => x.Variables)
+            .Include(x => x.Node)
             .FirstOrDefault(x => x.Id == Id);
 
         return Task.CompletedTask;
