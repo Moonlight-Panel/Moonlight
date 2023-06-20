@@ -134,6 +134,7 @@ namespace Moonlight
             builder.Services.AddSingleton<OAuth2Service>();
             builder.Services.AddScoped<DynamicBackgroundService>();
             builder.Services.AddScoped<ServerAddonPluginService>();
+            builder.Services.AddScoped<KeyListenerService>();
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();

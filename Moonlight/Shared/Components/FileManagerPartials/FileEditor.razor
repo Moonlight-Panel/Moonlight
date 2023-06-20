@@ -1,9 +1,14 @@
 ﻿@using BlazorMonaco
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Sessions
 @using Moonlight.Shared.Components.Partials
 
 @inject SmartTranslateService TranslationService
+@inject KeyListenerService KeyListenerService
 @inject IJSRuntime JsRuntime
+
+@implements IDisposable
 
 <div class="card bg-black rounded">
     <div class="card-body">
@@ -65,6 +70,16 @@
             },
             AutoIndent = true
         };
+        
+        KeyListenerService.KeyPressed += KeyPressed;
+    }
+
+    private async void KeyPressed(object? sender, string e)
+    {
+        if (e == "saveShortcut")
+        {
+            await Submit();
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -110,5 +125,11 @@
     public async Task<string> GetData()
     {
         return await Editor.GetValue();
+    }
+
+    public void Dispose()
+    {
+        Editor.Dispose();
+        KeyListenerService.KeyPressed -= KeyPressed;
     }
 }
