@@ -347,5 +347,28 @@
                 anchorElement.remove();
                 URL.revokeObjectURL(url);
             }
+        },
+        keyListener: {
+            register: function (dotNetObjRef)
+            {
+                moonlight.keyListener.listener = (event) => 
+                {
+                    // filter here what key events should be sent to moonlight
+                    
+                    console.log(event);
+
+                    if(event.code === "KeyS" && event.ctrlKey)
+                    {
+                        event.preventDefault();
+                        dotNetObjRef.invokeMethodAsync('OnKeyPress', "saveShortcut");
+                    }
+                };
+                
+                window.addEventListener('keydown', moonlight.keyListener.listener);
+            },
+            unregister: function (dotNetObjRef)
+            {
+                window.removeEventListener('keydown', moonlight.keyListener.listener);
+            }
         }
     };

@@ -17,7 +17,7 @@
                 InitialData="@EditorInitialData"
                 Language="@EditorLanguage"
                 OnCancel="() => Cancel()"
-                OnSubmit="(_) => Cancel(true)"
+                OnSubmit="(_) => Save()"
                 HideControls="false">
     </FileEditor>
 }
@@ -253,6 +253,13 @@ else
         
         await InvokeAsync(StateHasChanged);
         return false;
+    }
+    
+    private async void Save()
+    {
+        var data = await Editor.GetData();
+        await Access.Write(EditingFile, data);
+        await ToastService.Success(SmartTranslateService.Translate("Successfully saved file"));
     }
 
     private async void Cancel(bool save = false)

@@ -21,6 +21,7 @@
 @inject SmartTranslateService SmartTranslateService
 @inject IpBanService IpBanService
 @inject DynamicBackgroundService DynamicBackgroundService
+@inject KeyListenerService KeyListenerService
 
 @{
     var uri = new Uri(NavigationManager.Uri);
@@ -207,10 +208,14 @@
                 UserProcessed = true;
                 await InvokeAsync(StateHasChanged);
 
-                await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-reset-transition");
-                await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-page-loading");
-                await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
-                await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
+                try
+                {
+                    await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-reset-transition");
+                    await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-page-loading");
+                    await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
+                    await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
+                }
+                catch (Exception){ /* ignore errors to make sure that the session call is executed */ }
 
                 await SessionService.Register();
 
@@ -236,6 +241,8 @@
                         });
                 }
 
+                await KeyListenerService.Initialize();
+
                 RunDelayedMenu(0);
                 RunDelayedMenu(1);
                 RunDelayedMenu(3);
@@ -251,6 +258,8 @@
     public async void Dispose()
     {
         SessionService.Close();
+
+        await KeyListenerService.DisposeAsync();
 
         if (User != null)
         {
