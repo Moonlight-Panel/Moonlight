@@ -1,10 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Logging.Net;
 using Microsoft.EntityFrameworkCore;
-using Moonlight.App.Database.Entities;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
-using UserStatus = Moonlight.App.Models.Misc.UserStatus;
 
 
 namespace Moonlight.App.Services.DiscordBot.Commands;
@@ -23,8 +22,9 @@ public class ServerListCommand : BaseModule
         
         if (command.User.IsBot) return;
         if (command.CommandName != "servers") return;
-        var usersRepo = Scope.ServiceProvider.GetRequiredService<Repository<User>>();
+        var usersRepo = Scope.ServiceProvider.GetRequiredService<UserRepository>();
         var user = usersRepo.Get().FirstOrDefault(x => x.DiscordId == command.User.Id);
+        //var user = usersRepo.Get().FirstOrDefault(x => x.Id == 1);
 
         if (user == null)
         {
@@ -42,13 +42,10 @@ public class ServerListCommand : BaseModule
         
         foreach (var server in servers.Take(25))
         {
-            if (!server.Suspended && server.Owner.DiscordId == command.User.Id && user.Status is not (UserStatus.Banned or UserStatus.Disabled))
-            {
-                selectOptions.Add(new SelectMenuOptionBuilder()
-                    .WithLabel($"{server.Id} - {server.Name}")
-                    .WithEmote(Emote.Parse("<:server3:968614410228736070>"))
-                    .WithValue(server.Id.ToString()));
-            }
+            selectOptions.Add(new SelectMenuOptionBuilder()
+                .WithLabel($"{server.Id} - {server.Name}")
+                .WithEmote(Emote.Parse("<:server3:968614410228736070>"))
+                .WithValue(server.Id.ToString()));
         }
         
         components = new ComponentBuilder();

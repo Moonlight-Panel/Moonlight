@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
-using UserStatus = Moonlight.App.Models.Misc.UserStatus;
 
 namespace Moonlight.App.Services.DiscordBot.Modules;
 
@@ -31,8 +30,7 @@ public class ServerListComponentHandlerModule : BaseModule
         var dcs = Scope.ServiceProvider.GetRequiredService<DiscordBotService>();
         var costomId = component.Data.CustomId.Split(".");
         EmbedBuilder embed = dcs.EmbedBuilderModule.StandardEmbed("Something went terribly wrong! \n Mission failed please try again later.", Color.Red, component.User);
-        ComponentBuilder components = new();
-        
+
         if (costomId.Length < 3) return;
         
         if(costomId[0] is not "Sm") return;
@@ -49,25 +47,11 @@ public class ServerListComponentHandlerModule : BaseModule
             await ErrorEmbedSnippet(component);
             return;
         }
-        
-        var usersRepo = Scope.ServiceProvider.GetRequiredService<Repository<User>>();
-        var user = usersRepo.Get().FirstOrDefault(x => x.DiscordId == component.User.Id);
-        
-        if (user == null)
-        {
-            embed = dcs.EmbedBuilderModule.StandardEmbed("Sorry ;( \n Please first create and/or link a Account to Discord! \n Press the Button to register/log in.", Color.Red, component.User);
-            components.WithButton("Click Here", style: ButtonStyle.Link, url: ConfigService.GetSection("Moonlight").GetValue<String>("AppUrl"));
-            
-            await component.RespondAsync(embed: embed.Build(), components: components.Build(), ephemeral: true);
-            await component.DeleteOriginalResponseAsync();
-            return;
-        }
-        
-        if (server.Suspended || user.Status is not (UserStatus.Banned or UserStatus.Disabled) || server.Owner.DiscordId != component.User.Id)
+
+        if (server.Owner.DiscordId != component.User.Id)
         {
             embed = dcs.EmbedBuilderModule.StandardEmbed("Is this your Server? I don't think so. \n Yes i did think of that.", Color.Red, component.User);
             await component.RespondAsync(embed: embed.Build(), ephemeral: true);
-            await component.DeleteOriginalResponseAsync();
             return;
         }
 
@@ -151,7 +135,7 @@ public class ServerListComponentHandlerModule : BaseModule
 
         
             case "Stop":
-                if (serverDetails.State is not ("starting" or "stopping" or "running"))
+                if (serverDetails.State is not ("starting" or "stopping"))
                 {
                     embed = dcs.EmbedBuilderModule.StandardEmbed("Server is in a Invalid State \n please try again later.", Color.Red, component.User);
                     await component.RespondAsync(embed: embed.Build(), ephemeral: true);
