@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using Renci.SshNet;
+﻿using Renci.SshNet;
 using ConnectionInfo = Renci.SshNet.ConnectionInfo;
 
 namespace Moonlight.App.Helpers.Files;

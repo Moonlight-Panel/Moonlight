@@ -1,7 +1,4 @@
-﻿using Moonlight.App.Database.Entities;
-using Moonlight.App.Models.Misc;
-using Moonlight.App.Repositories;
-using Moonlight.App.Services.LogServices;
+﻿using Moonlight.App.Repositories;
 using Moonlight.App.Services.Sessions;
 using OtpNet;
 
@@ -11,16 +8,13 @@ public class TotpService
 {
     private readonly IdentityService IdentityService;
     private readonly UserRepository UserRepository;
-    private readonly AuditLogService AuditLogService;
 
     public TotpService(
         IdentityService identityService, 
-        UserRepository userRepository, 
-        AuditLogService auditLogService)
+        UserRepository userRepository)
     {
         IdentityService = identityService;
         UserRepository = userRepository;
-        AuditLogService = auditLogService;
     }
 
     public Task<bool> Verify(string secret, string code)
@@ -52,10 +46,7 @@ public class TotpService
         
         UserRepository.Update(user);
 
-        await AuditLogService.Log(AuditLogType.EnableTotp, x =>
-        {
-            x.Add<User>(user.Email);
-        });
+        //TODO: AuditLog
     }
 
     public async Task EnforceTotpLogin()
@@ -74,10 +65,7 @@ public class TotpService
 
         UserRepository.Update(user);
         
-        await AuditLogService.Log(AuditLogType.DisableTotp,x =>
-        {
-            x.Add<User>(user.Email);
-        });
+        //TODO: AuditLog
     }
 
     private string GenerateSecret()

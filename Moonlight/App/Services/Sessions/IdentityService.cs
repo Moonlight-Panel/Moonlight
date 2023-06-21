@@ -2,12 +2,10 @@
 using JWT.Algorithms;
 using JWT.Builder;
 using JWT.Exceptions;
-using Logging.Net;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
-using Moonlight.App.Services.LogServices;
 using UAParser;
 
 namespace Moonlight.App.Services.Sessions;
@@ -16,8 +14,6 @@ public class IdentityService
 {
     private readonly UserRepository UserRepository;
     private readonly CookieService CookieService;
-    private readonly SecurityLogService SecurityLogService;
-    private readonly ErrorLogService ErrorLogService;
     private readonly IHttpContextAccessor HttpContextAccessor;
     private readonly string Secret;
     
@@ -27,15 +23,11 @@ public class IdentityService
         CookieService cookieService,
         UserRepository userRepository,
         IHttpContextAccessor httpContextAccessor,
-        ConfigService configService,
-        SecurityLogService securityLogService,
-        ErrorLogService errorLogService)
+        ConfigService configService)
     {
         CookieService = cookieService;
         UserRepository = userRepository;
         HttpContextAccessor = httpContextAccessor;
-        SecurityLogService = securityLogService;
-        ErrorLogService = errorLogService;
 
         Secret = configService
             .GetSection("Moonlight")
@@ -90,15 +82,13 @@ public class IdentityService
             }
             catch (SignatureVerificationException)
             {
-                await SecurityLogService.Log(SecurityLogType.ManipulatedJwt, x =>
-                {
-                    x.Add<string>(token);
-                });
+                Logger.Warn($"Detected a manipulated JWT: {token}", "security");
                 return null;
             }
             catch (Exception e)
             {
-                await ErrorLogService.Log(e, x => {});
+                Logger.Error("Error reading jwt");
+                Logger.Error(e);
                 return null;
             }
 
@@ -134,7 +124,8 @@ public class IdentityService
         }
         catch (Exception e)
         {
-            await ErrorLogService.Log(e, x => {});
+            Logger.Error("Unexpected error while processing token");
+            Logger.Error(e);
             return null;
         }
     }

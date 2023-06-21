@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MineStatLib;
 using Moonlight.App.ApiClients.Daemon.Resources;
 using Moonlight.App.ApiClients.Wings;

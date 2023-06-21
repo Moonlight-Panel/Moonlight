@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database;
 using Moonlight.App.Services;

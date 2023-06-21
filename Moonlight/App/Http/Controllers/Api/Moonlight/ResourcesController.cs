@@ -1,12 +1,6 @@
-﻿using System.Text;
-using Logging.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moonlight.App.Helpers;
-using Moonlight.App.Models.Misc;
-using Moonlight.App.Services;
 using Moonlight.App.Services.Files;
-using Moonlight.App.Services.LogServices;
-using Moonlight.App.Services.Sessions;
 
 namespace Moonlight.App.Http.Controllers.Api.Moonlight;
 
@@ -14,13 +8,10 @@ namespace Moonlight.App.Http.Controllers.Api.Moonlight;
 [Route("api/moonlight/resources")]
 public class ResourcesController : Controller
 {
-    private readonly SecurityLogService SecurityLogService;
     private readonly BucketService BucketService;
 
-    public ResourcesController(SecurityLogService securityLogService,
-        BucketService bucketService)
+    public ResourcesController(BucketService bucketService)
     {
-        SecurityLogService = securityLogService;
         BucketService = bucketService;
     }
 
@@ -29,10 +20,7 @@ public class ResourcesController : Controller
     {
         if (name.Contains(".."))
         {
-            await SecurityLogService.Log(SecurityLogType.PathTransversal, x =>
-            {
-                x.Add<string>(name);
-            });
+            Logger.Warn($"Detected an attempted path transversal. Path: {name}", "security");
             
             return NotFound();
         }
@@ -52,10 +40,7 @@ public class ResourcesController : Controller
     {
         if (name.Contains(".."))
         {
-            await SecurityLogService.Log(SecurityLogType.PathTransversal, x =>
-            {
-                x.Add<string>(name);
-            });
+            Logger.Warn($"Detected an attempted path transversal. Path: {name}", "security");
             
             return NotFound();
         }
@@ -75,10 +60,7 @@ public class ResourcesController : Controller
     {
         if (name.Contains(".."))
         {
-            await SecurityLogService.Log(SecurityLogType.PathTransversal, x =>
-            {
-                x.Add<string>(name);
-            });
+            Logger.Warn($"Detected an attempted path transversal. Path: {name}", "security");
             
             return NotFound();
         }

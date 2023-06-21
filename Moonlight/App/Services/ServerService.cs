@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.ApiClients.Wings.Requests;
 using Moonlight.App.ApiClients.Wings.Resources;
@@ -13,7 +12,6 @@ using Moonlight.App.Helpers.Wings;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
-using Moonlight.App.Services.LogServices;
 using FileAccess = Moonlight.App.Helpers.Files.FileAccess;
 
 namespace Moonlight.App.Services;
@@ -30,9 +28,6 @@ public class ServerService
     private readonly UserService UserService;
     private readonly ConfigService ConfigService;
     private readonly WingsJwtHelper WingsJwtHelper;
-    private readonly SecurityLogService SecurityLogService;
-    private readonly AuditLogService AuditLogService;
-    private readonly ErrorLogService ErrorLogService;
     private readonly NodeService NodeService;
     private readonly DateTimeService DateTimeService;
     private readonly EventSystem Event;
@@ -46,9 +41,6 @@ public class ServerService
         UserService userService,
         ConfigService configService,
         WingsJwtHelper wingsJwtHelper,
-        SecurityLogService securityLogService,
-        AuditLogService auditLogService,
-        ErrorLogService errorLogService,
         NodeService nodeService,
         NodeAllocationRepository nodeAllocationRepository,
         DateTimeService dateTimeService,
@@ -63,9 +55,6 @@ public class ServerService
         UserService = userService;
         ConfigService = configService;
         WingsJwtHelper = wingsJwtHelper;
-        SecurityLogService = securityLogService;
-        AuditLogService = auditLogService;
-        ErrorLogService = errorLogService;
         NodeService = nodeService;
         NodeAllocationRepository = nodeAllocationRepository;
         DateTimeService = dateTimeService;
@@ -107,11 +96,7 @@ public class ServerService
             Action = rawSignal
         });
 
-        await AuditLogService.Log(AuditLogType.ChangePowerState, x =>
-        {
-            x.Add<Server>(server.Uuid);
-            x.Add<PowerSignal>(rawSignal);
-        });
+        //TODO: AuditLog
     }
 
     public async Task<ServerBackup> CreateBackup(Server server)
@@ -140,12 +125,7 @@ public class ServerService
             Ignore = ""
         });
 
-        await AuditLogService.Log(AuditLogType.CreateBackup,
-            x =>
-            {
-                x.Add<Server>(server.Uuid);
-                x.Add<ServerBackup>(backup.Uuid);
-            });
+        //TODO: AuditLog
 
         return backup;
     }
@@ -182,12 +162,7 @@ public class ServerService
                 Adapter = "wings"
             });
 
-        await AuditLogService.Log(AuditLogType.RestoreBackup,
-            x =>
-            {
-                x.Add<Server>(server.Uuid);
-                x.Add<ServerBackup>(serverBackup.Uuid);
-            });
+        //TODO: AuditLog
     }
 
     public async Task DeleteBackup(Server server, ServerBackup serverBackup)
@@ -220,13 +195,7 @@ public class ServerService
 
         await Event.Emit("wings.backups.delete", backup);
 
-        await AuditLogService.Log(AuditLogType.DeleteBackup,
-            x =>
-            {
-                x.Add<Server>(server.Uuid);
-                x.Add<ServerBackup>(backup.Uuid);
-            }
-        );
+        //TODO: AuditLog
     }
 
     public async Task<string> DownloadBackup(Server s, ServerBackup serverBackup)
@@ -239,12 +208,7 @@ public class ServerService
             claims.Add("backup_uuid", serverBackup.Uuid.ToString());
         });
 
-        await AuditLogService.Log(AuditLogType.DownloadBackup,
-            x =>
-            {
-                x.Add<Server>(server.Uuid);
-                x.Add<ServerBackup>(serverBackup.Uuid);
-            });
+        //TODO: AuditLog
 
         if (server.Node.Ssl)
             return $"https://{server.Node.Fqdn}:{server.Node.HttpPort}/download/backup?token={token}";
@@ -346,17 +310,14 @@ public class ServerService
                 StartOnCompletion = false
             });
 
-            await AuditLogService.Log(AuditLogType.CreateServer, x => { x.Add<Server>(newServerData.Uuid); });
-
+            //TODO: AuditLog
+            
             return newServerData;
         }
         catch (Exception e)
         {
-            await ErrorLogService.Log(e, x =>
-            {
-                x.Add<Server>(newServerData.Uuid);
-                x.Add<Node>(node.Id);
-            });
+            Logger.Error("Error creating server on wings");
+            Logger.Error(e);
 
             ServerRepository.Delete(newServerData); //TODO Remove unsinged table stuff
 
@@ -373,7 +334,7 @@ public class ServerService
         server.Installing = true;
         ServerRepository.Update(server);
         
-        await AuditLogService.Log(AuditLogType.ReinstallServer, x => { x.Add<Server>(server.Uuid); });
+        //TODO: AuditLog
     }
 
     public async Task<Server> SftpServerLogin(int serverId, int id, string password)
@@ -382,7 +343,7 @@ public class ServerService
 
         if (server == null)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.SftpBruteForce, x => { x.Add<int>(id); });
+            Logger.Warn($"Detected an sftp bruteforce attempt. ID: {id} Password: {password}", "security");
             throw new Exception("Server not found");
         }
 

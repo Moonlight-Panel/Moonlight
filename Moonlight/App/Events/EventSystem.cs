@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Logging.Net;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Events;
 

@@ -1,6 +1,5 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
-using Logging.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
@@ -9,7 +8,6 @@ using Moonlight.App.Models.Notifications;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Notifications;
-using Moonlight.App.Services.Sessions;
 using Newtonsoft.Json;
 
 namespace Moonlight.App.Http.Controllers.Api.Moonlight.Notifications;

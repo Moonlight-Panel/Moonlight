@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Logging.Net;
 
 namespace Moonlight.App.Helpers;
 

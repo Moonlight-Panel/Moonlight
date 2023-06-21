@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+﻿using Moonlight.App.Helpers;
 
 namespace Moonlight.App.LogMigrator;
 

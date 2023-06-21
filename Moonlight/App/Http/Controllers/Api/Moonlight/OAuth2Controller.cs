@@ -1,5 +1,5 @@
-﻿using Logging.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Moonlight.App.Helpers;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Sessions;
 

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Discord.WebSocket;
-using Logging.Net;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services.DiscordBot.Modules;
 

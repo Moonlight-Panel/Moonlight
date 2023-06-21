@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Logging.Net;
 using Moonlight.App.ApiClients.Google.Requests;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;

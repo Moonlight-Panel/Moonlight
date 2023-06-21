@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Logging.Net;
 using Microsoft.Extensions.Primitives;
 using Moonlight.App.Helpers;
 using Moonlight.App.Services.Files;

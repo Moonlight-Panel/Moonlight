@@ -1,6 +1,5 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
-using Logging.Net;
 using Moonlight.App.Helpers.Wings.Data;
 using Moonlight.App.Helpers.Wings.Enums;
 using Moonlight.App.Helpers.Wings.Events;

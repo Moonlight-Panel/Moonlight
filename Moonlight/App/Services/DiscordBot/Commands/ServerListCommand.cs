@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;

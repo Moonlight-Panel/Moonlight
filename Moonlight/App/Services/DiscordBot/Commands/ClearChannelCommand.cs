@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Logging.Net;
 
 namespace Moonlight.App.Services.DiscordBot.Commands;
 

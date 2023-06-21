@@ -2,7 +2,6 @@
 @using Task = System.Threading.Tasks.Task
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
-@using Logging.Net
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Events
 @using Moonlight.App.Helpers.Wings
@@ -292,10 +291,6 @@
                 else
                     await DynamicBackgroundService.Change(Image.BackgroundImageUrl);
             }
-        }
-        else
-        {
-            Logger.Debug("Server is null");
         }
     }
 

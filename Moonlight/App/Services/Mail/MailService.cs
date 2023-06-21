@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using MimeKit;
+﻿using MimeKit;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;

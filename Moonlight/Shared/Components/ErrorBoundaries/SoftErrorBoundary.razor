@@ -1,11 +1,11 @@
 ﻿@using Moonlight.App.Services.Interop
 @using Moonlight.App.Exceptions
 @using Moonlight.App.Services
-@using Logging.Net
 @using Moonlight.App.ApiClients.CloudPanel
 @using Moonlight.App.ApiClients.Daemon
 @using Moonlight.App.ApiClients.Modrinth
 @using Moonlight.App.ApiClients.Wings
+@using Moonlight.App.Helpers
 @inherits ErrorBoundaryBase
 
 @inject AlertService AlertService
@@ -42,7 +42,7 @@ else
     {
         if (ConfigService.DebugMode)
         {
-            Logger.Warn(exception);
+            Logger.Verbose(exception);
         }
         
         if (exception is DisplayException displayException)

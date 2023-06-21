@@ -1,6 +1,4 @@
-﻿using Logging.Net;
-
-namespace Moonlight.App.Helpers;
+﻿namespace Moonlight.App.Helpers;
 
 public static class ParseHelper
 {
