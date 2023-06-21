@@ -1,6 +1,5 @@
-﻿using Logging.Net;
-using Moonlight.App.Database;
-using Moonlight.App.Database.Entities;
+﻿using Moonlight.App.Database.Entities;
+using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.Sessions;
 
@@ -66,8 +65,6 @@ public class StatisticsCaptureService
                 AddEntry("databasesCount", databasesRepo.Get().Count());
                 AddEntry("sessionsCount", sessionService.GetAll().Length);
             }
-            
-            Logger.Log("Statistics are weird");
         }
         catch (Exception e)
         {

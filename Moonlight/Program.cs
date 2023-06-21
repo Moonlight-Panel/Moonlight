@@ -2,7 +2,6 @@ using BlazorDownloadFile;
 using BlazorTable;
 using CurrieTechnologies.Razor.SweetAlert2;
 using HealthChecks.UI.Client;
-using Logging.Net;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
 using Moonlight.App.ApiClients.Modrinth;
@@ -24,13 +23,14 @@ using Moonlight.App.Services.Background;
 using Moonlight.App.Services.DiscordBot;
 using Moonlight.App.Services.Files;
 using Moonlight.App.Services.Interop;
-using Moonlight.App.Services.LogServices;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Minecraft;
 using Moonlight.App.Services.Notifications;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.SupportChat;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Moonlight
 {
@@ -38,7 +38,12 @@ namespace Moonlight
     {
         public static async Task Main(string[] args)
         {
-            Logger.UsedLogger = new CacheLogger();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(
+                    outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
 
             Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
 
@@ -140,10 +145,6 @@ namespace Moonlight
             builder.Services.AddScoped<SubscriptionAdminService>();
 
             // Loggers
-            builder.Services.AddScoped<SecurityLogService>();
-            builder.Services.AddScoped<AuditLogService>();
-            builder.Services.AddScoped<ErrorLogService>();
-            builder.Services.AddScoped<LogService>();
             builder.Services.AddScoped<MailService>();
             builder.Services.AddSingleton<TrashMailDetectorService>();
 

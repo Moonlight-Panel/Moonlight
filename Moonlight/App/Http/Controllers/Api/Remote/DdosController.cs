@@ -1,10 +1,8 @@
-﻿using Logging.Net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
 using Moonlight.App.Http.Requests.Daemon;
 using Moonlight.App.Repositories;
-using Moonlight.App.Services;
 
 namespace Moonlight.App.Http.Controllers.Api.Remote;
 

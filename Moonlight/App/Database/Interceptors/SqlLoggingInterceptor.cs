@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
-using Logging.Net;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Database.Interceptors;
 

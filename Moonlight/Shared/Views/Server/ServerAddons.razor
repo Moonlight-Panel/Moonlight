@@ -2,7 +2,7 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Addon
 @using Moonlight.App.ApiClients.Modrinth.Resources
-@using Logging.Net
+@using Moonlight.App.Helpers
 @using Moonlight.App.Services.Interop
 
 @inject ServerAddonPluginService AddonPluginService
@@ -147,7 +147,8 @@ else
         }
         catch (Exception e)
         {
-            Logger.Info(e.Message);
+            Logger.Warn("Error installing plugin");
+            Logger.Warn(e);
             throw;
         }
         finally

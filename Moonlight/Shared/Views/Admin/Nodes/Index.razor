@@ -4,9 +4,9 @@
 @using Moonlight.Shared.Components.Navigations
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
-@using Logging.Net
 @using BlazorTable
 @using Moonlight.App.ApiClients.Wings.Resources
+@using Moonlight.App.Helpers
 
 @inject NodeRepository NodeRepository
 @inject AlertService AlertService
@@ -131,7 +131,8 @@
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug(e.Message);
+                        Logger.Verbose($"Error fetching status for node '{node.Name}'");
+                        Logger.Verbose(e);
                     }
 
                     await InvokeAsync(StateHasChanged);

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Logging.Net;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services.Mail;
 

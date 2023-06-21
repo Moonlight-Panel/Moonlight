@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Components.Forms;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
 using Moonlight.App.Services.Files;

@@ -5,13 +5,12 @@ using CloudFlare.Client.Api.Result;
 using CloudFlare.Client.Api.Zones;
 using CloudFlare.Client.Api.Zones.DnsRecord;
 using CloudFlare.Client.Enumerators;
-using Logging.Net;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
+using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories.Domains;
-using Moonlight.App.Services.LogServices;
 using DnsRecord = Moonlight.App.Models.Misc.DnsRecord;
 
 namespace Moonlight.App.Services;
@@ -21,18 +20,15 @@ public class DomainService
     private readonly DomainRepository DomainRepository;
     private readonly SharedDomainRepository SharedDomainRepository;
     private readonly CloudFlareClient Client;
-    private readonly AuditLogService AuditLogService;
     private readonly string AccountId;
 
     public DomainService(
         ConfigService configService,
         DomainRepository domainRepository,
-        SharedDomainRepository sharedDomainRepository,
-        AuditLogService auditLogService)
+        SharedDomainRepository sharedDomainRepository)
     {
         DomainRepository = domainRepository;
         SharedDomainRepository = sharedDomainRepository;
-        AuditLogService = auditLogService;
 
         var config = configService
             .GetSection("Moonlight")
@@ -190,12 +186,8 @@ public class DomainService
                 Name = name
             }));
         }
-
-        await AuditLogService.Log(AuditLogType.AddDomainRecord, x =>
-        {
-            x.Add<Domain>(d.Id);
-            x.Add<DnsRecord>(dnsRecord.Name);
-        });
+        
+        //TODO: AuditLog
     }
 
     public async Task UpdateDnsRecord(Domain d, DnsRecord dnsRecord)
@@ -225,11 +217,7 @@ public class DomainService
                 }));
         }
         
-        await AuditLogService.Log(AuditLogType.UpdateDomainRecord, x =>
-        {
-            x.Add<Domain>(d.Id);
-            x.Add<DnsRecord>(dnsRecord.Name);
-        });
+        //TODO: AuditLog
     }
 
     public async Task DeleteDnsRecord(Domain d, DnsRecord dnsRecord)
@@ -240,11 +228,7 @@ public class DomainService
             await Client.Zones.DnsRecords.DeleteAsync(domain.SharedDomain.CloudflareId, dnsRecord.Id)
         );
         
-        await AuditLogService.Log(AuditLogType.DeleteDomainRecord, x =>
-        {
-            x.Add<Domain>(d.Id);
-            x.Add<DnsRecord>(dnsRecord.Name);
-        });
+        //TODO: AuditLog
     }
 
     private Domain EnsureData(Domain domain)

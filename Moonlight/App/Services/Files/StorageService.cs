@@ -1,5 +1,4 @@
-﻿using Logging.Net;
-using Moonlight.App.Helpers;
+﻿using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services.Files;
 

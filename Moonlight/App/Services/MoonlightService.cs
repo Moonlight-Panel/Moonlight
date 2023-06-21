@@ -1,4 +1,4 @@
-﻿using Logging.Net;
+﻿using Moonlight.App.Helpers;
 using Octokit;
 using Repository = LibGit2Sharp.Repository;
 

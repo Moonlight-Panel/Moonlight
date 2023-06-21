@@ -4,9 +4,7 @@ using JWT.Builder;
 using JWT.Exceptions;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
-using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
-using Moonlight.App.Services.LogServices;
 
 namespace Moonlight.App.Services;
 
@@ -14,15 +12,12 @@ public class OneTimeJwtService
 {
     private readonly ConfigService ConfigService;
     private readonly RevokeRepository RevokeRepository;
-    private readonly SecurityLogService SecurityLogService;
 
     public OneTimeJwtService(ConfigService configService,
-        RevokeRepository revokeRepository,
-        SecurityLogService securityLogService)
+        RevokeRepository revokeRepository)
     {
         ConfigService = configService;
         RevokeRepository = revokeRepository;
-        SecurityLogService = securityLogService;
     }
 
     public string Generate(Action<Dictionary<string, string>> options, TimeSpan? validTime = null)
@@ -76,10 +71,7 @@ public class OneTimeJwtService
         }
         catch (SignatureVerificationException)
         {
-            await SecurityLogService.LogSystem(SecurityLogType.ManipulatedJwt, x =>
-            {
-                x.Add<string>(token);
-            });
+            Logger.Warn($"Detected a manipulated JWT: {token}", "security");
             return null;
         }
         catch (Exception e)

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Logging.Net;
 
 namespace Moonlight.App.Helpers;
 

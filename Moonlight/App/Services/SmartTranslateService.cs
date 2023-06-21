@@ -78,7 +78,7 @@ public class SmartTranslateService
         }
         catch (Exception ex)
         {
-            Logging.Net.Logger.Error(ex);
+            Logger.Error(ex);
             return key;
         }
     }
