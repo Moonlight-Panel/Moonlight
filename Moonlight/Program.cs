@@ -170,6 +170,7 @@ namespace Moonlight
             builder.Services.AddSingleton<StatisticsCaptureService>();
             builder.Services.AddSingleton<DiscordNotificationService>();
             builder.Services.AddSingleton<CleanupService>();
+            builder.Services.AddSingleton<MalwareScanService>();
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -208,6 +209,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<DiscordBotService>();
             _ = app.Services.GetRequiredService<StatisticsCaptureService>();
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
+            _ = app.Services.GetRequiredService<MalwareScanService>();
             
             _ = app.Services.GetRequiredService<MoonlightService>();
 
