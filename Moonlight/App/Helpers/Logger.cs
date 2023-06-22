@@ -10,37 +10,37 @@ public static class Logger
     public static void Verbose(string message, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Verbose("{Message} {Channel}", message, channel);
+            .Verbose("{Message}", message);
     }
     
     public static void Info(string message, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Information("{Message} {Channel}", message, channel);
+            .Information("{Message}", message);
     }
     
     public static void Debug(string message, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Debug("{Message} {Channel}", message, channel);
+            .Debug("{Message}", message);
     }
     
     public static void Error(string message, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Error("{Message} {Channel}", message, channel);
+            .Error("{Message}", message);
     }
     
     public static void Warn(string message, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Warning("{Message} {Channel}", message, channel);
+            .Warning("{Message}", message);
     }
     
     public static void Fatal(string message, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Fatal("{Message} {Channel}", message, channel);
+            .Fatal("{Message}", message);
     }
     #endregion
     
@@ -48,37 +48,37 @@ public static class Logger
     public static void Verbose(Exception exception, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Verbose(exception, "{Channel}", channel);
+            .Verbose(exception, "");
     }
     
     public static void Info(Exception exception, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Information(exception, "{Channel}", channel);
+            .Information(exception, "");
     }
     
     public static void Debug(Exception exception, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Debug(exception, "{Channel}", channel);
+            .Debug(exception, "");
     }
     
     public static void Error(Exception exception, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Error(exception, "{Channel}", channel);
+            .Error(exception, "");
     }
     
     public static void Warn(Exception exception, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Warning(exception, "{Channel}", channel);
+            .Warning(exception, "");
     }
     
     public static void Fatal(Exception exception, string channel = "default")
     {
         Log.ForContext("SourceContext", GetNameOfCallingClass())
-            .Fatal(exception, "{Channel}", channel);
+            .Fatal(exception, "");
     }
     #endregion
     

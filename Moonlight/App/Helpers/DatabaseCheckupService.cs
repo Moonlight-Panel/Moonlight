@@ -81,19 +81,32 @@ public class DatabaseCheckupService
         Logger.Info($"Saving it to: {file}");
         Logger.Info("Starting backup...");
 
-        var sw = new Stopwatch();
-        sw.Start();
+        try
+        {
+            var sw = new Stopwatch();
+            sw.Start();
 
-        await using MySqlConnection conn = new MySqlConnection(connectionString);
-        await using MySqlCommand cmd = new MySqlCommand();
-        using MySqlBackup mb = new MySqlBackup(cmd);
+            await using MySqlConnection conn = new MySqlConnection(connectionString);
+            await using MySqlCommand cmd = new MySqlCommand();
+            using MySqlBackup mb = new MySqlBackup(cmd);
         
-        cmd.Connection = conn;
-        await conn.OpenAsync();
-        mb.ExportToFile(file);
-        await conn.CloseAsync();
+            cmd.Connection = conn;
+            await conn.OpenAsync();
+            mb.ExportToFile(file);
+            await conn.CloseAsync();
 
-        sw.Stop();
-        Logger.Info($"Done. {sw.Elapsed.TotalSeconds}s");
+            sw.Stop();
+            Logger.Info($"Done. {sw.Elapsed.TotalSeconds}s");
+        }
+        catch (Exception e)
+        {
+            Logger.Fatal("-----------------------------------------------");
+            Logger.Fatal("Unable to create backup for moonlight database");
+            Logger.Fatal("Moonlight will start anyways in 30 seconds");
+            Logger.Fatal("-----------------------------------------------");
+            Logger.Fatal(e);
+            
+            Thread.Sleep(TimeSpan.FromSeconds(30));
+        }
     }
 }
