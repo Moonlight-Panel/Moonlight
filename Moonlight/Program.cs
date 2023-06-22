@@ -38,19 +38,31 @@ namespace Moonlight
     {
         public static async Task Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .Enrich.FromLogContext()
-                .WriteTo.Console(
-                    outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
-                .CreateLogger();
+            // This will also copy all default config files
+            var configService = new ConfigService(new StorageService());
 
+            if (configService.DebugMode)
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Verbose()
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console(
+                        outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                    .CreateLogger();
+            }
+            else
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Information()
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console(
+                        outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                    .CreateLogger();
+            }
+            
             Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
 
             Logger.Info("Running pre-init tasks");
-            
-            // This will also copy all default config files
-            var configService = new ConfigService(new StorageService());
             var databaseCheckupService = new DatabaseCheckupService(configService);
                 
             await databaseCheckupService.Perform();

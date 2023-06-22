@@ -41,8 +41,6 @@ public class ConfigService : IConfiguration
 
     public void Reload()
     {
-        Logger.Info($"Reading config from '{PathBuilder.File("storage", "configs", "config.json")}'");
-        
         Configuration = new ConfigurationBuilder().AddJsonStream(
             new MemoryStream(Encoding.ASCII.GetBytes(
                     File.ReadAllText(
@@ -50,8 +48,6 @@ public class ConfigService : IConfiguration
                     )
                 )
             )).Build();
-
-        Logger.Info("Reloaded configuration file");
     }
 
     public IEnumerable<IConfigurationSection> GetChildren()
