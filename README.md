@@ -67,6 +67,10 @@ Moonlight:
 Daemon (not wings):
 `curl https://install.moonlightpanel.xyz/daemon| bash`
 
+Having any issues?
+We are happy to help on our discord server:
+[https://discord.gg/TJaspT7A8p](https://discord.gg/TJaspT7A8p)
+
 ## Roadmap
 
 The roudmap can be found here:
@@ -96,3 +100,31 @@ Distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 
 * **Daniel Balk** - *Endelon Hosting* - [Daniel Balk](https://github.com/Daniel-Balk) - *Notification system & frontend*
 * **Spielepapagei** - *Endelon Hosting* - [Spielepapagei](https://github.com/Spielepapagei) - *Discord Bot & support tickets*
 * **Dannyx** - *None* - [Dannyx](https://github.com/Dannyx1604) - *Grammer check and translations*
+
+## Some screenshots
+Only user area
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121635286443634768/dashboard.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121635662475571261/serverlist_.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121635784685002762/console_.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121635898933657741/filemanager_.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636024162992128/filemanager_move_.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636204358672494/filemanager_editor.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636339285237820/backups.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636510182150215/addons.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636623784890519/settings.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636741170855967/webspace_overview.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636848670875668/webspace_files.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121636950953177138/webspace_databases.png)
+
+![Screen Shot](https://cdn.discordapp.com/attachments/1059911407170228234/1121637134797918259/domains_.png)
