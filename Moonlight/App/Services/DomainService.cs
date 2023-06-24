@@ -1,5 +1,6 @@
 ﻿using CloudFlare.Client;
 using CloudFlare.Client.Api.Authentication;
+using CloudFlare.Client.Api.Display;
 using CloudFlare.Client.Api.Parameters.Data;
 using CloudFlare.Client.Api.Result;
 using CloudFlare.Client.Api.Zones;
@@ -12,6 +13,7 @@ using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories.Domains;
 using DnsRecord = Moonlight.App.Models.Misc.DnsRecord;
+using MatchType = CloudFlare.Client.Enumerators.MatchType;
 
 namespace Moonlight.App.Services;
 
@@ -48,7 +50,7 @@ public class DomainService
     {
         if (DomainRepository.Get().Where(x => x.SharedDomain.Id == sharedDomain.Id).Any(x => x.Name == domain))
             throw new DisplayException("A domain with this name does already exist for this shared domain");
-        
+
         var res = DomainRepository.Add(new()
         {
             Name = domain,
@@ -62,7 +64,7 @@ public class DomainService
     public Task Delete(Domain domain)
     {
         DomainRepository.Delete(domain);
-        
+
         return Task.CompletedTask;
     }
 
@@ -93,9 +95,36 @@ public class DomainService
     {
         var domain = EnsureData(d);
 
-        var records = GetData(
-            await Client.Zones.DnsRecords.GetAsync(domain.SharedDomain.CloudflareId)
-        );
+        var records = new List<CloudFlare.Client.Api.Zones.DnsRecord.DnsRecord>();
+
+        // Load paginated
+        // TODO: Find an alternative option. This way to load the records is NOT optimal
+        // and can result in long loading time when there are many dns records.
+        // As cloudflare does not offer a way to search dns records which starts
+        // with a specific string we are not able to filter it using the api (client)
+        var initialResponse = await Client.Zones.DnsRecords.GetAsync(domain.SharedDomain.CloudflareId);
+
+        records.AddRange(GetData(initialResponse));
+
+        // Check if there are more pages
+        while (initialResponse.ResultInfo.Page < initialResponse.ResultInfo.TotalPage)
+        {
+            // Get the next page of data
+            var nextPageResponse = await Client.Zones.DnsRecords.GetAsync(
+                domain.SharedDomain.CloudflareId,
+                displayOptions: new()
+                {
+                    Page = initialResponse.ResultInfo.Page + 1
+                }
+            );
+            var nextPageRecords = GetData(nextPageResponse);
+
+            // Append the records from the next page to the existing records
+            records.AddRange(nextPageRecords);
+
+            // Update the initial response to the next page response
+            initialResponse = nextPageResponse;
+        }
 
         var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
         var dname = $".{rname}";
@@ -145,7 +174,11 @@ public class DomainService
         if (dnsRecord.Type == DnsRecordType.Srv)
         {
             var parts = dnsRecord.Name.Split(".");
-            Enum.TryParse(parts[1], out Protocol protocol);
+
+            Protocol protocol = Protocol.Tcp;
+
+            if (parts[1].Contains("udp"))
+                protocol = Protocol.Udp;
 
             var valueParts = dnsRecord.Content.Split(" ");
 
@@ -186,7 +219,7 @@ public class DomainService
                 Name = name
             }));
         }
-        
+
         //TODO: AuditLog
     }
 
@@ -216,7 +249,7 @@ public class DomainService
                     Type = dnsRecord.Type
                 }));
         }
-        
+
         //TODO: AuditLog
     }
 
@@ -227,7 +260,7 @@ public class DomainService
         GetData(
             await Client.Zones.DnsRecords.DeleteAsync(domain.SharedDomain.CloudflareId, dnsRecord.Id)
         );
-        
+
         //TODO: AuditLog
     }
 
