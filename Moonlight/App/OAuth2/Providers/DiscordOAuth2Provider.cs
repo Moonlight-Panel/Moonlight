@@ -86,6 +86,13 @@ public class DiscordOAuth2Provider : OAuth2Provider
 
         var email = getData.GetValue<string>("email");
         var id = getData.GetValue<ulong>("id");
+        var verified = getData.GetValue<bool>("verified");
+
+        if (!verified)
+        {
+            Logger.Warn("A user tried to use an unverified discord account to login", "security");
+            throw new DisplayException("You can only use verified discord accounts for oauth signin");
+        }
         
         // Handle data
         
