@@ -21,14 +21,14 @@
         @if (EditMode)
         {
             <div>
+                <WButton Text="@(SmartTranslateService.Translate("New group"))"
+                         WorkingText=""
+                         CssClasses="btn-primary me-3"
+                         OnClick="AddGroup">
+                </WButton>
                 <WButton Text="@(SmartTranslateService.Translate("Finish editing layout"))"
                          CssClasses="btn-secondary"
                          OnClick="async () => await SetEditMode(false)">
-                </WButton>
-                <WButton Text="@(SmartTranslateService.Translate("New group"))"
-                         WorkingText=""
-                         CssClasses="btn-primary"
-                         OnClick="AddGroup">
                 </WButton>
             </div>
         }
@@ -146,28 +146,34 @@
                             var server = AllServers.First(x => x.Id.ToString() == id);
 
                             <div class="col-12 col-md-3 p-3 draggable" ml-server-id="@(server.Id)">
-                                <a class="invisible-a" href="/server/@(server.Uuid)">
+                                @if (EditMode)
+                                {
                                     <div class="card bg-secondary">
                                         <div class="card-header">
                                             <div class="card-title">
                                                 <span class="card-label">@(server.Name)</span>
                                             </div>
-                                            @if (EditMode)
-                                            {
-                                                <div class="card-toolbar">
-                                                    <a href="#" class="btn btn-icon btn-sm btn-hover-light-primary draggable-handle">
-                                                        <i class="bx bx-md bx-move"></i>
-                                                    </a>
-                                                </div>
-                                            }
+                                            <div class="card-toolbar">
+                                                <a href="#" class="btn btn-icon btn-sm btn-hover-light-primary draggable-handle">
+                                                    <i class="bx bx-md bx-move"></i>
+                                                </a>
+                                            </div>
                                         </div>
                                         <div class="card-body">
-                                            @if (EditMode)
-                                            {
-                                                <TL>Hidden in edit mode</TL>
-                                            }
-                                            else
-                                            {
+                                            <TL>Hidden in edit mode</TL>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a class="invisible-a" href="/server/@(server.Uuid)">
+                                        <div class="card bg-secondary">
+                                            <div class="card-header">
+                                                <div class="card-title">
+                                                    <span class="card-label">@(server.Name)</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
                                                 <span class="card-text fs-6">
                                                     @(Math.Round(server.Memory / 1024D, 2)) GB / @(Math.Round(server.Disk / 1024D, 2)) GB / @(server.Node.Name) <span class="text-gray-700">- @(server.Image.Name)</span>
                                                 </span>
@@ -220,10 +226,10 @@
                                                         </span>
                                                     }
                                                 </div>
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
-                                </a>
+                                    </a>
+                                }
                             </div>
                         }
                     </div>
