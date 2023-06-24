@@ -354,8 +354,6 @@
                 moonlight.keyListener.listener = (event) => 
                 {
                     // filter here what key events should be sent to moonlight
-                    
-                    console.log(event);
 
                     if(event.code === "KeyS" && event.ctrlKey)
                     {
@@ -369,6 +367,55 @@
             unregister: function (dotNetObjRef)
             {
                 window.removeEventListener('keydown', moonlight.keyListener.listener);
+            }
+        },
+        serverList: {
+            init: function ()
+            {
+                if(moonlight.serverList.Swappable)
+                {
+                    moonlight.serverList.Swappable.destroy();
+                }
+                
+                let containers = document.querySelectorAll(".draggable-zone");
+
+                if (containers.length !== 0) 
+                {
+                    moonlight.serverList.Swappable = new Draggable.Sortable(containers, {
+                        draggable: ".draggable",
+                        handle: ".draggable .draggable-handle",
+                        mirror: {
+                            //appendTo: selector,
+                            appendTo: "body",
+                            constrainDimensions: true
+                        }
+                    });
+                }
+            },
+            getData: function ()
+            {
+                let groups = new Array();
+
+                let groupElements = document.querySelectorAll('[ml-server-group]');
+                
+                groupElements.forEach(groupElement => {
+                   let group = new Object();
+                   group.name = groupElement.attributes.getNamedItem("ml-server-group").value;
+
+                   let servers = new Array();
+                   let serverElements = groupElement.querySelectorAll("[ml-server-id]");
+                   
+                   serverElements.forEach(serverElement => {
+                      let id = serverElement.attributes.getNamedItem("ml-server-id").value;
+                      
+                      servers.push(id);
+                   });
+                   
+                   group.servers = servers;
+                   groups.push(group);
+                });
+
+                return groups;
             }
         }
     };
