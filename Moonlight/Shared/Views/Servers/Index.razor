@@ -43,66 +43,6 @@
 </div>
 @foreach (var group in ServerGroups)
 {
-            @*
-            <div class="card my-2">
-                <div class="card-header">
-                    <div class="card-title">
-                        @if (EditMode)
-                        {
-                            <input @bind="group.Name" class="form-control"/>
-                        }
-                        else
-                        {
-                            <span>@(group.Name)</span>
-                        }
-                    </div>
-                    @if (EditMode)
-                    {
-                        <div class="card-toolbar">
-                            <WButton Text="@(SmartTranslateService.Translate("Remove group"))"
-                                     WorkingText=""
-                                     CssClasses="btn-danger"
-                                     OnClick="async () => await RemoveGroup(group)">
-                            </WButton>
-                        </div>
-                    }
-                </div>
-                <div class="card-body">
-                    <div class="row min-h-200px draggable-zone" ml-server-group="@(group.Name)">
-                        @foreach (var id in group.Servers)
-                        {
-                            var server = AllServers.First(x => x.Id.ToString() == id);
-
-                            <div class="col-12 col-md-3 p-3 draggable" ml-server-id="@(server.Id)">
-                                <div class="card bg-secondary">
-                                    <div class="card-header">
-                                        <div class="card-title">
-                                            <h3 class="card-label">@(server.Name)</h3>
-                                        </div>
-                                        @if (EditMode)
-                                        {
-                                            <div class="card-toolbar">
-                                                <a href="#" class="btn btn-icon btn-sm btn-hover-light-primary draggable-handle">
-                                                    <i class="bx bx-md bx-move"></i>
-                                                </a>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="card-body">
-                                        @if (EditMode)
-                                        {
-                                            <TL>Hidden in edit mode</TL>
-                                        }
-                                        else
-                                        {
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>*@
     <div class="accordion my-3" id="serverListGroup@(group.GetHashCode())">
         <div class="accordion-item">
             <h2 class="accordion-header" id="serverListGroup-header@(group.GetHashCode())">
@@ -177,7 +117,7 @@
                                                 <span class="card-text fs-6">
                                                     @(Math.Round(server.Memory / 1024D, 2)) GB / @(Math.Round(server.Disk / 1024D, 2)) GB / @(server.Node.Name) <span class="text-gray-700">- @(server.Image.Name)</span>
                                                 </span>
-                                                <div class="card-text my-1 fs-6 fw-bold">
+                                                <div class="card-text my-1 fs-6 fw-bold @(User.StreamerMode ? "blur" : "")">
                                                     @(server.Node.Fqdn):@(server.MainAllocation.Port)
                                                 </div>
                                                 <div class="card-text fs-6">

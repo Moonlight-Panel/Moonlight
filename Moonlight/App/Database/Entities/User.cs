@@ -25,7 +25,7 @@ public class User
     public string Country { get; set; } = "";
 
     public string ServerListLayoutJson { get; set; } = "";
-    
+
     // States
     
     public UserStatus Status { get; set; } = UserStatus.Unverified;
@@ -33,6 +33,7 @@ public class User
     public bool SupportPending { get; set; } = false;
     public bool HasRated { get; set; } = false;
     public int Rating { get; set; } = 0;
+    public bool StreamerMode { get; set; } = false;
     
     // Security
     public bool TotpEnabled { get; set; } = false;

@@ -96,7 +96,7 @@
                 {
                     <SmartForm Model="TotpData" OnValidSubmit="DoLogin">
                         <div class="fv-row mb-8 fv-plugins-icon-container">
-                            <InputText @bind-Value="TotpData.Code" type="number" class="form-control bg-transparent"></InputText>
+                            <InputText @bind-Value="TotpData.Code" type="number" class="form-control bg-transparent" placeholder="@(SmartTranslateService.Translate("2fa code"))"></InputText>
                         </div>
                         <div class="d-grid mb-10">
                             <button type="submit" class="btn btn-primary">

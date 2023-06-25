@@ -16,6 +16,10 @@
     filter: none;
 }
 
+.blur {
+    filter: blur(5px);
+}
+
 div.wave {
 }
 div.wave .dot {
