@@ -5,6 +5,8 @@
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
 @using Mappy.Net
+@using Moonlight.App.Exceptions
+@using Moonlight.App.Helpers
 
 @inject UserRepository UserRepository
 
@@ -89,10 +91,21 @@
 
     private Task Save()
     {
+        // Prevent users from locking out other users by changing their email
+        
+        Model.Email = Model.Email.ToLower();
+        var userWithThatEmail = UserRepository
+            .Get()
+            .FirstOrDefault(x => x.Email == Model.Email);
+
+        if (userWithThatEmail != null && CurrentUser.Id != userWithThatEmail.Id)
+        {
+            Logger.Warn($"A user tried to lock another user out by changing the email. Email: {Model.Email}", "security");
+            throw new DisplayException("A user with that email does already exist");
+        }
+        
         CurrentUser = Mapper.Map(CurrentUser, Model);
 
-        CurrentUser.Email = CurrentUser.Email.ToLower();
-        
         UserRepository.Update(CurrentUser);
         
         return Task.CompletedTask;
