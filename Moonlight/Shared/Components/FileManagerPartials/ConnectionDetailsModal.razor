@@ -1,0 +1,78 @@
+﻿@using Moonlight.App.Helpers.Files
+@using Moonlight.App.Services.Interop
+
+@inject ModalService ModalService
+
+<div class="modal fade" id="connectionDetails" tabindex="-1" aria-labelledby="connectionDetails" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <TL>Connection details</TL>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row fv-row mb-7">
+                    <div class="col-md-3 text-md-start">
+                        <label class="fs-6 fw-semibold form-label mt-3">
+                            <TL>Host</TL>
+                        </label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(Host)">
+                    </div>
+                </div>
+                <div class="row fv-row mb-7">
+                    <div class="col-md-3 text-md-start">
+                        <label class="fs-6 fw-semibold form-label mt-3">
+                            <TL>Port</TL>
+                        </label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(Port)">
+                    </div>
+                </div>
+                <div class="row fv-row mb-7">
+                    <div class="col-md-3 text-md-start">
+                        <label class="fs-6 fw-semibold form-label mt-3">
+                            <TL>Username</TL>
+                        </label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control form-control-solid disabled" disabled="disabled" value="@(Username)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <TL>Close</TL>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public FileAccess Access { get; set; }
+
+    private string Host = "";
+    private string Username = "";
+    private int Port;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Uri uri = new Uri(await Access.GetLaunchUrl());
+
+        Host = uri.Host;
+        Port = uri.Port;
+        Username = uri.UserInfo.Split(':')[0];
+    }
+
+    public async Task Show()
+    {
+        await ModalService.Show("connectionDetails");
+    }
+}
