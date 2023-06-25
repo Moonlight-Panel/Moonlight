@@ -47,7 +47,7 @@
                 <div class="row align-items-center">
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Shared IP</TL>:</span>
-                        <span class="ms-1 text-muted">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation.Port}")</span>
+                        <span class="ms-1 text-muted @(User.StreamerMode ? "blur" : "")">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation.Port}")</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Server ID</TL>:</span>

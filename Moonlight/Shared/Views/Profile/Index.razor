@@ -13,7 +13,7 @@
 <LazyLoader Load="Load">
     <SmartForm OnValidSubmit="Save" Model="Model">
         <div class="card mb-5 mb-xl-10">
-            <div class="card-body p-9">
+            <div class="card-body p-9 @(CurrentUser.StreamerMode ? "blur" : "")">
                 <div class="row">
                     <div class="col-lg-6 fv-row fv-plugins-icon-container">
                         <div class="mb-3">
@@ -74,7 +74,7 @@
 
 @code
 {
-    private UserDataModel Model = new UserDataModel();
+    private UserDataModel Model = new();
     
     [CascadingParameter]
     public User CurrentUser { get; set; }

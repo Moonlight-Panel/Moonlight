@@ -8,7 +8,7 @@
                 <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
                     <div class="d-flex flex-column">
                         <div class="d-flex align-items-center mb-2">
-                            <a class="text-gray-900 fs-2 fw-bold me-1">@(User.FirstName) @(User.LastName)</a>
+                            <a class="text-gray-900 fs-2 fw-bold me-1 @(User.StreamerMode ? "blur" : "")">@(User.FirstName) @(User.LastName)</a>
 
                             @if (User.Status == UserStatus.Verified)
                             {
@@ -16,7 +16,7 @@
                             }
                         </div>
                         <div class="d-flex flex-wrap fw-semibold fs-6 mb-4 pe-2">
-                            <span class="d-flex align-items-center text-gray-400 mb-2">
+                            <span class="d-flex align-items-center text-gray-400 mb-2 @(User.StreamerMode ? "blur" : "")">
                                 @(User.Email)
                             </span>
                         </div>

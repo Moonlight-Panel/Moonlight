@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Repositories;
+﻿using Moonlight.App.Exceptions;
+using Moonlight.App.Repositories;
 using Moonlight.App.Services.Sessions;
 using OtpNet;
 
@@ -38,20 +39,23 @@ public class TotpService
         return user!.TotpSecret;
     }
 
-    public async Task Enable()
+    public async Task GenerateSecret()
     {
         var user = (await IdentityService.Get())!;
         
-        user.TotpSecret = GenerateSecret();
+        user.TotpSecret = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20));;
         
         UserRepository.Update(user);
-
-        //TODO: AuditLog
     }
 
-    public async Task EnforceTotpLogin()
+    public async Task Enable(string code)
     {
         var user = (await IdentityService.Get())!;
+
+        if (!await Verify(user.TotpSecret, code))
+        {
+            throw new DisplayException("The 2fa code you entered is invalid");
+        }
 
         user.TotpEnabled = true;
         UserRepository.Update(user);
@@ -62,14 +66,10 @@ public class TotpService
         var user = (await IdentityService.Get())!;
 
         user.TotpEnabled = false;
+        user.TotpSecret = "";
 
         UserRepository.Update(user);
         
         //TODO: AuditLog
-    }
-
-    private string GenerateSecret()
-    {
-        return Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20));
     }
 }
