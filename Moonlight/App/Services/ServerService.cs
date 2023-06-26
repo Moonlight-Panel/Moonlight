@@ -79,10 +79,20 @@ public class ServerService
     {
         Server server = EnsureNodeData(s);
 
-        return await WingsApiHelper.Get<ServerDetails>(
-            server.Node,
-            $"api/servers/{server.Uuid}"
-        );
+        ServerDetails result = null!;
+
+        await new Retry()
+            .Times(3)
+            .At(x => x.Message.Contains("A task was canceled"))
+            .Call(async () =>
+        {
+            result = await WingsApiHelper.Get<ServerDetails>(
+                server.Node,
+                $"api/servers/{server.Uuid}"
+            );
+        });
+
+        return result;
     }
 
     public async Task SetPowerState(Server s, PowerSignal signal)
@@ -305,11 +315,17 @@ public class ServerService
 
         try
         {
-            await WingsApiHelper.Post(node, $"api/servers", new CreateServer()
-            {
-                Uuid = newServerData.Uuid,
-                StartOnCompletion = false
-            });
+            await new Retry()
+                .Times(3)
+                .At(x => x.Message.Contains("A task was canceled"))
+                .Call(async () =>
+                {
+                    await WingsApiHelper.Post(node, $"api/servers", new CreateServer()
+                    {
+                        Uuid = newServerData.Uuid,
+                        StartOnCompletion = false
+                    });
+                });
 
             //TODO: AuditLog
             
