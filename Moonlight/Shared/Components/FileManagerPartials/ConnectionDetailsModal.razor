@@ -64,11 +64,20 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        Uri uri = new Uri(await Access.GetLaunchUrl());
-
-        Host = uri.Host;
-        Port = uri.Port;
-        Username = uri.UserInfo.Split(':')[0];
+        try
+        {
+            Uri uri = new Uri(await Access.GetLaunchUrl());
+            
+            Host = uri.Host;
+            Port = uri.Port;
+            Username = uri.UserInfo.Split(':')[0];
+        }
+        catch (NotImplementedException)
+        {
+            Host = "N/A";
+            Port = -1;
+            Username = "N/A";
+        }
     }
 
     public async Task Show()
