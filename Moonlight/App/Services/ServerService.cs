@@ -85,12 +85,12 @@ public class ServerService
             .Times(3)
             .At(x => x.Message.Contains("A task was canceled"))
             .Call(async () =>
-        {
-            result = await WingsApiHelper.Get<ServerDetails>(
-                server.Node,
-                $"api/servers/{server.Uuid}"
-            );
-        });
+            {
+                result = await WingsApiHelper.Get<ServerDetails>(
+                    server.Node,
+                    $"api/servers/{server.Uuid}"
+                );
+            });
 
         return result;
     }
@@ -119,7 +119,8 @@ public class ServerService
 
         var backup = new ServerBackup()
         {
-            Name = $"Created at {DateTimeService.GetCurrent().ToShortDateString()} {DateTimeService.GetCurrent().ToShortTimeString()}",
+            Name =
+                $"Created at {DateTimeService.GetCurrent().ToShortDateString()} {DateTimeService.GetCurrent().ToShortTimeString()}",
             Uuid = Guid.NewGuid(),
             CreatedAt = DateTimeService.GetCurrent(),
             Created = false
@@ -185,8 +186,15 @@ public class ServerService
 
         try
         {
-            await WingsApiHelper.Delete(serverData.Node, $"api/servers/{serverData.Uuid}/backup/{serverBackup.Uuid}",
-                null);
+            await new Retry()
+                .Times(3)
+                .At(x => x.Message.Contains("A task was canceled"))
+                .Call(async () =>
+                {
+                    await WingsApiHelper.Delete(serverData.Node,
+                        $"api/servers/{serverData.Uuid}/backup/{serverBackup.Uuid}",
+                        null);
+                });
         }
         catch (WingsException e)
         {
@@ -197,7 +205,7 @@ public class ServerService
                 throw;
             }
         }
-        
+
         var backup = serverData.Backups.First(x => x.Uuid == serverBackup.Uuid);
         serverData.Backups.Remove(backup);
 
@@ -264,10 +272,11 @@ public class ServerService
         {
             // We have sadly no choice to use entity framework to do what the sql call does, there
             // are only slower ways, so we will use a raw sql call as a exception
-            
+
             freeAllocations = NodeAllocationRepository
                 .Get()
-                .FromSqlRaw($"SELECT * FROM `NodeAllocations` WHERE ServerId IS NULL AND NodeId={node.Id} LIMIT {allocations}")
+                .FromSqlRaw(
+                    $"SELECT * FROM `NodeAllocations` WHERE ServerId IS NULL AND NodeId={node.Id} LIMIT {allocations}")
                 .ToArray();
         }
         catch (Exception)
@@ -328,7 +337,7 @@ public class ServerService
                 });
 
             //TODO: AuditLog
-            
+
             return newServerData;
         }
         catch (Exception e)
@@ -350,7 +359,7 @@ public class ServerService
 
         server.Installing = true;
         ServerRepository.Update(server);
-        
+
         //TODO: AuditLog
     }
 
@@ -386,8 +395,6 @@ public class ServerService
 
     public async Task Delete(Server s)
     {
-        throw new DisplayException("Deleting servers is currently disabled");
-        
         var backups = await GetBackups(s);
 
         foreach (var backup in backups)
@@ -408,7 +415,21 @@ public class ServerService
             .Include(x => x.Node)
             .First(x => x.Id == s.Id);
 
-        await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
+        try
+        {
+            await new Retry()
+                .Times(3)
+                .At(x => x.Message.Contains("A task was canceled"))
+                .Call(async () =>
+                {
+                    await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
+                });
+        }
+        catch (WingsException e)
+        {
+            if (e.StatusCode != 404)
+                throw;
+        }
 
         foreach (var variable in server.Variables.ToArray())
         {
@@ -435,19 +456,19 @@ public class ServerService
     {
         if (server.IsArchived)
             throw new DisplayException("Unable to archive an already archived server");
-        
+
         // Archive server
-        
+
         var backup = await CreateBackup(server);
         server.IsArchived = true;
         server.Archive = backup;
-        
+
         ServerRepository.Update(server);
 
         await Event.WaitForEvent<ServerBackup>("wings.backups.create", this, x => backup.Id == x.Id);
 
         // Reset server
-        
+
         var access = await CreateFileAccess(server, null!);
         var files = await access.Ls();
         foreach (var file in files)
@@ -461,7 +482,7 @@ public class ServerService
                 // ignored
             }
         }
-        
+
         await Event.Emit($"server.{server.Uuid}.archiveStatusChanged", server);
     }
 
@@ -483,7 +504,7 @@ public class ServerService
 
         await RestoreBackup(server, server.Archive);
 
-        await Event.WaitForEvent<ServerBackup>("wings.backups.restore", this, 
+        await Event.WaitForEvent<ServerBackup>("wings.backups.restore", this,
             x => x.Id == server.Archive.Id);
 
         server.IsArchived = false;
