@@ -285,7 +285,8 @@ public class ServerService
             Allocations = freeAllocations.ToList(),
             Backups = new(),
             OverrideStartup = "",
-            DockerImageIndex = image.DockerImages.FindIndex(x => x.Default)
+            DockerImageIndex = image.DockerImages.FindIndex(x => x.Default),
+            Installing = true
         };
 
         foreach (var imageVariable in image.Variables)
