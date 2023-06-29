@@ -209,7 +209,7 @@ public class WingsApiHelper
 
         var request = new RestRequest(url)
         {
-            Timeout = 60 * 15
+            Timeout = 300000
         };
 
         request.AddHeader("Content-Type", "application/json");
