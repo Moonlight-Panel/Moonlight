@@ -14,171 +14,174 @@
 @inject IJSRuntime JsRuntime
 
 <LazyLoader @ref="LazyLoader" Load="Load">
-<div class="mx-auto">
-<div class="card card-body">
-    <div class="d-flex justify-content-between">
-        <span class="badge badge-primary badge-lg px-5 me-4">Beta</span>
-        @if (EditMode)
-        {
-            <div>
-                <WButton Text="@(SmartTranslateService.Translate("New group"))"
-                         WorkingText=""
-                         CssClasses="btn-primary me-3"
-                         OnClick="AddGroup">
-                </WButton>
-                <WButton Text="@(SmartTranslateService.Translate("Finish editing layout"))"
-                         CssClasses="btn-secondary"
-                         OnClick="async () => await SetEditMode(false)">
-                </WButton>
-            </div>
-        }
-        else
-        {
-            <WButton Text="@(SmartTranslateService.Translate("Edit layout"))"
-                     CssClasses="btn-secondary"
-                     OnClick="async () => await SetEditMode(true)">
-            </WButton>
-        }
-    </div>
-</div>
-@foreach (var group in ServerGroups)
-{
-    <div class="accordion my-3" id="serverListGroup@(group.GetHashCode())">
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="serverListGroup-header@(group.GetHashCode())">
-                <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#serverListGroup-body@(group.GetHashCode())" aria-expanded="false" aria-controls="serverListGroup-body@(group.GetHashCode())">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            @if (EditMode)
-                            {
-                                <input @bind="group.Name" class="form-control"/>
-                            }
-                            else
-                            {
-                                if (string.IsNullOrEmpty(group.Name))
-                                {
-                                    <TL>Unsorted servers</TL>
-                                }
-                                else
-                                {
-                                    <span>@(group.Name)</span>
-                                }
-                            }
-                        </div>
-                        <div>
-                            @if (EditMode)
-                            {
-                                <WButton Text="@(SmartTranslateService.Translate("Remove group"))"
-                                         WorkingText=""
-                                         CssClasses="btn-danger"
-                                         OnClick="async () => await RemoveGroup(group)">
-                                </WButton>
-                            }
-                        </div>
+    <div class="mx-auto">
+        <div class="card card-body">
+            <div class="d-flex justify-content-between">
+                <span class="badge badge-primary badge-lg px-5 me-4">Beta</span>
+                @if (EditMode)
+                {
+                    <div>
+                        <WButton Text="@(SmartTranslateService.Translate("New group"))"
+                                 WorkingText=""
+                                 CssClasses="btn-primary me-3"
+                                 OnClick="AddGroup">
+                        </WButton>
+                        <WButton Text="@(SmartTranslateService.Translate("Finish editing layout"))"
+                                 CssClasses="btn-secondary"
+                                 OnClick="async () => await SetEditMode(false)">
+                        </WButton>
                     </div>
-                </button>
-            </h2>
-            <div id="serverListGroup-body@(group.GetHashCode())" class="accordion-collapse collapse" aria-labelledby="serverListGroup-header@(group.GetHashCode())" data-bs-parent="#serverListGroup">
-                <div class="accordion-body">
-                    <div class="row min-h-200px draggable-zone" ml-server-group="@(group.Name)">
-                        @foreach (var id in group.Servers)
-                        {
-                            var server = AllServers.First(x => x.Id.ToString() == id);
-
-                            <div class="col-12 col-md-3 p-3 draggable" ml-server-id="@(server.Id)">
-                                @if (EditMode)
+                }
+                else
+                {
+                    <WButton Text="@(SmartTranslateService.Translate("Edit layout"))"
+                             CssClasses="btn-secondary"
+                             OnClick="async () => await SetEditMode(true)">
+                    </WButton>
+                }
+            </div>
+        </div>
+        @foreach (var group in ServerGroups)
+        {
+            <div class="accordion my-3" id="serverListGroup@(group.GetHashCode())">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="serverListGroup-header@(group.GetHashCode())">
+                        <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#serverListGroup-body@(group.GetHashCode())" aria-expanded="false" aria-controls="serverListGroup-body@(group.GetHashCode())">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    @if (EditMode)
+                                    {
+                                        <input @bind="group.Name" class="form-control"/>
+                                    }
+                                    else
+                                    {
+                                        if (string.IsNullOrEmpty(group.Name))
+                                        {
+                                            <TL>Unsorted servers</TL>
+                                        }
+                                        else
+                                        {
+                                            <span>@(group.Name)</span>
+                                        }
+                                    }
+                                </div>
+                                <div>
+                                    @if (EditMode)
+                                    {
+                                        <WButton Text="@(SmartTranslateService.Translate("Remove group"))"
+                                                 WorkingText=""
+                                                 CssClasses="btn-danger"
+                                                 OnClick="async () => await RemoveGroup(group)">
+                                        </WButton>
+                                    }
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="serverListGroup-body@(group.GetHashCode())" class="accordion-collapse collapse" aria-labelledby="serverListGroup-header@(group.GetHashCode())" data-bs-parent="#serverListGroup">
+                        <div class="accordion-body">
+                            <div class="row min-h-200px draggable-zone" ml-server-group="@(group.Name)">
+                                @foreach (var id in group.Servers)
                                 {
-                                    <div class="card bg-secondary">
-                                        <div class="card-header">
-                                            <div class="card-title">
-                                                <span class="card-label">@(server.Name)</span>
-                                            </div>
-                                            <div class="card-toolbar">
-                                                <a href="#" class="btn btn-icon btn-sm btn-hover-light-primary draggable-handle">
-                                                    <i class="bx bx-md bx-move"></i>
+                                    var server = AllServers.FirstOrDefault(x => x.Id.ToString() == id);
+
+                                    if (server != null)
+                                    {
+                                        <div class="col-12 col-md-3 p-3 draggable" ml-server-id="@(server.Id)">
+                                            @if (EditMode)
+                                            {
+                                                <div class="card bg-secondary">
+                                                    <div class="card-header">
+                                                        <div class="card-title">
+                                                            <span class="card-label">@(server.Name)</span>
+                                                        </div>
+                                                        <div class="card-toolbar">
+                                                            <a href="#" class="btn btn-icon btn-sm btn-hover-light-primary draggable-handle">
+                                                                <i class="bx bx-md bx-move"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <TL>Hidden in edit mode</TL>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <a class="invisible-a" href="/server/@(server.Uuid)">
+                                                    <div class="card bg-secondary">
+                                                        <div class="card-header">
+                                                            <div class="card-title">
+                                                                <span class="card-label">@(server.Name)</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <span class="card-text fs-6">
+                                                                @(Math.Round(server.Memory / 1024D, 2)) GB / @(Math.Round(server.Disk / 1024D, 2)) GB / @(server.Node.Name) <span class="text-gray-700">- @(server.Image.Name)</span>
+                                                            </span>
+                                                            <div class="card-text my-1 fs-6 fw-bold @(User.StreamerMode ? "blur" : "")">
+                                                                @(server.Node.Fqdn):@(server.MainAllocation.Port)
+                                                            </div>
+                                                            <div class="card-text fs-6">
+                                                                @if (StatusCache.ContainsKey(server))
+                                                                {
+                                                                    var status = StatusCache[server];
+
+                                                                    switch (status)
+                                                                    {
+                                                                        case "offline":
+                                                                            <span class="text-danger">
+                                                                                <TL>Offline</TL>
+                                                                            </span>
+                                                                            break;
+                                                                        case "stopping":
+                                                                            <span class="text-warning">
+                                                                                <TL>Stopping</TL>
+                                                                            </span>
+                                                                            break;
+                                                                        case "starting":
+                                                                            <span class="text-warning">
+                                                                                <TL>Starting</TL>
+                                                                            </span>
+                                                                            break;
+                                                                        case "running":
+                                                                            <span class="text-success">
+                                                                                <TL>Running</TL>
+                                                                            </span>
+                                                                            break;
+                                                                        case "failed":
+                                                                            <span class="text-gray-400">
+                                                                                <TL>Failed</TL>
+                                                                            </span>
+                                                                            break;
+                                                                        default:
+                                                                            <span class="text-danger">
+                                                                                <TL>Offline</TL>
+                                                                            </span>
+                                                                            break;
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-gray-400">
+                                                                        <TL>Loading</TL>
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </a>
-                                            </div>
+                                            }
                                         </div>
-                                        <div class="card-body">
-                                            <TL>Hidden in edit mode</TL>
-                                        </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <a class="invisible-a" href="/server/@(server.Uuid)">
-                                        <div class="card bg-secondary">
-                                            <div class="card-header">
-                                                <div class="card-title">
-                                                    <span class="card-label">@(server.Name)</span>
-                                                </div>
-                                            </div>
-                                            <div class="card-body">
-                                                <span class="card-text fs-6">
-                                                    @(Math.Round(server.Memory / 1024D, 2)) GB / @(Math.Round(server.Disk / 1024D, 2)) GB / @(server.Node.Name) <span class="text-gray-700">- @(server.Image.Name)</span>
-                                                </span>
-                                                <div class="card-text my-1 fs-6 fw-bold @(User.StreamerMode ? "blur" : "")">
-                                                    @(server.Node.Fqdn):@(server.MainAllocation.Port)
-                                                </div>
-                                                <div class="card-text fs-6">
-                                                    @if (StatusCache.ContainsKey(server))
-                                                    {
-                                                        var status = StatusCache[server];
-
-                                                        switch (status)
-                                                        {
-                                                            case "offline":
-                                                                <span class="text-danger">
-                                                                    <TL>Offline</TL>
-                                                                </span>
-                                                                break;
-                                                            case "stopping":
-                                                                <span class="text-warning">
-                                                                    <TL>Stopping</TL>
-                                                                </span>
-                                                                break;
-                                                            case "starting":
-                                                                <span class="text-warning">
-                                                                    <TL>Starting</TL>
-                                                                </span>
-                                                                break;
-                                                            case "running":
-                                                                <span class="text-success">
-                                                                    <TL>Running</TL>
-                                                                </span>
-                                                                break;
-                                                            case "failed":
-                                                                <span class="text-gray-400">
-                                                                    <TL>Failed</TL>
-                                                                </span>
-                                                                break;
-                                                            default:
-                                                                <span class="text-danger">
-                                                                    <TL>Offline</TL>
-                                                                </span>
-                                                                break;
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-gray-400">
-                                                            <TL>Loading</TL>
-                                                        </span>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
+                                    }
                                 }
                             </div>
-                        }
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
-}
-</div>
 </LazyLoader>
 
 @code
