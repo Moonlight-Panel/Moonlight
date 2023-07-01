@@ -29,7 +29,9 @@ using Moonlight.App.Services.Notifications;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.SupportChat;
+using Sentry;
 using Serilog;
+using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Moonlight
@@ -40,24 +42,62 @@ namespace Moonlight
         {
             // This will also copy all default config files
             var configService = new ConfigService(new StorageService());
+            var shouldUseSentry = configService
+                .GetSection("Moonlight")
+                .GetSection("Sentry")
+                .GetValue<bool>("Enable");
 
             if (configService.DebugMode)
             {
-                Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.Verbose()
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console(
-                        outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
-                    .CreateLogger();
+                if (shouldUseSentry)
+                {
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Verbose()
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console(
+                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .WriteTo.Sentry(options =>
+                        {
+                            options.MinimumBreadcrumbLevel = LogEventLevel.Debug;
+                            options.MinimumEventLevel = LogEventLevel.Warning;
+                        })
+                        .CreateLogger();
+                }
+                else
+                {
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Verbose()
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console(
+                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .CreateLogger();
+                }
             }
             else
             {
-                Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.Information()
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console(
-                        outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
-                    .CreateLogger();
+                if (shouldUseSentry)
+                {
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Information()
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console(
+                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .WriteTo.Sentry(options =>
+                        {
+                            options.MinimumBreadcrumbLevel = LogEventLevel.Information;
+                            options.MinimumEventLevel = LogEventLevel.Warning;
+                        })
+                        .CreateLogger();
+                }
+                else
+                {
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Information()
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console(
+                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .CreateLogger();
+                }
             }
             
             Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
@@ -66,7 +106,7 @@ namespace Moonlight
             var databaseCheckupService = new DatabaseCheckupService(configService);
                 
             await databaseCheckupService.Perform();
-            
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Switch to logging.net injection
@@ -88,6 +128,21 @@ namespace Moonlight
                 .AddCheck<DatabaseHealthCheck>("Database")
                 .AddCheck<NodeHealthCheck>("Nodes")
                 .AddCheck<DaemonHealthCheck>("Daemons");
+            
+            // Sentry
+            if (shouldUseSentry)
+            {
+                builder.WebHost.UseSentry(options =>
+                {
+                    options.Dsn = configService
+                        .GetSection("Moonlight")
+                        .GetSection("Sentry")
+                        .GetValue<string>("Dsn");
+
+                    options.Debug = configService.DebugMode;
+                    options.DiagnosticLevel = SentryLevel.Warning;
+                });
+            }
 
             // Databases
             builder.Services.AddDbContext<DataContext>();
@@ -201,6 +256,12 @@ namespace Moonlight
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+            }
+
+            // Sentry
+            if (shouldUseSentry)
+            {
+                app.UseSentryTracing();
             }
 
             app.UseStaticFiles();
