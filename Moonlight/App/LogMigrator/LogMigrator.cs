@@ -27,19 +27,39 @@ public class LogMigrator : ILogger
         switch (logLevel)
         {
             case LogLevel.Critical:
-                Logger.Fatal($"[{Name}] {formatter(state, exception)}");
+                Logger.Fatal(formatter(state, exception));
+                
+                if(exception != null)
+                    Logger.Fatal(exception);
+                
                 break;
             case LogLevel.Warning:
-                Logger.Warn($"[{Name}] {formatter(state, exception)}");
+                Logger.Warn(formatter(state, exception));
+                
+                if(exception != null)
+                    Logger.Warn(exception);
+                
                 break;
             case LogLevel.Debug:
-                Logger.Debug($"[{Name}] {formatter(state, exception)}");
+                Logger.Debug(formatter(state, exception));
+                
+                if(exception != null)
+                    Logger.Debug(exception);
+                
                 break;
             case LogLevel.Error:
-                Logger.Error($"[{Name}] {formatter(state, exception)}");
+                Logger.Error(formatter(state, exception));
+                
+                if(exception != null)
+                    Logger.Error(exception);
+                
                 break;
             case LogLevel.Information:
-                Logger.Info($"[{Name}] {formatter(state, exception)}");
+                Logger.Info(formatter(state, exception));
+                
+                if(exception != null)
+                    Logger.Info(exception);
+                
                 break;
         }
     }
