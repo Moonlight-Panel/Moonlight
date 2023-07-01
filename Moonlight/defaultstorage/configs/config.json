@@ -92,6 +92,10 @@
       "Url": "link-to-google.page",
       "MinRating": 4,
       "DaysSince": 5
+    },
+    "Sentry": {
+      "Enable": false,
+      "Dsn": ""
     }
   }
 }
