@@ -15,6 +15,7 @@ public class StorageService
         Directory.CreateDirectory(PathBuilder.Dir("storage", "configs"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "resources"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "backups"));
+        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
         
         if(IsEmpty(PathBuilder.Dir("storage", "resources")))
         {

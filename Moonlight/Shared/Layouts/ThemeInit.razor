@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using Moonlight.App.Extensions
+@inherits LayoutComponentBase
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 
@@ -14,23 +15,23 @@ window.emptyBody = function(){
 {
     protected override void OnAfterRender(bool firstRender)
     {
-        JS.InvokeVoidAsync("KTThemeMode.init");
-        JS.InvokeVoidAsync("emptyBody");
+        JS.InvokeVoidSafe("KTThemeMode.init");
+        JS.InvokeVoidSafe("emptyBody");
         
         if (firstRender)
         {
-            JS.InvokeVoidAsync("scrollTo", 0, 0);
-            JS.InvokeVoidAsync("KTDialer.init");
-            JS.InvokeVoidAsync("KTDrawer.init");
-            JS.InvokeVoidAsync("KTMenu.init");
-            JS.InvokeVoidAsync("KTImageInput.init");
-            JS.InvokeVoidAsync("KTPasswordMeter.init");
-            JS.InvokeVoidAsync("KTScroll.init");
-            JS.InvokeVoidAsync("KTScrolltop.init");
-            JS.InvokeVoidAsync("KTSticky.init");
-            JS.InvokeVoidAsync("KTSwapper.init");
-            JS.InvokeVoidAsync("KTToggle.init");
-            JS.InvokeVoidAsync("KTMenu.updateByLinkAttribute", $"/{NavigationManager.ToBaseRelativePath(NavigationManager.Uri)}");
+            JS.InvokeVoidSafe("scrollTo", 0, 0);
+            JS.InvokeVoidSafe("KTDialer.init");
+            JS.InvokeVoidSafe("KTDrawer.init");
+            JS.InvokeVoidSafe("KTMenu.init");
+            JS.InvokeVoidSafe("KTImageInput.init");
+            JS.InvokeVoidSafe("KTPasswordMeter.init");
+            JS.InvokeVoidSafe("KTScroll.init");
+            JS.InvokeVoidSafe("KTScrolltop.init");
+            JS.InvokeVoidSafe("KTSticky.init");
+            JS.InvokeVoidSafe("KTSwapper.init");
+            JS.InvokeVoidSafe("KTToggle.init");
+            JS.InvokeVoidSafe("KTMenu.updateByLinkAttribute", $"/{NavigationManager.ToBaseRelativePath(NavigationManager.Uri)}");
         }
         
         JS.InvokeVoidAsync("KTLayoutSearch.init");
@@ -45,30 +46,18 @@ window.emptyBody = function(){
 
     private async void OnLocationChanged(object sender, LocationChangedEventArgs args)
     {
-        await InvokeJsSave("scrollTo", 0, 0);
-        await InvokeJsSave("KTDrawer.createInstances");
-        await InvokeJsSave("KTMenu.createInstances");
-        await InvokeJsSave("KTImageInput.createInstances");
-        await InvokeJsSave("KTPasswordMeter.createInstances");
-        await InvokeJsSave("KTScroll.createInstances");
-        await InvokeJsSave("KTScrolltop.createInstances");
-        await InvokeJsSave("KTSticky.createInstances");
-        await InvokeJsSave("KTSwapper.createInstances");
-        await InvokeJsSave("KTToggle.createInstances");
-        await InvokeJsSave("KTMenu.updateByLinkAttribute", $"/{NavigationManager.ToBaseRelativePath(args.Location)}");
-        await InvokeJsSave("KTAppSidebar.init");
-    }
-
-    private async Task InvokeJsSave(string method, params object[] args)
-    {
-        try
-        {
-            await JS.InvokeVoidAsync(method, args);
-        }
-        catch (Exception)
-        {
-            // ignored
-        }
+        await JS.InvokeVoidSafeAsync("scrollTo", 0, 0);
+        await JS.InvokeVoidSafeAsync("KTDrawer.createInstances");
+        await JS.InvokeVoidSafeAsync("KTMenu.createInstances");
+        await JS.InvokeVoidSafeAsync("KTImageInput.createInstances");
+        await JS.InvokeVoidSafeAsync("KTPasswordMeter.createInstances");
+        await JS.InvokeVoidSafeAsync("KTScroll.createInstances");
+        await JS.InvokeVoidSafeAsync("KTScrolltop.createInstances");
+        await JS.InvokeVoidSafeAsync("KTSticky.createInstances");
+        await JS.InvokeVoidSafeAsync("KTSwapper.createInstances");
+        await JS.InvokeVoidSafeAsync("KTToggle.createInstances");
+        await JS.InvokeVoidSafeAsync("KTMenu.updateByLinkAttribute", $"/{NavigationManager.ToBaseRelativePath(args.Location)}");
+        await JS.InvokeVoidSafeAsync("KTAppSidebar.init");
     }
 
     public void Dispose()

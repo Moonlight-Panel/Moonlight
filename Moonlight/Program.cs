@@ -56,6 +56,7 @@ namespace Moonlight
                         .Enrich.FromLogContext()
                         .WriteTo.Console(
                             outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .WriteTo.File(PathBuilder.File("storage", "logs", $"{DateTime.UtcNow:yyyy-MM-dd}.log"))
                         .WriteTo.Sentry(options =>
                         {
                             options.MinimumBreadcrumbLevel = LogEventLevel.Debug;
@@ -70,6 +71,7 @@ namespace Moonlight
                         .Enrich.FromLogContext()
                         .WriteTo.Console(
                             outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .WriteTo.File(PathBuilder.File("storage", "logs", $"{DateTime.UtcNow:yyyy-MM-dd}.log"))
                         .CreateLogger();
                 }
             }
@@ -87,6 +89,7 @@ namespace Moonlight
                             options.MinimumBreadcrumbLevel = LogEventLevel.Information;
                             options.MinimumEventLevel = LogEventLevel.Warning;
                         })
+                        .WriteTo.File(PathBuilder.File("storage", "logs", $"{DateTime.UtcNow:yyyy-MM-dd}.log"))
                         .CreateLogger();
                 }
                 else
@@ -96,6 +99,7 @@ namespace Moonlight
                         .Enrich.FromLogContext()
                         .WriteTo.Console(
                             outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
+                        .WriteTo.File(PathBuilder.File("storage", "logs", $"{DateTime.UtcNow:yyyy-MM-dd}.log"))
                         .CreateLogger();
                 }
             }
@@ -111,8 +115,8 @@ namespace Moonlight
 
             // Switch to logging.net injection
             // TODO: Enable in production
-            //builder.Logging.ClearProviders();
-            //builder.Logging.AddProvider(new LogMigratorProvider());
+            builder.Logging.ClearProviders();
+            builder.Logging.AddProvider(new LogMigratorProvider());
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -141,6 +145,9 @@ namespace Moonlight
 
                     options.Debug = configService.DebugMode;
                     options.DiagnosticLevel = SentryLevel.Warning;
+                    options.TracesSampleRate = 1.0;
+
+                    options.DiagnosticLogger = new SentryDiagnosticsLogger(SentryLevel.Warning);
                 });
             }
 
