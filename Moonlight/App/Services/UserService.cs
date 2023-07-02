@@ -38,9 +38,8 @@ public class UserService
         DateTimeService = dateTimeService;
 
         JwtSecret = configService
-            .GetSection("Moonlight")
-            .GetSection("Security")
-            .GetValue<string>("Token");
+            .Get()
+            .Moonlight.Security.Token;
     }
 
     public async Task<string> Register(string email, string password, string firstname, string lastname)

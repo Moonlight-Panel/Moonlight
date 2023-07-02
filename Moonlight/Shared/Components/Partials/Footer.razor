@@ -4,31 +4,31 @@
 
 @{
     var marketingConfig = ConfigService
-        .GetSection("Moonlight")
-        .GetSection("Marketing");
+        .Get()
+        .Moonlight.Marketing;
 }
 
 <div id="kt_app_footer" class="app-footer">
     <div class="app-container container-fluid d-flex flex-column flex-md-row flex-center flex-md-stack py-3">
         <div class="text-dark order-2 order-md-1">
             <span class="text-muted fw-semibold me-1">2022 - @DateTime.Now.Year©</span>
-            <a href="@(marketingConfig.GetValue<string>("Website"))" target="_blank" class="text-gray-800 text-hover-primary">
-                @(marketingConfig.GetValue<string>("BrandName"))
+            <a href="@(marketingConfig.Website)" target="_blank" class="text-gray-800 text-hover-primary">
+                @(marketingConfig.BrandName)
             </a>
         </div>
         <ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
             <li class="menu-item">
-                <a href="@(marketingConfig.GetValue<string>("About"))" target="_blank" class="menu-link px-2">
+                <a href="@(marketingConfig.About)" target="_blank" class="menu-link px-2">
                     <TL>About us</TL>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="@(marketingConfig.GetValue<string>("Imprint"))" target="_blank" class="menu-link px-2">
+                <a href="@(marketingConfig.Imprint)" target="_blank" class="menu-link px-2">
                     <TL>Imprint</TL>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="@(marketingConfig.GetValue<string>("Privacy"))" target="_blank" class="menu-link px-2">
+                <a href="@(marketingConfig.Privacy)" target="_blank" class="menu-link px-2">
                     <TL>Privacy</TL>
                 </a>
             </li>

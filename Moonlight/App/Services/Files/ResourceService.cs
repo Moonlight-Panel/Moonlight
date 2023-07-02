@@ -8,7 +8,7 @@ public class ResourceService
     
     public ResourceService(ConfigService configService)
     {
-        AppUrl = configService.GetSection("Moonlight").GetValue<string>("AppUrl");
+        AppUrl = configService.Get().Moonlight.AppUrl;
     }
 
     public string Image(string name)

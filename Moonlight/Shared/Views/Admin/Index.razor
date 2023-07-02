@@ -151,8 +151,8 @@
         await lazyLoader.SetText("Loading health check data");
 
         var appUrl = ConfigService
-            .GetSection("Moonlight")
-            .GetValue<string>("AppUrl");
+            .Get()
+            .Moonlight.AppUrl;
 
         try
         {

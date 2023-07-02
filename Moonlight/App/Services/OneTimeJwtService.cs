@@ -25,10 +25,9 @@ public class OneTimeJwtService
         var opt = new Dictionary<string, string>();
         options.Invoke(opt);
 
-        string secret = ConfigService
-            .GetSection("Moonlight")
-            .GetSection("Security")
-            .GetValue<string>("Token");
+        var secret = ConfigService
+            .Get()
+            .Moonlight.Security.Token;
 
         var id = StringHelper.GenerateString(16);
         
@@ -55,10 +54,9 @@ public class OneTimeJwtService
 
     public async Task<Dictionary<string, string>?> Validate(string token)
     {
-        string secret = ConfigService
-            .GetSection("Moonlight")
-            .GetSection("Security")
-            .GetValue<string>("Token");
+        var secret = ConfigService
+            .Get()
+            .Moonlight.Security.Token;
 
         string json;
 

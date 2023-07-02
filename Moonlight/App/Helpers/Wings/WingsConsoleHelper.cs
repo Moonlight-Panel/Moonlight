@@ -20,7 +20,7 @@ public class WingsConsoleHelper
     {
         ServerRepository = serverRepository;
 
-        AppUrl = configService.GetSection("Moonlight").GetValue<string>("AppUrl");
+        AppUrl = configService.Get().Moonlight.AppUrl;
     }
 
     public async Task ConnectWings(WingsConsole console, Server server)

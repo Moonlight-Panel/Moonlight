@@ -52,14 +52,14 @@ public class DataContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             var config = ConfigService
-                .GetSection("Moonlight")
-                .GetSection("Database");
+                .Get()
+                .Moonlight.Database;
 
-            var connectionString = $"host={config.GetValue<string>("Host")};" +
-                                   $"port={config.GetValue<int>("Port")};" +
-                                   $"database={config.GetValue<string>("Database")};" +
-                                   $"uid={config.GetValue<string>("Username")};" +
-                                   $"pwd={config.GetValue<string>("Password")}";
+            var connectionString = $"host={config.Host};" +
+                                   $"port={config.Port};" +
+                                   $"database={config.Database};" +
+                                   $"uid={config.Username};" +
+                                   $"pwd={config.Password}";
             
             optionsBuilder.UseMySql(
                 connectionString,

@@ -17,13 +17,13 @@ public class StatisticsCaptureService
         DateTimeService = dateTimeService;
 
         var config = configService
-            .GetSection("Moonlight")
-            .GetSection("Statistics");
+            .Get()
+            .Moonlight.Statistics;
         
-        if(!config.GetValue<bool>("Enabled"))
+        if(!config.Enabled)
             return;
         
-        var period = TimeSpan.FromMinutes(config.GetValue<int>("Wait"));
+        var period = TimeSpan.FromMinutes(config.Wait);
         Timer = new(period);
 
         Logger.Info("Starting statistics system");

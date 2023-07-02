@@ -44,10 +44,10 @@ public DiscordBotService(
         ServiceScope = ServiceScopeFactory.CreateScope();
 
         var discordConfig = ConfigService
-            .GetSection("Moonlight")
-            .GetSection("DiscordBot");
+            .Get()
+            .Moonlight.DiscordBot;
 
-        if (!discordConfig.GetValue<bool>("Enable"))
+        if (!discordConfig.Enable)
             return;
 
         Client.Log += Log;
@@ -67,7 +67,7 @@ public DiscordBotService(
 
         await ActivityStatusModule.UpdateActivityStatusList();
 
-        await Client.LoginAsync(TokenType.Bot, discordConfig.GetValue<string>("Token"));
+        await Client.LoginAsync(TokenType.Bot, discordConfig.Token);
         await Client.StartAsync();
 
         await Task.Delay(-1);

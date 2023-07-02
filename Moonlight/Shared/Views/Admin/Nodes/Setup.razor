@@ -4,12 +4,10 @@
 @using Moonlight.App.Services
 
 @inject NodeRepository NodeRepository
-@inject SmartTranslateService SmartTranslateService
 @inject ConfigService ConfigService
-@inject NavigationManager NavigationManager
 
 @{
-    var appUrl = ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl");
+    var appUrl = ConfigService.Get().Moonlight.AppUrl;
 }
 
 <OnlyAdmin>

@@ -65,16 +65,14 @@ public class DatabaseCheckupService
         
         var configService = new ConfigService(new StorageService());
         var dateTimeService = new DateTimeService();
-        
-        var config = configService
-            .GetSection("Moonlight")
-            .GetSection("Database");
 
-        var connectionString = $"host={config.GetValue<string>("Host")};" +
-                               $"port={config.GetValue<int>("Port")};" +
-                               $"database={config.GetValue<string>("Database")};" +
-                               $"uid={config.GetValue<string>("Username")};" +
-                               $"pwd={config.GetValue<string>("Password")}";
+        var config = configService.Get().Moonlight.Database;
+
+        var connectionString = $"host={config.Host};" +
+                               $"port={config.Port};" +
+                               $"database={config.Database};" +
+                               $"uid={config.Username};" +
+                               $"pwd={config.Password}";
         
         string file = PathBuilder.File("storage", "backups", $"{dateTimeService.GetCurrentUnix()}-mysql.sql");
         

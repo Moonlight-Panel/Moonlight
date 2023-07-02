@@ -111,7 +111,7 @@ public class WingsFileAccess : FileAccess
         request.AddParameter("name", "files");
         request.AddParameter("filename", name);
         request.AddHeader("Content-Type", "multipart/form-data");
-        request.AddHeader("Origin", ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl"));
+        request.AddHeader("Origin", ConfigService.Get().Moonlight.AppUrl);
         request.AddFile("files", () =>
         {
             return new StreamProgressHelper(dataStream)

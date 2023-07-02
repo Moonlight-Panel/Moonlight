@@ -25,16 +25,15 @@ public class ReCaptchaService
         ConfigService = configService;
 
         var recaptchaConfig = ConfigService
-            .GetSection("Moonlight")
-            .GetSection("Security")
-            .GetSection("ReCaptcha");
+            .Get()
+            .Moonlight.Security.ReCaptcha;
 
-        Enable = recaptchaConfig.GetValue<bool>("Enable");
+        Enable = recaptchaConfig.Enable;
 
         if (Enable)
         {
-            SiteKey = recaptchaConfig.GetValue<string>("SiteKey");
-            SecretKey = recaptchaConfig.GetValue<string>("SecretKey");
+            SiteKey = recaptchaConfig.SiteKey;
+            SecretKey = recaptchaConfig.SecretKey;
         }
     }
 

@@ -87,8 +87,8 @@ public class EmbedBuilderModule : BaseModule
         int[] randomNumbers = new int[] { 1, 3, 8, 11, 20 };
         
         if (randomNumbers.Contains(random.Next(1, 24)))
-            return new EmbedAuthorBuilder().WithName(Client.CurrentUser.Username + " - The Rick version").WithUrl(ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl")).WithIconUrl("https://cdn.discordapp.com/attachments/750696464014901268/1092783310129860618/rick.gif");
+            return new EmbedAuthorBuilder().WithName(Client.CurrentUser.Username + " - The Rick version").WithUrl(ConfigService.Get().Moonlight.AppUrl).WithIconUrl("https://cdn.discordapp.com/attachments/750696464014901268/1092783310129860618/rick.gif");
         
-        return new EmbedAuthorBuilder().WithName(Client.CurrentUser.Username).WithUrl(ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl")).WithIconUrl(Client.CurrentUser.GetAvatarUrl());
+        return new EmbedAuthorBuilder().WithName(Client.CurrentUser.Username).WithUrl(ConfigService.Get().Moonlight.AppUrl).WithIconUrl(Client.CurrentUser.GetAvatarUrl());
     }
 }

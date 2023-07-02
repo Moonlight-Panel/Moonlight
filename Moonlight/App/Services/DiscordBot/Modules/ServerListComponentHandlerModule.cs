@@ -72,7 +72,7 @@ public class ServerListComponentHandlerModule : BaseModule
         // stopping
         // offline
         // installing
-        if (!ConfigService.GetSection("Moonlight").GetSection("DiscordBot").GetValue<bool>("PowerActions") && costomId[1] is "Start" or "Restart" or "Stop" or "Kill" or "Update")
+        if (!ConfigService.Get().Moonlight.DiscordBot.PowerActions && costomId[1] is "Start" or "Restart" or "Stop" or "Kill" or "Update")
         {
             embed = dcs.EmbedBuilderModule.StandardEmbed($"This feature is disabled for Security reasons! \n If you believe this is a error please contact the Administrators from this panel.", Color.Red, component.User);
             await component.RespondAsync(embed: embed.Build(), ephemeral: true);
@@ -80,7 +80,7 @@ public class ServerListComponentHandlerModule : BaseModule
             return;
         }
         
-        if (!ConfigService.GetSection("Moonlight").GetSection("DiscordBot").GetValue<bool>("SendCommands") && costomId[1] is "SendCommand")
+        if (!ConfigService.Get().Moonlight.DiscordBot.SendCommands && costomId[1] is "SendCommand")
         {
             embed = dcs.EmbedBuilderModule.StandardEmbed($"This feature is disabled for Security reasons! \n If you believe this is a error please contact the Administrators from this panel.", Color.Red, component.User);
             await component.RespondAsync(embed: embed.Build(), ephemeral: true);
@@ -302,7 +302,7 @@ public class ServerListComponentHandlerModule : BaseModule
         {
             embed = dcs.EmbedBuilderModule.StandardEmbed("Sorry ;( \n Please first create and/or link a Account to Discord! \n Press the Button to register/log in.", Color.Red, component.User);
             components = new ComponentBuilder();
-            components.WithButton("Click Here", style: ButtonStyle.Link, url: ConfigService.GetSection("Moonlight").GetValue<String>("AppUrl"));
+            components.WithButton("Click Here", style: ButtonStyle.Link, url: ConfigService.Get().Moonlight.AppUrl);
         
             await component.RespondAsync(embed: embed.Build(), components: components.Build(), ephemeral: true);
             return;
@@ -332,7 +332,7 @@ public class ServerListComponentHandlerModule : BaseModule
         components.WithButton("Panel",
             emote: Emote.Parse("<a:Earth:1092814004113657927>"),
             style: ButtonStyle.Link,
-            url: $"{ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl")}");
+            url: $"{ConfigService.Get().Moonlight.AppUrl}");
         
         components.WithButton("Previous-page",
             emote: Emote.Parse("<:ArrowLeft:1101547474180649030>"),
@@ -378,7 +378,7 @@ public class ServerListComponentHandlerModule : BaseModule
 
         var components = new ComponentBuilder();
 
-        if (ConfigService.GetSection("Moonlight").GetSection("DiscordBot").GetValue<bool>("PowerActions"))
+        if (ConfigService.Get().Moonlight.DiscordBot.PowerActions)
         {
             components.WithButton("Start", style: ButtonStyle.Success, customId: $"Sm.Start.{server.Id}", disabled: false);
             components.WithButton("Restart", style: ButtonStyle.Primary, customId: $"Sm.Restart.{server.Id}", disabled: false);
@@ -389,14 +389,14 @@ public class ServerListComponentHandlerModule : BaseModule
         components.WithButton("Way2Server",
             emote: Emote.Parse("<a:Earth:1092814004113657927>"),
             style: ButtonStyle.Link,
-            url: $"{ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl")}/server/{server.Uuid}");
+            url: $"{ConfigService.Get().Moonlight.AppUrl}/server/{server.Uuid}");
 
         components.WithButton("Update",
             emote: Emote.Parse("<:refresh:1101547898803605605>"),
             style: ButtonStyle.Secondary,
             customId: $"Sm.Update.{server.Id}");
         
-        if (ConfigService.GetSection("Moonlight").GetSection("DiscordBot").GetValue<bool>("SendCommands"))
+        if (ConfigService.Get().Moonlight.DiscordBot.SendCommands)
         {
             components.WithButton("SendCommand",
                 emote: Emote.Parse("<:Console:1101547358157819944>"),

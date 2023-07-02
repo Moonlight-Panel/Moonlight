@@ -30,14 +30,14 @@ public class DiscordBotController : Controller
         ServerService = serverService;
 
         var config = configService
-            .GetSection("Moonlight")
-            .GetSection("DiscordBotApi");
+            .Get()
+            .Moonlight.DiscordBotApi;
 
-        Enable = config.GetValue<bool>("Enable");
+        Enable = config.Enable;
 
         if (Enable)
         {
-            Token = config.GetValue<string>("Token");
+            Token = config.Token;
         }
     }
     

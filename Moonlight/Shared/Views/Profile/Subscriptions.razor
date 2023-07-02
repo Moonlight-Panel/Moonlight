@@ -24,12 +24,11 @@
                     @if (Subscription == null)
                     {
                         var config = ConfigService
-                            .GetSection("Moonlight")
-                            .GetSection("Subscriptions")
-                            .GetSection("Sellpass");
+                            .Get()
+                            .Moonlight.Subscriptions.SellPass;
 
-                        var enableSellpass = config.GetValue<bool>("Enable");
-                        var url = config.GetValue<string>("Url");
+                        var enableSellpass = config.Enable;
+                        var url = config.Url;
                         
                         <h3 class="mb-2">
                             <div class="input-group mb-3">

@@ -1,15 +1,14 @@
-﻿using System.Text;
-using Microsoft.Extensions.Primitives;
+﻿using Moonlight.App.Configuration;
 using Moonlight.App.Helpers;
 using Moonlight.App.Services.Files;
+using Newtonsoft.Json;
 
 namespace Moonlight.App.Services;
 
-public class ConfigService : IConfiguration
+public class ConfigService
 {
     private readonly StorageService StorageService;
-
-    private IConfiguration Configuration;
+    private ConfigV1 Configuration;
 
     public bool DebugMode { get; private set; } = false;
     public bool SqlDebugMode { get; private set; } = false;
@@ -41,33 +40,22 @@ public class ConfigService : IConfiguration
 
     public void Reload()
     {
-        Configuration = new ConfigurationBuilder().AddJsonStream(
-            new MemoryStream(Encoding.ASCII.GetBytes(
-                    File.ReadAllText(
-                        PathBuilder.File("storage", "configs", "config.json")
-                    )
-                )
-            )).Build();
+        var path = PathBuilder.File("storage", "configs", "config.json");
+        
+        if (!File.Exists(path))
+        {
+            File.WriteAllText(path, "{}");
+        }
+
+        Configuration = JsonConvert.DeserializeObject<ConfigV1>(
+            File.ReadAllText(path)
+        ) ?? new ConfigV1();
+        
+        File.WriteAllText(path, JsonConvert.SerializeObject(Configuration));
     }
 
-    public IEnumerable<IConfigurationSection> GetChildren()
+    public ConfigV1 Get()
     {
-        return Configuration.GetChildren();
-    }
-
-    public IChangeToken GetReloadToken()
-    {
-        return Configuration.GetReloadToken();
-    }
-
-    public IConfigurationSection GetSection(string key)
-    {
-        return Configuration.GetSection(key);
-    }
-
-    public string this[string key]
-    {
-        get => Configuration[key];
-        set => Configuration[key] = value;
+        return Configuration;
     }
 }

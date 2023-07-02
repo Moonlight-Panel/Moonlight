@@ -29,7 +29,7 @@ public class ServerListCommand : BaseModule
         {
             embed = dcs.EmbedBuilderModule.StandardEmbed("Sorry ;( \n Please first create and/or link a Account to Discord! \n Press the Button to register/log in.", Color.Red, command.User);
             components = new ComponentBuilder();
-            components.WithButton("Click Here", style: ButtonStyle.Link, url: ConfigService.GetSection("Moonlight").GetValue<String>("AppUrl"));
+            components.WithButton("Click Here", style: ButtonStyle.Link, url: ConfigService.Get().Moonlight.AppUrl);
         
             await command.RespondAsync(embed: embed.Build(), components: components.Build(), ephemeral: true);
             return;
@@ -57,7 +57,7 @@ public class ServerListCommand : BaseModule
         components.WithButton("Panel",
             emote: Emote.Parse("<a:Earth:1092814004113657927>"),
             style: ButtonStyle.Link,
-            url: $"{ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl")}");
+            url: $"{ConfigService.Get().Moonlight.AppUrl}");
         
         if (servers.Count > 25)
         {

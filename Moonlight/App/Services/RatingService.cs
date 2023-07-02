@@ -26,12 +26,12 @@ public class RatingService
         Event = eventSystem;
         UserRepository = userRepository;
 
-        var config = configService.GetSection("Moonlight").GetSection("Rating");
+        var config = configService.Get().Moonlight.Rating;
 
-        Enabled = config.GetValue<bool>("Enabled");
-        Url = config.GetValue<string>("Url");
-        MinRating = config.GetValue<int>("MinRating");
-        DaysSince = config.GetValue<int>("DaysSince");
+        Enabled = config.Enabled;
+        Url = config.Url;
+        MinRating = config.MinRating;
+        DaysSince = config.DaysSince;
     }
 
     public async Task<bool> ShouldRate()

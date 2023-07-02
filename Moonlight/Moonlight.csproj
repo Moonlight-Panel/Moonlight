@@ -103,4 +103,12 @@
     <AdditionalFiles Include="Shared\Views\Server\Settings\ServerResetSetting.razor" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="storage\configs\config.json.bak">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
