@@ -39,7 +39,15 @@
 
     public async void Dispose()
     {
-        await Xterm.DisposeAsync();
+        try
+        {
+            await Xterm.DisposeAsync();
+        }
+        catch (Exception)
+        {
+            // ignore dispose errors. They occur when the tab closes unexpectedly
+            // so we can ignore them
+        }
     }
 
     private async void OnFirstRender()
