@@ -32,7 +32,6 @@ using Moonlight.App.Services.SupportChat;
 using Sentry;
 using Serilog;
 using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Moonlight
 {
