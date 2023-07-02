@@ -36,8 +36,6 @@ public class StatisticsCaptureService
         {
             while (await Timer.WaitForNextTickAsync())
             {
-                Logger.Warn("Creating statistics");
-                
                 using var scope = ServiceScopeFactory.CreateScope();
 
                 var statisticsRepo = scope.ServiceProvider.GetRequiredService<Repository<StatisticsData>>();
