@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using Mappy.Net;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
@@ -24,14 +25,17 @@ public class OAuth2Service
         ConfigService = configService;
         ServiceScopeFactory = serviceScopeFactory;
 
-        var config = ConfigService.GetSection("Moonlight").GetSection("OAuth2");
+        var config = ConfigService
+            .Get()
+            .Moonlight.OAuth2;
 
-        Configs = config.GetSection("Providers").Get<OAuth2ProviderConfig[]>()
-                  ?? Array.Empty<OAuth2ProviderConfig>();
+        Configs = config.Providers
+            .Select(Mapper.Map<OAuth2ProviderConfig>)
+            .ToArray();
 
-        OverrideUrl = config.GetValue<string>("OverrideUrl");
-        EnableOverrideUrl = config.GetValue<bool>("EnableOverrideUrl");
-        AppUrl = configService.GetSection("Moonlight").GetValue<string>("AppUrl");
+        OverrideUrl = config.OverrideUrl;
+        EnableOverrideUrl = config.EnableOverrideUrl;
+        AppUrl = configService.Get().Moonlight.AppUrl;
         
         // Register additional providers here
         RegisterOAuth2<DiscordOAuth2Provider>("discord");

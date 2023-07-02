@@ -22,14 +22,14 @@ public class DiscordNotificationService
         Event = eventSystem;
         ResourceService = resourceService;
 
-        var config = configService.GetSection("Moonlight").GetSection("DiscordNotifications");
+        var config = configService.Get().Moonlight.DiscordNotifications;
 
-        if (config.GetValue<bool>("Enable"))
+        if (config.Enable)
         {
             Logger.Info("Discord notifications enabled");
             
-            Client = new(config.GetValue<string>("WebHook"));
-            AppUrl = configService.GetSection("Moonlight").GetValue<string>("AppUrl");
+            Client = new(config.WebHook);
+            AppUrl = configService.Get().Moonlight.AppUrl;
 
             Event.On<User>("supportChat.new", this, OnNewSupportChat);
             Event.On<SupportChatMessage>("supportChat.message", this, OnSupportChatMessage);

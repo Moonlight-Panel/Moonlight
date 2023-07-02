@@ -30,9 +30,8 @@ public class IdentityService
         HttpContextAccessor = httpContextAccessor;
 
         Secret = configService
-            .GetSection("Moonlight")
-            .GetSection("Security")
-            .GetValue<string>("Token");
+            .Get()
+            .Moonlight.Security.Token;
     }
 
     public async Task<User?> Get()

@@ -42,16 +42,16 @@ public class CleanupService
         StartedAt = DateTimeService.GetCurrent();
         CompletedAt = DateTimeService.GetCurrent();
         IsRunning = false;
-        
-        var config = ConfigService.GetSection("Moonlight").GetSection("Cleanup");
 
-        if (!config.GetValue<bool>("Enable") || ConfigService.DebugMode)
+        var config = ConfigService.Get().Moonlight.Cleanup;
+
+        if (!config.Enable || ConfigService.DebugMode)
         {
             Logger.Info("Disabling cleanup service");
             return;
         }
         
-        Timer = new(TimeSpan.FromMinutes(config.GetValue<int>("Wait")));
+        Timer = new(TimeSpan.FromMinutes(config.Wait));
 
         Task.Run(Run);
     }
@@ -63,12 +63,12 @@ public class CleanupService
             IsRunning = true;
             
             using var scope = ServiceScopeFactory.CreateScope();
-            var config = ConfigService.GetSection("Moonlight").GetSection("Cleanup");
+            var config = ConfigService.Get().Moonlight.Cleanup;
 
-            var maxCpu = config.GetValue<int>("Cpu");
-            var minMemory = config.GetValue<int>("Memory");
-            var maxUptime = config.GetValue<int>("Uptime");
-            var minUptime = config.GetValue<int>("MinUptime");
+            var maxCpu = config.Cpu;
+            var minMemory = config.Memory;
+            var maxUptime = config.Uptime;
+            var minUptime = config.MinUptime;
 
             var nodeRepository = scope.ServiceProvider.GetRequiredService<NodeRepository>();
             var nodeService = scope.ServiceProvider.GetRequiredService<NodeService>();

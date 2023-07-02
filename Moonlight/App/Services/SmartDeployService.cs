@@ -28,13 +28,12 @@ public class SmartDeployService
     public async Task<Node?> GetNode()
     {
         var config = ConfigService
-            .GetSection("Moonlight")
-            .GetSection("SmartDeploy")
-            .GetSection("Server");
+            .Get()
+            .Moonlight.SmartDeploy.Server;
 
-        if (config.GetValue<bool>("EnableOverride"))
+        if (config.EnableOverride)
         {
-            var nodeId = config.GetValue<int>("OverrideNode");
+            var nodeId = config.OverrideNode;
 
             return NodeRepository.Get().FirstOrDefault(x => x.Id == nodeId);
         }

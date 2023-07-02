@@ -1,10 +1,6 @@
-﻿@using Moonlight.App.Services
+﻿@using Moonlight.App.Services.Files
 
-@inject ConfigService ConfigService
-
-@{
-    var moonlightConfig = ConfigService.GetSection("Moonlight");
-}
+@inject ResourceService ResourceService
 
 <div id="kt_app_header" class="app-header">
     <div class="app-container container-fluid d-flex align-items-stretch justify-content-between">
@@ -15,7 +11,7 @@
         </div>
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
             <a href="/" class="d-lg-none">
-                <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-30px"/>
+                <img alt="Logo" src="@(ResourceService.Image("logo.svg"))" class="h-30px"/>
             </a>
         </div>
         <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">

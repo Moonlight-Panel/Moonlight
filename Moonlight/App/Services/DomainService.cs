@@ -33,15 +33,15 @@ public class DomainService
         SharedDomainRepository = sharedDomainRepository;
 
         var config = configService
-            .GetSection("Moonlight")
-            .GetSection("Domains");
+            .Get()
+            .Moonlight.Domains;
 
-        AccountId = config.GetValue<string>("AccountId");
+        AccountId = config.AccountId;
 
         Client = new(
             new ApiKeyAuthentication(
-                config.GetValue<string>("Email"),
-                config.GetValue<string>("Key")
+                config.Email,
+                config.Key
             )
         );
     }

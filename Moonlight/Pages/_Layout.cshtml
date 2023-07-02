@@ -11,12 +11,12 @@
 
 @{
     var headerConfig = ConfigService
-        .GetSection("Moonlight")
-        .GetSection("Html")
-        .GetSection("Headers");
+        .Get()
+        .Moonlight.Html.Headers;
 
     var moonlightConfig = ConfigService
-        .GetSection("Moonlight");
+        .Get()
+        .Moonlight;
 }
 
 <!DOCTYPE html>
@@ -26,16 +26,16 @@
 
     <meta property="og:locale" content="de_DE"/>
     <meta property="og:type" content="article"/>
-    <meta content="@(headerConfig.GetValue<string>("Title"))" property="og:title"/>
-    <meta content="@(headerConfig.GetValue<string>("Description"))" property="og:description"/>
-    <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))" property="og:url"/>
-    <meta content="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logolong.png" property="og:image"/>
-    <meta content="@(headerConfig.GetValue<string>("Color"))" data-react-helmet="true" name="theme-color"/>
+    <meta content="@(headerConfig.Title)" property="og:title"/>
+    <meta content="@(headerConfig.Description)" property="og:description"/>
+    <meta content="@(moonlightConfig.AppUrl)" property="og:url"/>
+    <meta content="@(moonlightConfig.AppUrl)/api/moonlight/resources/images/logolong.png" property="og:image"/>
+    <meta content="@(headerConfig.Color)" data-react-helmet="true" name="theme-color"/>
 
-    <meta content="@(headerConfig.GetValue<string>("Description"))" name="description"/>
-    <meta content="@(headerConfig.GetValue<string>("Keywords"))" name="keywords"/>
+    <meta content="@(headerConfig.Description)" name="description"/>
+    <meta content="@(headerConfig.Keywords)" name="keywords"/>
 
-    <link rel="shortcut icon" href="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg"/>
+    <link rel="shortcut icon" href="@(moonlightConfig.AppUrl)/api/moonlight/resources/images/logo.svg"/>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"/>
 
@@ -75,7 +75,7 @@
 <div id="flashbang" class="flashbanglight"></div>
 
 <div class="app-page-loader flex-column">
-    <img alt="Logo" src="@(moonlightConfig.GetValue<string>("AppUrl"))/api/moonlight/resources/images/logo.svg" class="h-25px"/>
+    <img alt="Logo" src="@(moonlightConfig.AppUrl)/api/moonlight/resources/images/logo.svg" class="h-25px"/>
 
     @{
         string loadingMessage;

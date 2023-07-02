@@ -43,9 +43,8 @@ namespace Moonlight
             // This will also copy all default config files
             var configService = new ConfigService(new StorageService());
             var shouldUseSentry = configService
-                .GetSection("Moonlight")
-                .GetSection("Sentry")
-                .GetValue<bool>("Enable");
+                .Get()
+                .Moonlight.Sentry.Enable;
 
             if (configService.DebugMode)
             {
@@ -139,9 +138,8 @@ namespace Moonlight
                 builder.WebHost.UseSentry(options =>
                 {
                     options.Dsn = configService
-                        .GetSection("Moonlight")
-                        .GetSection("Sentry")
-                        .GetValue<string>("Dsn");
+                        .Get()
+                        .Moonlight.Sentry.Dsn;
 
                     options.Debug = configService.DebugMode;
                     options.DiagnosticLevel = SentryLevel.Warning;

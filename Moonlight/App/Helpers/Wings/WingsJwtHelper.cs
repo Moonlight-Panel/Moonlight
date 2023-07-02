@@ -15,7 +15,7 @@ public class WingsJwtHelper
     {
         ConfigService = configService;
 
-        AppUrl = ConfigService.GetSection("Moonlight").GetValue<string>("AppUrl");
+        AppUrl = ConfigService.Get().Moonlight.AppUrl;
     }
 
     public string Generate(string secret, Action<Dictionary<string, string>> claimsAction)

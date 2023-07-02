@@ -17,14 +17,14 @@ public class MailService
     public MailService(ConfigService configService)
     {
         var mailConfig = configService
-            .GetSection("Moonlight")
-            .GetSection("Mail");
+            .Get()
+            .Moonlight.Mail;
 
-        Server = mailConfig.GetValue<string>("Server");
-        Password = mailConfig.GetValue<string>("Password");
-        Email = mailConfig.GetValue<string>("Email");
-        Port = mailConfig.GetValue<int>("Port");
-        Ssl = mailConfig.GetValue<bool>("Ssl");
+        Server = mailConfig.Server;
+        Password = mailConfig.Password;
+        Email = mailConfig.Email;
+        Port = mailConfig.Port;
+        Ssl = mailConfig.Ssl;
     }
     
     public async Task SendMail(
