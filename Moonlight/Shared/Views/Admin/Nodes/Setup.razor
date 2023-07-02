@@ -40,7 +40,7 @@
                             &nbsp;&nbsp;host: 0.0.0.0<br/>
                             &nbsp;&nbsp;port: @(Node.HttpPort)<br/>
                             &nbsp;&nbsp;ssl:<br/>
-                            &nbsp;&nbsp;&nbsp;&nbsp;enabled: false<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;enabled: @(Node.Ssl ? "true" : "false")<br/>
                             &nbsp;&nbsp;&nbsp;&nbsp;cert: /etc/letsencrypt/live/@(Node.Fqdn)/fullchain.pem<br/>
                             &nbsp;&nbsp;&nbsp;&nbsp;key: /etc/letsencrypt/live/@(Node.Fqdn)/privkey.pem<br/>
                             &nbsp;&nbsp;disable_remote_download: false<br/>
