@@ -248,7 +248,6 @@ namespace Moonlight
 
             // Third party services
             builder.Services.AddBlazorTable();
-            builder.Services.AddSweetAlert2(options => { options.Theme = SweetAlertTheme.Dark; });
             builder.Services.AddBlazorContextMenu();
             builder.Services.AddBlazorDownloadFile();
 
