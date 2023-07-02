@@ -1,21 +1,40 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
+using Microsoft.JSInterop;
 
 namespace Moonlight.App.Services.Interop;
 
 public class AlertService
 {
-    private readonly SweetAlertService SweetAlertService;
     private readonly SmartTranslateService SmartTranslateService;
+    private readonly IJSRuntime JsRuntime;
+    private SweetAlertService? SweetAlertService;
 
-    public AlertService(SweetAlertService service, SmartTranslateService smartTranslateService)
+    public AlertService(SmartTranslateService smartTranslateService, IJSRuntime jsRuntime)
     {
-        SweetAlertService = service;
         SmartTranslateService = smartTranslateService;
+        JsRuntime = jsRuntime;
+    }
+
+    // We create the swal service here and not using the dependency injection
+    // because it initializes when instantiated which leads to js invoke errors 
+    private Task EnsureService()
+    {
+        if (SweetAlertService == null)
+        {
+            SweetAlertService = new(JsRuntime, new()
+            {
+                Theme = SweetAlertTheme.Dark
+            });
+        }
+        
+        return Task.CompletedTask;
     }
 
     public async Task Info(string title, string desciption)
     {
-        await SweetAlertService.FireAsync(new SweetAlertOptions()
+        await EnsureService();
+        
+        await SweetAlertService!.FireAsync(new SweetAlertOptions()
         {
             Title = title,
             Text = desciption,
@@ -30,7 +49,9 @@ public class AlertService
     
     public async Task Success(string title, string desciption)
     {
-        await SweetAlertService.FireAsync(new SweetAlertOptions()
+        await EnsureService();
+        
+        await SweetAlertService!.FireAsync(new SweetAlertOptions()
         {
             Title = title,
             Text = desciption,
@@ -45,7 +66,9 @@ public class AlertService
     
     public async Task Warning(string title, string desciption)
     {
-        await SweetAlertService.FireAsync(new SweetAlertOptions()
+        await EnsureService();
+        
+        await SweetAlertService!.FireAsync(new SweetAlertOptions()
         {
             Title = title,
             Text = desciption,
@@ -60,7 +83,9 @@ public class AlertService
     
     public async Task Error(string title, string desciption)
     {
-        await SweetAlertService.FireAsync(new SweetAlertOptions()
+        await EnsureService();
+        
+        await SweetAlertService!.FireAsync(new SweetAlertOptions()
         {
             Title = title,
             Text = desciption,
@@ -75,7 +100,9 @@ public class AlertService
     
     public async Task<bool> YesNo(string title, string desciption, string yesText, string noText)
     {
-        var result = await SweetAlertService.FireAsync(new SweetAlertOptions()
+        await EnsureService();
+        
+        var result = await SweetAlertService!.FireAsync(new SweetAlertOptions()
         {
             Title = title,
             Text = desciption,
@@ -91,7 +118,9 @@ public class AlertService
     
     public async Task<string?> Text(string title, string desciption, string setValue)
     {
-        var result = await SweetAlertService.FireAsync(new SweetAlertOptions()
+        await EnsureService();
+        
+        var result = await SweetAlertService!.FireAsync(new SweetAlertOptions()
         {
             Title = title,
             Text = desciption,

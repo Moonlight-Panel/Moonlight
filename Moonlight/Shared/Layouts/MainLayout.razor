@@ -163,13 +163,11 @@
 
     private bool IsIpBanned = false;
 
-    protected override void OnInitialized()
-    {
-        AddBodyAttribute("data-kt-app-page-loading", "on");
-    }
-
     protected override void OnAfterRender(bool firstRender)
     {
+        if(firstRender)
+            AddBodyAttribute("data-kt-app-page-loading", "on");
+        
     //Initialize classes and attributes for layout with dark sidebar
         AddBodyAttribute("data-kt-app-reset-transition", "true");
 

@@ -174,7 +174,7 @@ public class ConfigV1
     {
         [JsonProperty("Token")] public string Token { get; set; } = Guid.NewGuid().ToString();
 
-        [JsonProperty("ReCaptcha")] public ReCaptchaData ReCaptcha { get; set; }
+        [JsonProperty("ReCaptcha")] public ReCaptchaData ReCaptcha { get; set; } = new();
     }
 
     public class ReCaptchaData

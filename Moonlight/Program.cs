@@ -32,7 +32,6 @@ using Moonlight.App.Services.SupportChat;
 using Sentry;
 using Serilog;
 using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Moonlight
 {
@@ -249,7 +248,6 @@ namespace Moonlight
 
             // Third party services
             builder.Services.AddBlazorTable();
-            builder.Services.AddSweetAlert2(options => { options.Theme = SweetAlertTheme.Dark; });
             builder.Services.AddBlazorContextMenu();
             builder.Services.AddBlazorDownloadFile();
 

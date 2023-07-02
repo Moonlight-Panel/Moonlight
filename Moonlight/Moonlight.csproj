@@ -18,7 +18,7 @@
     <PackageReference Include="BlazorMonaco" Version="2.1.0" />
     <PackageReference Include="BlazorTable" Version="1.17.0" />
     <PackageReference Include="CloudFlare.Client" Version="6.1.4" />
-    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.5.0" />
     <PackageReference Include="Discord.Net" Version="3.10.0" />
     <PackageReference Include="Discord.Net.Webhook" Version="3.10.0" />
     <PackageReference Include="DnsClient" Version="1.7.0" />

@@ -243,6 +243,7 @@ public class WingsConsole : IDisposable
                 }
             }
             catch(JsonReaderException){}
+            catch(JsonSerializationException){}
             catch (Exception e)
             {
                 if (!Disconnecting)
