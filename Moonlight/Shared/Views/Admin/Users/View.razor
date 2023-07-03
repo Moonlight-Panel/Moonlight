@@ -21,197 +21,221 @@
 else
 {
     <div class="row">
-        <div class="col-md-4">
-            <div class="card card-body mb-5">
-                <div class="d-flex flex-column align-items-center text-center">
-                    <img src="/api/moonlight/avatar/@(User.Id)" class="rounded-circle" alt="Profile picture" width="150">
-                </div>
+    <div class="col-md-4">
+        <div class="card card-body mb-5">
+            <div class="d-flex flex-column align-items-center text-center">
+                <img src="/api/moonlight/avatar/@(User.Id)" class="rounded-circle" alt="Profile picture" width="150">
             </div>
-            <div class="card card-body mb-5">
-                <div class="btn-group">
-                    <a class="btn btn-primary" href="/admin/users/edit/@(User.Id)"><TL>Edit</TL></a>
-                    <a class="btn btn-secondary" href="/admin/users"><TL>Back to list</TL></a>
-                    <a class="btn btn-primary" href="/admin/support/view/@(User.Id)"><TL>Open support</TL></a>
-                </div>
+        </div>
+        <div class="card card-body mb-5">
+            <div class="btn-group">
+                <a class="btn btn-primary" href="/admin/users/edit/@(User.Id)">
+                    <TL>Edit</TL>
+                </a>
+                <a class="btn btn-secondary" href="/admin/users">
+                    <TL>Back to list</TL>
+                </a>
+                <a class="btn btn-primary" href="/admin/support/view/@(User.Id)">
+                    <TL>Open support</TL>
+                </a>
             </div>
-            <div class="card card-xl-stretch mb-5">
-                <div class="card-header border-0">
-                    <h3 class="card-title fw-bold text-dark">
-                        <TL>Servers</TL>
-                    </h3>
-                </div>
-                <div class="card-body pt-2">
-                    @foreach (var server in Servers)
-                    {
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <a href="/server/@(server.Uuid)" class="fs-6">@(server.Name) - @(server.Image.Name)</a>
-                            </div>
+        </div>
+        <div class="card card-xl-stretch mb-5">
+            <div class="card-header border-0">
+                <h3 class="card-title fw-bold text-dark">
+                    <TL>Servers</TL>
+                </h3>
+            </div>
+            <div class="card-body pt-2">
+                @foreach (var server in Servers)
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <a href="/server/@(server.Uuid)" class="fs-6">@(server.Name) - @(server.Image.Name)</a>
                         </div>
+                    </div>
 
-                        if (server != Servers.Last())
-                        {
-                            <div class="separator my-4"></div>
-                        }
-                    }
-                </div>
-            </div>
-            <div class="card card-xl-stretch">
-                <div class="card-header border-0">
-                    <h3 class="card-title fw-bold text-dark">
-                        <TL>Domains</TL>
-                    </h3>
-                </div>
-                <div class="card-body pt-2">
-                    @foreach (var domain in Domains)
+                    if (server != Servers.Last())
                     {
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <a href="/domain/@(domain.Id)" class="fs-6">@(domain.Name).@(domain.SharedDomain.Name)</a>
-                            </div>
-                        </div>
-
-                        if (domain != Domains.Last())
-                        {
-                            <div class="separator my-4"></div>
-                        }
+                        <div class="separator my-4"></div>
                     }
+                }
+            </div>
+        </div>
+        <div class="card card-xl-stretch">
+            <div class="card-header border-0">
+                <h3 class="card-title fw-bold text-dark">
+                    <TL>Domains</TL>
+                </h3>
+            </div>
+            <div class="card-body pt-2">
+                @foreach (var domain in Domains)
+                {
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <a href="/domain/@(domain.Id)" class="fs-6">@(domain.Name).@(domain.SharedDomain.Name)</a>
+                        </div>
+                    </div>
+
+                    if (domain != Domains.Last())
+                    {
+                        <div class="separator my-4"></div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-body fs-6">
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>First name</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.FirstName)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Last name</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.LastName)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Email</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.Email)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Address</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.Address)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>City</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.City)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>State</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.State)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Country</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.Country)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Admin</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">
+                            @if (User.Admin)
+                            {
+                                <span>✅</span>
+                            }
+                            else
+                            {
+                                <span>❌</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Status</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.Status)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Totp</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.TotpEnabled)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Discord</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.DiscordId)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Subscription</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">
+
+                        </span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Created at</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(Formatter.FormatDate(User.CreatedAt))</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Register ip</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.RegisterIp)</span>
+                    </div>
+                </div>
+                <div class="separator my-4"></div>
+                <div class="row">
+                    <label class="col-lg-4 fw-semibold text-muted">
+                        <TL>Last ip</TL>
+                    </label>
+                    <div class="col-lg-8">
+                        <span class="fw-bold fs-6 text-gray-800">@(User.LastIp)</span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <div class="card mb-3">
-                <div class="card-body fs-6">
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>First name</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.FirstName)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Last name</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.LastName)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Email</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.Email)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Address</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.Address)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>City</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.City)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>State</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.State)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Country</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.Country)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Admin</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">
-                                @if (User.Admin)
-                                {
-                                    <span>✅</span>
-                                }
-                                else
-                                {
-                                    <span>❌</span>
-                                }
-                            </span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Status</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.Status)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Totp</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.TotpEnabled)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Discord</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(User.DiscordId)</span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Subscription</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">
-                                
-                            </span>
-                        </div>
-                    </div>
-                    <div class="separator my-4"></div>
-                    <div class="row">
-                        <label class="col-lg-4 fw-semibold text-muted">
-                            <TL>Created at</TL>
-                        </label>
-                        <div class="col-lg-8">
-                            <span class="fw-bold fs-6 text-gray-800">@(Formatter.FormatDate(User.CreatedAt))</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
     </div>
 }
 </LazyLoader>

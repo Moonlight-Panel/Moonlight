@@ -119,6 +119,10 @@ public class IdentityService
                 return null;
 
             UserCache = user;
+
+            user.LastIp = GetIp();
+            UserRepository.Update(user);
+            
             return UserCache;
         }
         catch (Exception e)
