@@ -72,7 +72,9 @@ public class UserService
             TotpEnabled = false,
             TotpSecret = "",
             UpdatedAt = DateTimeService.GetCurrent(),
-            TokenValidTime = DateTimeService.GetCurrent().AddDays(-5)
+            TokenValidTime = DateTimeService.GetCurrent().AddDays(-5),
+            LastIp = IdentityService.GetIp(),
+            RegisterIp = IdentityService.GetIp()
         });
 
         await MailService.SendMail(user!, "register", values => {});
