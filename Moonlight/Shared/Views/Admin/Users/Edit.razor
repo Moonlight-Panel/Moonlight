@@ -8,7 +8,7 @@
 
 @inject UserRepository UserRepository
 @inject UserService UserService
-@inject SessionService SessionService
+@inject SessionServerService SessionServerService
 @inject ToastService ToastService
 @inject SmartTranslateService SmartTranslateService
 
@@ -174,7 +174,7 @@
         user.Status = User!.Status;
         UserRepository.Update(user);
 
-        SessionService.ReloadUserSessions(User);
+        await SessionServerService.ReloadUserSessions(User);
 
         await ToastService.Success(SmartTranslateService.Translate("Successfully updated user"));
     }
@@ -191,7 +191,7 @@
         await UserService.ChangePassword(User!, NewPassword, true);
         NewPassword = "";
         
-        SessionService.ReloadUserSessions(User);
+        await SessionServerService.ReloadUserSessions(User!);
         
         await ToastService.Success(SmartTranslateService.Translate("Successfully updated password"));
     }

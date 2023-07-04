@@ -14,7 +14,7 @@
 
 @inject IJSRuntime JsRuntime
 @inject IdentityService IdentityService
-@inject SessionService SessionService
+@inject SessionClientService SessionClientService
 @inject NavigationManager NavigationManager
 @inject EventSystem Event
 @inject ToastService ToastService
@@ -215,12 +215,10 @@
                 }
                 catch (Exception){ /* ignore errors to make sure that the session call is executed */ }
 
-                await SessionService.Register();
+                await SessionClientService.Start();
 
                 NavigationManager.LocationChanged += async (_, _) =>
                 {
-                    SessionService.Refresh();
-
                     if (!NavigationManager.Uri.Contains("/server/"))
                         await DynamicBackgroundService.Reset();
                 };
@@ -255,7 +253,7 @@
 
     public async void Dispose()
     {
-        SessionService.Close();
+        await SessionClientService.Stop();
 
         await KeyListenerService.DisposeAsync();
 
