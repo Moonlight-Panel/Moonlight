@@ -9,7 +9,7 @@
 
 @inject IJSRuntime JsRuntime
 @inject IdentityService IdentityService
-@inject SessionService SessionService
+@inject SessionClientService SessionClientService
 @inject NavigationManager NavigationManager
 
 <GlobalErrorBoundary>
@@ -106,9 +106,7 @@
                 await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
                 await JsRuntime.InvokeVoidAsync("createSnow");
 
-                await SessionService.Register();
-
-                NavigationManager.LocationChanged += (sender, args) => { SessionService.Refresh(); };
+                await SessionClientService.Start();
             }
             catch (Exception)
             {
@@ -117,9 +115,9 @@
         }
     }
 
-    public void Dispose()
+    public async void Dispose()
     {
-        SessionService.Close();
+        await SessionClientService.Stop();
     }
 
     private void AddBodyAttribute(string attribute, string value)

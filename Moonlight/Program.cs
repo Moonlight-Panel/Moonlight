@@ -152,7 +152,6 @@ namespace Moonlight
             builder.Services.AddDbContext<DataContext>();
 
             // Repositories
-            builder.Services.AddSingleton<SessionRepository>();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<NodeRepository>();
             builder.Services.AddScoped<ServerRepository>();
@@ -179,7 +178,6 @@ namespace Moonlight
             builder.Services.AddScoped<CookieService>();
             builder.Services.AddScoped<IdentityService>();
             builder.Services.AddScoped<IpLocateService>();
-            builder.Services.AddScoped<SessionService>();
             builder.Services.AddScoped<AlertService>();
             builder.Services.AddScoped<SmartTranslateService>();
             builder.Services.AddScoped<UserService>();
@@ -214,6 +212,9 @@ namespace Moonlight
 
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<SubscriptionAdminService>();
+
+            builder.Services.AddScoped<SessionClientService>();
+            builder.Services.AddSingleton<SessionServerService>();
 
             // Loggers
             builder.Services.AddScoped<MailService>();

@@ -8,9 +8,10 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
 
-@inject SessionService SessionService
+@inject SessionServerService SessionServerService
 @inject SmartTranslateService SmartTranslateService
 @inject AlertService AlertService
+@inject ToastService ToastService
 
 <OnlyAdmin>
     <AdminSessionNavigation Index="1"/>
@@ -44,8 +45,8 @@
                 }
                 else
                 {
-                    <Table TableItem="Session" Items="AllSessions" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Email"))" Field="@(x => x.User.Email)" Sortable="true" Filterable="true" Width="20%">
+                    <Table TableItem="SessionClientService" Items="AllSessions" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                        <Column TableItem="SessionClientService" Title="@(SmartTranslateService.Translate("Email"))" Field="@(x => x.User.Email)" Sortable="true" Filterable="true" Width="20%">
                             <Template>
                                 @if (context.User == null)
                                 {
@@ -57,25 +58,33 @@
                                 }
                             </Template>
                         </Column>
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("IP"))" Field="@(x => x.Ip)" Sortable="true" Filterable="true" Width="10%"/>
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("URL"))" Field="@(x => x.Url)" Sortable="true" Filterable="true" Width="10%"/>
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Device"))" Field="@(x => x.Device)" Sortable="true" Filterable="true" Width="10%"/>
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Time"))" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="true" Width="10%">
+                        <Column TableItem="SessionClientService" Title="@(SmartTranslateService.Translate("IP"))" Field="@(x => x.Uuid)" Sortable="false" Filterable="false" Width="10%">
+                            <Template>
+                                @(context.IdentityService.GetIp())
+                            </Template>
+                        </Column>
+                        <Column TableItem="SessionClientService" Title="@(SmartTranslateService.Translate("URL"))" Field="@(x => x.NavigationManager.Uri)" Sortable="true" Filterable="true" Width="10%"/>
+                        <Column TableItem="SessionClientService" Title="@(SmartTranslateService.Translate("Device"))" Field="@(x => x.Uuid)" Sortable="false" Filterable="false" Width="10%">
+                            <Template>
+                                @(context.IdentityService.GetDevice())
+                            </Template>
+                        </Column>
+                        <Column TableItem="SessionClientService" Title="@(SmartTranslateService.Translate("Time"))" Field="@(x => x.CreateTimestamp)" Sortable="true" Filterable="true" Width="10%">
                             <Template>
                                 @{
-                                    var time = Formatter.FormatUptime((DateTime.UtcNow - context.CreatedAt).TotalMilliseconds);
+                                    var time = Formatter.FormatUptime((DateTime.UtcNow - context.CreateTimestamp).TotalMilliseconds);
                                 }
                                 <span>@(time)</span>
                             </Template>
                         </Column>
-                        <Column TableItem="Session" Title="@(SmartTranslateService.Translate("Actions"))" Field="@(x => x.Ip)" Sortable="false" Filterable="false" Width="10%">
+                        <Column TableItem="SessionClientService" Title="@(SmartTranslateService.Translate("Actions"))" Field="@(x => x.Uuid)" Sortable="false" Filterable="false" Width="10%">
                             <Template>
                                 <button @onclick="() => Navigate(context)" class="btn btn-sm btn-primary">
                                     <TL>Change url</TL>
                                 </button>
                             </Template>
                         </Column>
-                        <Column TableItem="Session" Title="" Field="@(x => x.Ip)" Sortable="false" Filterable="false" Width="10%">
+                        <Column TableItem="SessionClientService" Title="" Field="@(x => x.Uuid)" Sortable="false" Filterable="false" Width="10%">
                             <Template>
                                 <button @onclick="() => Message(context)" class="btn btn-sm btn-warning">
                                     <TL>Message</TL>
@@ -92,11 +101,11 @@
 
 @code
 {
-    private Session[]? AllSessions;
+    private SessionClientService[]? AllSessions;
 
-    private Task Load(LazyLoader arg)
+    private async Task Load(LazyLoader arg)
     {
-        AllSessions = SessionService.GetAll();
+        AllSessions = await SessionServerService.GetSessions();
 
         Task.Run(async () =>
         {
@@ -109,35 +118,30 @@
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn("Error autorefreshing sessions");
+                    Logger.Warn("Error auto refreshing sessions");
                     Logger.Warn(e);
                 }
             }
         });
-
-        return Task.CompletedTask;
     }
 
     private async Task Refresh()
     {
-        AllSessions = SessionService.GetAll();
+        AllSessions = await SessionServerService.GetSessions();
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task Navigate(Session session)
+    private async Task Navigate(SessionClientService session)
     {
         var url = await AlertService.Text("URL", SmartTranslateService.Translate("Enter url"), "");
 
-        if (url == null)
-            return;
-
-        if (url == "")
+        if (string.IsNullOrEmpty(url))
             return;
 
         if (url == "null")
             return;
 
-        session.Navigation.NavigateTo(url, true);
+        session.NavigationManager.NavigateTo(url, true);
     }
 
     private async Task MessageAll()
@@ -157,22 +161,30 @@
 
         if (b)
         {
-            foreach (var session in SessionService.GetAll())
+            foreach (var session in AllSessions!)
             {
-                try
+                Task.Run(async () =>
                 {
-                    await session.AlertService.Warning("Admin Message", message);
-                }
-                catch (Exception e)
-                {
-                    Logger.Warn("Error sending user a alert");
-                    Logger.Warn(e);
-                }
+                    try
+                    {
+                        await session.AlertService.Warning("Admin Message", message);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Warn("Error sending user a alert");
+                        Logger.Warn(e);
+
+                        var translation = SmartTranslateService.Translate("An unknown error occured while sending admin message to user: ");
+                        var identifier = session.User != null ? session.User.Email : session.Uuid.ToString();
+
+                        await ToastService.Warning(translation + identifier);
+                    }
+                });
             }
         }
     }
 
-    private async Task Message(Session session)
+    private async Task Message(SessionClientService session)
     {
         var message = await AlertService.Text(
             SmartTranslateService.Translate("Enter message"),
@@ -191,12 +203,14 @@
         {
             try
             {
-                await session.AlertService.Warning("Admin Message", message);
+                await session.AlertService.Warning("Admin Message", message!);
             }
             catch (Exception e)
             {
                 Logger.Warn("Error sending user a alert");
                 Logger.Warn(e);
+
+                await ToastService.Warning(SmartTranslateService.Translate("An unknown error occured while sending admin message"));
             }
         }
     }

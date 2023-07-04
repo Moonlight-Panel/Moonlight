@@ -44,7 +44,7 @@ public class StatisticsCaptureService
                 var domainsRepo = scope.ServiceProvider.GetRequiredService<Repository<Domain>>();
                 var webspacesRepo = scope.ServiceProvider.GetRequiredService<Repository<WebSpace>>();
                 var databasesRepo = scope.ServiceProvider.GetRequiredService<Repository<MySqlDatabase>>();
-                var sessionService = scope.ServiceProvider.GetRequiredService<SessionService>();
+                var sessionService = scope.ServiceProvider.GetRequiredService<SessionServerService>();
             
                 void AddEntry(string chart, int value)
                 {
@@ -61,7 +61,7 @@ public class StatisticsCaptureService
                 AddEntry("domainsCount", domainsRepo.Get().Count());
                 AddEntry("webspacesCount", webspacesRepo.Get().Count());
                 AddEntry("databasesCount", databasesRepo.Get().Count());
-                AddEntry("sessionsCount", sessionService.GetAll().Length);
+                AddEntry("sessionsCount", (await sessionService.GetSessions()).Length);
             }
         }
         catch (Exception e)
