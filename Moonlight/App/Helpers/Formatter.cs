@@ -1,9 +1,36 @@
-﻿using Moonlight.App.Services;
+﻿using System.Text;
+using Moonlight.App.Services;
 
 namespace Moonlight.App.Helpers;
 
 public static class Formatter
 {
+    public static string ReplaceEnd(string input, string substringToReplace, string newSubstring)
+    {
+        int lastIndexOfSubstring = input.LastIndexOf(substringToReplace);
+        if (lastIndexOfSubstring >= 0)
+        {
+            input = input.Remove(lastIndexOfSubstring, substringToReplace.Length).Insert(lastIndexOfSubstring, newSubstring);
+        }
+
+        return input;
+    }
+    public static string ConvertCamelCaseToSpaces(string input)
+    {
+        StringBuilder output = new StringBuilder();
+
+        foreach (char c in input)
+        {
+            if (char.IsUpper(c))
+            {
+                output.Append(' ');
+            }
+
+            output.Append(c);
+        }
+
+        return output.ToString().Trim();
+    }
     public static string FormatUptime(double uptime)
     {
         TimeSpan t = TimeSpan.FromMilliseconds(uptime);
