@@ -51,7 +51,27 @@ public class ConfigService
             File.ReadAllText(path)
         ) ?? new ConfigV1();
         
-        File.WriteAllText(path, JsonConvert.SerializeObject(Configuration));
+        File.WriteAllText(path, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
+    }
+
+    public void Save(ConfigV1 configV1)
+    {
+        Configuration = configV1;
+        Save();
+    }
+
+    public void Save()
+    {
+        var path = PathBuilder.File("storage", "configs", "config.json");
+        
+        if (!File.Exists(path))
+        {
+            File.WriteAllText(path, "{}");
+        }
+        
+        File.WriteAllText(path, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
+        
+        Reload();
     }
 
     public ConfigV1 Get()

@@ -1,0 +1,53 @@
+﻿@page "/admin/system/configuration"
+
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Configuration
+@using Moonlight.App.Services.Interop
+
+@inject ConfigService ConfigService
+@inject ToastService ToastService
+@inject SmartTranslateService SmartTranslateService
+
+<OnlyAdmin>
+    <AdminSystemNavigation Index="8"/>
+
+    <LazyLoader Load="Load">
+        <div class="card">
+            <SmartForm Model="Config" OnValidSubmit="OnSubmit">
+                <div class="card-body">
+                    <SmartFormClass Model="Config"/>
+                </div>
+                <div class="card-footer">
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success">
+                            <TL>Save</TL>
+                        </button>
+                    </div>
+                </div>
+            </SmartForm>
+        </div>
+    </LazyLoader>
+</OnlyAdmin>
+
+@code
+{
+    private ConfigV1 Config;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        Config = ConfigService.Get();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnSubmit()
+    {
+        ConfigService.Save(Config);
+        await ToastService.Success(
+            SmartTranslateService.Translate(
+                "Successfully saved and reloaded configuration. Some changes may take affect after a restart of moonlight"
+                )
+            );
+    }
+}

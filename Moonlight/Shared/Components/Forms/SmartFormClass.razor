@@ -1,0 +1,65 @@
+﻿@using System.Reflection
+@using System.Collections
+@using Moonlight.App.Helpers
+
+<div class="accordion my-3" id="configSetting@(Model.GetHashCode())">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="configSetting-header@(Model.GetHashCode())">
+            <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#configSetting-body@(Model.GetHashCode())" aria-expanded="false" aria-controls="configSetting-body@(Model.GetHashCode())">
+                @{
+                    var name = Formatter.ReplaceEnd(Model.GetType().Name, "Data", "");
+                    name = Formatter.ConvertCamelCaseToSpaces(name);
+                }
+
+                @(name)
+            </button>
+        </h2>
+        <div id="configSetting-body@(Model.GetHashCode())" class="accordion-collapse collapse" aria-labelledby="configSetting-header@(Model.GetHashCode())" data-bs-parent="#configSetting">
+            <div class="accordion-body">
+                @foreach (var property in Model.GetType().GetProperties())
+                {
+                    @BindAndRenderProperty(property)
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public object Model { get; set; }
+
+    private RenderFragment BindAndRenderProperty(PropertyInfo property)
+    {
+        if (property.PropertyType.IsClass && !property.PropertyType.IsPrimitive && !typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+        {
+            return @<SmartFormClass Model="@property.GetValue(Model)"/>;
+
+            // If the property is a subclass, serialize and generate form for it
+            /*
+            foreach (var subProperty in property.PropertyType.GetProperties())
+            {
+                return BindAndRenderProperty(subProperty);
+            }*/
+        }
+        else if (property.PropertyType == typeof(int) || property.PropertyType == typeof(string) || property.PropertyType == typeof(bool) || property.PropertyType == typeof(decimal) || property.PropertyType == typeof(long))
+        {
+            return @<SmartFormProperty Model="Model" PropertyInfo="property"/>;
+        }
+        else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+        {
+            // If the property is a collection, generate form for each element
+            var collection = property.GetValue(Model) as IEnumerable;
+            if (collection != null)
+            {
+                foreach (var element in collection)
+                {
+                }
+            }
+        }
+        // Additional property types could be handled here (e.g., DateTime, int, etc.)
+
+        return @<div></div>;
+    }
+}
