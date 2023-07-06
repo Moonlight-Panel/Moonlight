@@ -53,6 +53,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.1-dev-00910" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
+    <PackageReference Include="Stripe.net" Version="41.23.0-beta.1" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="XtermBlazor" Version="1.8.1" />
   </ItemGroup>

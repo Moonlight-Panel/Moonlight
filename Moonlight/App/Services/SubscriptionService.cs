@@ -1,151 +1,200 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
-using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
-using Moonlight.App.Services.Sessions;
 using Newtonsoft.Json;
+using Stripe;
+using File = System.IO.File;
+using Subscription = Moonlight.App.Database.Entities.Subscription;
 
 namespace Moonlight.App.Services;
 
 public class SubscriptionService
 {
-    private readonly SubscriptionRepository SubscriptionRepository;
-    private readonly OneTimeJwtService OneTimeJwtService;
-    private readonly IdentityService IdentityService;
-    private readonly UserRepository UserRepository;
+    private readonly Repository<Subscription> SubscriptionRepository;
+    private readonly Repository<User> UserRepository;
 
     public SubscriptionService(
-        SubscriptionRepository subscriptionRepository,
-        OneTimeJwtService oneTimeJwtService,
-        IdentityService identityService,
-        UserRepository userRepository
-    )
+        Repository<Subscription> subscriptionRepository,
+        Repository<User> userRepository)
     {
         SubscriptionRepository = subscriptionRepository;
-        OneTimeJwtService = oneTimeJwtService;
-        IdentityService = identityService;
         UserRepository = userRepository;
     }
 
-    public async Task<Subscription?> GetCurrent()
+    public async Task<Subscription> Create(string name, string description, Currency currency, double price, int duration)
     {
-        var user = await GetCurrentUser();
-
-        if (user == null || user.CurrentSubscription == null)
-            return null;
-
-        var subscriptionEnd = user.SubscriptionSince.ToUniversalTime().AddDays(user.SubscriptionDuration);
-
-        if (subscriptionEnd > DateTime.UtcNow)
+        var optionsProduct = new ProductCreateOptions
         {
-            return user.CurrentSubscription;
-        }
+            Name = name,
+            Description = description,
+            DefaultPriceData = new()
+            {
+                UnitAmount = (long)(price * 100),
+                Currency = currency.ToString().ToLower()
+            }
+        };
 
-        return null;
+        var productService = new ProductService();
+        var product = await productService.CreateAsync(optionsProduct);
+
+        var subscription = new Subscription()
+        {
+            Name = name,
+            Description = description,
+            Currency = currency,
+            Price = price,
+            Duration = duration,
+            LimitsJson = "[]",
+            StripeProductId = product.Id,
+            StripePriceId = product.DefaultPriceId
+        };
+
+        return SubscriptionRepository.Add(subscription);
+    }
+    public async Task Update(Subscription subscription)
+    {
+        // Create the new price object
+        
+        var optionsPrice = new PriceCreateOptions
+        {
+            UnitAmount = (long)(subscription.Price * 100),
+            Currency = subscription.Currency.ToString().ToLower(),
+            Product = subscription.StripeProductId
+        };
+
+        var servicePrice = new PriceService();
+        var price = await servicePrice.CreateAsync(optionsPrice);
+        
+        // Update the product
+        
+        var productService = new ProductService();
+        var product = await productService.UpdateAsync(subscription.StripeProductId, new()
+        {
+            Name = subscription.Name,
+            Description = subscription.Description,
+            DefaultPrice = price.Id
+        });
+
+        // Disable old price
+        await servicePrice.UpdateAsync(subscription.StripePriceId, new()
+        {
+            Active = false
+        });
+
+        // Update the model
+
+        subscription.StripeProductId = product.Id;
+        subscription.StripePriceId = product.DefaultPriceId;
+        
+        SubscriptionRepository.Update(subscription);
+    }
+    public async Task Delete(Subscription subscription)
+    {
+        var productService = new ProductService();
+        await productService.DeleteAsync(subscription.StripeProductId);
+        
+        SubscriptionRepository.Delete(subscription);
     }
 
-    public async Task ApplyCode(string code)
+    public Task UpdateLimits(Subscription subscription, SubscriptionLimit[] limits)
     {
-        var data = await OneTimeJwtService.Validate(code);
+        subscription.LimitsJson = JsonConvert.SerializeObject(limits);
+        SubscriptionRepository.Update(subscription);
+        
+        return Task.CompletedTask;
+    }
+    public Task<SubscriptionLimit[]> GetLimits(Subscription subscription)
+    {
+        var limits = 
+            JsonConvert.DeserializeObject<SubscriptionLimit[]>(subscription.LimitsJson) ?? Array.Empty<SubscriptionLimit>();
+        return Task.FromResult(limits);
+    }
 
-        if (data == null)
-            throw new DisplayException("Invalid or expired subscription code");
+    public async Task<Subscription?> GetActiveSubscription(User u)
+    {
+        var user = await EnsureData(u);
 
-        var id = int.Parse(data["subscription"]);
-        var duration = int.Parse(data["duration"]);
+        if (user.CurrentSubscription != null)
+        {
+            if (user.SubscriptionExpires < DateTime.UtcNow)
+            {
+                user.CurrentSubscription = null;
+                UserRepository.Update(user);
+            }
+        }
+        
+        return user.CurrentSubscription;
+    }
+    public async Task CancelSubscription(User u)
+    {
+        var user = await EnsureData(u);
 
-        var subscription = SubscriptionRepository
-            .Get()
-            .FirstOrDefault(x => x.Id == id);
-
-        if (subscription == null)
-            throw new DisplayException("The subscription the code is associated with does not exist");
-
-        var user = await GetCurrentUser();
-
-        if (user == null)
-            throw new DisplayException("Unable to determine current user");
-
-        user.CurrentSubscription = subscription;
-        user.SubscriptionDuration = duration;
+        user.CurrentSubscription = null;
+        UserRepository.Update(user);
+    }
+    public async Task SetActiveSubscription(User u, Subscription subscription)
+    {
+        var user = await EnsureData(u);
+        
         user.SubscriptionSince = DateTime.UtcNow;
+        user.SubscriptionExpires = DateTime.UtcNow.AddDays(subscription.Duration);
+        user.CurrentSubscription = subscription;
         
         UserRepository.Update(user);
-
-        await OneTimeJwtService.Revoke(code);
     }
-
-    public async Task Cancel()
+    
+    public async Task<SubscriptionLimit[]> GetDefaultLimits()
     {
-        if (await GetCurrent() != null)
+        var defaultSubscriptionJson = "[]";
+        var path = PathBuilder.File("storage", "configs", "default_subscription.json");
+
+        if (File.Exists(path))
         {
-            var user = await GetCurrentUser();
-
-            user.CurrentSubscription = null;
-            
-            UserRepository.Update(user);
+            defaultSubscriptionJson =
+                await File.ReadAllTextAsync(path);
         }
-    }
 
-    public async Task<SubscriptionLimit> GetLimit(string identifier) // Cache, optimize sql code
+        return JsonConvert.DeserializeObject<SubscriptionLimit[]>(defaultSubscriptionJson)
+               ?? Array.Empty<SubscriptionLimit>();
+    }
+    public async Task<SubscriptionLimit> GetLimit(User u, string identifier)
     {
-        var subscription = await GetCurrent();
+        var subscription = await GetActiveSubscription(u);
         var defaultLimits = await GetDefaultLimits();
 
-        if (subscription == null)
+        if (subscription != null) // User has a active subscriptions
         {
-            // If the default subscription limit with identifier is found, return it. if not, return empty
-            return defaultLimits.FirstOrDefault(x => x.Identifier == identifier) ?? new()
-            {
-                Identifier = identifier,
-                Amount = 0
-            };
-        }
+            var subscriptionLimits = await GetLimits(subscription);
 
-        var subscriptionLimits = 
-            JsonConvert.DeserializeObject<SubscriptionLimit[]>(subscription.LimitsJson) 
-            ?? Array.Empty<SubscriptionLimit>();
+            var subscriptionLimit = subscriptionLimits
+                .FirstOrDefault(x => x.Identifier == identifier);
 
-        var foundLimit = subscriptionLimits.FirstOrDefault(x => x.Identifier == identifier);
-
-        if (foundLimit != null)
-            return foundLimit;
+            if (subscriptionLimit != null) // Found subscription limit for the user's subscription
+                return subscriptionLimit;
+        } // If were are here, the user's subscription has no limit for this identifier, so we fallback to default
         
-        // If the default subscription limit with identifier is found, return it. if not, return empty
-        return defaultLimits.FirstOrDefault(x => x.Identifier == identifier) ?? new()
+        var defaultSubscriptionLimit = defaultLimits
+            .FirstOrDefault(x => x.Identifier == identifier);
+
+        if (defaultSubscriptionLimit != null)
+            return defaultSubscriptionLimit; // Default subscription limit found
+
+        return new() // No default subscription limit found
         {
             Identifier = identifier,
             Amount = 0
         };
     }
 
-    private async Task<User?> GetCurrentUser()
+    private Task<User> EnsureData(User u)
     {
-        var user = await IdentityService.Get();
-
-        if (user == null)
-            return null;
-
-        var userWithData = UserRepository
+        var user = UserRepository
             .Get()
             .Include(x => x.CurrentSubscription)
-            .First(x => x.Id == user.Id);
+            .First(x => x.Id == u.Id);
 
-        return userWithData;
-    }
-
-    private async Task<SubscriptionLimit[]> GetDefaultLimits() // Add cache and reload option
-    {
-        var defaultSubscriptionJson = "[]";
-
-        if (File.Exists(PathBuilder.File("storage", "configs", "default_subscription.json")))
-        {
-            defaultSubscriptionJson =
-                await File.ReadAllTextAsync(PathBuilder.File("storage", "configs", "default_subscription.json"));
-        }
-
-        return JsonConvert.DeserializeObject<SubscriptionLimit[]>(defaultSubscriptionJson) ?? Array.Empty<SubscriptionLimit>();
+        return Task.FromResult(user);
     }
 }

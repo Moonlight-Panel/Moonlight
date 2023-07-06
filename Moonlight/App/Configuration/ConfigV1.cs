@@ -43,6 +43,13 @@ public class ConfigV1
         [JsonProperty("SmartDeploy")] public SmartDeployData SmartDeploy { get; set; } = new();
 
         [JsonProperty("Sentry")] public SentryData Sentry { get; set; } = new();
+
+        [JsonProperty("Stripe")] public StripeData Stripe { get; set; } = new();
+    }
+    
+    public class StripeData
+    {
+        [JsonProperty("ApiKey")] public string ApiKey { get; set; } = "";
     }
 
     public class CleanupData

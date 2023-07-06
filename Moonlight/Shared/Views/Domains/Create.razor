@@ -130,12 +130,12 @@
         Model = new();
         
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
-        Subscription = await SubscriptionService.GetCurrent();
+        Subscription = await SubscriptionService.GetActiveSubscription(User);
         
         AllowOrder = DomainRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("domains")).Amount;
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "domains")).Amount;
 
         await lazyLoader.SetText("Loading shared domains");
         SharedDomains = SharedDomainRepository.Get().ToArray();
@@ -146,7 +146,7 @@
         if (DomainRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("domains")).Amount)
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "domains")).Amount)
         {
             var domain = await DomainService.Create(Model.Name, Model.SharedDomain, User);
             
