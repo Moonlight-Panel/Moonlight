@@ -11,6 +11,8 @@ public class SessionClientService
     public readonly Guid Uuid = Guid.NewGuid();
     public readonly DateTime CreateTimestamp = DateTime.UtcNow;
     public User? User { get; private set; }
+    public string Ip { get; private set; } = "N/A";
+    public string Device { get; private set; } = "N/A";
 
     public readonly IdentityService IdentityService;
     public readonly AlertService AlertService;
@@ -39,6 +41,8 @@ public class SessionClientService
     public async Task Start()
     {
         User = await IdentityService.Get();
+        Ip = IdentityService.GetIp();
+        Device = IdentityService.GetDevice();
 
         if (User != null) // Track users last visit
         {
