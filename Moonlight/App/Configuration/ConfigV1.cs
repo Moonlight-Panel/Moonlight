@@ -17,6 +17,8 @@ public class ConfigV1
         [Description("The url moonlight is accesible with from the internet")]
         public string AppUrl { get; set; } = "http://your-moonlight-url-without-slash";
 
+        [JsonProperty("Auth")] public AuthData Auth { get; set; } = new();
+
         [JsonProperty("Database")] public DatabaseData Database { get; set; } = new();
 
         [JsonProperty("DiscordBotApi")] public DiscordBotApiData DiscordBotApi { get; set; } = new();
@@ -39,8 +41,7 @@ public class ConfigV1
 
         [JsonProperty("Subscriptions")] public SubscriptionsData Subscriptions { get; set; } = new();
 
-        [JsonProperty("DiscordNotifications")]
-        public DiscordNotificationsData DiscordNotifications { get; set; } = new();
+        [JsonProperty("DiscordNotifications")] public DiscordNotificationsData DiscordNotifications { get; set; } = new();
 
         [JsonProperty("Statistics")] public StatisticsData Statistics { get; set; } = new();
 
@@ -49,6 +50,17 @@ public class ConfigV1
         [JsonProperty("SmartDeploy")] public SmartDeployData SmartDeploy { get; set; } = new();
 
         [JsonProperty("Sentry")] public SentryData Sentry { get; set; } = new();
+    }
+    
+    public class AuthData
+    {
+        [JsonProperty("DenyLogin")]
+        [Description("Prevent every new login")]
+        public bool DenyLogin { get; set; } = false;
+        
+        [JsonProperty("DenyRegister")]
+        [Description("Prevent every new user to register")]
+        public bool DenyRegister { get; set; } = false;
     }
 
     public class CleanupData

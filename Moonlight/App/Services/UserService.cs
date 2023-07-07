@@ -18,6 +18,7 @@ public class UserService
     private readonly IdentityService IdentityService;
     private readonly IpLocateService IpLocateService;
     private readonly DateTimeService DateTimeService;
+    private readonly ConfigService ConfigService;
 
     private readonly string JwtSecret;
 
@@ -32,6 +33,7 @@ public class UserService
     {
         UserRepository = userRepository;
         TotpService = totpService;
+        ConfigService = configService;
         MailService = mailService;
         IdentityService = identityService;
         IpLocateService = ipLocateService;
@@ -44,6 +46,9 @@ public class UserService
 
     public async Task<string> Register(string email, string password, string firstname, string lastname)
     {
+        if (ConfigService.Get().Moonlight.Auth.DenyRegister)
+            throw new DisplayException("This operation was disabled");
+        
         // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;
 
@@ -108,6 +113,9 @@ public class UserService
 
     public async Task<string> Login(string email, string password, string totpCode = "")
     {
+        if (ConfigService.Get().Moonlight.Auth.DenyLogin)
+            throw new DisplayException("This operation was disabled");
+        
         // First password check and check if totp is enabled
         var needTotp = await CheckTotp(email, password);
         
