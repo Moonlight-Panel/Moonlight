@@ -26,7 +26,7 @@
 <LazyLoader Load="LoadData">
     @if (CurrentServer == null)
     {
-        <NotFoundAlert />
+        <NotFoundAlert/>
     }
     else
     {
@@ -34,33 +34,16 @@
         {
             if (Console.ConsoleState == ConsoleState.Connected)
             {
-                if (Console.ServerState == ServerState.Installing)
+                if (Console.ServerState == ServerState.Installing || CurrentServer.Installing)
                 {
                     <div class="card">
                         <div class="card-body">
-                            <div class="mb-10">
-                                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
-                                    <span class="me-2">
-                                        <TL>Server installation is currently running</TL>
-                                    </span>
-                                </div>
+                            <div class="fs-2hx fw-bold text-gray-800 text-center mb-5">
+                                <TL>Server installation is currently running</TL>
                             </div>
-                            <Terminal @ref="InstallConsole"></Terminal>
-                        </div>
-                    </div>
-                }
-                else if (CurrentServer.Installing)
-                {
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="mb-10">
-                                <div class="fs-2hx fw-bold text-gray-800 text-center mb-13">
-                                    <span class="me-2">
-                                        <TL>Server installation is currently running</TL>
-                                    </span>
-                                </div>
+                            <div class="rounded bg-black p-3">
+                                <Terminal @ref="InstallConsole"></Terminal>
                             </div>
-                            <Terminal @ref="InstallConsole"></Terminal>
                         </div>
                     </div>
                 }
@@ -104,7 +87,7 @@
                                     </Route>
                                     <Route Path="/backups">
                                         <ServerNavigation Index="2">
-                                             <ServerBackups/>
+                                            <ServerBackups/>
                                         </ServerNavigation>
                                     </Route>
                                     <Route Path="/network">
