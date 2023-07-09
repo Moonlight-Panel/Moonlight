@@ -48,7 +48,9 @@
                     <div class="card-body pt-0">
                         <div class="d-flex flex-column gap-10">
                             <div class="fv-row">
-                                <label class="form-label"><TL>Node</TL></label>
+                                <label class="form-label">
+                                    <TL>Node</TL>
+                                </label>
                                 <div class="fw-bold fs-3">@(DeployNode.Name)</div>
                             </div>
                             @if (Model.Image != null)
@@ -56,12 +58,16 @@
                                 var limit = Images[Model.Image];
 
                                 <div class="fv-row">
-                                    <label class="form-label"><TL>Image</TL></label>
+                                    <label class="form-label">
+                                        <TL>Image</TL>
+                                    </label>
                                     <div class="fw-bold fs-3">@(Model.Image.Name)</div>
                                 </div>
 
                                 <div class="fv-row">
-                                    <label class="form-label"><TL>CPU</TL></label>
+                                    <label class="form-label">
+                                        <TL>CPU</TL>
+                                    </label>
                                     <div class="fw-bold fs-3">
                                         @{
                                             var cpu = limit.ReadValue("cpu");
@@ -76,12 +82,16 @@
                                 </div>
 
                                 <div class="fv-row">
-                                    <label class="form-label"><TL>Memory</TL></label>
+                                    <label class="form-label">
+                                        <TL>Memory</TL>
+                                    </label>
                                     <div class="fw-bold fs-3">@(limit.ReadValue("memory")) MB</div>
                                 </div>
 
                                 <div class="fv-row">
-                                    <label class="form-label"><TL>Disk</TL></label>
+                                    <label class="form-label">
+                                        <TL>Disk</TL>
+                                    </label>
                                     <div class="fw-bold fs-3">@(limit.ReadValue("disk")) MB</div>
                                 </div>
                             }
@@ -108,15 +118,6 @@
                             </div>
                             @if (Images.Any())
                             {
-                                <label class="form-label">
-                                    <TL>Image</TL>
-                                </label>
-                                <SmartSelect TField="Image"
-                                             @bind-Value="Model.Image"
-                                             Items="Images.Keys.ToArray()"
-                                             DisplayField="@(x => x.Name)">
-                                </SmartSelect>
-
                                 <button type="submit" class="mt-5 float-end btn btn-primary">
                                     <TL>Create</TL>
                                 </button>
@@ -125,12 +126,44 @@
                             {
                                 <div class="alert alert-warning d-flex align-items-center p-5 mb-10">
                                     <span>
-                                        <TL>You reached the maximum amount of servers for every image of your subscription</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
+                                        <TL>We could not find any image in your subscription you have access to</TL>: @(Subscription == null ? SmartTranslateService.Translate("Default") : Subscription.Name)
                                     </span>
                                 </div>
                             }
                         </SmartForm>
                     </div>
+                </div>
+
+                <div class="row">
+                    @foreach (var keyValuePair in Images)
+                    {
+                        bool selected = Model.Image != null && Model.Image.Id == keyValuePair.Key.Id;
+
+                        <div class="col-12 col-md-4">
+                            @if (ServerCounts[keyValuePair.Key] > keyValuePair.Value.Amount)
+                            {
+                                <div class="m-2 card blur">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-center">@(keyValuePair.Key.Name)</h5>
+                                        <p class="card-text">
+                                            @(keyValuePair.Key.Description)
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <a href="#" class="m-2 card @(selected ? "border border-2 border-primary" : "") invisible-a" @onclick:preventDefault @onclick="() => SelectImage(keyValuePair.Key)">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-center">@(keyValuePair.Key.Name)</h5>
+                                        <p class="card-text">
+                                            @(keyValuePair.Key.Description)
+                                        </p>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -141,11 +174,12 @@
 {
     [CascadingParameter]
     public User User { get; set; }
-    
+
     private Node? DeployNode;
     private Subscription? Subscription;
 
     private Dictionary<Image, SubscriptionLimit> Images = new();
+    private Dictionary<Image, int> ServerCounts = new();
 
     private ServerOrderDataModel Model = new();
 
@@ -176,9 +210,9 @@
                     .Include(x => x.Image)
                     .Where(x => x.Owner.Id == User.Id)
                     .Count(x => x.Image.Id == image.Id);
-                
-                if(serversCount < limit.Amount)
-                    Images.Add(image, limit);
+
+                Images.Add(image, limit);
+                ServerCounts.Add(image, serversCount);
             }
         }
     }
@@ -198,7 +232,7 @@
 
             if (serversCount < limit.Amount)
             {
-                if(int.TryParse(limit.ReadValue("cpu"), out int cpu) &&
+                if (int.TryParse(limit.ReadValue("cpu"), out int cpu) &&
                     int.TryParse(limit.ReadValue("memory"), out int memory) &&
                     int.TryParse(limit.ReadValue("disk"), out int disk))
                 {
@@ -211,7 +245,7 @@
                         Model.Image,
                         DeployNode
                         );
-                    
+
                     NavigationManager.NavigateTo($"/server/{server.Uuid}");
                 }
                 else
@@ -220,5 +254,12 @@
                 }
             }
         }
+    }
+
+    private async Task SelectImage(Image image)
+    {
+        Model.Image = image;
+
+        await InvokeAsync(StateHasChanged);
     }
 }
