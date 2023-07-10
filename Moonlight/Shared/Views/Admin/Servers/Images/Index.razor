@@ -32,7 +32,7 @@
                             <TL>New image</TL>
                         </a>
                         <InputFile OnChange="OnFileChanged" type="file" id="fileUpload" hidden="" multiple=""/>
-                        <label for="fileUpload" class="btn btn-sm btn-light-primary">
+                        <label for="fileUpload" class="btn btn-sm btn-light-primary me-3">
                             <span class="svg-icon svg-icon-2">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
@@ -41,6 +41,17 @@
                                 </svg>
                             </span>
                             <TL>Import</TL>
+                        </label>
+                        <InputFile OnChange="OnEggFileChanged" type="file" id="eggFileUpload" hidden="" multiple=""/>
+                        <label for="eggFileUpload" class="btn btn-sm btn-light-primary">
+                            <span class="svg-icon svg-icon-2">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
+                                    <path d="M10.4 3.60001L12 6H21C21.6 6 22 6.4 22 7V19C22 19.6 21.6 20 21 20H3C2.4 20 2 19.6 2 19V4C2 3.4 2.4 3 3 3H9.20001C9.70001 3 10.2 3.20001 10.4 3.60001ZM16 11.6L12.7 8.29999C12.3 7.89999 11.7 7.89999 11.3 8.29999L8 11.6H11V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H16Z" fill="currentColor"></path>
+                                    <path opacity="0.3" d="M11 11.6V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H11Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                            <TL>Import pterodactyl egg</TL>
                         </label>
                     </div>
                 </div>
@@ -105,7 +116,7 @@
     private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Loading images");
-        
+
         Images = ImageRepository
             .Get()
             .Include(x => x.DockerImages)
@@ -113,7 +124,7 @@
             .ToArray();
 
         await lazyLoader.SetText("Counting image servers");
-        
+
         ServersCount.Clear();
 
         foreach (var image in Images)
@@ -130,7 +141,7 @@
     private async Task Delete(Image image)
     {
         var variables = image.Variables.ToArray();
-        
+
         image.Variables.Clear();
         ImageRepository.Update(image);
 
@@ -138,11 +149,11 @@
         {
             ImageVariableRepository.Delete(v);
         }
-        
+
         ImageRepository.Delete(image);
         await LazyLoader.Reload();
     }
-    
+
     private async Task OnFileChanged(InputFileChangeEventArgs arg)
     {
         foreach (var browserFile in arg.GetMultipleFiles())
@@ -155,7 +166,7 @@
 
                 var text = Encoding.UTF8.GetString(data);
                 var image = JsonConvert.DeserializeObject<Image>(text)!;
-                    
+
                 image.Uuid = Guid.NewGuid();
 
                 ImageRepository.Add(image);
@@ -170,7 +181,47 @@
                 Logger.Error(e);
             }
         }
+
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task OnEggFileChanged(InputFileChangeEventArgs arg)
+    {
+        var b = await AlertService.YesNo(
+            SmartTranslateService.Translate("Attention"),
+            SmartTranslateService.Translate("Imported pterodactyl eggs can result in broken images. We do not support pterodactyl eggs"),
+            SmartTranslateService.Translate("I take the risk"),
+            SmartTranslateService.Translate("Cancel")
+            );
         
+        if(!b)
+            return;
+        
+        foreach (var browserFile in arg.GetMultipleFiles())
+        {
+            try
+            {
+                var stream = browserFile.OpenReadStream(1024 * 1024 * 100);
+                var data = new byte[browserFile.Size];
+                _ = await stream.ReadAsync(data, 0, data.Length);
+
+                var json = Encoding.UTF8.GetString(data);
+
+                var image = EggConverter.Convert(json);
+
+                ImageRepository.Add(image);
+
+                await AlertService.Success(SmartTranslateService.Translate("Successfully imported image"));
+                await LazyLoader.Reload();
+            }
+            catch (Exception e)
+            {
+                await AlertService.Error(SmartTranslateService.Translate("An unknown error occured while uploading and importing the image"));
+                Logger.Error("Error importing image");
+                Logger.Error(e);
+            }
+        }
+
         await InvokeAsync(StateHasChanged);
     }
 }
