@@ -160,7 +160,7 @@ public class DomainService
                     Type = record.Type
                 });
             }
-            else if (record.Name.EndsWith(rname))
+            else if (record.Name == rname)
             {
                 result.Add(new()
                 {
