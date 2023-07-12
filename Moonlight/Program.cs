@@ -214,10 +214,7 @@ namespace Moonlight
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
-
-            // Loggers
             builder.Services.AddScoped<MailService>();
-            builder.Services.AddSingleton<TrashMailDetectorService>();
 
             // Support chat
             builder.Services.AddSingleton<SupportChatServerService>();
