@@ -221,6 +221,8 @@
         {
             ServerGroups = (JsonConvert.DeserializeObject<ServerGroup[]>(
                 User.ServerListLayoutJson) ?? Array.Empty<ServerGroup>()).ToList();
+
+            await CheckServerGroups();
         }
 
         foreach (var server in AllServers)
@@ -256,8 +258,8 @@
     private async Task RemoveGroup(ServerGroup group)
     {
         ServerGroups.Remove(group);
-        await EnsureAllServersInGroups();
-
+        
+        await CheckServerGroups();
         await InvokeAsync(StateHasChanged);
 
         await JsRuntime.InvokeVoidAsync("moonlight.serverList.init");
@@ -266,11 +268,10 @@
     private async Task SetEditMode(bool toggle)
     {
         EditMode = toggle;
-        await InvokeAsync(StateHasChanged);
 
         if (EditMode)
         {
-            await EnsureAllServersInGroups();
+            await CheckServerGroups();
             await InvokeAsync(StateHasChanged);
 
             await JsRuntime.InvokeVoidAsync("moonlight.serverList.init");
@@ -278,6 +279,9 @@
         else
         {
             var json = JsonConvert.SerializeObject(await GetGroupsFromClient());
+
+            await CheckServerGroups();
+            
             User.ServerListLayoutJson = json;
             UserRepository.Update(User);
 
@@ -289,7 +293,7 @@
     {
         var serverGroups = await JsRuntime.InvokeAsync<ServerGroup[]>("moonlight.serverList.getData");
 
-    // Check user data to prevent users from doing stupid stuff
+        // Check user data to prevent users from doing stupid stuff
         foreach (var serverGroup in serverGroups)
         {
             if (serverGroup.Name.Length > 30)
@@ -297,53 +301,78 @@
                 Logger.Verbose("Server list group lenght too long");
                 return Array.Empty<ServerGroup>();
             }
-
-            if (serverGroup.Servers.Any(x => AllServers.All(y => y.Id.ToString() != x)))
-            {
-                Logger.Verbose("User tried to add a server in his server list which he has no access to");
-                return Array.Empty<ServerGroup>();
-            }
         }
 
         return serverGroups;
     }
 
-    private Task EnsureAllServersInGroups()
+    private Task CheckServerGroups()
     {
-        var presentInGroup = new List<Server>();
+        var result = new List<ServerGroup>();
 
+        // Reconstruct the data with checking for invalid server ids
         foreach (var group in ServerGroups)
         {
+            var checkedGroup = new ServerGroup()
+            {
+                Name = group.Name
+            };
+
+            foreach (var server in group.Servers)
+            {
+                var s = AllServers.FirstOrDefault(x => x.Id.ToString() == server);
+
+                if (s != null) // This is a check for invalid server ids
+                {
+                    checkedGroup.Servers.Add(s.Id.ToString());
+                }
+            }
+            
+            result.Add(checkedGroup);
+        }
+        
+        var presentInGroup = new List<Server>();
+        
+        // Copy all servers to preset in group if they are in the users servers
+        foreach (var group in result) 
+        {
             foreach (var id in group.Servers)
-                presentInGroup.Add(AllServers.First(x => x.Id.ToString() == id));
+            {
+                var s = AllServers.First(x => x.Id.ToString() == id);
+                presentInGroup.Add(s);
+            }
         }
 
         var serversMissing = new List<Server>();
 
+        // Make a list of missing servers
         foreach (var server in AllServers)
         {
             if (presentInGroup.All(x => x.Id != server.Id))
                 serversMissing.Add(server);
         }
 
+        // Add all missing servers into the default group
         if (serversMissing.Any())
         {
-            var defaultGroup = ServerGroups.FirstOrDefault(x => x.Name == "");
+            var defaultGroup = result.FirstOrDefault(x => x.Name == "");
 
-            if (defaultGroup == null)
+            if (defaultGroup == null) // If group does not exist, create it
             {
                 defaultGroup = new ServerGroup()
                 {
                     Name = ""
                 };
 
-                ServerGroups.Add(defaultGroup);
+                result.Add(defaultGroup);
             }
 
             foreach (var server in serversMissing)
                 defaultGroup.Servers.Add(server.Id.ToString());
         }
 
+        ServerGroups = result;
+        
         return Task.CompletedTask;
     }
 
@@ -351,8 +380,11 @@
     {
         lock (StatusCache)
         {
-            StatusCache.Add(server, status);
-            InvokeAsync(StateHasChanged);
+            if (!StatusCache.ContainsKey(server))
+            {
+                StatusCache.Add(server, status);
+                InvokeAsync(StateHasChanged);
+            }
         }
     }
 }

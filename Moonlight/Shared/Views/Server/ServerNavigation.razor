@@ -25,11 +25,17 @@
                 </div>
                 <div class="col-4 d-flex flex-column flex-end mb-1">
                     <div class="btn-group btn-group-sm">
-                        <button class="w-100 nav-link btn btn-sm btn-success fw-bold px-4 me-1 @(Console.ServerState == ServerState.Offline ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Start"><TL>Start</TL></button>
-                        <button class="w-100 nav-link btn btn-sm btn-primary fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Restart"><TL>Restart</TL></button>
+                        <button class="w-100 nav-link btn btn-sm btn-success fw-bold px-4 me-1 @(Console.ServerState == ServerState.Offline ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Start">
+                            <TL>Start</TL>
+                        </button>
+                        <button class="w-100 nav-link btn btn-sm btn-primary fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Restart">
+                            <TL>Restart</TL>
+                        </button>
                         @if (Console.ServerState == ServerState.Stopping)
                         {
-                            <button class="w-100 nav-link btn btn-sm btn-danger fw-bold px-4 me-1" aria-selected="true" role="tab" @onclick="Kill"><TL>Kill</TL></button>
+                            <button class="w-100 nav-link btn btn-sm btn-danger fw-bold px-4 me-1" aria-selected="true" role="tab" @onclick="Kill">
+                                <TL>Kill</TL>
+                            </button>
                         }
                         else
                         {
@@ -47,7 +53,7 @@
                 <div class="row align-items-center">
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Shared IP</TL>:</span>
-                        <span class="ms-1 text-muted @(User.StreamerMode ? "blur" : "")">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation.Port}")</span>
+                        <span class="ms-1 text-muted @(User.StreamerMode ? "blur" : "")">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation?.Port ?? 0}")</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Server ID</TL>:</span>
@@ -68,21 +74,29 @@
                             @switch (Console.ServerState)
                             {
                                 case ServerState.Offline:
-                                    <span class="text-danger"><TL>Offline</TL></span>
+                                    <span class="text-danger">
+                                        <TL>Offline</TL>
+                                    </span>
                                     break;
 
                                 case ServerState.Starting:
-                                    <span class="text-warning"><TL>Starting</TL></span>
+                                    <span class="text-warning">
+                                        <TL>Starting</TL>
+                                    </span>
                                     <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.Resource.Uptime)))</span>
                                     break;
 
                                 case ServerState.Stopping:
-                                    <span class="text-warning"><TL>Stopping</TL></span>
+                                    <span class="text-warning">
+                                        <TL>Stopping</TL>
+                                    </span>
                                     <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.Resource.Uptime)))</span>
                                     break;
 
                                 case ServerState.Running:
-                                    <span class="text-success"><TL>Online</TL></span>
+                                    <span class="text-success">
+                                        <TL>Online</TL>
+                                    </span>
                                     <span class="text-gray-700 pt-1 fw-semibold">(@(Formatter.FormatUptime(Console.Resource.Uptime)))</span>
                                     break;
                             }
@@ -110,7 +124,9 @@
                         <a href="/server/@(CurrentServer.Uuid)/" class="nav-link w-100 btn btn-flex @(Index == 0 ? "active" : "") btn-active-light-primary">
                             <i class="bx bx-terminal bx-sm me-2"></i>
                             <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5"><TL>Console</TL></span>
+                                <span class="fs-5">
+                                    <TL>Console</TL>
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -118,7 +134,9 @@
                         <a href="/server/@(CurrentServer.Uuid)/files" class="nav-link w-100 btn btn-flex @(Index == 1 ? "active" : "") btn-active-light-primary">
                             <i class="bx bx-folder bx-sm me-2"></i>
                             <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5"><TL>Files</TL></span>
+                                <span class="fs-5">
+                                    <TL>Files</TL>
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -126,7 +144,9 @@
                         <a href="/server/@(CurrentServer.Uuid)/backups" class="nav-link w-100 btn btn-flex @(Index == 2 ? "active" : "") btn-active-light-primary">
                             <i class="bx bx-box bx-sm me-2"></i>
                             <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5"><TL>Backups</TL></span>
+                                <span class="fs-5">
+                                    <TL>Backups</TL>
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -134,7 +154,9 @@
                         <a href="/server/@(CurrentServer.Uuid)/network" class="nav-link w-100 btn btn-flex @(Index == 3 ? "active" : "") btn-active-light-primary">
                             <i class="bx bx-wifi bx-sm me-2"></i>
                             <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5"><TL>Network</TL></span>
+                                <span class="fs-5">
+                                    <TL>Network</TL>
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -142,7 +164,9 @@
                         <a href="/server/@(CurrentServer.Uuid)/addons" class="nav-link w-100 btn btn-flex @(Index == 4 ? "active" : "") btn-active-light-primary">
                             <i class="bx bx-plug bx-sm me-2"></i>
                             <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5"><TL>Addons</TL></span>
+                                <span class="fs-5">
+                                    <TL>Addons</TL>
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -150,7 +174,9 @@
                         <a href="/server/@(CurrentServer.Uuid)/settings" class="nav-link w-100 btn btn-flex @(Index == 5 ? "active" : "") btn-active-light-primary">
                             <i class="bx bx-cog bx-sm me-2"></i>
                             <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5"><TL>Settings</TL></span>
+                                <span class="fs-5">
+                                    <TL>Settings</TL>
+                                </span>
                             </span>
                         </a>
                     </li>
@@ -169,7 +195,7 @@
 {
     [CascadingParameter]
     public Server CurrentServer { get; set; }
-    
+
     [CascadingParameter]
     public User User { get; set; }
 
