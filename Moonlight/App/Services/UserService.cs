@@ -5,6 +5,7 @@ using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Sessions;
 
@@ -19,6 +20,7 @@ public class UserService
     private readonly IpLocateService IpLocateService;
     private readonly DateTimeService DateTimeService;
     private readonly ConfigService ConfigService;
+    private readonly TempMailService TempMailService;
 
     private readonly string JwtSecret;
 
@@ -29,7 +31,8 @@ public class UserService
         MailService mailService,
         IdentityService identityService,
         IpLocateService ipLocateService,
-        DateTimeService dateTimeService)
+        DateTimeService dateTimeService,
+        TempMailService tempMailService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
@@ -38,6 +41,7 @@ public class UserService
         IdentityService = identityService;
         IpLocateService = ipLocateService;
         DateTimeService = dateTimeService;
+        TempMailService = tempMailService;
 
         JwtSecret = configService
             .Get()
@@ -48,6 +52,9 @@ public class UserService
     {
         if (ConfigService.Get().Moonlight.Auth.DenyRegister)
             throw new DisplayException("This operation was disabled");
+
+        if (await TempMailService.IsTempMail(email))
+            throw new DisplayException("This email is blacklisted");
         
         // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;
