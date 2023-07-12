@@ -103,8 +103,6 @@ namespace Moonlight
                 }
             }
             
-            Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
-
             Logger.Info("Running pre-init tasks");
             var databaseCheckupService = new DatabaseCheckupService(configService);
                 
@@ -246,6 +244,7 @@ namespace Moonlight
             builder.Services.AddSingleton<CleanupService>();
             builder.Services.AddSingleton<MalwareScanService>();
             builder.Services.AddSingleton<TelemetryService>();
+            builder.Services.AddSingleton<TempMailService>();
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -291,6 +290,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
             _ = app.Services.GetRequiredService<MalwareScanService>();
             _ = app.Services.GetRequiredService<TelemetryService>();
+            _ = app.Services.GetRequiredService<TempMailService>();
             
             _ = app.Services.GetRequiredService<MoonlightService>();
 
