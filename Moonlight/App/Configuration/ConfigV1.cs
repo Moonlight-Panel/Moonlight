@@ -38,9 +38,7 @@ public class ConfigV1
         [JsonProperty("Mail")] public MailData Mail { get; set; } = new();
 
         [JsonProperty("Cleanup")] public CleanupData Cleanup { get; set; } = new();
-
-        [JsonProperty("Subscriptions")] public SubscriptionsData Subscriptions { get; set; } = new();
-
+        
         [JsonProperty("DiscordNotifications")] public DiscordNotificationsData DiscordNotifications { get; set; } = new();
 
         [JsonProperty("Statistics")] public StatisticsData Statistics { get; set; } = new();
@@ -56,7 +54,9 @@ public class ConfigV1
     
     public class StripeData
     {
-        [JsonProperty("ApiKey")] public string ApiKey { get; set; } = "";
+        [JsonProperty("ApiKey")]
+        [Description("Put here your stripe api key if you add subscriptions. Currently the only billing option is stripe which is enabled by default and cannot be turned off. This feature is still experimental")]
+        public string ApiKey { get; set; } = "";
     }
     
     public class AuthData
@@ -323,11 +323,6 @@ public class ConfigV1
         [JsonProperty("Enabled")] public bool Enabled { get; set; } = false;
 
         [JsonProperty("Wait")] public long Wait { get; set; } = 15;
-    }
-
-    public class SubscriptionsData
-    {
-        [JsonProperty("SellPass")] public SellPassData SellPass { get; set; } = new();
     }
 
     public class SellPassData
