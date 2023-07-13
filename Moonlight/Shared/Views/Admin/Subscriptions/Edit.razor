@@ -4,10 +4,11 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities
+@using Mappy.Net
 
 @inject NavigationManager NavigationManager
 @inject SubscriptionRepository SubscriptionRepository
-@inject SubscriptionAdminService SubscriptionAdminService
+@inject SubscriptionService SubscriptionService
 
 <OnlyAdmin>
     <div class="card card-body p-10">
@@ -31,7 +32,37 @@
                         <TL>Description</TL>
                     </label>
                     <div class="input-group mb-5">
-                        <InputText @bind-Value="Model.Description" class="form-control"></InputText>
+                        <InputTextArea @bind-Value="Model.Description" class="form-control"></InputTextArea>
+                    </div>
+                    <label class="form-label">
+                        <TL>Price</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <InputNumber @bind-Value="Model.Price" class="form-control"></InputNumber>
+                    </div>
+                    <label class="form-label">
+                        <TL>Currency</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <select @bind="Model.Currency" class="form-select">
+                            @foreach (var currency in (Currency[])Enum.GetValues(typeof(Currency)))
+                            {
+                                if (Model.Currency == currency)
+                                {
+                                    <option value="@(currency)" selected="">@(currency)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(currency)">@(currency)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <label class="form-label">
+                        <TL>Duration</TL>
+                    </label>
+                    <div class="input-group mb-5">
+                        <InputNumber @bind-Value="Model.Duration" class="form-control"></InputNumber>
                     </div>
 
                     <div>
@@ -141,12 +172,10 @@
 
     private async Task OnSubmit()
     {
-        Subscription!.Name = Model.Name;
-        Subscription.Description = Model.Description;
-        
-        SubscriptionRepository.Update(Subscription);
+        Subscription = Mapper.Map(Subscription, Model);
+        await SubscriptionService.Update(Subscription!);
 
-        await SubscriptionAdminService.SaveLimits(Subscription, Limits.ToArray());
+        await SubscriptionService.UpdateLimits(Subscription!, Limits.ToArray());
 
         NavigationManager.NavigateTo("/admin/subscriptions");
     }
@@ -159,10 +188,9 @@
 
         if (Subscription != null)
         {
-            Model.Name = Subscription.Name;
-            Model.Description = Subscription.Description;
-            
-            Limits = (await SubscriptionAdminService.GetLimits(Subscription)).ToList();
+            Model = Mapper.Map<SubscriptionDataModel>(Subscription);
+
+            Limits = (await SubscriptionService.GetLimits(Subscription)).ToList();
         }
     }
 }

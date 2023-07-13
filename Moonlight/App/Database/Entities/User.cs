@@ -51,8 +51,8 @@ public class User
     // Subscriptions
 
     public Subscription? CurrentSubscription { get; set; } = null;
-    public DateTime SubscriptionSince { get; set; } = DateTime.Now;
-    public int SubscriptionDuration { get; set; }
+    public DateTime SubscriptionSince { get; set; } = DateTime.UtcNow;
+    public DateTime SubscriptionExpires { get; set; } = DateTime.UtcNow;
     
     // Ip logs
     public string RegisterIp { get; set; } = "";

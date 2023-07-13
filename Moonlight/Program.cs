@@ -1,6 +1,5 @@
 using BlazorDownloadFile;
 using BlazorTable;
-using CurrieTechnologies.Razor.SweetAlert2;
 using HealthChecks.UI.Client;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
@@ -33,6 +32,8 @@ using Moonlight.App.Services.SupportChat;
 using Sentry;
 using Serilog;
 using Serilog.Events;
+using Stripe;
+using SubscriptionService = Moonlight.App.Services.SubscriptionService;
 
 namespace Moonlight
 {
@@ -208,9 +209,9 @@ namespace Moonlight
             builder.Services.AddScoped<DynamicBackgroundService>();
             builder.Services.AddScoped<ServerAddonPluginService>();
             builder.Services.AddScoped<KeyListenerService>();
-
+            builder.Services.AddScoped<PopupService>();
             builder.Services.AddScoped<SubscriptionService>();
-            builder.Services.AddScoped<SubscriptionAdminService>();
+            builder.Services.AddScoped<BillingService>();
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
@@ -250,6 +251,10 @@ namespace Moonlight
             builder.Services.AddBlazorTable();
             builder.Services.AddBlazorContextMenu();
             builder.Services.AddBlazorDownloadFile();
+
+            StripeConfiguration.ApiKey = configService
+                .Get()
+                .Moonlight.Stripe.ApiKey;
 
             var app = builder.Build();
 

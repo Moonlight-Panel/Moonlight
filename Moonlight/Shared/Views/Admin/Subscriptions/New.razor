@@ -6,7 +6,7 @@
 
 @inject NavigationManager NavigationManager
 @inject SubscriptionRepository SubscriptionRepository
-@inject SubscriptionAdminService SubscriptionAdminService
+@inject SubscriptionService SubscriptionService
 
 <OnlyAdmin>
     <div class="card card-body p-10">
@@ -21,7 +21,37 @@
                 <TL>Description</TL>
             </label>
             <div class="input-group mb-5">
-                <InputText @bind-Value="Model.Description" class="form-control"></InputText>
+                <InputTextArea @bind-Value="Model.Description" class="form-control"></InputTextArea>
+            </div>
+            <label class="form-label">
+                <TL>Price</TL>
+            </label>
+            <div class="input-group mb-5">
+                <InputNumber @bind-Value="Model.Price" class="form-control"></InputNumber>
+            </div>
+            <label class="form-label">
+                <TL>Currency</TL>
+            </label>
+            <div class="input-group mb-5">
+                <select @bind="Model.Currency" class="form-select">
+                    @foreach (var currency in (Currency[])Enum.GetValues(typeof(Currency)))
+                    {
+                        if (Model.Currency == currency)
+                        {
+                            <option value="@(currency)" selected="">@(currency)</option>
+                        }
+                        else
+                        {
+                            <option value="@(currency)">@(currency)</option>
+                        }
+                    }
+                </select>
+            </div>
+            <label class="form-label">
+                <TL>Duration</TL>
+            </label>
+            <div class="input-group mb-5">
+                <InputNumber @bind-Value="Model.Duration" class="form-control"></InputNumber>
             </div>
 
             <div>
@@ -124,14 +154,16 @@
 
     private async Task OnSubmit()
     {
-        var sub = SubscriptionRepository.Add(new()
-        {
-            Name = Model.Name,
-            Description = Model.Description
-        });
+        var sub = await SubscriptionService.Create(
+            Model.Name,
+            Model.Description,
+            Model.Currency,
+            Model.Price,
+            Model.Duration
+        );
 
-        await SubscriptionAdminService.SaveLimits(sub, Limits.ToArray());
-        
+        await SubscriptionService.UpdateLimits(sub, Limits.ToArray());
+
         NavigationManager.NavigateTo("/admin/subscriptions");
     }
 }

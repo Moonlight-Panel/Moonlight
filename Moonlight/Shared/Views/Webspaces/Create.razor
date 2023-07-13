@@ -125,7 +125,7 @@
         Model = new();
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
-        Subscription = await SubscriptionService.GetCurrent();
+        Subscription = await SubscriptionService.GetActiveSubscription(User);
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy web host"));
         CloudPanel = await SmartDeployService.GetCloudPanel();
@@ -133,7 +133,7 @@
         AllowOrder = WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount;
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "websites")).Amount;
     }
 
     private async Task OnValidSubmit()
@@ -141,7 +141,7 @@
         if (WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit("websites")).Amount)
+            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "websites")).Amount)
         {
             var webSpace = await WebSpaceService.Create(Model.BaseDomain, User, CloudPanel);
 
