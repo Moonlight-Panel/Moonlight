@@ -22,7 +22,7 @@
 
 ![Screen Shot](https://media.discordapp.net/attachments/1059911407170228234/1119793539732217876/image.png?width=1340&height=671)
 
-Moonlight is a new free and open source alternative to pterodactyl allowing users to create their own hosting platform and host all sorts of gameservers in docker containers. With a simple migration from pterodactyl to moonlight (migrator will be open source soon) you can easily switch to moonlight and use its features like a server manager, cleanup system and automatic version switcher, just to name a few.
+Moonlight is a new free and open source alternative to pterodactyl allowing users to create their own hosting platform and host all sorts of gameservers in docker containers. With a simple migration from pterodactyl to moonlight ([see guide](https://docs.moonlightpanel.xyz/migrating-from-pterodactyl)) you can easily switch to moonlight and use its features like a server manager, cleanup system and automatic version switcher, just to name a few.
 
 Moonlight's core features are
 

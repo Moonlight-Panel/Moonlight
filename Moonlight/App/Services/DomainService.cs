@@ -20,6 +20,7 @@ namespace Moonlight.App.Services;
 public class DomainService
 {
     private readonly DomainRepository DomainRepository;
+    private readonly ConfigService ConfigService;
     private readonly SharedDomainRepository SharedDomainRepository;
     private readonly CloudFlareClient Client;
     private readonly string AccountId;
@@ -29,6 +30,7 @@ public class DomainService
         DomainRepository domainRepository,
         SharedDomainRepository sharedDomainRepository)
     {
+        ConfigService = configService;
         DomainRepository = domainRepository;
         SharedDomainRepository = sharedDomainRepository;
 
@@ -48,6 +50,9 @@ public class DomainService
 
     public Task<Domain> Create(string domain, SharedDomain sharedDomain, User user)
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            throw new DisplayException("This operation is disabled");
+        
         if (DomainRepository.Get().Where(x => x.SharedDomain.Id == sharedDomain.Id).Any(x => x.Name == domain))
             throw new DisplayException("A domain with this name does already exist for this shared domain");
 
@@ -63,6 +68,9 @@ public class DomainService
 
     public Task Delete(Domain domain)
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            throw new DisplayException("This operation is disabled");
+        
         DomainRepository.Delete(domain);
 
         return Task.CompletedTask;
@@ -71,6 +79,9 @@ public class DomainService
     public async Task<Zone[]>
         GetAvailableDomains() // This method returns all available domains which are not added as a shared domain
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            return Array.Empty<Zone>();
+        
         var domains = GetData(
             await Client.Zones.GetAsync(new()
             {
@@ -93,6 +104,9 @@ public class DomainService
 
     public async Task<DnsRecord[]> GetDnsRecords(Domain d)
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            return Array.Empty<DnsRecord>();
+        
         var domain = EnsureData(d);
 
         var records = new List<CloudFlare.Client.Api.Zones.DnsRecord.DnsRecord>();
@@ -146,7 +160,7 @@ public class DomainService
                     Type = record.Type
                 });
             }
-            else if (record.Name.EndsWith(rname))
+            else if (record.Name == rname)
             {
                 result.Add(new()
                 {
@@ -166,6 +180,9 @@ public class DomainService
 
     public async Task AddDnsRecord(Domain d, DnsRecord dnsRecord)
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            throw new DisplayException("This operation is disabled");
+        
         var domain = EnsureData(d);
 
         var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
@@ -225,6 +242,9 @@ public class DomainService
 
     public async Task UpdateDnsRecord(Domain d, DnsRecord dnsRecord)
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            throw new DisplayException("This operation is disabled");
+        
         var domain = EnsureData(d);
 
         var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
@@ -255,6 +275,9 @@ public class DomainService
 
     public async Task DeleteDnsRecord(Domain d, DnsRecord dnsRecord)
     {
+        if (!ConfigService.Get().Moonlight.Domains.Enable)
+            throw new DisplayException("This operation is disabled");
+        
         var domain = EnsureData(d);
 
         GetData(

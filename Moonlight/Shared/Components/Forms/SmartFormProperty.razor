@@ -1,0 +1,79 @@
+﻿@using System.Reflection
+@using Moonlight.App.Helpers
+@using System.ComponentModel
+
+<label class="form-label" for="@PropertyInfo.Name">
+    @(Formatter.ConvertCamelCaseToSpaces(PropertyInfo.Name))
+</label>
+@{
+    //TODO: Tidy up this code
+    
+    var attrs = PropertyInfo.GetCustomAttributes(true);
+    
+    var descAttr = attrs
+        .FirstOrDefault(x => x.GetType() == typeof(DescriptionAttribute));
+
+    var blurBool = attrs.Any(x => x.GetType() == typeof(BlurAttribute));
+    var blur = blurBool ? "blur-unless-hover" : "";
+}
+
+@if (descAttr != null)
+{
+    var a = descAttr as DescriptionAttribute;
+
+    <div class="form-text fs-5 mb-2 mt-0">
+        @(a.Description)
+    </div>
+}
+
+<div class="input-group mb-5">
+    @if (PropertyInfo.PropertyType == typeof(string))
+    {
+        var binder = new PropBinder(PropertyInfo, Model!);
+
+        <div class="@(blur) w-100">
+            <InputText id="@PropertyInfo.Name" @bind-Value="binder.StringValue" class="form-control"/>
+        </div>
+    }
+    else if (PropertyInfo.PropertyType == typeof(int))
+    {
+        var binder = new PropBinder(PropertyInfo, Model!);
+
+        <InputNumber id="@PropertyInfo.Name" @bind-Value="binder.IntValue" class="form-control"/>
+    }
+    else if (PropertyInfo.PropertyType == typeof(long))
+    {
+        var binder = new PropBinder(PropertyInfo, Model!);
+
+        <InputNumber id="@PropertyInfo.Name" @bind-Value="binder.LongValue" class="form-control"/>
+    }
+    else if (PropertyInfo.PropertyType == typeof(bool))
+    {
+        var binder = new PropBinder(PropertyInfo, Model!);
+
+        <div class="form-check">
+            <InputCheckbox id="@PropertyInfo.Name" @bind-Value="binder.BoolValue" class="form-check-input"/>
+        </div>
+    }
+    else if (PropertyInfo.PropertyType == typeof(DateTime))
+    {
+        var binder = new PropBinder(PropertyInfo, Model!);
+
+        <InputDate id="@PropertyInfo.Name" @bind-Value="binder.DateTimeValue" class="form-control"/>
+    }
+    else if (PropertyInfo.PropertyType == typeof(decimal))
+    {
+        var binder = new PropBinder(PropertyInfo, Model!);
+
+        <InputNumber id="@PropertyInfo.Name" step="0.01" @bind-Value="binder.DoubleValue" class="form-control"/>
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public PropertyInfo PropertyInfo { get; set; }
+
+    [Parameter]
+    public object Model { get; set; }
+}

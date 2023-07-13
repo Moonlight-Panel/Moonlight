@@ -41,6 +41,7 @@
 .components-reconnect-rejected > .rejected {
     display: block;
 }
+
 .components-reconnect-hide > div {
     display: none;
 }
@@ -55,4 +56,17 @@
 
 .components-reconnect-rejected {
     display: block;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    background: var(--kt-card-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6964E4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6964E4;
 }

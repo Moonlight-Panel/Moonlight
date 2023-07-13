@@ -5,6 +5,7 @@ using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Sessions;
 
@@ -18,6 +19,8 @@ public class UserService
     private readonly IdentityService IdentityService;
     private readonly IpLocateService IpLocateService;
     private readonly DateTimeService DateTimeService;
+    private readonly ConfigService ConfigService;
+    private readonly TempMailService TempMailService;
 
     private readonly string JwtSecret;
 
@@ -28,14 +31,17 @@ public class UserService
         MailService mailService,
         IdentityService identityService,
         IpLocateService ipLocateService,
-        DateTimeService dateTimeService)
+        DateTimeService dateTimeService,
+        TempMailService tempMailService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
+        ConfigService = configService;
         MailService = mailService;
         IdentityService = identityService;
         IpLocateService = ipLocateService;
         DateTimeService = dateTimeService;
+        TempMailService = tempMailService;
 
         JwtSecret = configService
             .Get()
@@ -44,6 +50,12 @@ public class UserService
 
     public async Task<string> Register(string email, string password, string firstname, string lastname)
     {
+        if (ConfigService.Get().Moonlight.Auth.DenyRegister)
+            throw new DisplayException("This operation was disabled");
+
+        if (await TempMailService.IsTempMail(email))
+            throw new DisplayException("This email is blacklisted");
+        
         // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;
 
@@ -108,6 +120,9 @@ public class UserService
 
     public async Task<string> Login(string email, string password, string totpCode = "")
     {
+        if (ConfigService.Get().Moonlight.Auth.DenyLogin)
+            throw new DisplayException("This operation was disabled");
+        
         // First password check and check if totp is enabled
         var needTotp = await CheckTotp(email, password);
         

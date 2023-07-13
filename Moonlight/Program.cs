@@ -5,6 +5,7 @@ using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
 using Moonlight.App.ApiClients.Modrinth;
 using Moonlight.App.ApiClients.Paper;
+using Moonlight.App.ApiClients.Telemetry;
 using Moonlight.App.ApiClients.Wings;
 using Moonlight.App.Database;
 using Moonlight.App.Diagnostics.HealthChecks;
@@ -103,8 +104,6 @@ namespace Moonlight
                 }
             }
             
-            Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
-
             Logger.Info("Running pre-init tasks");
             var databaseCheckupService = new DatabaseCheckupService(configService);
                 
@@ -216,10 +215,7 @@ namespace Moonlight
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
-
-            // Loggers
             builder.Services.AddScoped<MailService>();
-            builder.Services.AddSingleton<TrashMailDetectorService>();
 
             // Support chat
             builder.Services.AddSingleton<SupportChatServerService>();
@@ -237,6 +233,7 @@ namespace Moonlight
             builder.Services.AddScoped<DaemonApiHelper>();
             builder.Services.AddScoped<CloudPanelApiHelper>();
             builder.Services.AddScoped<ModrinthApiHelper>();
+            builder.Services.AddScoped<TelemetryApiHelper>();
 
             // Background services
             builder.Services.AddSingleton<DiscordBotService>();
@@ -244,6 +241,8 @@ namespace Moonlight
             builder.Services.AddSingleton<DiscordNotificationService>();
             builder.Services.AddSingleton<CleanupService>();
             builder.Services.AddSingleton<MalwareScanService>();
+            builder.Services.AddSingleton<TelemetryService>();
+            builder.Services.AddSingleton<TempMailService>();
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -292,6 +291,8 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<StatisticsCaptureService>();
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
             _ = app.Services.GetRequiredService<MalwareScanService>();
+            _ = app.Services.GetRequiredService<TelemetryService>();
+            _ = app.Services.GetRequiredService<TempMailService>();
             
             _ = app.Services.GetRequiredService<MoonlightService>();
 
