@@ -21,6 +21,17 @@ public class BillingController : Controller
         BillingService = billingService;
     }
 
+    [HttpGet("cancel")]
+    public async Task<ActionResult> Cancel()
+    {
+        var user = await IdentityService.Get();
+
+        if (user == null)
+            return Redirect("/login");
+        
+        return Redirect("/profile/subscriptions/close");
+    }
+    
     [HttpGet("success")]
     public async Task<ActionResult> Success()
     {

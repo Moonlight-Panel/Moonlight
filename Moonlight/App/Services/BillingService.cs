@@ -1,7 +1,9 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using System.Globalization;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Events;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Sessions;
 using Stripe.Checkout;
 using Subscription = Moonlight.App.Database.Entities.Subscription;
@@ -15,19 +17,22 @@ public class BillingService
     private readonly Repository<Subscription> SubscriptionRepository;
     private readonly SessionServerService SessionServerService;
     private readonly EventSystem Event;
+    private readonly MailService MailService;
 
     public BillingService(
         ConfigService configService,
         SubscriptionService subscriptionService,
         Repository<Subscription> subscriptionRepository,
         EventSystem eventSystem,
-        SessionServerService sessionServerService)
+        SessionServerService sessionServerService,
+        MailService mailService)
     {
         ConfigService = configService;
         SubscriptionService = subscriptionService;
         SubscriptionRepository = subscriptionRepository;
         Event = eventSystem;
         SessionServerService = sessionServerService;
+        MailService = mailService;
     }
 
     public async Task<string> StartCheckout(User user, Subscription subscription)
@@ -97,12 +102,26 @@ public class BillingService
         if (subscription == null)
             throw new DisplayException("No subscription for this product found");
 
-        if (await SubscriptionService.GetActiveSubscription(user) != null)
-        {
-            return;
-        }
+        // if (await SubscriptionService.GetActiveSubscription(user) != null)
+        // {
+        //     return;
+        // }
 
         await SubscriptionService.SetActiveSubscription(user, subscription);
+
+        await MailService.SendMail(user, "checkoutComplete", values =>
+        {
+            values.Add("SubscriptionName", subscription.Name);
+            values.Add("SubscriptionPrice", subscription.Price
+                .ToString(CultureInfo.InvariantCulture));
+            values.Add("SubscriptionCurrency", subscription.Currency
+                .ToString());
+            values.Add("SubscriptionDuration", subscription.Duration
+                .ToString(CultureInfo.InvariantCulture));
+        });
+        
+        await Event.Emit("billing.completed", user);
+
         await SessionServerService.ReloadUserSessions(user);
     }
 }
