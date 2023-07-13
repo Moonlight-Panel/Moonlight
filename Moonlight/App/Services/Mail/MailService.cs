@@ -2,6 +2,7 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
+using Moonlight.App.Repositories;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Moonlight.App.Services.Mail;
@@ -14,8 +15,14 @@ public class MailService
     private readonly int Port;
     private readonly bool Ssl;
 
-    public MailService(ConfigService configService)
+    private readonly Repository<User> UserRepository;
+
+    public MailService(
+        ConfigService configService,
+        Repository<User> userRepository)
     {
+        UserRepository = userRepository;
+        
         var mailConfig = configService
             .Get()
             .Moonlight.Mail;
@@ -26,29 +33,9 @@ public class MailService
         Port = mailConfig.Port;
         Ssl = mailConfig.Ssl;
     }
-    
-    public async Task SendMail(
-        User user,
-        string name,
-        Action<Dictionary<string, string>> values
-    )
+
+    public Task SendMailRaw(User user, string html)
     {
-        if (!File.Exists(PathBuilder.File("storage", "resources", "mail", $"{name}.html")))
-        {
-            Logger.Warn($"Mail template '{name}' not found. Make sure to place one in the resources folder");
-            throw new DisplayException("Mail template not found");
-        }
-
-        var rawHtml = await File.ReadAllTextAsync(PathBuilder.File("storage", "resources", "mail", $"{name}.html"));
-
-        var val = new Dictionary<string, string>();
-        values.Invoke(val);
-        
-        val.Add("FirstName", user.FirstName);
-        val.Add("LastName", user.LastName);
-
-        var parsed = ParseMail(rawHtml, val);
-
         Task.Run(async () =>
         {
             try
@@ -62,17 +49,15 @@ public class MailService
                 
                 var body = new BodyBuilder
                 {
-                    HtmlBody = parsed
+                    HtmlBody = html
                 };
                 mailMessage.Body = body.ToMessageBody();
 
-                using (var smtpClient = new SmtpClient())
-                {
-                    await smtpClient.ConnectAsync(Server, Port, Ssl);
-                    await smtpClient.AuthenticateAsync(Email, Password);
-                    await smtpClient.SendAsync(mailMessage);
-                    await smtpClient.DisconnectAsync(true);
-                }
+                using var smtpClient = new SmtpClient();
+                await smtpClient.ConnectAsync(Server, Port, Ssl);
+                await smtpClient.AuthenticateAsync(Email, Password);
+                await smtpClient.SendAsync(mailMessage);
+                await smtpClient.DisconnectAsync(true);
             }
             catch (Exception e)
             {
@@ -80,6 +65,54 @@ public class MailService
                 Logger.Warn(e);
             }
         });
+        
+        return Task.CompletedTask;
+    }
+    
+    public async Task SendMail(User user, string template, Action<Dictionary<string, string>> values)
+    {
+        if (!File.Exists(PathBuilder.File("storage", "resources", "mail", $"{template}.html")))
+        {
+            Logger.Warn($"Mail template '{template}' not found. Make sure to place one in the resources folder");
+            throw new DisplayException("Mail template not found");
+        }
+
+        var rawHtml = await File.ReadAllTextAsync(PathBuilder.File("storage", "resources", "mail", $"{template}.html"));
+
+        var val = new Dictionary<string, string>();
+        values.Invoke(val);
+        
+        val.Add("FirstName", user.FirstName);
+        val.Add("LastName", user.LastName);
+
+        var parsed = ParseMail(rawHtml, val);
+
+        await SendMailRaw(user, parsed);
+    }
+
+    public async Task SendEmailToAll(string template, Action<Dictionary<string, string>> values)
+    {
+        var users = UserRepository
+            .Get()
+            .ToArray();
+
+        foreach (var user in users)
+        {
+            await SendMail(user, template, values);
+        }
+    }
+
+    public async Task SendEmailToAllAdmins(string template, Action<Dictionary<string, string>> values)
+    {
+        var users = UserRepository
+            .Get()
+            .Where(x => x.Admin)
+            .ToArray();
+
+        foreach (var user in users)
+        {
+            await SendMail(user, template, values);
+        }
     }
 
     private string ParseMail(string html, Dictionary<string, string> values)
