@@ -5,16 +5,34 @@
 @using Moonlight.App.Helpers.Files
 @using Moonlight.App.Helpers
 @using BlazorTable
+@using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Misc
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Mail
 
 @inject SmartTranslateService SmartTranslateService
 @inject ToastService ToastService
 @inject AlertService AlertService
+@inject MailService MailService
 
 <OnlyAdmin>
     <AdminSystemNavigation Index="9"/>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <span class="card-title">
+                <TL>Actions</TL>
+            </span>
+        </div>
+        <div class="card-body">
+            <WButton Text="@(SmartTranslateService.Translate("Test mail configuration"))"
+                     WorkingText="@(SmartTranslateService.Translate("Sending test mail"))"
+                     CssClasses="btn-primary"
+                     OnClick="SendTestMail">
+            </WButton>
+        </div>
+    </div>
 
     <LazyLoader @ref="LazyLoader" Load="Load">
         @if (CurrentMailTemplate == null)
@@ -63,9 +81,9 @@
         }
         else
         {
-            <FileEditor Language="html" 
-                        HideControls="false" 
-                        InitialData="@(CurrentMailTemplateContent)" 
+            <FileEditor Language="html"
+                        HideControls="false"
+                        InitialData="@(CurrentMailTemplateContent)"
                         OnCancel="OnCancelTemplateEdit"
                         OnSubmit="OnSubmitTemplateEdit"/>
         }
@@ -74,12 +92,17 @@
 
 @code
 {
+    [CascadingParameter]
+    public User User { get; set; }
+
     private MailTemplate[] MailTemplateFiles;
     private FileAccess FileAccess;
     private LazyLoader LazyLoader;
-    
+
+    #region Template Editor
+
     private MailTemplate? CurrentMailTemplate;
-    private string CurrentMailTemplateContent;
+    private string CurrentMailTemplateContent = "";
 
     private async Task Load(LazyLoader arg)
     {
@@ -101,10 +124,10 @@
     private async Task EditTemplate(MailTemplate mailTemplate)
     {
         CurrentMailTemplate = mailTemplate;
-        
+
         CurrentMailTemplateContent = await FileAccess
             .Read(CurrentMailTemplate.File);
-        
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -135,15 +158,23 @@
             SmartTranslateService.Translate("Enter the name of the new template"),
             ""
             );
-        
-        if(string.IsNullOrEmpty(name))
+
+        if (string.IsNullOrEmpty(name))
             return;
 
         await FileAccess.Write(new()
         {
             Name = name + ".html"
         }, "");
-        
+
         await LazyLoader.Reload();
+    }
+
+    #endregion
+
+    private async Task SendTestMail()
+    {
+        await MailService.SendMailRaw(User, "<html><body>If you see this mail, your moonlight mail configuration is ready to use</body></html>");
+        await AlertService.Info(SmartTranslateService.Translate("A test mail has been sent to the email address of your account"));
     }
 }
