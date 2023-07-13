@@ -25,7 +25,7 @@ public class AvatarController : Controller
         
         try
         {
-            var url = GravatarController.GetImageUrl(user.Email, 100);
+            var url = GravatarController.GetImageUrl(user.Email.ToLower(), 100);
 
             using var client = new HttpClient();
             var res = await client.GetByteArrayAsync(url);
