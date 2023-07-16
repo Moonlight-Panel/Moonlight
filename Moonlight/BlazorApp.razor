@@ -2,12 +2,19 @@
 
 <Router AppAssembly="@typeof(BlazorApp).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        <CascadingValue TValue="Type" Name="TargetPageType" Value="routeData.PageType">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </CascadingValue>
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
         <LayoutView Layout="@typeof(NotFoundLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <NotFoundAlert />
         </LayoutView>
     </NotFound>
 </Router>
+
+@code 
+{
+    
+}

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230715095531_AddPermissions")]
+    partial class AddPermissions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -475,25 +478,6 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("NotificationClients");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.PermissionGroup", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<byte[]>("Permissions")
-                        .IsRequired()
-                        .HasColumnType("longblob");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PermissionGroups");
-                });
-
             modelBuilder.Entity("Moonlight.App.Database.Entities.Revoke", b =>
                 {
                     b.Property<int>("Id")
@@ -817,9 +801,6 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("PermissionGroupId")
-                        .HasColumnType("int");
-
                     b.Property<byte[]>("Permissions")
                         .IsRequired()
                         .HasColumnType("longblob");
@@ -870,8 +851,6 @@ namespace Moonlight.App.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CurrentSubscriptionId");
-
-                    b.HasIndex("PermissionGroupId");
 
                     b.ToTable("Users");
                 });
@@ -1077,13 +1056,7 @@ namespace Moonlight.App.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CurrentSubscriptionId");
 
-                    b.HasOne("Moonlight.App.Database.Entities.PermissionGroup", "PermissionGroup")
-                        .WithMany()
-                        .HasForeignKey("PermissionGroupId");
-
                     b.Navigation("CurrentSubscription");
-
-                    b.Navigation("PermissionGroup");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>

@@ -6,7 +6,7 @@
 @using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Sessions
 
-@inject UserRepository UserRepository
+@inject Repository<User> UserRepository
 @inject UserService UserService
 @inject SessionServerService SessionServerService
 @inject ToastService ToastService
@@ -91,6 +91,10 @@
                             <a href="/admin/users" class="btn btn-danger me-3">
                                 <TL>Cancel</TL>
                             </a>
+                            <WButton Text="@(SmartTranslateService.Translate("Edit permissions"))"
+                                     CssClasses="btn-primary me-3"
+                                     OnClick="EditPermissions">
+                            </WButton>
                             <WButton Text="@(SmartTranslateService.Translate("Update"))"
                                      WorkingText="@(SmartTranslateService.Translate("Updating"))"
                                      CssClasses="btn-success"
@@ -149,6 +153,8 @@
                 </div>
             </div>
         }
+        
+        <PermissionEditor @ref="PermissionEditor" OnSave="SavePermissions" />
     </LazyLoader>
 </OnlyAdmin>
 
@@ -158,8 +164,9 @@
     public int Id { get; set; }
 
     private User? User;
-
     private string NewPassword = "";
+
+    private PermissionEditor PermissionEditor;
 
     private Task Load(LazyLoader arg)
     {
@@ -194,5 +201,21 @@
         await SessionServerService.ReloadUserSessions(User!);
         
         await ToastService.Success(SmartTranslateService.Translate("Successfully updated password"));
+    }
+
+    private async Task EditPermissions()
+    {
+        PermissionEditor.InitialData = User!.Permissions;
+        await PermissionEditor.Launch();
+    }
+
+    private async Task SavePermissions(byte[] data)
+    {
+        User!.Permissions = data;
+        UserRepository.Update(User);
+        
+        await SessionServerService.ReloadUserSessions(User);
+
+        await ToastService.Success(SmartTranslateService.Translate("Successfully updated user"));
     }
 }

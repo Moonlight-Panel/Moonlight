@@ -1,0 +1,86 @@
+﻿@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services
+@using Moonlight.App.Perms
+
+@inject ModalService ModalService
+@inject SmartTranslateService SmartTranslateService
+
+<div id="permissionEditor" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <TL>Edit permissions</TL>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Enabled)
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle table-row-dashed fs-6 gy-5">
+                            <tbody class="text-gray-600 fw-semibold">
+                            @foreach (var permission in Permissions.GetAllPermissions())
+                            {
+                                <tr>
+                                    <td class="text-gray-800">
+                                        @(permission.Name)
+                                    </td>
+                                    <td>
+                                        @(permission.Description)
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch form-check-custom form-check-solid">
+                                            <input class="form-check-input" type="checkbox" @bind="Storage[permission]"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <TL>Close</TL>
+                </button>
+                <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                         WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                         CssClasses="btn-primary"
+                         OnClick="Save">
+                </WButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public byte[] InitialData { get; set; } = Array.Empty<byte>();
+
+    [Parameter]
+    public Func<byte[], Task>? OnSave { get; set; }
+
+    private bool Enabled = false;
+    private PermissionStorage Storage;
+
+    public async Task Launch()
+    {
+        Enabled = true;
+        Storage = new(InitialData);
+        await InvokeAsync(StateHasChanged);
+
+        await ModalService.Show("permissionEditor");
+    }
+
+    private async Task Save()
+    {
+        OnSave?.Invoke(Storage.Data);
+        
+        await ModalService.Hide("permissionEditor");
+        Enabled = false;
+        await InvokeAsync(StateHasChanged);
+    }
+}
