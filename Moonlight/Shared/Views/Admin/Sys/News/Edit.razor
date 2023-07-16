@@ -10,52 +10,52 @@
 @inject NavigationManager NavigationManager
 @inject NewsEntryRepository NewsEntryRepository
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
-        @if (Entry == null)
-        {
-            <div class="alert bg-info d-flex flex-column flex-sm-row w-100 p-5">
-                <div class="d-flex flex-column pe-0 pe-sm-10">
-                    <h4 class="fw-semibold">
-                        <TL>No entry found</TL>
-                    </h4>
-                    <span>
-                        <TL>We were not able to find the news entry with this id</TL>
-                    </span>
+@attribute [PermissionRequired(nameof(Permissions.NewsMessages))]
+
+<LazyLoader Load="Load">
+    @if (Entry == null)
+    {
+        <div class="alert bg-info d-flex flex-column flex-sm-row w-100 p-5">
+            <div class="d-flex flex-column pe-0 pe-sm-10">
+                <h4 class="fw-semibold">
+                    <TL>No entry found</TL>
+                </h4>
+                <span>
+                    <TL>We were not able to find the news entry with this id</TL>
+                </span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="card-title w-75">
+                    <input type="text" @bind="Entry.Title" placeholder="@SmartTranslateService.Translate("Title...")" class="form-control form-control-flush"/>
+                </h3>
+                <div class="card-toolbar">
+                    <span class="text-gray-600 fw-semibold">@(Formatter.FormatDateOnly(Entry.Date))</span>
                 </div>
             </div>
-        }
-        else
-        {
-            <div class="card mb-6">
-                <div class="card-header">
-                    <h3 class="card-title w-75">
-                        <input type="text" @bind="Entry.Title" placeholder="@SmartTranslateService.Translate("Title...")" class="form-control form-control-flush"/>
-                    </h3>
-                    <div class="card-toolbar">
-                        <span class="text-gray-600 fw-semibold">@(Formatter.FormatDateOnly(Entry.Date))</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <FileEditor @ref="FileEditor" Language="markdown" HideControls="true" InitialData="@(Entry.Markdown)"/>
-                </div>
-                <div class="card-footer">
-                    <WButton CssClasses="btn btn-primary text-end"
-                             OnClick="Save"
-                             Text="@SmartTranslateService.Translate("Save")"
-                             WorkingText="@SmartTranslateService.Translate("Saving...")">
-                    </WButton>
-                </div>
+            <div class="card-body">
+                <FileEditor @ref="FileEditor" Language="markdown" HideControls="true" InitialData="@(Entry.Markdown)"/>
             </div>
-        }
-    </LazyLoader>
-</OnlyAdmin>
+            <div class="card-footer">
+                <WButton CssClasses="btn btn-primary text-end"
+                         OnClick="Save"
+                         Text="@SmartTranslateService.Translate("Save")"
+                         WorkingText="@SmartTranslateService.Translate("Saving...")">
+                </WButton>
+            </div>
+        </div>
+    }
+</LazyLoader>
 
 @code
 {
     [Parameter]
     public int Id { get; set; }
-    
+
     private NewsEntry? Entry;
 
     private FileEditor FileEditor;
@@ -63,16 +63,16 @@
     private async Task Save()
     {
         Entry!.Markdown = await FileEditor.GetData();
-        
+
         NewsEntryRepository.Update(Entry);
-        
+
         NavigationManager.NavigateTo("/admin/system/news");
     }
 
     private Task Load(LazyLoader arg)
     {
         Entry = NewsEntryRepository.Get().FirstOrDefault(x => x.Id == Id);
-        
+
         return Task.CompletedTask;
     }
 }

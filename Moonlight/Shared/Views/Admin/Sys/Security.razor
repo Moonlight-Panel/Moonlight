@@ -13,48 +13,48 @@
 @inject EventSystem Event
 @inject ToastService ToastService
 
-<OnlyAdmin>
-    <AdminSystemNavigation Index="3"/>
+@attribute [PermissionRequired(nameof(Permissions.SystemSecurity))]
 
-    <div class="card mb-5">
-        <div class="card-header">
-            <div class="card-title">
-                <TL>Ip Bans</TL>
-            </div>
-            <div class="card-toolbar">
-                <table class="w-100">
-                    <tr>
-                        <td class="w-100">
-                            <input @bind="Ip" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter a ip"))"/>
-                        </td>
-                        <td>
-                            <WButton OnClick="AddIpBan"
-                                     CssClasses="btn btn-primary ms-2"
-                                     Text="@(SmartTranslateService.Translate("Add"))"
-                                     WorkingText="@(SmartTranslateService.Translate("Adding"))">
-                            </WButton>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+<AdminSystemNavigation Index="3"/>
+
+<div class="card mb-5">
+    <div class="card-header">
+        <div class="card-title">
+            <TL>Ip Bans</TL>
         </div>
-        <div class="card-body">
-            <LazyLoader @ref="LazyLoader" Load="Load">
-                <Table TableItem="IpBan" Items="IpBans" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                    <Column TableItem="IpBan" Title="@(SmartTranslateService.Translate("Ip"))" Field="@(x => x.Ip)" Filterable="true" Sortable="false"/>
-                    <Column TableItem="IpBan" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
-                        <Template>
-                            <div class="text-end">
-                                <DeleteButton Confirm="true" OnClick="() => DeleteIpBan(context)"></DeleteButton>
-                            </div>
-                        </Template>
-                    </Column>
-                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                </Table>
-            </LazyLoader>
+        <div class="card-toolbar">
+            <table class="w-100">
+                <tr>
+                    <td class="w-100">
+                        <input @bind="Ip" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter a ip"))"/>
+                    </td>
+                    <td>
+                        <WButton OnClick="AddIpBan"
+                                 CssClasses="btn btn-primary ms-2"
+                                 Text="@(SmartTranslateService.Translate("Add"))"
+                                 WorkingText="@(SmartTranslateService.Translate("Adding"))">
+                        </WButton>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
-</OnlyAdmin>
+    <div class="card-body">
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            <Table TableItem="IpBan" Items="IpBans" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                <Column TableItem="IpBan" Title="@(SmartTranslateService.Translate("Ip"))" Field="@(x => x.Ip)" Filterable="true" Sortable="false"/>
+                <Column TableItem="IpBan" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
+                    <Template>
+                        <div class="text-end">
+                            <DeleteButton Confirm="true" OnClick="() => DeleteIpBan(context)"></DeleteButton>
+                        </div>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+            </Table>
+        </LazyLoader>
+    </div>
+</div>
 
 @code
 {
@@ -83,7 +83,7 @@
 
         Ip = "";
         await InvokeAsync(StateHasChanged);
-        
+
         await Event.Emit("ipBan.update");
 
         await ToastService.Success(

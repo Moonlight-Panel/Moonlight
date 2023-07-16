@@ -17,118 +17,116 @@
 
 @attribute [PermissionRequired(nameof(Permissions.AdminDashboard))]
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
-        <div class="row mb-5">
-            <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/servers">
-                    <div class="card-body">
-                        <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-2">
-                                    <TL>Servers</TL>
-                                </h6>
-                                <span class="h2 mb-0">
-                                    @(ServerCount)
-                                </span>
-                            </div>
-                            <div class="col-auto">
-                                <span class="h2 text-muted mb-0">
-                                    <i class="text-primary bx bx-server bx-lg"></i>
-                                </span>
-                            </div>
+<LazyLoader Load="Load">
+    <div class="row mb-5">
+        <div class="col-12 col-lg-6 col-xl">
+            <a class="mt-4 card" href="/admin/servers">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                <TL>Servers</TL>
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(ServerCount)
+                            </span>
                         </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/webspaces">
-                    <div class="card-body">
-                        <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-2">
-                                    <TL>Webspaces</TL>
-                                </h6>
-                                <span class="h2 mb-0">
-                                    @(WebSpaceCount)
-                                </span>
-                            </div>
-                            <div class="col-auto">
-                                <span class="h2 text-muted mb-0">
-                                    <i class="text-primary bx bx-globe bx-lg"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/domains">
-                    <div class="card-body">
-                        <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-2">
-                                    <TL>Domains</TL>
-                                </h6>
-                                <span class="h2 mb-0">
-                                    @(DomainCount)
-                                </span>
-                            </div>
-                            <div class="col-auto">
-                                <span class="h2 text-muted mb-">
-                                    <i class="text-primary bx bx-purchase-tag bx-lg"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-12 col-lg-6 col-xl">
-                <a class="mt-4 card" href="/admin/users">
-                    <div class="card-body">
-                        <div class="row align-items-center gx-0">
-                            <div class="col">
-                                <h6 class="text-uppercase text-muted mb-2">
-                                    <TL>Users</TL>
-                                </h6>
-                                <span class="h2 mb-0">
-                                    @(UserCount)
-                                </span>
-                            </div>
-                            <div class="col-auto">
-                                <span class="h2 text-muted mb-">
-                                    <i class="text-primary bx bx-user bx-lg"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <LazyLoader Load="LoadHealthCheckData">
-            @if (HealthCheckData == null)
-            {
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <TL>Moonlight health</TL>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning">
-                            <TL>Unable to fetch health check data</TL>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-0">
+                                <i class="text-primary bx bx-server bx-lg"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
-            }
-            else
-            {
-                <HealthCheckView HealthCheck="@HealthCheckData"/>
-            }
-        </LazyLoader>
+            </a>
+        </div>
+        <div class="col-12 col-lg-6 col-xl">
+            <a class="mt-4 card" href="/admin/webspaces">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                <TL>Webspaces</TL>
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(WebSpaceCount)
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-0">
+                                <i class="text-primary bx bx-globe bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-lg-6 col-xl">
+            <a class="mt-4 card" href="/admin/domains">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                <TL>Domains</TL>
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(DomainCount)
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-">
+                                <i class="text-primary bx bx-purchase-tag bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-lg-6 col-xl">
+            <a class="mt-4 card" href="/admin/users">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                <TL>Users</TL>
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(UserCount)
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-">
+                                <i class="text-primary bx bx-user bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <LazyLoader Load="LoadHealthCheckData">
+        @if (HealthCheckData == null)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <TL>Moonlight health</TL>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <TL>Unable to fetch health check data</TL>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <HealthCheckView HealthCheck="@HealthCheckData"/>
+        }
     </LazyLoader>
-</OnlyAdmin>
+</LazyLoader>
 
 @code
 {

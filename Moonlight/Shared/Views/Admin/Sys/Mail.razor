@@ -16,79 +16,79 @@
 @inject AlertService AlertService
 @inject MailService MailService
 
-<OnlyAdmin>
-    <AdminSystemNavigation Index="9"/>
+@attribute [PermissionRequired(nameof(Permissions.SystemMail))]
 
-    <div class="card mb-3">
-        <div class="card-header">
-            <span class="card-title">
-                <TL>Actions</TL>
-            </span>
-        </div>
-        <div class="card-body">
-            <WButton Text="@(SmartTranslateService.Translate("Test mail configuration"))"
-                     WorkingText="@(SmartTranslateService.Translate("Sending test mail"))"
-                     CssClasses="btn-primary"
-                     OnClick="SendTestMail">
-            </WButton>
-        </div>
+<AdminSystemNavigation Index="9"/>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <span class="card-title">
+            <TL>Actions</TL>
+        </span>
     </div>
+    <div class="card-body">
+        <WButton Text="@(SmartTranslateService.Translate("Test mail configuration"))"
+                 WorkingText="@(SmartTranslateService.Translate("Sending test mail"))"
+                 CssClasses="btn-primary"
+                 OnClick="SendTestMail">
+        </WButton>
+    </div>
+</div>
 
-    <LazyLoader @ref="LazyLoader" Load="Load">
-        @if (CurrentMailTemplate == null)
-        {
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">
-                        <TL>Mail templates</TL>
-                    </span>
-                    <div class="card-toolbar">
-                        <WButton Text="@(SmartTranslateService.Translate("New mail template"))"
-                                 CssClasses="btn-sm btn-success"
-                                 OnClick="CreateNewMailTemplate">
-                        </WButton>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <Table TableItem="MailTemplate" Items="MailTemplateFiles" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                            <Column TableItem="MailTemplate" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true">
-                                <Template>
-                                    @{
-                                        var name = context.Name.Replace(Path.GetExtension(context.Name), "");
-                                    }
-
-                                    <span>@(name)</span>
-                                </Template>
-                            </Column>
-                            <Column TableItem="MailTemplate" Title="" Field="@(x => x.Name)" Filterable="false" Sortable="false">
-                                <Template>
-                                    <div class="text-end">
-                                        <WButton Text="@(SmartTranslateService.Translate("Edit"))"
-                                                 OnClick="() => EditTemplate(context)">
-                                        </WButton>
-                                        <DeleteButton OnClick="() => DeleteTemplate(context)"
-                                                      Confirm="true">
-                                        </DeleteButton>
-                                    </div>
-                                </Template>
-                            </Column>
-                            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                        </Table>
-                    </div>
+<LazyLoader @ref="LazyLoader" Load="Load">
+    @if (CurrentMailTemplate == null)
+    {
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <TL>Mail templates</TL>
+                </span>
+                <div class="card-toolbar">
+                    <WButton Text="@(SmartTranslateService.Translate("New mail template"))"
+                             CssClasses="btn-sm btn-success"
+                             OnClick="CreateNewMailTemplate">
+                    </WButton>
                 </div>
             </div>
-        }
-        else
-        {
-            <FileEditor Language="html"
-                        HideControls="false"
-                        InitialData="@(CurrentMailTemplateContent)"
-                        OnCancel="OnCancelTemplateEdit"
-                        OnSubmit="OnSubmitTemplateEdit"/>
-        }
-    </LazyLoader>
-</OnlyAdmin>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <Table TableItem="MailTemplate" Items="MailTemplateFiles" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                        <Column TableItem="MailTemplate" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true">
+                            <Template>
+                                @{
+                                    var name = context.Name.Replace(Path.GetExtension(context.Name), "");
+                                }
+
+                                <span>@(name)</span>
+                            </Template>
+                        </Column>
+                        <Column TableItem="MailTemplate" Title="" Field="@(x => x.Name)" Filterable="false" Sortable="false">
+                            <Template>
+                                <div class="text-end">
+                                    <WButton Text="@(SmartTranslateService.Translate("Edit"))"
+                                             OnClick="() => EditTemplate(context)">
+                                    </WButton>
+                                    <DeleteButton OnClick="() => DeleteTemplate(context)"
+                                                  Confirm="true">
+                                    </DeleteButton>
+                                </div>
+                            </Template>
+                        </Column>
+                        <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                    </Table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <FileEditor Language="html"
+                    HideControls="false"
+                    InitialData="@(CurrentMailTemplateContent)"
+                    OnCancel="OnCancelTemplateEdit"
+                    OnSubmit="OnSubmitTemplateEdit"/>
+    }
+</LazyLoader>
 
 @code
 {

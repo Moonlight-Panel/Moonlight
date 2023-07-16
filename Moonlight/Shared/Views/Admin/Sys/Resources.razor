@@ -11,26 +11,26 @@
 @inject ConfigService ConfigService
 @inject AlertService AlertService
 
-<OnlyAdmin>
-    <AdminSystemNavigation Index="5"/>
+@attribute [PermissionRequired(nameof(Permissions.SystemResources))]
 
-    <div class="card card-body mb-6">
-        <div class="text-end">
-            <WButton CssClasses="btn btn-primary"
-                     Text="@(SmartTranslateService.Translate("Reload config"))"
-                     WorkingText="@(SmartTranslateService.Translate("Reloading"))"
-                     OnClick="ReloadConfig">
-            </WButton>
-        </div>
+<AdminSystemNavigation Index="5"/>
+
+<div class="card card-body mb-6">
+    <div class="text-end">
+        <WButton CssClasses="btn btn-primary"
+                 Text="@(SmartTranslateService.Translate("Reload config"))"
+                 WorkingText="@(SmartTranslateService.Translate("Reloading"))"
+                 OnClick="ReloadConfig">
+        </WButton>
     </div>
+</div>
 
-    <div class="card card-body">
-        <FileManager Access="@(new HostFileAccess(PathBuilder.Dir("storage")))">
-        </FileManager>
-    </div>
-</OnlyAdmin>
+<div class="card card-body">
+    <FileManager Access="@(new HostFileAccess(PathBuilder.Dir("storage")))">
+    </FileManager>
+</div>
 
-@code 
+@code
 {
     private async Task ReloadConfig()
     {

@@ -9,26 +9,26 @@
 @inject ToastService ToastService
 @inject SmartTranslateService SmartTranslateService
 
-<OnlyAdmin>
-    <AdminSystemNavigation Index="8"/>
+@attribute [PermissionRequired(nameof(Permissions.SystemConfiguration))]
 
-    <LazyLoader Load="Load">
-        <div class="card">
-            <SmartForm Model="Config" OnValidSubmit="OnSubmit">
-                <div class="card-body">
-                    <SmartFormClass Model="Config"/>
+<AdminSystemNavigation Index="8"/>
+
+<LazyLoader Load="Load">
+    <div class="card">
+        <SmartForm Model="Config" OnValidSubmit="OnSubmit">
+            <div class="card-body">
+                <SmartFormClass Model="Config"/>
+            </div>
+            <div class="card-footer">
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">
+                        <TL>Save</TL>
+                    </button>
                 </div>
-                <div class="card-footer">
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-success">
-                            <TL>Save</TL>
-                        </button>
-                    </div>
-                </div>
-            </SmartForm>
-        </div>
-    </LazyLoader>
-</OnlyAdmin>
+            </div>
+        </SmartForm>
+    </div>
+</LazyLoader>
 
 @code
 {
