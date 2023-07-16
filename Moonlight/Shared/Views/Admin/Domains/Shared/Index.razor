@@ -12,39 +12,39 @@
 @inject AlertService AlertService
 @inject ToastService ToastService
 
-<OnlyAdmin>
-    <LazyLoader @ref="LazyLoader" Load="Load">
-        <div class="card">
-            <div class="card-header border-0 pt-5">
-                <h3 class="card-title align-items-start flex-column">
-                    <span class="card-label fw-bold fs-3 mb-1">
-                        <span><TL>Shared domains</TL></span>
-                    </span>
-                </h3>
-                <div class="card-toolbar">
-                    <a href="/admin/domains/shared/new" class="btn btn-sm btn-light-success">
-                        <i class="bx bx-layer-plus"></i>
-                        <span><TL>Add shared domain</TL></span>
-                    </a>
-                </div>
-            </div>
-            <div class="card-body">
-                <Table TableItem="SharedDomain" Items="SharedDomains" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                    <Column TableItem="SharedDomain" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%"/>
-                    <Column TableItem="SharedDomain" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true" Width="10%"/>
-                    <Column TableItem="SharedDomain" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
-                        <Template>
-                            <DeleteButton Confirm="true"
-                                          AdditionalCssClasses="float-end"
-                                          OnClick="() => Delete(context)">
-                            </DeleteButton>
-                        </Template>
-                    </Column>
-                </Table>
-            </div>
-        </div>
-    </LazyLoader>
-</OnlyAdmin>
+@attribute [PermissionRequired(nameof(Permissions.AdminSharedDomains))]
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+                    <div class="card">
+                        <div class="card-header border-0 pt-5">
+                            <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold fs-3 mb-1">
+                                    <span><TL>Shared domains</TL></span>
+                                </span>
+                            </h3>
+                            <div class="card-toolbar">
+                                <a href="/admin/domains/shared/new" class="btn btn-sm btn-light-success">
+                                    <i class="bx bx-layer-plus"></i>
+                                    <span><TL>Add shared domain</TL></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <Table TableItem="SharedDomain" Items="SharedDomains" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                                <Column TableItem="SharedDomain" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true" Width="10%"/>
+                                <Column TableItem="SharedDomain" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true" Width="10%"/>
+                                <Column TableItem="SharedDomain" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                                    <Template>
+                                        <DeleteButton Confirm="true"
+                                                      AdditionalCssClasses="float-end"
+                                                      OnClick="() => Delete(context)">
+                                        </DeleteButton>
+                                    </Template>
+                                </Column>
+                            </Table>
+                        </div>
+                    </div>
+                </LazyLoader>
 
 @code
 {

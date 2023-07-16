@@ -4,6 +4,7 @@
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Sessions
 
 @inject SubscriptionService SubscriptionService
 @inject WebSpaceService WebSpaceService
@@ -11,6 +12,7 @@
 @inject SmartDeployService SmartDeployService
 @inject SmartTranslateService SmartTranslateService
 @inject NavigationManager NavigationManager
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @if (CloudPanel == null)
@@ -110,8 +112,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     private Subscription? Subscription;
     private CloudPanel? CloudPanel;
@@ -125,7 +126,7 @@
         Model = new();
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
-        Subscription = await SubscriptionService.GetActiveSubscription(User);
+        Subscription = await SubscriptionService.GetActiveSubscription(IdentityService.User);
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy web host"));
         CloudPanel = await SmartDeployService.GetCloudPanel();
@@ -133,7 +134,7 @@
         AllowOrder = WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "websites")).Amount;
+            .Count(x => x.Owner.Id == IdentityService.User.Id) < (await SubscriptionService.GetLimit(IdentityService.User, "websites")).Amount;
     }
 
     private async Task OnValidSubmit()
@@ -141,9 +142,9 @@
         if (WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "websites")).Amount)
+            .Count(x => x.Owner.Id == IdentityService.User.Id) < (await SubscriptionService.GetLimit(IdentityService.User, "websites")).Amount)
         {
-            var webSpace = await WebSpaceService.Create(Model.BaseDomain, User, CloudPanel);
+            var webSpace = await WebSpaceService.Create(Model.BaseDomain, IdentityService.User, CloudPanel);
 
             NavigationManager.NavigateTo($"/webspace/{webSpace.Id}");
         }

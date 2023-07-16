@@ -228,7 +228,7 @@ else
     {
         if (firstRender)
         {
-            User = await IdentityService.Get();
+            User = IdentityService.User;
 
             await InvokeAsync(StateHasChanged);
         }

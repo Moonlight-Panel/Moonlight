@@ -20,6 +20,7 @@
 @inject NavigationManager NavigationManager
 @inject DynamicBackgroundService DynamicBackgroundService
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
 
 @implements IDisposable
 
@@ -143,8 +144,7 @@
     [Parameter]
     public string ServerUuid { get; set; }
 
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     [Parameter]
     public string? Route { get; set; }
@@ -209,7 +209,7 @@
 
         if (CurrentServer != null)
         {
-            if (CurrentServer.Owner.Id != User!.Id && !User.Admin)
+            if (CurrentServer.Owner.Id != IdentityService.User.Id && !IdentityService.User.Admin)
                 CurrentServer = null;
         }
 

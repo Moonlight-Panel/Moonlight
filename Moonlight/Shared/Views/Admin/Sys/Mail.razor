@@ -5,18 +5,19 @@
 @using Moonlight.App.Helpers.Files
 @using Moonlight.App.Helpers
 @using BlazorTable
-@using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Misc
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
 @using Moonlight.App.Services.Mail
+@using Moonlight.App.Services.Sessions
 
 @inject SmartTranslateService SmartTranslateService
 @inject ToastService ToastService
 @inject AlertService AlertService
 @inject MailService MailService
+@inject IdentityService IdentityService
 
-@attribute [PermissionRequired(nameof(Permissions.SystemMail))]
+@attribute [PermissionRequired(nameof(Permissions.AdminSysMail))]
 
 <AdminSystemNavigation Index="9"/>
 
@@ -92,8 +93,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     private MailTemplate[] MailTemplateFiles;
     private FileAccess FileAccess;
@@ -174,7 +174,7 @@
 
     private async Task SendTestMail()
     {
-        await MailService.SendMailRaw(User, "<html><body>If you see this mail, your moonlight mail configuration is ready to use</body></html>");
+        await MailService.SendMailRaw(IdentityService.User, "<html><body>If you see this mail, your moonlight mail configuration is ready to use</body></html>");
         await AlertService.Info(SmartTranslateService.Translate("A test mail has been sent to the email address of your account"));
     }
 }

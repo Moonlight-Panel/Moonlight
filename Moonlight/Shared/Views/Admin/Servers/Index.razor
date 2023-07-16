@@ -8,7 +8,7 @@
 @inject ServerRepository ServerRepository
 @inject SmartTranslateService SmartTranslateService
 
-@attribute [PermissionRequired(nameof(Permissions.ServersOverview))]
+@attribute [PermissionRequired(nameof(Permissions.AdminServers))]
 
 <div class="row">
     <LazyLoader Load="Load">

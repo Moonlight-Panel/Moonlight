@@ -10,78 +10,78 @@
 @inject StatisticsViewService StatisticsViewService
 @inject SmartTranslateService SmartTranslateService
 
-<OnlyAdmin>
-    <div class="row mt-4 mb-2">
-        <div class="col-12 col-lg-6 col-xl">
-            <div class="card card-body">
-                <select class="form-select" @bind="TimeSpanBind">
-                    <option value="1">
-                        <TL>Hour</TL>
-                    </option>
-                    <option value="24">
-                        <TL>Day</TL>
-                    </option>
-                    <option value="744">
-                        <TL>Month</TL>
-                    </option>
-                    <option value="8760">
-                        <TL>Year</TL>
-                    </option>
-                    <option value="867240">
-                        <TL>All time</TL>
-                    </option>
-                </select>
-            </div>
+@attribute [PermissionRequired(nameof(Permissions.AdminStatistics))]
+
+<div class="row mt-4 mb-2">
+    <div class="col-12 col-lg-6 col-xl">
+        <div class="card card-body">
+            <select class="form-select" @bind="TimeSpanBind">
+                <option value="1">
+                    <TL>Hour</TL>
+                </option>
+                <option value="24">
+                    <TL>Day</TL>
+                </option>
+                <option value="744">
+                    <TL>Month</TL>
+                </option>
+                <option value="8760">
+                    <TL>Year</TL>
+                </option>
+                <option value="867240">
+                    <TL>All time</TL>
+                </option>
+            </select>
         </div>
     </div>
+</div>
 
-    <LazyLoader @ref="Loader" Load="Load">
-        @foreach (var charts in Charts.Chunk(2))
-        {
-            <div class="row">
-                @foreach (var chart in charts)
-                {
-                    <div class="col-sm-6">
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <TL>@chart.Key</TL>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <ApexChart TItem="StatisticsData"
-                                           Options="GenerateOptions()"
-                                           OnRendered="OnChartRendered">
-                                    <ApexPointSeries TItem="StatisticsData"
-                                                     Items="chart.Value"
-                                                     SeriesType="SeriesType.Area"
-                                                     Name=""
-                                                     ShowDataLabels="false"
-                                                     XValue="@(e => Formatter.FormatDate(e.Date))"
-                                                     YValue="@(e => (decimal)Math.Round(e.Value))"/>
-                                </ApexChart>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
+<LazyLoader @ref="Loader" Load="Load">
+    @foreach (var charts in Charts.Chunk(2))
+    {
         <div class="row">
-            <div class="col-sm-6">
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <TL>Active users</TL>
+            @foreach (var chart in charts)
+            {
+                <div class="col-sm-6">
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <TL>@chart.Key</TL>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <ApexChart TItem="StatisticsData"
+                                       Options="GenerateOptions()"
+                                       OnRendered="OnChartRendered">
+                                <ApexPointSeries TItem="StatisticsData"
+                                                 Items="chart.Value"
+                                                 SeriesType="SeriesType.Area"
+                                                 Name=""
+                                                 ShowDataLabels="false"
+                                                 XValue="@(e => Formatter.FormatDate(e.Date))"
+                                                 YValue="@(e => (decimal)Math.Round(e.Value))"/>
+                            </ApexChart>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <span class="fs-2">@(ActiveUsers)</span>
+                </div>
+            }
+        </div>
+    }
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <div class="card-title">
+                        <TL>Active users</TL>
                     </div>
+                </div>
+                <div class="card-body">
+                    <span class="fs-2">@(ActiveUsers)</span>
                 </div>
             </div>
         </div>
-    </LazyLoader>
-</OnlyAdmin>
+    </div>
+</LazyLoader>
 
 @code
 {

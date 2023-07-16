@@ -10,7 +10,8 @@
 @inject NodeRepository NodeRepository
 @inject NodeService NodeService
 
-<OnlyAdmin>
+@attribute [PermissionRequired(nameof(Permissions.AdminNodeView))]
+
 <LazyLoader Load="Load">
 @if (Node == null)
 {
@@ -252,7 +253,6 @@ else
     </div>
 }
 </LazyLoader>
-</OnlyAdmin>
 
 @code
 {

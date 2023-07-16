@@ -12,8 +12,9 @@
 @inject ToastService ToastService
 @inject SmartTranslateService SmartTranslateService
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
+@attribute [PermissionRequired(nameof(Permissions.AdminUserEdit))]
+
+<LazyLoader Load="Load">
         @if (User == null)
         {
             <div class="alert alert-danger">
@@ -156,7 +157,6 @@
         
         <PermissionEditor @ref="PermissionEditor" OnSave="SavePermissions" />
     </LazyLoader>
-</OnlyAdmin>
 
 @code
 {

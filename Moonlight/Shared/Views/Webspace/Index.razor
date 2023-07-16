@@ -4,10 +4,11 @@
 @using Moonlight.App.Services
 @using Moonlight.Shared.Components.WebsiteControl
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Sessions
 
 @inject Repository<WebSpace> WebSpaceRepository
 @inject WebSpaceService WebSpaceService
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @if (CurrentWebspace == null)
@@ -97,9 +98,6 @@
     [Parameter]
     public string? Route { get; set; }
 
-    [CascadingParameter]
-    public User User { get; set; }
-
     private WebSpace? CurrentWebspace;
     private bool HostOnline = false;
 
@@ -113,7 +111,7 @@
 
         if (CurrentWebspace != null)
         {
-            if (CurrentWebspace.Owner.Id != User!.Id && !User.Admin)
+            if (CurrentWebspace.Owner.Id != IdentityService.User.Id && !IdentityService.User.Admin)
                 CurrentWebspace = null;
         }
 

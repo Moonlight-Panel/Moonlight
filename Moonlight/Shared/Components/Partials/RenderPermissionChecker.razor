@@ -54,7 +54,7 @@ else
 
         if (!Allowed)
         {
-            Logger.Warn($"{IdentityService.GetIp()} has tried to access {NavigationManager.Uri} without permission", "security");
+            Logger.Warn($"{IdentityService.Ip} has tried to access {NavigationManager.Uri} without permission", "security");
         }
         
         return Task.CompletedTask;

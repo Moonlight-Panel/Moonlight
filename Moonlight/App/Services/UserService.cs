@@ -85,8 +85,8 @@ public class UserService
             TotpSecret = "",
             UpdatedAt = DateTimeService.GetCurrent(),
             TokenValidTime = DateTimeService.GetCurrent().AddDays(-5),
-            LastIp = IdentityService.GetIp(),
-            RegisterIp = IdentityService.GetIp()
+            LastIp = IdentityService.Ip,
+            RegisterIp = IdentityService.Ip
         });
 
         await MailService.SendMail(user!, "register", values => {});
@@ -174,8 +174,8 @@ public class UserService
             
             await MailService.SendMail(user!, "passwordChange", values =>
             {
-                values.Add("Ip", IdentityService.GetIp());
-                values.Add("Device", IdentityService.GetDevice());
+                values.Add("Ip", IdentityService.Ip);
+                values.Add("Device", IdentityService.Device);
                 values.Add("Location", location);
             });
 
@@ -212,8 +212,8 @@ public class UserService
         {
             await MailService.SendMail(user!, "login", values =>
             {
-                values.Add("Ip", IdentityService.GetIp());
-                values.Add("Device", IdentityService.GetDevice());
+                values.Add("Ip", IdentityService.Ip);
+                values.Add("Device", IdentityService.Device);
                 values.Add("Location", location);
             });
         }
@@ -249,8 +249,8 @@ public class UserService
 
         await MailService.SendMail(user, "passwordReset", values =>
         {
-            values.Add("Ip", IdentityService.GetIp());
-            values.Add("Device", IdentityService.GetDevice());
+            values.Add("Ip", IdentityService.Ip);
+            values.Add("Device", IdentityService.Device);
             values.Add("Location", location);
             values.Add("Password", newPassword);
         });

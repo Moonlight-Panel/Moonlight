@@ -4,13 +4,15 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Sessions
 
 @inject Repository<User> UserRepository
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
 
 <ProfileNavigation Index="1"/>
 
-@if (User.DiscordId == 0)
+@if (IdentityService.User.DiscordId == 0)
 {
     <div class="row">
         <div class="col">
@@ -64,13 +66,12 @@ else
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     private async Task RemoveLink()
     {
-        User.DiscordId = 0;
-        UserRepository.Update(User);
+        IdentityService.User.DiscordId = 0;
+        UserRepository.Update(IdentityService.User);
 
         await InvokeAsync(StateHasChanged);
     }

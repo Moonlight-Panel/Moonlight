@@ -9,8 +9,9 @@
 @inject NodeRepository NodeRepository
 @inject NavigationManager NavigationManager
 
-<OnlyAdmin>
-    <div class="d-flex flex-center">
+@attribute [PermissionRequired(nameof(Permissions.AdminNewNode))]
+
+<div class="d-flex flex-center">
         <div class="card rounded-3 w-md-550px">
             <div class="card-body">
                 <div class="d-flex flex-center flex-column-fluid">
@@ -73,7 +74,6 @@
             </div>
         </div>
     </div>
-</OnlyAdmin>
 
 @code
 {

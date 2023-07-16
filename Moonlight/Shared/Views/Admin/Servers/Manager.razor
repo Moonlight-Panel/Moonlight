@@ -18,86 +18,86 @@
 @inject AlertService AlertService
 @inject ServerService ServerService
 
-<OnlyAdmin>
-    <div class="card mb-5">
-        <div class="card-body">
-            <WButton Text="@(SmartTranslateService.Translate("Refresh"))"
-                     WorkingText="@(SmartTranslateService.Translate("Working"))"
-                     CssClasses="btn-primary"
-                     OnClick="() => Task.Run(Scan)">
-            </WButton>
-            <WButton Text="@(SmartTranslateService.Translate("Stop all"))"
-                     WorkingText="@(SmartTranslateService.Translate("Working"))"
-                     CssClasses="btn-danger"
-                     OnClick="StopAll">
-            </WButton>
-            <WButton Text="@(SmartTranslateService.Translate("Kill all"))"
-                     WorkingText="@(SmartTranslateService.Translate("Working"))"
-                     CssClasses="btn-danger"
-                     OnClick="KillAll">
-            </WButton>
-        </div>
+@attribute [PermissionRequired(nameof(Permissions.AdminServerManager))]
+
+<div class="card mb-5">
+    <div class="card-body">
+        <WButton Text="@(SmartTranslateService.Translate("Refresh"))"
+                 WorkingText="@(SmartTranslateService.Translate("Working"))"
+                 CssClasses="btn-primary"
+                 OnClick="() => Task.Run(Scan)">
+        </WButton>
+        <WButton Text="@(SmartTranslateService.Translate("Stop all"))"
+                 WorkingText="@(SmartTranslateService.Translate("Working"))"
+                 CssClasses="btn-danger"
+                 OnClick="StopAll">
+        </WButton>
+        <WButton Text="@(SmartTranslateService.Translate("Kill all"))"
+                 WorkingText="@(SmartTranslateService.Translate("Working"))"
+                 CssClasses="btn-danger"
+                 OnClick="KillAll">
+        </WButton>
     </div>
-    <div class="card mb-5 bg-secondary">
-        <div class="card-body d-flex align-items-center">
-            @if (IsRunning)
-            {
-                <h4><TL>Currently scanning</TL>: @(Node?.Name)</h4>
-            }
-            else
-            {
-                <TL>Scan complete</TL>
-            }
-        </div>
+</div>
+<div class="card mb-5 bg-secondary">
+    <div class="card-body d-flex align-items-center">
+        @if (IsRunning)
+        {
+            <h4><TL>Currently scanning</TL>: @(Node?.Name)</h4>
+        }
+        else
+        {
+            <TL>Scan complete</TL>
+        }
     </div>
-    <div class="card card-body">
-        <div class="table-responsive">
-            <Table TableItem="RunningServer" Items="RunningServers" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Server.Name)" Sortable="true" Filterable="true">
-                    <Template>
-                        <a href="/server/@(context.Server.Uuid)">@(context.Server.Name)</a>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Cpu usage"))" Field="@(x => x.Container.Cpu)" Sortable="true" Filterable="true">
-                    <Template>
-                        <span>@(context.Container.Cpu)%</span>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Memory usage"))" Field="@(x => x.Container.Memory)" Sortable="true" Filterable="true">
-                    <Template>
-                        <span>@(Formatter.FormatSize(context.Container.Memory))</span>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Network in"))" Field="@(x => x.Container.NetworkIn)" Sortable="true" Filterable="true">
-                    <Template>
-                        <span>@(Formatter.FormatSize(context.Container.NetworkIn))</span>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Network out"))" Field="@(x => x.Container.NetworkOut)" Sortable="true" Filterable="true">
-                    <Template>
-                        <span>@(Formatter.FormatSize(context.Container.NetworkOut))</span>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Image"))" Field="@(x => x.Server.Image.Name)" Sortable="true" Filterable="true">
-                    <Template>
-                        <a href="/admin/servers/images/edit/@(context.Server.Image.Id)">@(context.Server.Image.Name)</a>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Node"))" Field="@(x => x.Server.Node.Name)" Sortable="true" Filterable="true">
-                    <Template>
-                        <a href="/admin/nodes/view/@(context.Server.Node.Id)">@(context.Server.Node.Name)</a>
-                    </Template>
-                </Column>
-                <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Server.Owner.Email)" Sortable="true" Filterable="true">
-                    <Template>
-                        <a href="/admin/users/view/@(context.Server.Owner.Id)/">@context.Server.Owner.Email</a>
-                    </Template>
-                </Column>
-                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-            </Table>
-        </div>
+</div>
+<div class="card card-body">
+    <div class="table-responsive">
+        <Table TableItem="RunningServer" Items="RunningServers" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Server.Name)" Sortable="true" Filterable="true">
+                <Template>
+                    <a href="/server/@(context.Server.Uuid)">@(context.Server.Name)</a>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Cpu usage"))" Field="@(x => x.Container.Cpu)" Sortable="true" Filterable="true">
+                <Template>
+                    <span>@(context.Container.Cpu)%</span>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Memory usage"))" Field="@(x => x.Container.Memory)" Sortable="true" Filterable="true">
+                <Template>
+                    <span>@(Formatter.FormatSize(context.Container.Memory))</span>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Network in"))" Field="@(x => x.Container.NetworkIn)" Sortable="true" Filterable="true">
+                <Template>
+                    <span>@(Formatter.FormatSize(context.Container.NetworkIn))</span>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Network out"))" Field="@(x => x.Container.NetworkOut)" Sortable="true" Filterable="true">
+                <Template>
+                    <span>@(Formatter.FormatSize(context.Container.NetworkOut))</span>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Image"))" Field="@(x => x.Server.Image.Name)" Sortable="true" Filterable="true">
+                <Template>
+                    <a href="/admin/servers/images/edit/@(context.Server.Image.Id)">@(context.Server.Image.Name)</a>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Node"))" Field="@(x => x.Server.Node.Name)" Sortable="true" Filterable="true">
+                <Template>
+                    <a href="/admin/nodes/view/@(context.Server.Node.Id)">@(context.Server.Node.Name)</a>
+                </Template>
+            </Column>
+            <Column TableItem="RunningServer" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Server.Owner.Email)" Sortable="true" Filterable="true">
+                <Template>
+                    <a href="/admin/users/view/@(context.Server.Owner.Id)/">@context.Server.Owner.Email</a>
+                </Template>
+            </Column>
+            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+        </Table>
     </div>
-</OnlyAdmin>
+</div>
 
 @code
 {

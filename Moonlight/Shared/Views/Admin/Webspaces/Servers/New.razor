@@ -7,8 +7,9 @@
 @inject Repository<CloudPanel> CloudPanelRepository
 @inject NavigationManager NavigationManager
 
-<OnlyAdmin>
-    <div class="card card-body p-10">
+@attribute [PermissionRequired(nameof(Permissions.AdminWebspacesServerNew))]
+
+<div class="card card-body p-10">
         <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
             <label class="form-label">
                 <TL>Name</TL>
@@ -41,7 +42,6 @@
             </div>
         </SmartForm>
     </div>
-</OnlyAdmin>
 
 @code
 {

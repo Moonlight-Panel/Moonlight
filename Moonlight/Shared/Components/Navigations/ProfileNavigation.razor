@@ -1,5 +1,8 @@
 ﻿@using Moonlight.App.Database.Entities
 @using Moonlight.App.Models.Misc
+@using Moonlight.App.Services.Sessions
+
+@inject IdentityService IdentityService
 
 <div class="card mb-5 mb-xl-10">
     <div class="card-body pt-9 pb-0">
@@ -8,16 +11,16 @@
                 <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
                     <div class="d-flex flex-column">
                         <div class="d-flex align-items-center mb-2">
-                            <a class="text-gray-900 fs-2 fw-bold me-1 @(User.StreamerMode ? "blur" : "")">@(User.FirstName) @(User.LastName)</a>
+                            <a class="text-gray-900 fs-2 fw-bold me-1 @(IdentityService.User.StreamerMode ? "blur" : "")">@(IdentityService.User.FirstName) @(IdentityService.User.LastName)</a>
 
-                            @if (User.Status == UserStatus.Verified)
+                            @if (IdentityService.User.Status == UserStatus.Verified)
                             {
                                 <i class="text-success bx bx-md bxs-badge-check"></i>
                             }
                         </div>
                         <div class="d-flex flex-wrap fw-semibold fs-6 mb-4 pe-2">
-                            <span class="d-flex align-items-center text-gray-400 mb-2 @(User.StreamerMode ? "blur" : "")">
-                                @(User.Email)
+                            <span class="d-flex align-items-center text-gray-400 mb-2 @(IdentityService.User.StreamerMode ? "blur" : "")">
+                                @(IdentityService.User.Email)
                             </span>
                         </div>
                     </div>
@@ -51,9 +54,6 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
-
     [Parameter]
     public int Index { get; set; } = 0;
 }

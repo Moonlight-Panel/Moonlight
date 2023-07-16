@@ -25,32 +25,30 @@ public class TotpService
         return Task.FromResult(codeserver == code);
     }
 
-    public async Task<bool> GetEnabled()
+    public Task<bool> GetEnabled()
     {
-        var user = await IdentityService.Get();
-
-        return user!.TotpEnabled;
+        return Task.FromResult(IdentityService.User.TotpEnabled);
     }
 
-    public async Task<string> GetSecret()
+    public Task<string> GetSecret()
     {
-        var user = await IdentityService.Get();
-        
-        return user!.TotpSecret;
+        return Task.FromResult(IdentityService.User.TotpSecret);
     }
 
-    public async Task GenerateSecret()
+    public Task GenerateSecret()
     {
-        var user = (await IdentityService.Get())!;
+        var user = IdentityService.User;
         
         user.TotpSecret = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20));;
         
         UserRepository.Update(user);
+        
+        return Task.CompletedTask;
     }
 
     public async Task Enable(string code)
     {
-        var user = (await IdentityService.Get())!;
+        var user = IdentityService.User;
 
         if (!await Verify(user.TotpSecret, code))
         {
@@ -61,9 +59,9 @@ public class TotpService
         UserRepository.Update(user);
     }
 
-    public async Task Disable()
+    public Task Disable()
     {
-        var user = (await IdentityService.Get())!;
+        var user = IdentityService.User;
 
         user.TotpEnabled = false;
         user.TotpSecret = "";
@@ -71,5 +69,7 @@ public class TotpService
         UserRepository.Update(user);
         
         //TODO: AuditLog
+        
+        return Task.CompletedTask;
     }
 }

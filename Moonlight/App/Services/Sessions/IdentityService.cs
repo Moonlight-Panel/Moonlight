@@ -5,7 +5,6 @@ using JWT.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Helpers;
-using Moonlight.App.Models.Misc;
 using Moonlight.App.Perms;
 using Moonlight.App.Repositories;
 using UAParser;
@@ -19,8 +18,9 @@ public class IdentityService
     private readonly IHttpContextAccessor HttpContextAccessor;
     private readonly string Secret;
 
-    private User? UserCache;
-
+    public User User { get; private set; }
+    public string Ip { get; private set; } = "N/A";
+    public string Device { get; private set; } = "N/A";
     public PermissionStorage Permissions { get; private set; }
     public PermissionStorage UserPermissions { get; private set; }
     public PermissionStorage GroupPermissions { get; private set; }
@@ -40,15 +40,17 @@ public class IdentityService
             .Moonlight.Security.Token;
     }
 
-    public async Task<User?> Get()
+    public async Task Load()
+    {
+        await LoadIp();
+        await LoadDevice();
+        await LoadUser();
+    }
+
+    private async Task LoadUser()
     {
         try
         {
-            if (UserCache != null)
-                return UserCache;
-
-            ConstructPermissions();
-
             var token = "none";
 
             // Load token via http context if available
@@ -68,13 +70,13 @@ public class IdentityService
 
             if (token == "none")
             {
-                return null;
+                return;
             }
 
             if (string.IsNullOrEmpty(token))
-                return null;
+                return;
 
-            var json = "";
+            string json;
 
             try
             {
@@ -85,18 +87,18 @@ public class IdentityService
             }
             catch (TokenExpiredException)
             {
-                return null;
+                return;
             }
             catch (SignatureVerificationException)
             {
                 Logger.Warn($"Detected a manipulated JWT: {token}", "security");
-                return null;
+                return;
             }
             catch (Exception e)
             {
                 Logger.Error("Error reading jwt");
                 Logger.Error(e);
-                return null;
+                return;
             }
 
             // To make it easier to use the json data
@@ -111,7 +113,7 @@ public class IdentityService
             {
                 Logger.Warn(
                     $"Cannot find user with the id '{userid}' in the database. Maybe the user has been deleted or a token has been successfully faked by a hacker");
-                return null;
+                return;
             }
 
             var iat = data.GetValue<long>("iat", -1);
@@ -119,48 +121,54 @@ public class IdentityService
             if (iat == -1)
             {
                 Logger.Debug("Legacy token found (without the time the token has been issued at)");
-                return null;
+                return;
             }
 
             var iatD = DateTimeOffset.FromUnixTimeSeconds(iat).ToUniversalTime().DateTime;
 
             if (iatD < user.TokenValidTime)
-                return null;
+                return;
 
-            UserCache = user;
+            User = user;
 
             ConstructPermissions();
 
-            user.LastIp = GetIp();
-            UserRepository.Update(user);
-
-            return UserCache;
+            User.LastIp = Ip;
+            UserRepository.Update(User);
         }
         catch (Exception e)
         {
             Logger.Error("Unexpected error while processing token");
             Logger.Error(e);
-            return null;
+            return;
         }
     }
 
-    public string GetIp()
+    private Task LoadIp()
     {
         if (HttpContextAccessor.HttpContext == null)
-            return "N/A";
+        {
+            Ip = "N/A";
+            return Task.CompletedTask;
+        }
 
         if (HttpContextAccessor.HttpContext.Request.Headers.ContainsKey("X-Real-IP"))
         {
-            return HttpContextAccessor.HttpContext.Request.Headers["X-Real-IP"]!;
+            Ip = HttpContextAccessor.HttpContext.Request.Headers["X-Real-IP"]!;
+            return Task.CompletedTask;
         }
 
-        return HttpContextAccessor.HttpContext.Connection.RemoteIpAddress!.ToString();
+        Ip = HttpContextAccessor.HttpContext.Connection.RemoteIpAddress!.ToString();
+        return Task.CompletedTask;
     }
 
-    public string GetDevice()
+    private Task LoadDevice()
     {
         if (HttpContextAccessor.HttpContext == null)
-            return "N/A";
+        {
+            Device = "N/A";
+            return Task.CompletedTask;
+        }
 
         try
         {
@@ -170,26 +178,29 @@ public class IdentityService
             {
                 var version = userAgent.Remove(0, "Moonlight.App/".Length).Split(' ').FirstOrDefault();
 
-                return "Moonlight App " + version;
+                Device = "Moonlight App " + version;
+                return Task.CompletedTask;
             }
 
             var uaParser = Parser.GetDefault();
             var info = uaParser.Parse(userAgent);
 
-            return $"{info.OS} - {info.Device}";
+            Device = $"{info.OS} - {info.Device}";
+            return Task.CompletedTask;
         }
         catch (Exception e)
         {
-            return "UserAgent not present";
+            Device = "UserAgent not present";
+            return Task.CompletedTask;
         }
     }
 
     public Task SavePermissions()
     {
-        if (UserCache != null)
+        if (User != null)
         {
-            UserCache.Permissions = UserPermissions.Data;
-            UserRepository.Update(UserCache);
+            User.Permissions = UserPermissions.Data;
+            UserRepository.Update(User);
             ConstructPermissions();
         }
 
@@ -198,7 +209,7 @@ public class IdentityService
 
     private void ConstructPermissions()
     {
-        if (UserCache == null)
+        if (User == null)
         {
             UserPermissions = new(Array.Empty<byte>());
             GroupPermissions = new(Array.Empty<byte>(), true);
@@ -210,7 +221,7 @@ public class IdentityService
         var user = UserRepository
             .Get()
             .Include(x => x.PermissionGroup)
-            .First(x => x.Id == UserCache.Id);
+            .First(x => x.Id == User.Id);
 
         UserPermissions = new PermissionStorage(user.Permissions);
 
@@ -219,7 +230,18 @@ public class IdentityService
         else
             GroupPermissions = new PermissionStorage(user.PermissionGroup.Permissions, true);
 
-        Logger.Debug($"{UserPermissions[Perms.Permissions.AdminDashboard]} {GroupPermissions[Perms.Permissions.AdminDashboard]}");
+        if (user.Admin)
+        {
+            Permissions = new PermissionStorage(Array.Empty<byte>());
+
+            foreach (var permission in Perms.Permissions.GetAllPermissions())
+            {
+                Permissions[permission] = true;
+            }
+
+            Permissions.IsReadyOnly = true;
+            return;
+        }
         
         Permissions = new PermissionStorage(BitHelper.OverwriteByteArrays(
             UserPermissions.Data,

@@ -10,7 +10,7 @@
 @inject NavigationManager NavigationManager
 @inject NewsEntryRepository NewsEntryRepository
 
-@attribute [PermissionRequired(nameof(Permissions.NewsMessages))]
+@attribute [PermissionRequired(nameof(Permissions.AdminSysNewsEdit))]
 
 <LazyLoader Load="Load">
     @if (Entry == null)
