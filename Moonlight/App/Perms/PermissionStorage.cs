@@ -22,6 +22,10 @@ public class PermissionStorage
             {
                 return BitHelper.ReadBit(Data, permission.Index);
             }
+            catch (ArgumentOutOfRangeException)
+            {
+                return false;
+            }
             catch (Exception e)
             {
                 Logger.Verbose("Error reading permissions. (Can be intentional)");
@@ -36,5 +40,16 @@ public class PermissionStorage
 
             Data = BitHelper.WriteBit(Data, permission.Index, value);
         }
+    }
+
+    public bool HasAnyPermissions()
+    {
+        foreach (var permission in Permissions.GetAllPermissions())
+        {
+            if (this[permission])
+                return true;
+        }
+
+        return false;
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/admin/system/security"
+﻿@page "/admin/security/ipbans"
 
 @using Moonlight.Shared.Components.Navigations
 @using BlazorTable
@@ -13,9 +13,9 @@
 @inject EventSystem Event
 @inject ToastService ToastService
 
-@attribute [PermissionRequired(nameof(Permissions.AdminSysSecurity))]
+@attribute [PermissionRequired(nameof(Permissions.AdminSecurityIpBans))]
 
-<AdminSystemNavigation Index="3"/>
+<AdminSecurityNavigation Index="2"/>
 
 <div class="card mb-5">
     <div class="card-header">
@@ -41,31 +41,33 @@
     </div>
     <div class="card-body">
         <LazyLoader @ref="LazyLoader" Load="Load">
-            <Table TableItem="IpBan" Items="IpBans" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                <Column TableItem="IpBan" Title="@(SmartTranslateService.Translate("Ip"))" Field="@(x => x.Ip)" Filterable="true" Sortable="false"/>
-                <Column TableItem="IpBan" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
-                    <Template>
-                        <div class="text-end">
-                            <DeleteButton Confirm="true" OnClick="() => DeleteIpBan(context)"></DeleteButton>
-                        </div>
-                    </Template>
-                </Column>
-                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-            </Table>
+            <div class="table-responsive">
+                <Table TableItem="IpBan" Items="AllIpBans" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                    <Column TableItem="IpBan" Title="@(SmartTranslateService.Translate("Ip"))" Field="@(x => x.Ip)" Filterable="true" Sortable="false"/>
+                    <Column TableItem="IpBan" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
+                        <Template>
+                            <div class="text-end">
+                                <DeleteButton Confirm="true" OnClick="() => DeleteIpBan(context)"></DeleteButton>
+                            </div>
+                        </Template>
+                    </Column>
+                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                </Table>
+            </div>
         </LazyLoader>
     </div>
 </div>
 
 @code
 {
-    private IpBan[] IpBans;
+    private IpBan[] AllIpBans;
     private string Ip;
 
     private LazyLoader LazyLoader;
 
     private Task Load(LazyLoader arg)
     {
-        IpBans = IpBanRepository.Get().ToArray();
+        AllIpBans = IpBanRepository.Get().ToArray();
 
         return Task.CompletedTask;
     }

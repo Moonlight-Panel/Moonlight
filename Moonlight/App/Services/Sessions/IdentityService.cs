@@ -242,11 +242,22 @@ public class IdentityService
             Permissions.IsReadyOnly = true;
             return;
         }
-        
-        Permissions = new PermissionStorage(BitHelper.OverwriteByteArrays(
-            UserPermissions.Data,
-            GroupPermissions.Data),
-            true
-        );
+
+        Permissions = new(Array.Empty<byte>());
+
+        foreach (var permission in Perms.Permissions.GetAllPermissions())
+        {
+            Permissions[permission] = GroupPermissions[permission];
+        }
+
+        foreach (var permission in Perms.Permissions.GetAllPermissions())
+        {
+            if (UserPermissions[permission])
+            {
+                Permissions[permission] = true;
+            }
+        }
+
+        Permissions.IsReadyOnly = true;
     }
 }

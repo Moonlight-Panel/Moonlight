@@ -261,10 +261,10 @@ public static class Permissions
         Description = "Manage mail settings in the admin area"
     };
 
-    public static Permission AdminSysMalware = new()
+    public static Permission AdminSecurityMalware = new()
     {
         Index = 39,
-        Name = "Admin system Malware",
+        Name = "Admin security Malware",
         Description = "Manage malware settings in the admin area"
     };
 
@@ -275,11 +275,11 @@ public static class Permissions
         Description = "View system resources in the admin area"
     };
 
-    public static Permission AdminSysSecurity = new()
+    public static Permission AdminSecurity = new()
     {
         Index = 41,
-        Name = "Admin system Security",
-        Description = "Manage security settings in the admin area"
+        Name = "Admin Security",
+        Description = "View security logs in the admin area"
     };
 
     public static Permission AdminSysSentry = new()
@@ -378,6 +378,20 @@ public static class Permissions
         Index = 55,
         Name = "Admin Webspaces Server New",
         Description = "Create a new webspace server in the admin area"
+    };
+    
+    public static Permission AdminSecurityIpBans = new()
+    {
+        Index = 56,
+        Name = "Admin security ip bans",
+        Description = "Manage ip bans in the admin area"
+    };
+
+    public static Permission AdminSecurityPermissionGroups = new()
+    {
+        Index = 57,
+        Name = "Admin security permission groups",
+        Description = "View, add and delete permission groups"
     };
 
     public static Permission? FromString(string name)

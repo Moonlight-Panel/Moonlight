@@ -69,7 +69,7 @@ else
         </a>
     </div>
 
-    if (User.Admin)
+    if (IdentityService.Permissions.HasAnyPermissions())
     {
         <div class="menu-item pt-5">
             <div class="menu-content">
@@ -90,6 +90,14 @@ else
                     <i class="bx bx-chip"></i>
                 </span>
                 <span class="menu-title"><TL>System</TL></span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-link" href="/admin/security">
+                <span class="menu-icon">
+                    <i class="bx bx-shield"></i>
+                </span>
+                <span class="menu-title"><TL>Security</TL></span>
             </a>
         </div>
         <div class="menu-item">
