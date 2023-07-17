@@ -4,14 +4,16 @@
 @using Moonlight.App.Repositories.Servers
 @using BlazorTable
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.Shared.Components.Navigations
 
 @inject ServerRepository ServerRepository
 @inject SmartTranslateService SmartTranslateService
 
 @attribute [PermissionRequired(nameof(Permissions.AdminServers))]
 
-<div class="row">
-    <LazyLoader Load="Load">
+<AdminServersNavigation Index="0" />
+
+<LazyLoader Load="Load">
         <div class="card">
             <div class="card-header border-0 pt-5">
                 <h3 class="card-title align-items-start flex-column">
@@ -65,7 +67,6 @@
             </div>
         </div>
     </LazyLoader>
-</div>
 
 @code
 {
@@ -76,6 +77,8 @@
         Servers = ServerRepository
             .Get()
             .Include(x => x.Owner)
+            .ToArray() // Execute query and use the moonlight instance to sort
+            .OrderBy(x => x.Id)
             .ToArray();
 
         return Task.CompletedTask;

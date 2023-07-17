@@ -1,6 +1,7 @@
 ﻿@page "/admin/servers/cleanup"
 @using Moonlight.App.Events
 @using Moonlight.App.Services.Background
+@using Moonlight.Shared.Components.Navigations
 
 @inject CleanupService CleanupService
 @inject EventSystem Event
@@ -8,6 +9,8 @@
 @implements IDisposable
 
 @attribute [PermissionRequired(nameof(Permissions.AdminServerCleanup))]
+
+<AdminServersNavigation Index="2" />
 
 <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
         <div class="col-xl-3">

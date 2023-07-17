@@ -135,10 +135,10 @@ public static class Permissions
         Description = "Edit server image settings in the admin area"
     };
 
-    public static Permission AdminServerImageIndex = new()
+    public static Permission AdminServerImages = new()
     {
         Index = 21,
-        Name = "Admin Server Image",
+        Name = "Admin Server Images",
         Description = "Access the server image management page in the admin area"
     };
 
