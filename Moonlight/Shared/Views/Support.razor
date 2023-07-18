@@ -5,10 +5,12 @@
 @using Moonlight.App.Services.SupportChat
 @using System.Text.RegularExpressions
 @using Moonlight.App.Services.Files
+@using Moonlight.App.Services.Sessions
 
 @inject ResourceService ResourceService
 @inject SupportChatClientService ClientService
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
 
 @implements IDisposable
 
@@ -20,7 +22,7 @@
                     <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
                         @foreach (var message in Messages.ToArray())
                         {
-                            if (message.Sender == null || message.Sender.Id != User.Id)
+                            if (message.Sender == null || message.Sender.Id != IdentityService.User.Id)
                             {
                                 <div class="d-flex justify-content-start mb-10 ">
                                     <div class="d-flex flex-column align-items-start">
@@ -199,9 +201,6 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
-
     private List<SupportChatMessage> Messages = new();
     private string[] Typing = Array.Empty<string>();
 

@@ -24,7 +24,7 @@ public class BillingController : Controller
     [HttpGet("cancel")]
     public async Task<ActionResult> Cancel()
     {
-        var user = await IdentityService.Get();
+        var user = IdentityService.User;
 
         if (user == null)
             return Redirect("/login");
@@ -35,7 +35,7 @@ public class BillingController : Controller
     [HttpGet("success")]
     public async Task<ActionResult> Success()
     {
-        var user = await IdentityService.Get();
+        var user = IdentityService.User;
 
         if (user == null)
             return Redirect("/login");

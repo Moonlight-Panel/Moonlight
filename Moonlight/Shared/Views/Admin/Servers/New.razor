@@ -17,163 +17,163 @@
 @inject NavigationManager NavigationManager
 @inject UserRepository UserRepository
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
-        <SmartForm Model="Model" OnValidSubmit="Create">
-            <div class="row mb-5">
-                <div class="card card-body p-10">
-                    <label class="form-label">
-                        <TL>Server name</TL>
-                    </label>
-                    <div class="input-group mb-5">
-                        <span class="input-group-text">
-                            <i class="bx bx-purchase-tag-alt"></i>
-                        </span>
-                        <InputText @bind-Value="Model.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))"></InputText>
-                    </div>
-                    <label class="form-label">
-                        <TL>Owner</TL>
-                    </label>
-                    <div class="input-group mb-5">
-                        <SmartDropdown
-                            @bind-Value="Model.Owner"
-                            Items="Users"
-                            DisplayFunc="@(x => x.Email)"
-                            SearchProp="@(x => x.Email)">
-                        </SmartDropdown>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-5">
-                <div class="card card-body p-10">
-                    <label class="form-label">
-                        <TL>Cpu cores</TL>
-                    </label>
-                    <div class="input-group mb-5">
-                        <span class="input-group-text">
-                            <i class="bx bx-chip"></i>
-                        </span>
-                        <InputNumber @bind-Value="Model.Cpu" class="form-control"></InputNumber>
-                        <span class="input-group-text">
-                            <TL>CPU Cores (100% = 1 Core)</TL>
-                        </span>
-                    </div>
-                    <label class="form-label">
-                        <TL>Memory</TL>
-                    </label>
-                    <div class="input-group mb-5">
-                        <span class="input-group-text">
-                            <i class="bx bx-microchip"></i>
-                        </span>
-                        <InputNumber @bind-Value="Model.Memory" class="form-control"></InputNumber>
-                        <span class="input-group-text">
-                            MB
-                        </span>
-                    </div>
-                    <label class="form-label">
-                        <TL>Disk</TL>
-                    </label>
-                    <div class="input-group mb-5">
-                        <span class="input-group-text">
-                            <i class="bx bx-hdd"></i>
-                        </span>
-                        <InputNumber @bind-Value="Model.Disk" class="form-control"></InputNumber>
-                        <span class="input-group-text">
-                            MB
-                        </span>
-                    </div>
-                    <label class="form-label">
-                        <TL>Node</TL>
-                    </label>
-                    <div class="input-group mb-5">
-                        <SmartSelect @bind-Value="Model.Node"
-                                     Items="Nodes"
-                                     DisplayField="@(x => x.Name)">
-                        </SmartSelect>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-5">
-                <div class="card card-body p-10">
-                    <label class="form-label">
-                        <TL>Image</TL>
-                    </label>
-                    <div class="mb-5">
-                        <SmartSelect TField="Image" @bind-Value="Model.Image" Items="Images" DisplayField="@(x => x.Name)" OnChange="OnChange"></SmartSelect>
-                    </div>
-                    @if (Model.Image != null)
-                    {
-                        <label class="form-label">
-                            <TL>Override startup</TL>
-                        </label>
-                        <div class="input-group mb-5">
-                            <span class="input-group-text">
-                                <i class="bx bx-terminal"></i>
-                            </span>
-                            <InputText @bind-Value="Model.OverrideStartup" type="text" class="form-control" placeholder="@(Model.Image.Startup)"></InputText>
-                        </div>
-                        <label class="form-label">
-                            <TL>Docker image</TL>
-                        </label>
-                        <InputSelect TValue="int" @bind-Value="Model.DockerImageIndex" class="form-control">
-                            @foreach (var image in Model.Image.DockerImages)
-                            {
-                                <option value="@(Model.Image.DockerImages.IndexOf(image))">@(image.Name)</option>
-                            }
-                        </InputSelect>
-                    }
-                </div>
-            </div>
+@attribute [PermissionRequired(nameof(Permissions.AdminNewServer))]
 
-            <div class="row mb-5">
-                <div class="card card-body">
-                    @if (Model.Image != null)
-                    {
-                        <div class="mt-9 row d-flex">
-                            @foreach (var vars in ServerVariables.Chunk(3))
-                            {
-                                <div class="row row-cols-3 mb-3">
-                                    @foreach (var variable in vars)
-                                    {
-                                        <div class="col">
-                                            <div class="card card-body border">
-                                                <label class="form-label">
-                                                    <TL>Name</TL>
-                                                </label>
-                                                <div class="input-group mb-5">
-                                                    <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
-                                                </div>
-                                                <label class="form-label">
-                                                    <TL>Value</TL>
-                                                </label>
-                                                <div class="input-group mb-5">
-                                                    <input @bind="variable.Value" type="text" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
+<LazyLoader Load="Load">
+                    <SmartForm Model="Model" OnValidSubmit="Create">
+                        <div class="row mb-5">
+                            <div class="card card-body p-10">
+                                <label class="form-label">
+                                    <TL>Server name</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <span class="input-group-text">
+                                        <i class="bx bx-purchase-tag-alt"></i>
+                                    </span>
+                                    <InputText @bind-Value="Model.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Server name"))"></InputText>
                                 </div>
-                            }
+                                <label class="form-label">
+                                    <TL>Owner</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <SmartDropdown
+                                        @bind-Value="Model.Owner"
+                                        Items="Users"
+                                        DisplayFunc="@(x => x.Email)"
+                                        SearchProp="@(x => x.Email)">
+                                    </SmartDropdown>
+                                </div>
+                            </div>
                         </div>
-                    }
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="card card-body">
-                    <div class="d-flex justify-content-end">
-                        <a href="/admin/servers" class="btn btn-danger me-3">
-                            <TL>Cancel</TL>
-                        </a>
-                        <button class="btn btn-success" type="submit">
-                            <TL>Create</TL>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </SmartForm>
-    </LazyLoader>
-</OnlyAdmin>
+                        <div class="row mb-5">
+                            <div class="card card-body p-10">
+                                <label class="form-label">
+                                    <TL>Cpu cores</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <span class="input-group-text">
+                                        <i class="bx bx-chip"></i>
+                                    </span>
+                                    <InputNumber @bind-Value="Model.Cpu" class="form-control"></InputNumber>
+                                    <span class="input-group-text">
+                                        <TL>CPU Cores (100% = 1 Core)</TL>
+                                    </span>
+                                </div>
+                                <label class="form-label">
+                                    <TL>Memory</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <span class="input-group-text">
+                                        <i class="bx bx-microchip"></i>
+                                    </span>
+                                    <InputNumber @bind-Value="Model.Memory" class="form-control"></InputNumber>
+                                    <span class="input-group-text">
+                                        MB
+                                    </span>
+                                </div>
+                                <label class="form-label">
+                                    <TL>Disk</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <span class="input-group-text">
+                                        <i class="bx bx-hdd"></i>
+                                    </span>
+                                    <InputNumber @bind-Value="Model.Disk" class="form-control"></InputNumber>
+                                    <span class="input-group-text">
+                                        MB
+                                    </span>
+                                </div>
+                                <label class="form-label">
+                                    <TL>Node</TL>
+                                </label>
+                                <div class="input-group mb-5">
+                                    <SmartSelect @bind-Value="Model.Node"
+                                                 Items="Nodes"
+                                                 DisplayField="@(x => x.Name)">
+                                    </SmartSelect>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-5">
+                            <div class="card card-body p-10">
+                                <label class="form-label">
+                                    <TL>Image</TL>
+                                </label>
+                                <div class="mb-5">
+                                    <SmartSelect TField="Image" @bind-Value="Model.Image" Items="Images" DisplayField="@(x => x.Name)" OnChange="OnChange"></SmartSelect>
+                                </div>
+                                @if (Model.Image != null)
+                                {
+                                    <label class="form-label">
+                                        <TL>Override startup</TL>
+                                    </label>
+                                    <div class="input-group mb-5">
+                                        <span class="input-group-text">
+                                            <i class="bx bx-terminal"></i>
+                                        </span>
+                                        <InputText @bind-Value="Model.OverrideStartup" type="text" class="form-control" placeholder="@(Model.Image.Startup)"></InputText>
+                                    </div>
+                                    <label class="form-label">
+                                        <TL>Docker image</TL>
+                                    </label>
+                                    <InputSelect TValue="int" @bind-Value="Model.DockerImageIndex" class="form-control">
+                                        @foreach (var image in Model.Image.DockerImages)
+                                        {
+                                            <option value="@(Model.Image.DockerImages.IndexOf(image))">@(image.Name)</option>
+                                        }
+                                    </InputSelect>
+                                }
+                            </div>
+                        </div>
+            
+                        <div class="row mb-5">
+                            <div class="card card-body">
+                                @if (Model.Image != null)
+                                {
+                                    <div class="mt-9 row d-flex">
+                                        @foreach (var vars in ServerVariables.Chunk(3))
+                                        {
+                                            <div class="row row-cols-3 mb-3">
+                                                @foreach (var variable in vars)
+                                                {
+                                                    <div class="col">
+                                                        <div class="card card-body border">
+                                                            <label class="form-label">
+                                                                <TL>Name</TL>
+                                                            </label>
+                                                            <div class="input-group mb-5">
+                                                                <input @bind="variable.Key" type="text" class="form-control disabled" disabled="">
+                                                            </div>
+                                                            <label class="form-label">
+                                                                <TL>Value</TL>
+                                                            </label>
+                                                            <div class="input-group mb-5">
+                                                                <input @bind="variable.Value" type="text" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+            
+                        <div class="row">
+                            <div class="card card-body">
+                                <div class="d-flex justify-content-end">
+                                    <a href="/admin/servers" class="btn btn-danger me-3">
+                                        <TL>Cancel</TL>
+                                    </a>
+                                    <button class="btn btn-success" type="submit">
+                                        <TL>Create</TL>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </SmartForm>
+                </LazyLoader>
 
 @code
 {

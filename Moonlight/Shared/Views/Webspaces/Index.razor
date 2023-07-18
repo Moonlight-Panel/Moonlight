@@ -2,8 +2,10 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Repositories
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Sessions
 
 @inject Repository<WebSpace> WebSpaceRepository
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @if (WebSpaces.Any())
@@ -50,8 +52,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
     
     private WebSpace[] WebSpaces;
 
@@ -61,7 +62,7 @@
             .Get()
             .Include(x => x.Owner)
             .Include(x => x.CloudPanel)
-            .Where(x => x.Owner.Id == User.Id)
+            .Where(x => x.Owner.Id == IdentityService.User.Id)
             .ToArray();
         
         return Task.CompletedTask;

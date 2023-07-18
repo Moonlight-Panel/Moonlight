@@ -1,0 +1,132 @@
+﻿@page "/admin/security/permissiongroups"
+
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Services
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Interop
+@using Moonlight.App.Services.Sessions
+
+@inject SmartTranslateService SmartTranslateService
+@inject Repository<PermissionGroup> PermissionGroupRepository
+@inject SessionServerService SessionServerService
+@inject Repository<User> UserRepository
+@inject AlertService AlertService
+@inject ToastService ToastService
+
+@attribute [PermissionRequired(nameof(Permissions.AdminSecurityPermissionGroups))]
+
+<AdminSecurityNavigation Index="3"/>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">
+            <TL>Permission groups</TL>
+        </span>
+        <div class="card-toolbar">
+            <WButton Text="@(SmartTranslateService.Translate("New"))"
+                     CssClasses="btn-sm btn-success"
+                     OnClick="NewGroupPermission">
+            </WButton>
+        </div>
+    </div>
+    <div class="card-body">
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            <div class="table-responsive">
+                <Table TableItem="PermissionGroup" Items="AllPermissionGroups" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                    <Column TableItem="PermissionGroup" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Filterable="true" Sortable="false"/>
+                    <Column TableItem="PermissionGroup" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
+                        <Template>
+                            <div class="text-end">
+                                <WButton Text="@(SmartTranslateService.Translate("Edit permissions"))"
+                                         CssClasses="btn-primary me-2"
+                                         OnClick="() => EditPermissions(context)">
+                                </WButton>
+                                <DeleteButton Confirm="true" OnClick="() => DeletePermissionGroup(context)"></DeleteButton>
+                            </div>
+                        </Template>
+                    </Column>
+                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                </Table>
+            </div>
+        </LazyLoader>
+    </div>
+</div>
+
+<PermissionEditor @ref="PermissionEditor" OnSave="OnSave"/>
+
+@code
+{
+    private PermissionGroup[] AllPermissionGroups;
+    private PermissionGroup CurrentPermissionGroup;
+    private LazyLoader LazyLoader;
+    private PermissionEditor PermissionEditor;
+
+    private Task Load(LazyLoader arg)
+    {
+        AllPermissionGroups = PermissionGroupRepository
+            .Get()
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task EditPermissions(PermissionGroup group)
+    {
+        CurrentPermissionGroup = group;
+        PermissionEditor.InitialData = CurrentPermissionGroup.Permissions;
+        
+        await PermissionEditor.Launch();
+    }
+
+    private async Task DeletePermissionGroup(PermissionGroup group)
+    {
+        PermissionGroupRepository.Delete(group);
+        
+        await LazyLoader.Reload();
+    }
+
+    private async Task OnSave(byte[] data)
+    {
+        CurrentPermissionGroup.Permissions = data;
+        PermissionGroupRepository.Update(CurrentPermissionGroup);
+
+        await ToastService.Success("Successfully modified permissions");
+
+        var usersWithTheGroup = UserRepository
+            .Get()
+            .Include(x => x.PermissionGroup)
+            .Where(x => x.PermissionGroup != null)
+            .Where(x => x.PermissionGroup!.Id == CurrentPermissionGroup.Id)
+            .ToArray();
+
+        foreach (var user in usersWithTheGroup)
+        {
+            await SessionServerService.ReloadUserSessions(user);
+        }
+    }
+
+    private async Task NewGroupPermission()
+    {
+        var name = await AlertService.Text(
+            SmartTranslateService.Translate("Enter the name for the new group"),
+            "",
+            ""
+        );
+        
+        if(string.IsNullOrEmpty(name))
+            return;
+
+        var group = new PermissionGroup()
+        {
+            Name = name,
+            Permissions = Array.Empty<byte>()
+        };
+
+        PermissionGroupRepository.Add(group);
+        
+        await LazyLoader.Reload();
+    }
+}

@@ -8,8 +8,9 @@
 
 @implements IDisposable
 
-<OnlyAdmin>
-    <LazyLoader @ref="LazyLoader" Load="Load">
+@attribute [PermissionRequired(nameof(Permissions.AdminSupport))]
+
+<LazyLoader @ref="LazyLoader" Load="Load">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex flex-column flex-xl-row p-5 pb-0">
@@ -70,7 +71,6 @@
             </div>
         </div>
     </LazyLoader>
-</OnlyAdmin>
 
 @code
 {

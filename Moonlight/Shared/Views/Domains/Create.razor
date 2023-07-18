@@ -4,6 +4,7 @@
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories.Domains
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Sessions
 
 @inject SubscriptionService SubscriptionService
 @inject DomainService DomainService
@@ -11,6 +12,7 @@
 @inject SharedDomainRepository SharedDomainRepository
 @inject NavigationManager NavigationManager
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @if (!SharedDomains.Any())
@@ -114,8 +116,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
     
     private SharedDomain[] SharedDomains;
     
@@ -130,12 +131,12 @@
         Model = new();
         
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
-        Subscription = await SubscriptionService.GetActiveSubscription(User);
+        Subscription = await SubscriptionService.GetActiveSubscription(IdentityService.User);
         
         AllowOrder = DomainRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "domains")).Amount;
+            .Count(x => x.Owner.Id == IdentityService.User.Id) < (await SubscriptionService.GetLimit(IdentityService.User, "domains")).Amount;
 
         await lazyLoader.SetText("Loading shared domains");
         SharedDomains = SharedDomainRepository.Get().ToArray();
@@ -146,9 +147,9 @@
         if (DomainRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id) < (await SubscriptionService.GetLimit(User, "domains")).Amount)
+            .Count(x => x.Owner.Id == IdentityService.User.Id) < (await SubscriptionService.GetLimit(IdentityService.User, "domains")).Amount)
         {
-            var domain = await DomainService.Create(Model.Name, Model.SharedDomain, User);
+            var domain = await DomainService.Create(Model.Name, Model.SharedDomain, IdentityService.User);
             
             NavigationManager.NavigateTo($"/domain/{domain.Id}");
         }

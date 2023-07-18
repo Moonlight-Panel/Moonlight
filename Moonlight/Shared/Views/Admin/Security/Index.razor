@@ -1,0 +1,7 @@
+﻿@page "/admin/security"
+
+@using Moonlight.Shared.Components.Navigations
+
+@attribute [PermissionRequired(nameof(Permissions.AdminSecurity))]
+
+<AdminSecurityNavigation Index="0" />

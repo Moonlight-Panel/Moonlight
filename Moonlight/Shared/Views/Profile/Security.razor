@@ -8,6 +8,7 @@
 @using Mappy.Net
 @using Moonlight.App.Models.Forms
 @using Moonlight.App.Repositories
+@using Moonlight.App.Services.Sessions
 
 @inject TotpService TotpService
 @inject UserService UserService
@@ -15,6 +16,7 @@
 @inject ModalService ModalService
 @inject Repository<User> UserRepository
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
 
 <ProfileNavigation Index="2"/>
 
@@ -31,7 +33,7 @@
                     <TL>2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.</TL>
                 </p>
                 <div class="d-flex justify-content-center">
-                    @if (User.TotpEnabled)
+                    @if (IdentityService.User.TotpEnabled)
                     {
                         <WButton Text="@(SmartTranslateService.Translate("Disable"))"
                                  WorkingText=""
@@ -110,9 +112,9 @@
                 </h2>
             </div>
             <div class="modal-body fs-6">
-                @if (!User.TotpEnabled)
+                @if (!IdentityService.User.TotpEnabled)
                 {
-                    if (string.IsNullOrEmpty(User.TotpSecret))
+                    if (string.IsNullOrEmpty(IdentityService.User.TotpSecret))
                     {
                         <p>
                             <TL>Make sure you have installed one of the following apps on your smartphone and press continue</TL>
@@ -147,7 +149,7 @@
 
                                 var qrCodeData = qrGenerator.CreateQrCode
                                     (
-                                        $"otpauth://totp/{Uri.EscapeDataString(User.Email)}?secret={User.TotpSecret}&issuer={Uri.EscapeDataString("Moonlight")}",
+                                        $"otpauth://totp/{Uri.EscapeDataString(IdentityService.User.Email)}?secret={IdentityService.User.TotpSecret}&issuer={Uri.EscapeDataString("Moonlight")}",
                                         QRCodeGenerator.ECCLevel.Q
                                     );
 
@@ -179,8 +181,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     private string TwoFactorCode = "";
     private string Password = "";
@@ -188,7 +189,7 @@
 
     protected override void OnParametersSet()
     {
-        UserModel = Mapper.Map<UserPreferencesDataModel>(User);
+        UserModel = Mapper.Map<UserPreferencesDataModel>(IdentityService.User);
     }
 
     private async Task StartTwoFactorWizard()
@@ -219,14 +220,14 @@
 
     private async Task ChangePassword()
     {
-        await UserService.ChangePassword(User, Password);
+        await UserService.ChangePassword(IdentityService.User, Password);
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
     private async Task SavePreferences()
     {
-        User = Mapper.Map(User, UserModel);
-        UserRepository.Update(User);
+        var user = Mapper.Map(IdentityService.User, UserModel);
+        UserRepository.Update(user);
         await InvokeAsync(StateHasChanged);
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }

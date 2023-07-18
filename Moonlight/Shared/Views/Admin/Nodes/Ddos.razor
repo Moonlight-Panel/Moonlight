@@ -15,61 +15,61 @@
 @inject SmartTranslateService SmartTranslateService
 @inject EventSystem Event
 
-<OnlyAdmin>
-    <AdminNodesNavigation Index="1"/>
+@attribute [PermissionRequired(nameof(Permissions.AdminNodeDdos))]
 
-    <LazyLoader @ref="LazyLoader" Load="Load">
-        <div class="card">
-            <div class="card-body pt-0">
-                <div class="table-responsive">
-                    <Table TableItem="DdosAttack" Items="DdosAttacks" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                        <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Ongoing)" Sortable="true" Filterable="true">
-                            <Template>
-                                @if (context.Ongoing)
-                                {
-                                    <TL>DDos attack started</TL>
-                                }
-                                else
-                                {
-                                    <TL>DDos attack stopped</TL>
-                                }
-                            </Template>
-                        </Column>
-                        <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Node"))" Field="@(x => x.Node)" Sortable="false" Filterable="false">
-                            <Template>
-                                <a href="/admin/nodes/view/@(context.Id)">
-                                    @(context.Node.Name)
-                                </a>
-                            </Template>
-                        </Column>
-                        <Column TableItem="DdosAttack" Title="Ip" Field="@(x => x.Ip)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Ongoing)" Sortable="true" Filterable="true">
-                            <Template>
-                                @if (context.Ongoing)
-                                {
-                                    @(context.Data)
-                                    <TL> packets</TL>
-                                }
-                                else
-                                {
-                                    @(context.Data)
-                                    <span> MB</span>
-                                }
-                            </Template>
-                        </Column>
-                        <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Date"))" Field="@(x => x.Ongoing)" Sortable="true" Filterable="true">
-                            <Template>
-                                @(Formatter.FormatDate(context.CreatedAt))
-                            </Template>
-                        </Column>
-                        <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                    </Table>
-                </div>
+<AdminNodesNavigation Index="1"/>
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+    <div class="card">
+        <div class="card-body pt-0">
+            <div class="table-responsive">
+                <Table TableItem="DdosAttack" Items="DdosAttacks" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                    <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                    <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Ongoing)" Sortable="true" Filterable="true">
+                        <Template>
+                            @if (context.Ongoing)
+                            {
+                                <TL>DDos attack started</TL>
+                            }
+                            else
+                            {
+                                <TL>DDos attack stopped</TL>
+                            }
+                        </Template>
+                    </Column>
+                    <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Node"))" Field="@(x => x.Node)" Sortable="false" Filterable="false">
+                        <Template>
+                            <a href="/admin/nodes/view/@(context.Id)">
+                                @(context.Node.Name)
+                            </a>
+                        </Template>
+                    </Column>
+                    <Column TableItem="DdosAttack" Title="Ip" Field="@(x => x.Ip)" Sortable="true" Filterable="true"/>
+                    <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Ongoing)" Sortable="true" Filterable="true">
+                        <Template>
+                            @if (context.Ongoing)
+                            {
+                                @(context.Data)
+                                <TL> packets</TL>
+                            }
+                            else
+                            {
+                                @(context.Data)
+                                <span> MB</span>
+                            }
+                        </Template>
+                    </Column>
+                    <Column TableItem="DdosAttack" Title="@(SmartTranslateService.Translate("Date"))" Field="@(x => x.Ongoing)" Sortable="true" Filterable="true">
+                        <Template>
+                            @(Formatter.FormatDate(context.CreatedAt))
+                        </Template>
+                    </Column>
+                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                </Table>
             </div>
         </div>
-    </LazyLoader>
-</OnlyAdmin>
+    </div>
+</LazyLoader>
 
 @code
 {
@@ -99,4 +99,6 @@
     {
         await Event.Off("node.ddos", this);
     }
+    
+    //TODO: Move to security
 }

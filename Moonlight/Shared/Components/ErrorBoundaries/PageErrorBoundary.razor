@@ -57,7 +57,7 @@ else
     {
         receivedExceptions.Add(exception);
 
-        var user = await IdentityService.Get();
+        var user = IdentityService.User;
         var id = user == null ? -1 : user.Id;
 
         Logger.Error($"[{id}] An unhanded exception occured:");

@@ -3,8 +3,10 @@
 @using Moonlight.App.Helpers
 @using Moonlight.App.Helpers.Wings
 @using Moonlight.App.Helpers.Wings.Enums
+@using Moonlight.App.Services.Sessions
 
 @inject SmartTranslateService TranslationService
+@inject IdentityService IdentityService
 
 <div class="align-items-center">
     <div class="row">
@@ -53,12 +55,12 @@
                 <div class="row align-items-center">
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Shared IP</TL>:</span>
-                        <span class="ms-1 text-muted @(User.StreamerMode ? "blur" : "")">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation?.Port ?? 0}")</span>
+                        <span class="ms-1 text-muted @(IdentityService.User.StreamerMode ? "blur" : "")">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation?.Port ?? 0}")</span>
                     </div>
                     <div class="col fs-5">
                         <span class="fw-bold"><TL>Server ID</TL>:</span>
                         <span class="ms-1 text-muted">
-                            @if (User.Admin)
+                            @if (IdentityService.User.Admin)
                             {
                                 <a href="/admin/servers/view/@(CurrentServer.Id)">@(CurrentServer.Id)</a>
                             }
@@ -196,8 +198,7 @@
     [CascadingParameter]
     public Server CurrentServer { get; set; }
 
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     [CascadingParameter]
     public WingsConsole Console { get; set; }

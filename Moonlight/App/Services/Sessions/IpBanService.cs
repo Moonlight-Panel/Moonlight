@@ -19,7 +19,7 @@ public class IpBanService
 
     public Task<bool> IsBanned()
     {
-        var ip = IdentityService.GetIp();
+        var ip = IdentityService.Ip;
 
         return Task.FromResult(
             IpBanRepository

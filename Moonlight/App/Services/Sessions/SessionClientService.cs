@@ -40,9 +40,9 @@ public class SessionClientService
 
     public async Task Start()
     {
-        User = await IdentityService.Get();
-        Ip = IdentityService.GetIp();
-        Device = IdentityService.GetDevice();
+        User = IdentityService.User;
+        Ip = IdentityService.Ip;
+        Device = IdentityService.Device;
 
         if (User != null) // Track users last visit
         {

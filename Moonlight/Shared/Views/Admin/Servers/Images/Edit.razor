@@ -12,252 +12,252 @@
 @inject ToastService ToastService
 @inject FileDownloadService FileDownloadService
 
-<OnlyAdmin>
+@attribute [PermissionRequired(nameof(Permissions.AdminServerImageEdit))]
+
 <div class="row">
-<LazyLoader @ref="LazyLoader" Load="Load">
-@if (Image == null)
-{
-    <div class="alert alert-danger">
-        <TL>No image with this id found</TL>
-    </div>
-}
-else
-{
-    <div class="row">
-        <div class="col-xl-6 mb-5 mb-xl-10">
-            <div class="card card-body">
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Name</TL>
-                    </label>
-                    <input @bind="Image.Name" type="text" class="form-control">
+            <LazyLoader @ref="LazyLoader" Load="Load">
+            @if (Image == null)
+            {
+                <div class="alert alert-danger">
+                    <TL>No image with this id found</TL>
                 </div>
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Description</TL>
-                    </label>
-                    <textarea @bind="Image.Description" type="text" class="form-control"></textarea>
-                </div>
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Background image url</TL>
-                    </label>
-                    <input 
-                        @bind="Image.BackgroundImageUrl"
-                        type="text"
-                        class="form-control"
-                        placeholder="@(SmartTranslateService.Translate("Leave empty for the default background image"))">
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 mb-5 mb-xl-10">
-            <div class="card card-body">
-                <label class="form-label">
-                    <TL>Tags</TL>
-                </label>
-                <div class="input-group mb-5">
-                    <input @bind="AddTagName" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter tag name"))">
-                    <button @onclick="AddTag" class="btn btn-primary">
-                        <TL>Add</TL>
-                    </button>
-                </div>
-                <div>
-                    @if (Tags.Any())
-                    {
-                        <div class="row">
-                            @foreach (var tag in Tags)
-                            {
-                                <button @onclick="() => RemoveTag(tag)" class="col m-3 btn btn-outline-primary mw-25">
-                                    @(tag)
-                                </button>
-                            }
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-xl-6 mb-5 mb-xl-10">
+                        <div class="card card-body">
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Name</TL>
+                                </label>
+                                <input @bind="Image.Name" type="text" class="form-control">
+                            </div>
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Description</TL>
+                                </label>
+                                <textarea @bind="Image.Description" type="text" class="form-control"></textarea>
+                            </div>
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Background image url</TL>
+                                </label>
+                                <input 
+                                    @bind="Image.BackgroundImageUrl"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="@(SmartTranslateService.Translate("Leave empty for the default background image"))">
+                            </div>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-primary">
-                            <TL>No tags found</TL>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xl-6 mb-5 mb-xl-10">
-            <div class="card card-body">
-                <label class="form-label">
-                    <TL>Docker images</TL>
-                </label>
-                <div class="input-group mb-5">
-                    <input @bind="NewDockerImage.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter docker image name"))">
-                    <button @onclick="AddDockerImage" class="btn btn-primary">
-                        <TL>Add</TL>
-                    </button>
-                </div>
-                <div>
-                    @if (Image.DockerImages.Any())
-                    {
-                        <div class="row">
-                            @foreach (var imageDocker in Image.DockerImages)
-                            {
-                                <button @onclick="() => RemoveDockerImage(imageDocker)" class="col m-3 btn btn-outline-primary mw-25">
-                                    @(imageDocker.Name)
-                                </button>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-primary">
-                            <TL>No docker images found</TL>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 mb-5 mb-xl-10">
-            <div class="card card-body">
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Default image</TL>
-                    </label>
-                    <select @bind="DefaultImageIndex" class="form-select">
-                        @foreach (var image in Image.DockerImages)
-                        {
-                            <option value="@(image.Id)">@(image.Name)</option>
-                        }
-                    </select>
-                </div>
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Allocations</TL>
-                    </label>
-                    <input @bind="Image.Allocations" type="number" class="form-control">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mx-0">
-        <div class="card card-body">
-            <div class="mb-10">
-                <label class="form-label">
-                    <TL>Startup command</TL>
-                </label>
-                <input @bind="Image.Startup" type="text" class="form-control">
-            </div>
-
-            <div class="row">
-                <div class="col-xl-6 mb-5 mb-xl-10">
-                    <div class="mb-10">
-                        <label class="form-label">
-                            <TL>Install container</TL>
-                        </label>
-                        <input @bind="Image.InstallDockerImage" type="text" class="form-control">
                     </div>
-                </div>
-                <div class="col-xl-6 mb-5 mb-xl-10">
-                    <div class="mb-10">
-                        <label class="form-label">
-                            <TL>Install entry</TL>
-                        </label>
-                        <input @bind="Image.InstallEntrypoint" type="text" class="form-control">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="card card-flush">
-                <FileEditor @ref="Editor" Language="shell" InitialData="@(Image.InstallScript)" HideControls="true"/>
-            </div>
-        </div>
-    </div>
-    <div class="row my-8">
-        <div class="col-xl-6 mb-5 mb-xl-10">
-            <div class="card card-body">
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Configuration files</TL>
-                    </label>
-                    <textarea @bind="Image.ConfigFiles" class="form-control"></textarea>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 mb-5 mb-xl-10">
-            <div class="card card-body">
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Startup detection</TL>
-                    </label>
-                    <input @bind="Image.StartupDetection" type="text" class="form-control">
-                </div>
-                <div class="mb-10">
-                    <label class="form-label">
-                        <TL>Stop command</TL>
-                    </label>
-                    <input @bind="Image.StopCommand" type="text" class="form-control">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row my-6">
-        <div class="card card-body">
-            <div class="input-group mb-5">
-                <input type="text" @bind="ImageVariable.Key" placeholder="@(SmartTranslateService.Translate("Key"))" class="form-control">
-                <input type="text" @bind="ImageVariable.DefaultValue" placeholder="@(SmartTranslateService.Translate("Default value"))" class="form-control">
-                <button @onclick="AddVariable" class="btn btn-primary">
-                    <TL>Add</TL>
-                </button>
-            </div>
-
-            <div>
-                @if (Image!.Variables.Any())
-                {
-                    <div class="row">
-                        @foreach (var variable in Image!.Variables)
-                        {
-                            <div class="input-group mb-3">
-                                <input type="text" @bind="variable.Key" placeholder="@(SmartTranslateService.Translate("Key"))" class="form-control">
-                                <input type="text" @bind="variable.DefaultValue" placeholder="@(SmartTranslateService.Translate("Default value"))" class="form-control">
-                                <button @onclick="() => RemoveVariable(variable)" class="btn btn-danger">
-                                    <TL>Remove</TL>
+                    <div class="col-xl-6 mb-5 mb-xl-10">
+                        <div class="card card-body">
+                            <label class="form-label">
+                                <TL>Tags</TL>
+                            </label>
+                            <div class="input-group mb-5">
+                                <input @bind="AddTagName" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter tag name"))">
+                                <button @onclick="AddTag" class="btn btn-primary">
+                                    <TL>Add</TL>
                                 </button>
                             </div>
-                        }
+                            <div>
+                                @if (Tags.Any())
+                                {
+                                    <div class="row">
+                                        @foreach (var tag in Tags)
+                                        {
+                                            <button @onclick="() => RemoveTag(tag)" class="col m-3 btn btn-outline-primary mw-25">
+                                                @(tag)
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-primary">
+                                        <TL>No tags found</TL>
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <div class="alert alert-primary">
-                        <TL>No variables found</TL>
+                </div>
+                <div class="row">
+                    <div class="col-xl-6 mb-5 mb-xl-10">
+                        <div class="card card-body">
+                            <label class="form-label">
+                                <TL>Docker images</TL>
+                            </label>
+                            <div class="input-group mb-5">
+                                <input @bind="NewDockerImage.Name" type="text" class="form-control" placeholder="@(SmartTranslateService.Translate("Enter docker image name"))">
+                                <button @onclick="AddDockerImage" class="btn btn-primary">
+                                    <TL>Add</TL>
+                                </button>
+                            </div>
+                            <div>
+                                @if (Image.DockerImages.Any())
+                                {
+                                    <div class="row">
+                                        @foreach (var imageDocker in Image.DockerImages)
+                                        {
+                                            <button @onclick="() => RemoveDockerImage(imageDocker)" class="col m-3 btn btn-outline-primary mw-25">
+                                                @(imageDocker.Name)
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-primary">
+                                        <TL>No docker images found</TL>
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
-                }
+                    <div class="col-xl-6 mb-5 mb-xl-10">
+                        <div class="card card-body">
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Default image</TL>
+                                </label>
+                                <select @bind="DefaultImageIndex" class="form-select">
+                                    @foreach (var image in Image.DockerImages)
+                                    {
+                                        <option value="@(image.Id)">@(image.Name)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Allocations</TL>
+                                </label>
+                                <input @bind="Image.Allocations" type="number" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="card card-body">
+                        <div class="mb-10">
+                            <label class="form-label">
+                                <TL>Startup command</TL>
+                            </label>
+                            <input @bind="Image.Startup" type="text" class="form-control">
+                        </div>
+            
+                        <div class="row">
+                            <div class="col-xl-6 mb-5 mb-xl-10">
+                                <div class="mb-10">
+                                    <label class="form-label">
+                                        <TL>Install container</TL>
+                                    </label>
+                                    <input @bind="Image.InstallDockerImage" type="text" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xl-6 mb-5 mb-xl-10">
+                                <div class="mb-10">
+                                    <label class="form-label">
+                                        <TL>Install entry</TL>
+                                    </label>
+                                    <input @bind="Image.InstallEntrypoint" type="text" class="form-control">
+                                </div>
+                            </div>
+            
+                        </div>
+            
+                        <div class="card card-flush">
+                            <FileEditor @ref="Editor" Language="shell" InitialData="@(Image.InstallScript)" HideControls="true"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row my-8">
+                    <div class="col-xl-6 mb-5 mb-xl-10">
+                        <div class="card card-body">
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Configuration files</TL>
+                                </label>
+                                <textarea @bind="Image.ConfigFiles" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 mb-5 mb-xl-10">
+                        <div class="card card-body">
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Startup detection</TL>
+                                </label>
+                                <input @bind="Image.StartupDetection" type="text" class="form-control">
+                            </div>
+                            <div class="mb-10">
+                                <label class="form-label">
+                                    <TL>Stop command</TL>
+                                </label>
+                                <input @bind="Image.StopCommand" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row my-6">
+                    <div class="card card-body">
+                        <div class="input-group mb-5">
+                            <input type="text" @bind="ImageVariable.Key" placeholder="@(SmartTranslateService.Translate("Key"))" class="form-control">
+                            <input type="text" @bind="ImageVariable.DefaultValue" placeholder="@(SmartTranslateService.Translate("Default value"))" class="form-control">
+                            <button @onclick="AddVariable" class="btn btn-primary">
+                                <TL>Add</TL>
+                            </button>
+                        </div>
+            
+                        <div>
+                            @if (Image!.Variables.Any())
+                            {
+                                <div class="row">
+                                    @foreach (var variable in Image!.Variables)
+                                    {
+                                        <div class="input-group mb-3">
+                                            <input type="text" @bind="variable.Key" placeholder="@(SmartTranslateService.Translate("Key"))" class="form-control">
+                                            <input type="text" @bind="variable.DefaultValue" placeholder="@(SmartTranslateService.Translate("Default value"))" class="form-control">
+                                            <button @onclick="() => RemoveVariable(variable)" class="btn btn-danger">
+                                                <TL>Remove</TL>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-primary">
+                                    <TL>No variables found</TL>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="card card-body">
+                        <div class="d-flex justify-content-end">
+                            <a href="/admin/servers/images" class="btn btn-danger me-3">
+                                <TL>Cancel</TL>
+                            </a>
+                            <WButton Text="@(SmartTranslateService.Translate("Export"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Exporting"))"
+                                     CssClasses="btn-primary me-3"
+                                     OnClick="Export">
+                            </WButton>
+                            <WButton Text="@(SmartTranslateService.Translate("Save"))"
+                                     WorkingText="@(SmartTranslateService.Translate("Saving"))"
+                                     CssClasses="btn-success"
+                                     OnClick="Save">
+                            </WButton>
+                        </div>
+                    </div>
+                </div>
+            }
+            </LazyLoader>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="card card-body">
-            <div class="d-flex justify-content-end">
-                <a href="/admin/servers/images" class="btn btn-danger me-3">
-                    <TL>Cancel</TL>
-                </a>
-                <WButton Text="@(SmartTranslateService.Translate("Export"))"
-                         WorkingText="@(SmartTranslateService.Translate("Exporting"))"
-                         CssClasses="btn-primary me-3"
-                         OnClick="Export">
-                </WButton>
-                <WButton Text="@(SmartTranslateService.Translate("Save"))"
-                         WorkingText="@(SmartTranslateService.Translate("Saving"))"
-                         CssClasses="btn-success"
-                         OnClick="Save">
-                </WButton>
-            </div>
-        </div>
-    </div>
-}
-</LazyLoader>
-</div>
-</OnlyAdmin>
 
 @code
 {

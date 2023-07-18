@@ -25,7 +25,7 @@ public class RegisterController : Controller
     [HttpGet]
     public async Task<ActionResult<TokenRegister>> Register()
     {
-        var user = await IdentityService.Get();
+        var user = IdentityService.User;
 
         if (user == null)
             return NotFound();

@@ -42,92 +42,79 @@
 }
 
 <GlobalErrorBoundary>
-    <CascadingValue Value="User">
-        <PageTitle>@(string.IsNullOrEmpty(title) ? "Dashboard - " : title)Moonlight</PageTitle>
+    <PageTitle>@(string.IsNullOrEmpty(title) ? "Dashboard - " : title)Moonlight</PageTitle>
 
-        <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
-            <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
-                <canvas id="snow" class="snow-canvas"></canvas>
+    <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
+        <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
+            <canvas id="snow" class="snow-canvas"></canvas>
 
-                @{
-                    //TODO: Add a way to disable the snow
-                }
+            @{
+                //TODO: Add a way to disable the snow
+            }
 
-                <PageHeader></PageHeader>
-                <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
-                    <Sidebar></Sidebar>
-                    <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
-                        <div class="d-flex flex-column flex-column-fluid">
-                            <div id="kt_app_content" class="app-content flex-column-fluid" style="background-position: center; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-image: url('@(DynamicBackgroundService.BackgroundImageUrl)')">
-                                <div id="kt_app_content_container" class="app-container container-fluid">
-                                    <div class="mt-10">
-                                        <SoftErrorBoundary>
-                                            @if (!IsIpBanned)
+            <PageHeader></PageHeader>
+            <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+                <Sidebar></Sidebar>
+                <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
+                    <div class="d-flex flex-column flex-column-fluid">
+                        <div id="kt_app_content" class="app-content flex-column-fluid" style="background-position: center; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-image: url('@(DynamicBackgroundService.BackgroundImageUrl)')">
+                            <div id="kt_app_content_container" class="app-container container-fluid">
+                                <div class="mt-10">
+                                    <SoftErrorBoundary>
+                                        @if (!IsIpBanned)
+                                        {
+                                            if (UserProcessed)
                                             {
-                                                if (UserProcessed)
+                                                if (uri.LocalPath != "/login" &&
+                                                    uri.LocalPath != "/passwordreset" &&
+                                                    uri.LocalPath != "/register")
                                                 {
-                                                    if (uri.LocalPath != "/login" &&
-                                                        uri.LocalPath != "/passwordreset" &&
-                                                        uri.LocalPath != "/register")
+                                                    if (IdentityService.User == null)
                                                     {
-                                                        if (User == null)
-                                                        {
-                                                            <Login></Login>
-                                                        }
-                                                        else
-                                                        {
-                                                            if (User.Status == UserStatus.Banned)
-                                                            {
-                                                                <BannedAlert></BannedAlert>
-                                                            }
-                                                            else if (User.Status == UserStatus.Disabled)
-                                                            {
-                                                                <DisabledAlert></DisabledAlert>
-                                                            }
-                                                            else if (User.Status == UserStatus.PasswordPending)
-                                                            {
-                                                                <PasswordChangeView></PasswordChangeView>
-                                                            }
-                                                            else if (User.Status == UserStatus.DataPending)
-                                                            {
-                                                                <UserDataSetView></UserDataSetView>
-                                                            }
-                                                            else
-                                                            {
-                                                                @Body
-
-                                                                <RatingPopup/>
-                                                            }
-                                                        }
+                                                        <Login></Login>
                                                     }
                                                     else
                                                     {
-                                                        if (uri.LocalPath == "/login")
+                                                        if (IdentityService.User.Status == UserStatus.Banned)
                                                         {
-                                                            <Login></Login>
+                                                            <BannedAlert></BannedAlert>
                                                         }
-                                                        else if (uri.LocalPath == "/register")
+                                                        else if (IdentityService.User.Status == UserStatus.Disabled)
                                                         {
-                                                            <Register></Register>
+                                                            <DisabledAlert></DisabledAlert>
                                                         }
-                                                        else if (uri.LocalPath == "/passwordreset")
+                                                        else if (IdentityService.User.Status == UserStatus.PasswordPending)
                                                         {
-                                                            <PasswordReset></PasswordReset>
+                                                            <PasswordChangeView></PasswordChangeView>
+                                                        }
+                                                        else if (IdentityService.User.Status == UserStatus.DataPending)
+                                                        {
+                                                            <UserDataSetView></UserDataSetView>
+                                                        }
+                                                        else
+                                                        {
+                                                            <RenderPermissionChecker>
+                                                                @Body
+                                                            </RenderPermissionChecker>
+
+                                                            <RatingPopup/>
                                                         }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    <div class="modal d-block">
-                                                        <div class="modal-dialog modal-dialog-centered mw-900px">
-                                                            <div class="modal-content">
-                                                                <div class="pt-2 modal-body py-lg-10 px-lg-10">
-                                                                    <h2>@(SmartTranslateService.Translate("Authenticating"))...</h2>
-                                                                    <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("Verifying token, loading user data"))</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    if (uri.LocalPath == "/login")
+                                                    {
+                                                        <Login></Login>
+                                                    }
+                                                    else if (uri.LocalPath == "/register")
+                                                    {
+                                                        <Register></Register>
+                                                    }
+                                                    else if (uri.LocalPath == "/passwordreset")
+                                                    {
+                                                        <PasswordReset></PasswordReset>
+                                                    }
                                                 }
                                             }
                                             else
@@ -136,38 +123,50 @@
                                                     <div class="modal-dialog modal-dialog-centered mw-900px">
                                                         <div class="modal-content">
                                                             <div class="pt-2 modal-body py-lg-10 px-lg-10">
-                                                                <h2>@(SmartTranslateService.Translate("Your ip has been banned"))</h2>
-                                                                <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("Your ip address has been banned by an admin"))</p>
+                                                                <h2>@(SmartTranslateService.Translate("Authenticating"))...</h2>
+                                                                <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("Verifying token, loading user data"))</p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             }
-                                        </SoftErrorBoundary>
-                                    </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="modal d-block">
+                                                <div class="modal-dialog modal-dialog-centered mw-900px">
+                                                    <div class="modal-content">
+                                                        <div class="pt-2 modal-body py-lg-10 px-lg-10">
+                                                            <h2>@(SmartTranslateService.Translate("Your ip has been banned"))</h2>
+                                                            <p class="mt-3 fw-normal fs-6">@(SmartTranslateService.Translate("Your ip address has been banned by an admin"))</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </SoftErrorBoundary>
                                 </div>
                             </div>
                         </div>
-                        <Footer></Footer>
                     </div>
+                    <Footer></Footer>
                 </div>
             </div>
         </div>
-    </CascadingValue>
+    </div>
 </GlobalErrorBoundary>
 
 @code
 {
-    private User? User;
     private bool UserProcessed = false;
 
     private bool IsIpBanned = false;
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
             AddBodyAttribute("data-kt-app-page-loading", "on");
-        
+
     //Initialize classes and attributes for layout with dark sidebar
         AddBodyAttribute("data-kt-app-reset-transition", "true");
 
@@ -202,7 +201,7 @@
                     NavigationManager.NavigateTo(NavigationManager.Uri, true);
                 });
 
-                User = await IdentityService.Get();
+                await IdentityService.Load();
                 UserProcessed = true;
                 await InvokeAsync(StateHasChanged);
 
@@ -213,7 +212,10 @@
                     await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
                     await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
                 }
-                catch (Exception){ /* ignore errors to make sure that the session call is executed */ }
+                catch (Exception)
+                {
+    /* ignore errors to make sure that the session call is executed */
+                }
 
                 await SessionClientService.Start();
 
@@ -223,14 +225,14 @@
                         await DynamicBackgroundService.Reset();
                 };
 
-                if (User != null)
+                if (IdentityService.User != null)
                 {
                     await Event.On<SupportChatMessage>(
-                        $"supportChat.{User.Id}.message",
+                        $"supportChat.{IdentityService.User.Id}.message",
                         this,
                         async message =>
                         {
-                            if (!NavigationManager.Uri.EndsWith("/support") && message.Sender != User)
+                            if (!NavigationManager.Uri.EndsWith("/support") && message.Sender != IdentityService.User)
                             {
                                 await ToastService.Info($"Support: {message.Content}");
                             }
@@ -257,9 +259,9 @@
 
         await KeyListenerService.DisposeAsync();
 
-        if (User != null)
+        if (IdentityService.User != null)
         {
-            await Event.Off($"supportChat.{User.Id}.message", this);
+            await Event.Off($"supportChat.{IdentityService.User.Id}.message", this);
         }
     }
 

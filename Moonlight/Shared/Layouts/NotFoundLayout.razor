@@ -60,8 +60,6 @@
 
 @code
 {
-    private User? User;
-
     protected override void OnInitialized()
     {
         AddBodyAttribute("data-kt-app-page-loading", "on");
@@ -95,7 +93,7 @@
         {
             try
             {
-                User = await IdentityService.Get();
+                await IdentityService.Load();
 
                 await InvokeAsync(StateHasChanged);
                 await Task.Delay(300);

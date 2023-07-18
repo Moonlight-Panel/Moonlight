@@ -12,50 +12,50 @@
 @inject SmartTranslateService SmartTranslateService
 @inject AlertService AlertService
 
-<OnlyAdmin>
-    <AdminSystemNavigation Index="7" />
-    
-    <div class="card card-body mb-6">
-        <div class="text-end">
-            <a href="/admin/system/news/new" class="btn btn-success">
-                <TL>New entry</TL>
-            </a>
-        </div>
+@attribute [PermissionRequired(nameof(Permissions.AdminSysNews))]
+
+<AdminSystemNavigation Index="7"/>
+
+<div class="card card-body mb-6">
+    <div class="text-end">
+        <a href="/admin/system/news/new" class="btn btn-success">
+            <TL>New entry</TL>
+        </a>
     </div>
+</div>
 
-    <LazyLoader @ref="LazyLoader" Load="Load">
-        @foreach (var entry in Entries)
-        {
-            <div class="card mb-6">
-                <div class="card-header">
-                    <h3 class="card-title">@entry.Title</h3>
-                    <div class="card-toolbar">
-                        <a href="/admin/system/news/edit/@(entry.Id)">
-                            <button class="btn btn-sm btn-light me-4">
-                                <TL>Edit</TL>
-                            </button>
-                        </a>
+<LazyLoader @ref="LazyLoader" Load="Load">
+    @foreach (var entry in Entries)
+    {
+        <div class="card mb-6">
+            <div class="card-header">
+                <h3 class="card-title">@entry.Title</h3>
+                <div class="card-toolbar">
+                    <a href="/admin/system/news/edit/@(entry.Id)">
+                        <button class="btn btn-sm btn-light me-4">
+                            <TL>Edit</TL>
+                        </button>
+                    </a>
 
-                        <WButton CssClasses="btn btn-sm btn-light me-4"
-                                 Text="@SmartTranslateService.Translate("Delete")"
-                                 WorkingText="@SmartTranslateService.Translate("Deleting...")"
-                                 OnClick="() => Delete(entry)">
-                        </WButton>
+                    <WButton CssClasses="btn btn-sm btn-light me-4"
+                             Text="@SmartTranslateService.Translate("Delete")"
+                             WorkingText="@SmartTranslateService.Translate("Deleting...")"
+                             OnClick="() => Delete(entry)">
+                    </WButton>
 
-                        <span class="text-gray-600 fw-semibold">@(Formatter.FormatDateOnly(entry.Date))</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @{
-                        var html = (MarkupString)Markdown.ToHtml(entry.Markdown);
-                    }
-
-                    @(html)
+                    <span class="text-gray-600 fw-semibold">@(Formatter.FormatDateOnly(entry.Date))</span>
                 </div>
             </div>
-        }
-    </LazyLoader>
-</OnlyAdmin>
+            <div class="card-body">
+                @{
+                    var html = (MarkupString)Markdown.ToHtml(entry.Markdown);
+                }
+
+                @(html)
+            </div>
+        </div>
+    }
+</LazyLoader>
 
 @code
 {

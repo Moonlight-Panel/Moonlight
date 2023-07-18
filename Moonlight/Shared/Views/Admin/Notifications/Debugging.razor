@@ -12,8 +12,9 @@
 
 @implements IDisposable
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
+@attribute [PermissionRequired(nameof(Permissions.AdminNotificationDebugging))]
+
+<LazyLoader Load="Load">
         <div class="card card-body">
             <Table TableItem="ActiveNotificationClient" Items="Clients" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
                 <Column TableItem="ActiveNotificationClient" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Client.Id)" Sortable="false" Filterable="true"/>
@@ -31,8 +32,6 @@
             </Table>
         </div>
     </LazyLoader>
-</OnlyAdmin>
-
 
 @code
 {

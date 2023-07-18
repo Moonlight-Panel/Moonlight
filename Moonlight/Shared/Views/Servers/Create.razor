@@ -7,6 +7,7 @@
 @using Moonlight.App.Repositories.Servers
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Exceptions
+@using Moonlight.App.Services.Sessions
 
 @inject SubscriptionService SubscriptionService
 @inject ImageRepository ImageRepository
@@ -15,6 +16,7 @@
 @inject ServerRepository ServerRepository
 @inject NavigationManager NavigationManager
 @inject ServerService ServerService
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @if (DeployNode == null)
@@ -172,8 +174,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     private Node? DeployNode;
     private Subscription? Subscription;
@@ -190,7 +191,7 @@
         Model = new();
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Loading your subscription"));
-        Subscription = await SubscriptionService.GetActiveSubscription(User);
+        Subscription = await SubscriptionService.GetActiveSubscription(IdentityService.User);
 
         await lazyLoader.SetText(SmartTranslateService.Translate("Searching for deploy node"));
         DeployNode = await SmartDeployService.GetNode();
@@ -200,7 +201,7 @@
 
         foreach (var image in images)
         {
-            var limit = await SubscriptionService.GetLimit(User, "image." + image.Id);
+            var limit = await SubscriptionService.GetLimit(IdentityService.User, "image." + image.Id);
 
             if (limit.Amount > 0)
             {
@@ -208,7 +209,7 @@
                     .Get()
                     .Include(x => x.Owner)
                     .Include(x => x.Image)
-                    .Where(x => x.Owner.Id == User.Id)
+                    .Where(x => x.Owner.Id == IdentityService.User.Id)
                     .Count(x => x.Image.Id == image.Id);
 
                 Images.Add(image, limit);
@@ -219,7 +220,7 @@
 
     private async Task OnValidSubmit()
     {
-        var limit = await SubscriptionService.GetLimit(User, "image." + Model.Image.Id);
+        var limit = await SubscriptionService.GetLimit(IdentityService.User, "image." + Model.Image.Id);
 
         if (limit.Amount > 0)
         {
@@ -227,7 +228,7 @@
                 .Get()
                 .Include(x => x.Owner)
                 .Include(x => x.Image)
-                .Where(x => x.Owner.Id == User.Id)
+                .Where(x => x.Owner.Id == IdentityService.User.Id)
                 .Count(x => x.Image.Id == Model.Image.Id);
 
             if (serversCount < limit.Amount)
@@ -241,7 +242,7 @@
                         cpu,
                         memory,
                         disk,
-                        User,
+                        IdentityService.User,
                         Model.Image,
                         DeployNode
                         );

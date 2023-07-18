@@ -475,6 +475,25 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("NotificationClients");
                 });
 
+            modelBuilder.Entity("Moonlight.App.Database.Entities.PermissionGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<byte[]>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("longblob");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PermissionGroups");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.Revoke", b =>
                 {
                     b.Property<int>("Id")
@@ -798,6 +817,13 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("PermissionGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("longblob");
+
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -844,6 +870,8 @@ namespace Moonlight.App.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CurrentSubscriptionId");
+
+                    b.HasIndex("PermissionGroupId");
 
                     b.ToTable("Users");
                 });
@@ -1049,7 +1077,13 @@ namespace Moonlight.App.Database.Migrations
                         .WithMany()
                         .HasForeignKey("CurrentSubscriptionId");
 
+                    b.HasOne("Moonlight.App.Database.Entities.PermissionGroup", "PermissionGroup")
+                        .WithMany()
+                        .HasForeignKey("PermissionGroupId");
+
                     b.Navigation("CurrentSubscription");
+
+                    b.Navigation("PermissionGroup");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>

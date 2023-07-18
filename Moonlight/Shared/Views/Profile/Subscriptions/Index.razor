@@ -7,6 +7,7 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services.Interop
 @using Markdig
+@using Moonlight.App.Services.Sessions
 
 @inject BillingService BillingService
 @inject Repository<Subscription> SubscriptionRepository
@@ -14,6 +15,7 @@
 @inject PopupService PopupService
 @inject SubscriptionService SubscriptionService
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
 
 <ProfileNavigation Index="3"/>
 
@@ -80,7 +82,7 @@
     {
         <div class="card">
             <div class="card-body">
-                @if ((User.SubscriptionExpires - DateTime.UtcNow).TotalDays < 5)
+                @if ((IdentityService.User.SubscriptionExpires - DateTime.UtcNow).TotalDays < 5)
                 {
                     <div class="notice d-flex bg-light-warning rounded border-warning border mb-12 p-6">
                         <div class="d-flex flex-stack flex-grow-1 ">
@@ -91,7 +93,7 @@
                                 <div class="fs-6 text-gray-700 ">
                                     <TL>Your subscription expires soon</TL>
                                     <span>
-                                        @(Math.Round((User.SubscriptionExpires - DateTime.UtcNow).TotalDays)) <TL>left</TL>
+                                        @(Math.Round((IdentityService.User.SubscriptionExpires - DateTime.UtcNow).TotalDays)) <TL>left</TL>
                                     </span>
                                 </div>
                             </div>
@@ -101,7 +103,7 @@
                 <div class="row">
                     <div class="col-lg-7">
                         <h3 class="mb-2">
-                            <TL>Active until</TL> @(Formatter.FormatDateOnly(User.SubscriptionExpires))
+                            <TL>Active until</TL> @(Formatter.FormatDateOnly(IdentityService.User.SubscriptionExpires))
                         </h3>
                         <p class="fs-6 text-gray-600 fw-semibold mb-6 mb-lg-15">
                             <TL>We will send you a email upon subscription expiration</TL>
@@ -134,8 +136,7 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
+    
 
     private Subscription[] Subscriptions;
     private Subscription? CurrentSubscription;
@@ -144,21 +145,21 @@
     private async Task Load(LazyLoader lazyLoader)
     {
         Subscriptions = SubscriptionRepository.Get().ToArray();
-        CurrentSubscription = await SubscriptionService.GetActiveSubscription(User);
+        CurrentSubscription = await SubscriptionService.GetActiveSubscription(IdentityService.User);
     }
 
     private async Task Cancel()
     {
         if (await AlertService.ConfirmMath())
         {
-            await SubscriptionService.CancelSubscription(User);
+            await SubscriptionService.CancelSubscription(IdentityService.User);
             await LazyLoader.Reload();
         }
     }
 
     private async Task StartCheckout(Subscription subscription)
     {
-        var url = await BillingService.StartCheckout(User, subscription);
+        var url = await BillingService.StartCheckout(IdentityService.User, subscription);
 
         await PopupService.ShowCentered(
             url,

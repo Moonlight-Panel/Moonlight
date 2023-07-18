@@ -6,12 +6,13 @@
 @inject NodeRepository NodeRepository
 @inject ConfigService ConfigService
 
+@attribute [PermissionRequired(nameof(Permissions.AdminNodeSetup))]
+
 @{
     var appUrl = ConfigService.Get().Moonlight.AppUrl;
 }
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
+<LazyLoader Load="Load">
         @if (Node == null)
         {
             <div class="alert alert-warning">
@@ -141,7 +142,6 @@
             </div>
         }
     </LazyLoader>
-</OnlyAdmin>
 
 @code
 {

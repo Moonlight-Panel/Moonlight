@@ -77,6 +77,9 @@
     <_ContentIncludedByDefault Remove="Shared\Views\Admin\Servers\Cleanup\Exceptions\Edit.razor" />
     <_ContentIncludedByDefault Remove="Shared\Components\News\NewsEditor.razor" />
     <_ContentIncludedByDefault Remove="Shared\News\Edit.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Views\Admin\AaPanels\Index.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Views\Admin\Databases\Index.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\StateLogic\OnlyAdmin.razor" />
   </ItemGroup>
 
   <ItemGroup>

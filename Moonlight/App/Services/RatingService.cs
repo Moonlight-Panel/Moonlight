@@ -39,7 +39,7 @@ public class RatingService
         if (!Enabled)
             return false;
 
-        var user = await IdentityService.Get();
+        var user = IdentityService.User;
 
         if (user == null)
             return false;
@@ -62,7 +62,7 @@ public class RatingService
 
     public async Task<bool> Rate(int rate)
     {
-        var user = await IdentityService.Get();
+        var user = IdentityService.User;
         
         // Double check states:
         
