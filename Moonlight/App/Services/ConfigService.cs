@@ -8,6 +8,7 @@ namespace Moonlight.App.Services;
 public class ConfigService
 {
     private readonly StorageService StorageService;
+    private readonly string Path;
     private ConfigV1 Configuration;
 
     public bool DebugMode { get; private set; } = false;
@@ -17,6 +18,11 @@ public class ConfigService
     {
         StorageService = storageService;
         StorageService.EnsureCreated();
+
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ML_CONFIG_PATH")))
+            Path = Environment.GetEnvironmentVariable("ML_CONFIG_PATH")!;
+        else
+            Path = PathBuilder.File("storage", "configs", "config.json");
 
         Reload();
 
@@ -40,18 +46,16 @@ public class ConfigService
 
     public void Reload()
     {
-        var path = PathBuilder.File("storage", "configs", "config.json");
-        
-        if (!File.Exists(path))
+        if (!File.Exists(Path))
         {
-            File.WriteAllText(path, "{}");
+            File.WriteAllText(Path, "{}");
         }
 
         Configuration = JsonConvert.DeserializeObject<ConfigV1>(
-            File.ReadAllText(path)
+            File.ReadAllText(Path)
         ) ?? new ConfigV1();
         
-        File.WriteAllText(path, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
+        File.WriteAllText(Path, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
     }
 
     public void Save(ConfigV1 configV1)
@@ -62,14 +66,12 @@ public class ConfigService
 
     public void Save()
     {
-        var path = PathBuilder.File("storage", "configs", "config.json");
-        
-        if (!File.Exists(path))
+        if (!File.Exists(Path))
         {
-            File.WriteAllText(path, "{}");
+            File.WriteAllText(Path, "{}");
         }
         
-        File.WriteAllText(path, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
+        File.WriteAllText(Path, JsonConvert.SerializeObject(Configuration, Formatting.Indented));
         
         Reload();
     }
