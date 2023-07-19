@@ -54,7 +54,10 @@ public class UserService
             throw new DisplayException("This operation was disabled");
 
         if (await TempMailService.IsTempMail(email))
+        {
+            Logger.Warn($"A user tried to use a blacklisted domain to register. Email: '{email}'", "security");
             throw new DisplayException("This email is blacklisted");
+        }
         
         // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;

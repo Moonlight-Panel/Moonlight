@@ -393,6 +393,13 @@ public static class Permissions
         Name = "Admin security permission groups",
         Description = "View, add and delete permission groups"
     };
+    
+    public static Permission AdminSecurityLogs = new()
+    {
+        Index = 58,
+        Name = "Admin security logs",
+        Description = "View the security logs"
+    };
 
     public static Permission? FromString(string name)
     {

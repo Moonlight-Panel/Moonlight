@@ -80,6 +80,10 @@
     <_ContentIncludedByDefault Remove="Shared\Views\Admin\AaPanels\Index.razor" />
     <_ContentIncludedByDefault Remove="Shared\Views\Admin\Databases\Index.razor" />
     <_ContentIncludedByDefault Remove="Shared\Components\StateLogic\OnlyAdmin.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryChangePassword.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryChangePowerState.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryLogin.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryRegister.razor" />
   </ItemGroup>
 
   <ItemGroup>

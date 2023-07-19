@@ -15,7 +15,6 @@ using Moonlight.App.Helpers.Wings;
 using Moonlight.App.LogMigrator;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Domains;
-using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Addon;
@@ -167,9 +166,6 @@ namespace Moonlight
             builder.Services.AddScoped<NewsEntryRepository>();
             builder.Services.AddScoped<NodeAllocationRepository>();
             builder.Services.AddScoped<StatisticsRepository>();
-            builder.Services.AddScoped<AuditLogEntryRepository>();
-            builder.Services.AddScoped<ErrorLogEntryRepository>();
-            builder.Services.AddScoped<SecurityLogEntryRepository>();
             builder.Services.AddScoped(typeof(Repository<>));
 
             // Services
