@@ -182,59 +182,70 @@ public class DomainService
     {
         if (!ConfigService.Get().Moonlight.Domains.Enable)
             throw new DisplayException("This operation is disabled");
-        
-        var domain = EnsureData(d);
 
-        var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
-        var dname = $".{rname}";
-
-        if (dnsRecord.Type == DnsRecordType.Srv)
+        try
         {
-            var parts = dnsRecord.Name.Split(".");
+            var domain = EnsureData(d);
 
-            Protocol protocol = Protocol.Tcp;
+            var rname = $"{domain.Name}.{domain.SharedDomain.Name}";
+            var dname = $".{rname}";
 
-            if (parts[1].Contains("udp"))
-                protocol = Protocol.Udp;
-
-            var valueParts = dnsRecord.Content.Split(" ");
-
-            var nameWithoutProt = dnsRecord.Name.Replace($"{parts[0]}.{parts[1]}.", "");
-            nameWithoutProt = nameWithoutProt.Replace($"{parts[0]}.{parts[1]}", "");
-            var name = nameWithoutProt == "" ? rname : nameWithoutProt + dname;
-
-            var srv = new NewDnsRecord<Srv>()
+            if (dnsRecord.Type == DnsRecordType.Srv)
             {
-                Type = dnsRecord.Type,
-                Data = new()
+                var parts = dnsRecord.Name.Split(".");
+
+                Protocol protocol = Protocol.Tcp;
+
+                if (parts[1].Contains("udp"))
+                    protocol = Protocol.Udp;
+
+                var valueParts = dnsRecord.Content.Split(" ");
+
+                var nameWithoutProt = dnsRecord.Name.Replace($"{parts[0]}.{parts[1]}.", "");
+                nameWithoutProt = nameWithoutProt.Replace($"{parts[0]}.{parts[1]}", "");
+                var name = nameWithoutProt == "" ? rname : nameWithoutProt + dname;
+
+                var srv = new NewDnsRecord<Srv>()
                 {
-                    Service = parts[0],
-                    Protocol = protocol,
-                    Name = name,
-                    Weight = int.Parse(valueParts[0]),
-                    Port = int.Parse(valueParts[1]),
-                    Target = valueParts[2],
-                    Priority = dnsRecord.Priority
-                },
-                Proxied = dnsRecord.Proxied,
-                Ttl = dnsRecord.Ttl,
-            };
+                    Type = dnsRecord.Type,
+                    Data = new()
+                    {
+                        Service = parts[0],
+                        Protocol = protocol,
+                        Name = name,
+                        Weight = int.Parse(valueParts[0]),
+                        Port = int.Parse(valueParts[1]),
+                        Target = valueParts[2],
+                        Priority = dnsRecord.Priority
+                    },
+                    Proxied = dnsRecord.Proxied,
+                    Ttl = dnsRecord.Ttl,
+                };
 
-            GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, srv));
-        }
-        else
-        {
-            var name = string.IsNullOrEmpty(dnsRecord.Name) ? rname : dnsRecord.Name + dname;
-
-            GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, new NewDnsRecord()
+                GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, srv));
+            }
+            else
             {
-                Type = dnsRecord.Type,
-                Priority = dnsRecord.Priority,
-                Content = dnsRecord.Content,
-                Proxied = dnsRecord.Proxied,
-                Ttl = dnsRecord.Ttl,
-                Name = name
-            }));
+                var name = string.IsNullOrEmpty(dnsRecord.Name) ? rname : dnsRecord.Name + dname;
+
+                GetData(await Client.Zones.DnsRecords.AddAsync(d.SharedDomain.CloudflareId, new NewDnsRecord()
+                {
+                    Type = dnsRecord.Type,
+                    Priority = dnsRecord.Priority,
+                    Content = dnsRecord.Content,
+                    Proxied = dnsRecord.Proxied,
+                    Ttl = dnsRecord.Ttl,
+                    Name = name
+                }));
+            }
+        }
+        catch (OverflowException)
+        {
+            throw new DisplayException("Invalid dns record values");
+        }
+        catch (FormatException)
+        {
+            throw new DisplayException("Invalid dns record values");
         }
 
         //TODO: AuditLog
