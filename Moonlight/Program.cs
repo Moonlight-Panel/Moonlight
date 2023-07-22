@@ -239,6 +239,7 @@ namespace Moonlight
             builder.Services.AddSingleton<MalwareScanService>();
             builder.Services.AddSingleton<TelemetryService>();
             builder.Services.AddSingleton<TempMailService>();
+            builder.Services.AddSingleton<PluginService>();
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -289,6 +290,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<MalwareScanService>();
             _ = app.Services.GetRequiredService<TelemetryService>();
             _ = app.Services.GetRequiredService<TempMailService>();
+            _ = app.Services.GetRequiredService<PluginService>();
             
             _ = app.Services.GetRequiredService<MoonlightService>();
 
