@@ -36,11 +36,24 @@ public class DiscordNotificationService
             Event.On<User>("supportChat.close", this, OnSupportChatClose);
             Event.On<User>("user.rating", this, OnUserRated);
             Event.On<User>("billing.completed", this, OnBillingCompleted);
+            Event.On<BlocklistIp>("ddos.add", this, OnIpBlockListed);
         }
         else
         {
             Logger.Info("Discord notifications disabled");
         }
+    }
+
+    private async Task OnIpBlockListed(BlocklistIp blocklistIp)
+    {
+        await SendNotification("", builder =>
+        {
+            builder.Color = Color.Red;
+            builder.Title = "New ddos attack detected";
+
+            builder.AddField("IP", blocklistIp.Ip);
+            builder.AddField("Packets", blocklistIp.Packets);
+        });
     }
 
     private async Task OnBillingCompleted(User user)

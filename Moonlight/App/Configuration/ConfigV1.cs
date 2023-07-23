@@ -276,6 +276,10 @@ public class ConfigV1
         [Blur]
         public string Token { get; set; } = Guid.NewGuid().ToString();
 
+        [JsonProperty("BlockIpDuration")]
+        [Description("The duration in minutes a ip will be blocked by the anti ddos system")]
+        public int BlockIpDuration { get; set; } = 15;
+
         [JsonProperty("ReCaptcha")] public ReCaptchaData ReCaptcha { get; set; } = new();
     }
 
