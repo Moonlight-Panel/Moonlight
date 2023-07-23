@@ -40,6 +40,8 @@
     {
         SecurityLogs = SecurityLogRepository
             .Get()
+            .ToArray()
+            .OrderByDescending(x => x.CreatedAt)
             .ToArray();
 
         return Task.CompletedTask;

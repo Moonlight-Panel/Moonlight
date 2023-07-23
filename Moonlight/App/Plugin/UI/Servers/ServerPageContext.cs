@@ -8,4 +8,5 @@ public class ServerPageContext
     public List<ServerSetting> Settings { get; set; } = new();
     public Server Server { get; set; }
     public User User { get; set; }
+    public string[] ImageTags { get; set; }
 }

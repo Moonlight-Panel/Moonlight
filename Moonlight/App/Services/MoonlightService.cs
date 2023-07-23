@@ -46,7 +46,7 @@ public class MoonlightService
 
         try
         {
-            var client = new GitHubClient(new ProductHeaderValue("Moonlight"));
+            var client = new GitHubClient(new ProductHeaderValue("Moonlight-Panel"));
             
             var pullRequests = await client.PullRequest.GetAllForRepository("Moonlight-Panel", "Moonlight", new PullRequestRequest
             {
