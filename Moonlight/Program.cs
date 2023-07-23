@@ -25,6 +25,7 @@ using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Minecraft;
 using Moonlight.App.Services.Notifications;
+using Moonlight.App.Services.Plugins;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.SupportChat;
@@ -109,6 +110,9 @@ namespace Moonlight
             await databaseCheckupService.Perform();
 
             var builder = WebApplication.CreateBuilder(args);
+
+            var pluginService = new PluginService();
+            await pluginService.BuildServices(builder.Services);
 
             // Switch to logging.net injection
             // TODO: Enable in production
@@ -208,6 +212,7 @@ namespace Moonlight
             builder.Services.AddScoped<PopupService>();
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<BillingService>();
+            builder.Services.AddSingleton<PluginStoreService>();
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
@@ -240,6 +245,7 @@ namespace Moonlight
             builder.Services.AddSingleton<TelemetryService>();
             builder.Services.AddSingleton<TempMailService>();
             builder.Services.AddSingleton<DdosProtectionService>();
+            builder.Services.AddSingleton(pluginService);
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -291,7 +297,6 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<TelemetryService>();
             _ = app.Services.GetRequiredService<TempMailService>();
             _ = app.Services.GetRequiredService<DdosProtectionService>();
-            
             _ = app.Services.GetRequiredService<MoonlightService>();
 
             // Discord bot service

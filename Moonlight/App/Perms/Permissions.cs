@@ -15,6 +15,13 @@ public static class Permissions
         Name = "Admin Statistics",
         Description = "View statistical information about the moonlight instance"
     };
+    
+    public static Permission AdminSysPlugins = new()
+    {
+        Index = 2,
+        Name = "Admin system plugins",
+        Description = "View and install plugins"
+    };
 
     public static Permission AdminDomains = new()
     {

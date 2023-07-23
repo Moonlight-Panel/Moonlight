@@ -3,6 +3,8 @@
 @using Moonlight.App.Helpers
 @using Moonlight.App.Helpers.Wings
 @using Moonlight.App.Helpers.Wings.Enums
+@using Moonlight.App.Plugin.UI
+@using Moonlight.App.Plugin.UI.Servers
 @using Moonlight.App.Services.Sessions
 
 @inject SmartTranslateService TranslationService
@@ -122,66 +124,19 @@
         <div class="mt-5 row">
             <div class="d-flex flex-column flex-md-row card card-body p-5">
                 <ul class="nav nav-tabs nav-pills flex-row border-0 flex-md-column fs-6 pe-5 mb-5">
-                    <li class="nav-item w-100 me-0 mb-md-2">
-                        <a href="/server/@(CurrentServer.Uuid)/" class="nav-link w-100 btn btn-flex @(Index == 0 ? "active" : "") btn-active-light-primary">
-                            <i class="bx bx-terminal bx-sm me-2"></i>
-                            <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5">
-                                    <TL>Console</TL>
+                    @foreach (var tab in Context.Tabs)
+                    {
+                        <li class="nav-item w-100 me-0 mb-md-2">
+                            <a href="/server/@(CurrentServer.Uuid + tab.Route)" class="nav-link w-100 btn btn-flex @(Route == tab.Route ? "active" : "") btn-active-light-primary">
+                                <i class="bx bx-@(tab.Icon) bx-sm me-2"></i>
+                                <span class="d-flex flex-column align-items-start">
+                                    <span class="fs-5">
+                                        <TL>@(tab.Name)</TL>
+                                    </span>
                                 </span>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item w-100 me-0 mb-md-2">
-                        <a href="/server/@(CurrentServer.Uuid)/files" class="nav-link w-100 btn btn-flex @(Index == 1 ? "active" : "") btn-active-light-primary">
-                            <i class="bx bx-folder bx-sm me-2"></i>
-                            <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5">
-                                    <TL>Files</TL>
-                                </span>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item w-100 me-0 mb-md-2">
-                        <a href="/server/@(CurrentServer.Uuid)/backups" class="nav-link w-100 btn btn-flex @(Index == 2 ? "active" : "") btn-active-light-primary">
-                            <i class="bx bx-box bx-sm me-2"></i>
-                            <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5">
-                                    <TL>Backups</TL>
-                                </span>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item w-100 me-0 mb-md-2">
-                        <a href="/server/@(CurrentServer.Uuid)/network" class="nav-link w-100 btn btn-flex @(Index == 3 ? "active" : "") btn-active-light-primary">
-                            <i class="bx bx-wifi bx-sm me-2"></i>
-                            <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5">
-                                    <TL>Network</TL>
-                                </span>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item w-100 me-0 mb-md-2">
-                        <a href="/server/@(CurrentServer.Uuid)/addons" class="nav-link w-100 btn btn-flex @(Index == 4 ? "active" : "") btn-active-light-primary">
-                            <i class="bx bx-plug bx-sm me-2"></i>
-                            <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5">
-                                    <TL>Addons</TL>
-                                </span>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item w-100 me-0 mb-md-2">
-                        <a href="/server/@(CurrentServer.Uuid)/settings" class="nav-link w-100 btn btn-flex @(Index == 5 ? "active" : "") btn-active-light-primary">
-                            <i class="bx bx-cog bx-sm me-2"></i>
-                            <span class="d-flex flex-column align-items-start">
-                                <span class="fs-5">
-                                    <TL>Settings</TL>
-                                </span>
-                            </span>
-                        </a>
-                    </li>
+                            </a>
+                        </li>
+                    }
                 </ul>
                 <div class="tab-content w-100">
                     <div class="tab-pane fade show active">
@@ -198,16 +153,17 @@
     [CascadingParameter]
     public Server CurrentServer { get; set; }
 
-    
-
     [CascadingParameter]
     public WingsConsole Console { get; set; }
+    
+    [CascadingParameter]
+    public ServerPageContext Context { get; set; }
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
     [Parameter]
-    public int Index { get; set; } = 0;
+    public string Route { get; set; } = "/";
 
     //TODO: NodeIpService which loads and caches raw ips for nodes (maybe)
 
