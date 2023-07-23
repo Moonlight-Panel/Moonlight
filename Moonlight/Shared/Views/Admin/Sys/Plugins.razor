@@ -1,0 +1,138 @@
+﻿@page "/admin/system/plugins"
+
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Services.Plugins
+@using BlazorTable
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Plugin
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Interop
+
+@inject PluginStoreService PluginStoreService
+@inject SmartTranslateService SmartTranslateService
+@inject PluginService PluginService
+@inject ToastService ToastService
+@inject ModalService ModalService
+
+@attribute [PermissionRequired(nameof(Permissions.AdminSysPlugins))]
+
+<AdminSystemNavigation Index="10"/>
+
+<div class="card mb-5">
+    <div class="card-header">
+        <span class="card-title">
+            <TL>Installed plugins</TL>
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <Table TableItem="MoonlightPlugin" Items="PluginService.Plugins" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                <Column TableItem="MoonlightPlugin" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Filterable="true" Sortable="false"/>
+                <Column TableItem="MoonlightPlugin" Title="@(SmartTranslateService.Translate("Author"))" Field="@(x => x.Author)" Filterable="true" Sortable="false"/>
+                <Column TableItem="MoonlightPlugin" Title="@(SmartTranslateService.Translate("Version"))" Field="@(x => x.Version)" Filterable="true" Sortable="false"/>
+                <Column TableItem="MoonlightPlugin" Title="@(SmartTranslateService.Translate("Path"))" Field="@(x => x.Name)" Filterable="false" Sortable="false">
+                    <Template>
+                        @{
+                            var path = PluginService.PluginFiles[context];
+                        }
+
+                        <span>@(path)</span>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+            </Table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">
+            <TL>Official plugins</TL>
+        </span>
+    </div>
+    <div class="card-body">
+        <LazyLoader @ref="PluginsLazyLoader" Load="LoadOfficialPlugins">
+            <div class="table-responsive">
+                <Table TableItem="OfficialMoonlightPlugin" Items="PluginList" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                    <Column TableItem="OfficialMoonlightPlugin" Width="80%" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Filterable="true" Sortable="false"/>
+                    <Column TableItem="OfficialMoonlightPlugin" Width="10%" Title="" Field="@(x => x.Name)" Filterable="false" Sortable="false">
+                        <Template>
+                            <WButton Text="@(SmartTranslateService.Translate("Show readme"))"
+                                     CssClasses="btn-secondary"
+                                     OnClick="() => ShowOfficialPluginReadme(context)"/>
+                        </Template>
+                    </Column>
+                    <Column TableItem="OfficialMoonlightPlugin" Width="10%" Title="" Field="@(x => x.Name)" Filterable="false" Sortable="false">
+                        <Template>
+                            @if (PluginService.PluginFiles.Values.Any(x =>
+                                Path.GetFileName(x).Replace(".dll", "") == context.Name))
+                            {
+                                <WButton Text="@(SmartTranslateService.Translate("Update"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Updating"))"
+                                         CssClasses="btn-primary"
+                                         OnClick="() => UpdateOfficialPlugin(context)"/>
+                            }
+                            else
+                            {
+                                <WButton Text="@(SmartTranslateService.Translate("Install"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Installing"))"
+                                         CssClasses="btn-primary"
+                                         OnClick="() => InstallOfficialPlugin(context)"/>
+                            }
+                        </Template>
+                    </Column>
+                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                </Table>
+            </div>
+        </LazyLoader>
+    </div>
+</div>
+
+<div id="pluginReadme" class="modal" style="display: none">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <TL>Plugin readme</TL>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @((MarkupString)Markdig.Markdown.ToHtml(PluginReadme))
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private LazyLoader PluginsLazyLoader;
+    private OfficialMoonlightPlugin[] PluginList;
+    private string PluginReadme = "";
+
+    private async Task LoadOfficialPlugins(LazyLoader lazyLoader)
+    {
+        PluginList = await PluginStoreService.GetPlugins();
+    }
+
+    private async Task ShowOfficialPluginReadme(OfficialMoonlightPlugin plugin)
+    {
+        PluginReadme = await PluginStoreService.GetPluginReadme(plugin);
+        await InvokeAsync(StateHasChanged);
+        await ModalService.Show("pluginReadme");
+    }
+
+    private async Task InstallOfficialPlugin(OfficialMoonlightPlugin plugin)
+    {
+        await PluginStoreService.InstallPlugin(plugin);
+        await ToastService.Success(SmartTranslateService.Translate("Successfully installed plugin"));
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateOfficialPlugin(OfficialMoonlightPlugin plugin)
+    {
+        await PluginStoreService.InstallPlugin(plugin, true);
+        await ToastService.Success(SmartTranslateService.Translate("Successfully installed plugin. You need to reboot to apply changes"));
+    }
+}

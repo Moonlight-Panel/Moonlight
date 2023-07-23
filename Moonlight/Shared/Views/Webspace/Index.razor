@@ -4,10 +4,14 @@
 @using Moonlight.App.Services
 @using Moonlight.Shared.Components.WebsiteControl
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Helpers
+@using Moonlight.App.Plugin.UI.Webspaces
+@using Moonlight.App.Services.Plugins
 @using Moonlight.App.Services.Sessions
 
 @inject Repository<WebSpace> WebSpaceRepository
 @inject WebSpaceService WebSpaceService
+@inject PluginService PluginService
 @inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
@@ -32,43 +36,17 @@
         if (HostOnline)
         {
             <CascadingValue Value="CurrentWebspace">
-                @{
-                    var index = 0;
-
-                    switch (Route)
-                    {
-                        case "files":
-                            index = 1;
-                            break;
-                        case "sftp":
-                            index = 2;
-                            break;
-                        case "databases":
-                            index = 3;
-                            break;
-                        default:
-                            index = 0;
-                            break;
-                    }
-                    
-                    <WebSpaceNavigation Index="index" WebSpace="CurrentWebspace" />
-                    
-                    @switch (Route)
-                    {
-                        case "files":
-                            <WebSpaceFiles />
-                            break;
-                        case "sftp":
-                            <WebSpaceSftp />
-                            break;
-                        case "databases":
-                            <WebSpaceDatabases />
-                            break;
-                        default:
-                            <WebSpaceDashboard />
-                            break;
-                    }
-                }
+                <CascadingValue Value="Context">
+                    <SmartRouter Route="@(Route)">
+                        @foreach (var tab in Context.Tabs)
+                        {
+                            <Route Path="@(tab.Route)">
+                                <WebSpaceNavigation Route="@(tab.Route)" WebSpace="CurrentWebspace"/>
+                                @(tab.Component)
+                            </Route>
+                        }
+                    </SmartRouter>
+                </CascadingValue>
             </CascadingValue>
         }
         else
@@ -101,6 +79,8 @@
     private WebSpace? CurrentWebspace;
     private bool HostOnline = false;
 
+    private WebspacePageContext Context;
+
     private async Task Load(LazyLoader lazyLoader)
     {
         CurrentWebspace = WebSpaceRepository
@@ -112,14 +92,53 @@
         if (CurrentWebspace != null)
         {
             if (CurrentWebspace.Owner.Id != IdentityService.User.Id && !IdentityService.User.Admin)
+            {
                 CurrentWebspace = null;
-        }
+                return;
+            }
 
-        if (CurrentWebspace != null)
-        {
             await lazyLoader.SetText("Checking host system online status");
 
             HostOnline = await WebSpaceService.IsHostUp(CurrentWebspace);
+
+            if (!HostOnline)
+                return;
+
+            Context = new WebspacePageContext()
+            {
+                WebSpace = CurrentWebspace,
+                User = IdentityService.User
+            };
+
+            Context.Tabs.Add(new()
+            {
+                Route = "/",
+                Name = "Dashboard",
+                Component = ComponentHelper.FromType(typeof(WebSpaceDashboard))
+            });
+
+            Context.Tabs.Add(new()
+            {
+                Route = "/files",
+                Name = "Files",
+                Component = ComponentHelper.FromType(typeof(WebSpaceFiles))
+            });
+
+            Context.Tabs.Add(new()
+            {
+                Route = "/sftp",
+                Name = "SFTP",
+                Component = ComponentHelper.FromType(typeof(WebSpaceSftp))
+            });
+
+            Context.Tabs.Add(new()
+            {
+                Route = "/databases",
+                Name = "Databases",
+                Component = ComponentHelper.FromType(typeof(WebSpaceDatabases))
+            });
+
+            Context = await PluginService.BuildWebspacePage(Context);
         }
     }
 }
