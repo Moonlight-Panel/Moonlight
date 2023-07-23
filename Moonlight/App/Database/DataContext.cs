@@ -42,6 +42,8 @@ public class DataContext : DbContext
     public DbSet<IpBan> IpBans { get; set; }
     public DbSet<PermissionGroup> PermissionGroups { get; set; }
     public DbSet<SecurityLog> SecurityLogs { get; set; }
+    public DbSet<BlocklistIp> BlocklistIps { get; set; }
+    public DbSet<WhitelistIp> WhitelistIps { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

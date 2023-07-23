@@ -51,13 +51,6 @@ public static class Permissions
         Description = "Create a new shared domain in the admin area"
     };
 
-    public static Permission AdminNodeDdos = new()
-    {
-        Index = 8,
-        Name = "Admin Node DDoS",
-        Description = "Manage DDoS protection for nodes in the admin area"
-    };
-
     public static Permission AdminNodeEdit = new()
     {
         Index = 9,
@@ -406,6 +399,13 @@ public static class Permissions
         Index = 58,
         Name = "Admin security logs",
         Description = "View the security logs"
+    };
+    
+    public static Permission AdminSecurityDdos = new()
+    {
+        Index = 59,
+        Name = "Admin security ddos",
+        Description = "Manage the integrated ddos protection"
     };
 
     public static Permission? FromString(string name)

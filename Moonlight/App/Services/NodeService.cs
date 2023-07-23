@@ -50,6 +50,11 @@ public class NodeService
         return await DaemonApiHelper.Get<DockerMetrics>(node, "metrics/docker");
     }
 
+    public async Task RebuildFirewall(Node node, string[] ips)
+    {
+        await DaemonApiHelper.Post(node, "firewall/rebuild", ips);
+    }
+
     public async Task Mount(Node node, string server, string serverPath, string path)
     {
         await DaemonApiHelper.Post(node, "mount", new Mount()

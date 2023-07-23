@@ -244,7 +244,7 @@ namespace Moonlight
             builder.Services.AddSingleton<MalwareScanService>();
             builder.Services.AddSingleton<TelemetryService>();
             builder.Services.AddSingleton<TempMailService>();
-
+            builder.Services.AddSingleton<DdosProtectionService>();
             builder.Services.AddSingleton(pluginService);
             
             // Other
@@ -296,7 +296,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<MalwareScanService>();
             _ = app.Services.GetRequiredService<TelemetryService>();
             _ = app.Services.GetRequiredService<TempMailService>();
-
+            _ = app.Services.GetRequiredService<DdosProtectionService>();
             _ = app.Services.GetRequiredService<MoonlightService>();
 
             // Discord bot service

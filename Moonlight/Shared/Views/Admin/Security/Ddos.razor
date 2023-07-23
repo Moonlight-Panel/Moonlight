@@ -1,0 +1,148 @@
+﻿@page "/admin/security/ddos"
+
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Services
+@using BlazorTable
+@using Moonlight.App.Helpers
+@using Moonlight.App.Services.Background
+
+@inject Repository<BlocklistIp> BlocklistIpRepository
+@inject Repository<WhitelistIp> WhitelistIpRepository
+@inject SmartTranslateService SmartTranslateService
+@inject DdosProtectionService DdosProtectionService
+
+@attribute [PermissionRequired(nameof(Permissions.AdminSecurityDdos))]
+
+<AdminSecurityNavigation Index="5"/>
+
+<div class="card card-body mb-5">
+    <div class="d-flex justify-content-center fs-4">
+        <span class="me-3">
+            @(BlocklistIps.Length) <TL>blocked IPs</TL>
+        </span>
+        <span>
+            @(WhitelistIps.Length) <TL>whitelisted IPs</TL>
+        </span>
+    </div>
+</div>
+
+<div class="card card-body mb-5">
+    <div class="input-group input-group-lg">
+        <input @bind="Ip" type="text" class="form-control">
+        <WButton CssClasses="btn-secondary" OnClick="BlockIp" Text="@(SmartTranslateService.Translate("Block"))"/>
+        <WButton CssClasses="btn-secondary" OnClick="WhitelistIp" Text="@(SmartTranslateService.Translate("Whitelist"))"/>
+    </div>
+</div>
+
+<div class="card card-body mb-5">
+    <LazyLoader @ref="BlocklistLazyLoader" Load="LoadBlocklist">
+        <div class="table-responsive">
+            <Table TableItem="BlocklistIp" Items="BlocklistIps" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                <Column TableItem="BlocklistIp" Width="30%" Title="@(SmartTranslateService.Translate("Ip"))" Field="@(x => x.Ip)" Filterable="true" Sortable="false"/>
+                <Column TableItem="BlocklistIp" Width="30%" Title="@(SmartTranslateService.Translate("Packets"))" Field="@(x => x.Packets)" Filterable="true" Sortable="true">
+                    <Template>
+                        @(context.Packets) <TL>packets</TL>
+                    </Template>
+                </Column>
+                <Column TableItem="BlocklistIp" Width="30%" Title="" Field="@(x => x.ExpiresAt)" Filterable="true" Sortable="true">
+                    <Template>
+                        @Formatter.FormatUptime(context.ExpiresAt - DateTime.UtcNow) <TL>remaining</TL>
+                    </Template>
+                </Column>
+                <Column TableItem="BlocklistIp" Width="15%" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
+                    <Template>
+                        <div class="text-end">
+                            <WButton Text="@(SmartTranslateService.Translate("Details"))" />
+                            <DeleteButton Confirm="true" OnClick="() => RevokeBlocklistIp(context)" />
+                        </div>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+            </Table>
+        </div>
+    </LazyLoader>
+</div>
+
+<div class="card card-body">
+    <LazyLoader @ref="WhitelistLazyLoader" Load="LoadWhitelist">
+        <div class="table-responsive">
+            <Table TableItem="WhitelistIp" Items="WhitelistIps" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                <Column TableItem="WhitelistIp" Width="85%" Title="@(SmartTranslateService.Translate("Ip"))" Field="@(x => x.Ip)" Filterable="true" Sortable="false"/>
+                <Column TableItem="WhitelistIp" Width="15%" Title="" Field="@(x => x.Id)" Filterable="false" Sortable="false">
+                    <Template>
+                        <div class="text-end">
+                            <DeleteButton Confirm="true" OnClick="() => RevokeWhitelistIp(context)" />
+                        </div>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+            </Table>
+        </div>
+    </LazyLoader>
+</div>
+
+@code
+{
+    private BlocklistIp[] BlocklistIps = Array.Empty<BlocklistIp>();
+    private WhitelistIp[] WhitelistIps = Array.Empty<WhitelistIp>();
+
+    private LazyLoader BlocklistLazyLoader;
+    private LazyLoader WhitelistLazyLoader;
+
+    private string Ip = "";
+
+    private async Task LoadBlocklist(LazyLoader _)
+    {
+        BlocklistIps = BlocklistIpRepository
+            .Get()
+            .ToArray();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadWhitelist(LazyLoader _)
+    {
+        WhitelistIps = WhitelistIpRepository
+            .Get()
+            .ToArray();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task BlockIp()
+    {
+        await DdosProtectionService.BlocklistIp(Ip, -1);
+
+        Ip = "";
+        
+        await BlocklistLazyLoader.Reload();
+    }
+    
+    private async Task RevokeBlocklistIp(BlocklistIp blocklistIp)
+    {
+        await DdosProtectionService.UnBlocklistIp(blocklistIp.Ip);
+        
+        await BlocklistLazyLoader.Reload();
+    }
+
+    private async Task WhitelistIp()
+    {
+        WhitelistIpRepository.Add(new()
+        {
+            Ip = Ip
+        });
+
+        Ip = "";
+        
+        await WhitelistLazyLoader.Reload();
+    }
+    
+    private async Task RevokeWhitelistIp(WhitelistIp whitelistIp)
+    {
+        WhitelistIpRepository.Delete(whitelistIp);
+
+        await WhitelistLazyLoader.Reload();
+    }
+}
