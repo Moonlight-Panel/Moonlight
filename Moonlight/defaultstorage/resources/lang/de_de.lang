@@ -85,7 +85,7 @@ Create a website;Eine Website erstellen
 Make your own websites with a webspace;Mit einem Webspace eine Website erstellen
 Create a domain;Eine Domain erstellen
 Make your servvices accessible throught your own domain;Mache deine Dienste mit einer Domain erreichbar
-Manage your websites;Deine Websiten verwalten
+Manage your websites;Deine Webseiten verwalten
 Modify the content of your websites;Den Inhalt deiner Websiten verwalten
 Manage your domains;Deine Domains verwalten
 Add, edit and delete dns records;DNS-Records hinzufügen, entfernen oder bearbeiten
@@ -156,7 +156,7 @@ UuidIdentifier;UUIDIdentifier
 Override startup command;Startup Befehl überschreiben
 Loading;Wird geladen...
 Offline;Offline
-Connecting;Verbiden...
+Connecting;Verbinden...
 Start;Start
 Restart;Neustarten
 Stop;Stoppen
