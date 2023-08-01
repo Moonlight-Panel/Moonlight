@@ -12,29 +12,13 @@ public class PluginService
     public List<MoonlightPlugin> Plugins { get; private set; }
     public Dictionary<MoonlightPlugin, string> PluginFiles { get; private set; }
 
-    private AssemblyLoadContext LoadContext;
-
     public PluginService()
     {
-        LoadContext = new(null, true);
         ReloadPlugins().Wait();
     }
 
-    private Task UnloadPlugins()
+    public Task ReloadPlugins()
     {
-        Plugins = new();
-        PluginFiles = new();
-        
-        if(LoadContext.Assemblies.Any())
-            LoadContext.Unload();
-
-        return Task.CompletedTask;
-    }
-    
-    public async Task ReloadPlugins()
-    {
-        await UnloadPlugins();
-        
         // Try to update all plugins ending with .dll.cache
         foreach (var pluginFile in Directory.EnumerateFiles(
                          PathBuilder.Dir(Directory.GetCurrentDirectory(), "storage", "plugins"))
@@ -59,7 +43,7 @@ public class PluginService
                      PathBuilder.Dir(Directory.GetCurrentDirectory(), "storage", "plugins"))
                      .Where(x => x.EndsWith(".dll")))
         {
-            var assembly = LoadContext.LoadFromAssemblyPath(pluginFile);
+            var assembly = Assembly.LoadFile(pluginFile);
 
             foreach (var type in assembly.GetTypes())
             {
@@ -76,6 +60,8 @@ public class PluginService
         }
         
         Logger.Info($"Loaded {Plugins.Count} plugins");
+        
+        return Task.CompletedTask;
     }
 
     public async Task<ServerPageContext> BuildServerPage(ServerPageContext context)
