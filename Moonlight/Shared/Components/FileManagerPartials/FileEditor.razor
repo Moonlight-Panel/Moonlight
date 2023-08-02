@@ -11,22 +11,29 @@
 @implements IDisposable
 
 <div class="card bg-black rounded">
+    @if (ShowHeader)
+    {
+        <div class="card-header">
+            <span class="card-title">@(Header)</span>
+        </div>
+    }
+    
     <div class="card-body">
         <MonacoEditor CssClass="h-100" @ref="Editor" Id="vseditor" ConstructionOptions="(x) => EditorOptions"/>
     </div>
-    
+
     @if (!HideControls)
     {
         <div class="card-footer">
             <div class="btn-group">
-                <WButton 
-                    Text="@(TranslationService.Translate("Save"))" 
-                    WorkingText="@(TranslationService.Translate("Saving"))" 
+                <WButton
+                    Text="@(TranslationService.Translate("Save"))"
+                    WorkingText="@(TranslationService.Translate("Saving"))"
                     OnClick="Submit"></WButton>
-                <WButton 
-                    CssClasses="btn-danger" 
-                    Text="@(TranslationService.Translate("Cancel"))" 
-                    WorkingText="@(TranslationService.Translate("Canceling"))" 
+                <WButton
+                    CssClasses="btn-danger"
+                    Text="@(TranslationService.Translate("Cancel"))"
+                    WorkingText="@(TranslationService.Translate("Canceling"))"
                     OnClick="Cancel"></WButton>
             </div>
         </div>
@@ -43,6 +50,12 @@
 
     [Parameter]
     public bool HideControls { get; set; } = false;
+
+    [Parameter]
+    public bool ShowHeader { get; set; } = false;
+
+    [Parameter]
+    public string Header { get; set; } = "Header.changeme.txt";
     
     // Events
     [Parameter]

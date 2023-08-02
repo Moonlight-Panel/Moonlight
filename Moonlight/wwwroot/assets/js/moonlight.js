@@ -313,6 +313,21 @@
                         'editor.background': '#000000'
                     }
                 });
+            },
+            checkConnection: async function(url, threshold) {
+                const start = performance.now();
+
+                try 
+                {
+                    const response = await fetch(url, { mode: 'no-cors' });
+                    const latency = performance.now() - start;
+
+                    if (latency > threshold) 
+                    {
+                        moonlight.toasts.warning(`High latency detected: ${latency}ms. Moonlight might feel laggy. Please check your internet connection`);
+                    }
+                }
+                catch (error) {}
             }
         },
         flashbang: {
