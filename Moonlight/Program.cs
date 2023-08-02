@@ -109,6 +109,10 @@ namespace Moonlight
                 
             await databaseCheckupService.Perform();
 
+            var backupHelper = new BackupHelper();
+            await backupHelper.CreateBackup(PathBuilder.File("storage", "backups",
+                $"{new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}.zip"));
+
             var builder = WebApplication.CreateBuilder(args);
 
             var pluginService = new PluginService();

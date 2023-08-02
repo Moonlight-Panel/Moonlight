@@ -44,8 +44,10 @@ public class DatabaseCheckupService
         if (migrations.Any())
         {
             Logger.Info($"{migrations.Length} migrations pending. Updating now");
-            
-            await BackupDatabase();
+
+            var backupHelper = new BackupHelper();
+            await backupHelper.CreateBackup(
+                PathBuilder.File("storage", "backups", $"{new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}.zip"));
             
             Logger.Info("Applying migrations");
             
@@ -56,55 +58,6 @@ public class DatabaseCheckupService
         else
         {
             Logger.Info("Database is up-to-date. No migrations have been performed");
-        }
-    }
-
-    public async Task BackupDatabase()
-    {
-        Logger.Info("Creating backup from database");
-        
-        var configService = new ConfigService(new StorageService());
-        var dateTimeService = new DateTimeService();
-
-        var config = configService.Get().Moonlight.Database;
-
-        var connectionString = $"host={config.Host};" +
-                               $"port={config.Port};" +
-                               $"database={config.Database};" +
-                               $"uid={config.Username};" +
-                               $"pwd={config.Password}";
-        
-        string file = PathBuilder.File("storage", "backups", $"{dateTimeService.GetCurrentUnix()}-mysql.sql");
-        
-        Logger.Info($"Saving it to: {file}");
-        Logger.Info("Starting backup...");
-
-        try
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-
-            await using MySqlConnection conn = new MySqlConnection(connectionString);
-            await using MySqlCommand cmd = new MySqlCommand();
-            using MySqlBackup mb = new MySqlBackup(cmd);
-        
-            cmd.Connection = conn;
-            await conn.OpenAsync();
-            mb.ExportToFile(file);
-            await conn.CloseAsync();
-
-            sw.Stop();
-            Logger.Info($"Done. {sw.Elapsed.TotalSeconds}s");
-        }
-        catch (Exception e)
-        {
-            Logger.Fatal("-----------------------------------------------");
-            Logger.Fatal("Unable to create backup for moonlight database");
-            Logger.Fatal("Moonlight will start anyways in 30 seconds");
-            Logger.Fatal("-----------------------------------------------");
-            Logger.Fatal(e);
-            
-            Thread.Sleep(TimeSpan.FromSeconds(30));
         }
     }
 }
