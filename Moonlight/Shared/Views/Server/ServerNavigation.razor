@@ -28,22 +28,22 @@
                     </div>
                 </div>
                 <div class="col-4 d-flex flex-column flex-end mb-1">
-                    <div class="btn-group btn-group-sm">
-                        <button class="w-100 nav-link btn btn-sm btn-success fw-bold px-4 me-1 @(Console.ServerState == ServerState.Offline ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Start">
+                    <div class="btn-group btn-group-md">
+                        <button class="nav-link btn btn-md btn-success fw-bold px-4 me-1 @(Console.ServerState == ServerState.Offline ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Start">
                             <TL>Start</TL>
                         </button>
-                        <button class="w-100 nav-link btn btn-sm btn-primary fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Restart">
+                        <button class="nav-link btn btn-md btn-primary fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running ? "" : "disabled")" aria-selected="true" role="tab" @onclick="Restart">
                             <TL>Restart</TL>
                         </button>
                         @if (Console.ServerState == ServerState.Stopping)
                         {
-                            <button class="w-100 nav-link btn btn-sm btn-danger fw-bold px-4 me-1" aria-selected="true" role="tab" @onclick="Kill">
+                            <button class="nav-link btn btn-md btn-danger fw-bold px-4 me-1" aria-selected="true" role="tab" @onclick="Kill">
                                 <TL>Kill</TL>
                             </button>
                         }
                         else
                         {
-                            <button class="w-100 nav-link btn btn-sm btn-danger fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running || Console.ServerState == ServerState.Starting ? "" : "disabled")"
+                            <button class="nav-link btn btn-md btn-danger fw-bold px-4 me-1 @(Console.ServerState == ServerState.Running || Console.ServerState == ServerState.Starting ? "" : "disabled")"
                                     aria-selected="true" role="tab" @onclick="Stop">
                                 <TL>Stop</TL>
                             </button>
@@ -55,11 +55,11 @@
         <div class="row mt-3">
             <div class="card card-body">
                 <div class="row align-items-center">
-                    <div class="col fs-5">
+                    <div class="col fs-5 text-nowrap py-2">
                         <span class="fw-bold"><TL>Shared IP</TL>:</span>
                         <span class="ms-1 text-muted @(IdentityService.User.StreamerMode ? "blur" : "")">@($"{CurrentServer.Node.Fqdn}:{CurrentServer.MainAllocation?.Port ?? 0}")</span>
                     </div>
-                    <div class="col fs-5">
+                    <div class="col fs-5 py-2">
                         <span class="fw-bold"><TL>Server ID</TL>:</span>
                         <span class="ms-1 text-muted">
                             @if (IdentityService.User.Admin)
@@ -72,7 +72,7 @@
                             }
                         </span>
                     </div>
-                    <div class="col fs-5">
+                    <div class="col fs-5 py-2">
                         <span class="fw-bold"><TL>Status</TL>:</span>
                         <span class="ms-1 text-muted">
                             @switch (Console.ServerState)
@@ -106,15 +106,15 @@
                             }
                         </span>
                     </div>
-                    <div class="col fs-5">
+                    <div class="col fs-5 py-2">
                         <span class="fw-bold"><TL>Cpu</TL>:</span>
                         <span class="ms-1 text-muted">@(Math.Round(Console.Resource.CpuAbsolute / (CurrentServer.Cpu / 100f), 2))%</span>
                     </div>
-                    <div class="col fs-5">
+                    <div class="col fs-5 py-2">
                         <span class="fw-bold"><TL>Memory</TL>:</span>
-                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.Resource.MemoryBytes)) / @(Formatter.FormatSize(Console.Resource.MemoryLimitBytes))</span>
+                        <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.Resource.MemoryBytes)) / @Math.Round(CurrentServer.Memory / 1024f, 2) GB</span>
                     </div>
-                    <div class="col fs-5">
+                    <div class="col fs-5 py-2">
                         <span class="fw-bold"><TL>Disk</TL>:</span>
                         <span class="ms-1 text-muted">@(Formatter.FormatSize(Console.Resource.DiskBytes)) / @(Math.Round(CurrentServer.Disk / 1024f, 2)) GB</span>
                     </div>

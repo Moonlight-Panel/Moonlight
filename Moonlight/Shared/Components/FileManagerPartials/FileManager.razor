@@ -17,7 +17,9 @@
                 Language="@EditorLanguage"
                 OnCancel="() => Cancel()"
                 OnSubmit="(_) => Save()"
-                HideControls="false">
+                HideControls="false"
+                ShowHeader="true"
+                Header="@(EditingFile.Name)">
     </FileEditor>
 }
 else

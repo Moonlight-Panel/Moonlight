@@ -17,6 +17,15 @@ public class ConfigV1
         [Description("The url moonlight is accesible with from the internet")]
         public string AppUrl { get; set; } = "http://your-moonlight-url-without-slash";
 
+        [JsonProperty("EnableLatencyCheck")]
+        [Description(
+            "This will enable a latency check for connections to moonlight. Users with an too high latency will be warned that moonlight might be buggy for them")]
+        public bool EnableLatencyCheck { get; set; } = true;
+
+        [JsonProperty("LatencyCheckThreshold")]
+        [Description("Specify the latency threshold which has to be reached in order to trigger the warning message")]
+        public int LatencyCheckThreshold { get; set; } = 500;
+
         [JsonProperty("Auth")] public AuthData Auth { get; set; } = new();
 
         [JsonProperty("Database")] public DatabaseData Database { get; set; } = new();

@@ -9,8 +9,8 @@ namespace Moonlight.App.Services.Plugins;
 
 public class PluginService
 {
-    public List<MoonlightPlugin> Plugins { get; private set; }
-    public Dictionary<MoonlightPlugin, string> PluginFiles { get; private set; }
+    public readonly List<MoonlightPlugin> Plugins = new();
+    public readonly Dictionary<MoonlightPlugin, string> PluginFiles = new();
 
     public PluginService()
     {
@@ -19,6 +19,9 @@ public class PluginService
 
     public Task ReloadPlugins()
     {
+        PluginFiles.Clear();
+        Plugins.Clear();
+        
         // Try to update all plugins ending with .dll.cache
         foreach (var pluginFile in Directory.EnumerateFiles(
                          PathBuilder.Dir(Directory.GetCurrentDirectory(), "storage", "plugins"))

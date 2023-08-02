@@ -22,6 +22,7 @@
 @inject IpBanService IpBanService
 @inject DynamicBackgroundService DynamicBackgroundService
 @inject KeyListenerService KeyListenerService
+@inject ConfigService ConfigService
 
 @{
     var uri = new Uri(NavigationManager.Uri);
@@ -245,6 +246,13 @@
                 RunDelayedMenu(1);
                 RunDelayedMenu(3);
                 RunDelayedMenu(5);
+
+                if (ConfigService.Get().Moonlight.EnableLatencyCheck)
+                {
+                    await JsRuntime.InvokeVoidAsync("moonlight.loading.checkConnection", 
+                        ConfigService.Get().Moonlight.AppUrl, 
+                        ConfigService.Get().Moonlight.LatencyCheckThreshold);
+                }
             }
             catch (Exception)
             {

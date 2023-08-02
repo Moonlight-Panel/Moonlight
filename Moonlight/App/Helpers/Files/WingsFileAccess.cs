@@ -43,19 +43,22 @@ public class WingsFileAccess : FileAccess
             $"api/servers/{Server.Uuid}/files/list-directory?directory={CurrentPath}"
         );
 
-        var x = new List<FileData>();
+        var result = new List<FileData>();
 
-        foreach (var response in res)
+        foreach (var resGrouped in res.GroupBy(x => x.Directory))
         {
-            x.Add(new()
+            foreach (var resItem in resGrouped.OrderBy(x => x.Name))
             {
-                Name = response.Name,
-                Size = response.File ? response.Size : 0,
-                IsFile = response.File,
-            });
+                result.Add(new()
+                {
+                    Name = resItem.Name,
+                    Size = resItem.File ? resItem.Size : 0,
+                    IsFile = resItem.File,
+                });
+            }
         }
 
-        return x.ToArray();
+        return result.ToArray();
     }
 
     public override Task Cd(string dir)
