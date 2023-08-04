@@ -44,6 +44,9 @@ public class DataContext : DbContext
     public DbSet<SecurityLog> SecurityLogs { get; set; }
     public DbSet<BlocklistIp> BlocklistIps { get; set; }
     public DbSet<WhitelistIp> WhitelistIps { get; set; }
+    
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<TicketMessage> TicketMessages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -29,6 +29,7 @@ using Moonlight.App.Services.Plugins;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.SupportChat;
+using Moonlight.App.Services.Tickets;
 using Sentry;
 using Serilog;
 using Serilog.Events;
@@ -108,10 +109,6 @@ namespace Moonlight
             var databaseCheckupService = new DatabaseCheckupService(configService);
                 
             await databaseCheckupService.Perform();
-
-            var backupHelper = new BackupHelper();
-            await backupHelper.CreateBackup(PathBuilder.File("storage", "backups",
-                $"{new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}.zip"));
 
             var builder = WebApplication.CreateBuilder(args);
 
@@ -217,6 +214,9 @@ namespace Moonlight
             builder.Services.AddScoped<SubscriptionService>();
             builder.Services.AddScoped<BillingService>();
             builder.Services.AddSingleton<PluginStoreService>();
+            builder.Services.AddSingleton<TicketServerService>();
+            builder.Services.AddScoped<TicketClientService>();
+            builder.Services.AddScoped<TicketAdminService>();
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
