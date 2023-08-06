@@ -88,7 +88,7 @@ else
                         else
                         {
                             <span>
-                                @(Formatter.FormatSize(MemoryMetrics.Used)) <TL>of</TL> @(Formatter.FormatSize(MemoryMetrics.Total)) <TL>memory used</TL>
+                                @(Formatter.FormatSize(ByteSizeValue.FromKiloBytes(MemoryMetrics.Used).Bytes)) <TL>of</TL> @(Formatter.FormatSize(ByteSizeValue.FromKiloBytes(MemoryMetrics.Total).Bytes)) <TL>memory used</TL>
                             </span>
                         }
                     </span>
