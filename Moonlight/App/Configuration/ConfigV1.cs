@@ -59,6 +59,15 @@ public class ConfigV1
         [JsonProperty("Sentry")] public SentryData Sentry { get; set; } = new();
 
         [JsonProperty("Stripe")] public StripeData Stripe { get; set; } = new();
+
+        [JsonProperty("Tickets")] public TicketsData Tickets { get; set; } = new();
+    }
+    
+    public class TicketsData
+    {
+        [JsonProperty("WelcomeMessage")]
+        [Description("The message that will be sent when a user created a ticket")]
+        public string WelcomeMessage { get; set; } = "Welcome to the support";
     }
     
     public class StripeData
