@@ -66,17 +66,15 @@ public class UserService
         {
             throw new DisplayException("The email is already in use");
         }
-        
-        //TODO: Validation
 
         // Add user
         var user = UserRepository.Add(new()
         {
             Address = "",
-            Admin = false,
+            Admin = !UserRepository.Get().Any(),
             City = "",
             Country = "",
-            Email = email,
+            Email = email.ToLower(),
             Password = BCrypt.Net.BCrypt.HashPassword(password),
             FirstName = firstname,
             LastName = lastname,
