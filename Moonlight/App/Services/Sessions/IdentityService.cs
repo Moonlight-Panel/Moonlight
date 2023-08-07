@@ -112,7 +112,7 @@ public class IdentityService
             if (user == null)
             {
                 Logger.Warn(
-                    $"Cannot find user with the id '{userid}' in the database. Maybe the user has been deleted or a token has been successfully faked by a hacker");
+                    $"Cannot find user with the id '{userid}' in the database. Maybe the user has been deleted or a token has been successfully faked by a hacker", "security");
                 return;
             }
 
