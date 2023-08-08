@@ -4734,6 +4734,7 @@ textarea.form-control-lg {
   display: flex;
   padding-left: 0;
   list-style: none;
+  gap: 1.5rem;s
 }
 
 .page-link {
