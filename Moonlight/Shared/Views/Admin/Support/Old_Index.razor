@@ -1,0 +1,379 @@
+﻿@page "/old_admin/support"
+@page "/old_admin/support/{Id:int}"
+
+@using Moonlight.App.Services.Tickets
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Events
+@using Moonlight.App.Helpers
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Sessions
+@using Moonlight.Shared.Components.Tickets
+
+@inject TicketAdminService AdminService
+@inject SmartTranslateService SmartTranslateService
+@inject EventSystem EventSystem
+@inject IdentityService IdentityService
+
+@attribute [PermissionRequired(nameof(Permissions.AdminSupport))]
+
+@implements IDisposable
+
+<div class="d-flex flex-column flex-lg-row">
+<div class="flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0">
+    <div class="card card-flush">
+        <div class="card-body pt-5">
+            <div class="scroll-y me-n5 pe-5 h-200px h-lg-auto" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_header, #kt_app_header, #kt_toolbar, #kt_app_toolbar, #kt_footer, #kt_app_footer, #kt_chat_contacts_header" data-kt-scroll-wrappers="#kt_content, #kt_app_content, #kt_chat_contacts_body" data-kt-scroll-offset="5px" style="max-height: 601px;">
+                <div class="separator separator-content border-primary mb-10 mt-5">
+                    <span class="w-250px fw-bold fs-5">
+                        <TL>Unassigned tickets</TL>
+                    </span>
+                </div>
+
+                @foreach (var ticket in UnAssignedTickets)
+                {
+                    <div class="d-flex flex-stack py-4">
+                        <div class="d-flex align-items-center">
+                            <div class="ms-5">
+                                <a href="/admin/support/@(ticket.Key.Id)" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">@(ticket.Key.IssueTopic)</a>
+                                @if (ticket.Value != null)
+                                {
+                                    <div class="fw-semibold text-muted">
+                                        @(ticket.Value.Content)
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-end ms-2">
+                            @if (ticket.Value != null)
+                            {
+                                <span class="text-muted fs-7 mb-1">
+                                    @(Formatter.FormatAgoFromDateTime(ticket.Value.CreatedAt, SmartTranslateService))
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    if (ticket.Key != UnAssignedTickets.Last().Key)
+                    {
+                        <div class="separator"></div>
+                    }
+                }
+
+                @if (AssignedTickets.Any())
+                {
+                    <div class="separator separator-content border-primary mb-5 mt-8">
+                        <span class="w-250px fw-bold fs-5">
+                            <TL>Assigned tickets</TL>
+                        </span>
+                    </div>
+                }
+
+                @foreach (var ticket in AssignedTickets)
+                {
+                    <div class="d-flex flex-stack py-4">
+                        <div class="d-flex align-items-center">
+                            <div class="ms-5">
+                                <a href="/admin/support/@(ticket.Key.Id)" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">@(ticket.Key.IssueTopic)</a>
+                                @if (ticket.Value != null)
+                                {
+                                    <div class="fw-semibold text-muted">
+                                        @(ticket.Value.Content)
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-end ms-2">
+                            @if (ticket.Value != null)
+                            {
+                                <span class="text-muted fs-7 mb-1">
+                                    @(Formatter.FormatAgoFromDateTime(ticket.Value.CreatedAt, SmartTranslateService))
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    if (ticket.Key != AssignedTickets.Last().Key)
+                    {
+                        <div class="separator"></div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="flex-lg-row-fluid ms-lg-7 ms-xl-10">
+    <div class="card">
+        <div class="card-header">
+            @if (AdminService.Ticket != null)
+            {
+                <div class="card-title">
+                    <div class="d-flex justify-content-center flex-column me-3">
+                        <span class="fs-3 fw-bold text-gray-900 me-1 mb-2 lh-1">@(AdminService.Ticket.IssueTopic)</span>
+                        <div class="mb-0 lh-1">
+                            <span class="fs-6 fw-bold text-muted me-2">
+                                <TL>Status</TL>
+                            </span>
+                            @switch (AdminService.Ticket.Status)
+                            {
+                                case TicketStatus.Closed:
+                                    <span class="badge badge-danger badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                                case TicketStatus.Open:
+                                    <span class="badge badge-success badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                                case TicketStatus.Pending:
+                                    <span class="badge badge-warning badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                                case TicketStatus.WaitingForUser:
+                                    <span class="badge badge-primary badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                            }
+                            <span class="fs-6 fw-semibold text-muted me-5">@(AdminService.Ticket.Status)</span>
+
+                            <span class="fs-6 fw-bold text-muted me-2">
+                                <TL>Priority</TL>
+                            </span>
+                            @switch (AdminService.Ticket.Priority)
+                            {
+                                case TicketPriority.Low:
+                                    <span class="badge badge-success badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                                case TicketPriority.Medium:
+                                    <span class="badge badge-primary badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                                case TicketPriority.High:
+                                    <span class="badge badge-warning badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                                case TicketPriority.Critical:
+                                    <span class="badge badge-danger badge-circle w-10px h-10px me-1"></span>
+                                    break;
+                            }
+                            <span class="fs-6 fw-semibold text-muted">@(AdminService.Ticket.Priority)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-toolbar">
+                    <div class="input-group">
+                        <div class="me-3">
+                            @if (AdminService.Ticket!.AssignedTo == null)
+                            {
+                                <WButton Text="@(SmartTranslateService.Translate("Claim"))"/>
+                            }
+                            else
+                            {
+                                <WButton Text="@(SmartTranslateService.Translate("Unclaim"))"/>
+                            }
+                        </div>
+                        <select @bind="Priority" class="form-select rounded-start">
+                            @foreach (var priority in (TicketPriority[])Enum.GetValues(typeof(TicketPriority)))
+                            {
+                                if (Priority == priority)
+                                {
+                                    <option value="@(priority)" selected="">@(priority)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(priority)">@(priority)</option>
+                                }
+                            }
+                        </select>
+                        <WButton Text="@(SmartTranslateService.Translate("Update priority"))"
+                                 CssClasses="btn-primary"
+                                 OnClick="UpdatePriority">
+                        </WButton>
+                        <select @bind="Status" class="form-select">
+                            @foreach (var status in (TicketStatus[])Enum.GetValues(typeof(TicketStatus)))
+                            {
+                                if (Status == status)
+                                {
+                                    <option value="@(status)" selected="">@(status)</option>
+                                }
+                                else
+                                {
+                                    <option value="@(status)">@(status)</option>
+                                }
+                            }
+                        </select>
+                        <WButton Text="@(SmartTranslateService.Translate("Update status"))"
+                                 CssClasses="btn-primary"
+                                 OnClick="UpdateStatus">
+                        </WButton>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card-title">
+                    <div class="d-flex justify-content-center flex-column me-3">
+                        <span class="fs-4 fw-bold text-gray-900 me-1 mb-2 lh-1">
+
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="card-body">
+            <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
+                @if (AdminService.Ticket == null)
+                {
+                }
+                else
+                {
+                    <TicketMessageView Messages="Messages" ViewAsSupport="true"/>
+                }
+            </div>
+        </div>
+        @if (AdminService.Ticket != null)
+        {
+            <div class="card-footer pt-4" id="kt_chat_messenger_footer">
+                <div class="d-flex flex-stack">
+                    <table class="w-100">
+                        <tr>
+                            <td class="align-top">
+                                <SmartFileSelect @ref="FileSelect"></SmartFileSelect>
+                            </td>
+                            <td class="w-100">
+                                <textarea @bind="MessageText" class="form-control mb-3 form-control-flush" rows="1" placeholder="@(SmartTranslateService.Translate("Type a message"))"></textarea>
+                            </td>
+                            <td class="align-top">
+                                <WButton Text="@(SmartTranslateService.Translate("Send"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Sending"))"
+                                         CssClasses="btn-primary ms-2"
+                                         OnClick="SendMessage">
+                                </WButton>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+</div>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private Dictionary<Ticket, TicketMessage?> AssignedTickets;
+    private Dictionary<Ticket, TicketMessage?> UnAssignedTickets;
+    private List<TicketMessage> Messages = new();
+    private string MessageText;
+    private SmartFileSelect FileSelect;
+
+    private TicketPriority Priority;
+    private TicketStatus Status;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Unsubscribe();
+        await ReloadTickets();
+        await Subscribe();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdatePriority()
+    {
+        await AdminService.UpdatePriority(Priority);
+    }
+
+    private async Task UpdateStatus()
+    {
+        await AdminService.UpdateStatus(Status);
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(MessageText) && FileSelect.SelectedFile != null)
+            MessageText = "File upload";
+
+        if (string.IsNullOrEmpty(MessageText))
+            return;
+
+        var msg = await AdminService.Send(MessageText, FileSelect.SelectedFile);
+        Messages.Add(msg);
+        MessageText = "";
+        FileSelect.SelectedFile = null;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Subscribe()
+    {
+        await EventSystem.On<Ticket>("tickets.new", this, async _ =>
+        {
+            await ReloadTickets(false);
+            await InvokeAsync(StateHasChanged);
+        });
+
+        if (AdminService.Ticket != null)
+        {
+            await EventSystem.On<TicketMessage>($"tickets.{AdminService.Ticket.Id}.message", this, async message =>
+            {
+                if (message.Sender != null && message.Sender.Id == IdentityService.User.Id && message.IsSupportMessage)
+                    return;
+
+                Messages.Add(message);
+                await InvokeAsync(StateHasChanged);
+            });
+
+            await EventSystem.On<Ticket>($"tickets.{AdminService.Ticket.Id}.status", this, async _ =>
+            {
+                await ReloadTickets(false);
+                await InvokeAsync(StateHasChanged);
+            });
+        }
+    }
+
+    private async Task Unsubscribe()
+    {
+        await EventSystem.Off("tickets.new", this);
+
+        if (AdminService.Ticket != null)
+        {
+            await EventSystem.Off($"tickets.{AdminService.Ticket.Id}.message", this);
+            await EventSystem.Off($"tickets.{AdminService.Ticket.Id}.status", this);
+        }
+    }
+
+    private async Task ReloadTickets(bool reloadMessages = true)
+    {
+        AdminService.Ticket = null;
+        //AssignedTickets = await AdminService.GetAssigned();
+        //UnAssignedTickets = await AdminService.GetUnAssigned();
+
+        if (Id != 0)
+        {
+            AdminService.Ticket = AssignedTickets
+                .FirstOrDefault(x => x.Key.Id == Id)
+                .Key ?? null;
+
+            if (AdminService.Ticket == null)
+            {
+                AdminService.Ticket = UnAssignedTickets
+                    .FirstOrDefault(x => x.Key.Id == Id)
+                    .Key ?? null;
+            }
+
+            if (AdminService.Ticket == null)
+                return;
+
+            Status = AdminService.Ticket.Status;
+            Priority = AdminService.Ticket.Priority;
+
+            if (reloadMessages)
+            {
+                var msgs = await AdminService.GetMessages();
+                Messages = msgs.ToList();
+            }
+        }
+    }
+
+    public async void Dispose()
+    {
+        await Unsubscribe();
+    }
+}

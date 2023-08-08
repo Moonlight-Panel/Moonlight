@@ -24,29 +24,6 @@ public class TicketAdminService
         BucketService = bucketService;
     }
 
-    public async Task<Dictionary<Ticket, TicketMessage?>> GetAssigned()
-    {
-        return await TicketServerService.GetUserAssignedTickets(IdentityService.User);
-    }
-
-    public async Task<Dictionary<Ticket, TicketMessage?>> GetUnAssigned()
-    {
-        return await TicketServerService.GetUnAssignedTickets();
-    }
-
-    public async Task<Ticket> Create(string issueTopic, string issueDescription, string issueTries,
-        TicketSubject subject, int subjectId)
-    {
-        return await TicketServerService.Create(
-            IdentityService.User,
-            issueTopic,
-            issueDescription,
-            issueTries,
-            subject,
-            subjectId
-        );
-    }
-
     public async Task<TicketMessage> Send(string content, IBrowserFile? file = null)
     {
         string? attachment = null;
@@ -83,13 +60,8 @@ public class TicketAdminService
         return await TicketServerService.GetMessages(Ticket!);
     }
 
-    public async Task Claim()
+    public async Task SetClaim(User? user)
     {
-        await TicketServerService.Claim(Ticket!, IdentityService.User);
-    }
-
-    public async Task UnClaim()
-    {
-        await TicketServerService.Claim(Ticket!);
+        await TicketServerService.SetClaim(Ticket!, user);
     }
 }

@@ -45,9 +45,18 @@ public class DatabaseCheckupService
         {
             Logger.Info($"{migrations.Length} migrations pending. Updating now");
 
-            var backupHelper = new BackupHelper();
-            await backupHelper.CreateBackup(
-                PathBuilder.File("storage", "backups", $"{new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}.zip"));
+            try
+            {
+                var backupHelper = new BackupHelper();
+                await backupHelper.CreateBackup(
+                    PathBuilder.File("storage", "backups", $"{new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}.zip"));
+            }
+            catch (Exception e)
+            {
+                Logger.Fatal("Unable to create backup");
+                Logger.Fatal(e);
+                Logger.Fatal("Moonlight will continue to start and apply the migrations without a backup");
+            }
             
             Logger.Info("Applying migrations");
             

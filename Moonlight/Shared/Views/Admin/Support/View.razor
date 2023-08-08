@@ -1,0 +1,293 @@
+﻿@page "/admin/support/view/{Id:int}"
+
+@using Moonlight.App.Services.Tickets
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+@using Moonlight.App.Models.Misc
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Events
+@using Moonlight.App.Services.Sessions
+@using Moonlight.Shared.Components.Tickets
+
+@inject TicketAdminService TicketAdminService
+@inject SmartTranslateService SmartTranslateService
+@inject Repository<Ticket> TicketRepository
+@inject EventSystem Event
+@inject IdentityService IdentityService
+
+@implements IDisposable
+
+@attribute [PermissionRequired(nameof(Permissions.AdminSupportView))]
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+    @if (Ticket == null)
+    {
+        <NotFoundAlert/>
+    }
+    else
+    {
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-xl-9 col-lg-8">
+                    <div class="card-body border-end">
+                        <div class="row mb-4 pb-2 g-3">
+                            <span class="fs-2 fw-bold">@(Ticket.IssueTopic)</span>
+                        </div>
+                        <span class="fs-4">
+                            <TL>Issue description</TL>:
+                        </span>
+                        <p class="fs-5 text-muted">
+                            @(Formatter.FormatLineBreaks(Ticket.IssueDescription))
+                        </p>
+                        <span class="fs-4">
+                            <TL>Issue resolve tries</TL>:
+                        </span>
+                        <p class="fs-5 text-muted">
+                            @(Formatter.FormatLineBreaks(Ticket.IssueTries))
+                        </p>
+                    </div>
+                    <div class="card-body border-end border-top bg-black">
+                        <TicketMessageView Messages="Messages" ViewAsSupport="true"/>
+                    </div>
+                    <div class="card-footer pt-4">
+                        <div class="d-flex flex-stack">
+                            <table class="w-100">
+                                <tr>
+                                    <td class="align-top">
+                                        <SmartFileSelect @ref="FileSelect"></SmartFileSelect>
+                                    </td>
+                                    <td class="w-100">
+                                        <textarea @bind="MessageContent" class="form-control mb-3 form-control-flush" rows="1" placeholder="@(SmartTranslateService.Translate("Type a message"))"></textarea>
+                                    </td>
+                                    <td class="align-top">
+                                        <WButton Text="@(SmartTranslateService.Translate("Send"))"
+                                                 WorkingText="@(SmartTranslateService.Translate("Sending"))"
+                                                 CssClasses="btn-primary ms-2"
+                                                 OnClick="SendMessage"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <TL>Ticket details</TL>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle mb-0">
+                                <tbody>
+                                <tr>
+                                    <th>
+                                        <TL>Ticket ID</TL>
+                                    </th>
+                                    <td>@(Ticket.Id)</td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>User</TL>
+                                    </th>
+                                    <td>
+                                        <a href="/admin/users/view/@(Ticket.CreatedBy.Id)">
+                                            @(Ticket.CreatedBy.FirstName) @(Ticket.CreatedBy.LastName)
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>Subject</TL>
+                                    </th>
+                                    <td>
+                                        <TL>@(Ticket.Subject)</TL>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>Subject ID</TL>
+                                    </th>
+                                    <td>@(Ticket.SubjectId)</td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>Assigned to</TL>
+                                    </th>
+                                    @if (Ticket.AssignedTo == null)
+                                    {
+                                        <td>
+                                            <TL>None</TL>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>@(Ticket.AssignedTo.FirstName) @(Ticket.AssignedTo.LastName)</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>Status</TL>
+                                    </th>
+                                    <td>
+                                        <select @bind="StatusModified" class="form-select">
+                                            @foreach (var status in (TicketStatus[])Enum.GetValues(typeof(TicketStatus)))
+                                            {
+                                                if (StatusModified == status)
+                                                {
+                                                    <option value="@(status)" selected="">@(status)</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@(status)">@(status)</option>
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>Priority</TL>
+                                    </th>
+                                    <td>
+                                        <select @bind="PriorityModified" class="form-select">
+                                            @foreach (var priority in (TicketPriority[])Enum.GetValues(typeof(TicketPriority)))
+                                            {
+                                                if (PriorityModified == priority)
+                                                {
+                                                    <option value="@(priority)" selected="">@(priority)</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@(priority)">@(priority)</option>
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <TL>Created at</TL>
+                                    </th>
+                                    <td>@(Formatter.FormatDate(Ticket.CreatedAt))</td>
+                                </tr>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        <WButton Text="@(SmartTranslateService.Translate("Save"))" OnClick="Save"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <WButton Text="@(SmartTranslateService.Translate("Claim"))" OnClick="() => SetClaim(IdentityService.User)"/>
+                                    </th>
+                                    <td>
+                                        <WButton Text="@(SmartTranslateService.Translate("Unclaim"))" OnClick="() => SetClaim(null)"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ticket? Ticket { get; set; }
+    private TicketPriority PriorityModified;
+    private TicketStatus StatusModified;
+
+    private List<TicketMessage> Messages = new();
+    private SmartFileSelect FileSelect;
+    private string MessageContent = "";
+
+    private LazyLoader LazyLoader;
+
+    private async Task Load(LazyLoader _)
+    {
+        Ticket = TicketRepository
+            .Get()
+            .Include(x => x.AssignedTo)
+            .Include(x => x.CreatedBy)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (Ticket != null)
+        {
+            TicketAdminService.Ticket = Ticket;
+            PriorityModified = Ticket.Priority;
+            StatusModified = Ticket.Status;
+
+            Messages = (await TicketAdminService.GetMessages()).ToList();
+
+    // Register events
+
+            await Event.On<TicketMessage>($"tickets.{Ticket.Id}.message", this, async message =>
+            {
+                if (message.Sender != null && message.Sender.Id == IdentityService.User.Id && message.IsSupportMessage)
+                    return;
+
+                Messages.Add(message);
+                await InvokeAsync(StateHasChanged);
+            });
+
+            await Event.On<Ticket>($"tickets.{Ticket.Id}.status", this, async _ =>
+            {
+    //TODO: Does not work because of data caching. So we dont reload because it will look the same anyways
+    //await LazyLoader.Reload();
+            });
+        }
+    }
+
+    private async Task Save()
+    {
+        if (PriorityModified != Ticket!.Priority)
+            await TicketAdminService.UpdatePriority(PriorityModified);
+
+        if (StatusModified != Ticket!.Status)
+            await TicketAdminService.UpdateStatus(StatusModified);
+    }
+
+    private async Task SetClaim(User? user)
+    {
+        await TicketAdminService.SetClaim(user);
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(MessageContent) && FileSelect.SelectedFile != null)
+            MessageContent = "File upload";
+
+        if (string.IsNullOrEmpty(MessageContent))
+            return;
+
+        var msg = await TicketAdminService.Send(
+            MessageContent,
+            FileSelect.SelectedFile
+            );
+
+        Messages.Add(msg);
+
+        MessageContent = "";
+        FileSelect.SelectedFile = null;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async void Dispose()
+    {
+        if (Ticket != null)
+        {
+            await Event.Off($"tickets.{Ticket.Id}.message", this);
+            await Event.Off($"tickets.{Ticket.Id}.status", this);
+        }
+    }
+}

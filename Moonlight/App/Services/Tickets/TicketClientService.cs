@@ -23,11 +23,6 @@ public class TicketClientService
         IdentityService = identityService;
         BucketService = bucketService;
     }
-    
-    public async Task<Dictionary<Ticket, TicketMessage?>> Get()
-    {
-        return await TicketServerService.GetUserTickets(IdentityService.User);
-    }
 
     public async Task<Ticket> Create(string issueTopic, string issueDescription, string issueTries, TicketSubject subject, int subjectId)
     {

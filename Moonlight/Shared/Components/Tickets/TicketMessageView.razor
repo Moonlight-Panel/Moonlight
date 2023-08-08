@@ -7,6 +7,7 @@
 @inject ResourceService ResourceService
 @inject SmartTranslateService SmartTranslateService
 
+<div class="scroll-y me-n5 pe-5" style="max-height: 50vh; display: flex; flex-direction: column-reverse;">
 @foreach (var message in Messages.OrderByDescending(x => x.Id)) // Reverse messages to use auto scrolling
 {
     if (message.IsSupportMessage)
@@ -18,10 +19,16 @@
                     <div class="d-flex align-items-center mb-2">
                         <div class="me-3">
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
-                            <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
+                            @if (message.Sender != null)
+                            {
+                                <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
+                            }
                         </div>
                         <div class="symbol  symbol-35px symbol-circle ">
-                            <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender!))">
+                            @if (message.Sender != null)
+                            {
+                                <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
+                            }
                         </div>
                     </div>
                     <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
@@ -62,8 +69,11 @@
             <div class="d-flex justify-content-start mb-10 ">
                 <div class="d-flex flex-column align-items-start">
                     <div class="d-flex align-items-center mb-2">
-                        <div class="symbol  symbol-35px symbol-circle ">
-                            <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender!))">
+                        <div class="symbol symbol-35px symbol-circle ">
+                            @if (message.Sender != null)
+                            {
+                                <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
+                            }
                         </div>
                         <div class="ms-3">
                             <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
@@ -120,7 +130,10 @@
                 <div class="d-flex flex-column align-items-start">
                     <div class="d-flex align-items-center mb-2">
                         <div class="symbol  symbol-35px symbol-circle ">
-                            <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender!))">
+                            @if (message.Sender != null)
+                            {
+                                <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
+                            }
                         </div>
                         <div class="ms-3">
                             <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
@@ -169,8 +182,11 @@
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                             <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
                         </div>
-                        <div class="symbol  symbol-35px symbol-circle ">
-                            <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender!))">
+                        <div class="symbol symbol-35px symbol-circle ">
+                            @if (message.Sender != null)
+                            {
+                                <img alt="Avatar" src="@(ResourceService.Avatar(message.Sender))">
+                            }
                         </div>
                     </div>
                     <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end">
@@ -208,6 +224,7 @@
         }
     }
 }
+</div>
 
 @code
 {

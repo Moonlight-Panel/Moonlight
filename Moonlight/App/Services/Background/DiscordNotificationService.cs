@@ -31,9 +31,8 @@ public class DiscordNotificationService
             Client = new(config.WebHook);
             AppUrl = configService.Get().Moonlight.AppUrl;
 
-            Event.On<User>("supportChat.new", this, OnNewSupportChat);
-            Event.On<SupportChatMessage>("supportChat.message", this, OnSupportChatMessage);
-            Event.On<User>("supportChat.close", this, OnSupportChatClose);
+            Event.On<Ticket>("tickets.new", this, OnNewTicket);
+            Event.On<Ticket>("tickets.status", this, OnTicketStatusUpdated);
             Event.On<User>("user.rating", this, OnUserRated);
             Event.On<User>("billing.completed", this, OnBillingCompleted);
             Event.On<BlocklistIp>("ddos.add", this, OnIpBlockListed);
@@ -42,6 +41,24 @@ public class DiscordNotificationService
         {
             Logger.Info("Discord notifications disabled");
         }
+    }
+
+    private async Task OnTicketStatusUpdated(Ticket ticket)
+    {
+        await SendNotification("", builder =>
+        {
+            builder.Title = "Ticket status has been updated";
+            builder.AddField("Issue topic", ticket.IssueTopic);
+            builder.AddField("Status", ticket.Status);
+
+            if (ticket.AssignedTo != null)
+            {
+                builder.AddField("Assigned to", $"{ticket.AssignedTo.FirstName} {ticket.AssignedTo.LastName}");
+            }
+            
+            builder.Color = Color.Green;
+            builder.Url = $"{AppUrl}/admin/support/view/{ticket.Id}";
+        });
     }
 
     private async Task OnIpBlockListed(BlocklistIp blocklistIp)
@@ -85,46 +102,14 @@ public class DiscordNotificationService
         });
     }
 
-    private async Task OnSupportChatClose(User user)
+    private async Task OnNewTicket(Ticket ticket)
     {
         await SendNotification("", builder =>
         {
-            builder.Title = "A new support chat has been marked as closed";
-            builder.Color = Color.Red;
-            builder.AddField("Email", user.Email);
-            builder.AddField("Firstname", user.FirstName);
-            builder.AddField("Lastname", user.LastName);
-            builder.Url = $"{AppUrl}/admin/support/view/{user.Id}";
-        });
-    }
-
-    private async Task OnSupportChatMessage(SupportChatMessage message)
-    {
-        if(message.Sender == null)
-            return;
-        
-        await SendNotification("", builder =>
-        {
-            builder.Title = "New message in support chat";
-            builder.Color = Color.Blue;
-            builder.AddField("Message", message.Content);
-            builder.Author = new EmbedAuthorBuilder()
-                .WithName($"{message.Sender.FirstName} {message.Sender.LastName}")
-                .WithIconUrl(ResourceService.Avatar(message.Sender));
-            builder.Url = $"{AppUrl}/admin/support/view/{message.Recipient.Id}";
-        });
-    }
-
-    private async Task OnNewSupportChat(User user)
-    {
-        await SendNotification("", builder =>
-        {
-            builder.Title = "A new support chat has been marked as active";
+            builder.Title = "A new ticket has been created";
+            builder.AddField("Issue topic", ticket.IssueTopic);
             builder.Color = Color.Green;
-            builder.AddField("Email", user.Email);
-            builder.AddField("Firstname", user.FirstName);
-            builder.AddField("Lastname", user.LastName);
-            builder.Url = $"{AppUrl}/admin/support/view/{user.Id}";
+            builder.Url = $"{AppUrl}/admin/support/view/{ticket.Id}";
         });
     }
 

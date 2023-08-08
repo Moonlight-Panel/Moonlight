@@ -1,353 +1,217 @@
 ﻿@page "/support"
-@page "/support/{Id:int}"
-
 @using Moonlight.App.Services.Tickets
 @using Moonlight.App.Database.Entities
-@using Moonlight.App.Helpers
-@using Moonlight.App.Models.Forms
-@using Moonlight.App.Models.Misc
 @using Moonlight.App.Repositories
-@using Moonlight.App.Services
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.App.Events
-@using Moonlight.App.Services.Files
+@using Moonlight.App.Models.Misc
+@using BlazorTable
+@using Moonlight.App.Models.Forms
+@using Moonlight.App.Services
 @using Moonlight.App.Services.Sessions
-@using Moonlight.Shared.Components.Tickets
 
-@inject TicketClientService ClientService
-@inject Repository<Server> ServerRepository
-@inject Repository<WebSpace> WebSpaceRepository
-@inject Repository<Domain> DomainRepository
+@inject TicketClientService TicketClientService
+@inject Repository<Ticket> TicketRepository
 @inject SmartTranslateService SmartTranslateService
 @inject IdentityService IdentityService
+@inject Repository<WebSpace> WebSpaceRepository
+@inject Repository<Domain> DomainRepository
+@inject Repository<Server> ServerRepository
 @inject NavigationManager NavigationManager
-@inject ResourceService ResourceService
-@inject EventSystem EventSystem
 
-<div class="d-flex flex-column flex-lg-row">
-<div class="flex-column flex-lg-row-auto w-100 w-lg-300px w-xl-400px mb-10 mb-lg-0">
-    <div class="card card-flush">
-        <div class="card-body pt-5">
-            <div class="scroll-y me-n5 pe-5 h-200px h-lg-auto">
-                <div class="d-flex flex-stack d-flex justify-content-center mb-5">
-                    <a href="/support" class="btn btn-primary">
-                        <TL>Create new ticket</TL>
-                    </a>
-                </div>
-
-                <div class="separator"></div>
-
-                @foreach (var ticket in Tickets)
-                {
-                    <div class="d-flex flex-stack py-4">
-                        <div class="d-flex align-items-center">
-                            <div class="ms-5">
-                                <a href="/support/@(ticket.Key.Id)" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">@(ticket.Key.IssueTopic)</a>
-                                @if (ticket.Value != null)
-                                {
-                                    <div class="fw-semibold text-muted">
-                                        @(ticket.Value.Content)
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column align-items-end ms-2">
-                            @if (ticket.Value != null)
-                            {
-                                <span class="text-muted fs-7 mb-1">
-                                    @(Formatter.FormatAgoFromDateTime(ticket.Value.CreatedAt, SmartTranslateService))
-                                </span>
-                            }
-                        </div>
-                    </div>
-
-                    if (ticket.Key != Tickets.Last().Key)
-                    {
-                        <div class="separator"></div>
-                    }
-                }
-            </div>
-        </div>
-    </div>
-</div>
-<div class="flex-lg-row-fluid ms-lg-7 ms-xl-10">
-<div class="card">
-<div class="card-header">
-    @if (ClientService.Ticket != null)
-    {
-        <div class="card-title">
-            <div class="d-flex justify-content-center flex-column me-3">
-                <span class="fs-3 fw-bold text-gray-900 me-1 mb-2 lh-1">@(ClientService.Ticket.IssueTopic)</span>
-                <div class="mb-0 lh-1">
-                    <span class="fs-6 fw-bold text-muted me-2">
-                        <TL>Status</TL>
-                    </span>
-                    @switch (ClientService.Ticket.Status)
-                    {
-                        case TicketStatus.Closed:
-                            <span class="badge badge-danger badge-circle w-10px h-10px me-1"></span>
-                            break;
-                        case TicketStatus.Open:
-                            <span class="badge badge-success badge-circle w-10px h-10px me-1"></span>
-                            break;
-                        case TicketStatus.Pending:
-                            <span class="badge badge-warning badge-circle w-10px h-10px me-1"></span>
-                            break;
-                        case TicketStatus.WaitingForUser:
-                            <span class="badge badge-primary badge-circle w-10px h-10px me-1"></span>
-                            break;
-                    }
-                    <span class="fs-6 fw-semibold text-muted me-5">@(ClientService.Ticket.Status)</span>
-
-                    <span class="fs-6 fw-bold text-muted me-2">
-                        <TL>Priority</TL>
-                    </span>
-                    @switch (ClientService.Ticket.Priority)
-                    {
-                        case TicketPriority.Low:
-                            <span class="badge badge-success badge-circle w-10px h-10px me-1"></span>
-                            break;
-                        case TicketPriority.Medium:
-                            <span class="badge badge-primary badge-circle w-10px h-10px me-1"></span>
-                            break;
-                        case TicketPriority.High:
-                            <span class="badge badge-warning badge-circle w-10px h-10px me-1"></span>
-                            break;
-                        case TicketPriority.Critical:
-                            <span class="badge badge-danger badge-circle w-10px h-10px me-1"></span>
-                            break;
-                    }
-                    <span class="fs-6 fw-semibold text-muted">@(ClientService.Ticket.Priority)</span>
-                </div>
-            </div>
-        </div>
-        <div class="card-toolbar">
-            <div class="me-n3">
-                <button class="btn btn-sm btn-icon btn-active-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
-                    <i class="ki-duotone ki-dots-square fs-2">
-                        <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
-                    </i>
-                </button>
-                <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-semibold w-200px py-3" data-kt-menu="true">
-                    <div class="menu-item px-3">
-                        <div class="menu-content text-muted pb-2 px-3 fs-7 text-uppercase">
-                            Contacts
-                        </div>
-                    </div>
-                    <div class="menu-item px-3">
-                        <a href="#" class="menu-link px-3" data-bs-toggle="modal" data-bs-target="#kt_modal_users_search">
-                            Add Contact
-                        </a>
-                    </div>
-                    <div class="menu-item px-3">
-                        <a href="#" class="menu-link flex-stack px-3" data-bs-toggle="modal" data-bs-target="#kt_modal_invite_friends">
-                            Invite Contacts
-                            <span class="ms-2" data-bs-toggle="tooltip" aria-label="Specify a contact email to send an invitation" data-bs-original-title="Specify a contact email to send an invitation" data-kt-initialized="1">
-                                <i class="ki-duotone ki-information fs-7">
-                                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                </i>
-                            </span>
-                        </a>
-                    </div>
-                    <div class="menu-item px-3" data-kt-menu-trigger="hover" data-kt-menu-placement="right-start">
-                        <a href="#" class="menu-link px-3">
-                            <span class="menu-title">Groups</span>
-                            <span class="menu-arrow"></span>
-                        </a>
-                        <div class="menu-sub menu-sub-dropdown w-175px py-4">
-
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3" data-bs-toggle="tooltip" data-bs-original-title="Coming soon" data-kt-initialized="1">
-                                    Create Group
-                                </a>
-                            </div>
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3" data-bs-toggle="tooltip" data-bs-original-title="Coming soon" data-kt-initialized="1">
-                                    Invite Members
-                                </a>
-                            </div>
-                            <div class="menu-item px-3">
-                                <a href="#" class="menu-link px-3" data-bs-toggle="tooltip" data-bs-original-title="Coming soon" data-kt-initialized="1">
-                                    Settings
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="menu-item px-3 my-1">
-                        <a href="#" class="menu-link px-3" data-bs-toggle="tooltip" data-bs-original-title="Coming soon" data-kt-initialized="1">
-                            Settings
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="card-title">
-            <div class="d-flex justify-content-center flex-column me-3">
-                <span class="fs-4 fw-bold text-gray-900 me-1 mb-2 lh-1">
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
                     <TL>Create a new ticket</TL>
                 </span>
             </div>
-        </div>
-    }
-</div>
-<div class="card-body">
-    <div class="scroll-y me-n5 pe-5" style="max-height: 55vh; display: flex; flex-direction: column-reverse;">
-        @if (ClientService.Ticket == null)
-        {
-            <LazyLoader Load="LoadTicketCreate">
-                <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
-                    <div class="mb-3">
-                        <InputText @bind-Value="Model.IssueTopic"
-                                   placeholder="@(SmartTranslateService.Translate("Enter a title for your ticket"))"
-                                   class="form-control">
-                        </InputText>
-                    </div>
-                    <div class="mb-3">
-                        <InputTextArea @bind-Value="Model.IssueDescription"
-                                       placeholder="@(SmartTranslateService.Translate("Describe the issue you are experiencing"))"
+            <div class="card-body">
+                <LazyLoader Load="LoadTicketCreate">
+                    <SmartForm Model="Model" OnValidSubmit="OnValidSubmit">
+                        <div class="mb-3">
+                            <InputText @bind-Value="Model.IssueTopic"
+                                       placeholder="@(SmartTranslateService.Translate("Enter a title for your ticket"))"
                                        class="form-control">
-                        </InputTextArea>
-                    </div>
-                    <div class="mb-3">
-                        <InputTextArea @bind-Value="Model.IssueTries"
-                                       placeholder="@(SmartTranslateService.Translate("Describe what you have tried to solve this issue"))"
-                                       class="form-control">
-                        </InputTextArea>
-                    </div>
-                    <div class="mb-3">
-                        <select @bind="Model.Subject" class="form-select">
-                            @foreach (var subject in (TicketSubject[])Enum.GetValues(typeof(TicketSubject)))
+                            </InputText>
+                        </div>
+                        <div class="mb-3">
+                            <InputTextArea @bind-Value="Model.IssueDescription"
+                                           placeholder="@(SmartTranslateService.Translate("Describe the issue you are experiencing"))"
+                                           class="form-control">
+                            </InputTextArea>
+                        </div>
+                        <div class="mb-3">
+                            <InputTextArea @bind-Value="Model.IssueTries"
+                                           placeholder="@(SmartTranslateService.Translate("Describe what you have tried to solve this issue"))"
+                                           class="form-control">
+                            </InputTextArea>
+                        </div>
+                        <div class="mb-3">
+                            <select @bind="Model.Subject" class="form-select">
+                                @foreach (var subject in (TicketSubject[])Enum.GetValues(typeof(TicketSubject)))
+                                {
+                                    if (Model.Subject == subject)
+                                    {
+                                        <option value="@(subject)" selected="">@(subject)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@(subject)">@(subject)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            @if (Model.Subject == TicketSubject.Domain)
                             {
-                                if (Model.Subject == subject)
-                                {
-                                    <option value="@(subject)" selected="">@(subject)</option>
-                                }
-                                else
-                                {
-                                    <option value="@(subject)">@(subject)</option>
-                                }
+                                <select @bind="Model.SubjectId" class="form-select">
+                                    @foreach (var domain in Domains)
+                                    {
+                                        if (Model.SubjectId == domain.Id)
+                                        {
+                                            <option value="@(domain.Id)" selected="">@(domain.Name).@(domain.SharedDomain.Name)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@(domain.Id)">@(domain.Name).@(domain.SharedDomain.Name)</option>
+                                        }
+                                    }
+                                </select>
                             }
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        @if (Model.Subject == TicketSubject.Domain)
-                        {
-                            <select @bind="Model.SubjectId" class="form-select">
-                                @foreach (var domain in Domains)
-                                {
-                                    if (Model.SubjectId == domain.Id)
+                            else if (Model.Subject == TicketSubject.Server)
+                            {
+                                <select @bind="Model.SubjectId" class="form-select">
+                                    @foreach (var server in Servers)
                                     {
-                                        <option value="@(domain.Id)" selected="">@(domain.Name).@(domain.SharedDomain.Name)</option>
+                                        if (Model.SubjectId == server.Id)
+                                        {
+                                            <option value="@(server.Id)" selected="">@(server.Name)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@(server.Id)">@(server.Name)</option>
+                                        }
                                     }
-                                    else
+                                </select>
+                            }
+                            else if (Model.Subject == TicketSubject.Webspace)
+                            {
+                                <select @bind="Model.SubjectId" class="form-select">
+                                    @foreach (var webSpace in WebSpaces)
                                     {
-                                        <option value="@(domain.Id)">@(domain.Name).@(domain.SharedDomain.Name)</option>
+                                        if (Model.SubjectId == webSpace.Id)
+                                        {
+                                            <option value="@(webSpace.Id)" selected="">@(webSpace.Domain)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@(webSpace.Id)">@(webSpace.Domain)</option>
+                                        }
                                     }
-                                }
-                            </select>
-                        }
-                        else if (Model.Subject == TicketSubject.Server)
-                        {
-                            <select @bind="Model.SubjectId" class="form-select">
-                                @foreach (var server in Servers)
-                                {
-                                    if (Model.SubjectId == server.Id)
-                                    {
-                                        <option value="@(server.Id)" selected="">@(server.Name)</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@(server.Id)">@(server.Name)</option>
-                                    }
-                                }
-                            </select>
-                        }
-                        else if (Model.Subject == TicketSubject.Webspace)
-                        {
-                            <select @bind="Model.SubjectId" class="form-select">
-                                @foreach (var webSpace in WebSpaces)
-                                {
-                                    if (Model.SubjectId == webSpace.Id)
-                                    {
-                                        <option value="@(webSpace.Id)" selected="">@(webSpace.Domain)</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@(webSpace.Id)">@(webSpace.Domain)</option>
-                                    }
-                                }
-                            </select>
-                        }
-                    </div>
-                    <div class="text-end">
-                        <button class="btn btn-primary" type="submit">
-                            <TL>Create ticket</TL>
-                        </button>
-                    </div>
-                </SmartForm>
-            </LazyLoader>
-        }
-        else
-        {
-            <TicketMessageView Messages="Messages"/>
-        }
-    </div>
-</div>
-@if (ClientService.Ticket != null)
-{
-    <div class="card-footer pt-4">
-        <div class="d-flex flex-stack">
-            <table class="w-100">
-                <tr>
-                    <td class="align-top">
-                        <SmartFileSelect @ref="FileSelect"></SmartFileSelect>
-                    </td>
-                    <td class="w-100">
-                        <textarea @bind="MessageText" class="form-control mb-3 form-control-flush" rows="1" placeholder="@(SmartTranslateService.Translate("Type a message"))"></textarea>
-                    </td>
-                    <td class="align-top">
-                        <WButton Text="@(SmartTranslateService.Translate("Send"))"
-                                 WorkingText="@(SmartTranslateService.Translate("Sending"))"
-                                 CssClasses="btn-primary ms-2"
-                                 OnClick="SendMessage">
-                        </WButton>
-                    </td>
-                </tr>
-            </table>
+                                </select>
+                            }
+                        </div>
+                        <div class="text-end">
+                            <button class="btn btn-primary" type="submit">
+                                <TL>Create ticket</TL>
+                            </button>
+                        </div>
+                    </SmartForm>
+                </LazyLoader>
+            </div>
         </div>
     </div>
-}
-</div>
-</div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">
+                    <TL>Your tickets</TL>
+                </span>
+            </div>
+            <div class="card-body">
+                <LazyLoader Load="LoadTickets">
+                    <div class="table-responsive">
+                        <Table TableItem="Ticket" Items="Tickets" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                            <Column TableItem="Ticket" Title="@(SmartTranslateService.Translate("Ticket title"))" Field="@(x => x.IssueTopic)" Filterable="true" Sortable="false">
+                                <Template>
+                                    <a href="/support/view/@(context.Id)">@(context.IssueTopic)</a>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Ticket" Title="@(SmartTranslateService.Translate("Assigned to"))" Field="@(x => x.AssignedTo)" Filterable="true" Sortable="true">
+                                <Template>
+                                    <span>@(context.AssignedTo == null ? "None" : context.AssignedTo.FirstName + " " + context.AssignedTo.LastName)</span>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Ticket" Title="@(SmartTranslateService.Translate("Priority"))" Field="@(x => x.Priority)" Filterable="true" Sortable="true">
+                                <Template>
+                                    @switch (context.Priority)
+                                    {
+                                        case TicketPriority.Low:
+                                            <span class="badge bg-success">@(context.Priority)</span>
+                                            break;
+                                        case TicketPriority.Medium:
+                                            <span class="badge bg-primary">@(context.Priority)</span>
+                                            break;
+                                        case TicketPriority.High:
+                                            <span class="badge bg-warning">@(context.Priority)</span>
+                                            break;
+                                        case TicketPriority.Critical:
+                                            <span class="badge bg-danger">@(context.Priority)</span>
+                                            break;
+                                    }
+                                </Template>
+                            </Column>
+                            <Column TableItem="Ticket" Title="@(SmartTranslateService.Translate("Status"))" Field="@(x => x.Status)" Filterable="true" Sortable="true">
+                                <Template>
+                                    @switch (context.Status)
+                                    {
+                                        case TicketStatus.Closed:
+                                            <span class="badge bg-danger">@(context.Status)</span>
+                                            break;
+                                        case TicketStatus.Open:
+                                            <span class="badge bg-success">@(context.Status)</span>
+                                            break;
+                                        case TicketStatus.Pending:
+                                            <span class="badge bg-warning">@(context.Status)</span>
+                                            break;
+                                        case TicketStatus.WaitingForUser:
+                                            <span class="badge bg-primary">@(context.Status)</span>
+                                            break;
+                                    }
+                                </Template>
+                            </Column>
+                            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                        </Table>
+                    </div>
+                </LazyLoader>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code
 {
-    [Parameter]
-    public int Id { get; set; }
-
-    private Dictionary<Ticket, TicketMessage?> Tickets;
-    private List<TicketMessage> Messages = new();
+    private Ticket[] Tickets;
     private CreateTicketDataModel Model = new();
-    private string MessageText;
-    private SmartFileSelect FileSelect;
-
+    
     private Server[] Servers;
     private WebSpace[] WebSpaces;
     private Domain[] Domains;
 
-    protected override async Task OnParametersSetAsync()
+    private Task LoadTickets(LazyLoader _)
     {
-        await Unsubscribe();
-        await ReloadTickets();
-        await Subscribe();
+        Tickets = TicketRepository
+            .Get()
+            .Include(x => x.CreatedBy)
+            .Include(x => x.AssignedTo)
+            .Where(x => x.Status != TicketStatus.Closed)
+            .Where(x => x.CreatedBy.Id == IdentityService.User.Id)
+            .ToArray();
 
-        await InvokeAsync(StateHasChanged);
+        return Task.CompletedTask;
     }
-
+    
     private Task LoadTicketCreate(LazyLoader _)
     {
         Servers = ServerRepository
@@ -374,95 +238,16 @@
 
     private async Task OnValidSubmit()
     {
-        var ticket = await ClientService.Create(
+        var ticket = await TicketClientService.Create(
             Model.IssueTopic,
             Model.IssueDescription,
             Model.IssueTries,
             Model.Subject,
             Model.SubjectId
-            );
+        );
 
         Model = new();
 
-        NavigationManager.NavigateTo("/support/" + ticket.Id);
-    }
-
-    private async Task SendMessage()
-    {
-        if (string.IsNullOrEmpty(MessageText) && FileSelect.SelectedFile != null)
-            MessageText = "File upload";
-        
-        if(string.IsNullOrEmpty(MessageText))
-            return;
-        
-        var msg = await ClientService.Send(MessageText, FileSelect.SelectedFile);
-        Messages.Add(msg);
-        MessageText = "";
-        FileSelect.SelectedFile = null;
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task Subscribe()
-    {
-        await EventSystem.On<Ticket>("tickets.new", this, async ticket =>
-        {
-            if (ticket.CreatedBy != null && ticket.CreatedBy.Id != IdentityService.User.Id)
-                return;
-
-            await ReloadTickets(false);
-            await InvokeAsync(StateHasChanged);
-        });
-
-        if (ClientService.Ticket != null)
-        {
-            await EventSystem.On<TicketMessage>($"tickets.{ClientService.Ticket.Id}.message", this, async message =>
-            {
-                if (message.Sender != null && message.Sender.Id == IdentityService.User.Id && !message.IsSupportMessage)
-                    return;
-
-                Messages.Add(message);
-                await InvokeAsync(StateHasChanged);
-            });
-
-            await EventSystem.On<Ticket>($"tickets.{ClientService.Ticket.Id}.status", this, async _ =>
-            {
-                await ReloadTickets(false);
-                await InvokeAsync(StateHasChanged);
-            });
-        }
-    }
-
-    private async Task Unsubscribe()
-    {
-        await EventSystem.Off("tickets.new", this);
-
-        if (ClientService.Ticket != null)
-        {
-            await EventSystem.Off($"tickets.{ClientService.Ticket.Id}.message", this);
-            await EventSystem.Off($"tickets.{ClientService.Ticket.Id}.status", this);
-        }
-    }
-
-    private async Task ReloadTickets(bool reloadMessages = true)
-    {
-        ClientService.Ticket = null;
-        Tickets = await ClientService.Get();
-
-        if (Id != 0)
-        {
-            ClientService.Ticket = Tickets
-                .FirstOrDefault(x => x.Key.Id == Id)
-                .Key ?? null;
-
-            if (ClientService.Ticket == null)
-                return;
-
-            if (reloadMessages)
-            {
-                var msgs = await ClientService.GetMessages();
-                Messages = msgs.ToList();
-            }
-        }
+        NavigationManager.NavigateTo("/support/view/" + ticket.Id);
     }
 }

@@ -49,6 +49,12 @@ public class TicketServerService
 
         // Do automatic stuff here
         await SendSystemMessage(ticket, ConfigService.Get().Moonlight.Tickets.WelcomeMessage);
+
+        if (ticket.Subject != TicketSubject.Other)
+        {
+            await SendMessage(ticket, creatorUser, $"Subject :\n\n{ticket.Subject}: {ticket.SubjectId}");
+        }
+        
         //TODO: Check for opening times
         
         return ticket;
@@ -137,85 +143,7 @@ public class TicketServerService
 
         return message;
     }
-    public Task<Dictionary<Ticket, TicketMessage?>> GetUserTickets(User u)
-    {
-        using var scope = ServiceScopeFactory.CreateScope();
-        var ticketRepo = scope.ServiceProvider.GetRequiredService<Repository<Ticket>>();
-        
-        var tickets = ticketRepo
-            .Get()
-            .Include(x => x.CreatedBy)
-            .Include(x => x.Messages)
-            .Where(x => x.CreatedBy.Id == u.Id)
-            .Where(x => x.Status != TicketStatus.Closed)
-            .ToArray();
-
-        var result = new Dictionary<Ticket, TicketMessage?>();
-
-        foreach (var ticket in tickets)
-        {
-            var message = ticket.Messages
-                .OrderByDescending(x => x.Id)
-                .FirstOrDefault();
-            
-            result.Add(ticket, message);
-        }
-
-        return Task.FromResult(result);
-    }
-    public Task<Dictionary<Ticket, TicketMessage?>> GetUserAssignedTickets(User u)
-    {
-        using var scope = ServiceScopeFactory.CreateScope();
-        var ticketRepo = scope.ServiceProvider.GetRequiredService<Repository<Ticket>>();
-        
-        var tickets = ticketRepo
-            .Get()
-            .Include(x => x.CreatedBy)
-            .Include(x => x.Messages)
-            .Where(x => x.Status != TicketStatus.Closed)
-            .Where(x => x.AssignedTo.Id == u.Id)
-            .ToArray();
-
-        var result = new Dictionary<Ticket, TicketMessage?>();
-
-        foreach (var ticket in tickets)
-        {
-            var message = ticket.Messages
-                .OrderByDescending(x => x.Id)
-                .FirstOrDefault();
-            
-            result.Add(ticket, message);
-        }
-
-        return Task.FromResult(result);
-    }
-    public Task<Dictionary<Ticket, TicketMessage?>> GetUnAssignedTickets()
-    {
-        using var scope = ServiceScopeFactory.CreateScope();
-        var ticketRepo = scope.ServiceProvider.GetRequiredService<Repository<Ticket>>();
-        
-        var tickets = ticketRepo
-            .Get()
-            .Include(x => x.CreatedBy)
-            .Include(x => x.Messages)
-            .Include(x => x.AssignedTo)
-            .Where(x => x.AssignedTo == null)
-            .Where(x => x.Status != TicketStatus.Closed)
-            .ToArray();
-
-        var result = new Dictionary<Ticket, TicketMessage?>();
-
-        foreach (var ticket in tickets)
-        {
-            var message = ticket.Messages
-                .OrderByDescending(x => x.Id)
-                .FirstOrDefault();
-            
-            result.Add(ticket, message);
-        }
-
-        return Task.FromResult(result);
-    }
+    
     public Task<TicketMessage[]> GetMessages(Ticket ticket)
     {
         using var scope = ServiceScopeFactory.CreateScope();
@@ -230,7 +158,7 @@ public class TicketServerService
         return Task.FromResult(tickets.Messages.ToArray());
     }
 
-    public async Task Claim(Ticket t, User? u = null)
+    public async Task SetClaim(Ticket t, User? u = null)
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var ticketRepo = scope.ServiceProvider.GetRequiredService<Repository<Ticket>>();
@@ -245,5 +173,8 @@ public class TicketServerService
         
         await Event.Emit("tickets.status", ticket);
         await Event.Emit($"tickets.{ticket.Id}.status", ticket);
+
+        var claimName = user == null ? "None" : user.FirstName + " " + user.LastName; 
+        await SendSystemMessage(ticket, $"Ticked claim has been set to {claimName}");
     }
 }

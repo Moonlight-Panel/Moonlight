@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Components;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Helpers;
@@ -162,5 +163,23 @@ public static class Formatter
 
         double gigabytes = (double)bytes / gbMultiplier;
         return gigabytes;
+    }
+    
+    public static RenderFragment FormatLineBreaks(string content)
+    {
+        return builder =>
+        {
+            int i = 0;
+            var arr = content.Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            foreach (var line in arr)
+            {
+                builder.AddContent(i, line);
+                if (i++ != arr.Length - 1)
+                {
+                    builder.AddMarkupContent(i, "<br/>");
+                }
+            }
+        };
     }
 }
