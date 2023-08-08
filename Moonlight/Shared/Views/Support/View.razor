@@ -1,0 +1,131 @@
+﻿@page "/support/view/{Id:int}"
+
+@using Moonlight.App.Services.Tickets
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.Tickets
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Events
+@using Moonlight.App.Services.Sessions
+
+@inject TicketClientService TicketClientService
+@inject SmartTranslateService SmartTranslateService
+@inject Repository<Ticket> TicketRepository
+@inject IdentityService IdentityService
+@inject EventSystem Event
+
+@implements IDisposable
+
+<LazyLoader Load="Load">
+    @if (Ticket == null)
+    {
+        <NotFoundAlert />
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">@(Ticket.IssueTopic)</span>
+            </div>
+            <div class="card-body border-end border-top bg-black">
+                <TicketMessageView Messages="Messages"/>
+            </div>
+            <div class="card-footer pt-4">
+                <div class="d-flex flex-stack">
+                    <table class="w-100">
+                        <tr>
+                            <td class="align-top">
+                                <SmartFileSelect @ref="FileSelect"></SmartFileSelect>
+                            </td>
+                            <td class="w-100">
+                                <textarea @bind="MessageContent" class="form-control mb-3 form-control-flush" rows="1" placeholder="@(SmartTranslateService.Translate("Type a message"))"></textarea>
+                            </td>
+                            <td class="align-top">
+                                <WButton Text="@(SmartTranslateService.Translate("Send"))"
+                                         WorkingText="@(SmartTranslateService.Translate("Sending"))"
+                                         CssClasses="btn-primary ms-2"
+                                         OnClick="SendMessage"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ticket? Ticket;
+    private List<TicketMessage> Messages = new();
+
+    private SmartFileSelect FileSelect;
+    private string MessageContent = "";
+
+    private async Task Load(LazyLoader _)
+    {
+        Ticket = TicketRepository
+            .Get()
+            .Include(x => x.CreatedBy)
+            .Where(x => x.CreatedBy.Id == IdentityService.User.Id)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (Ticket != null)
+        {
+            TicketClientService.Ticket = Ticket;
+
+            Messages = (await TicketClientService.GetMessages()).ToList();
+            
+    // Register events
+
+            await Event.On<TicketMessage>($"tickets.{Ticket.Id}.message", this, async message =>
+            {
+                if (message.Sender != null && message.Sender.Id == IdentityService.User.Id && !message.IsSupportMessage)
+                    return;
+
+                Messages.Add(message);
+                await InvokeAsync(StateHasChanged);
+            });
+
+            await Event.On<Ticket>($"tickets.{Ticket.Id}.status", this, async _ =>
+            {
+    //TODO: Does not work because of data caching. So we dont reload because it will look the same anyways
+    //await LazyLoader.Reload();
+            });
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(MessageContent) && FileSelect.SelectedFile != null)
+            MessageContent = "File upload";
+
+        if (string.IsNullOrEmpty(MessageContent))
+            return;
+
+        var msg = await TicketClientService.Send(
+            MessageContent,
+            FileSelect.SelectedFile
+        );
+
+        Messages.Add(msg);
+
+        MessageContent = "";
+        FileSelect.SelectedFile = null;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async void Dispose()
+    {
+        if (Ticket != null)
+        {
+            await Event.Off($"tickets.{Ticket.Id}.message", this);
+            await Event.Off($"tickets.{Ticket.Id}.status", this);
+        }
+    }
+}
