@@ -185,7 +185,7 @@
             .Get()
             .Include(x => x.Allocations)
             .Include(x => x.Image)
-            .Include("Image.Variables")
+            .ThenInclude(x => x.Variables)
             .Include(x => x.Node)
             .Include(x => x.Variables)
             .Include(x => x.MainAllocation)
