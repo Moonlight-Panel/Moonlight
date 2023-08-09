@@ -21,7 +21,7 @@
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                             @if (message.Sender != null)
                             {
-                                <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
+                                <span class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
                             }
                         </div>
                         <div class="symbol  symbol-35px symbol-circle ">
@@ -76,7 +76,7 @@
                             }
                         </div>
                         <div class="ms-3">
-                            <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
+                            <span class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
                             }
                         </div>
                         <div class="ms-3">
-                            <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
+                            <span class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
                         </div>
                     </div>
@@ -180,7 +180,7 @@
                     <div class="d-flex align-items-center mb-2">
                         <div class="me-3">
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt, SmartTranslateService))</span>
-                            <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</a>
+                            <span class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">@(message.Sender!.FirstName) @(message.Sender!.LastName)</span>
                         </div>
                         <div class="symbol symbol-35px symbol-circle ">
                             @if (message.Sender != null)
