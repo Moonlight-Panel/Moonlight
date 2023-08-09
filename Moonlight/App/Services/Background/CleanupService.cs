@@ -93,14 +93,14 @@ public class CleanupService
                         Logger.Debug($"Max CPU:  {maxCpu}");
                         executeCleanup = true;
                     }
-                    else if (Formatter.BytesToGb(memoryMetrics.Total) - Formatter.BytesToGb(memoryMetrics.Used) <
-                             minMemory / 1024D)
+                    else if (ByteSizeValue.FromKiloBytes(memoryMetrics.Total).MegaBytes - ByteSizeValue.FromKiloBytes(memoryMetrics.Used).MegaBytes <
+                             minMemory)
                     {
                         Logger.Debug($"{node.Name}: Memory Usage is too high");
-                        Logger.Debug($"Memory (Total):  {Formatter.BytesToGb(memoryMetrics.Total)}");
-                        Logger.Debug($"Memory (Used):  {Formatter.BytesToGb(memoryMetrics.Used)}");
+                        Logger.Debug($"Memory (Total):  {ByteSizeValue.FromKiloBytes(memoryMetrics.Total).MegaBytes}");
+                        Logger.Debug($"Memory (Used):  {ByteSizeValue.FromKiloBytes(memoryMetrics.Used).MegaBytes}");
                         Logger.Debug(
-                            $"Memory (Free):  {Formatter.BytesToGb(memoryMetrics.Total) - Formatter.BytesToGb(memoryMetrics.Used)}");
+                            $"Memory (Free):  {ByteSizeValue.FromKiloBytes(memoryMetrics.Total).MegaBytes - ByteSizeValue.FromKiloBytes(memoryMetrics.Used).MegaBytes}");
                         Logger.Debug($"Min Memory:  {minMemory}");
                         executeCleanup = true;
                     }
