@@ -1,0 +1,778 @@
+Open support;Suport deschis
+About us;Despre noi
+Imprint;Impresum
+Privacy;Confidențialitate
+Login;Autentificare
+Register;Înregistrare
+Insert brand name...;Introduceți numele mărcii...
+Save and continue;Salvați și continuați
+Saving;Se salvează
+Configure basics;Configurare elemente de bază
+Brand name;Numele mărcii
+test;test
+Insert first name...;Introduceți prenumele...
+Insert last name...;Introduceți numele de familie...
+Insert email address...;Introduceți adresa de email...
+Add;Adăugați
+Adding...;Se adaugă...
+Add admin accounts;Adăugați conturi de administrator
+First name;Prenume
+Last name;Nume de familie
+Email address;Adresă de email
+Enter password;Introduceți parola
+Next;Următorul
+Back;Înapoi
+Configure features;Configurați funcționalitățile
+Support chat;Asistență prin chat
+Finish;Finalizare
+Finalize installation;Finalizați instalarea
+Moonlight basic settings successfully configured;Setările de bază Moonlight au fost configurate cu succes
+Ooops. This page is crashed;Hopa. Această pagină s-a blocat.
+This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page;Această pagină s-a blocat. Eroarea a fost raportată echipei Moonlight. Între timp, puteți încerca să reîncărcați pagina
+Setup complete;Configurare completă
+It looks like this moonlight instance is ready to go;Se pare că această instanță Moonlight este gata de utilizare
+User successfully created;Utilizator creat cu succes
+Ooops. Your moonlight client is crashed;Hopa. Clientul tău Moonlight s-a blocat.
+This error has been reported to the moonlight team;Această eroare a fost raportată echipei Moonlight
+Sign In;Autentificare
+Sign in to start with moonlight;Autentificați-vă pentru a începe cu Moonlight
+Sign in with Discord;Autentificare cu Discord
+Or with email;Sau cu email
+Forgot password?;Ați uitat parola?
+Sign-in;Autentificare
+Not registered yet?;Încă nu sunteți înregistrat?
+Sign up;Înregistrare
+Authenticating;Se autentifică...
+Sign in with Google;Autentificare cu Google
+Working;Se lucrează...
+Error;Eroare
+Email and password combination not found;Combinarea de email și parolă nu a fost găsită
+Email;Email
+Password;Parolă
+Account settings;Setări cont
+Logout;Deconectare
+Dashboard;Panou de control
+Order;Comandă
+Website;Website
+Database;Bază de date
+Domain;Domeniu
+Servers;Servere
+Websites;Site-uri web
+Databases;Baze de date
+Domains;Domenii
+Changelog;Jurnal de modificări
+Firstname;Prenume
+Lastname;Nume de familie
+Repeat password;Repetă parola
+Sign Up;Înregistrare
+Sign up to start with moonlight;Înregistrați-vă pentru a începe cu Moonlight
+Sign up with Discord;Înregistrare cu Discord
+Sign up with Google;Înregistrare cu Google
+Sign-up;Înregistrare
+Already registered?;Deja înregistrat?
+Sign in;Autentificare
+Create something new;Creați ceva nou
+Create a gameserver;Creați un server de jocuri
+A new gameserver in just a few minutes;Un server de jocuri nou în doar câteva minute
+Create a database;Creați o bază de date
+A quick way to store your data and manage it from all around the world;O modalitate rapidă de a stoca datele și de a le gestiona din întreaga lume
+Manage your services;Gestionați serviciile dumneavoastră
+Manage your gameservers;Gestionați serverele dumneavoastră de jocuri
+Adjust your gameservers;Reglați serverele dumneavoastră de jocuri
+Manage your databases;Gestionați bazele de date
+Insert, delete and update the data in your databases;Introduceți, ștergeți și actualizați datele din bazele de date
+Create a website;Creați un site web
+Make your own websites with a webspace;Creați propriile site-uri web cu un spațiu web
+Create a domain;Creați un domeniu
+Make your services accessible through your own domain;Faceți serviciile dumneavoastră accesibile prin propriul domeniu
+Manage your websites;Gestionați site-urile web
+Modify the content of your websites;Modificați conținutul site-urilor dumneavoastră
+Manage your domains;Gestionați domeniile dumneavoastră
+Add, edit, and delete DNS records;Adăugați, editați și ștergeți înregistrări DNS
+Admin;Administrator
+System;Sistem
+Overview;Prezentare generală
+Manager;Manager
+Cleanup;Curățare
+Nodes;Noduri
+Images;Imagini
+aaPanel;aaPanel
+Users;Utilizatori
+Support;Asistență
+Statistics;Statistici
+No nodes found. Start with adding a new node;Nu s-au găsit noduri. Începeți prin adăugarea unui nod nou
+Nodename;Nume nod
+FQDN;Nume complet de domeniu (FQDN)
+Create;Creare
+Creating;Se creează...
+Http port;Port HTTP
+Sftp port;Port SFTP
+Moonlight daemon port;Port daemon Moonlight
+SSL;SSL
+CPU Usage;Utilizare CPU
+In %;În %
+Memory;Memorie
+Used / Available memory;Memorie utilizată / Memorie disponibilă
+Storage;Stocare
+Available storage;Stocare disponibilă
+Add a new node;Adăugați un nod nou
+Delete;Ștergere
+Deleting;Se șterge...
+Edit;Editare
+Token Id;ID token
+Token;Token
+Save;Salvare
+Setup;Configurare
+Open a ssh connection to your node and enter;Deschideți o conexiune SSH la nodul dvs. și introduceți
+and paste the config below. Then press STRG+O and STRG+X to save;și lipiți configurația de mai jos. Apoi apăsați STRG+O și STRG+X pentru a salva
+Before configuring this node, install the daemon;Înainte de a configura acest nod, instalați daemonul
+Delete this node?;Doriți să ștergeți acest nod?
+Do you really want to delete this node;Doriți cu adevărat să ștergeți acest nod?
+Yes;Da
+No;Nu
+Status;Stare
+Adding;Se adaugă
+Port;Port
+Id;ID
+Manage;Administrare
+Create new server;Creați un server nou
+No servers found;Niciun server găsit
+Server name;Nume server
+Cpu cores;Nuclee CPU
+Disk;Disc
+Image;Imagine
+Override startup;Suprascrie pornirea
+Docker image;Imagine Docker
+CPU Cores (100% = 1 Core);Nuclee CPU (100% = 1 nucleu)
+Server successfully created;Server creat cu succes
+Name;Nume
+Cores;Nuclee
+Owner;Proprietar
+Value;Valoare
+An unknown error occurred;A apărut o eroare necunoscută
+No allocation found;Nicio alocare găsită
+Identifier;Identificator
+UuidIdentifier;UuidIdentifier
+Override startup command;Suprascrieți comanda de pornire
+Loading;Se încarcă...
+Offline;Deconectat
+Connecting;Conectare...
+Start;Pornire
+Restart;Repornire
+Stop;Oprire
+Shared IP;IP partajată
+Server ID;ID server
+Cpu;CPU
+Console;Consolă
+Files;Fișiere
+Backups;Copii de siguranță
+Network;Rețea
+Plugins;Plugin-uri
+Settings;Setări
+Enter command;Introduceți comanda
+Execute;Executare
+Checking disk space;Verificare spațiu pe disc
+Updating config files;Actualizare fișiere de configurație
+Checking file permissions;Verificare permisiuni de fișiere
+Downloading server image;Se descarcă imaginea serverului
+Downloaded server image;Imaginea serverului a fost descărcată
+Starting;Începere
+Online;Conectat
+Kill;Oprit forțat
+Stopping;Se oprește
+Search files and folders;Căutare fișiere și foldere
+Launch WinSCP;Lansați WinSCP
+New folder;Folder nou
+Upload;Încărcare
+File name;Nume fișier
+File size;Mărime fișier
+Last modified;Ultima modificare
+Cancel;Anulare
+Canceling;Se anulează
+Running;În execuție
+Loading backups;Se încarcă copiile de siguranță
+Started backup creation;Crearea copiei de siguranță a început
+Backup is going to be created;Se va crea o copie de siguranță
+Rename;Redenumire
+Move;Mutare
+Archive;Arhivare
+Unarchive;Dezarhivare
+Download;Descărcare
+Starting download;Începerea descărcării
+Backup successfully created;Copie de siguranță creată cu succes
+Restore;Restaurare
+Copy url;Copiere URL
+Backup deletion started;Se începe ștergerea copiei de siguranță
+Backup successfully deleted;Copie de siguranță ștearsă cu succes
+Primary;Primar
+This feature is currently not available;Această funcționalitate nu este disponibilă în prezent
+Send;Trimite
+Sending;Se trimite
+Welcome to the support chat. Ask your question here and we will help you;Bine ați venit la chatul de asistență. Puneți-vă întrebarea aici și vă vom ajuta
+minutes ago;minute în urmă
+just now;chiar acum
+less than a minute ago;mai puțin de o minută în urmă
+1 hour ago;acum 1 oră
+1 minute ago;acum 1 minut
+Failed;Eșuat
+hours ago;ore în urmă
+Open tickets;Deschideți tichete
+Actions;Acțiuni
+No support ticket is currently open;Nu există momentan niciun tichet de asistență deschis
+User information;Informații utilizator
+Close ticket;Închideți tichetul
+Closing;Se închide
+The support team has been notified. Please be patient;Echipa de suport a fost notificată. Vă rugăm să aveți răbdare
+The ticket is now closed. Type a message to open it again;Tichetul este acum închis. Tastați un mesaj pentru a-l deschide din nou
+1 day ago;acum 1 zi
+is typing;scrie...
+are typing;scriu...
+No domains available;Niciun domeniu disponibil
+Shared domains;Domenii partajate
+Shared domain;Domeniu partajat
+Shared domain successfully deleted;Domeniu partajat șters cu succes
+Shared domain successfully added;Domeniu partajat adăugat cu succes
+Domain name;Nume de domeniu
+DNS records for;Înregistrări DNS pentru
+Fetching dns records;Se preiau înregistrările DNS
+No dns records found;Nicio înregistrare DNS găsită
+Content;Conținut
+Priority;Prioritate
+Ttl;TTL (Timp de Viață)
+Enable cloudflare proxy;Activați proxy Cloudflare
+CF Proxy;Proxy CF
+days ago;zile în urmă
+Cancel;Anulare
+An unexpected error occurred;A apărut o eroare neașteptată
+Testy;Testy
+Error from cloudflare api;Eroare de la API Cloudflare
+Profile;Profil
+No subscription available;Nicio abonare disponibilă
+Buy;Cumpără
+Redirecting;Redirecționare
+Apply;Aplică
+Applying code;Se aplică codul
+Invalid subscription code;Cod de abonament invalid
+Cancel Subscription;Anulează abonamentul
+Active until;Activ până la
+We will send you a notification upon subscription expiration;Vă vom trimite o notificare la expirarea abonamentului
+This token has been already used;Acest token a fost deja utilizat
+New login for;Autentificare nouă pentru
+No records found for this day;Nu s-au găsit înregistrări pentru această zi
+Change;Schimbă
+Changing;Se schimbă
+Minecraft version;Versiune Minecraft
+Build version;Versiune build
+Server installation is currently running;Instalarea serverului este în desfășurare în prezent
+Selected;Selectat
+Move deleted;Mutarea ștergerii
+Delete selected;Ștergeți selecția
+Log level;Nivelul de jurnal
+Log message;Mesaj de jurnal
+Time;Timp
+Version;Versiune
+You are running moonlight version;Rulați versiunea Moonlight
+Operating system;Sistem de operare
+Moonlight is running on;Moonlight rulează pe
+Memory usage;Utilizare memorie
+Moonlight is using;Moonlight folosește
+of memory;din memorie
+Cpu usage;Utilizare CPU
+Refresh;Reîmprospătează
+Send a message to all users;Trimiteți un mesaj tuturor utilizatorilor
+IP;IP
+URL;URL
+Device;Dispozitiv
+Change url;Schimbați URL-ul
+Message;Mesaj
+Enter message;Introduceți mesajul
+Enter the message to send;Introduceți mesajul de trimis
+Confirm;Confirmă
+Are you sure?;Sunteți sigur?
+Enter url;Introduceți URL-ul
+An unknown error occured while starting backup deletion;A apărut o eroare necunoscută în timpul începerii ștergerii backup-ului
+Success;Succes
+Backup URL successfully copied to your clipboard;URL-ul de backup a fost copiat cu succes în clipboard
+Backup restore started;Restaurarea backup-ului a început
+Backup successfully restored;Backup-ul a fost restaurat cu succes
+Register for;Înregistrare pentru
+Core;Nucleu
+Logs;Jurnale
+AuditLog;Jurnal de audit
+SecurityLog;Jurnal de securitate
+ErrorLog;Jurnal de eroare
+Resources;Resurse
+WinSCP cannot be launched here;WinSCP nu poate fi lansat aici
+Create a new folder;Creați un folder nou
+Enter a name;Introduceți un nume
+File upload complete;Încărcarea fișierului a fost finalizată
+New server;Server nou
+Sessions;Sesiuni
+New user;Utilizator nou
+Created at;Creat la
+Mail template not found;Șablonul de e-mail nu a fost găsit
+Missing admin permissions. This attempt has been logged ;Lipsesc permisiunile de administrator. Acest încercare a fost înregistrată
+Address;Adresă
+City;Oraș
+State;Stat
+Country;Țară
+Totp;Totp
+Discord;Discord
+Subscription;Abonament
+None;Niciunul
+No user with this id found;Niciun utilizator cu această ID găsit
+Back to list;Înapoi la listă
+New domain;Domeniu nou
+Reset password;Resetare parolă
+Password reset;Resetare parolă
+Reset the password of your account;Resetați parola contului dvs.
+Wrong here?;Greșit aici?
+A user with this email can not be found;Un utilizator cu această adresă de e-mail nu poate fi găsit
+Password reset successfull. Check your mail;Resetarea parolei a fost efectuată cu succes. Verificați-vă poșta
+Discord bot;Bot Discord
+New image;Imagine nouă
+Description;Descriere
+Uuid;UUID
+Enter tag name;Introduceți numele etichetei
+Remove;Eliminați
+No tags found;Nu s-au găsit etichete
+Enter docker image name;Introduceți numele imaginii Docker
+Tags;Etichete
+Docker images;Imagini Docker
+Default image;Imagine implicită
+Startup command;Comandă de pornire
+Install container;Instalați containerul
+Install entry;Intrare de instalare
+Configuration files;Fișiere de configurare
+Startup detection;Detectare de pornire
+Stop command;Comandă de oprire
+Successfully saved image;Imaginea a fost salvată cu succes
+No docker images found;Nu s-au găsit imagini Docker
+Key;Cheie
+Default value;Valoare implicită
+Allocations;Alocări
+No variables found;Nu s-au găsit variabile
+Successfully added image;Imaginea a fost adăugată cu succes
+Password change for;Schimbarea parolei pentru
+of;al
+New node;Nod nou
+Fqdn;Nume de domeniu complet
+Cores used;Nuclee utilizate
+used;folosite
+5.15.90.1-microsoft-standard-WSL2 - amd64;5.15.90.1-microsoft-standard-WSL2 - amd64
+Host system information;Informații despre sistemul gazdă
+0;0
+Docker containers running;Containere Docker în execuție
+details;Detalii
+1;1
+2;2
+DDos;DDoS
+No ddos attacks found;Nu s-au găsit atacuri DDoS
+Node;Nod
+Date;Dată
+DDos attack started;Atac DDoS început
+packets;pachete
+DDos attack stopped;Atac DDoS oprit
+packets; pachete
+Stop all;Oprește totul
+Kill all;Omoară totul
+Network in;Rețea intrare
+Network out;Rețea ieșire
+Kill all servers;Omoară toate serverele
+Do you really want to kill all running servers?;Doriți cu adevărat să opriți toate serverele care rulează?
+Change power state for;Schimbați starea de alimentare pentru
+to;la
+Stop all servers;Oprește toate serverele
+Do you really want to stop all running servers?;Doriți cu adevărat să opriți toate serverele care rulează?
+Manage ;Gestionează
+Manage user ;Gestionează utilizatorul
+Reloading;Se reîncarcă...
+Update;Actualizare
+Updating;Se actualizează
+Successfully updated user;Utilizator actualizat cu succes
+Discord id;ID Discord
+Discord username;Nume de utilizator Discord
+Discord discriminator;Discord Discriminator
+The Name field is required.;Câmpul Nume este obligatoriu.
+An error occured while logging you in;A apărut o eroare în timpul autentificării
+You need to enter an email address;Trebuie să introduceți o adresă de email
+You need to enter a password;Trebuie să introduceți o parolă
+You need to enter a password with minimum 8 characters in lenght;Trebuie să introduceți o parolă cu minim 8 caractere în lungime
+Proccessing;Se procesează...
+The FirstName field is required.;Câmpul Prenume este obligatoriu.
+The LastName field is required.;Câmpul Nume este obligatoriu.
+The Address field is required.;Câmpul Adresă este obligatoriu.
+The City field is required.;Câmpul Oraș este obligatoriu.
+The State field is required.;Câmpul Stat este obligatoriu.
+The Country field is required.;Câmpul Țară este obligatoriu.
+Street and house number requered;Strada și numărul casei sunt necesare.
+Max lenght reached;A fost atinsă lungimea maximă
+Server;Server
+stopped;oprit
+Cleanups;Curățări
+executed;executat
+Used clanup;Curățare folosită
+Enable;Activare
+Disable;Dezactivare
+Addons;Add-on-uri
+Javascript version;Versiune JavaScript
+Javascript file;Fișier JavaScript
+Select javascript file to execute on start;Selectați fișierul JavaScript pentru a fi executat la pornire
+Submit;Trimite
+Processing;Se procesează...
+Go up;Urcați în sus
+Running cleanup;Curățarea în curs de rulare
+servers;servere
+Select folder to move the file(s) to;Selectați folderul în care să mutați fișierele
+Paper version;Versiune tipărită
+Join2Start;Join2Start
+Server reset;Resetare server
+Reset;Resetare
+Resetting;Se resetează...
+Are you sure you want to reset this server?;Sigur doriți să resetați acest server?
+Are you sure? This cannot be undone;Sunteți sigur? Aceasta nu poate fi anulată
+Resetting server;Se resetează serverul...
+Deleted file;Fișier șters
+Reinstalling server;Se reinstalează serverul
+Uploading files;Încărcare fișiere
+complete;complet
+Upload complete;Încărcare completă
+Security;Securitate
+Subscriptions;Abonamente
+2fa Code;Cod 2FA
+Your account is secured with 2fa;Contul dvs. este securizat cu 2FA
+anyone write a fancy text here?;cineva să scrie un text frumos aici?
+Activate 2fa;Activare 2FA
+2fa apps;Aplicații 2FA
+Use an app like ;Utilizați o aplicație precum
+or;sau
+and scan the following QR Code;și scanați codul QR următor
+If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:;Dacă întâmpinați probleme la utilizarea codului QR, selectați introducerea manuală în aplicație și introduceți adresa dvs. de email și următorul cod:
+Finish activation;Finalizare activare
+2fa Code requiered;Cod 2FA necesar
+New password;Parolă nouă
+Secure your account;Securizați contul dvs.
+2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.;2FA adaugă un alt nivel de securitate contului dvs. Trebuie să introduceți un cod cu 6 cifre pentru a vă autentifica.
+New subscription;Abonament nou
+You need to enter a name;Trebuie să introduceți un nume
+You need to enter a description;Trebuie să introduceți o descriere
+Add new limit;Adăugați o limită nouă
+Create subscription;Creați abonament
+Options;Opțiuni
+Amount;Suma
+Do you really want to delete it?;Sigur doriți să ștergeți acesta?
+Loading your subscription;Se încarcă abonamentul dvs.
+Searching for deploy node;Căutare nod de implementare
+Searching for available images;Căutare imagini disponibile
+Server details;Detalii server
+Configure your server;Configurați serverul dvs.
+Default;Implicit
+You reached the maximum amount of servers for every image of your subscription;Ați atins cantitatea maximă de servere pentru fiecare imagine din abonamentul dvs.
+Personal information;Informații personale
+Enter code;Introduceți codul
+Server rename;Redenumire server
+Create code;Creați codul
+Save subscription;Salvați abonamentul
+Enter your information;Introduceți informațiile dvs.
+You need to enter your full name in order to use moonlight;Trebuie să introduceți numele complet pentru a utiliza Moonlight
+No node found;Niciun nod găsit
+No node found to deploy to found;Nu s-a găsit niciun nod pentru a fi implementat
+Node offline;Nodul este deconectat
+The node the server is running on is currently offline;Nodul pe care rulează serverul este momentan deconectat
+Server not found;Serverul nu a fost găsit
+A server with that id cannot be found or you have no access for this server;Un server cu această ID nu poate fi găsit sau nu aveți acces la acest server
+Compress;Comprimare
+Decompress;Dezcompresare
+Moving;Mutare...
+Compressing;Se comprimă...
+selected;selectat
+New website;Site web nou
+Plesk servers;Servere Plesk
+Base domain;Domeniu de bază
+Plesk server;Server Plesk
+Ftp;FTP
+No SSL certificate found;Nu s-a găsit niciun certificat SSL
+Ftp Host;Gazdă FTP
+Ftp Port;Port FTP
+Ftp Username;Nume utilizator FTP
+Ftp Password;Parolă FTP
+Use;Utilizați
+SSL Certificates;Certificate SSL
+SSL certificates;Certificate SSL
+Issue certificate;Emitere certificat
+New plesk server;Un nou server Plesk
+Api url;URL API
+Host system offline;Sistemul gazdă este offline
+The host system the website is running on is currently offline;Sistemul gazdă pe care rulează site-ul este în prezent offline
+No SSL certificates found;Nu s-au găsit certificate SSL
+No databases found for this website;Nu s-au găsit baze de date pentru acest site web
+The name should be at least 8 characters long;Numele trebuie să aibă cel puțin 8 caractere
+The name should only contain of lower case characters and numbers;Numele ar trebui să conțină doar litere mici și cifre
+Error from plesk;Eroare de la Plesk
+Host;Gazdă
+Username;Nume de utilizator
+SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one;Înregistrările SRV nu pot fi actualizate datorită clientului API Cloudflare. Vă rugăm să ștergeți înregistrarea și să creați una nouă
+The User field is required.;Câmpul Utilizator este obligatoriu
+You need to specify an owner;Trebuie să specificați un proprietar
+You need to specify an image;Trebuie să specificați o imagine
+Api Url;URL API
+Api Key;Cheie API
+Duration;Durată
+Enter duration of subscription;Introduceți durata abonamentului
+Copied code to clipboard;Codul a fost copiat în clipboard
+Invalid or expired subscription code;Cod de abonament invalid sau expirat
+Current subscription;Abonament curent
+You need to specify a server image;Trebuie să specificați o imagine de server
+CPU;CPU
+Hour;Oră
+Day;Zi
+Month;Lună
+Year;An
+All time;Tot timpul
+This function is not implemented;Această funcție nu este implementată
+Domain details;Detalii domeniu
+Configure your domain;Configurați domeniul dvs.
+You reached the maximum amount of domains in your subscription;Ați atins numărul maxim de domenii în abonamentul dvs.
+You need to specify a shared domain;Trebuie să specificați un domeniu partajat
+A domain with this name already exists for this shared domain;Un domeniu cu acest nume există deja pentru acest domeniu partajat
+The Email field is required.;Câmpul Email este obligatoriu
+The Password field is required.;Câmpul Parolă este obligatoriu
+The ConfirmPassword field is required.;Câmpul Confirmare Parolă este obligatoriu
+Passwords need to match;Parolele trebuie să se potrivească
+Cleanup exception;Excepție la curățare
+No shared domain found;Nu s-a găsit niciun domeniu partajat
+Searching for deploy plesk server;Se caută pentru a implementa serverul Plesk
+No plesk server found;Nu s-a găsit niciun server Plesk
+No plesk server found to deploy to;Nu s-a găsit niciun server Plesk pentru a implementa
+No node found to deploy to;Nu s-a găsit niciun nod pentru a implementa
+Website details;Detalii site web
+Configure your website;Configurați site-ul dvs. web
+The name cannot be longer that 32 characters;Numele nu poate avea mai mult de 32 de caractere
+The name should only consist of lower case characters;Numele ar trebui să conțină doar litere mici
+News;Știri
+Title...;Titlu...
+Enter text...;Introduceți text...
+Saving...;Se salvează...
+Deleting...;Se șterge...
+Delete post;Ștergeți postarea
+Do you really want to delete the post ";Doriți cu adevărat să ștergeți postarea "
+You have no domains;Nu aveți domenii
+We were not able to find any domains associated with your account;Nu am putut găsi niciun domeniu asociat cu contul dvs.
+You have no websites;Nu aveți site-uri web
+We were not able to find any websites associated with your account;Nu am putut găsi niciun site web asociat cu contul dvs.
+Guest;Vizitator
+You need a domain;Aveți nevoie de un domeniu
+New post;Postare nouă
+New entry;Intrare nouă
+You have no servers;Nu aveți servere
+We were not able to find any servers associated with your account;Nu am putut găsi niciun server asociat cu contul dvs.
+Error creating server on wings;Eroare la crearea serverului pe Wings
+An unknown error occurred while restoring a backup;A apărut o eroare necunoscută în timpul restaurării unei copii de rezervă
+Error from daemon;Eroare de la daemon
+End;Sfârșit
+Cloud panel;Panou de control pentru cloud
+Cloud panels;Panouri de control pentru cloud
+New cloud panel;Panou de control pentru cloud nou
+You need to enter an api key;Trebuie să introduceți o cheie API
+Webspaces;Spații web
+New webspace;Spațiu web nou
+The uploaded file should not be bigger than 100MB;Fișierul încărcat nu trebuie să depășească 100MB
+An unknown error occurred while uploading a file;A apărut o eroare necunoscută în timpul încărcării unui fișier
+No databases found for this webspace;Nu s-au găsit baze de date pentru acest spațiu web
+Sftp;SFTP
+Sftp Host;Gazdă SFTP
+Sftp Port;Port SFTP
+Sftp Username;Nume de utilizator SFTP
+Sftp Password;Parolă SFTP
+Lets Encrypt certificate successfully issued;Certificatul Lets Encrypt a fost emis cu succes
+Add shared domain;Adăugați domeniu partajat
+Webspace;Spațiu web
+You reached the maximum amount of websites in your subscription;Ați atins numărul maxim de site-uri web în abonamentul dvs.
+Searching for deploy web host;Se caută pentru a implementa gazda web
+Webspace details;Detalii spațiu web
+Web host;Gazdă web
+Configure your webspaces;Configurați spațiile dvs. web
+You reached the maximum amount of webspaces in your subscription;Ați atins numărul maxim de spații web în abonamentul dvs.
+Create a webspace;Creați un spațiu web
+Manage your webspaces;Gestionați spațiile dvs. web
+Modify the content of your webspaces;Modificați conținutul spațiilor dvs. web
+Successfully updated password;Parola a fost actualizată cu succes
+An unknown error occurred while sending your message;A apărut o eroare necunoscută în timpul trimiterii mesajului dvs.
+Open chats;Deschideți conversații
+No message sent yet;Nu ați trimis încă niciun mesaj
+Support ticket open;Bilet de suport deschis
+Support ticket closed;Bilet de suport închis
+Your connection has been paused;Conexiunea dvs. a fost pusă în pauză
+We paused your connection because of inactivity. To resume, simply focus the tab and wait a few seconds;Am pus în pauză conexiunea dvs. din cauza inactivității. Pentru a relua, focalizați pur și simplu fila și așteptați câteva secunde
+Failed to reconnect to the moonlight servers;Nu s-a reușit reconectarea la serverele Moonlight
+We were unable to reconnect to moonlight. Please refresh the page;Nu am reușit să ne reconectăm la Moonlight. Vă rugăm să reîmprospătați pagina
+Failed to reconnect to the moonlight servers. The connection has been rejected;Nu s-a reușit reconectarea la serverele Moonlight. Conexiunea a fost respinsă
+We were unable to reconnect to moonlight. Most of the time this is caused by an update of moonlight. Please refresh the page;Nu am reușit să ne reconectăm la Moonlight. De cele mai multe ori, aceasta este cauzată de o actualizare a Moonlight. Vă rugăm să reîmprospătați pagina
+Verifying token, loading user data;Se verifică token-ul, se încarcă datele utilizatorului
+Reload config;Reîncarcă configurația
+Successfully reloading configuration;Configurația a fost reîncărcată cu succes
+Successfully reloaded configuration;Configurația a fost reîncărcată cu succes
+Flows;Fluxuri
+Add node;Adăugați nod
+Web system;Sistem web
+Servers with this image;Servere cu această imagine
+You need to specify a user;Trebuie să specificați un utilizator
+Import;Importați
+Export;Exportați
+Exporting;Se exportă
+Successfully imported image;Imaginea a fost importată cu succes
+Forge version;Versiune Forge
+Fabric version;Versiune Fabric
+Fabric loader version;Versiune Fabric Loader
+Rate;Evaluare
+Hey, can i borrow you for a second?;Hey, pot să te împrumut pentru o secundă?
+We want to improve our services and get a little bit of feedback how we are currently doing. Please leave us a rating;Vrem să îmbunătățim serviciile noastre și să obținem un pic de feedback despre modul în care facem în prezent. Vă rugăm să ne lăsați o evaluare
+Thanks for your rating;Mulțumim pentru evaluarea dvs.
+It would be really kind of you rating us on a external platform as it will help our project very much;Ar fi foarte amabil din partea dvs. să ne evaluați pe o platformă externă, deoarece va ajuta foarte mult proiectul nostru
+Close;Închide
+Rating saved;Evaluare salvată
+Group;Grup
+Beta;Beta
+Create a new group;Creați un grup nou
+Download WinSCP;Descărcați WinSCP
+Show connection details;Afișați detaliile de conexiune
+New;Nou
+New file;Fișier nou
+Connection details;Detalii de conexiune
+Malware;Program malware
+Create a new file;Creați un fișier nou
+Edit layout;Editați aspectul
+Uptime;Timp de funcționare
+Moonlight is online since;Moonlight este online de la
+User;Utilizator
+Databases;Baze de date
+Sesiuni;Sesiuni
+Active users;Utilizatori activi
+Search for plugins;Căutați plugin-uri
+Search;Căutare
+Searching;Se caută...
+Successfully installed gunshell;Gunshell a fost instalat cu succes
+Successfully installed fastasyncworldedit;FastAsyncWorldEdit a fost instalat cu succes
+Successfully installed minimotd;MiniMotd a fost instalat cu succes
+Moonlight health;Stare Moonlight
+Healthy;Sănătos
+Successfully saved file;Fișier salvat cu succes
+Unsorted servers;Servere nesortate
+Enter a new name;Introduceți un nume nou
+Sign in with;Conectare cu
+Make your services accessible through your own domain;Faceți serviciile dvs. accesibile prin propriul domeniu
+New group;Grup nou
+Finish editing layout;Finalizați editarea aspectului
+Remove group;Eliminați grupul
+Hidden in edit mode;Ascuns în modul de editare
+Enter your 2fa code here;Introduceți codul dvs. 2FA aici
+Two factor authentication;Autentificare în două factori
+Preferences;Preferințe
+Streamer mode;Mod streamer
+Scan the QR code and enter the code generated by the app you have scanned it in;Scanați codul QR și introduceți codul generat de aplicație
+Start scan;Începeți scanarea
+Results;Rezultate
+Scan in progress;Scanare în curs
+Debug;Depanare
+Save changes;Salvați modificările
+Delete domain;Ștergeți domeniul
+Python version;Versiune Python
+Python file;Fișier Python
+Select python file to execute on start;Selectați fișierul Python pentru a fi executat la pornire
+You have no webspaces;Nu aveți spații web
+We were not able to find any webspaces associated with your account;Nu am reușit să găsim spații web asociate contului dvs.
+Backup download successfully started;Descărcarea backup-ului a început cu succes
+Error from cloud panel;Eroare din panoul de control al norului
+Error from wings;Eroare din Wings
+Remove link;Elimină linkul
+Your account is linked to a discord account;Contul dvs. este legat de un cont Discord
+You are able to use features like the discord bot of moonlight;Puteți utiliza funcții precum botul Discord al Moonlight
+The password should be at least 8 characters long;Parola trebuie să aibă cel puțin 8 caractere
+The name should only consist of lower case characters or numbers;Numele ar trebui să conțină doar litere mici sau cifre
+The requested resource was not found;Resursa cerută nu a fost găsită
+We were not able to find the requested resource. This can have following reasons;Nu am putut găsi resursa solicitată. Acest lucru poate avea următoarele motive
+The resource was deleted;Resursa a fost ștearsă
+You have to permission to access this resource;Nu aveți permisiunea de a accesa această resursă
+You may have entered invalid data;Ați putut introduce date invalide
+A unknown bug occured;A apărut o eroare necunoscută
+An api was down and not proper handled;O interfață API a fost indisponibilă și nu a fost gestionată corespunzător
+A database with this name does already exist;O bază de date cu acest nume există deja
+Successfully installed quickshop-hikari;Quickshop-Hikari a fost instalat cu succes
+You need to enter a valid domain;Trebuie să introduceți un domeniu valid
+2fa code;Cod 2FA
+This feature is not available for;Această funcționalitate nu este disponibilă pentru
+Your account is currently not linked to discord;Contul dvs. nu este în prezent legat de Discord
+To use features like the discord bot, link your moonlight account with your discord account;Pentru a utiliza funcții precum botul Discord, legați-vă contul Moonlight de contul Discord
+Link account;Conectează contul
+Continue;Continuați
+Preparing;Pregătire
+Make sure you have installed one of the following apps on your smartphone and press continue;Asigurați-vă că ați instalat una dintre următoarele aplicații pe smartphone-ul dvs. și apăsați Continuare
+The max length for the name is 32 characters;Lungimea maximă a numelui este de 32 de caractere
+Successfully installed chunky;Chunky a fost instalat cu succes
+Successfully installed huskhomes;Huskhomes a fost instalat cu succes
+Successfully installed simply-farming;Simply-Farming a fost instalat cu succes
+You need to specify a first name;Trebuie să specificați un prenume
+You need to specify a last name;Trebuie să specificați un nume de familie
+You need to specify a password;Trebuie să specificați o parolă
+Please solve the captcha;Vă rugăm să rezolvați captcha
+The email is already in use;Adresa de email este deja folosită
+The dns records of your webspace do not point to the host system;Înregistrările DNS ale spațiului dvs. web nu se îndreaptă către sistemul gazdă
+Scan complete;Scanare completă
+Currently scanning:;În prezent se scanează:
+Successfully installed dynmap;Dynmap a fost instalat cu succes
+Successfully installed squaremap;Squaremap a fost instalat cu succes
+No web host found;Niciun gazdă web găsită
+No web host found to deploy to;Niciun gazdă web găsită pentru a implementa
+Successfully installed sleeper;Sleeper a fost instalat cu succes
+You need to enter a domain;Trebuie să introduceți un domeniu
+Enter a ip;Introduceți o adresă IP
+Ip Bans;Interdicții IP
+Ip;Adresă IP
+Successfully installed simple-voice-chat;Simple-Voice-Chat a fost instalat cu succes
+Successfully installed smithing-table-fix;Smithing-Table-Fix a fost instalat cu succes
+Successfully installed justplayer-tpa;Justplayer-TPA a fost instalat cu succes
+Successfully installed ishop;iShop a fost instalat cu succes
+Successfully installed lifestealre;Lifestealre a fost instalat cu succes
+Successfully installed lifeswap;Lifeswap a fost instalat cu succes
+Java version;Versiune Java
+Jar file;Fișier JAR
+Select jar to execute on start;Selectați fișierul JAR pentru a fi executat la pornire
+A website with this domain does already exist;Un website cu acest domeniu există deja
+Successfully installed discordsrv;DiscordSrv a fost instalat cu succes
+Reinstall;Reinstalați
+Reinstalling;Se reinstalează
+Successfully installed freedomchat;Freedomchat a fost instalat cu succes
+Leave empty for the default background image;Lăsați gol pentru imaginea de fundal implicită
+Background image url;URL-ul imaginii de fundal
+of CPU used;de CPU folosit
+memory used;memorie folosită
+163;163
+172;172
+Sentry;Sentry
+Sentry is enabled;Sentry este activat
+Successfully installed mobis-homes;Mobis-Homes a fost instalat cu succes
+Your moonlight account is disabled;Contul Moonlight este dezactivat
+Your moonlight account is currently disabled. But dont worry your data is still saved;Contul Moonlight este în prezent dezactivat. Dar nu vă faceți griji, datele dvs. sunt încă salvate
+You need to specify a email address;Trebuie să specificați o adresă de email
+A user with that email does already exist;Un utilizator cu această adresă de email există deja
+Successfully installed buildmode;Buildmode a fost instalat cu succes
+Successfully installed plasmo-voice;Plasmo-Voice a fost instalat cu succes
+157;157
+174;174
+158;158
+Webspace not found;Spațiu web nu găsit
+A webspace with that id cannot be found or you have no access for this webspace;Un spațiu web cu această ID nu poate fi găsit sau nu aveți acces la acest spațiu web
+No plugin download for your minecraft version found;Nu s-a găsit nicio descărcare de plugin pentru versiunea dvs. Minecraft
+Successfully installed gamemode-alias;Gamemode-Alias a fost instalat cu succes
+228;228
+User;Utilizator
+Send notification;Trimite notificare
+Successfully saved changes;Modificări salvate cu succes
+Archiving;Se arhivează
+Server is currently not archived;Serverul nu este arhivat în prezent
+Add allocation;Adaugă alocare
+231;231
+175;175
+Dotnet version;Versiune Dotnet
+Dll file;Fișier DLL
+Select dll to execute on start;Selectați fișierul DLL pentru a fi executat la pornire
