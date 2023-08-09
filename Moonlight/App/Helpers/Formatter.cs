@@ -156,15 +156,7 @@ public static class Formatter
             return (i / (1024D * 1024D)).Round(2) + " GB";
         }
     }
-    
-    public static double BytesToGb(long bytes)
-    {
-        const double gbMultiplier = 1024 * 1024 * 1024; // 1 GB = 1024 MB * 1024 KB * 1024 B
 
-        double gigabytes = (double)bytes / gbMultiplier;
-        return gigabytes;
-    }
-    
     public static RenderFragment FormatLineBreaks(string content)
     {
         return builder =>
