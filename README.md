@@ -1,36 +1,37 @@
 <br/>
+<center>
 <p align="center">
-  <a href="https://github.com/Moonlight-Panel/Moonlight">
-    <img src="https://my.endelon-hosting.de/api/moonlight/resources/images/logo.svg" alt="Logo" width="80" height="80">
-  </a>
+  <a href="https://github.com/Moonlight-Panel/Moonlight">
+    <img src="https://my.endelon-hosting.de/api/moonlight/resources/images/logo.svg" alt="Logo" width="80" height="80">
+  </a>
 
-  <h3 align="center">Moonlight</h3>
+  <h3 align="center">Moonlight</h3>
 
-  <p align="center">
-    The next generation hosting panel
-    <br/>
-    <br/>
-    <a href="https://github.com/Moonlight-Panel/Moonlight/issues">Report Bug</a>
-    .
-    <a href="https://github.com/Moonlight-Panel/Moonlight/issues">Request Feature</a>
-  </p>
+  <p align="center">
+    The next generation hosting panel
+    <br/>
+    <br/>
+    <a href="https://github.com/Moonlight-Panel/Moonlight/issues">Report Bug</a>
+    .
+    <a href="https://github.com/Moonlight-Panel/Moonlight/issues">Request Feature</a>
+  </p>
 </p>
 
 ![Contributors](https://img.shields.io/github/contributors/Moonlight-Panel/Moonlight?color=dark-green) ![Stargazers](https://img.shields.io/github/stars/Moonlight-Panel/Moonlight?style=social) ![Issues](https://img.shields.io/github/issues/Moonlight-Panel/Moonlight) 
-
+</center>
 ## About The Project
 
 ![Screen Shot](https://media.discordapp.net/attachments/1059911407170228234/1119793539732217876/image.png?width=1340&height=671)
 
-Moonlight is a new free and open source alternative to pterodactyl allowing users to create their own hosting platform and host all sorts of gameservers in docker containers. With a simple migration from pterodactyl to moonlight ([see guide](https://docs.moonlightpanel.xyz/migrating-from-pterodactyl)) you can easily switch to moonlight and use its features like a server manager, cleanup system and automatic version switcher, just to name a few.
+Moonlight is a new free and open-source alternative to Pterodactyl, allowing users to create their own hosting platform and host all sorts of game servers in Docker containers. With a simple migration from pterodactyl to moonlight ([see guide](https://docs.moonlightpanel.xyz/migrating-from-pterodactyl)) you can easily switch to moonlight and use its features like a server manager, cleanup system, and automatic version switcher, just to name a few.
 
 Moonlight's core features are
 
-* Hosting game servers using wings + docker
-* Creating and managing webspaces using the cloudpanel based web hosting solution
-* Adding your domains as shared domains and provide subdomains for users with them
+* Hosting game servers using Wings and Docker
+* Creating and managing webspaces using the CloudPanel based web hosting solution
+* Adding your domains as shared domains and providing subdomains for users with them
 * Live support chat
-* Subscription system (sellpass integration wip)
+* Subscription system (sell pass integration WIP)
 * Statistics
 * and many more
 
@@ -51,34 +52,30 @@ This project is currently in beta
 
 * Linux based operating system
 * Docker
-* MySQL Database
+* MySQL/MariaDB Database
 * A domain (optional)
 
 ### Installation
 
-A full guide how to install moonlight can be found here:
+A full guide on how to install moonlight can be found here:
 [https://docs.moonlightpanel.xyz/installing-moonlight](https://docs.moonlightpanel.xyz/installing-moonlight)
 
-Quick installers/updaters:
-
-Moonlight:
-`curl https://install.moonlightpanel.xyz/moonlight | bash`
-
-Daemon (not wings):
-`curl https://install.moonlightpanel.xyz/daemon| bash`
+Quick installer/updater:
+`curl https://install.moonlightpanel.xyz/install > install.sh; bash install.sh`
+You'd need to select what to install: the panel, wings, or the daemon.
 
 Having any issues?
-We are happy to help on our discord server:
+We are happy to help on our Discord server:
 [https://discord.gg/TJaspT7A8p](https://discord.gg/TJaspT7A8p)
 
 ## Roadmap
 
-The roudmap can be found here:
+The roadmap can be found here:
 [https://github.com/orgs/Moonlight-Panel/projects/1](https://github.com/orgs/Moonlight-Panel/projects/1)
 
 ## Contributing
 
-* If you have suggestions for adding or removing projects, feel free to open an issue to discuss it.
+* If you have suggestions for adding or removing projects, feel free to open an issue to discuss them.
 * Please make sure you check your spelling and grammar.
 * Create individual PR for each suggestion.
 
