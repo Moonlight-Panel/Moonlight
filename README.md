@@ -16,7 +16,7 @@
   </p>
 </p>
 
-![Downloads](https://img.shields.io/github/downloads/Moonlight-Panel/Moonlight/total) ![Contributors](https://img.shields.io/github/contributors/Moonlight-Panel/Moonlight?color=dark-green) ![Stargazers](https://img.shields.io/github/stars/Moonlight-Panel/Moonlight?style=social) ![Issues](https://img.shields.io/github/issues/Moonlight-Panel/Moonlight) 
+![Contributors](https://img.shields.io/github/contributors/Moonlight-Panel/Moonlight?color=dark-green) ![Stargazers](https://img.shields.io/github/stars/Moonlight-Panel/Moonlight?style=social) ![Issues](https://img.shields.io/github/issues/Moonlight-Panel/Moonlight) 
 
 ## About The Project
 
