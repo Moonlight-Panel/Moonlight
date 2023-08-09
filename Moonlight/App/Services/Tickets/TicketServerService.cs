@@ -153,7 +153,7 @@ public class TicketServerService
             .Get()
             .Include(x => x.CreatedBy)
             .Include(x => x.Messages)
-            .Include(x => "Messages.Sender")
+            .ThenInclude(x => x.Sender)
             .First(x => x.Id == ticket.Id);
 
         return Task.FromResult(tickets.Messages.ToArray());
