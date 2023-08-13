@@ -49,7 +49,7 @@
     {
         if (firstRender)
         {
-            User = await IdentityService.Get();
+            User = IdentityService.User;
             sidebar = await JsRuntime.InvokeAsync<string>("document.body.getAttribute", "data-kt-app-layout");
             StateHasChanged();
         }

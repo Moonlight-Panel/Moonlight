@@ -8,8 +8,9 @@
 @inject Repository<CloudPanel> CloudPanelRepository
 @inject NavigationManager NavigationManager
 
-<OnlyAdmin>
-    <LazyLoader Load="Load">
+@attribute [PermissionRequired(nameof(Permissions.AdminWebspacesServerEdit))]
+
+<LazyLoader Load="Load">
         @if (CloudPanel == null)
         {
             <div class="d-flex justify-content-center flex-center">
@@ -63,7 +64,6 @@
             </div>
         }
     </LazyLoader>
-</OnlyAdmin>
 
 @code
 {

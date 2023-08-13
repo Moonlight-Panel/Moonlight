@@ -33,7 +33,7 @@ public class SupportChatClientService : IDisposable
 
     public async Task Start()
     {
-        User = await IdentityService.Get();
+        User = IdentityService.User;
 
         if (User != null)
         {

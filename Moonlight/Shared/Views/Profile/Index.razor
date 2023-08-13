@@ -7,15 +7,17 @@
 @using Mappy.Net
 @using Moonlight.App.Exceptions
 @using Moonlight.App.Helpers
+@using Moonlight.App.Services.Sessions
 
-@inject UserRepository UserRepository
+@inject Repository<User> UserRepository
+@inject IdentityService IdentityService
 
 <ProfileNavigation Index="0" />
 
 <LazyLoader Load="Load">
     <SmartForm OnValidSubmit="Save" Model="Model">
         <div class="card mb-5 mb-xl-10">
-            <div class="card-body p-9 @(CurrentUser.StreamerMode ? "blur" : "")">
+            <div class="card-body p-9 @(IdentityService.User.StreamerMode ? "blur" : "")">
                 <div class="row">
                     <div class="col-lg-6 fv-row fv-plugins-icon-container">
                         <div class="mb-3">
@@ -78,13 +80,9 @@
 {
     private UserDataModel Model = new();
     
-    [CascadingParameter]
-    public User CurrentUser { get; set; }
-
-
     private Task Load(LazyLoader loader)
     {
-        Model = Mapper.Map<UserDataModel>(CurrentUser);
+        Model = Mapper.Map<UserDataModel>(IdentityService.User);
         
         return Task.CompletedTask;
     }
@@ -98,15 +96,15 @@
             .Get()
             .FirstOrDefault(x => x.Email == Model.Email);
 
-        if (userWithThatEmail != null && CurrentUser.Id != userWithThatEmail.Id)
+        if (userWithThatEmail != null && IdentityService.User.Id != userWithThatEmail.Id)
         {
             Logger.Warn($"A user tried to lock another user out by changing the email. Email: {Model.Email}", "security");
             throw new DisplayException("A user with that email does already exist");
         }
         
-        CurrentUser = Mapper.Map(CurrentUser, Model);
+        var user = Mapper.Map(IdentityService.User, Model);
 
-        UserRepository.Update(CurrentUser);
+        UserRepository.Update(user);
         
         return Task.CompletedTask;
     }

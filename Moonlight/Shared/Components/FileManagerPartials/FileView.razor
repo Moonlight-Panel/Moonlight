@@ -35,28 +35,31 @@
                 <tbody class="fw-semibold text-gray-600">
                 <LazyLoader Load="Load">
                     <ContentBlock @ref="ContentBlock" AllowContentOverride="true">
-                        <tr class="even">
-                            <td class="w-10px">
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <span class="icon-wrapper">
-                                        <i class="bx bx-md bx-up-arrow-alt text-primary"></i>
-                                    </span>
-                                    <a href="#" @onclick:preventDefault @onclick="GoUp" class="ms-3 text-gray-800 text-hover-primary">
-                                        <TL>Go up</TL>
-                                    </a>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td class="text-end">
-                                <div class="d-flex justify-content-end">
-                                    <div class="ms-2">
-
+                        @if (Access.CurrentPath != "/")
+                        {
+                            <tr class="even">
+                                <td class="w-10px">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="icon-wrapper">
+                                            <i class="bx bx-md bx-up-arrow-alt text-primary"></i>
+                                        </span>
+                                        <a href="#" @onclick:preventDefault @onclick="GoUp" class="ms-3 text-gray-800 text-hover-primary">
+                                            <TL>Go up</TL>
+                                        </a>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                                <td></td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end">
+                                        <div class="ms-2">
+
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                         @foreach (var file in Data)
                         {
                             <tr class="even">

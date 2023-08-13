@@ -6,6 +6,7 @@
 @using Moonlight.App.ApiClients.Modrinth
 @using Moonlight.App.ApiClients.Wings
 @using Moonlight.App.Helpers
+@using Stripe
 @inherits ErrorBoundaryBase
 
 @inject AlertService AlertService
@@ -104,6 +105,13 @@ else
         else if (exception is NotImplementedException)
         {
             await AlertService.Error(SmartTranslateService.Translate("This function is not implemented"));
+        }
+        else if (exception is StripeException stripeException)
+        {
+            await AlertService.Error(
+                SmartTranslateService.Translate("Unknown error from stripe"),
+                stripeException.Message
+            );
         }
         else
         {

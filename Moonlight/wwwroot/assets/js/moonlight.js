@@ -283,60 +283,68 @@
             }
         },
         utils: {
-            scrollToElement: function (id)
-            {
+            scrollToElement: function (id) {
                 let e = document.getElementById(id);
                 e.scrollTop = e.scrollHeight;
             },
-            triggerResizeEvent: function ()
-            {
+            triggerResizeEvent: function () {
                 window.dispatchEvent(new Event('resize'));
             },
             showNotification: function (title, text, img) {
-                let notification = new Notification(title, { body: text, icon: img });
+                let notification = new Notification(title, {body: text, icon: img});
             }
         },
         loading: {
-            registerXterm: function()
-            {
+            registerXterm: function () {
                 console.log("Registering xterm addons");
-                
+
                 window.XtermBlazor.registerAddon("xterm-addon-fit", new window.FitAddon.FitAddon());
                 //window.XtermBlazor.registerAddon("xterm-addon-search", new window.SearchAddon.SearchAddon());
                 //window.XtermBlazor.registerAddon("xterm-addon-web-links", new window.WebLinksAddon.WebLinksAddon());
             },
-            loadMonaco: function ()
-            {
+            loadMonaco: function () {
                 console.log("Loading monaco");
-                
+
                 monaco.editor.defineTheme('moonlight-theme', {
                     base: 'vs-dark',
                     inherit: true,
-                    rules: [
-                    ],
+                    rules: [],
                     colors: {
                         'editor.background': '#000000'
                     }
                 });
+            },
+            checkConnection: async function(url, threshold) {
+                const start = performance.now();
+
+                try 
+                {
+                    const response = await fetch(url, { mode: 'no-cors' });
+                    const latency = performance.now() - start;
+
+                    if (latency > threshold) 
+                    {
+                        moonlight.toasts.warning(`High latency detected: ${latency}ms. Moonlight might feel laggy. Please check your internet connection`);
+                    }
+                }
+                catch (error) {}
             }
         },
         flashbang: {
-            run: function()
-            {
+            run: function () {
                 const light = document.getElementById("flashbang");
                 light.style.boxShadow = "0 0 10000px 10000px white, 0 0 250px 10px #FFFFFF";
                 light.style.animation = "flashbang 5s linear forwards";
                 light.onanimationend = moonlight.flashbang.clean;
             },
-            clean: function()
-            {
+            clean: function () {
                 const light = document.getElementById("flashbang");
                 light.style.animation = "";
                 light.style.opacity = "0";
             }
         },
-        downloads:{
-            downloadStream: async function (fileName, contentStreamReference){
+        downloads: {
+            downloadStream: async function (fileName, contentStreamReference) {
                 const arrayBuffer = await contentStreamReference.arrayBuffer();
                 const blob = new Blob([arrayBuffer]);
                 const url = URL.createObjectURL(blob);
@@ -349,38 +357,31 @@
             }
         },
         keyListener: {
-            register: function (dotNetObjRef)
-            {
-                moonlight.keyListener.listener = (event) => 
-                {
+            register: function (dotNetObjRef) {
+                moonlight.keyListener.listener = (event) => {
                     // filter here what key events should be sent to moonlight
 
-                    if(event.code === "KeyS" && event.ctrlKey)
-                    {
+                    if (event.code === "KeyS" && event.ctrlKey) {
                         event.preventDefault();
                         dotNetObjRef.invokeMethodAsync('OnKeyPress', "saveShortcut");
                     }
                 };
-                
+
                 window.addEventListener('keydown', moonlight.keyListener.listener);
             },
-            unregister: function (dotNetObjRef)
-            {
+            unregister: function (dotNetObjRef) {
                 window.removeEventListener('keydown', moonlight.keyListener.listener);
             }
         },
         serverList: {
-            init: function ()
-            {
-                if(moonlight.serverList.Swappable)
-                {
+            init: function () {
+                if (moonlight.serverList.Swappable) {
                     moonlight.serverList.Swappable.destroy();
                 }
-                
+
                 let containers = document.querySelectorAll(".draggable-zone");
 
-                if (containers.length !== 0) 
-                {
+                if (containers.length !== 0) {
                     moonlight.serverList.Swappable = new Draggable.Sortable(containers, {
                         draggable: ".draggable",
                         handle: ".draggable .draggable-handle",
@@ -392,30 +393,44 @@
                     });
                 }
             },
-            getData: function ()
-            {
+            getData: function () {
                 let groups = new Array();
 
                 let groupElements = document.querySelectorAll('[ml-server-group]');
-                
-                groupElements.forEach(groupElement => {
-                   let group = new Object();
-                   group.name = groupElement.attributes.getNamedItem("ml-server-group").value;
 
-                   let servers = new Array();
-                   let serverElements = groupElement.querySelectorAll("[ml-server-id]");
-                   
-                   serverElements.forEach(serverElement => {
-                      let id = serverElement.attributes.getNamedItem("ml-server-id").value;
-                      
-                      servers.push(id);
-                   });
-                   
-                   group.servers = servers;
-                   groups.push(group);
+                groupElements.forEach(groupElement => {
+                    let group = new Object();
+                    group.name = groupElement.attributes.getNamedItem("ml-server-group").value;
+
+                    let servers = new Array();
+                    let serverElements = groupElement.querySelectorAll("[ml-server-id]");
+
+                    serverElements.forEach(serverElement => {
+                        let id = serverElement.attributes.getNamedItem("ml-server-id").value;
+
+                        servers.push(id);
+                    });
+
+                    group.servers = servers;
+                    groups.push(group);
                 });
 
                 return groups;
+            }
+        },
+        popup: {
+            showCentered: function (url, title, w, h) {
+                const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+                const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+                const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+                const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+                const systemZoom = width / window.screen.availWidth;
+                const left = (width - w) / 2 / systemZoom + dualScreenLeft
+                const top = (height - h) / 2 / systemZoom + dualScreenTop
+                const newWindow = window.open(url, title,`scrollbars=yes,width=${w / systemZoom},height=${h / systemZoom},top=${top},left=${left}`)
+                if (window.focus) newWindow.focus();
             }
         }
     };

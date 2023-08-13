@@ -19,6 +19,30 @@ namespace Moonlight.App.Database.Migrations
                 .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Moonlight.App.Database.Entities.BlocklistIp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("Packets")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlocklistIps");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.CloudPanel", b =>
                 {
                     b.Property<int>("Id")
@@ -241,95 +265,6 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("LoadingMessages");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.LogsEntries.AuditLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Ip")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("JsonData")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("System")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AuditLog");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.LogsEntries.ErrorLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Class")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Ip")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("JsonData")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Stacktrace")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("System")
-                        .HasColumnType("tinyint(1)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ErrorLog");
-                });
-
-            modelBuilder.Entity("Moonlight.App.Database.Entities.LogsEntries.SecurityLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Ip")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("JsonData")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("System")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SecurityLog");
-                });
-
             modelBuilder.Entity("Moonlight.App.Database.Entities.MySqlDatabase", b =>
                 {
                     b.Property<int>("Id")
@@ -475,6 +410,25 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("NotificationClients");
                 });
 
+            modelBuilder.Entity("Moonlight.App.Database.Entities.PermissionGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<byte[]>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("longblob");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PermissionGroups");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.Revoke", b =>
                 {
                     b.Property<int>("Id")
@@ -488,6 +442,24 @@ namespace Moonlight.App.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Revokes");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.SecurityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SecurityLogs");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.Server", b =>
@@ -663,15 +635,32 @@ namespace Moonlight.App.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("Currency")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
 
                     b.Property<string>("LimitsJson")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double");
+
+                    b.Property<string>("StripePriceId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StripeProductId")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -723,6 +712,97 @@ namespace Moonlight.App.Database.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("SupportChatMessages");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.Ticket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AssignedToId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IssueDescription")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("IssueTopic")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("IssueTries")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Subject")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.TicketMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("AttachmentUrl")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsEdited")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsSupportMessage")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsSystemMessage")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketMessages");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.User", b =>
@@ -781,6 +861,13 @@ namespace Moonlight.App.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("PermissionGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Permissions")
+                        .IsRequired()
+                        .HasColumnType("longblob");
+
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -802,8 +889,8 @@ namespace Moonlight.App.Database.Migrations
                     b.Property<bool>("StreamerMode")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("SubscriptionDuration")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("SubscriptionExpires")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("SubscriptionSince")
                         .HasColumnType("datetime(6)");
@@ -827,6 +914,8 @@ namespace Moonlight.App.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CurrentSubscriptionId");
+
+                    b.HasIndex("PermissionGroupId");
 
                     b.ToTable("Users");
                 });
@@ -866,6 +955,21 @@ namespace Moonlight.App.Database.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("WebSpaces");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.WhitelistIp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WhitelistIps");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.DdosAttack", b =>
@@ -1026,13 +1130,49 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("Moonlight.App.Database.Entities.Ticket", b =>
+                {
+                    b.HasOne("Moonlight.App.Database.Entities.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
+                    b.HasOne("Moonlight.App.Database.Entities.User", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.TicketMessage", b =>
+                {
+                    b.HasOne("Moonlight.App.Database.Entities.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.HasOne("Moonlight.App.Database.Entities.Ticket", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("TicketId");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Moonlight.App.Database.Entities.User", b =>
                 {
                     b.HasOne("Moonlight.App.Database.Entities.Subscription", "CurrentSubscription")
                         .WithMany()
                         .HasForeignKey("CurrentSubscriptionId");
 
+                    b.HasOne("Moonlight.App.Database.Entities.PermissionGroup", "PermissionGroup")
+                        .WithMany()
+                        .HasForeignKey("PermissionGroupId");
+
                     b.Navigation("CurrentSubscription");
+
+                    b.Navigation("PermissionGroup");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>
@@ -1073,6 +1213,11 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("Backups");
 
                     b.Navigation("Variables");
+                });
+
+            modelBuilder.Entity("Moonlight.App.Database.Entities.Ticket", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("Moonlight.App.Database.Entities.WebSpace", b =>

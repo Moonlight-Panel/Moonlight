@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
-using Moonlight.App.Database.Entities.LogsEntries;
 using Moonlight.App.Database.Entities.Notification;
 using Moonlight.App.Database.Interceptors;
-using Moonlight.App.Models.Misc;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Database;
@@ -27,10 +25,6 @@ public class DataContext : DbContext
     public DbSet<ServerVariable> ServerVariables { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<LoadingMessage> LoadingMessages { get; set; }
-    public DbSet<AuditLogEntry> AuditLog { get; set; }
-    public DbSet<ErrorLogEntry> ErrorLog { get; set; }
-    public DbSet<SecurityLogEntry> SecurityLog { get; set; }
-
     public DbSet<SharedDomain> SharedDomains { get; set; }
     public DbSet<Domain> Domains { get; set; }
     public DbSet<Revoke> Revokes { get; set; }
@@ -46,6 +40,13 @@ public class DataContext : DbContext
     public DbSet<WebSpace> WebSpaces { get; set; }
     public DbSet<SupportChatMessage> SupportChatMessages { get; set; }
     public DbSet<IpBan> IpBans { get; set; }
+    public DbSet<PermissionGroup> PermissionGroups { get; set; }
+    public DbSet<SecurityLog> SecurityLogs { get; set; }
+    public DbSet<BlocklistIp> BlocklistIps { get; set; }
+    public DbSet<WhitelistIp> WhitelistIps { get; set; }
+    
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<TicketMessage> TicketMessages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

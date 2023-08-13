@@ -12,6 +12,8 @@
 @inject ToastService ToastService
 @inject NavigationManager NavigationManager
 
+@attribute [PermissionRequired(nameof(Permissions.AdminNewSharedDomain))]
+
 <LazyLoader Load="Load" @ref="LazyLoader">
     <div class="row mb-5">
         <div class="card card-body">

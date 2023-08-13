@@ -1,3 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-Moonlight/wwwroot/* linguist-vendored
+Moonlight/wwwroot/** linguist-vendored
+Moonlight/wwwroot/assets/js/scripts.bundle.js linguist-vendored
+Moonlight/wwwroot/assets/js/widgets.bundle.js linguist-vendored
+Moonlight/wwwroot/assets/js/theme.js linguist-vendored
+Moonlight/wwwroot/assets/css/boxicons.min.css linguist-vendored
+Moonlight/wwwroot/assets/css/style.bundle.css linguist-vendored
+Moonlight/wwwroot/assets/plugins/** linguist-vendored
+Moonlight/wwwroot/assets/fonts/** linguist-vendored

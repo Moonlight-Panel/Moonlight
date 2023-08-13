@@ -7,59 +7,54 @@
 
 @inject SmartTranslateService SmartTranslateService
 @inject SubscriptionRepository SubscriptionRepository
+@inject SubscriptionService SubscriptionService
 
-@inject SubscriptionAdminService SubscriptionAdminService
-@inject AlertService AlertService
-@inject ClipboardService ClipboardService
+@attribute [PermissionRequired(nameof(Permissions.AdminSubscriptions))]
 
-<OnlyAdmin>
-    <div class="card">
-        <LazyLoader @ref="LazyLoader" Load="Load">
-            <div class="card-header border-0 pt-5">
-                <h3 class="card-title align-items-start flex-column">
-                    <span class="card-label fw-bold fs-3 mb-1">
-                        <TL>Subscriptions</TL>
-                    </span>
-                </h3>
-                <div class="card-toolbar">
-                    <a href="/admin/subscriptions/new" class="btn btn-sm btn-light-success">
-                        <i class="bx bx-credit-card"></i>
-                        <TL>New subscription</TL>
-                    </a>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <Table TableItem="Subscription" Items="Subscriptions" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                        <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Description"))" Field="@(x => x.Description)" Sortable="true" Filterable="true"/>
-                        <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Manage"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
-                            <Template>
-                                <a href="/admin/subscriptions/edit/@(context.Id)/">
-                                    <TL>Manage</TL>
+<div class="card">
+                    <LazyLoader @ref="LazyLoader" Load="Load">
+                        <div class="card-header border-0 pt-5">
+                            <h3 class="card-title align-items-start flex-column">
+                                <span class="card-label fw-bold fs-3 mb-1">
+                                    <TL>Subscriptions</TL>
+                                </span>
+                            </h3>
+                            <div class="card-toolbar">
+                                <a href="/admin/subscriptions/new" class="btn btn-sm btn-light-success">
+                                    <i class="bx bx-credit-card"></i>
+                                    <TL>New subscription</TL>
                                 </a>
-                            </Template>
-                        </Column>
-                        <Column TableItem="Subscription" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
-                            <Template>
-                                <div class="float-end">
-                                    <WButton Text="@(SmartTranslateService.Translate("Create code"))"
-                                             WorkingText="@(SmartTranslateService.Translate("Working"))"
-                                             CssClasses="btn-primary"
-                                             OnClick="() => GenerateCode(context)">
-                                    </WButton>
-                                    <DeleteButton Confirm="true" OnClick="() => Delete(context)"/>
-                                </div>
-                            </Template>
-                        </Column>
-                        <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                    </Table>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <Table TableItem="Subscription" Items="Subscriptions" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                                    <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                                    <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
+                                    <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Description"))" Field="@(x => x.Description)" Sortable="true" Filterable="true"/>
+                                    <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Price"))" Field="@(x => x.Price)" Sortable="true" Filterable="true"/>
+                                    <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Currency"))" Field="@(x => x.Currency)" Sortable="true" Filterable="true"/>
+                                    <Column TableItem="Subscription" Title="@(SmartTranslateService.Translate("Duration"))" Field="@(x => x.Duration)" Sortable="true" Filterable="true"/>
+                                    <Column TableItem="Subscription" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                        <Template>
+                                            <a href="/admin/subscriptions/edit/@(context.Id)/">
+                                                <TL>Manage</TL>
+                                            </a>
+                                        </Template>
+                                    </Column>
+                                    <Column TableItem="Subscription" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                        <Template>
+                                            <DeleteButton Confirm="true"
+                                                          OnClick="() => Delete(context)">
+                                            </DeleteButton>
+                                        </Template>
+                                    </Column>
+                                    <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                                </Table>
+                            </div>
+                        </div>
+                    </LazyLoader>
                 </div>
-            </div>
-        </LazyLoader>
-    </div>
-</OnlyAdmin>
 
 @code
 {
@@ -77,25 +72,7 @@
 
     private async Task Delete(Subscription subscription)
     {
-        SubscriptionRepository.Delete(subscription);
-
+        await SubscriptionService.Delete(subscription);
         await LazyLoader.Reload();
-    }
-
-    private async Task GenerateCode(Subscription subscription)
-    {
-        var durationText = await AlertService.Text(
-            SmartTranslateService.Translate("Duration"),
-            SmartTranslateService.Translate("Enter duration of subscription"),
-            "30"
-            );
-
-        if (int.TryParse(durationText, out int duration))
-        {
-            var code = await SubscriptionAdminService.GenerateCode(subscription, duration);
-
-            await ClipboardService.Copy(code);
-            await AlertService.Success(SmartTranslateService.Translate("Copied code to clipboard"));
-        }
     }
 }

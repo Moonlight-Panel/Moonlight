@@ -3,8 +3,10 @@
 @using Moonlight.App.Repositories.Domains
 @using Moonlight.App.Database.Entities
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Services.Sessions
 
 @inject DomainRepository DomainRepository
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @if (Domains.Any())
@@ -49,11 +51,8 @@
     }
 </LazyLoader>
 
-@code {
-
-    [CascadingParameter]
-    public User? User { get; set; }
-
+@code 
+{
     private Domain[] Domains { get; set; }
 
     private Task Load(LazyLoader loader)
@@ -62,7 +61,7 @@
             .Get()
             .Include(x => x.SharedDomain)
             .Include(x => x.Owner)
-            .Where(x => x.Owner == User)
+            .Where(x => x.Owner == IdentityService.User)
             .ToArray();
 
         return Task.CompletedTask;

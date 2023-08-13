@@ -15,7 +15,7 @@ public class IpLocateService
 
     public async Task<string> GetLocation()
     {
-        var ip = IdentityService.GetIp();
+        var ip = IdentityService.Ip;
         var location = "N/A";
 
         if (ip != "N/A")

@@ -9,28 +9,28 @@
 @inject NavigationManager NavigationManager
 @inject NewsEntryRepository NewsEntryRepository
 
-<OnlyAdmin>
-    <div class="card mb-6">
-        <div class="card-header">
-            <h3 class="card-title w-75">
-                <input type="text" @bind="Model.Title" placeholder="@SmartTranslateService.Translate("Title...")" class="form-control form-control-flush"/>
-            </h3>
-            <div class="card-toolbar">
-                <span class="text-gray-600 fw-semibold">@(Formatter.FormatDateOnly(Model.Date))</span>
-            </div>
-        </div>
-        <div class="card-body">
-            <FileEditor @ref="FileEditor" Language="markdown" HideControls="true" InitialData=""/>
-        </div>
-        <div class="card-footer">
-            <WButton CssClasses="btn btn-primary text-end"
-                     OnClick="Save"
-                     Text="@SmartTranslateService.Translate("Save")"
-                     WorkingText="@SmartTranslateService.Translate("Saving...")">
-            </WButton>
+@attribute [PermissionRequired(nameof(Permissions.AdminSysNewsNew))]
+
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 class="card-title w-75">
+            <input type="text" @bind="Model.Title" placeholder="@SmartTranslateService.Translate("Title...")" class="form-control form-control-flush"/>
+        </h3>
+        <div class="card-toolbar">
+            <span class="text-gray-600 fw-semibold">@(Formatter.FormatDateOnly(Model.Date))</span>
         </div>
     </div>
-</OnlyAdmin>
+    <div class="card-body">
+        <FileEditor @ref="FileEditor" Language="markdown" HideControls="true" InitialData=""/>
+    </div>
+    <div class="card-footer">
+        <WButton CssClasses="btn btn-primary text-end"
+                 OnClick="Save"
+                 Text="@SmartTranslateService.Translate("Save")"
+                 WorkingText="@SmartTranslateService.Translate("Saving...")">
+        </WButton>
+    </div>
+</div>
 
 @code
 {
@@ -44,9 +44,9 @@
     private async Task Save()
     {
         Model.Markdown = await FileEditor.GetData();
-        
+
         NewsEntryRepository.Add(Model);
-        
+
         NavigationManager.NavigateTo("/admin/system/news");
     }
 }

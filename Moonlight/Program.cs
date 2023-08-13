@@ -1,6 +1,5 @@
 using BlazorDownloadFile;
 using BlazorTable;
-using CurrieTechnologies.Razor.SweetAlert2;
 using HealthChecks.UI.Client;
 using Moonlight.App.ApiClients.CloudPanel;
 using Moonlight.App.ApiClients.Daemon;
@@ -16,7 +15,6 @@ using Moonlight.App.Helpers.Wings;
 using Moonlight.App.LogMigrator;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Domains;
-using Moonlight.App.Repositories.LogEntries;
 using Moonlight.App.Repositories.Servers;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Addon;
@@ -27,12 +25,16 @@ using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Minecraft;
 using Moonlight.App.Services.Notifications;
+using Moonlight.App.Services.Plugins;
 using Moonlight.App.Services.Sessions;
 using Moonlight.App.Services.Statistics;
 using Moonlight.App.Services.SupportChat;
+using Moonlight.App.Services.Tickets;
 using Sentry;
 using Serilog;
 using Serilog.Events;
+using Stripe;
+using SubscriptionService = Moonlight.App.Services.SubscriptionService;
 
 namespace Moonlight
 {
@@ -103,14 +105,15 @@ namespace Moonlight
                 }
             }
             
-            Logger.Info($"Working dir: {Directory.GetCurrentDirectory()}");
-
             Logger.Info("Running pre-init tasks");
             var databaseCheckupService = new DatabaseCheckupService(configService);
                 
             await databaseCheckupService.Perform();
 
             var builder = WebApplication.CreateBuilder(args);
+
+            var pluginService = new PluginService();
+            await pluginService.BuildServices(builder.Services);
 
             // Switch to logging.net injection
             // TODO: Enable in production
@@ -168,9 +171,6 @@ namespace Moonlight
             builder.Services.AddScoped<NewsEntryRepository>();
             builder.Services.AddScoped<NodeAllocationRepository>();
             builder.Services.AddScoped<StatisticsRepository>();
-            builder.Services.AddScoped<AuditLogEntryRepository>();
-            builder.Services.AddScoped<ErrorLogEntryRepository>();
-            builder.Services.AddScoped<SecurityLogEntryRepository>();
             builder.Services.AddScoped(typeof(Repository<>));
 
             // Services
@@ -210,16 +210,17 @@ namespace Moonlight
             builder.Services.AddScoped<DynamicBackgroundService>();
             builder.Services.AddScoped<ServerAddonPluginService>();
             builder.Services.AddScoped<KeyListenerService>();
-
+            builder.Services.AddScoped<PopupService>();
             builder.Services.AddScoped<SubscriptionService>();
-            builder.Services.AddScoped<SubscriptionAdminService>();
+            builder.Services.AddScoped<BillingService>();
+            builder.Services.AddSingleton<PluginStoreService>();
+            builder.Services.AddSingleton<TicketServerService>();
+            builder.Services.AddScoped<TicketClientService>();
+            builder.Services.AddScoped<TicketAdminService>();
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
-
-            // Loggers
             builder.Services.AddScoped<MailService>();
-            builder.Services.AddSingleton<TrashMailDetectorService>();
 
             // Support chat
             builder.Services.AddSingleton<SupportChatServerService>();
@@ -246,6 +247,9 @@ namespace Moonlight
             builder.Services.AddSingleton<CleanupService>();
             builder.Services.AddSingleton<MalwareScanService>();
             builder.Services.AddSingleton<TelemetryService>();
+            builder.Services.AddSingleton<TempMailService>();
+            builder.Services.AddSingleton<DdosProtectionService>();
+            builder.Services.AddSingleton(pluginService);
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -254,6 +258,10 @@ namespace Moonlight
             builder.Services.AddBlazorTable();
             builder.Services.AddBlazorContextMenu();
             builder.Services.AddBlazorDownloadFile();
+
+            StripeConfiguration.ApiKey = configService
+                .Get()
+                .Moonlight.Stripe.ApiKey;
 
             var app = builder.Build();
 
@@ -291,7 +299,8 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
             _ = app.Services.GetRequiredService<MalwareScanService>();
             _ = app.Services.GetRequiredService<TelemetryService>();
-            
+            _ = app.Services.GetRequiredService<TempMailService>();
+            _ = app.Services.GetRequiredService<DdosProtectionService>();
             _ = app.Services.GetRequiredService<MoonlightService>();
 
             // Discord bot service

@@ -5,6 +5,7 @@ using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Mail;
 using Moonlight.App.Services.Sessions;
 
@@ -19,6 +20,7 @@ public class UserService
     private readonly IpLocateService IpLocateService;
     private readonly DateTimeService DateTimeService;
     private readonly ConfigService ConfigService;
+    private readonly TempMailService TempMailService;
 
     private readonly string JwtSecret;
 
@@ -29,7 +31,8 @@ public class UserService
         MailService mailService,
         IdentityService identityService,
         IpLocateService ipLocateService,
-        DateTimeService dateTimeService)
+        DateTimeService dateTimeService,
+        TempMailService tempMailService)
     {
         UserRepository = userRepository;
         TotpService = totpService;
@@ -38,6 +41,7 @@ public class UserService
         IdentityService = identityService;
         IpLocateService = ipLocateService;
         DateTimeService = dateTimeService;
+        TempMailService = tempMailService;
 
         JwtSecret = configService
             .Get()
@@ -48,6 +52,12 @@ public class UserService
     {
         if (ConfigService.Get().Moonlight.Auth.DenyRegister)
             throw new DisplayException("This operation was disabled");
+
+        if (await TempMailService.IsTempMail(email))
+        {
+            Logger.Warn($"A user tried to use a blacklisted domain to register. Email: '{email}'", "security");
+            throw new DisplayException("This email is blacklisted");
+        }
         
         // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;
@@ -56,17 +66,15 @@ public class UserService
         {
             throw new DisplayException("The email is already in use");
         }
-        
-        //TODO: Validation
 
         // Add user
         var user = UserRepository.Add(new()
         {
             Address = "",
-            Admin = false,
+            Admin = !UserRepository.Get().Any(),
             City = "",
             Country = "",
-            Email = email,
+            Email = email.ToLower(),
             Password = BCrypt.Net.BCrypt.HashPassword(password),
             FirstName = firstname,
             LastName = lastname,
@@ -78,8 +86,8 @@ public class UserService
             TotpSecret = "",
             UpdatedAt = DateTimeService.GetCurrent(),
             TokenValidTime = DateTimeService.GetCurrent().AddDays(-5),
-            LastIp = IdentityService.GetIp(),
-            RegisterIp = IdentityService.GetIp()
+            LastIp = IdentityService.Ip,
+            RegisterIp = IdentityService.Ip
         });
 
         await MailService.SendMail(user!, "register", values => {});
@@ -167,8 +175,8 @@ public class UserService
             
             await MailService.SendMail(user!, "passwordChange", values =>
             {
-                values.Add("Ip", IdentityService.GetIp());
-                values.Add("Device", IdentityService.GetDevice());
+                values.Add("Ip", IdentityService.Ip);
+                values.Add("Device", IdentityService.Device);
                 values.Add("Location", location);
             });
 
@@ -205,8 +213,8 @@ public class UserService
         {
             await MailService.SendMail(user!, "login", values =>
             {
-                values.Add("Ip", IdentityService.GetIp());
-                values.Add("Device", IdentityService.GetDevice());
+                values.Add("Ip", IdentityService.Ip);
+                values.Add("Device", IdentityService.Device);
                 values.Add("Location", location);
             });
         }
@@ -242,8 +250,8 @@ public class UserService
 
         await MailService.SendMail(user, "passwordReset", values =>
         {
-            values.Add("Ip", IdentityService.GetIp());
-            values.Add("Device", IdentityService.GetDevice());
+            values.Add("Ip", IdentityService.Ip);
+            values.Add("Device", IdentityService.Device);
             values.Add("Location", location);
             values.Add("Password", newPassword);
         });

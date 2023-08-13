@@ -54,7 +54,7 @@ public class OAuth2Controller : Controller
     {
         try
         {
-            var currentUser = await IdentityService.Get();
+            var currentUser = IdentityService.User;
 
             if (currentUser != null)
             {

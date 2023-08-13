@@ -17,6 +17,15 @@ public class ConfigV1
         [Description("The url moonlight is accesible with from the internet")]
         public string AppUrl { get; set; } = "http://your-moonlight-url-without-slash";
 
+        [JsonProperty("EnableLatencyCheck")]
+        [Description(
+            "This will enable a latency check for connections to moonlight. Users with an too high latency will be warned that moonlight might be buggy for them")]
+        public bool EnableLatencyCheck { get; set; } = true;
+
+        [JsonProperty("LatencyCheckThreshold")]
+        [Description("Specify the latency threshold which has to be reached in order to trigger the warning message")]
+        public int LatencyCheckThreshold { get; set; } = 500;
+
         [JsonProperty("Auth")] public AuthData Auth { get; set; } = new();
 
         [JsonProperty("Database")] public DatabaseData Database { get; set; } = new();
@@ -38,9 +47,7 @@ public class ConfigV1
         [JsonProperty("Mail")] public MailData Mail { get; set; } = new();
 
         [JsonProperty("Cleanup")] public CleanupData Cleanup { get; set; } = new();
-
-        [JsonProperty("Subscriptions")] public SubscriptionsData Subscriptions { get; set; } = new();
-
+        
         [JsonProperty("DiscordNotifications")] public DiscordNotificationsData DiscordNotifications { get; set; } = new();
 
         [JsonProperty("Statistics")] public StatisticsData Statistics { get; set; } = new();
@@ -50,6 +57,24 @@ public class ConfigV1
         [JsonProperty("SmartDeploy")] public SmartDeployData SmartDeploy { get; set; } = new();
 
         [JsonProperty("Sentry")] public SentryData Sentry { get; set; } = new();
+
+        [JsonProperty("Stripe")] public StripeData Stripe { get; set; } = new();
+
+        [JsonProperty("Tickets")] public TicketsData Tickets { get; set; } = new();
+    }
+    
+    public class TicketsData
+    {
+        [JsonProperty("WelcomeMessage")]
+        [Description("The message that will be sent when a user created a ticket")]
+        public string WelcomeMessage { get; set; } = "Welcome to the support";
+    }
+    
+    public class StripeData
+    {
+        [JsonProperty("ApiKey")]
+        [Description("Put here your stripe api key if you add subscriptions. Currently the only billing option is stripe which is enabled by default and cannot be turned off. This feature is still experimental")]
+        public string ApiKey { get; set; } = "";
     }
     
     public class AuthData
@@ -269,6 +294,10 @@ public class ConfigV1
         [Blur]
         public string Token { get; set; } = Guid.NewGuid().ToString();
 
+        [JsonProperty("BlockIpDuration")]
+        [Description("The duration in minutes a ip will be blocked by the anti ddos system")]
+        public int BlockIpDuration { get; set; } = 15;
+
         [JsonProperty("ReCaptcha")] public ReCaptchaData ReCaptcha { get; set; } = new();
     }
 
@@ -316,11 +345,6 @@ public class ConfigV1
         [JsonProperty("Enabled")] public bool Enabled { get; set; } = false;
 
         [JsonProperty("Wait")] public long Wait { get; set; } = 15;
-    }
-
-    public class SubscriptionsData
-    {
-        [JsonProperty("SellPass")] public SellPassData SellPass { get; set; } = new();
     }
 
     public class SellPassData

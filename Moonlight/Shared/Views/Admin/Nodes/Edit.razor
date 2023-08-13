@@ -9,8 +9,9 @@
 @inject SmartTranslateService SmartTranslateService
 @inject NavigationManager NavigationManager
 
-<OnlyAdmin>
-    <LazyLoader Load="Load" @ref="LazyLoader">
+@attribute [PermissionRequired(nameof(Permissions.AdminNodeEdit))]
+
+<LazyLoader Load="Load" @ref="LazyLoader">
         @if (Node == null)
         {
             <div class="alert alert-warning">
@@ -149,7 +150,6 @@
             </div>
         }
     </LazyLoader>
-</OnlyAdmin>
 
 @code
 {

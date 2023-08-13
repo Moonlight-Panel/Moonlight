@@ -1,0 +1,171 @@
+﻿@page "/profile/subscriptions"
+
+@using Moonlight.Shared.Components.Navigations
+@using Moonlight.App.Services
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services.Interop
+@using Markdig
+@using Moonlight.App.Services.Sessions
+
+@inject BillingService BillingService
+@inject Repository<Subscription> SubscriptionRepository
+@inject AlertService AlertService
+@inject PopupService PopupService
+@inject SubscriptionService SubscriptionService
+@inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
+
+<ProfileNavigation Index="3"/>
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+    @if (CurrentSubscription == null)
+    {
+        <div class="card">
+            <div class="card-body p-lg-17">
+                <div class="d-flex flex-column">
+                    <div class="mb-13 text-center">
+                        <h1 class="fs-1 fw-bold mb-2">
+                            <TL>Chose your plan</TL>
+                        </h1>
+                        <div class="text-gray-400 fw-semibold fs-3">
+                            <TL>Select the perfect plan for your next project</TL>
+                        </div>
+                    </div>
+                    <div class="row g-10">
+                        @foreach (var subscription in Subscriptions)
+                        {
+                            <div class="col-xl-4">
+                                <div class="card bg-secondary border border-primary">
+                                    <div class="card-header">
+                                        <div class="card-title">@(subscription.Name)</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <span class="mb-2 text-primary">@(subscription.Currency)</span>
+                                            <span class="fs-3x fw-bold text-primary">
+                                                @(subscription.Price)
+                                            </span>
+                                            <span class="fs-7 fw-semibold opacity-50">
+                                                /
+                                                <span>
+                                                    @(subscription.Duration) <TL>Days</TL>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div class="mt-3 card-text text-center">
+                                            @{
+                                                var html = (MarkupString)Markdown.ToHtml(subscription.Description);
+                                            }
+
+                                            @(html)
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="text-center">
+                                            <WButton Text="@(SmartTranslateService.Translate("Select"))"
+                                                     CssClasses="btn btn-primary"
+                                                     OnClick="() => StartCheckout(subscription)">
+                                            </WButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                @if ((IdentityService.User.SubscriptionExpires - DateTime.UtcNow).TotalDays < 5)
+                {
+                    <div class="notice d-flex bg-light-warning rounded border-warning border mb-12 p-6">
+                        <div class="d-flex flex-stack flex-grow-1 ">
+                            <div class="fw-semibold">
+                                <h4 class="text-gray-900 fw-bold">
+                                    <TL>We need your attention!</TL>
+                                </h4>
+                                <div class="fs-6 text-gray-700 ">
+                                    <TL>Your subscription expires soon</TL>
+                                    <span>
+                                        @(Math.Round((IdentityService.User.SubscriptionExpires - DateTime.UtcNow).TotalDays)) <TL>left</TL>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-lg-7">
+                        <h3 class="mb-2">
+                            <TL>Active until</TL> @(Formatter.FormatDateOnly(IdentityService.User.SubscriptionExpires))
+                        </h3>
+                        <p class="fs-6 text-gray-600 fw-semibold mb-6 mb-lg-15">
+                            <TL>We will send you a email upon subscription expiration</TL>
+                        </p>
+                        <div class="fs-5 mb-2">
+                            <span class="text-gray-800 fw-bold me-1">@(CurrentSubscription.Currency) @(CurrentSubscription.Price)</span>
+                            <span class="text-gray-600 fw-semibold">
+                                <TL>per</TL> @(CurrentSubscription.Duration) <TL>days</TL>
+                            </span>
+                        </div>
+                        <div class="fs-6 text-gray-600 fw-semibold">
+                            @(CurrentSubscription.Description)
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="text-end">
+                        <WButton Text="@(SmartTranslateService.Translate("Cancel"))"
+                                 CssClasses="btn btn-danger"
+                                 OnClick="Cancel">
+                        </WButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    
+
+    private Subscription[] Subscriptions;
+    private Subscription? CurrentSubscription;
+    private LazyLoader LazyLoader;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        Subscriptions = SubscriptionRepository.Get().ToArray();
+        CurrentSubscription = await SubscriptionService.GetActiveSubscription(IdentityService.User);
+    }
+
+    private async Task Cancel()
+    {
+        if (await AlertService.ConfirmMath())
+        {
+            await SubscriptionService.CancelSubscription(IdentityService.User);
+            await LazyLoader.Reload();
+        }
+    }
+
+    private async Task StartCheckout(Subscription subscription)
+    {
+        var url = await BillingService.StartCheckout(IdentityService.User, subscription);
+
+        await PopupService.ShowCentered(
+            url,
+            "Moonlight Checkout",
+            500,
+            700
+            );
+    }
+}

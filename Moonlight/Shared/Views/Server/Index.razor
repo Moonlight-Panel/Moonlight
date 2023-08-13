@@ -4,12 +4,17 @@
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Events
+@using Moonlight.App.Helpers
 @using Moonlight.App.Helpers.Wings
 @using Moonlight.App.Helpers.Wings.Enums
+@using Moonlight.App.Plugin.UI
+@using Moonlight.App.Plugin.UI.Servers
 @using Moonlight.App.Repositories
 @using Moonlight.App.Services
+@using Moonlight.App.Services.Plugins
 @using Moonlight.App.Services.Sessions
 @using Moonlight.Shared.Components.Xterm
+@using Moonlight.Shared.Views.Server.Settings
 @using Newtonsoft.Json
 
 @inject ImageRepository ImageRepository
@@ -20,10 +25,12 @@
 @inject NavigationManager NavigationManager
 @inject DynamicBackgroundService DynamicBackgroundService
 @inject SmartTranslateService SmartTranslateService
+@inject IdentityService IdentityService
+@inject PluginService PluginService
 
 @implements IDisposable
 
-<LazyLoader Load="LoadData">
+<LazyLoader Load="Load">
     @if (CurrentServer == null)
     {
         <NotFoundAlert/>
@@ -32,7 +39,7 @@
     {
         if (NodeOnline)
         {
-            if (Console.ConsoleState == ConsoleState.Connected)
+            if (Console != null && Console.ConsoleState == ConsoleState.Connected)
             {
                 if (Console.ServerState == ServerState.Installing || CurrentServer.Installing)
                 {
@@ -74,38 +81,18 @@
                     <CascadingValue Value="Console">
                         <CascadingValue Value="CurrentServer">
                             <CascadingValue Value="Tags">
-                                <SmartRouter Route="@Route">
-                                    <Route Path="/">
-                                        <ServerNavigation Index="0">
-                                            <ServerConsole/>
-                                        </ServerNavigation>
-                                    </Route>
-                                    <Route Path="/files">
-                                        <ServerNavigation Index="1">
-                                            <ServerFiles/>
-                                        </ServerNavigation>
-                                    </Route>
-                                    <Route Path="/backups">
-                                        <ServerNavigation Index="2">
-                                            <ServerBackups/>
-                                        </ServerNavigation>
-                                    </Route>
-                                    <Route Path="/network">
-                                        <ServerNavigation Index="3">
-                                            <ServerNetwork/>
-                                        </ServerNavigation>
-                                    </Route>
-                                    <Route Path="/addons">
-                                        <ServerNavigation Index="4">
-                                            <ServerAddons/>
-                                        </ServerNavigation>
-                                    </Route>
-                                    <Route Path="/settings">
-                                        <ServerNavigation Index="5">
-                                            <ServerSettings/>
-                                        </ServerNavigation>
-                                    </Route>
-                                </SmartRouter>
+                                <CascadingValue Value="Context">
+                                    <SmartRouter Route="@Route">
+                                        @foreach (var tab in Context.Tabs)
+                                        {
+                                            <Route Path="@(tab.Route)">
+                                                <ServerNavigation Route="@(tab.Route)">
+                                                    @(tab.Component)
+                                                </ServerNavigation>
+                                            </Route>
+                                        }
+                                    </SmartRouter>
+                                </CascadingValue>
                             </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
@@ -113,8 +100,17 @@
             }
             else
             {
-                <div class="alert alert-info">
-                    <TL>Connecting</TL>
+                <div class="d-flex justify-content-center flex-center">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h1 class="card-title">
+                                <TL>Connecting</TL>
+                            </h1>
+                            <p class="card-text fs-4">
+                                <TL>Connecting to the servers console to stream logs and the current resource usage</TL>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             }
         }
@@ -143,21 +139,18 @@
     [Parameter]
     public string ServerUuid { get; set; }
 
-    [CascadingParameter]
-    public User User { get; set; }
-
     [Parameter]
     public string? Route { get; set; }
 
     private WingsConsole? Console;
     private Server? CurrentServer;
-    private Node Node;
     private bool NodeOnline = false;
-    private Image Image;
     private NodeAllocation NodeAllocation;
     private string[] Tags;
 
     private Terminal? InstallConsole;
+
+    private ServerPageContext Context;
 
     protected override void OnInitialized()
     {
@@ -171,109 +164,167 @@
 
         Console.OnMessage += async (_, s) =>
         {
-            if (Console.ServerState == ServerState.Installing)
+            if (Console.ServerState == ServerState.Installing && InstallConsole != null)
             {
-                if (InstallConsole != null)
-                {
-                    if (s.IsInternal)
-                        await InstallConsole.WriteLine("\x1b[38;5;16;48;5;135m\x1b[39m\x1b[1m Moonlight \x1b[0m " + s.Content + "\x1b[0m");
-                    else
-                        await InstallConsole.WriteLine(s.Content);
-                }
+                if (s.IsInternal)
+                    await InstallConsole.WriteLine("\x1b[38;5;16;48;5;135m\x1b[39m\x1b[1m Moonlight \x1b[0m " + s.Content + "\x1b[0m");
+                else
+                    await InstallConsole.WriteLine(s.Content);
             }
         };
     }
 
-    private async Task LoadData(LazyLoader lazyLoader)
+    private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Requesting server data");
 
-        try
-        {
-            var uuid = Guid.Parse(ServerUuid);
+        if (!Guid.TryParse(ServerUuid, out var uuid))
+            return;
 
-            CurrentServer = ServerRepository
-                .Get()
-                .Include(x => x.Allocations)
-                .Include(x => x.Image)
-                .Include(x => x.Node)
-                .Include(x => x.Variables)
-                .Include(x => x.MainAllocation)
-                .Include(x => x.Owner)
-                .First(x => x.Uuid == uuid);
-        }
-        catch (Exception)
-        {
-    // ignored
-        }
+        CurrentServer = ServerRepository
+            .Get()
+            .Include(x => x.Allocations)
+            .Include(x => x.Image)
+            .ThenInclude(x => x.Variables)
+            .Include(x => x.Node)
+            .Include(x => x.Variables)
+            .Include(x => x.MainAllocation)
+            .Include(x => x.Owner)
+            .First(x => x.Uuid == uuid);
 
         if (CurrentServer != null)
         {
-            if (CurrentServer.Owner.Id != User!.Id && !User.Admin)
+            if (CurrentServer.Owner.Id != IdentityService.User.Id && !IdentityService.User.Admin)
+            {
                 CurrentServer = null;
-        }
+                return;
+            }
 
-        if (CurrentServer != null)
-        {
+            if (string.IsNullOrEmpty(CurrentServer.Image.BackgroundImageUrl))
+                await DynamicBackgroundService.Reset();
+            else
+                await DynamicBackgroundService.Change(CurrentServer.Image.BackgroundImageUrl);
+
             await lazyLoader.SetText("Checking node online status");
 
             NodeOnline = await ServerService.IsHostUp(CurrentServer);
 
-            if (NodeOnline)
-            {
-                await lazyLoader.SetText("Checking server variables");
+            if (!NodeOnline)
+                return;
 
-                var image = ImageRepository
-                    .Get()
-                    .Include(x => x.Variables)
-                    .First(x => x.Id == CurrentServer.Image.Id);
+            await lazyLoader.SetText("Checking server variables");
 
     // Live variable migration
 
-                foreach (var variable in image.Variables)
+            foreach (var variable in CurrentServer.Image.Variables)
+            {
+                if (CurrentServer.Variables.All(x => x.Key != variable.Key))
                 {
-                    if (!CurrentServer.Variables.Any(x => x.Key == variable.Key))
+                    CurrentServer.Variables.Add(new ServerVariable()
                     {
-                        CurrentServer.Variables.Add(new ServerVariable()
-                        {
-                            Key = variable.Key,
-                            Value = variable.DefaultValue
-                        });
+                        Key = variable.Key,
+                        Value = variable.DefaultValue
+                    });
 
-                        ServerRepository.Update(CurrentServer);
-                    }
+                    ServerRepository.Update(CurrentServer);
                 }
+            }
 
     // Tags
 
-                await lazyLoader.SetText("Requesting tags");
+            await lazyLoader.SetText("Reading tags");
 
-                Tags = JsonConvert.DeserializeObject<string[]>(image.TagsJson) ?? Array.Empty<string>();
-                Image = image;
+            Tags = JsonConvert.DeserializeObject<string[]>(CurrentServer.Image.TagsJson) ?? Array.Empty<string>();
 
-                await lazyLoader.SetText("Connecting to console");
+    // Build server pages and settings
 
-                await ReconnectConsole();
+            Context = new ServerPageContext()
+            {
+                Server = CurrentServer,
+                User = IdentityService.User,
+                ImageTags = Tags
+            };
 
-                await Event.On<Server>($"server.{CurrentServer.Uuid}.installComplete", this, server =>
-                {
-                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
+            Context.Tabs.Add(new()
+            {
+                Name = "Console",
+                Route = "/",
+                Icon = "terminal",
+                Component = ComponentHelper.FromType(typeof(ServerConsole))
+            });
 
-                    return Task.CompletedTask;
-                });
+            Context.Tabs.Add(new()
+            {
+                Name = "Files",
+                Route = "/files",
+                Icon = "folder",
+                Component = ComponentHelper.FromType(typeof(ServerFiles))
+            });
 
-                await Event.On<Server>($"server.{CurrentServer.Uuid}.archiveStatusChanged", this, server =>
-                {
-                    NavigationManager.NavigateTo(NavigationManager.Uri, true);
+            Context.Tabs.Add(new()
+            {
+                Name = "Backups",
+                Route = "/backups",
+                Icon = "box",
+                Component = ComponentHelper.FromType(typeof(ServerBackups))
+            });
 
-                    return Task.CompletedTask;
-                });
+            Context.Tabs.Add(new()
+            {
+                Name = "Network",
+                Route = "/network",
+                Icon = "wifi",
+                Component = ComponentHelper.FromType(typeof(ServerNetwork))
+            });
 
-                if (string.IsNullOrEmpty(Image.BackgroundImageUrl))
-                    await DynamicBackgroundService.Reset();
-                else
-                    await DynamicBackgroundService.Change(Image.BackgroundImageUrl);
-            }
+            Context.Tabs.Add(new()
+            {
+                Name = "Settings",
+                Route = "/settings",
+                Icon = "cog",
+                Component = ComponentHelper.FromType(typeof(ServerSettings))
+            });
+            
+            // Add default settings
+            
+            Context.Settings.Add(new()
+            {
+                Name = "Rename",
+                Component = ComponentHelper.FromType(typeof(ServerRenameSetting))
+            });
+            
+            Context.Settings.Add(new()
+            {
+                Name = "Reset",
+                Component = ComponentHelper.FromType(typeof(ServerResetSetting))
+            });
+            
+            Context.Settings.Add(new()
+            {
+                Name = "Delete",
+                Component = ComponentHelper.FromType(typeof(ServerDeleteSetting))
+            });
+
+            Context = await PluginService.BuildServerPage(Context);
+
+            await lazyLoader.SetText("Connecting to console");
+            await ReconnectConsole();
+
+    // Register event system
+
+            await Event.On<Server>($"server.{CurrentServer.Uuid}.installComplete", this, server =>
+            {
+                NavigationManager.NavigateTo(NavigationManager.Uri, true);
+
+                return Task.CompletedTask;
+            });
+
+            await Event.On<Server>($"server.{CurrentServer.Uuid}.archiveStatusChanged", this, server =>
+            {
+                NavigationManager.NavigateTo(NavigationManager.Uri, true);
+
+                return Task.CompletedTask;
+            });
         }
     }
 

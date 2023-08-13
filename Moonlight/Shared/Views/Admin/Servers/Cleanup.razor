@@ -1,14 +1,18 @@
 ﻿@page "/admin/servers/cleanup"
 @using Moonlight.App.Events
 @using Moonlight.App.Services.Background
+@using Moonlight.Shared.Components.Navigations
 
 @inject CleanupService CleanupService
 @inject EventSystem Event
 
 @implements IDisposable
 
-<OnlyAdmin>
-    <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
+@attribute [PermissionRequired(nameof(Permissions.AdminServerCleanup))]
+
+<AdminServersNavigation Index="2" />
+
+<div class="row g-5 g-xl-10 mb-5 mb-xl-10">
         <div class="col-xl-3">
             <div class="card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end h-xl-100" style="background-color: #170049;">
                 <div class="card-header pt-5 mb-3">
@@ -76,7 +80,6 @@
             </div>
         </div>
     </div>
-</OnlyAdmin>
 
 @code
 {

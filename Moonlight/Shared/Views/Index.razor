@@ -7,11 +7,13 @@
 @using Moonlight.App.Repositories
 @using Moonlight.App.Repositories.Domains
 @using Markdig
+@using Moonlight.App.Services.Sessions
 
 @inject ServerRepository ServerRepository
 @inject Repository<WebSpace> WebSpaceRepository
 @inject DomainRepository DomainRepository
 @inject NewsEntryRepository NewsEntryRepository
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
 @if (NewsEntries.Any())
@@ -243,9 +245,6 @@
 
 @code
 {
-    [CascadingParameter]
-    public User User { get; set; }
-
     private int ServerCount = 0;
     private int DomainCount = 0;
     private int WebSpaceCount = 0;
@@ -258,17 +257,17 @@
         ServerCount = ServerRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id);
+            .Count(x => x.Owner.Id == IdentityService.User.Id);
 
         DomainCount = DomainRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id);
+            .Count(x => x.Owner.Id == IdentityService.User.Id);
 
         WebSpaceCount = WebSpaceRepository
             .Get()
             .Include(x => x.Owner)
-            .Count(x => x.Owner.Id == User.Id);
+            .Count(x => x.Owner.Id == IdentityService.User.Id);
 
         NewsEntries = NewsEntryRepository.Get().ToList();
 

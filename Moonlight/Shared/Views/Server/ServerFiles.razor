@@ -5,10 +5,12 @@
 @using Moonlight.App.Services
 @using Moonlight.App.ApiClients.Wings
 @using Moonlight.App.Helpers.Wings
+@using Moonlight.App.Services.Sessions
 
 @inject WingsApiHelper WingsApiHelper
 @inject WingsJwtHelper WingsJwtHelper
 @inject ConfigService ConfigService
+@inject IdentityService IdentityService
 
 <FileManager Access="FileAccess"></FileManager>
 
@@ -17,13 +19,10 @@
     [CascadingParameter]
     public Server CurrentServer { get; set; }
     
-    [CascadingParameter]
-    public User User { get; set; }
-
     private FileAccess FileAccess;
 
     protected override void OnInitialized()
     {
-        FileAccess = new WingsFileAccess(WingsApiHelper, WingsJwtHelper, CurrentServer, ConfigService, User);
+        FileAccess = new WingsFileAccess(WingsApiHelper, WingsJwtHelper, CurrentServer, ConfigService, IdentityService.User);
     }
 }

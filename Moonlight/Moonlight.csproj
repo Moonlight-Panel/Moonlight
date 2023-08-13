@@ -40,12 +40,12 @@
     </PackageReference>
     <PackageReference Include="MineStat" Version="3.1.1" />
     <PackageReference Include="MySqlBackup.NET" Version="2.3.8" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Octokit" Version="6.0.0" />
     <PackageReference Include="Otp.NET" Version="1.3.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
     <PackageReference Include="QRCoder" Version="1.4.3" />
-    <PackageReference Include="RestSharp" Version="109.0.0-preview.1" />
+    <PackageReference Include="RestSharp" Version="110.2.1-alpha.0.10" />
     <PackageReference Include="Sentry.AspNetCore" Version="3.33.1" />
     <PackageReference Include="Sentry.Serilog" Version="3.33.1" />
     <PackageReference Include="Serilog" Version="3.0.0" />
@@ -53,6 +53,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.1-dev-00910" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
+    <PackageReference Include="Stripe.net" Version="41.23.0-beta.1" />
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="XtermBlazor" Version="1.8.1" />
   </ItemGroup>
@@ -76,12 +77,20 @@
     <_ContentIncludedByDefault Remove="Shared\Views\Admin\Servers\Cleanup\Exceptions\Edit.razor" />
     <_ContentIncludedByDefault Remove="Shared\Components\News\NewsEditor.razor" />
     <_ContentIncludedByDefault Remove="Shared\News\Edit.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Views\Admin\AaPanels\Index.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Views\Admin\Databases\Index.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\StateLogic\OnlyAdmin.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryChangePassword.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryChangePowerState.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryLogin.razor" />
+    <_ContentIncludedByDefault Remove="Shared\Components\AuditLogEntrys\AuditLogEntryRegister.razor" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="App\ApiClients\CloudPanel\Resources\" />
     <Folder Include="App\Http\Middleware" />
     <Folder Include="storage\backups\" />
+    <Folder Include="storage\plugins\" />
     <Folder Include="storage\resources\public\background\" />
   </ItemGroup>
 
@@ -101,14 +110,6 @@
     <AdditionalFiles Include="Shared\Views\Server\Settings\ServerDeleteSetting.razor" />
     <AdditionalFiles Include="Shared\Views\Server\Settings\ServerRenameSetting.razor" />
     <AdditionalFiles Include="Shared\Views\Server\Settings\ServerResetSetting.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="storage\configs\config.json.bak">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>

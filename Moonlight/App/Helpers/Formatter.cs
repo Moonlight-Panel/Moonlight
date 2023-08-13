@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Components;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Helpers;
@@ -155,12 +156,22 @@ public static class Formatter
             return (i / (1024D * 1024D)).Round(2) + " GB";
         }
     }
-    
-    public static double BytesToGb(long bytes)
-    {
-        const double gbMultiplier = 1024 * 1024 * 1024; // 1 GB = 1024 MB * 1024 KB * 1024 B
 
-        double gigabytes = (double)bytes / gbMultiplier;
-        return gigabytes;
+    public static RenderFragment FormatLineBreaks(string content)
+    {
+        return builder =>
+        {
+            int i = 0;
+            var arr = content.Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            foreach (var line in arr)
+            {
+                builder.AddContent(i, line);
+                if (i++ != arr.Length - 1)
+                {
+                    builder.AddMarkupContent(i, "<br/>");
+                }
+            }
+        };
     }
 }

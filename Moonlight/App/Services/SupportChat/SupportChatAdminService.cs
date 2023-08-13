@@ -34,7 +34,7 @@ public class SupportChatAdminService : IDisposable
 
     public async Task Start(User recipient)
     {
-        User = await IdentityService.Get();
+        User = IdentityService.User;
         Recipient = recipient;
 
         if (User != null)

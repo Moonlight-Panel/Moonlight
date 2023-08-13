@@ -4,66 +4,69 @@
 @using Moonlight.App.Repositories.Servers
 @using BlazorTable
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.Shared.Components.Navigations
 
 @inject ServerRepository ServerRepository
 @inject SmartTranslateService SmartTranslateService
 
-<OnlyAdmin>
-    <div class="row">
-        <LazyLoader Load="Load">
-            <div class="card">
-                <div class="card-header border-0 pt-5">
-                    <h3 class="card-title align-items-start flex-column">
-                        <span class="card-label fw-bold fs-3 mb-1"><TL>Servers</TL></span>
-                    </h3>
-                    <div class="card-toolbar">
-                        <a href="/admin/servers/new" class="btn btn-sm btn-light-success">
-                            <i class="bx bx-layer-plus"></i>
-                            <TL>New server</TL>
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body pt-0">
-                    @if (Servers.Any())
-                    {
-                        <div class="table-responsive">
-                            <Table TableItem="Server" Items="Servers" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                                <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true">
-                                    <Template>
-                                        <a href="/server/@(context.Uuid)">@(context.Name)</a>
-                                    </Template>
-                                </Column>
-                                <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Cores"))" Field="@(x => x.Cpu)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Memory"))" Field="@(x => x.Memory)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Disk"))" Field="@(x => x.Disk)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Owner)" Sortable="true" Filterable="true">
-                                    <Template>
-                                        <a href="/admin/users/view/@(context.Owner.Id)/">@context.Owner.Email</a>
-                                    </Template>
-                                </Column>
-                                <Column TableItem="Server" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
-                                    <Template>
-                                        <a href="/admin/servers/view/@(context.Id)">
-                                            @(SmartTranslateService.Translate("Manage"))
-                                        </a>
-                                    </Template>
-                                </Column>
-                                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                            </Table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <TL>No servers found</TL>
-                        </div>
-                    }
+@attribute [PermissionRequired(nameof(Permissions.AdminServers))]
+
+<AdminServersNavigation Index="0" />
+
+<LazyLoader Load="Load">
+        <div class="card">
+            <div class="card-header border-0 pt-5">
+                <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bold fs-3 mb-1">
+                        <TL>Servers</TL>
+                    </span>
+                </h3>
+                <div class="card-toolbar">
+                    <a href="/admin/servers/new" class="btn btn-sm btn-light-success">
+                        <i class="bx bx-layer-plus"></i>
+                        <TL>New server</TL>
+                    </a>
                 </div>
             </div>
-        </LazyLoader>
-    </div>
-</OnlyAdmin>
+            <div class="card-body pt-0">
+                @if (Servers.Any())
+                {
+                    <div class="table-responsive">
+                        <Table TableItem="Server" Items="Servers" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                            <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                            <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true">
+                                <Template>
+                                    <a href="/server/@(context.Uuid)">@(context.Name)</a>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Cores"))" Field="@(x => x.Cpu)" Sortable="true" Filterable="true"/>
+                            <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Memory"))" Field="@(x => x.Memory)" Sortable="true" Filterable="true"/>
+                            <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Disk"))" Field="@(x => x.Disk)" Sortable="true" Filterable="true"/>
+                            <Column TableItem="Server" Title="@(SmartTranslateService.Translate("Owner"))" Field="@(x => x.Owner)" Sortable="true" Filterable="true">
+                                <Template>
+                                    <a href="/admin/users/view/@(context.Owner.Id)/">@context.Owner.Email</a>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Server" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                <Template>
+                                    <a href="/admin/servers/view/@(context.Id)">
+                                        @(SmartTranslateService.Translate("Manage"))
+                                    </a>
+                                </Template>
+                            </Column>
+                            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                        </Table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <TL>No servers found</TL>
+                    </div>
+                }
+            </div>
+        </div>
+    </LazyLoader>
 
 @code
 {
@@ -74,6 +77,8 @@
         Servers = ServerRepository
             .Get()
             .Include(x => x.Owner)
+            .ToArray() // Execute query and use the moonlight instance to sort
+            .OrderBy(x => x.Id)
             .ToArray();
 
         return Task.CompletedTask;

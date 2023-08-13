@@ -1,4 +1,5 @@
 ﻿@using Moonlight.App.Database.Entities
+@using Moonlight.App.Plugin.UI.Webspaces
 @using Moonlight.App.Services
 @using Moonlight.App.Services.Interop
 
@@ -34,26 +35,14 @@
 <div class="card mb-xl-10 mb-5">
     <div class="card-body pt-0 pb-0">
         <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
-            <li class="nav-item mt-2">
-                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 0 ? "active" : "")" href="/webspace/@(WebSpace.Id)">
-                    <TL>Dashboard</TL>
-                </a>
-            </li>
-            <li class="nav-item mt-2">
-                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 1 ? "active" : "")" href="/webspace/@(WebSpace.Id)/files">
-                    <TL>Files</TL>
-                </a>
-            </li>
-            <li class="nav-item mt-2">
-                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 2 ? "active" : "")" href="/webspace/@(WebSpace.Id)/sftp">
-                    <TL>Sftp</TL>
-                </a>
-            </li>
-            <li class="nav-item mt-2">
-                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 3 ? "active" : "")" href="/webspace/@(WebSpace.Id)/databases">
-                    <TL>Databases</TL>
-                </a>
-            </li>
+            @foreach (var tab in Context.Tabs)
+            {
+                <li class="nav-item mt-2">
+                    <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Route == tab.Route ? "active" : "")" href="/webspace/@(WebSpace.Id + tab.Route)">
+                        <TL>@(tab.Name)</TL>
+                    </a>
+                </li>
+            }
         </ul>
     </div>
 </div>
@@ -61,10 +50,13 @@
 @code
 {
     [Parameter]
-    public int Index { get; set; }
+    public string Route { get; set; }
 
     [Parameter]
     public WebSpace WebSpace { get; set; }
+    
+    [CascadingParameter]
+    public WebspacePageContext Context { get; set; }
 
     private async Task Delete()
     {

@@ -11,8 +11,9 @@
 @inject NavigationManager NavigationManager
 @inject DomainService DomainService
 
-<OnlyAdmin>
-    <div class="row mb-5">
+@attribute [PermissionRequired(nameof(Permissions.AdminNewDomain))]
+
+<div class="row mb-5">
         <div class="card card-body p-10">
             <LazyLoader Load="Load">
                 <SmartForm Model="Model" OnValidSubmit="Add">
@@ -48,7 +49,6 @@
             </LazyLoader>
         </div>
     </div>
-</OnlyAdmin>
 
 @code
 {

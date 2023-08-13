@@ -9,6 +9,7 @@
 @using System.Text
 @using Moonlight.App.Helpers
 @using Newtonsoft.Json
+@using Moonlight.Shared.Components.Navigations
 
 @inject Repository<Image> ImageRepository
 @inject Repository<ImageVariable> ImageVariableRepository
@@ -16,84 +17,95 @@
 @inject SmartTranslateService SmartTranslateService
 @inject AlertService AlertService
 
-<OnlyAdmin>
-    <div class="row">
-        <LazyLoader @ref="LazyLoader" Load="Load">
-            <div class="card">
-                <div class="card-header border-0 pt-5">
-                    <h3 class="card-title align-items-start flex-column">
-                        <span class="card-label fw-bold fs-3 mb-1">
-                            <TL>Images</TL>
-                        </span>
-                    </h3>
-                    <div class="card-toolbar">
-                        <a href="/admin/servers/images/new" class="btn btn-sm btn-light-success me-3">
-                            <i class="bx bx-layer-plus"></i>
-                            <TL>New image</TL>
-                        </a>
-                        <InputFile OnChange="OnFileChanged" type="file" id="fileUpload" hidden="" multiple=""/>
-                        <label for="fileUpload" class="btn btn-sm btn-light-primary">
-                            <span class="svg-icon svg-icon-2">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
-                                    <path d="M10.4 3.60001L12 6H21C21.6 6 22 6.4 22 7V19C22 19.6 21.6 20 21 20H3C2.4 20 2 19.6 2 19V4C2 3.4 2.4 3 3 3H9.20001C9.70001 3 10.2 3.20001 10.4 3.60001ZM16 11.6L12.7 8.29999C12.3 7.89999 11.7 7.89999 11.3 8.29999L8 11.6H11V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H16Z" fill="currentColor"></path>
-                                    <path opacity="0.3" d="M11 11.6V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H11Z" fill="currentColor"></path>
-                                </svg>
-                            </span>
-                            <TL>Import</TL>
-                        </label>
-                    </div>
-                </div>
-                <div class="card-body pt-0">
-                    @if (Images.Any())
-                    {
-                        <div class="table-responsive">
-                            <Table TableItem="Image" Items="Images" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
-                                <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Description"))" Field="@(x => x.Description)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Uuid"))" Field="@(x => x.Uuid)" Sortable="true" Filterable="true"/>
-                                <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Servers with this image"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
-                                    <Template>
-                                        @{
-                                            var i = ServersCount.TryGetValue(context, out var value) ? value.ToString() : "N/A";
-                                        }
-                                        <span>
-                                            @(i)
+@attribute [PermissionRequired(nameof(Permissions.AdminServerImages))]
+
+<AdminServersNavigation Index="4" />
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+                        <div class="card">
+                            <div class="card-header border-0 pt-5">
+                                <h3 class="card-title align-items-start flex-column">
+                                    <span class="card-label fw-bold fs-3 mb-1">
+                                        <TL>Images</TL>
+                                    </span>
+                                </h3>
+                                <div class="card-toolbar">
+                                    <a href="/admin/servers/images/new" class="btn btn-sm btn-light-success me-3">
+                                        <i class="bx bx-layer-plus"></i>
+                                        <TL>New image</TL>
+                                    </a>
+                                    <InputFile OnChange="OnFileChanged" type="file" id="fileUpload" hidden="" multiple=""/>
+                                    <label for="fileUpload" class="btn btn-sm btn-light-primary me-3">
+                                        <span class="svg-icon svg-icon-2">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
+                                                <path d="M10.4 3.60001L12 6H21C21.6 6 22 6.4 22 7V19C22 19.6 21.6 20 21 20H3C2.4 20 2 19.6 2 19V4C2 3.4 2.4 3 3 3H9.20001C9.70001 3 10.2 3.20001 10.4 3.60001ZM16 11.6L12.7 8.29999C12.3 7.89999 11.7 7.89999 11.3 8.29999L8 11.6H11V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H16Z" fill="currentColor"></path>
+                                                <path opacity="0.3" d="M11 11.6V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H11Z" fill="currentColor"></path>
+                                            </svg>
                                         </span>
-                                    </Template>
-                                </Column>
-                                <Column TableItem="Image" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
-                                    <Template>
-                                        <a href="/admin/servers/images/edit/@(context.Id)">
-                                            @(SmartTranslateService.Translate("Edit"))
-                                        </a>
-                                    </Template>
-                                </Column>
-                                <Column TableItem="Image" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
-                                    <Template>
-                                        <WButton Text="@(SmartTranslateService.Translate("Delete"))"
-                                                 WorkingText="@(SmartTranslateService.Translate("Deleting"))"
-                                                 CssClasses="btn-danger"
-                                                 OnClick="() => Delete(context)">
-                                        </WButton>
-                                    </Template>
-                                </Column>
-                                <Pager ShowPageNumber="true" ShowTotalCount="true"/>
-                            </Table>
+                                        <TL>Import</TL>
+                                    </label>
+                                    <InputFile OnChange="OnEggFileChanged" type="file" id="eggFileUpload" hidden="" multiple=""/>
+                                    <label for="eggFileUpload" class="btn btn-sm btn-light-primary">
+                                        <span class="svg-icon svg-icon-2">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path opacity="0.3" d="M10 4H21C21.6 4 22 4.4 22 5V7H10V4Z" fill="currentColor"></path>
+                                                <path d="M10.4 3.60001L12 6H21C21.6 6 22 6.4 22 7V19C22 19.6 21.6 20 21 20H3C2.4 20 2 19.6 2 19V4C2 3.4 2.4 3 3 3H9.20001C9.70001 3 10.2 3.20001 10.4 3.60001ZM16 11.6L12.7 8.29999C12.3 7.89999 11.7 7.89999 11.3 8.29999L8 11.6H11V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H16Z" fill="currentColor"></path>
+                                                <path opacity="0.3" d="M11 11.6V17C11 17.6 11.4 18 12 18C12.6 18 13 17.6 13 17V11.6H11Z" fill="currentColor"></path>
+                                            </svg>
+                                        </span>
+                                        <TL>Import pterodactyl egg</TL>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="card-body pt-0">
+                                @if (Images.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <Table TableItem="Image" Items="Images" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                                            <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Id"))" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                                            <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Name"))" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
+                                            <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Description"))" Field="@(x => x.Description)" Sortable="true" Filterable="true"/>
+                                            <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Uuid"))" Field="@(x => x.Uuid)" Sortable="true" Filterable="true"/>
+                                            <Column TableItem="Image" Title="@(SmartTranslateService.Translate("Servers with this image"))" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                                <Template>
+                                                    @{
+                                                        var i = ServersCount.TryGetValue(context, out var value) ? value.ToString() : "N/A";
+                                                    }
+                                                    <span>
+                                                        @(i)
+                                                    </span>
+                                                </Template>
+                                            </Column>
+                                            <Column TableItem="Image" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                                <Template>
+                                                    <a href="/admin/servers/images/edit/@(context.Id)">
+                                                        @(SmartTranslateService.Translate("Edit"))
+                                                    </a>
+                                                </Template>
+                                            </Column>
+                                            <Column TableItem="Image" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                                <Template>
+                                                    <WButton Text="@(SmartTranslateService.Translate("Delete"))"
+                                                             WorkingText="@(SmartTranslateService.Translate("Deleting"))"
+                                                             CssClasses="btn-danger"
+                                                             OnClick="() => Delete(context)">
+                                                    </WButton>
+                                                </Template>
+                                            </Column>
+                                            <Pager ShowPageNumber="true" ShowTotalCount="true"/>
+                                        </Table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-info">
+                                        <TL>No images found</TL>
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <TL>No images found</TL>
-                        </div>
-                    }
-                </div>
-            </div>
-        </LazyLoader>
-    </div>
-</OnlyAdmin>
+                    </LazyLoader>
 
 @code
 {
@@ -105,7 +117,7 @@
     private async Task Load(LazyLoader lazyLoader)
     {
         await lazyLoader.SetText("Loading images");
-        
+
         Images = ImageRepository
             .Get()
             .Include(x => x.DockerImages)
@@ -113,7 +125,7 @@
             .ToArray();
 
         await lazyLoader.SetText("Counting image servers");
-        
+
         ServersCount.Clear();
 
         foreach (var image in Images)
@@ -130,7 +142,7 @@
     private async Task Delete(Image image)
     {
         var variables = image.Variables.ToArray();
-        
+
         image.Variables.Clear();
         ImageRepository.Update(image);
 
@@ -138,11 +150,11 @@
         {
             ImageVariableRepository.Delete(v);
         }
-        
+
         ImageRepository.Delete(image);
         await LazyLoader.Reload();
     }
-    
+
     private async Task OnFileChanged(InputFileChangeEventArgs arg)
     {
         foreach (var browserFile in arg.GetMultipleFiles())
@@ -155,7 +167,7 @@
 
                 var text = Encoding.UTF8.GetString(data);
                 var image = JsonConvert.DeserializeObject<Image>(text)!;
-                    
+
                 image.Uuid = Guid.NewGuid();
 
                 ImageRepository.Add(image);
@@ -170,7 +182,47 @@
                 Logger.Error(e);
             }
         }
+
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task OnEggFileChanged(InputFileChangeEventArgs arg)
+    {
+        var b = await AlertService.YesNo(
+            SmartTranslateService.Translate("Attention"),
+            SmartTranslateService.Translate("Imported pterodactyl eggs can result in broken images. We do not support pterodactyl eggs"),
+            SmartTranslateService.Translate("I take the risk"),
+            SmartTranslateService.Translate("Cancel")
+            );
         
+        if(!b)
+            return;
+        
+        foreach (var browserFile in arg.GetMultipleFiles())
+        {
+            try
+            {
+                var stream = browserFile.OpenReadStream(1024 * 1024 * 100);
+                var data = new byte[browserFile.Size];
+                _ = await stream.ReadAsync(data, 0, data.Length);
+
+                var json = Encoding.UTF8.GetString(data);
+
+                var image = EggConverter.Convert(json);
+
+                ImageRepository.Add(image);
+
+                await AlertService.Success(SmartTranslateService.Translate("Successfully imported image"));
+                await LazyLoader.Reload();
+            }
+            catch (Exception e)
+            {
+                await AlertService.Error(SmartTranslateService.Translate("An unknown error occured while uploading and importing the image"));
+                Logger.Error("Error importing image");
+                Logger.Error(e);
+            }
+        }
+
         await InvokeAsync(StateHasChanged);
     }
 }
