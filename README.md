@@ -62,7 +62,7 @@ A full guide on how to install moonlight can be found here:
 
 Quick installer/updater:
 `curl https://install.moonlightpanel.xyz/install > install.sh; bash install.sh`
-You'd need to select what to install: the panel, wings, or the daemon.
+You'd need to select what to install: The Panel, Wings or the daemon
 
 Having any issues?
 We are happy to help on our Discord server:
