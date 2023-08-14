@@ -12,8 +12,9 @@
 @inject AlertService AlertService
 @inject ConfigService ConfigService
 @inject SmartTranslateService SmartTranslateService
+@inject NavigationManager NavigationManager
 
-@if (Crashed)
+@if (HardCrashed)
 {
     <div class="card card-flush h-md-100">
         <div class="card-body d-flex flex-column justify-content-between mt-9 bgi-no-repeat bgi-size-cover bgi-position-x-center pb-0">
@@ -30,6 +31,16 @@
         </div>
     </div>
 }
+else if (SoftCrashed)
+{
+    <div class="card card-body bg-danger mb-5">
+        <span class="text-center">
+            @(ErrorMessage)
+        </span>
+    </div>
+    
+    @ChildContent
+}
 else
 {
     @ChildContent
@@ -37,8 +48,23 @@ else
 
 @code
 {
-    private bool Crashed = false;
-    
+    private bool HardCrashed = false;
+    private bool SoftCrashed = false;
+    private string ErrorMessage = "";
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnPathChanged;
+    }
+
+    private void OnPathChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (SoftCrashed)
+            SoftCrashed = false;
+        
+        StateHasChanged();
+    }
+
     protected override async Task OnErrorAsync(Exception exception)
     {
         if (ConfigService.DebugMode)
@@ -50,74 +76,57 @@ else
         {
             if (displayException.DoNotTranslate)
             {
-                await AlertService.Error(
-                    displayException.Message
-                    );
+                await SoftCrash(displayException.Message);
             }
             else
             {
-                await AlertService.Error(
-                    SmartTranslateService.Translate(displayException.Message)
-                    );
+                await SoftCrash(SmartTranslateService.Translate(displayException.Message));
             }
         }
         else if (exception is CloudflareException cloudflareException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate("Error from cloudflare api"),
-                cloudflareException.Message
-                );
+            await SoftCrash(SmartTranslateService.Translate("Error from cloudflare: ") + cloudflareException.Message);
         }
         else if (exception is WingsException wingsException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate("Error from wings"),
-                wingsException.Message
-                );
-            
-            //TODO: Error log service
+            await SoftCrash(SmartTranslateService.Translate("Error from wings: ") + wingsException.Message);
             
             Logger.Warn($"Wings exception status code: {wingsException.StatusCode}");
         }
         else if (exception is DaemonException daemonException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate("Error from daemon"),
-                daemonException.Message
-                );
+            await SoftCrash(SmartTranslateService.Translate("Error from daemon: ") + daemonException.Message);
 
             Logger.Warn($"Wings exception status code: {daemonException.StatusCode}");
         }
         else if (exception is ModrinthException modrinthException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate("Error from modrinth"),
-                modrinthException.Message
-                );
+            await SoftCrash(SmartTranslateService.Translate("Error from modrinth: ") + modrinthException.Message);
         }
         else if (exception is CloudPanelException cloudPanelException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate("Error from cloud panel"),
-                cloudPanelException.Message
-                );
+            await SoftCrash(SmartTranslateService.Translate("Error from cloudpanel: ") + cloudPanelException.Message);
         }
         else if (exception is NotImplementedException)
         {
-            await AlertService.Error(SmartTranslateService.Translate("This function is not implemented"));
+            await SoftCrash(SmartTranslateService.Translate("This function is not implemented"));
         }
         else if (exception is StripeException stripeException)
         {
-            await AlertService.Error(
-                SmartTranslateService.Translate("Unknown error from stripe"),
-                stripeException.Message
-            );
+            await SoftCrash(SmartTranslateService.Translate("Error from stripe: ") + stripeException.Message);
         }
         else
         {
             Logger.Warn(exception);
-            Crashed = true;
+            HardCrashed = true;
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private Task SoftCrash(string message)
+    {
+        SoftCrashed = true;
+        ErrorMessage = message;
+        return Task.CompletedTask;
     }
 }
