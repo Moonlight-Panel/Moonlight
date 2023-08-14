@@ -12,7 +12,7 @@
 
 <div class="align-items-center">
     <div class="row">
-        <div class="card card-body me-6">
+        <div class="card card-body me-6 pb-0">
             <div class="row">
                 <div class="col-8">
                     <div class="d-flex align-items-center">
@@ -50,6 +50,18 @@
                         }
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold text-nowrap flex-nowrap hide-scrollbar" style="overflow-x: auto; overflow-y: hidden;">
+                    @foreach (var tab in Context.Tabs)
+                    {
+                        <li class="nav-item mt-2 @(tab == Context.Tabs.First() ? "ms-5" : "")">
+                            <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Route == tab.Route ? "active" : "")" href="/server/@(CurrentServer.Uuid + tab.Route)">
+                                <i class="bx bx-@(tab.Icon) bx-sm me-2"></i><TL>@(tab.Name)</TL>
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
         <div class="row mt-3">
@@ -123,7 +135,8 @@
         </div>
         <div class="mt-5 row">
             <div class="d-flex flex-column flex-md-row card card-body p-5">
-                <ul class="nav nav-tabs nav-pills flex-row border-0 flex-md-column fs-6 pe-5 mb-5">
+                @*
+<ul class="nav nav-tabs nav-pills flex-row border-0 flex-md-column fs-6 pe-5 mb-5">
                     @foreach (var tab in Context.Tabs)
                     {
                         <li class="nav-item w-100 me-0 mb-md-2">
@@ -138,6 +151,7 @@
                         </li>
                     }
                 </ul>
+*@
                 <div class="tab-content w-100">
                     <div class="tab-pane fade show active">
                         @ChildContent
@@ -155,7 +169,7 @@
 
     [CascadingParameter]
     public WingsConsole Console { get; set; }
-    
+
     [CascadingParameter]
     public ServerPageContext Context { get; set; }
 
