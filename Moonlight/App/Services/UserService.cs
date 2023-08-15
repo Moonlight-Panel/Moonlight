@@ -106,7 +106,7 @@ public class UserService
 
         if (user == null)
         {
-            Logger.Warn($"Failed login attempt. Email: {email} Password: {password}", "security");
+            Logger.Warn($"Failed login attempt. Email: {email} Password: {StringHelper.CutInHalf(password)}", "security");
             throw new DisplayException("Email and password combination not found");
         }
 
@@ -115,7 +115,7 @@ public class UserService
             return user.TotpEnabled;
         }
 
-        Logger.Warn($"Failed login attempt. Email: {email} Password: {password}", "security");
+        Logger.Warn($"Failed login attempt. Email: {email} Password: {StringHelper.CutInHalf(password)}", "security");
         throw new DisplayException("Email and password combination not found");;
     }
 
@@ -148,7 +148,7 @@ public class UserService
             }
             else
             {
-                Logger.Warn($"Failed login attempt. Email: {email} Password: {password}", "security");
+                Logger.Warn($"Failed login attempt. Email: {email} Password: {StringHelper.CutInHalf(password)}", "security");
                 throw new DisplayException("2FA code invalid");
             }
         }
@@ -190,7 +190,7 @@ public class UserService
 
         if (user == null)
         {
-            Logger.Warn($"Detected an sftp bruteforce attempt. ID: {id} Password: {password}", "security");
+            Logger.Warn($"Detected an sftp bruteforce attempt. ID: {id} Password: {StringHelper.CutInHalf(password)}", "security");
             
             throw new Exception("Invalid username");
         }
@@ -201,7 +201,7 @@ public class UserService
             return user;
         }
         
-        Logger.Warn($"Detected an sftp bruteforce attempt. ID: {id} Password: {password}", "security");
+        Logger.Warn($"Detected an sftp bruteforce attempt. ID: {id} Password: {StringHelper.CutInHalf(password)}", "security");
         throw new Exception("Invalid userid or password");
     }
 

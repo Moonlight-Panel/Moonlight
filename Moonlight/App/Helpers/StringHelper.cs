@@ -43,4 +43,15 @@ public static class StringHelper
 
         return firstChar + restOfString;
     }
+
+    public static string CutInHalf(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+        
+        int length = input.Length;
+        int halfLength = length / 2;
+
+        return input.Substring(0, halfLength);
+    }
 }
