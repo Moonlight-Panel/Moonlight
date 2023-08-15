@@ -6,8 +6,10 @@
 @using Moonlight.App.Plugin.UI
 @using Moonlight.App.Plugin.UI.Servers
 @using Moonlight.App.Services.Sessions
+@using Moonlight.App.ApiClients.Wings
 
 @inject SmartTranslateService TranslationService
+@inject ServerService ServerService
 @inject IdentityService IdentityService
 
 <div class="align-items-center">
@@ -177,22 +179,22 @@
 
     private async Task Start()
     {
-        await Console.SetPowerState("start");
+        await ServerService.SetPowerState(CurrentServer, PowerSignal.Start);
     }
 
     private async Task Stop()
     {
-        await Console.SetPowerState("stop");
+        await ServerService.SetPowerState(CurrentServer, PowerSignal.Stop);
     }
 
     private async Task Kill()
     {
-        await Console.SetPowerState("kill");
+        await ServerService.SetPowerState(CurrentServer, PowerSignal.Kill);
     }
 
     private async Task Restart()
     {
-        await Console.SetPowerState("restart");
+        await ServerService.SetPowerState(CurrentServer, PowerSignal.Restart);
     }
 
     #endregion

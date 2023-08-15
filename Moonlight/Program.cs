@@ -217,6 +217,7 @@ namespace Moonlight
             builder.Services.AddSingleton<TicketServerService>();
             builder.Services.AddScoped<TicketClientService>();
             builder.Services.AddScoped<TicketAdminService>();
+            builder.Services.AddScoped<MalwareScanService>();
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();
@@ -245,7 +246,7 @@ namespace Moonlight
             builder.Services.AddSingleton<StatisticsCaptureService>();
             builder.Services.AddSingleton<DiscordNotificationService>();
             builder.Services.AddSingleton<CleanupService>();
-            builder.Services.AddSingleton<MalwareScanService>();
+            builder.Services.AddSingleton<MalwareBackgroundScanService>();
             builder.Services.AddSingleton<TelemetryService>();
             builder.Services.AddSingleton<TempMailService>();
             builder.Services.AddSingleton<DdosProtectionService>();
@@ -297,7 +298,7 @@ namespace Moonlight
             _ = app.Services.GetRequiredService<DiscordBotService>();
             _ = app.Services.GetRequiredService<StatisticsCaptureService>();
             _ = app.Services.GetRequiredService<DiscordNotificationService>();
-            _ = app.Services.GetRequiredService<MalwareScanService>();
+            _ = app.Services.GetRequiredService<MalwareBackgroundScanService>();
             _ = app.Services.GetRequiredService<TelemetryService>();
             _ = app.Services.GetRequiredService<TempMailService>();
             _ = app.Services.GetRequiredService<DdosProtectionService>();

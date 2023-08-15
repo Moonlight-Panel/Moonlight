@@ -12,6 +12,8 @@ using Moonlight.App.Helpers.Wings;
 using Moonlight.App.Models.Misc;
 using Moonlight.App.Repositories;
 using Moonlight.App.Repositories.Servers;
+using Moonlight.App.Services.Background;
+using Moonlight.App.Services.Plugins;
 using FileAccess = Moonlight.App.Helpers.Files.FileAccess;
 
 namespace Moonlight.App.Services;
@@ -32,6 +34,11 @@ public class ServerService
     private readonly DateTimeService DateTimeService;
     private readonly EventSystem Event;
 
+    // We inject the dependencies for the malware scan service here because otherwise it may result in
+    // a circular dependency injection which will crash the app
+    private readonly PluginService PluginService;
+    private readonly IServiceScopeFactory ServiceScopeFactory;
+
     public ServerService(
         ServerRepository serverRepository,
         WingsApiHelper wingsApiHelper,
@@ -45,7 +52,9 @@ public class ServerService
         NodeAllocationRepository nodeAllocationRepository,
         DateTimeService dateTimeService,
         EventSystem eventSystem,
-        Repository<ServerVariable> serverVariablesRepository)
+        Repository<ServerVariable> serverVariablesRepository,
+        PluginService pluginService,
+        IServiceScopeFactory serviceScopeFactory)
     {
         ServerRepository = serverRepository;
         WingsApiHelper = wingsApiHelper;
@@ -60,6 +69,8 @@ public class ServerService
         DateTimeService = dateTimeService;
         Event = eventSystem;
         ServerVariablesRepository = serverVariablesRepository;
+        PluginService = pluginService;
+        ServiceScopeFactory = serviceScopeFactory;
     }
 
     private Server EnsureNodeData(Server s)
@@ -98,6 +109,26 @@ public class ServerService
     public async Task SetPowerState(Server s, PowerSignal signal)
     {
         Server server = EnsureNodeData(s);
+
+        if (ConfigService.Get().Moonlight.Security.MalwareCheckOnStart && signal == PowerSignal.Start ||
+            signal == PowerSignal.Restart)
+        {
+            var results = await new MalwareScanService(
+                PluginService,
+                ServiceScopeFactory
+            ).Perform(server);
+
+            if (results.Any())
+            {
+                var resultText = string.Join(" ", results.Select(x => x.Title));
+
+                Logger.Warn($"Found malware on server {server.Uuid}. Results: " + resultText);
+
+                throw new DisplayException(
+                    $"Unable to start server. Found following malware on this server: {resultText}. Please contact the support if you think this detection is a false positive",
+                    true);
+            }
+        }
 
         var rawSignal = signal.ToString().ToLower();
 
@@ -420,10 +451,7 @@ public class ServerService
             await new Retry()
                 .Times(3)
                 .At(x => x.Message.Contains("A task was canceled"))
-                .Call(async () =>
-                {
-                    await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null);
-                });
+                .Call(async () => { await WingsApiHelper.Delete(server.Node, $"api/servers/{server.Uuid}", null); });
         }
         catch (WingsException e)
         {
