@@ -1,7 +1,9 @@
-﻿@page "/changelog"
+﻿@page "/admin/changelog"
 @using Moonlight.App.Services
 
 @inject MoonlightService MoonlightService
+
+@attribute [PermissionRequired(nameof(Permissions.AdminChangelog))]
 
 @{
     int i = 0;
