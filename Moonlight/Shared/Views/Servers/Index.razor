@@ -49,7 +49,7 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="serverListGroup-header@(group.GetHashCode())">
                         <button class="accordion-button fs-4 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#serverListGroup-body@(group.GetHashCode())" aria-expanded="false" aria-controls="serverListGroup-body@(group.GetHashCode())">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex gap-2 justify-content-between">
                                 <div>
                                     @if (EditMode)
                                     {
@@ -80,7 +80,7 @@
                             </div>
                         </button>
                     </h2>
-                    <div id="serverListGroup-body@(group.GetHashCode())" class="accordion-collapse collapse" aria-labelledby="serverListGroup-header@(group.GetHashCode())" data-bs-parent="#serverListGroup">
+                    <div id="serverListGroup-body@(group.GetHashCode())" class="accordion-collapse collapse @(string.IsNullOrEmpty(group.Name) ? "show" : "")" aria-labelledby="serverListGroup-header@(group.GetHashCode())" data-bs-parent="#serverListGroup">
                         <div class="accordion-body">
                             <div class="row min-h-200px draggable-zone" ml-server-group="@(group.Name)">
                                 @foreach (var id in group.Servers)
