@@ -24,7 +24,7 @@ public class ConfigV1
 
         [JsonProperty("LatencyCheckThreshold")]
         [Description("Specify the latency threshold which has to be reached in order to trigger the warning message")]
-        public int LatencyCheckThreshold { get; set; } = 500;
+        public int LatencyCheckThreshold { get; set; } = 1000;
 
         [JsonProperty("Auth")] public AuthData Auth { get; set; } = new();
 
