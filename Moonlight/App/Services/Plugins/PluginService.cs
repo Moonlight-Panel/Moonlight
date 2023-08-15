@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 using Moonlight.App.Helpers;
+using Moonlight.App.Models.Misc;
 using Moonlight.App.Plugin;
 using Moonlight.App.Plugin.UI.Servers;
 using Moonlight.App.Plugin.UI.Webspaces;
@@ -96,5 +97,18 @@ public class PluginService
             if (plugin.OnBuildServices != null)
                 await plugin.OnBuildServices.Invoke(serviceCollection);
         }
+    }
+
+    public async Task<MalwareScan[]> BuildMalwareScans(MalwareScan[] defaultScans)
+    {
+        var scanList = defaultScans.ToList();
+
+        foreach (var plugin in Plugins)
+        {
+            if (plugin.OnBuildMalwareScans != null)
+                scanList = await plugin.OnBuildMalwareScans.Invoke(scanList);
+        }
+
+        return scanList.ToArray();
     }
 }

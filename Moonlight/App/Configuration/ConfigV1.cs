@@ -290,9 +290,14 @@ public class ConfigV1
     public class SecurityData
     {
         [JsonProperty("Token")]
-        [Description("This is the moonlight app token. It is used to encrypt and decrypt data and validte tokens and sessions")]
+        [Description("This is the moonlight app token. It is used to encrypt and decrypt data and validate tokens and sessions")]
         [Blur]
         public string Token { get; set; } = Guid.NewGuid().ToString();
+
+        [JsonProperty("MalwareCheckOnStart")]
+        [Description(
+            "This option will enable the scanning for malware on every server before it has been started and if something has been found, the power action will be canceled")]
+        public bool MalwareCheckOnStart { get; set; } = true;
 
         [JsonProperty("BlockIpDuration")]
         [Description("The duration in minutes a ip will be blocked by the anti ddos system")]
