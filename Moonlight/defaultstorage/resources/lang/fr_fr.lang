@@ -1,0 +1,778 @@
+Open support;Assistance ouverte
+About us;À propos de nous
+Imprint;Imprimer
+Privacy;Confidentialité
+Login;Se connecter
+Register;S'enregistrer
+Insert brand name...;Insérer le nom de la marque...
+Save and continue;Sauvegarder et continuer
+Saving;Sauvegarde
+Configure basics;Configurer les bases
+Brand name;Nom de l'entreprise
+test;test
+Insert first name...;Insérer le prénom...
+Insert last name...;Insérer le nom de famille...
+Insert email address...;Insérer l'adresse e-mail...
+Add;Ajouter
+Adding...;Ajout...
+Add admin accounts;Ajouter des comptes administrateur
+First name;Prénom
+Last name;Nom de famille
+Email address;Adresse e-mail
+Enter password;Entrer le mot de passe
+Next;Suivant
+Back;Retour
+Configure features;Configurer les fonctionnalités
+Support chat;Chat d'assistance
+Finish;Finition
+Finalize installation;Finaliser l'installation
+Moonlight basic settings successfully configured;Paramètres de base Moonlight configurés avec succès
+Ooops. This page is crashed;Oups. Cette page est plantée.
+This page is crashed. The error has been reported to the moonlight team. Meanwhile you can try reloading the page;Cette page est plantée. L'erreur a été signalée à l'équipe Moonlight. En attendant, vous pouvez essayer de recharger la page
+Setup complete;Configuration terminée
+It looks like this moonlight instance is ready to go;Cette instance Moonlight est prête
+User successfully created;Utilisateur créé avec succès
+Ooops. Your moonlight client is crashed;Oups. Votre client moonlight est planté
+This error has been reported to the moonlight team;Cette erreur a été signalée à l'équipe Moonlight
+Sign In;Se connecter
+Sign in to start with moonlight;Connectez-vous pour commencer avec Moonlight
+Sign in with Discord;Connectez-vous avec Discord
+Or with email;Ou avec e-mail
+Forgot password?;Mot de passe oublié?
+Sign-in;Se connecter
+Not registered yet?;Pas encore inscrit?
+Sign up;S'inscrire
+Authenticating;Authentification...
+Sign in with Google;Connectez-vous avec Google
+Working;En fonctionnement...
+Error;Erreur
+Email and password combination not found;Combinaison e-mail et mot de passe introuvable
+Email;E-mail
+Password;Mot de passe
+Account settings;Paramètres du compte
+Logout;Se déconnecter
+Dashboard;Tableau de bord
+Order;Commande
+Website;Site internet
+Database;Base de données
+Domain;Domaine
+Servers;Serveurs
+Websites;Sites Internet
+Databases;Bases de données
+Domains;Domaines
+Changelog;Journal des modifications
+Firstname;Prénom
+Lastname;Nom de famille
+Repeat password;Répéter le mot de passe
+Sign Up;S'inscrire
+Sign up to start with moonlight;Inscrivez-vous pour commencer avec moonlight
+Sign up with Discord;Inscrivez-vous avec Discord
+Sign up with Google;S'inscrire avec Google
+Sign-up;S'inscrire
+Already registered?;Déjà enregistré?
+Sign in;Se connecter
+Create something new;Créer quelque chose de nouveau
+Create a gameserver;Créer un serveur de jeu
+A new gameserver in just a few minutes;Un nouveau serveur de jeu en quelques minutes
+Create a database;Créer une base de données
+A quick way to store your data and manage it from all around the world;Un moyen rapide de stocker vos données et de les gérer partout dans le monde
+Manage your services;Gérez vos prestations
+Manage your gameservers;Gérez vos serveurs de jeux
+Adjust your gameservers;Ajustez vos serveurs de jeu
+Manage your databases;Gérez vos bases de données
+Insert, delete and update the data in your databases;Insérer, supprimer et mettre à jour les données dans vos bases de données
+Create a website;Créer un site internet
+Make your own websites with a webspace;Créez vos propres sites internet avec un espace Web
+Create a domain;Créer un domaine
+Make your servvices accessible throught your own domain;Rendez vos services accessibles via votre propre domaine
+Manage your websites;Gérer vos sites internet
+Modify the content of your websites;Modifier le contenu de vos sites internet
+Manage your domains;Gérez vos domaines
+Add, edit and delete dns records;Ajouter, modifier et supprimer des enregistrements DNS
+Admin;Admin
+System;Système
+Overview;Aperçu
+Manager;Manager
+Cleanup;Nettoyer
+Nodes;Nœuds
+Images;Images
+aaPanel;aaPanel
+Users;Utilisateurs
+Support;Assistance
+Statistics;Statistiques
+No nodes found. Start with adding a new node;Aucun nœud trouvé. Commencez par ajouter un nouveau nœud
+Nodename;Nom du nœud
+FQDN;Nom de domaine complet
+Create;Créer
+Creating;Création...
+Http port;Port HTTP
+Sftp port;Port Sftp
+Moonlight daemon port;Port du daemon Moonlight
+SSL;SSL
+CPU Usage;L'utilisation du processeur
+In %;En %
+Memory;Mémoire
+Used / Available memory;Mémoire utilisée / disponible
+Storage;Stockage
+Available storage;Stockage disponible
+Add a new node;Ajouter un nouveau nœud
+Delete;Supprimer
+Deleting;Suppression...
+Edit;Modifier
+Token Id;Token Id
+Token;Token
+Save;Sauvegarder
+Setup;Configuration
+Open a ssh connection to your node and enter;Ouvrez une connexion ssh à votre nœud et entrez
+and paste the config below. Then press STRG+O and STRG+X to save;et collez la configuration ci-dessous. Appuyez ensuite sur CTRL+O et CTRL+X pour enregistrer
+Before configuring this node, install the daemon;Avant de configurer ce nœud, installez le deamon
+Delete this node?;Supprimer ce nœud ?
+Do you really want to delete this node;Voulez-vous vraiment supprimer ce nœud?
+Yes;Oui
+No;Non
+Status;Statut
+Adding;Ajout
+Port;Port
+Id;Id
+Manage;Gérer
+Create new server;Créer un nouveau serveur
+No servers found;Aucun serveur trouvé
+Server name;Nom du serveur
+Cpu cores;Cœurs de processeur
+Disk;Stockage
+Image;Image
+Override startup;Ignorer le démarrage
+Docker image;Image Docker
+CPU Cores (100% = 1 Core);Cœurs de processeur (100% = 1 cœur)
+Server successfully created;Serveur créé avec succès
+Name;Nom
+Cores;Noyaux
+Owner;Propriétaire
+Value;Valeur
+An unknown error occured;Une erreur inconnue s'est produite
+No allocation found;Aucune attribution trouvée
+Identifier;Identifiant
+UuidIdentifier;Identifiant Uuid
+Override startup command;Remplacer la commande de démarrage
+Loading;Chargement...
+Offline;Hors ligne
+Connecting;Connexion...
+Start;Démarrer
+Restart;Redémarrer
+Stop;Arrêt
+Shared IP;IP partagée
+Server ID;Identifiant du serveur
+Cpu;CPU
+Console;Console
+Files;Fichiers
+Backups;Sauvegardes
+Network;Réseau
+Plugins;Plugins
+Settings;Paramètres
+Enter command;Entrez la commande
+Execute;Exécuter
+Checking disk space;Vérification de l'espace disque
+Updating config files;Mise à jour des fichiers de configuration
+Checking file permissions;Vérification des autorisations de fichiers
+Downloading server image;Téléchargement de l'image du serveur
+Downloaded server image;Image de serveur téléchargée
+Starting;Démarrage
+Online;En ligne
+Kill;Kill
+Stopping;Arrêt
+Search files and folders;Rechercher des fichiers et des dossiers
+Launch WinSCP;Lancer WinSCP
+New folder;Nouveau dossier
+Upload;Upload
+File name;Nom de fichier
+File size;Taille du fichier
+Last modified;Dernière modification
+Cancel;Annuler
+Canceling;Annulation
+Running;En cours d'exécution
+Loading backups;Chargement des sauvegardes
+Started backup creation;Création de sauvegarde démarrée
+Backup is going to be created;La sauvegarde va être crée
+Rename;Renommer
+Move;Déplacer
+Archive;Archiver
+Unarchive;Désarchiver
+Download;Télécharger
+Starting download;Démarrage du téléchargement
+Backup successfully created;Sauvegarde crée avec succès
+Restore;Restaurer
+Copy url;Copier le lien
+Backup deletion started;La suppression de la sauvegarde a commencé
+Backup successfully deleted;Sauvegarde supprimée avec succès
+Primary;Primaire
+This feature is currently not available;Cette fonctionnalité n'est pas disponible actuellement
+Send;Envoyer
+Sending;Envoi en cours
+Welcome to the support chat. Ask your question here and we will help you;Bienvenue sur le chat d'assistance. Posez votre question ici et nous vous aiderons
+ minutes ago; minutes
+just now;à l'instant
+less than a minute ago;il y a moins d'une minute
+1 hour ago;Il ya 1 heure
+1 minute ago;il y a 1 minute
+Failed;Échec
+ hours ago; Heures
+Open tickets;Tickets ouverts
+Actions;Actions
+No support ticket is currently open;Aucun ticket d'assistance n'est actuellement ouvert
+User information;Informations de l'utilisateur
+Close ticket;Fermer le ticket
+Closing;Fermeture...
+The support team has been notified. Please be patient;L'équipe d'assistance a été prévenue. S'il vous plaît soyez patient
+The ticket is now closed. Type a message to open it again;Le ticket est maintenant fermé. Tapez un message pour l'ouvrir à nouveau
+1 day ago;il y a 1 jour
+is typing;est en train d'écrire...
+are typing;sont en train de taper
+No domains available;Aucun domaine disponible
+Shared domains;Domaines partagés
+Shared domain;Domaine partagé
+Shared domain successfully deleted;Domaine partagé supprimé avec succès
+Shared domain successfully added;Domaine partagé ajouté avec succès
+Domain name;Nom de domaine
+DNS records for;enregistrements DNS pour
+Fetching dns records;Récupération des enregistrements DNS
+No dns records found;Aucun enregistrement DNS trouvé
+Content;Contenu
+Priority;Priorité
+Ttl;TTL
+Enable cloudflare proxy;Activer le proxy cloudflare
+CF Proxy;Proxy CF
+ days ago; Jours
+Cancle;Annuler
+An unexpected error occured;Une erreur inattendue s'est produite
+Testy;Testy
+Error from cloudflare api;Erreur de l'API cloudflare
+Profile;Profil
+No subscription available;Aucun abonnement disponible
+Buy;Acheter
+Redirecting;Redirection
+Apply;Appliquer
+Applying code;Appliquer le code
+Invalid subscription code;Code d'abonnement invalide
+Cancel Subscription;Annuler l'abonnement
+Active until;Actif jusqu'à
+We will send you a notification upon subscription expiration;Nous vous enverrons une notification à l'expiration de l'abonnement
+This token has been already used;Ce jeton a déjà été utilisé
+New login for;Nouvelle connexion pour
+No records found for this day;Aucun enregistrement trouvé pour ce jour
+Change;Changer
+Changing;En changement
+Minecraft version;Version Minecraft
+Build version;Version
+Server installation is currently running;L'installation du serveur est en cours
+Selected;Choisi
+Move deleted;Déplacement supprimé
+Delete selected;Supprimer sélectionnée
+Log level;Niveau de journalisation
+Log message;Message de journal
+Time;Temps
+Version;Version
+You are running moonlight version;Vous utilisez la version Moonlight
+Operating system;Système opérateur
+Moonlight is running on;Moonlight est en cours d'exécution
+Memory usage;Utilisation de la mémoire
+Moonlight is using;Moonlight est utilisé
+of memory;de mémoire
+Cpu usage;L'utilisation du processeur
+Refresh;Rafraîchir
+Send a message to all users;Envoyer un message à tous les utilisateurs
+IP;IP
+URL;URL
+Device;Appareil
+Change url;Modifier l'URL
+Message;Message
+Enter message;Entrez le message
+Enter the message to send;Entrez le message à envoyer
+Confirm;Confirmer
+Are you sure?;Etes-vous sûr?
+Enter url;Entrer l'URL
+An unknown error occured while starting backup deletion;Une erreur inconnue s'est produite lors du démarrage de la suppression de la sauvegarde
+Success;Succès
+Backup URL successfully copied to your clipboard;URL de sauvegarde copiée avec succès dans votre presse-papiers
+Backup restore started;La restauration de la sauvegarde a commencé
+Backup successfully restored;Sauvegarde restaurée avec succès
+Register for;S'inscrire à
+Core;Cœur
+Logs;Logs
+AuditLog;AuditLog
+SecurityLog;SecurityLog
+ErrorLog;ErrorLog
+Resources;Ressources
+WinSCP cannot be launched here;WinSCP ne peut pas être lancé ici
+Create a new folder;Créer un nouveau dossier
+Enter a name;Entrez un nom
+File upload complete;Téléchargement du fichier terminé
+New server;Nouveau serveur
+Sessions;Session
+New user;Nouvel utilisateur
+Created at;Créé à
+Mail template not found;Modèle de courrier introuvable
+Missing admin permissions. This attempt has been logged ;Autorisations d'administrateur manquantes. Cette tentative a été enregistrée
+Address;Adresse
+City;Ville
+State;État
+Country;Pays
+Totp;Totp
+Discord;Discord
+Subscription;Abonnement
+None;Aucun
+No user with this id found;Aucun utilisateur avec cet identifiant n'a été trouvé
+Back to list;Retour à la liste
+New domain;Nouveau domaine
+Reset password;Réinitialiser le mot de passe
+Password reset;Réinitialisation du mot de passe
+Reset the password of your account;Réinitialiser le mot de passe de votre compte
+Wrong here?;Faux ici?
+A user with this email can not be found;Un utilisateur avec cet e-mail est introuvable
+Password reset successfull. Check your mail;Réinitialisation du mot de passe réussie. Vérifier votre e-mail
+Discord bot;Discord Bot
+New image;Nouvelle image
+Description;Description
+Uuid;UUID
+Enter tag name;Entrez le nom de la balise
+Remove;Retirer
+No tags found;Aucun tag trouvé
+Enter docker image name;Entrez le nom de l'image Docker
+Tags;Mots clés
+Docker images;Images Docker
+Default image;Image par défaut
+Startup command;Commande de démarrage
+Install container;Installer le conteneur
+Install entry;Installer l'entrée
+Configuration files;Fichiers de configuration
+Startup detection;Détection de démarrage
+Stop command;Commande d'arrêt
+Successfully saved image;Image enregistrée avec succès
+No docker images found;Aucune image docker trouvée
+Key;Clé
+Default value;Valeur par défaut
+Allocations;Allocations
+No variables found;Aucune variable trouvée
+Successfully added image;Image ajoutée avec succès
+Password change for;Changement de mot de passe pour
+of;de
+New node;Nouveau nœud
+Fqdn;Fqdn
+Cores used;Cœurs utilisés
+used;utilisé
+5.15.90.1-microsoft-standard-WSL2 - amd64;5.15.90.1-microsoft-standard-WSL2 - amd64
+Host system information;Informations sur le système hôte
+0;0
+Docker containers running;Conteneurs Docker en cours d'exécution
+details;Détails
+1;1
+2;2
+DDos;DDos
+No ddos attacks found;Aucune attaque ddos trouvée
+Node;Nœud
+Date;Date
+DDos attack started;L'attaque DDos a commencé
+packets;paquets
+DDos attack stopped;Attaque DDos stoppée
+ packets; paquets
+Stop all;Arrête tout
+Kill all;Tuer tous
+Network in;Réseau dans
+Network out;Sortie réseau
+Kill all servers;Tuez tous les serveurs
+Do you really want to kill all running servers?;Voulez-vous vraiment tuer tous les serveurs en cours d'exécution?
+Change power state for;Changer l'état de l'alimentation pour
+to;à
+Stop all servers;Arrêtez tous les serveurs
+Do you really want to stop all running servers?;Voulez-vous vraiment arrêter tous les serveurs en cours d'exécution?
+Manage ;Gérer 
+Manage user ;Gérer l'utilisateur 
+Reloading;Rechargement...
+Update;Mise à jour
+Updating;Mise à jour...
+Successfully updated user;Utilisateur mis à jour avec succès
+Discord id;Discord ID
+Discord username;Nom d'utilisateur Discord
+Discord discriminator;Discord Tag
+The Name field is required.;Il est requis de compléter le champ correspondant au nom.
+An error occured while logging you in;Une erreur s'est produite lors de votre connexion
+You need to enter an email address;Vous devez saisir une adresse e-mail
+You need to enter a password;Vous devez entrer un mot de passe
+You need to enter a password with minimum 8 characters in lenght;Vous devez saisir un mot de passe d'au moins 8 caractères
+Proccessing;Traitement...
+The FirstName field is required.;Le champ Prénom est obligatoire.
+The LastName field is required.;Le champ Nom est obligatoire.
+The Address field is required.;Le champ Adresse est obligatoire.
+The City field is required.;Le champ Ville est obligatoire.
+The State field is required.;Le champ État est obligatoire.
+The Country field is required.;Le champ Pays est obligatoire.
+Street and house number requered;Rue et numéro de maison requis
+Max lenght reached;Longueur max atteinte
+Server;Serveur
+stopped;arrêté
+Cleanups;Nettoyages
+executed;réalisé
+Used clanup;nettoyage utilisé
+Enable;Activer
+Disable;Désactiver
+Addons;Compléments
+Javascript version;Version Javascript
+Javascript file;Fichier Javascript
+Select javascript file to execute on start;Sélectionnez le fichier javascript à exécuter au démarrage
+Submit;Soumettre
+Processing;Traitement...
+Go up;monter
+Running cleanup;Nettoyage en cours
+servers;Serveurs
+Select folder to move the file(s) to;Sélectionnez le dossier dans lequel déplacer le(s) fichier(s)
+Paper version;Version paper
+Join2Start;Join2Start
+Server reset;Réinitialisation du serveur
+Reset;Réinitialiser
+Resetting;Réinitialisation...
+Are you sure you want to reset this server?;Voulez-vous vraiment réinitialiser ce serveur?
+Are you sure? This cannot be undone;Etes-vous sûr? cela ne peut être annulé
+Resetting server;Réinitialisation du serveur...
+Deleted file;Fichier supprimé
+Reinstalling server;Réinstallation du serveur
+Uploading files;Téléchargement des fichiers
+complete;complet
+Upload complete;Téléchargement complet
+Security;Sécurité
+Subscriptions;Abonnements
+2fa Code;Code 2FA
+Your account is secured with 2fa;Votre compte est sécurisé avec 2fa
+anyone write a fancy text here?;quelqu'un écrit un texte de fantaisie ici?
+Activate 2fa;Activer 2FA
+2fa apps;applications 2FA
+Use an app like ;Utilisez une application comme 
+or;ou
+and scan the following QR Code;et scannez le QR Code suivant
+If you have trouble using the QR Code, select manual input in the app and enter your email and the following code:;Si vous rencontrez des difficultés pour utiliser le QR Code, sélectionnez la saisie manuelle dans l'application et entrez votre email et le code suivant:
+Finish activation;Terminer l'activation
+2fa Code requiered;Code 2FA requis
+New password;Nouveau mot de passe
+Secure your account;Sécurisez votre compte
+2fa adds another layer of security to your account. You have to enter a 6 digit code in order to login.;2FA ajoute une autre couche de sécurité à votre compte. Vous devez entrer un code à 6 chiffres pour vous connecter.
+New subscription;Nouvel abonnement
+You need to enter a name;Vous devez entrer un nom
+You need to enter a description;Vous devez entrer une description
+Add new limit;Ajouter une nouvelle limite
+Create subscription;Créer un abonnement
+Options;Options
+Amount;Montant
+Do you really want to delete it?;Voulez-vous vraiment le supprimer?
+Loading your subscription;Chargement de votre abonnement
+Searching for deploy node;Recherche d'un nœud de déploiement
+Searching for available images;Recherche d'images disponibles
+Server details;Détails du serveur
+Configure your server;Configurez votre serveur
+Default;Défaut
+You reached the maximum amount of servers for every image of your subscription;Vous avez atteint le nombre maximum de serveurs pour chaque image de votre abonnement.
+Personal information;Informations personnelles
+Enter code;Entrez le code
+Server rename;Renommer le serveur
+Create code;créer un code
+Save subscription;Enregistrer l'abonnement
+Enter your information;Entrez vos informations
+You need to enter your full name in order to use moonlight;Vous devez entrer votre nom complet pour utiliser moonlight
+No node found;Aucun nœud trouvé
+No node found to deploy to found;Aucun noeud trouvé à monter
+Node offline;Nœud hors ligne
+The node the server is running on is currently offline;Le nœud sur lequel le serveur s'exécute est actuellement hors ligne
+Server not found;serveur introuvable
+A server with that id cannot be found or you have no access for this server;Un serveur avec cet identifiant est introuvable ou vous n'avez pas accès à ce serveur
+Compress;Compresser
+Decompress;Décompresser
+Moving;Déplacement...
+Compressing;Compression...
+selected;choisi
+New website;Nouveau site internet
+Plesk servers;Serveurs Plesk
+Base domain;Domaine de base
+Plesk server;Serveur Plesk
+Ftp;FTP
+No SSL certificate found;Aucun certificat SSL trouvé
+Ftp Host;Hôte FTP
+Ftp Port;Port FTP
+Ftp Username;Nom d'utilisateur FTP
+Ftp Password;Mot de passe FTP
+Use;Utiliser
+SSL Certificates;Certificats SSL
+SSL certificates;Certificats SSL
+Issue certificate;Délivrer un certificat
+New plesk server;Nouveau serveur plesk
+Api url;URL de l'API
+Host system offline;Système hôte hors ligne
+The host system the website is running on is currently offline;Le système hôte sur lequel le site internet s'exécute est actuellement hors ligne
+No SSL certificates found;Aucun certificat SSL trouvé
+No databases found for this website;Aucune base de données trouvée pour ce site internet
+The name should be at least 8 characters long;Le nom doit comporter au moins 8 caractères
+The name should only contain of lower case characters and numbers;Le nom ne doit contenir que des caractères minuscules et des chiffres
+Error from plesk;Erreur de plesk
+Host;Hôte
+Username;Nom d'utilisateur
+SRV records cannot be updated thanks to the cloudflare api client. Please delete the record and create a new one;Les enregistrements SRV ne peuvent pas être mis à jour grâce au client api cloudflare. Veuillez supprimer l'enregistrement et en créer un nouveau
+The User field is required.;Le champ Utilisateur est obligatoire.
+You need to specify a owner;Vous devez spécifier un propriétaire
+You need to specify a image;Vous devez spécifier une image
+Api Url;URL de l'API
+Api Key;Clé API
+Duration;Durée
+Enter duration of subscription;Saisir la durée de l'abonnement
+Copied code to clipboard;Code copié dans le presse-papiers
+Invalid or expired subscription code;Code d'abonnement invalide ou expiré
+Current subscription;Abonnement actuel
+You need to specify a server image;Vous devez spécifier une image de serveur
+CPU;CPU
+Hour;Heure
+Day;Jour
+Month;Mois
+Year;Année
+All time;Tout le temps
+This function is not implemented;Cette fonction n'est pas implémentée
+Domain details;Détails du domaine
+Configure your domain;Configurez votre domaine
+You reached the maximum amount of domains in your subscription;Vous avez atteint le nombre maximum de domaines dans votre abonnement
+You need to specify a shared domain;Vous devez spécifier un domaine partagé
+A domain with this name does already exist for this shared domain;Un domaine portant ce nom existe déjà pour ce domaine partagé
+The Email field is required.;Le champ E-mail est obligatoire.
+The Password field is required.;Le champ Mot de passe est obligatoire.
+The ConfirmPassword field is required.;Le champ Confirmer le mot de passe est obligatoire.
+Passwords need to match;Les mots de passe doivent correspondre
+Cleanup exception;Exception de nettoyage
+No shared domain found;Aucun domaine partagé trouvé
+Searching for deploy plesk server;Recherche de déploiement du serveur Plesk
+No plesk server found;Aucun serveur plesk trouvé
+No plesk server found to deploy to;Aucun serveur plesk trouvé pour le déploiement
+No node found to deploy to;Aucun nœud trouvé pour le déploiement
+Website details;Détails du site internet
+Configure your website;Configurez votre site internet
+The name cannot be longer that 32 characters;Le nom ne peut pas dépasser 32 caractères
+The name should only consist of lower case characters;Le nom ne doit être composé que de caractères minuscules
+News;Nouvelles
+Title...;Titre...
+Enter text...;Entrez du texte...
+Saving...;Sauvegarde...
+Deleting...;Suppression...
+Delete post;Supprimer le message
+Do you really want to delete the post ";Voulez-vous vraiment supprimer le message "
+You have no domains;Vous n'avez aucun domaine
+We were not able to find any domains associated with your account;Nous n'avons trouvé aucun domaine associé à votre compte
+You have no websites;Vous n'avez pas de sites internet
+We were not able to find any websites associated with your account;Nous n'avons trouvé aucun site internet associé à votre compte
+Guest;Invité
+You need a domain;Vous avez besoin d'un domaine
+New post;Nouveau poste
+New entry;Nouvelle entrée
+You have no servers;Vous n'avez pas de serveurs
+We were not able to find any servers associated with your account;Nous n'avons trouvé aucun serveur associé à votre compte
+Error creating server on wings;Erreur lors de la création du serveur sur les ailes
+An unknown error occured while restoring a backup;Une erreur inconnue s'est produite lors de la restauration d'une sauvegarde
+Error from daemon;Erreur du daemon
+End;Fin
+Cloud panel;Cloud panel
+Cloud panels;Cloud panels
+New cloud panel;Nouveau Panel cloud 
+You need to enter an api key;Vous devez entrer une clé API
+Webspaces;Espaces webs
+New webspace;Nouvel espace web
+The uploaded file should not be bigger than 100MB;Le fichier téléchargé ne doit pas dépasser 100 Mo
+An unknown error occured while uploading a file;Une erreur inconnue s'est produite lors du téléchargement d'un fichier
+No databases found for this webspace;Aucune base de données trouvée pour cet espace Web
+Sftp;SFTP
+Sftp Host;Hôte Sftp
+Sftp Port;Port Sftp
+Sftp Username;Nom d'utilisateur Sftp
+Sftp Password;Mot de passe Sftp
+Lets Encrypt certificate successfully issued;Certificat Lets Encrypt émis avec succès
+Add shared domain;Ajouter un domaine partagé
+Webspace;Espace web
+You reached the maximum amount of websites in your subscription;Vous avez atteint le nombre maximum de sites internet dans votre abonnement
+Searching for deploy web host;Recherche d'hébergeur web déployé
+Webspace details;Détails de l'espace Web
+Web host;Hébergeur
+Configure your webspaces;Configurez vos espaces web
+You reached the maximum amount of webspaces in your subscription;Vous avez atteint le nombre maximum d'espaces Web dans votre abonnement
+Create a webspace;Créer un espace Web
+Manage your webspaces;Gérez vos espaces web
+Modify the content of your webspaces;Modifier le contenu de vos espaces web
+Successfully updated password;Mot de passe mis à jour avec succès
+An unknown error occured while sending your message;Une erreur inconnue s'est produite lors de l'envoi de votre message
+Open chats;Ouvrir les messages
+No message sent yet;Aucun message envoyé pour le moment
+Support ticket open;Ticket d'assistance ouvert
+Support ticket closed;Ticket d'assistance fermé
+Your connection has been paused;Votre connexion a été interrompue
+We paused your connection because of inactivity. The resume just focus the tab and wait a few seconds;Nous avons suspendu votre connexion pour cause d'inactivité. Passez à l'onglet et attendez quelques secondes
+Failed to reconnect to the moonlight servers;Échec de la reconnexion aux serveurs Moonlight
+We were unable to reconnect to moonlight. Please refresh the page;Nous n'avons pas pu nous reconnecter à moonlight. Veuillez actualiser la page
+Failed to reconnect to the moonlight servers. The connection has been rejected;Échec de la reconnexion aux serveurs Moonlight. La connexion a été rejetée
+We were unable to reconnect to moonlight. Most of the time this is caused by an update of moonlight. Please refresh the page;Nous n'avons pas pu nous reconnecter à moonlight. La plupart du temps, cela est causé par une mise à jour du clair de lune. Veuillez actualiser la page
+Verifying token, loading user data;Vérification du jeton, chargement des données utilisateur
+Reload config;Recharger la configuration
+Successfully reloading configuration;Rechargement de la configuration réussi...
+Successfully reloaded configuration;Configuration rechargée avec succès
+Flows;Flux
+Add node;Ajouter un nœud
+Web system;Système Internet
+Servers with this image;Serveurs avec cette image
+You need to specify a user;Vous devez spécifier un utilisateur
+Import;Importer
+Export;Exporter
+Exporting;Exportation
+Successfully imported image;Image importée avec succès
+Forge version;Forge Version
+Fabric version;Fabric Version
+Fabric loader version;Fabric Loader Version
+Rate;Taux
+Hey, can i borrow you for a second?;Hey, je peux vous empruntez une seconde ?
+We want to improve our services and get a little bit of feedback how we are currently doing. Please leave us a rating;Nous voulons améliorer nos services et obtenir un peu de rétroaction sur la façon dont nous faisons actuellement. Merci de nous laisser une note:
+Thanks for your rating;Merci pour votre évaluation
+It would be really kind of you rating us on a external platform as it will help our project very much;Ce serait vraiment gentil de votre part de nous noter sur une plateforme externe car cela aidera beaucoup notre projet
+Close;Fermer
+Rating saved;Note enregistrée
+Group;Groupe
+Beta;Bêta
+Create a new group;Créer un nouveau groupe
+Download WinSCP;Télécharger WinSCP
+Show connection details;Afficher les détails de la connexion
+New;Nouveau
+New file;Nouveau fichier
+Connection details;Détails de connexion
+Malware;Logiciels malveillants
+Create a new file;Créer un nouveau fichier
+Edit layout;Modifier la mise en page
+Uptime;Disponibilité
+Moonlight is online since;Moonlight est en ligne depuis
+User;Utilisateur
+Databases;Bases de données
+Sitzungen;Sitzungen
+Active users;Utilisateurs actifs
+Search for plugins;Rechercher des plugins
+Search;Recherche
+Searching;Recherche...
+Successfully installed gunshell;Cartouche installée avec succès
+Successfully installed fastasyncworldedit;Fastasyncworldedit a été installé avec succès
+Successfully installed minimotd;Minimotd installé avec succès
+Moonlight health;Statut Moonlight
+Healthy;En bonne santé
+Successfully saved file;Fichier enregistré avec succès
+Unsorted servers;Serveurs non triés
+Enter a new name;Entrez un nouveau nom
+Sign in with;Se connecter avec
+Make your services accessible through your own domain;Rendez vos services accessibles via votre propre domaine
+New group;Nouveau groupe
+Finish editing layout;Terminer la modification de la mise en page
+Remove group;Supprimer le groupe
+Hidden in edit mode;Masqué en mode édition
+Enter your 2fa code here;Entrez votre code 2FA ici
+Two factor authentication;Authentification à deux facteurs
+Preferences;Préférences
+Streamer mode;Mode diffusion
+Scan the QR code and enter the code generated by the app you have scanned it in;Scannez le code QR et entrez le code généré par l'application dans laquelle vous l'avez scanné
+Start scan;Lancer l'analyse
+Results;Résultats
+Scan in progress;Analyse en cours
+Debug;Debug
+Save changes;Sauvegarder les modifications
+Delete domain;Supprimer le domaine
+Python version;Version Python 
+Python file;Fichier Python
+Select python file to execute on start;Sélectionnez le fichier python à exécuter au démarrage
+You have no webspaces;Vous n'avez pas d'espaces Web
+We were not able to find any webspaces associated with your account;Nous n'avons trouvé aucun espace Web associé à votre compte
+Backup download successfully started;Le téléchargement de la sauvegarde a démarré avec succès
+Error from cloud panel;Erreur du Cloud Panel
+Error from wings;Erreur des ailes
+Remove link;Supprimer le lien
+Your account is linked to a discord account;Votre compte est lié à un compte discord
+You are able to use features like the discord bot of moonlight;Vous pouvez utiliser des fonctionnalités telles que le bot discord de Moonlight
+The password should be at least 8 characters long;Le mot de passe doit comporter au moins 8 caractères
+The name should only consist of lower case characters or numbers;Le nom ne doit être composé que de caractères minuscules ou de chiffres
+The requested resource was not found;La ressource demandée n'a pas été trouvée
+We were not able to find the requested resource. This can have following reasons;Nous n'avons pas pu trouver la ressource demandée. Cela peut avoir les raisons suivantes
+The resource was deleted;La ressource a été supprimée
+You have to permission to access this resource;Vous devez être autorisé à accéder à cette ressource
+You may have entered invalid data;Vous avez peut-être entré des données invalides
+A unknown bug occured;Un bug inconnu s'est produit
+An api was down and not proper handled;Une API était en panne et n'était pas correctement gérée
+A database with this name does already exist;Une base de données portant ce nom existe déjà
+Successfully installed quickshop-hikari;Quickshop-hikari a été installé avec succès
+You need to enter a valid domain;Vous devez entrer un domaine valide
+2fa code;code 2FA
+This feature is not available for;Cette fonction n'est pas disponible pour
+Your account is currently not linked to discord;Votre compte n'est actuellement pas lié à discord
+To use features like the discord bot, link your moonlight account with your discord account;Pour utiliser des fonctionnalités telles que le bot Discord, liez votre compte Moonlight à votre compte Discord
+Link account;Lien de compte
+Continue;Continuer
+Preparing;Préparation
+Make sure you have installed one of the following apps on your smartphone and press continue;Assurez-vous d'avoir installé l'une des applications suivantes sur votre smartphone et appuyez sur continuer
+The max lenght for the name is 32 characters;La longueur maximale du nom est de 32 caractères
+Successfully installed chunky;Chunky installé avec succès
+Successfully installed huskhomes;Hulkhomes installés avec succès
+Successfully installed simply-farming;Simple-farming installé avec succès
+You need to specify a first name;Vous devez indiquer un prénom
+You need to specify a last name;Vous devez spécifier un nom de famille
+You need to specify a password;Vous devez spécifier un mot de passe
+Please solve the captcha;Merci de résoudre le captcha
+The email is already in use;L'e-mail est déjà utilisé
+The dns records of your webspace do not point to the host system;Les enregistrements DNS de votre espace Web ne pointent pas vers le système hôte
+Scan complete;Analyse terminée
+Currently scanning:;Analyse en cours:
+Successfully installed dynmap;Dynamap installé avec succès
+Successfully installed squaremap;Squaremap installé avec succès
+No web host found;Aucun hébergeur trouvé
+No web host found to deploy to;Aucun hébergeur trouvé pour le déploiement
+Successfully installed sleeper;Sleeper installé avec succès
+You need to enter a domain;Vous devez saisir un domaine
+Enter a ip;Entrez une ip
+Ip Bans;Ip Bans
+Ip;Ip
+Successfully installed simple-voice-chat;Simple-voice-chat installé avec succès
+Successfully installed smithing-table-fix;Smithing-table-fix a été installé avec succès
+Successfully installed justplayer-tpa;Justplayer-TPA installé avec succès
+Successfully installed ishop;iShop installé avec succès
+Successfully installed lifestealre;Lifestealre installé avec succès
+Successfully installed lifeswap;Lifeswap installé avec succès
+Java version;Java Version
+Jar file;Fichier Jar
+Select jar to execute on start;Sélectionnez le jar à exécuter au démarrage
+A website with this domain does already exist;Un site Web avec ce domaine existe déjà
+Successfully installed discordsrv;Discordsrv a été installé avec succès
+Reinstall;Réinstaller
+Reinstalling;Réinstallation
+Successfully installed freedomchat;Freedomchat installé avec succès
+Leave empty for the default background image;Laisser vide pour l'image d'arrière-plan par défaut
+Background image url;URL de l'image d'arrière-plan
+of CPU used;du processeur utilisé
+memory used;mémoire utilisée
+163;163
+172;172
+Sentry;Sentinelle
+Sentry is enabled;La sentinelle est activée
+Successfully installed mobis-homes;Mobis-homes installés avec succès
+Your moonlight account is disabled;Votre compte moonlight est désactivé
+Your moonlight account is currently disabled. But dont worry your data is still saved;Votre compte Moonlight est actuellement désactivé. Mais ne vous inquiétez pas, vos données sont toujours enregistrées
+You need to specify a email address;Vous devez indiquer une adresse e-mail
+A user with that email does already exist;Un utilisateur avec cet email existe déjà
+Successfully installed buildmode;buildmode installé avec succès
+Successfully installed plasmo-voice;Plasmo-Voice installé avec succès
+157;157
+174;174
+158;158
+Webspace not found;Espace Web introuvable
+A webspace with that id cannot be found or you have no access for this webspace;Un espace Web avec cet identifiant est introuvable ou vous n'avez pas accès à cet espace Web
+No plugin download for your minecraft version found;Aucun téléchargement de plugin pour votre version de minecraft trouvé
+Successfully installed gamemode-alias;Gamemode-alias installé avec succès
+228;228
+User;Utilisateur
+Send notification;Envoyer une notification
+Successfully saved changes;Modifications enregistrées avec succès
+Archiving;Archivage...
+Server is currently not archived;Le serveur n'est actuellement pas archivé
+Add allocation;Ajouter une allocation
+231;231
+175;175
+Dotnet version;Version Dotnet
+Dll file;Fichier DLL
+Select dll to execute on start;Sélectionnez le dll à exécuter au démarrage
