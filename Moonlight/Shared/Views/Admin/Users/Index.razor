@@ -52,6 +52,8 @@
                             </a>
                         </Template>
                     </Column>
+                    
+                    <Column TableItem="User" Title="@(SmartTranslateService.Translate("Discord ID"))" Field="@(x => x.DiscordId)" Sortable="true" Filterable="true"/>
                     <Pager ShowPageNumber="true" ShowTotalCount="true"/>
                 </Table>
             </div>
