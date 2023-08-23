@@ -1,13 +1,58 @@
-﻿@using Moonlight.App.Services
+﻿@using Moonlight.App.Services.Files
 @using Moonlight.App.Services.Sessions
-@using Moonlight.App.Database.Entities
 
+@inject ResourceService ResourceService
+@inject DynamicBackgroundService DynamicBackgroundService
 @inject IdentityService IdentityService
 
+<div class="d-flex flex-column flex-root app-root">
+<div class="app-page flex-column flex-column-fluid">
+<!-- Page Header -->
+
+<div class="app-header">
+    <div class="app-container container-fluid d-flex align-items-stretch justify-content-between">
+        <div class="d-flex align-items-center d-lg-none ms-n2 me-2" title="Show sidebar menu">
+            <a class="btn btn-icon btn-active-color-primary w-35px h-35px" @onclick:preventDefault @onclick="ToggleMobileSidebar">
+                <i class="bx bx-menu bx-md"></i>
+            </a>
+        </div>
+
+        @if (ShowMobileSidebar)
+        {
+            <div style="z-index: 105;" class="drawer-overlay" @onclick="ToggleMobileSidebar"></div>
+        }
+
+        <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
+            <a href="/" class="d-lg-none">
+                <img alt="Logo" src="@(ResourceService.Image("logo.svg"))" class="h-30px"/>
+            </a>
+        </div>
+        <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1">
+            <div class="app-header-menu app-header-mobile-drawer align-items-stretch">
+                <div class="menu menu-rounded menu-column menu-lg-row my-5 my-lg-0 align-items-stretch fw-semibold px-2 px-lg-0">
+                </div>
+            </div>
+            <Navbar></Navbar>
+        </div>
+    </div>
+</div>
+
+<!-- Page Header End --->
+<div class="app-wrapper flex-column flex-row-fluid">
+<!-- Sidebar -->
+
+<div class="app-sidebar flex-column @(ShowMobileSidebar ? "drawer drawer-start drawer-on" : "")">
+<div class="app-sidebar-logo px-6">
+    <a href="@(IdentityService.User != null ? "/" : "/login")">
+        <img alt="Logo" src="@(ResourceService.Image("logolong.png"))" class="h-45px app-sidebar-logo-default"/>
+        <img alt="Logo" src="@(ResourceService.Image("logo.svg"))" class="h-20px app-sidebar-logo-minimize"/>
+    </a>
+</div>
+
 <div class="app-sidebar-menu overflow-hidden flex-column-fluid">
-<div id="kt_app_sidebar_menu_wrapper" class="app-sidebar-wrapper hover-scroll-overlay-y my-5" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo, #kt_app_sidebar_footer" data-kt-scroll-wrappers="#kt_app_sidebar_menu" data-kt-scroll-offset="5px" data-kt-scroll-save-state="true">
-<div class="menu menu-column menu-rounded menu-sub-indention px-3" id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
-@if (User == null)
+<div class="app-sidebar-wrapper hover-scroll-overlay-y my-5">
+<div class="menu menu-column menu-rounded menu-sub-indention px-3">
+@if (IdentityService.User == null)
 {
     <div class="menu-item">
         <a class="menu-link" href="/login">
@@ -222,17 +267,41 @@ else
 </div>
 </div>
 
+<div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6">
+    <a href="/support" class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100 btn-label">
+        <i class="bx bx-sm bx-support"></i>
+    </a>
+</div>
+</div>
+
+<!-- Sidebar End -->
+
+<div class="app-main flex-column flex-row-fluid">
+    <div class="d-flex flex-column flex-column-fluid">
+        <div class="app-content flex-column-fluid" style="background-position: center; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-image: linear-gradient(rgba(0, 0, 0, 0.55),rgba(0, 0, 0, 0.55)) ,url('@(DynamicBackgroundService.BackgroundImageUrl)');">
+            <div class="app-container container-fluid">
+                <div class="mt-10">
+                    @ChildContent
+                </div>
+            </div>
+        </div>
+    </div>
+    <Footer></Footer>
+</div>
+</div>
+</div>
+</div>
+
 @code
 {
-    private User? User;
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private bool ShowMobileSidebar = false;
+
+    private async Task ToggleMobileSidebar()
     {
-        if (firstRender)
-        {
-            User = IdentityService.User;
-
-            await InvokeAsync(StateHasChanged);
-        }
+        ShowMobileSidebar = !ShowMobileSidebar;
+        await InvokeAsync(StateHasChanged);
     }
 }
