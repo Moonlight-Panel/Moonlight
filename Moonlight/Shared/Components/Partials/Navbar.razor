@@ -56,6 +56,7 @@
             </a>
         </div>
 
+        <!--
         <div class="app-navbar-item ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
             <div class="cursor-pointer symbol symbol-35px symbol-md-40px" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
                 <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)"/>
@@ -93,6 +94,38 @@
                         <TL>Logout</TL>
                     </a>
                 </div>
+            </div>
+        </div>
+        -->
+        
+        <div class="app-navbar-item ms-1 ms-lg-3 dropdown" id="kt_header_user_menu_toggle">
+            <!-- Trigger -->
+            <a class="cursor-pointer d-block symbol symbol-35px symbol-md-40px" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)" width="35" height="35">
+            </a>
+  
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu dropdown-menu-end w-275px py-1" aria-labelledby="dropdownMenuLink">
+                <div class="dropdown-item py-4 bg-light bg-hover-light">
+                    <div class="d-flex align-items-center">
+                        <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)" class="rounded-circle me-3" width="50" height="50">
+                        <div class="d-flex flex-column">
+                            <div class="fw-bold d-flex align-items-center">
+                                <div class="@(User.StreamerMode ? "blur" : "")">
+                                    @(User.FirstName) @(User.LastName)
+                                </div>
+                                @if (User.Admin)
+                                {
+                                    <span class="badge bg-success fw-bold ms-2">Admin</span>
+                                }
+                            </div>
+                            <a class="fw-semibold text-muted text-decoration-none @(User.StreamerMode ? "blur" : "")">@User.Email</a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="dropdown-divider">
+                <a href="/profile" class="dropdown-item py-4">Profile</a>
+                <a href="#" @onclick:preventDefault @onclick="Logout" class="dropdown-item py-4">Logout</a>
             </div>
         </div>
     }

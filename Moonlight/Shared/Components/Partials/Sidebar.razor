@@ -7,7 +7,7 @@
 @inject ResourceService ResourceService
 @inject IJSRuntime JsRuntime
 
-<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
+<div id="kt_app_sidebar" class="app-sidebar flex-column @(ShowMobileSidebar ? "" : "")" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
     <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
         <a href="@(User != null ? "/" : "/login")">
             @if (sidebar == "dark-sidebar")
@@ -30,7 +30,223 @@
         </div>
     </div>
     
-    <SidebarMenu></SidebarMenu>
+    <div class="app-sidebar-menu overflow-hidden flex-column-fluid">
+    <div id="kt_app_sidebar_menu_wrapper" class="app-sidebar-wrapper hover-scroll-overlay-y my-5" data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_sidebar_logo, #kt_app_sidebar_footer" data-kt-scroll-wrappers="#kt_app_sidebar_menu" data-kt-scroll-offset="5px" data-kt-scroll-save-state="true">
+    <div class="menu menu-column menu-rounded menu-sub-indention px-3" id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
+    @if (User == null)
+    {
+        <div class="menu-item">
+            <a class="menu-link" href="/login">
+                <span class="menu-icon">
+                    <i class="bx bxs-log-in"></i>
+                </span>
+                <span class="menu-title">
+                    <TL>Login</TL>
+                </span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-link" href="/register">
+                <span class="menu-icon">
+                    <i class="bx bx-user-plus"></i>
+                </span>
+                <span class="menu-title">
+                    <TL>Register</TL>
+                </span>
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="menu-item">
+            <a class="menu-link" href="/">
+                <span class="menu-icon">
+                    <i class="bx bx-layer"></i>
+                </span>
+                <span class="menu-title">
+                    <TL>Dashboard</TL>
+                </span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-link" href="/servers">
+                <span class="menu-icon">
+                    <i class="bx bx-server"></i>
+                </span>
+                <span class="menu-title">
+                    <TL>Servers</TL>
+                </span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-link" href="/webspaces">
+                <span class="menu-icon">
+                    <i class="bx bx-globe"></i>
+                </span>
+                <span class="menu-title">
+                    <TL>Webspaces</TL>
+                </span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-link" href="/domains">
+                <span class="menu-icon">
+                    <i class="bx bx-purchase-tag"></i>
+                </span>
+                <span class="menu-title">
+                    <TL>Domains</TL>
+                </span>
+            </a>
+        </div>
+    
+        if (IdentityService.Permissions.HasAnyPermissions())
+        {
+            <div class="menu-item pt-5">
+                <div class="menu-content">
+                    <span class="menu-heading fw-bold text-uppercase fs-7">
+                        <TL>Admin</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin">
+                    <span class="menu-icon">
+                        <i class="bx bx-layer"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Dashboard</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/system">
+                    <span class="menu-icon">
+                        <i class="bx bx-chip"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>System</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/security">
+                    <span class="menu-icon">
+                        <i class="bx bx-shield"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Security</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/servers">
+                    <span class="menu-icon">
+                        <i class="bx bx-server"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Servers</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/webspaces">
+                    <span class="menu-icon">
+                        <i class="bx bx-globe"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Webspaces</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/users">
+                    <span class="menu-icon">
+                        <i class="bx bx-user"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Users</TL>
+                    </span>
+                </a>
+            </div>
+            <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                <span class="menu-link">
+                    <span class="menu-icon">
+                        <i class="bx bx-purchase-tag"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Domains</TL>
+                    </span>
+                    <span class="menu-arrow"></span>
+                </span>
+                <div class="menu-sub menu-sub-accordion">
+                    <div class="menu-item">
+                        <a class="menu-link" href="/admin/domains/">
+                            <span class="menu-bullet">
+                                <span class="bullet bullet-dot"></span>
+                            </span>
+                            <span class="menu-title">
+                                <TL>Domains</TL>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link" href="/admin/domains/shared">
+                            <span class="menu-bullet">
+                                <span class="bullet bullet-dot"></span>
+                            </span>
+                            <span class="menu-title">
+                                <TL>Shared domains</TL>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/support">
+                    <span class="menu-icon">
+                        <i class="bx bx-support"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Support</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/subscriptions">
+                    <span class="menu-icon">
+                        <i class="bx bx-credit-card"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Subscriptions</TL>
+                    </span>
+                </a>
+            </div>
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/statistics">
+                    <span class="menu-icon">
+                        <i class="bx bx-objects-vertical-bottom"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Statistics</TL>
+                    </span>
+                </a>
+            </div>
+    
+            <div class="menu-item">
+                <a class="menu-link" href="/admin/changelog">
+                    <span class="menu-icon">
+                        <i class="bx bx-notepad"></i>
+                    </span>
+                    <span class="menu-title">
+                        <TL>Changelog</TL>
+                    </span>
+                </a>
+            </div>
+        }
+    }
+    </div>
+    </div>
+    </div>
     
     <div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
     	<a href="/support" class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100 btn-label">
@@ -42,6 +258,7 @@
 @code
 {
     private string sidebar;
+    private bool ShowMobileSidebar = false;
 
     private User? User;
 
