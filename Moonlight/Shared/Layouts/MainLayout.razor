@@ -8,7 +8,6 @@
 @using Moonlight.App.Services.Sessions
 @using Moonlight.App.Events
 
-@layout ThemeInit
 @implements IDisposable
 @inherits LayoutComponentBase
 
@@ -162,18 +161,6 @@
                 UserProcessed = true;
                 await InvokeAsync(StateHasChanged);
 
-                try
-                {
-                    await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-reset-transition");
-                    await JsRuntime.InvokeVoidAsync("document.body.removeAttribute", "data-kt-app-page-loading");
-                    await JsRuntime.InvokeVoidAsync("KTMenu.createInstances");
-                    await JsRuntime.InvokeVoidAsync("KTDrawer.createInstances");
-                }
-                catch (Exception)
-                {
-    /* ignore errors to make sure that the session call is executed */
-                }
-
                 await SessionClientService.Start();
 
                 NavigationManager.LocationChanged += async (_, _) =>
@@ -197,11 +184,6 @@
                 }
 
                 await KeyListenerService.Initialize();
-
-                RunDelayedMenu(0);
-                RunDelayedMenu(1);
-                RunDelayedMenu(3);
-                RunDelayedMenu(5);
 
                 if (ConfigService.Get().Moonlight.EnableLatencyCheck)
                 {
@@ -227,32 +209,5 @@
         {
             await Event.Off($"supportChat.{IdentityService.User.Id}.message", this);
         }
-    }
-
-    private void AddBodyAttribute(string attribute, string value)
-    {
-        JsRuntime.InvokeVoidAsync("document.body.setAttribute", attribute, value);
-    }
-
-    private void AddBodyClass(string className)
-    {
-        JsRuntime.InvokeVoidAsync("document.body.classList.add", className);
-    }
-
-    private void RunDelayedMenu(int seconds)
-    {
-        Task.Run(async () =>
-        {
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(seconds));
-                await JsRuntime.InvokeVoidAsync("KTMenu.initHandlers");
-            }
-            catch (Exception e)
-            {
-    //Logger.Warn("Delayed menu error");
-    //Logger.Warn(e);
-            }
-        });
     }
 }
