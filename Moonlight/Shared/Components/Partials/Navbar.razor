@@ -41,13 +41,6 @@
 }
 
 <div class="app-navbar flex-shrink-0">
-    <div class="app-navbar-item ms-1 ms-lg-3">
-        <ThemeSwitcher
-            ToggleBtnClass="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-35px h-35px w-md-40px h-md-40px"
-            ToggleBtnIconClass="svg-icon svg-icon-2">
-        </ThemeSwitcher>
-    </div>
-
     @if (User != null)
     {
         <div class="app-navbar-item ms-1 ms-lg-3">
@@ -56,49 +49,7 @@
             </a>
         </div>
 
-        <!--
-        <div class="app-navbar-item ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
-            <div class="cursor-pointer symbol symbol-35px symbol-md-40px" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-                <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)"/>
-            </div>
-
-            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-primary fw-semibold py-4 fs-6 w-275px" data-kt-menu="true">
-                <div class="menu-item px-3">
-                    <div class="menu-content d-flex align-items-center px-3">
-                        <div class="symbol symbol-50px me-5">
-                            <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)"/>
-                        </div>
-                        <div class="d-flex flex-column">
-                            <div class="fw-bold d-flex align-items-center fs-5">
-                                <div class="@(User.StreamerMode ? "blur" : "")">
-                                    @(User.FirstName) @(User.LastName)
-                                </div>
-
-                                @if (User.Admin)
-                                {
-                                    <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">Admin</span>
-                                }
-                            </div>
-                            <a class="fw-semibold text-muted text-hover-primary fs-7 @(User.StreamerMode ? "blur" : "")">@(User.Email)</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="separator my-2"></div>
-                <div class="menu-item px-5 my-1">
-                    <a href="/profile" class="menu-link px-5">
-                        <TL>Profile</TL>
-                    </a>
-                </div>
-                <div class="menu-item px-5">
-                    <a @onclick="Logout" class="menu-link px-5">
-                        <TL>Logout</TL>
-                    </a>
-                </div>
-            </div>
-        </div>
-        -->
-        
-        <div class="app-navbar-item ms-1 ms-lg-3 dropdown" id="kt_header_user_menu_toggle">
+        <div class="app-navbar-item ms-1 ms-lg-3 dropdown">
             <!-- Trigger -->
             <a class="cursor-pointer d-block symbol symbol-35px symbol-md-40px" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)" width="35" height="35">

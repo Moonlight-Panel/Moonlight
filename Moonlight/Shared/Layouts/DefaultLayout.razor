@@ -27,9 +27,9 @@
                 <img alt="Logo" src="@(ResourceService.Image("logo.svg"))" class="h-30px"/>
             </a>
         </div>
-        <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1" id="kt_app_header_wrapper">
-            <div class="app-header-menu app-header-mobile-drawer align-items-stretch" data-kt-drawer="true" data-kt-drawer-name="app-header-menu" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="end" data-kt-drawer-toggle="#kt_app_header_menu_toggle" data-kt-swapper="true" data-kt-swapper-mode="{default: 'append', lg: 'prepend'}" data-kt-swapper-parent="{default: '#kt_app_body', lg: '#kt_app_header_wrapper'}">
-                <div class="menu menu-rounded menu-column menu-lg-row my-5 my-lg-0 align-items-stretch fw-semibold px-2 px-lg-0" id="kt_app_header_menu" data-kt-menu="true">
+        <div class="d-flex align-items-stretch justify-content-between flex-lg-grow-1">
+            <div class="app-header-menu app-header-mobile-drawer align-items-stretch">
+                <div class="menu menu-rounded menu-column menu-lg-row my-5 my-lg-0 align-items-stretch fw-semibold px-2 px-lg-0">
                 </div>
             </div>
             <Navbar></Navbar>
@@ -38,7 +38,7 @@
 </div>
 
 <!-- Page Header End --->
-<div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
+<div class="app-wrapper flex-column flex-row-fluid">
 <!-- Sidebar -->
 
 <div class="app-sidebar flex-column @(ShowMobileSidebar ? "drawer drawer-start drawer-on" : "")">
@@ -267,7 +267,7 @@ else
 </div>
 </div>
 
-<div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6" id="kt_app_sidebar_footer">
+<div class="app-sidebar-footer flex-column-auto pt-2 pb-6 px-6">
     <a href="/support" class="btn btn-flex flex-center btn-custom btn-primary overflow-hidden text-nowrap px-0 h-40px w-100 btn-label">
         <i class="bx bx-sm bx-support"></i>
     </a>
@@ -278,8 +278,8 @@ else
 
 <div class="app-main flex-column flex-row-fluid">
     <div class="d-flex flex-column flex-column-fluid">
-        <div id="kt_app_content" class="app-content flex-column-fluid" style="background-position: center; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-image: linear-gradient(rgba(0, 0, 0, 0.55),rgba(0, 0, 0, 0.55)) ,url('@(DynamicBackgroundService.BackgroundImageUrl)');">
-            <div id="kt_app_content_container" class="app-container container-fluid">
+        <div class="app-content flex-column-fluid" style="background-position: center; background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-image: linear-gradient(rgba(0, 0, 0, 0.55),rgba(0, 0, 0, 0.55)) ,url('@(DynamicBackgroundService.BackgroundImageUrl)');">
+            <div class="app-container container-fluid">
                 <div class="mt-10">
                     @ChildContent
                 </div>
