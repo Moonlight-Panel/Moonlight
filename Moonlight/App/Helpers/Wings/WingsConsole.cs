@@ -218,6 +218,16 @@ public class WingsConsole : IDisposable
                         break;
 
                     case "install output":
+                        if (ServerState != ServerState.Installing)
+                        {
+                            // Because wings is sending "install output" events BEFORE
+                            // sending the "install started" event,
+                            // we need to set the install state here
+                            // See https://github.com/pterodactyl/panel/issues/4853
+                            // for more details
+                            await UpdateServerState(ServerState.Installing);
+                        }
+                        
                         foreach (var line in eventData.Args)
                         {
                             await SaveMessage(line);
