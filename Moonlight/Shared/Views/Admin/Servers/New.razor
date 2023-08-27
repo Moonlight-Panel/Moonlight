@@ -229,7 +229,7 @@
     {
         try
         {
-            await ServerService.Create(Model.Name, Model.Cpu, Model.Memory, Model.Disk, Model.Owner, Model.Image, Model.Node, server =>
+            var newServer = await ServerService.Create(Model.Name, Model.Cpu, Model.Memory, Model.Disk, Model.Owner, Model.Image, Model.Node, server =>
             {
                 server.OverrideStartup = Model.OverrideStartup;
                 server.DockerImageIndex = Model.DockerImageIndex;
@@ -242,7 +242,7 @@
             });
 
             await ToastService.Success(SmartTranslateService.Translate("Server successfully created"));
-            NavigationManager.NavigateTo("/admin/servers");
+            NavigationManager.NavigateTo($"/server/{newServer.Uuid}");
         }
         catch (DisplayException e)
         {
