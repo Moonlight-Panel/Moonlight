@@ -113,19 +113,17 @@ public class ServerService
         if (ConfigService.Get().Moonlight.Security.MalwareCheckOnStart && signal == PowerSignal.Start ||
             signal == PowerSignal.Restart)
         {
-            var results = await new MalwareScanService(
+            var result = await new MalwareScanService(
                 PluginService,
                 ServiceScopeFactory
             ).Perform(server);
 
-            if (results.Any())
+            if (result != null)
             {
-                var resultText = string.Join(" ", results.Select(x => x.Title));
-
-                Logger.Warn($"Found malware on server {server.Uuid}. Results: " + resultText);
+                Logger.Warn($"Found malware on server {server.Uuid}. Result: " + result.Title);
 
                 throw new DisplayException(
-                    $"Unable to start server. Found following malware on this server: {resultText}. Please contact the support if you think this detection is a false positive",
+                    $"Unable to start server. Found following malware on this server: {result.Title}. Please contact the support if you think this detection is a false positive",
                     true);
             }
         }
