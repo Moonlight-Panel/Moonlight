@@ -1,15 +1,11 @@
 ﻿using Moonlight.App.Helpers;
+using Octokit;
 
 namespace Moonlight.App.Services.Files;
 
 public class StorageService
 {
-    public StorageService()
-    {
-        EnsureCreated();
-    }
-    
-    public void EnsureCreated()
+    public async Task EnsureCreated()
     {
         Directory.CreateDirectory(PathBuilder.Dir("storage", "uploads"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "configs"));
@@ -17,7 +13,10 @@ public class StorageService
         Directory.CreateDirectory(PathBuilder.Dir("storage", "backups"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
+
+        await UpdateResources();
         
+        return;
         if(IsEmpty(PathBuilder.Dir("storage", "resources")))
         {
             Logger.Info("Default resources not found. Copying default resources");
@@ -37,6 +36,62 @@ public class StorageService
                 PathBuilder.Dir("storage", "configs")
             );
         }
+    }
+
+    private async Task UpdateResources()
+    {
+        Logger.Info("Checking resources");
+        
+        var client = new GitHubClient(
+            new ProductHeaderValue("Moonlight-Panel"));
+
+        string user = "Moonlight-Panel";
+        string repo = "Resources";
+        string branch = "main";
+        string resourcesDir = PathBuilder.Dir("storage", "resources");
+        
+        async Task CopyDirectory(string dirPath, string localDir)
+        {
+            IReadOnlyList<RepositoryContent> contents;
+            
+            if(string.IsNullOrEmpty(dirPath))
+                contents = await client.Repository.Content.GetAllContents(user, repo);
+            else
+                contents = await client.Repository.Content.GetAllContents(user, repo, dirPath);
+
+            foreach (var content in contents)
+            {
+                string localPath = Path.Combine(localDir, content.Name);
+
+                if (content.Type == ContentType.File)
+                {
+                    if(content.Name.EndsWith(".gitattributes"))
+                        continue;
+                    
+                    if(File.Exists(localPath) && !content.Name.EndsWith(".lang"))
+                        continue;
+
+                    if (content.Name.EndsWith(".lang") && File.Exists(localPath) &&
+                        new FileInfo(localPath).Length == content.Size)
+                    {
+                        Logger.Info($"Skipped language file '{content.Name}'");
+                        continue;
+                    }
+                    
+                    var fileContent = await client.Repository.Content.GetRawContent(user, repo, content.Path);
+                    Directory.CreateDirectory(localDir); // Ensure the directory exists
+                    await File.WriteAllBytesAsync(localPath, fileContent);
+
+                    Logger.Debug($"Synced file '{content.Path}'");
+                }
+                else if (content.Type == ContentType.Dir)
+                {
+                    await CopyDirectory(content.Path, localPath);
+                }
+            }
+        }
+        
+        await CopyDirectory("", resourcesDir);
     }
 
     private bool IsEmpty(string path)
