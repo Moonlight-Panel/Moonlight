@@ -42,8 +42,10 @@ namespace Moonlight
     {
         public static async Task Main(string[] args)
         {
-            // This will also copy all default config files
-            var configService = new ConfigService(new StorageService());
+            var storageService = new StorageService();
+            await storageService.EnsureCreated();
+            
+            var configService = new ConfigService(storageService);
             var shouldUseSentry = configService
                 .Get()
                 .Moonlight.Sentry.Enable;
