@@ -304,6 +304,14 @@ public class ConfigV1
         public int BlockIpDuration { get; set; } = 15;
 
         [JsonProperty("ReCaptcha")] public ReCaptchaData ReCaptcha { get; set; } = new();
+
+        [JsonProperty("BlockDatacenterIps")]
+        [Description("If this option is enabled, users with an ip from datacenters will not be able to access the panel")]
+        public bool BlockDatacenterIps { get; set; } = true;
+
+        [JsonProperty("AllowCloudflareIps")]
+        [Description("Allow cloudflare ips to bypass the datacenter ip check")]
+        public bool AllowCloudflareIps { get; set; } = false;
     }
 
     public class ReCaptchaData
