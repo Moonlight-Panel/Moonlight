@@ -5,12 +5,15 @@
 @using Moonlight.App.Database.Entities
 @using Moonlight.App.Helpers
 @using Moonlight.App.Services.Sessions
+@using Moonlight.Shared.Components.Navigations
 
 @inject NodeService NodeService
 @inject Repository<Node> NodeRepository
 @inject IServiceScopeFactory ServiceScopeFactory
 
 @attribute [PermissionRequired(nameof(Permissions.AdminStatisticsLive))]
+
+<AdminStatisticsNavigation />
 
 <div class="row">
     <div class="col-12 col-md-3 mb-3">

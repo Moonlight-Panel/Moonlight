@@ -6,13 +6,16 @@
 @using ApexCharts
 @using Moonlight.App.Helpers
 @using Moonlight.App.Services
+@using Moonlight.Shared.Components.Navigations
 
 @inject StatisticsViewService StatisticsViewService
 @inject SmartTranslateService SmartTranslateService
 
 @attribute [PermissionRequired(nameof(Permissions.AdminStatistics))]
 
-<div class="row mt-4 mb-2">
+<AdminStatisticsNavigation />
+
+<div class="row mb-2">
     <div class="col-12 col-lg-6 col-xl">
         <div class="card card-body">
             <select class="form-select" @bind="TimeSpanBind">
