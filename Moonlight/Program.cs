@@ -220,6 +220,7 @@ namespace Moonlight
             builder.Services.AddScoped<TicketClientService>();
             builder.Services.AddScoped<TicketAdminService>();
             builder.Services.AddScoped<MalwareScanService>();
+            builder.Services.AddSingleton<IpVerificationService>();
 
             builder.Services.AddScoped<SessionClientService>();
             builder.Services.AddSingleton<SessionServerService>();

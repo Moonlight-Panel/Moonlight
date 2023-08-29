@@ -15,14 +15,14 @@ public class StorageService
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
 
         await UpdateResources();
-        
+
         return;
-        if(IsEmpty(PathBuilder.Dir("storage", "resources")))
+        if (IsEmpty(PathBuilder.Dir("storage", "resources")))
         {
             Logger.Info("Default resources not found. Copying default resources");
-            
+
             CopyFilesRecursively(
-                PathBuilder.Dir("defaultstorage", "resources"), 
+                PathBuilder.Dir("defaultstorage", "resources"),
                 PathBuilder.Dir("storage", "resources")
             );
         }
@@ -30,9 +30,9 @@ public class StorageService
         if (IsEmpty(PathBuilder.Dir("storage", "configs")))
         {
             Logger.Info("Default configs not found. Copying default configs");
-            
+
             CopyFilesRecursively(
-                PathBuilder.Dir("defaultstorage", "configs"), 
+                PathBuilder.Dir("defaultstorage", "configs"),
                 PathBuilder.Dir("storage", "configs")
             );
         }
@@ -40,64 +40,73 @@ public class StorageService
 
     private async Task UpdateResources()
     {
-        Logger.Info("Checking resources");
-        
-        var client = new GitHubClient(
-            new ProductHeaderValue("Moonlight-Panel"));
-
-        string user = "Moonlight-Panel";
-        string repo = "Resources";
-        string branch = "main";
-        string resourcesDir = PathBuilder.Dir("storage", "resources");
-        
-        async Task CopyDirectory(string dirPath, string localDir)
+        try
         {
-            IReadOnlyList<RepositoryContent> contents;
-            
-            if(string.IsNullOrEmpty(dirPath))
-                contents = await client.Repository.Content.GetAllContents(user, repo);
-            else
-                contents = await client.Repository.Content.GetAllContents(user, repo, dirPath);
+            Logger.Info("Checking resources");
 
-            foreach (var content in contents)
+            var client = new GitHubClient(
+                new ProductHeaderValue("Moonlight-Panel"));
+
+            var user = "Moonlight-Panel";
+            var repo = "Resources";
+            var resourcesDir = PathBuilder.Dir("storage", "resources");
+
+            async Task CopyDirectory(string dirPath, string localDir)
             {
-                string localPath = Path.Combine(localDir, content.Name);
+                IReadOnlyList<RepositoryContent> contents;
 
-                if (content.Type == ContentType.File)
+                if (string.IsNullOrEmpty(dirPath))
+                    contents = await client.Repository.Content.GetAllContents(user, repo);
+                else
+                    contents = await client.Repository.Content.GetAllContents(user, repo, dirPath);
+
+                foreach (var content in contents)
                 {
-                    if(content.Name.EndsWith(".gitattributes"))
-                        continue;
-                    
-                    if(File.Exists(localPath) && !content.Name.EndsWith(".lang"))
-                        continue;
+                    string localPath = Path.Combine(localDir, content.Name);
 
-                    if (content.Name.EndsWith(".lang") && File.Exists(localPath) &&
-                        new FileInfo(localPath).Length == content.Size)
+                    if (content.Type == ContentType.File)
                     {
-                        Logger.Info($"Skipped language file '{content.Name}'");
-                        continue;
-                    }
-                    
-                    var fileContent = await client.Repository.Content.GetRawContent(user, repo, content.Path);
-                    Directory.CreateDirectory(localDir); // Ensure the directory exists
-                    await File.WriteAllBytesAsync(localPath, fileContent);
+                        if (content.Name.EndsWith(".gitattributes"))
+                            continue;
 
-                    Logger.Debug($"Synced file '{content.Path}'");
-                }
-                else if (content.Type == ContentType.Dir)
-                {
-                    await CopyDirectory(content.Path, localPath);
+                        if (File.Exists(localPath) && !content.Name.EndsWith(".lang"))
+                            continue;
+
+                        if (content.Name.EndsWith(".lang") && File.Exists(localPath) &&
+                            new FileInfo(localPath).Length == content.Size)
+                            continue;
+
+                        var fileContent = await client.Repository.Content.GetRawContent(user, repo, content.Path);
+                        Directory.CreateDirectory(localDir); // Ensure the directory exists
+                        await File.WriteAllBytesAsync(localPath, fileContent);
+
+                        Logger.Debug($"Synced file '{content.Path}'");
+                    }
+                    else if (content.Type == ContentType.Dir)
+                    {
+                        await CopyDirectory(content.Path, localPath);
+                    }
                 }
             }
+
+            await CopyDirectory("", resourcesDir);
         }
-        
-        await CopyDirectory("", resourcesDir);
+        catch (RateLimitExceededException)
+        {
+            Logger.Warn("Unable to sync resources due to your ip being rate-limited by github");
+        }
+        catch (Exception e)
+        {
+            Logger.Warn("Unable to sync resources");
+            Logger.Warn(e);
+        }
     }
 
     private bool IsEmpty(string path)
     {
         return !Directory.EnumerateFileSystemEntries(path).Any();
     }
+
     private static void CopyFilesRecursively(string sourcePath, string targetPath)
     {
         //Now Create all of the directories
@@ -107,7 +116,7 @@ public class StorageService
         }
 
         //Copy all the files & Replaces any files with the same name
-        foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",SearchOption.AllDirectories))
+        foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
         {
             File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
         }
