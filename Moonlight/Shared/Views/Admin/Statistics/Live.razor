@@ -1,0 +1,204 @@
+﻿@page "/admin/statistics/live"
+
+@using Moonlight.App.Services
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities
+@using Moonlight.App.Helpers
+@using Moonlight.App.Services.Sessions
+@using Moonlight.Shared.Components.Navigations
+
+@inject NodeService NodeService
+@inject Repository<Node> NodeRepository
+@inject IServiceScopeFactory ServiceScopeFactory
+
+@attribute [PermissionRequired(nameof(Permissions.AdminStatisticsLive))]
+
+<AdminStatisticsNavigation />
+
+<div class="row">
+    <div class="col-12 col-md-3 mb-3">
+        <div class="card">
+            <div class="card-header pt-5">
+                <div class="card-title d-flex flex-column">
+                    <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">@(Math.Round(TotalCpuUsed, 2))% / 100%</span>
+                    <span class="text-white opacity-75 pt-1 fw-semibold fs-6">
+                        <TL>Total cpu load</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body d-flex align-items-end pt-0">
+                <div class="d-flex align-items-center flex-column mt-3 w-100">
+                    @{
+                        var cpuPercent = Math.Round(Formatter.CalculatePercentage(TotalCpuUsed, 100));
+                    }
+
+                    <div class="d-flex justify-content-end fw-bold fs-6 text-white opacity-75 w-100 mt-auto mb-2">
+                        <span>@(cpuPercent)%</span>
+                    </div>
+
+                    <div class="h-8px mx-3 w-100 bg-white bg-opacity-50 rounded">
+                        <div class="bg-@(GetStateColor(cpuPercent)) rounded h-8px" role="progressbar" style="width: @(cpuPercent)%;" aria-valuenow="@(cpuPercent)" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-3">
+        <div class="card">
+            <div class="card-header pt-5">
+                <div class="card-title d-flex flex-column">
+                    <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">@(ByteSizeValue.FromKiloBytes(TotalMemoryUsed).GigaBytes)GB / @(ByteSizeValue.FromKiloBytes(TotalMemory).GigaBytes)GB</span>
+                    <span class="text-white opacity-75 pt-1 fw-semibold fs-6">
+                        <TL>Total memory load</TL>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body d-flex align-items-end pt-0">
+                <div class="d-flex align-items-center flex-column mt-3 w-100">
+                    @{
+                        var memoryPercent = Math.Round(Formatter.CalculatePercentage(TotalMemoryUsed, TotalMemory));
+                    }
+
+                    <div class="d-flex justify-content-end fw-bold fs-6 text-white opacity-75 w-100 mt-auto mb-2">
+                        <span>@(memoryPercent)%</span>
+                    </div>
+
+                    <div class="h-8px mx-3 w-100 bg-white bg-opacity-50 rounded">
+                        <div class="bg-@(GetStateColor(memoryPercent)) rounded h-8px" role="progressbar" style="width: @(memoryPercent)%;" aria-valuenow="@(memoryPercent)" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body pt-5">
+                <div class="card-title d-flex flex-column">
+                    <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">@(Users)</span>
+                    <span class="text-white opacity-75 pt-1 fw-semibold fs-6">
+                        <TL>Total user count</TL>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body pt-5">
+                <div class="card-title d-flex flex-column">
+                    <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">@(Sessions)</span>
+                    <span class="text-white opacity-75 pt-1 fw-semibold fs-6">
+                        <TL>Total session count</TL>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body pt-5">
+                <div class="card-title d-flex flex-column">
+                    <span class="fs-2hx fw-bold text-white me-2 lh-1 ls-n2">@(ActiveUsers)</span>
+                    <span class="text-white opacity-75 pt-1 fw-semibold fs-6">
+                        <TL>Total active user count</TL>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private long TotalMemoryUsed;
+    private long TotalMemory;
+
+    private double TotalCpuUsed;
+
+    private int Users;
+    private int ActiveUsers;
+    private int Sessions;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    await Monitor();
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
+            });
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Monitor()
+    {
+        async Task Nodes()
+        {
+            TotalMemory = 0;
+            TotalMemoryUsed = 0;
+
+            var cpuValues = new List<double>();
+
+            foreach (var node in NodeRepository.Get().ToArray())
+            {
+                try
+                {
+                    var metrics = await NodeService.GetMemoryMetrics(node);
+
+                    TotalMemory += metrics.Total;
+                    TotalMemoryUsed += metrics.Used;
+
+                    var cpuMetrics = await NodeService.GetCpuMetrics(node);
+                    cpuValues.Add(cpuMetrics.CpuUsage);
+                }
+                catch (Exception)
+                {
+    // ignored
+                }
+            }
+
+            TotalCpuUsed = Formatter.CalculateAverage(cpuValues);
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        async Task UsersAndSessions()
+        {
+            using var scope = ServiceScopeFactory.CreateScope();
+
+            var userRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
+            var sessionService = scope.ServiceProvider.GetRequiredService<SessionServerService>();
+
+            Users = userRepo.Get().Count();
+            Sessions = (await sessionService.GetSessions()).Length;
+            ActiveUsers = userRepo
+                .Get()
+                .Count(x => x.LastVisitedAt > DateTime.UtcNow.AddDays(-1));
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        await Nodes();
+        await UsersAndSessions();
+    }
+
+    private string GetStateColor(double percent)
+    {
+        if (percent < 60)
+            return "success";
+        else if (percent >= 60 && percent < 80)
+            return "warning";
+        else
+            return "danger";
+    }
+}

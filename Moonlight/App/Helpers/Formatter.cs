@@ -156,6 +156,32 @@ public static class Formatter
             return (i / (1024D * 1024D)).Round(2) + " GB";
         }
     }
+    
+    public static double CalculateAverage(List<double> values)
+    {
+        if (values == null || values.Count == 0)
+        {
+            throw new ArgumentException("The list cannot be null or empty.");
+        }
+
+        double sum = 0;
+        foreach (double value in values)
+        {
+            sum += value;
+        }
+
+        return sum / values.Count;
+    }
+    
+    public static double CalculatePercentage(double part, double total)
+    {
+        if (total == 0)
+        {
+            return 0;
+        }
+
+        return (part / total) * 100;
+    }
 
     public static RenderFragment FormatLineBreaks(string content)
     {
