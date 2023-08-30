@@ -120,7 +120,7 @@ public class ServerService
 
             if (result != null)
             {
-                Logger.Warn($"Found malware on server {server.Uuid}. Result: " + result.Title);
+                Logger.Warn($"Found malware on server {server.Uuid}. Result: " + result.Title, "security");
 
                 throw new DisplayException(
                     $"Unable to start server. Found following malware on this server: {result.Title}. Please contact the support if you think this detection is a false positive",
