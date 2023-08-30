@@ -225,7 +225,7 @@ public class WingsConsole : IDisposable
                             // we need to set the install state here
                             // See https://github.com/pterodactyl/panel/issues/4853
                             // for more details
-                            await UpdateServerState(ServerState.Installing);
+                            //await UpdateServerState(ServerState.Installing);
                         }
                         
                         foreach (var line in eventData.Args)
