@@ -114,6 +114,17 @@ namespace Moonlight
 
             var builder = WebApplication.CreateBuilder(args);
 
+            var eventSystem = new EventSystem();
+            var letsEncryptService = new LetsEncryptService(configService, eventSystem);
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ConfigureHttpsDefaults(httpsOptions =>
+                {
+                    httpsOptions.ServerCertificateSelector = letsEncryptService.SelectCertificate;
+                }); 
+            });
+
             var pluginService = new PluginService();
             await pluginService.BuildServices(builder.Services);
 
@@ -176,7 +187,7 @@ namespace Moonlight
             builder.Services.AddScoped(typeof(Repository<>));
 
             // Services
-            builder.Services.AddSingleton<ConfigService>();
+            builder.Services.AddSingleton(configService);
             builder.Services.AddSingleton<StorageService>();
             builder.Services.AddScoped<CookieService>();
             builder.Services.AddScoped<IdentityService>();
@@ -200,7 +211,7 @@ namespace Moonlight
             builder.Services.AddScoped<WebSpaceService>();
             builder.Services.AddScoped<StatisticsViewService>();
             builder.Services.AddSingleton<DateTimeService>();
-            builder.Services.AddSingleton<EventSystem>();
+            builder.Services.AddSingleton(eventSystem);
             builder.Services.AddScoped<FileDownloadService>();
             builder.Services.AddScoped<ForgeService>();
             builder.Services.AddScoped<FabricService>();
@@ -254,6 +265,7 @@ namespace Moonlight
             builder.Services.AddSingleton<TempMailService>();
             builder.Services.AddSingleton<DdosProtectionService>();
             builder.Services.AddSingleton(pluginService);
+            builder.Services.AddSingleton(letsEncryptService);
             
             // Other
             builder.Services.AddSingleton<MoonlightService>();
@@ -310,7 +322,12 @@ namespace Moonlight
             // Discord bot service
             //var discordBotService = app.Services.GetRequiredService<DiscordBotService>();
 
-            await app.RunAsync();
+            Task.Run(async () =>
+            {
+                await letsEncryptService.AutoProcess();
+            });
+            
+            await app.RunAsync(configService.Get().Moonlight.AppUrl);
         }
     }
 }

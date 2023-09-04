@@ -113,13 +113,18 @@ public class EventSystem
         return Task.CompletedTask;
     }
     
-    public Task<T> WaitForEvent<T>(string id, object handle, Func<T, bool> filter)
+    public Task<T> WaitForEvent<T>(string id, object handle, Func<T, bool>? filter = null)
     {
         var taskCompletionSource = new TaskCompletionSource<T>();
     
         Func<T, Task> action = async data =>
         {
-            if (filter.Invoke(data))
+            if (filter == null)
+            {
+                taskCompletionSource.SetResult(data);
+                await Off(id, handle);
+            }
+            else if(filter.Invoke(data))
             {
                 taskCompletionSource.SetResult(data);
                 await Off(id, handle);

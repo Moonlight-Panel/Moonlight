@@ -26,6 +26,8 @@ public class ConfigV1
         [Description("Specify the latency threshold which has to be reached in order to trigger the warning message")]
         public int LatencyCheckThreshold { get; set; } = 1000;
 
+        [JsonProperty("LetsEncrypt")] public LetsEncrypt LetsEncrypt { get; set; } = new();
+
         [JsonProperty("Auth")] public AuthData Auth { get; set; } = new();
 
         [JsonProperty("Database")] public DatabaseData Database { get; set; } = new();
@@ -61,6 +63,33 @@ public class ConfigV1
         [JsonProperty("Stripe")] public StripeData Stripe { get; set; } = new();
 
         [JsonProperty("Tickets")] public TicketsData Tickets { get; set; } = new();
+    }
+    
+    public class LetsEncrypt
+    {
+        [JsonProperty("Enable")]
+        [Description("Enable automatic lets encrypt certificate issuing")]
+        public bool Enable { get; set; } = false;
+        
+        [JsonProperty("ExpireEmail")]
+        [Description("Lets encrypt will send you an email upon certificate expiration to this address")]
+        public string ExpireEmail { get; set; } = "your@email.test";
+        
+        [JsonProperty("CountryCode")]
+        [Description("Country code to use for generating the certificate")]
+        public string CountryCode { get; set; } = "DE";
+        
+        [JsonProperty("State")]
+        [Description("State to use for generating the certificate")]
+        public string State { get; set; } = "Germany";
+        
+        [JsonProperty("Locality")]
+        [Description("Locality to use for generating the certificate")]
+        public string Locality { get; set; } = "Bavaria";
+        
+        [JsonProperty("Organization")]
+        [Description("Organization to use for generating the certificate")]
+        public string Organization { get; set; } = "Moonlight Panel";
     }
     
     public class TicketsData

@@ -17,7 +17,6 @@ public class ConfigService
     public ConfigService(StorageService storageService)
     {
         StorageService = storageService;
-        StorageService.EnsureCreated();
 
         if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ML_CONFIG_PATH")))
             Path = Environment.GetEnvironmentVariable("ML_CONFIG_PATH")!;
