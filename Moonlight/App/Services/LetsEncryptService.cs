@@ -165,8 +165,6 @@ public class LetsEncryptService
     {
         if (context == null)
             return null;
-        
-        Logger.Info(domain);
 
         return Certificate;
     }

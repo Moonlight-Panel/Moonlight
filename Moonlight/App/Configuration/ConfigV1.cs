@@ -8,8 +8,7 @@ using Newtonsoft.Json;
 
 public class ConfigV1
 {
-    [JsonProperty("Moonlight")]
-    public MoonlightData Moonlight { get; set; } = new();
+    [JsonProperty("Moonlight")] public MoonlightData Moonlight { get; set; } = new();
 
     public class MoonlightData
     {
@@ -49,8 +48,9 @@ public class ConfigV1
         [JsonProperty("Mail")] public MailData Mail { get; set; } = new();
 
         [JsonProperty("Cleanup")] public CleanupData Cleanup { get; set; } = new();
-        
-        [JsonProperty("DiscordNotifications")] public DiscordNotificationsData DiscordNotifications { get; set; } = new();
+
+        [JsonProperty("DiscordNotifications")]
+        public DiscordNotificationsData DiscordNotifications { get; set; } = new();
 
         [JsonProperty("Statistics")] public StatisticsData Statistics { get; set; } = new();
 
@@ -64,54 +64,55 @@ public class ConfigV1
 
         [JsonProperty("Tickets")] public TicketsData Tickets { get; set; } = new();
     }
-    
+
     public class LetsEncrypt
     {
         [JsonProperty("Enable")]
-        [Description("Enable automatic lets encrypt certificate issuing")]
+        [Description("Enable automatic lets encrypt certificate issuing. This is a beta feature")]
         public bool Enable { get; set; } = false;
-        
+
         [JsonProperty("ExpireEmail")]
         [Description("Lets encrypt will send you an email upon certificate expiration to this address")]
         public string ExpireEmail { get; set; } = "your@email.test";
-        
+
         [JsonProperty("CountryCode")]
         [Description("Country code to use for generating the certificate")]
         public string CountryCode { get; set; } = "DE";
-        
+
         [JsonProperty("State")]
         [Description("State to use for generating the certificate")]
         public string State { get; set; } = "Germany";
-        
+
         [JsonProperty("Locality")]
         [Description("Locality to use for generating the certificate")]
         public string Locality { get; set; } = "Bavaria";
-        
+
         [JsonProperty("Organization")]
         [Description("Organization to use for generating the certificate")]
         public string Organization { get; set; } = "Moonlight Panel";
     }
-    
+
     public class TicketsData
     {
         [JsonProperty("WelcomeMessage")]
         [Description("The message that will be sent when a user created a ticket")]
         public string WelcomeMessage { get; set; } = "Welcome to the support";
     }
-    
+
     public class StripeData
     {
         [JsonProperty("ApiKey")]
-        [Description("Put here your stripe api key if you add subscriptions. Currently the only billing option is stripe which is enabled by default and cannot be turned off. This feature is still experimental")]
+        [Description(
+            "Put here your stripe api key if you add subscriptions. Currently the only billing option is stripe which is enabled by default and cannot be turned off. This feature is still experimental")]
         public string ApiKey { get; set; } = "";
     }
-    
+
     public class AuthData
     {
         [JsonProperty("DenyLogin")]
         [Description("Prevent every new login")]
         public bool DenyLogin { get; set; } = false;
-        
+
         [JsonProperty("DenyRegister")]
         [Description("Prevent every new user to register")]
         public bool DenyRegister { get; set; } = false;
@@ -136,7 +137,8 @@ public class ConfigV1
         public long Uptime { get; set; } = 6;
 
         [JsonProperty("Enable")]
-        [Description("The cleanup system provides a fair way for stopping unused servers and staying stable even with overallocation. A detailed explanation: docs.endelon-hosting.de/erklaerungen/cleanup")]
+        [Description(
+            "The cleanup system provides a fair way for stopping unused servers and staying stable even with overallocation. A detailed explanation: docs.endelon-hosting.de/erklaerungen/cleanup")]
         public bool Enable { get; set; } = false;
 
         [JsonProperty("MinUptime")]
@@ -149,10 +151,8 @@ public class ConfigV1
         [JsonProperty("Database")] public string Database { get; set; } = "moonlight_db";
 
         [JsonProperty("Host")] public string Host { get; set; } = "your.database.host";
-        
-        [JsonProperty("Password")]
-        [Blur]
-        public string Password { get; set; } = "secret";
+
+        [JsonProperty("Password")] [Blur] public string Password { get; set; } = "secret";
 
         [JsonProperty("Port")] public long Port { get; set; } = 3306;
 
@@ -170,6 +170,7 @@ public class ConfigV1
         [Blur]
         public string Token { get; set; } = Guid.NewGuid().ToString();
     }
+
     public class DiscordBotData
     {
         [JsonProperty("Enable")]
@@ -184,7 +185,7 @@ public class ConfigV1
         [JsonProperty("PowerActions")]
         [Description("Enable actions like starting and stopping servers")]
         public bool PowerActions { get; set; } = false;
-        
+
         [JsonProperty("SendCommands")]
         [Description("Allow users to send commands to their servers")]
         public bool SendCommands { get; set; } = false;
@@ -193,7 +194,8 @@ public class ConfigV1
     public class DiscordNotificationsData
     {
         [JsonProperty("Enable")]
-        [Description("The discord notification system sends you a message everytime a event like a new support chat message is triggered with usefull data describing the event")]
+        [Description(
+            "The discord notification system sends you a message everytime a event like a new support chat message is triggered with usefull data describing the event")]
         public bool Enable { get; set; } = false;
 
         [JsonProperty("WebHook")]
@@ -207,7 +209,7 @@ public class ConfigV1
         [JsonProperty("Enable")]
         [Description("This enables the domain system")]
         public bool Enable { get; set; } = false;
-        
+
         [JsonProperty("AccountId")]
         [Description("This option specifies the cloudflare account id")]
         public string AccountId { get; set; } = "cloudflare acc id";
@@ -230,19 +232,23 @@ public class ConfigV1
     public class HeadersData
     {
         [JsonProperty("Color")]
-        [Description("This specifies the color of the embed generated by platforms like discord when someone posts a link to your moonlight instance")]
+        [Description(
+            "This specifies the color of the embed generated by platforms like discord when someone posts a link to your moonlight instance")]
         public string Color { get; set; } = "#4b27e8";
 
         [JsonProperty("Description")]
-        [Description("This specifies the description text of the embed generated by platforms like discord when someone posts a link to your moonlight instance and can also help google to index your moonlight instance correctly")]
+        [Description(
+            "This specifies the description text of the embed generated by platforms like discord when someone posts a link to your moonlight instance and can also help google to index your moonlight instance correctly")]
         public string Description { get; set; } = "the next generation hosting panel";
 
         [JsonProperty("Keywords")]
-        [Description("To help search engines like google to index your moonlight instance correctly you can specify keywords seperated by a comma here")]
+        [Description(
+            "To help search engines like google to index your moonlight instance correctly you can specify keywords seperated by a comma here")]
         public string Keywords { get; set; } = "moonlight";
 
         [JsonProperty("Title")]
-        [Description("This specifies the title of the embed generated by platforms like discord when someone posts a link to your moonlight instance")]
+        [Description(
+            "This specifies the title of the embed generated by platforms like discord when someone posts a link to your moonlight instance")]
         public string Title { get; set; } = "Moonlight - endelon.link";
     }
 
@@ -252,9 +258,7 @@ public class ConfigV1
 
         [JsonProperty("Server")] public string Server { get; set; } = "your.mail.host";
 
-        [JsonProperty("Password")]
-        [Blur]
-        public string Password { get; set; } = "secret";
+        [JsonProperty("Password")] [Blur] public string Password { get; set; } = "secret";
 
         [JsonProperty("Port")] public int Port { get; set; } = 465;
 
@@ -292,19 +296,19 @@ public class ConfigV1
 
         [JsonProperty("ClientId")] public string ClientId { get; set; }
 
-        [JsonProperty("ClientSecret")]
-        [Blur]
-        public string ClientSecret { get; set; }
+        [JsonProperty("ClientSecret")] [Blur] public string ClientSecret { get; set; }
     }
 
     public class RatingData
     {
         [JsonProperty("Enabled")]
-        [Description("The rating systems shows a user who is registered longer than the set amout of days a popup to rate this platform if he hasnt rated it before")]
+        [Description(
+            "The rating systems shows a user who is registered longer than the set amout of days a popup to rate this platform if he hasnt rated it before")]
         public bool Enabled { get; set; } = false;
 
         [JsonProperty("Url")]
-        [Description("This is the url a user who rated above a set limit is shown to rate you again. Its recommended to put your google or trustpilot rate link here")]
+        [Description(
+            "This is the url a user who rated above a set limit is shown to rate you again. Its recommended to put your google or trustpilot rate link here")]
         public string Url { get; set; } = "https://link-to-google-or-smth";
 
         [JsonProperty("MinRating")]
@@ -319,7 +323,8 @@ public class ConfigV1
     public class SecurityData
     {
         [JsonProperty("Token")]
-        [Description("This is the moonlight app token. It is used to encrypt and decrypt data and validate tokens and sessions")]
+        [Description(
+            "This is the moonlight app token. It is used to encrypt and decrypt data and validate tokens and sessions")]
         [Blur]
         public string Token { get; set; } = Guid.NewGuid().ToString();
 
@@ -335,7 +340,8 @@ public class ConfigV1
         [JsonProperty("ReCaptcha")] public ReCaptchaData ReCaptcha { get; set; } = new();
 
         [JsonProperty("BlockDatacenterIps")]
-        [Description("If this option is enabled, users with an ip from datacenters will not be able to access the panel")]
+        [Description(
+            "If this option is enabled, users with an ip from datacenters will not be able to access the panel")]
         public bool BlockDatacenterIps { get; set; } = true;
 
         [JsonProperty("AllowCloudflareIps")]
@@ -346,22 +352,20 @@ public class ConfigV1
     public class ReCaptchaData
     {
         [JsonProperty("Enable")]
-        [Description("Enables repatcha at places like the register page. For information how to get your recaptcha credentails go to google.com/recaptcha/about/")]
+        [Description(
+            "Enables repatcha at places like the register page. For information how to get your recaptcha credentails go to google.com/recaptcha/about/")]
         public bool Enable { get; set; } = false;
 
-        [JsonProperty("SiteKey")]
-        [Blur]
-        public string SiteKey { get; set; } = "recaptcha site key here";
+        [JsonProperty("SiteKey")] [Blur] public string SiteKey { get; set; } = "recaptcha site key here";
 
-        [JsonProperty("SecretKey")]
-        [Blur]
-        public string SecretKey { get; set; } = "recaptcha secret here";
+        [JsonProperty("SecretKey")] [Blur] public string SecretKey { get; set; } = "recaptcha secret here";
     }
 
     public class SentryData
     {
         [JsonProperty("Enable")]
-        [Description("Sentry is a way to monitor application crashes and performance issues in real time. Enable this option only if you set a sentry dsn")]
+        [Description(
+            "Sentry is a way to monitor application crashes and performance issues in real time. Enable this option only if you set a sentry dsn")]
         public bool Enable { get; set; } = false;
 
         [JsonProperty("Dsn")]
