@@ -55,11 +55,14 @@
                             </div>
                         }
 
-                        <div class="separator separator-content my-14">
-                            <span class="w-125px text-gray-500 fw-semibold fs-7">
-                                <TL>Or with email</TL>
-                            </span>
-                        </div>
+                        @if (OAuth2Service.Providers.Any())
+                        {
+                            <div class="separator separator-content my-14">
+                                <span class="w-125px text-gray-500 fw-semibold fs-7">
+                                    <TL>Or with email</TL>
+                                </span>
+                            </div>
+                        }
 
                         <div class="mt-3 mb-3">
                             <InputText @bind-Value="LoginData.Email" type="email" placeholder="@(SmartTranslateService.Translate("Email"))" class="form-control bg-transparent"/>
