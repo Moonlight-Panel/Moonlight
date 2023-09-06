@@ -9,7 +9,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ML_DEBUG": "true"
       },
-      "applicationUrl": "http://moonlight.owo:5118;https://localhost:7118;http://localhost:5118",
+      "applicationUrl": "http://localhost:5118;http://moonlight.owo:5118",
       "dotnetRunMessages": true
     },
     "Live DB": 
@@ -21,7 +21,7 @@
         "ML_DEBUG": "true",
         "ML_CONFIG_PATH": "storage\\configs\\live_config.json"
       },
-      "applicationUrl": "http://moonlight.owo:5118;https://localhost:7118;http://localhost:5118",
+      "applicationUrl": "http://moonlight.owo:5118;http://localhost:5118",
       "dotnetRunMessages": true
     },
     "Dev DB 1":
@@ -33,7 +33,7 @@
         "ML_DEBUG": "true",
         "ML_CONFIG_PATH": "storage\\configs\\dev_1_config.json"
       },
-      "applicationUrl": "http://moonlight.owo:5118;https://localhost:7118;http://localhost:5118",
+      "applicationUrl": "http://moonlight.owo:5118;http://localhost:5118",
       "dotnetRunMessages": true
     },
     "Dev DB 2":
@@ -45,7 +45,7 @@
         "ML_DEBUG": "true",
         "ML_CONFIG_PATH": "storage\\configs\\dev_2_config.json"
       },
-      "applicationUrl": "http://moonlight.owo:5118;https://localhost:7118;http://localhost:5118",
+      "applicationUrl": "http://moonlight.owo:5118;http://localhost:5118",
       "dotnetRunMessages": true
     }
   }
