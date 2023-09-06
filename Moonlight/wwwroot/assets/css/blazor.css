@@ -69,5 +69,9 @@
 
 
 .single-color-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #6964E4;
+    background: #6964E4;
+}
+
+.single-color-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6964E4;
 }
