@@ -13,6 +13,7 @@ public class StorageService
         Directory.CreateDirectory(PathBuilder.Dir("storage", "backups"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
+        Directory.CreateDirectory(PathBuilder.Dir("storage", "certs"));
 
         await UpdateResources();
 
