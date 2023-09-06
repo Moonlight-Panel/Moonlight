@@ -1,0 +1,20 @@
+{
+	"name": "C# (.NET)",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:0-6.0",
+
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	},
+
+	"portsAttributes": {
+		"5118": {
+			"label": "Moonlight",
+			"onAutoForward": "notify"
+		}
+	}
+}
