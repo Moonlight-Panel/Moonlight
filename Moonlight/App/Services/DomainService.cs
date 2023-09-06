@@ -5,6 +5,7 @@ using CloudFlare.Client.Api.Parameters.Data;
 using CloudFlare.Client.Api.Result;
 using CloudFlare.Client.Api.Zones;
 using CloudFlare.Client.Api.Zones.DnsRecord;
+using CloudFlare.Client.Client.Zones;
 using CloudFlare.Client.Enumerators;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
@@ -82,12 +83,27 @@ public class DomainService
         if (!ConfigService.Get().Moonlight.Domains.Enable)
             return Array.Empty<Zone>();
         
-        var domains = GetData(
-            await Client.Zones.GetAsync(new()
-            {
-                AccountId = AccountId
-            })
-        );
+        var domains = new List<Zone>();
+        
+        var initialResponse = await Client.Zones.GetAsync();
+
+        domains.AddRange(GetData(initialResponse));
+
+        // Check if there are more pages
+        while (initialResponse.ResultInfo.Page < initialResponse.ResultInfo.TotalPage)
+        {
+            // Get the next page of data
+            var nextPageResponse = await Client.Zones.GetAsync(
+                displayOptions: new()
+                {
+                    Page = initialResponse.ResultInfo.Page + 1
+                }
+            );
+            var nextPageZones = GetData(nextPageResponse);
+            
+            domains.AddRange(nextPageZones);
+            initialResponse = nextPageResponse;
+        }
 
         var sharedDomains = SharedDomainRepository.Get().ToArray();
 
