@@ -110,15 +110,15 @@ public class HostFileAccess : FileAccess
         if (fileData.IsFile)
             File.Delete(currhp + fileData.Name);
         else
-            Directory.Delete(currhp + fileData.Name);
+            Directory.Delete(currhp + fileData.Name, true);
     }
 
     public override async Task Move(FileData fileData, string newPath)
     {
         if (fileData.IsFile)
-            File.Move(currhp + fileData.Name, newPath);
+            File.Move(currhp + fileData.Name, BasePath + newPath);
         else
-            Directory.Move(currhp + fileData.Name, newPath);
+            Directory.Move(currhp + fileData.Name, BasePath + newPath);
     }
 
     public override Task Compress(params FileData[] files)
