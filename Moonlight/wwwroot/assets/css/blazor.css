@@ -64,9 +64,14 @@
 }
 
 ::-webkit-scrollbar-thumb {
+    background-image: -webkit-gradient(linear, left bottom, left top, color-stop(.5, #a520ca), color-stop(1, #2681cc));
+}
+
+
+.single-color-scrollbar::-webkit-scrollbar-thumb {
     background: #6964E4;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.single-color-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #6964E4;
 }
