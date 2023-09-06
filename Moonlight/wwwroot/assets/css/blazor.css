@@ -66,8 +66,8 @@
 ::-webkit-scrollbar-thumb {
     background-image: -webkit-gradient(linear, left bottom, left top, color-stop(.5, #a520ca), color-stop(1, #2681cc));
 }
-}
 
-::-webkit-scrollbar-thumb:hover {
-    background: #6964E4;
+
+.single-color-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #6964E4;
 }
