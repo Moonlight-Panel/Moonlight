@@ -2,10 +2,8 @@
 
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - closed
-    branches: [ "main" ]
+  release:
+    types: [ published ]
 
 jobs:
   build:
@@ -23,5 +21,5 @@ jobs:
           context: .
           file: ./Moonlight/Dockerfile
           push: true
-          tags: moonlightpanel/moonlight:canary
+          tags: moonlightpanel/moonlight:beta
           platforms: linux/amd64,linux/arm64
