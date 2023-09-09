@@ -56,8 +56,8 @@
             </a>
   
             <!-- Dropdown Menu -->
-            <div class="dropdown-menu dropdown-menu-end w-275px py-1" aria-labelledby="dropdownMenuLink">
-                <div class="dropdown-item py-4 bg-light bg-hover-light">
+            <div class="dropdown-menu dropdown-menu-end w-275px p-5" aria-labelledby="dropdownMenuLink">
+                <div class="dropdown-item py-4 bg-body bg-hover-body ps-0">
                     <div class="d-flex align-items-center">
                         <img alt="Avatar" src="/api/moonlight/avatar/@(User.Id)" class="rounded-circle me-3" width="50" height="50">
                         <div class="d-flex flex-column">
@@ -75,8 +75,8 @@
                     </div>
                 </div>
                 <hr class="dropdown-divider">
-                <a href="/profile" class="dropdown-item py-4">Profile</a>
-                <a href="#" @onclick:preventDefault @onclick="Logout" class="dropdown-item py-4">Logout</a>
+                <a href="/profile" class="dropdown-item rounded fs-7 py-4">Profile</a>
+                <a href="#" @onclick:preventDefault @onclick="Logout" class="dropdown-item rounded fs-7 py-4">Logout</a>
             </div>
         </div>
     }
