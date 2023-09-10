@@ -126,6 +126,7 @@ public class Startup
         
         await StorageService.EnsureCreated();
         await DatabaseCheckupService.Perform();
+        await PluginService.ReloadPlugins();
     }
     private Task Configure()
     {
