@@ -13,11 +13,6 @@ public class PluginService
     public readonly List<MoonlightPlugin> Plugins = new();
     public readonly Dictionary<MoonlightPlugin, string> PluginFiles = new();
 
-    public PluginService()
-    {
-        ReloadPlugins().Wait();
-    }
-
     public Task ReloadPlugins()
     {
         PluginFiles.Clear();
