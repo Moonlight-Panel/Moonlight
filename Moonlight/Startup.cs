@@ -75,8 +75,14 @@ public class Startup
         await PostInit();
         
         Logger.Info("Done. Going live now!");
+
+        if (!Uri.TryCreate(ConfigService.Get().Moonlight.AppUrl, UriKind.RelativeOrAbsolute, out Uri uri))
+        {
+            Logger.Fatal("Invalid app url");
+            return;
+        }
         
-        if(ConfigService.DebugMode)
+        if(ConfigService.DebugMode || uri.HostNameType == UriHostNameType.IPv4)
             await WebApplication.RunAsync();
         else
             await WebApplication.RunAsync(ConfigService.Get().Moonlight.AppUrl);
