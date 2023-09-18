@@ -116,6 +116,14 @@ public class ConfigV1
         [JsonProperty("DenyRegister")]
         [Description("Prevent every new user to register")]
         public bool DenyRegister { get; set; } = false;
+        
+        [JsonProperty("CheckForBots")]
+        [Description("Check for bots when a user has been registered")]
+        public bool CheckForBots { get; set; } = true;
+        
+        [JsonProperty("BlockLinuxUsers")]
+        [Description("Blocks linux users from registering")]
+        public bool BlockLinuxUsers { get; set; } = false;
     }
 
     public class CleanupData
