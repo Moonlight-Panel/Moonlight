@@ -61,6 +61,19 @@ public class UserService
             Logger.Warn($"A user tried to use a blacklisted domain to register. Email: '{email}'", "security");
             throw new DisplayException("This email is blacklisted");
         }
+
+        if (ConfigService.Get().Moonlight.Auth.BlockLinuxUsers && IdentityService.Device.Contains("Linux"))
+            throw new DisplayException("This operation was disabled");
+
+        if (ConfigService.Get().Moonlight.Auth.CheckForBots)
+        {
+            var isABot = await IdentityService.GetBotStatus();
+
+            if (isABot)
+            {
+                throw new DisplayException("This operation was disabled");
+            }
+        }
         
         // Check if the email is already taken
         var emailTaken = UserRepository.Get().FirstOrDefault(x => x.Email == email) != null;

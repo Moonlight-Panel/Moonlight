@@ -3,6 +3,7 @@ using JWT.Algorithms;
 using JWT.Builder;
 using JWT.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Helpers;
 using Moonlight.App.Perms;
@@ -16,6 +17,7 @@ public class IdentityService
     private readonly Repository<User> UserRepository;
     private readonly CookieService CookieService;
     private readonly IHttpContextAccessor HttpContextAccessor;
+    private readonly IJSRuntime JsRuntime;
     private readonly string Secret;
 
     public User User { get; private set; }
@@ -29,11 +31,13 @@ public class IdentityService
         CookieService cookieService,
         Repository<User> userRepository,
         IHttpContextAccessor httpContextAccessor,
-        ConfigService configService)
+        ConfigService configService,
+        IJSRuntime jsRuntime)
     {
         CookieService = cookieService;
         UserRepository = userRepository;
         HttpContextAccessor = httpContextAccessor;
+        JsRuntime = jsRuntime;
 
         Secret = configService
             .Get()
@@ -259,5 +263,22 @@ public class IdentityService
         }
 
         Permissions.IsReadyOnly = true;
+    }
+
+    public async Task<bool> GetBotStatus()
+    {
+        var webDriverStatus = await JsRuntime
+            .InvokeAsync<bool>("moonlight.utils.getWebDriverStatus");
+
+        if (webDriverStatus)
+            return true;
+
+        var languagesStatus = await JsRuntime
+            .InvokeAsync<bool>("moonlight.utils.getLanguagesStatus");
+
+        if (languagesStatus)
+            return true;
+
+        return false;
     }
 }

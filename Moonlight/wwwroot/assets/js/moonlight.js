@@ -292,6 +292,20 @@
             },
             showNotification: function (title, text, img) {
                 let notification = new Notification(title, {body: text, icon: img});
+            },
+            getWebDriverStatus: function () {
+                if (navigator.webdriver)
+                    return true;
+                else
+                    return false;
+            },
+            getLanguagesStatus: function()
+            {
+                if (!navigator.languages || navigator.languages.length === 0) {
+                    return false;
+                } else {
+                    return true;
+                }
             }
         },
         loading: {
@@ -314,20 +328,18 @@
                     }
                 });
             },
-            checkConnection: async function(url, threshold) {
+            checkConnection: async function (url, threshold) {
                 const start = performance.now();
 
-                try 
-                {
-                    const response = await fetch(url, { mode: 'no-cors' });
+                try {
+                    const response = await fetch(url, {mode: 'no-cors'});
                     const latency = performance.now() - start;
 
-                    if (latency > threshold) 
-                    {
+                    if (latency > threshold) {
                         moonlight.toasts.warning(`High latency detected: ${latency}ms. Moonlight might feel laggy. Please check your internet connection`);
                     }
+                } catch (error) {
                 }
-                catch (error) {}
             }
         },
         flashbang: {
@@ -429,7 +441,7 @@
                 const systemZoom = width / window.screen.availWidth;
                 const left = (width - w) / 2 / systemZoom + dualScreenLeft
                 const top = (height - h) / 2 / systemZoom + dualScreenTop
-                const newWindow = window.open(url, title,`scrollbars=yes,width=${w / systemZoom},height=${h / systemZoom},top=${top},left=${left}`)
+                const newWindow = window.open(url, title, `scrollbars=yes,width=${w / systemZoom},height=${h / systemZoom},top=${top},left=${left}`)
                 if (window.focus) newWindow.focus();
             }
         }

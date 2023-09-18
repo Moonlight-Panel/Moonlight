@@ -82,7 +82,7 @@ public class Startup
             return;
         }
         
-        if(ConfigService.DebugMode || uri.HostNameType == UriHostNameType.IPv4)
+        if(ConfigService.DebugMode || uri.HostNameType == UriHostNameType.IPv4 || !ConfigService.Get().Moonlight.LetsEncrypt.Enable)
             await WebApplication.RunAsync();
         else
             await WebApplication.RunAsync(ConfigService.Get().Moonlight.AppUrl);
