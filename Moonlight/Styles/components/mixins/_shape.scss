@@ -1,0 +1,29 @@
+
+@use 'sass:math';
+
+@mixin shape($edges-number: 6, $main-radius: 30%, $rounding-radius: 10%, $rotated: true, $precision: 20) {
+	$central-angle: divide(360deg, $edges-number);
+	$angle: ($edges-number - 2) * divide(180deg, $edges-number);
+	$max-var-angle: 2 * (90deg - divide($angle, 2));
+	$precision: 6;
+	$unit-var-angle: divide($max-var-angle, $precision);	
+	$r-diff: $main-radius + $rounding-radius;
+
+	$points: ();
+
+	@for $i from 0 to $edges-number {
+		$vertex-angle: $i * $central-angle + if($rotated, -90deg, 0deg);
+		$vertex-x: 50% + $r-diff * math.cos($vertex-angle);
+		$vertex-y: 50% + $r-diff * math.sin($vertex-angle);
+
+		@for $j from 0 through $precision {
+			$curr-angle: $vertex-angle + ($j - 0.5 * $precision) * $unit-var-angle;
+			$x: $vertex-x + $rounding-radius * math.cos($curr-angle);
+			$y: $vertex-y + $rounding-radius * math.sin($curr-angle);
+
+			$points: $points, $x $y;
+		}
+	}
+	
+	clip-path: polygon($points);
+}

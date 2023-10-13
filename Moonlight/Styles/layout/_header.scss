@@ -1,0 +1,22 @@
+//
+// Header
+//
+
+// General
+
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+	.app-header {
+		.app-navbar {
+			border-bottom: var(--#{$prefix}app-separator-border);
+		}	
+	}
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    .app-header {
+        border-bottom: var(--#{$prefix}app-separator-border);
+    }
+}

@@ -1,0 +1,32 @@
+//
+// Main
+//
+
+// Wrapper
+.docs-wrapper {
+	background-color: var(--#{$prefix}docs-page-bg-color);
+}
+
+// Desktop Mode
+@include media-breakpoint-up(lg) {
+	// Containers
+	.container,
+	.container-fluid {
+		padding: 0 $docs-content-spacing-desktop;
+	}
+
+	// Wrapper
+	.docs-wrapper {
+		padding-left: $docs-aside-width;
+	}
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+	// Containers
+	.container,
+	.container-fluid {
+		max-width: none;
+		padding: 0 $docs-content-spacing-tablet-and-mobile;
+	}
+}

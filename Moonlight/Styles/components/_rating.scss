@@ -1,0 +1,62 @@
+//
+// Rating
+//
+
+.rating {
+    display: flex;
+    align-items: center;
+}
+
+.rating-input {
+    position: absolute !important;
+    left: -9999px !important;
+
+    &[disabled] {
+        display: none;
+    }
+}
+
+.rating-label {
+    padding: 0;
+    margin: 0;
+
+    & > i,
+    & > .svg-icon {
+        line-height: 1;
+        color: var(--#{$prefix}rating-color-default);
+    }
+}
+
+label.rating-label {
+    cursor: pointer;
+}
+
+div.rating-label.checked,
+label.rating-label {
+    & > i,
+    & > .svg-icon {
+        color: var(--#{$prefix}rating-color-active);
+    }
+}
+
+.rating-input:checked ~ .rating-label {
+    & > i,
+    & > .svg-icon {
+        color: var(--#{$prefix}rating-color-default);
+    }
+}
+
+.rating:hover label.rating-label {
+    & > i,
+    & > .svg-icon {
+        color: var(--#{$prefix}rating-color-active);
+    }
+}
+
+label.rating-label:hover ~ .rating-label {
+    & > i,
+    & > .svg-icon {
+        color: var(--#{$prefix}rating-color-default);
+    }
+    color: var(--#{$prefix}rating-color-default);
+}

@@ -1,0 +1,163 @@
+//
+// Tempus Dominus
+//
+
+$td-light: var(--#{$prefix}body-bg);
+$td-widget-background: $td-light;
+$td-font-color: var(--#{$prefix}gray-900);
+$td-active-bg: var(--#{$prefix}primary);
+$td-active-color: $td-light;
+$td-active-border-color: $td-light;
+$td-btn-hover-bg: var(--#{$prefix}gray-200);
+$td-disabled-color: var(--#{$prefix}gray-400);
+$td-alternate-color: rgba(var(--#{$prefix}gray-900-rgb), 0.38);
+$td-secondary-border-color: var(--#{$prefix}border-color);
+$td-secondary-border-color-rgba: rgba(var(--#{$prefix}gray-900-rgb), 0.2);
+$td-primary-border-color: $td-light;
+$td-text-shadow: 0 -1px 0 rgba(var(--#{$prefix}gray-900-rgb), 0.25);
+$td-dow-color: var(--#{$prefix}gray-700);
+
+.tempus-dominus-widget {
+	padding: 1rem 0.5rem 0.5rem 0.5rem;
+	width: 280px !important;
+	box-shadow: var(--#{$prefix}dropdown-box-shadow) !important;
+    background-color: var(--#{$prefix}body-bg) !important;
+    @include border-radius($dropdown-border-radius);
+
+	i:not(.ki-outline):not(.ki-solid):not(.ki-duotone) {
+		font-size: 0.9rem !important;	
+	}
+
+	.picker-switch {
+		font-size: 1.05rem;	
+		font-weight: $font-weight-bold;
+	}
+
+	.date-container-days {
+		grid-auto-rows: 36px;
+
+		.day {
+			@include border-radius($btn-border-radius !important);
+		}	
+	}
+
+	.date-container-months {
+		grid-auto-rows: 36px;
+
+		.month {
+			@include border-radius($btn-border-radius !important);
+		}	
+	}
+
+	.date-container-years {
+		grid-auto-rows: 36px;
+
+		.year {
+			@include border-radius($btn-border-radius !important);
+		}	
+	}
+
+	.time-container {
+		.separator {
+			border: 0px !important;	
+		}
+
+		.time-container-clock {
+			div {
+				@include border-radius($btn-border-radius !important);
+			}
+		}
+	}
+
+	.toolbar div {
+		@include border-radius($btn-border-radius);
+
+		i:not(.ki-outline):not(.ki-solid):not(.ki-duotone) {
+			font-size: 1.1rem !important;	
+		}
+	}
+
+	// Theming
+	&.light,
+	&.dark {
+		color: $td-font-color;
+
+		[data-action] {
+			&.disabled,
+			&.disabled:hover {
+				color: $td-disabled-color;
+			}
+		}
+
+		.toolbar {
+			div {
+				&:hover {
+					background: $td-btn-hover-bg;
+				}
+			}
+		}
+
+		.date-container-days {
+			.dow {
+				color: $td-dow-color !important;
+			}
+
+			.cw {
+				color: $td-alternate-color;
+			}
+		}
+
+		.date-container-decades,
+		.date-container-years,
+		.date-container-months,
+		.date-container-days,
+		.time-container-clock,
+		.time-container-hour,
+		.time-container-minute,
+		.time-container-second {
+			div:not(.no-highlight) {
+				&:hover {
+					background: $td-btn-hover-bg;
+				}
+
+				&.active {
+					background-color: $td-active-bg;
+					color: $td-active-color;
+					text-shadow: $td-text-shadow;
+
+				&.old,
+				&.new {
+					color: $td-active-color;
+				}
+				}
+
+				&.active.today:before {
+					border-bottom-color: $td-active-border-color;
+				}
+
+				&.old,
+				&.new {
+					color: $td-alternate-color;
+				}
+
+				&.disabled,
+				&.disabled:hover {
+					color: $td-disabled-color;
+				}
+
+				&.today {
+					&:before {
+						border-bottom-color: $td-active-bg;
+						border-top-color: $td-secondary-border-color-rgba;
+					}
+				}
+			}
+		}
+
+		button {
+			color: $td-active-color;
+			background-color: $td-active-bg;
+			border-color: $td-active-bg;
+		}			
+	}	
+}

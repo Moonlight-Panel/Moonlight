@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="App\Configuration\" />
+      <Folder Include="App\Database\Entities\" />
+      <Folder Include="App\Database\Enums\" />
+      <Folder Include="App\Database\Migrations\" />
+      <Folder Include="App\Exceptions\" />
+      <Folder Include="App\Helpers\" />
+      <Folder Include="App\Http\" />
+      <Folder Include="App\Models\Abstractions\" />
+      <Folder Include="App\Models\Enums\" />
+      <Folder Include="App\Models\Forms\" />
+      <Folder Include="App\Repositories\" />
+      <Folder Include="App\Services\" />
+    </ItemGroup>
+
+</Project>

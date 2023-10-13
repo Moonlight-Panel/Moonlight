@@ -1,0 +1,301 @@
+//
+// Label
+//
+
+// Set arrow direction
+@mixin menu-link-arrow-rotate($angle, $angleRtl) {
+	/*rtl:ignore*/
+	transform: rotateZ($angleRtl);
+	/*rtl:remove*/
+	transform: rotateZ($angle);
+	transition: $menu-accordion-arrow-transition;
+}
+
+// Set menu link padding x
+@mixin menu-link-padding-x($value) {
+	// Menu item
+	.menu-item {
+		.menu-link,
+		.menu-content {
+			padding-left: $value;
+			padding-right: $value;
+		}
+	}
+}
+
+// Set menu link padding y
+@mixin menu-link-padding-y($value) {
+	// Menu item
+	.menu-item {
+		.menu-link,
+		.menu-content {
+			padding-top: $value;
+			padding-bottom: $value;
+		}
+	}
+}
+	
+// Set link indention
+@mixin menu-link-indention($value, $offset) {
+	.menu-sub:not([data-popper-placement]) {
+		> .menu-item,
+		> .menu-inner > .menu-item {
+			> .menu-content,
+			> .menu-link {
+				padding-left: calc(#{1 * $value} + #{$offset});
+			}
+
+			> .menu-sub:not([data-popper-placement]) {
+				> .menu-item,
+				> .menu-inner > .menu-item {
+					> .menu-content,
+					> .menu-link {
+						padding-left: calc(#{2 * $value} + #{$offset});
+					}
+
+					> .menu-sub:not([data-popper-placement]) {
+						> .menu-item,
+						> .menu-inner > .menu-item {
+							> .menu-content,
+							> .menu-link {
+								padding-left: calc(#{3 * $value} + #{$offset});
+							}
+
+							> .menu-sub:not([data-popper-placement]) {
+								> .menu-item,
+								> .menu-inner > .menu-item {
+									> .menu-content,
+									> .menu-link {
+										padding-left: calc(#{4 * $value} + #{$offset});
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	&.menu-fit {
+		.menu-sub:not([data-popper-placement]) {
+			> .menu-item,
+			> .menu-inner > .menu-item {
+				> .menu-content,
+				> .menu-link {
+					padding-left: #{$value};
+					padding-right: 0;
+				}
+		
+				> .menu-sub:not([data-popper-placement]) {
+					> .menu-item,
+					> .menu-inner > .menu-item {
+						> .menu-content,
+						> .menu-link {
+							padding-left: calc(#{2 * $value});
+							padding-right: 0;
+						}
+		
+						> .menu-sub:not([data-popper-placement]) {
+							> .menu-item,
+							> .menu-inner > .menu-item {
+								> .menu-content,
+								> .menu-link {
+									padding-left: calc(#{3 * $value});
+									padding-right: 0;
+								}
+		
+								> .menu-sub:not([data-popper-placement]) {
+									> .menu-item,
+									> .menu-inner > .menu-item {
+										> .menu-content,
+										> .menu-link {
+											padding-left: calc(#{4 * $value});
+											padding-right: 0;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// Set sub indention
+@mixin menu-sub-indention($value) {
+	.menu-sub:not([data-popper-placement]) {
+		margin-left: $value;
+	}
+}
+
+// Set menu link theme
+@mixin menu-link-theme($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color: null) {
+	@if ( $bg-color != null ) {
+		background-color: $bg-color;
+	}
+
+	@if ( $title-color != null ) {
+		color: $title-color;
+
+		.menu-title {
+			color: $title-color;
+		}
+	}
+
+	@if ( $icon-color != null ) {
+		.menu-icon {
+			&,
+			.svg-icon,
+			i {
+				color: $icon-color;
+			}
+		}
+	}
+
+	@if ( $bullet-color != null ) {
+		.menu-bullet {
+			.bullet {
+				background-color: $bullet-color;
+			}
+		}
+	}
+
+	@if ( $arrow-color != null ) {
+		// Arrow
+		.menu-arrow:after {
+			@include svg-bg-icon(arrow-start, $arrow-color);
+			/*rtl:begin:remove*/
+			@include svg-bg-icon(arrow-end, $arrow-color);
+			/*rtl:end:remove*/
+		}
+	}
+}
+
+// Set menu link default state
+@mixin menu-link-default-state($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color: null, $all-links: true) {
+	$sel: '';
+
+	@if ($all-links == false) {
+		$sel: '& > ';
+	}
+
+	#{$sel}.menu-link {
+		@include menu-link-theme($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color);
+	}
+}
+
+// Set menu link hover state
+@mixin menu-link-hover-state($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color: null, $all-links: true) {
+	$sel: '&:not(.here) ';
+
+	@if ($all-links == false) {
+		$sel: '&:not(.here) > ';
+	}
+
+	&.hover:not(.here) > .menu-link:not(.disabled):not(.active):not(.here),
+	#{$sel}.menu-link:hover:not(.disabled):not(.active):not(.here) {
+		transition: $transition-link;
+
+		@include menu-link-theme($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color);
+	}
+}
+
+// Set menu link active state
+@mixin menu-link-active-state($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color: null, $all-links: true) {
+	$sel: '';
+
+	@if ($all-links == false) {
+		$sel: '& > ';
+	}
+
+	#{$sel}.menu-link.active {
+		transition: $transition-link;
+
+		@include menu-link-theme($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color);
+	}
+}
+
+// Set menu link show state
+@mixin menu-link-show-state($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color: null, $all-links: true) {
+	//&.here > .menu-link,
+	&.show > .menu-link {
+		transition: $transition-link;
+
+		@include menu-link-theme($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color);
+	}
+}
+
+// Set menu link here state
+@mixin menu-link-here-state($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color: null, $all-links: true) {
+	&.here > .menu-link {
+		transition: $transition-link;
+
+		@include menu-link-theme($title-color, $icon-color, $bullet-color, $arrow-color, $bg-color);
+	}
+}
+
+// Set menu link default
+@mixin menu-link-default($all-links: true) {
+	$sel: '';
+
+	@if ($all-links == false) {
+		$sel: '& > ';
+	}
+
+	#{$sel}.menu-link {
+		@content;
+	}
+}
+
+// Set menu link hover
+@mixin menu-link-hover($all-links: true) {
+	$sel: '&:not(.here) ';
+
+	@if ($all-links == false) {
+		$sel: '&:not(.here) > ';
+	}
+
+	&.hover:not(.here) > .menu-link:not(.disabled):not(.active):not(.here),
+	#{$sel}.menu-link:hover:not(.disabled):not(.active):not(.here) {
+		transition: $transition-link;
+
+		@content;
+	}
+}
+
+// Set menu link active
+@mixin menu-link-active($all-links: true) {
+	$sel: '';
+
+	@if ($all-links == false) {
+		$sel: '& > ';
+	}
+
+	#{$sel}.menu-link.active {
+		transition: $transition-link;
+
+		@content;
+	}
+}
+
+// Set menu link show
+@mixin menu-link-show($all-links: true) {
+	//&.here > .menu-link,
+	&.show > .menu-link {
+		transition: $transition-link;
+
+		@content;
+	}
+}
+
+// Set menu link here
+@mixin menu-link-here($all-links: true) {
+	&.here > .menu-link {
+		transition: $transition-link;
+
+		@content;
+	}
+}

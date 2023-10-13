@@ -1,0 +1,57 @@
+//
+// Stepper Links
+//
+
+// Base
+.stepper.stepper-links {
+    .stepper-nav {
+		display: flex;
+		margin: 0 auto;
+		justify-content: center;
+		align-items: center;	
+		flex-wrap: wrap;
+
+        .stepper-item {
+			position: relative;
+			flex-shrink: 0;
+			margin: 1rem 1.5rem;
+
+			&:after {
+				content: " ";
+				position: absolute;
+				top: 2.3rem;
+				left: 0;
+				height: 2px;
+				width: 100%;
+				background-color: transparent;
+				transition: $transition-link;
+			}           
+
+            .stepper-title {
+                color: var(--#{$prefix}dark);		
+                font-weight: 600;
+                font-size: 1.25rem; 
+            }             
+
+            // Current
+            &.current {
+				transition: $transition-link;
+				
+				.stepper-title {
+					color: var(--#{$prefix}primary);					 
+				}               
+                
+				&:after {					
+					background-color: var(--#{$prefix}primary);
+				}				                              
+			} 
+			
+			&.current.mark-completed:last-child,
+			&.completed {
+				.stepper-title {
+					color: var(--#{$prefix}gray-400);
+				}  			
+			}
+        }
+    }     
+}

@@ -1,0 +1,33 @@
+//
+// Bullet
+//
+
+// Base
+.bullet {
+    display: inline-block;
+    background-color: var(--#{$prefix}bullet-bg-color); 
+    @include border-radius($bullet-bar-border-radius);
+    width: $bullet-bar-width;
+    height: $bullet-bar-height;
+    flex-shrink: 0;
+}
+
+// Dot bullet
+.bullet-dot {
+    width: $bullet-dot-size;
+    height: $bullet-dot-size;
+    border-radius: 100% !important;
+}
+
+// Vertical bullet
+.bullet-vertical {
+    width: $bullet-bar-height;
+    height: $bullet-bar-width;
+}
+
+// Vertical line
+.bullet-line {
+    width: $bullet-line-width;
+    height: $bullet-line-height;
+    border-radius: 0;
+}

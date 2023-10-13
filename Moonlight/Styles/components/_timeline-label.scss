@@ -1,0 +1,59 @@
+//
+// Timeline Label
+//
+
+
+.timeline-label {
+	position: relative;
+
+    $label-width: 50px;
+
+	&:before {
+		content: '';
+		position: absolute;
+		left: $label-width + 1px;
+		width: 3px;
+		top: 0;
+		bottom: 0;
+		background-color: var(--#{$prefix}gray-200);
+	}
+
+	// 
+	.timeline-item {
+		display: flex;
+        align-items: flex-start;
+		position: relative;
+		margin-bottom: 1.7rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+	}
+
+	.timeline-label {
+		width: $label-width;
+		flex-shrink: 0;
+		position: relative;
+		color: var(--#{$prefix}gray-800);
+	}
+
+	.timeline-badge {
+		flex-shrink: 0;
+		background-color: var(--#{$prefix}body-bg);
+		width: 1rem;
+		height: 1rem;		
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 1;
+		position: relative;
+		margin-top: 1px;
+		margin-left: -0.5rem;
+		padding: 3px !important;
+		border: 6px solid var(--#{$prefix}body-bg) !important;		 
+	}
+
+	.timeline-content {
+		flex-grow: 1;
+	}
+}

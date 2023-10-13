@@ -1,0 +1,51 @@
+.my-reconnect-modal {
+    display: none;
+}
+
+.components-reconnect-hide > div {
+    display: none;
+}
+
+.components-reconnect-show > div {
+    display: none;
+}
+
+.components-reconnect-failed > div {
+    display: none;
+}
+
+.components-reconnect-rejected > div {
+    display: none;
+}
+
+.components-reconnect-show > .show {
+    display: block;
+}
+
+.components-reconnect-failed > .failed {
+    display: block;
+}
+
+.components-reconnect-rejected > .rejected {
+    display: block;
+}
+
+.components-reconnect-hide > .default {
+    display: block;
+}
+
+.components-reconnect-hide {
+    display: block;
+}
+
+.components-reconnect-show {
+    display: block;
+}
+
+.components-reconnect-failed {
+    display: block;
+}
+
+.components-reconnect-rejected {
+    display: block;
+}

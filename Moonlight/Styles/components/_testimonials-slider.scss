@@ -1,0 +1,65 @@
+//
+// Testimonials slider
+//
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+	.testimonials-slider-highlight {
+		transition: all ease 0.3;
+	
+		.testimonials-photo,
+		.testimonials-title, 
+		.testimonials-body,
+		.testimonials-author,
+		.testimonials-positon {
+			transition: all ease 0.3s;
+		}
+	
+		.tns-item:not(.tns-slide-active) + .tns-item.tns-slide-active {			
+			.testimonials-photo {
+				height: 200px;
+				width: 200px;
+				transition: all ease 0.3s;
+			}
+	
+			.testimonials-title {
+				color: var(--#{$prefix}gray-900) !important;
+				font-size: 1.54rem !important;
+				transition: all ease 0.3s;
+				margin-bottom: 1.3rem !important;
+			}
+	
+			.testimonials-description {
+				color: var(--#{$prefix}gray-700) !important;
+				font-size: 1.38rem !important;
+				transition: all ease 0.3s;
+				margin-bottom: 1.7rem !important;
+			}
+	
+			.testimonials-author {
+				color: var(--#{$prefix}primary) !important;
+				font-size: 1.1rem !important;
+				transition: all ease 0.3s;
+			}
+	
+			.testimonials-positon {
+				color: var(--#{$prefix}gray-500) !important;
+				font-size: 0.9rem !important;
+				transition: all ease 0.3s;
+			}
+		}	
+	} 	
+}
+
+.testimonials-slider-quote {
+	.testimonials-quote {
+		opacity: 0.2;
+	}
+
+	.tns-item:not(.tns-slide-active) + .tns-slide-active + .tns-slide-active {
+		.testimonials-quote {
+			opacity: 0.5;
+			color: var(--#{$prefix}primary) !important;
+		}
+	}	
+} 

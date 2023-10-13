@@ -1,0 +1,22 @@
+//
+// Page title
+//
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+	.app-header {
+		.page-heading {
+			color: $dark !important;
+		}	
+	}
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-header {
+        .page-title {
+			display: none !important;	
+		}
+    }
+}

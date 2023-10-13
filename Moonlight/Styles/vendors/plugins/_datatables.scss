@@ -1,0 +1,272 @@
+//
+// DataTables
+//
+
+$toolbar-spacing: 1rem 0;
+
+// Base
+table.dataTable {
+    width: 100% !important;
+    margin: 0 !important;
+
+    th {
+        border-bottom-color: var(--#{$prefix}table-border-color);
+    }
+}
+
+// Toolbar
+div.dataTables_wrapper div.dataTables_length {
+    padding: $toolbar-spacing;
+}
+
+div.dataTables_wrapper div.dataTables_filter {
+    padding: $toolbar-spacing;
+}
+
+div.dataTables_wrapper div.dataTables_info {
+    display: flex;
+    flex-direction: column;    
+    font-weight: $font-weight-semibold;
+    color: var(--#{$prefix}gray-700);
+    padding: $toolbar-spacing;
+
+    .select-info, 
+    .select-item {
+        margin-left: 0;
+        font-size: 0.9rem;
+        color: var(--#{$prefix}text-muted);
+    }
+}
+
+div.dataTables_length + div.dataTables_info {
+    margin-left: 1rem;
+}
+
+// Pagination
+div.dataTables_wrapper div.dataTables_paginate  {
+    padding: $toolbar-spacing;
+    margin-left: 0.5rem;
+
+    .pagination {
+        margin: 0;
+    }
+}
+
+// Head
+table.dataTable>thead>tr> {
+    td, th {
+        &:not(.sorting_disabled) {
+            padding-right: 0;
+        }
+    }
+}
+
+// Sorting
+table.dataTable > thead {
+    .sorting {
+        &:after,
+        &:before {
+            display: none !important;
+        }
+    }
+
+    .sorting_asc,
+    .sorting_desc {
+        vertical-align: middle;
+        
+        &:before,
+        &:after {
+            position: relative !important;
+            opacity: 1 !important;
+            display: inline-block !important;
+            width: 0.75rem;
+            height: 0.75rem;
+            content: " " !important;
+            //top: 50%;
+            bottom: auto;
+            right: auto !important;
+            left: auto;
+            margin-left: 0.5rem;
+        }
+
+        &:before {
+            display: none !important;
+        }
+    }
+}
+
+table.dataTable > thead .sorting_asc:after {
+    opacity: 1;
+    @include svg-bg-icon(arrow-top, var(--#{$prefix}text-muted));
+}
+
+table.dataTable > thead .sorting_desc:after {
+    opacity: 1;
+    @include svg-bg-icon(arrow-bottom, var(--#{$prefix}text-muted));
+}
+
+// Processing
+div.dataTables_wrapper {
+    .table-responsive {
+        position: relative;
+    }
+
+    div.dataTables_processing {
+        @include border-radius($border-radius);
+        box-shadow: var(--#{$prefix}dropdown-box-shadow);
+        background-color: var(--#{$prefix}tooltip-bg);
+        color: var(--#{$prefix}gray-700);
+        font-weight: $font-weight-semibold;
+        margin: 0 !important;
+        width: auto;
+        padding: 1rem 2rem !important;
+        transform: translateX(-50%) translateY(-50%);
+
+        > div {
+            display: none;    
+        }
+    }
+}
+
+// Responsive
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control, 
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control,
+table.dataTable.dtr-column.collapsed > tbody > tr > td.dtr-control, 
+table.dataTable.dtr-column.collapsed > tbody > tr > th.dtr-control {
+    $icon-size:  1.35rem;
+    
+    &:before {
+        top: 50%;
+        left: 0;
+        height: $icon-size;
+        width: $icon-size;
+        line-height: 1.5;
+        text-indent: -999px !important;
+        margin-top: -(divide($icon-size, 2));
+        margin-right: divide($icon-size, 2);
+        display: inline-block;
+        position: relative;
+        font-size: 1.05rem;
+        border: 0;
+        box-shadow: none;
+        mask-size: 85%;
+        -webkit-mask-size: 85%;
+        content: ".";
+
+        :root &,
+        [data-bs-theme="light"] & {
+            @include svg-bg-icon(expand, $gray-600);  
+        }
+
+        [data-bs-theme="dark"] & {
+            @include svg-bg-icon(expand, $gray-600-dark);  
+        }
+    }
+
+    &.dtr-control-last {
+        &:before {
+            left: 100%;
+            right: 0;
+        }
+    }
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before, 
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control:before,
+table.dataTable.dtr-column.collapsed > tbody > tr.parent > td.dtr-control:before, 
+table.dataTable.dtr-column.collapsed > tbody > tr.parent > th.dtr-control:before {
+    @include svg-bg-icon(collapse, $primary);
+}
+
+table.dataTable > tbody > tr.child span.dtr-title {
+    display: inline-block;
+    min-width: 100px;
+    font-weight: $font-weight-semibold;
+}
+
+table.dataTable > tbody > tr.child span.dtr-data {
+    font-weight: $font-weight-normal;
+}
+
+// Striped
+table.dataTable.table-striped > tbody > tr.odd > * {
+    box-shadow: inset 0 0 0 9999px var(--#{$prefix}table-striped-bg);
+}
+
+table.dataTable > tbody > tr.selected > * {
+    box-shadow: inset 0 0 0 9999px var(--#{$prefix}primary);
+    color: var(--#{$prefix}primary-inverse);
+
+    a:not([class="btn"]) {
+        color: var(--#{$prefix}primary-light);
+        font-weight: $font-weight-semibold;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+
+        &:hover {
+            color: var(--#{$prefix}primary-inverse);
+        }
+    }
+}
+
+// Scroll
+div.dataTables_scrollBody {
+    border-left: 0 !important;
+
+    .sorting_disabled.sorting_asc,
+    .sorting_disabled.sorting_desc {
+        &:after {
+            display: none !important;
+        }
+    }
+}
+
+.dataTables_scroll > .dataTables_scrollBody > .table > thead {
+    line-height: 0;
+    
+    .sorting {
+        &:after,
+        &:before {
+            display: none !important;
+        }
+    }
+}
+
+div.dtfc-right-top-blocker,
+div.dtfc-left-top-blocker {
+    background-color: var(--#{$prefix}body-bg);
+}
+
+// Fixed column
+table.dataTable thead tr > .dtfc-fixed-left, 
+table.dataTable thead tr > .dtfc-fixed-right {
+    background-color: var(--#{$prefix}body-bg);
+}
+
+table.dataTable tbody tr > .dtfc-fixed-left, 
+table.dataTable tbody tr > .dtfc-fixed-right {
+    background-color: var(--#{$prefix}body-bg);
+}
+
+// Fixed header
+.dtfh-floatingparent {
+    box-shadow: var(--#{$prefix}box-shadow-sm);
+
+    .table {
+        background-color: var(--#{$prefix}body-bg) !important;
+    }
+    
+    &,
+    .table,
+    .table th {
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+    }
+}
+
+// Child details
+.dtr-details {
+    li {
+        display: flex;    
+    }    
+}

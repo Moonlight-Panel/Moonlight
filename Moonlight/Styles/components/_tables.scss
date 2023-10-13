@@ -1,0 +1,232 @@
+//
+// Table
+//
+
+// Table
+.table:not(.table-bordered) {
+	// Fix for BS 5.1.2 update
+	& > :not(:first-child) {
+    	border-color: transparent;
+		border-width: 0;
+		border-style: none;
+	}
+	
+	>:not(:last-child)>:last-child>* {
+		border-bottom-color: inherit;
+	}
+
+	tr, th, td {
+		border-color: inherit;
+		border-width: inherit;
+		border-style: inherit;
+		text-transform: inherit;
+		font-weight: inherit;
+		font-size: inherit;
+		color: inherit;
+		height: inherit;
+		min-height: inherit;
+
+		&:first-child {
+			padding-left: 0;
+		}
+
+		&:last-child {
+			padding-right: 0;
+		}
+	}
+
+	tfoot,
+	tbody {
+		tr:last-child {
+			border-bottom: 0 !important;
+
+			th, td {
+				border-bottom: 0 !important;
+			}
+		}
+	}
+
+	tfoot {
+		th, td {
+			border-top: inherit;
+		}
+	}
+
+	// Rounded
+	&.table-rounded {
+		border-radius: $border-radius;
+		border-spacing: 0;
+		border-collapse: separate;
+	}
+
+	// Flush
+	&.table-flush {
+		tr, th, td {
+			padding: inherit;
+		}
+	}
+
+	// Row bordered
+	&.table-row-bordered {
+		tr {
+			border-bottom-width: 1px;
+			border-bottom-style: solid;
+			border-bottom-color: var(--#{$prefix}border-color);
+		}
+
+		tfoot {
+			th, td {
+				border-top-width: 1px !important;
+			}
+		}
+	}
+
+	// Row dashed
+	&.table-row-dashed {
+		tr {
+			border-bottom-width: 1px;
+			border-bottom-style: dashed;
+			border-bottom-color: var(--#{$prefix}border-color);
+		}
+
+		tfoot {
+			th, td {
+				border-top-width: 1px !important;
+			}
+		}
+	}
+
+	// Row border colors
+	@each $name, $value in $grays {
+		&.table-row-gray-#{$name} {
+			tr { 
+				border-bottom-color: var(--#{$prefix}gray-#{$name});
+			}
+		}
+	}	
+}
+
+// Layout fixed
+.table-layout-fixed {
+	table-layout: fixed;
+}
+
+// Sorting
+.table-sort {
+	&:after {
+		opacity: 0;
+	}
+}
+
+.table-sort,
+.table-sort-asc,
+.table-sort-desc {
+	vertical-align: middle;
+
+	&:after {
+		position: relative;
+		display: inline-block;
+		width: 0.75rem;
+		height: 0.75rem;
+		content: " ";
+		bottom: auto;
+		right: auto;
+		left: auto;
+		margin-left: 0.5rem;
+	}		
+}
+
+.table-sort-asc {
+	&:after {
+		opacity: 1;
+		@include svg-bg-icon(arrow-top, var(--#{$prefix}text-muted));
+	}
+}
+
+.table-sort-desc {
+	&:after {
+		opacity: 1;
+		@include svg-bg-icon(arrow-bottom, var(--#{$prefix}text-muted));
+	}
+}
+
+// Loading
+.table-loading-message {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	@include border-radius($border-radius);
+	box-shadow: var(--#{$prefix}table-loading-message-box-shadow);
+	background-color: $table-loading-message-bg;
+	color: $table-loading-message-color;
+	font-weight: $font-weight-bold;
+	margin: 0 !important;
+	width: auto;
+	padding: 0.85rem 2rem !important;
+	transform: translateX(-50%) translateY(-50%);
+}
+
+.table-loading {
+	position: relative;
+
+	.table-loading-message {
+		display: block;
+	}	
+}
+
+// Cell gutters
+@each $breakpoint in map-keys($grid-breakpoints) {
+    @include media-breakpoint-up($breakpoint) {
+        $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+        @each $name, $value in $gutters {
+			.table.g#{$infix}-#{$name} {
+				th, td {
+					padding: $value;
+
+					// Datatables responsive mode fix
+					&.dtr-control {
+						padding-left: $value !important;
+					}
+				}
+            }
+
+            .table.gy#{$infix}-#{$name} {
+				th, td {
+					padding-top: $value;
+					padding-bottom: $value;
+				}
+            }
+
+			.table.gx#{$infix}-#{$name} {
+				th, td {
+					padding-left: $value;
+					padding-right: $value;
+
+					// Datatables responsive mode fix
+					&.dtr-control {
+						padding-left: $value !important;
+					}
+				}
+            }
+
+			.table.gs#{$infix}-#{$name} {
+				 th, td {
+					&:first-child {
+	   					padding-left: $value;
+					}
+
+					&:last-child {
+	   					padding-right: $value;
+					}
+
+					// Datatables responsive mode fix
+					&.dtr-control:first-child {
+						padding-left: $value !important;
+					}
+				}
+            }
+        }
+    }
+}

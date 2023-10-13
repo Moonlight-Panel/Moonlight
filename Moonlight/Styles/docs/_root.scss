@@ -1,0 +1,23 @@
+//
+// Root
+//
+
+// Light mode
+@include color-mode(light) {
+    // Content
+	--#{$prefix}docs-page-bg-color: #{$docs-page-bg-color};
+
+	// Aside
+	--#{$prefix}docs-aside-bg-color: #{$docs-aside-bg-color};
+	--#{$prefix}docs-aside-box-shadow: #{$docs-aside-box-shadow};
+}
+
+// Dark mode
+@include color-mode(dark) {
+	// Content
+	--#{$prefix}docs-page-bg-color: #{$docs-page-bg-color-dark};
+
+	// Aside
+	--#{$prefix}docs-aside-bg-color: #{$docs-aside-bg-color-dark};
+	--#{$prefix}docs-aside-box-shadow: #{$docs-aside-box-shadow-dark};
+}

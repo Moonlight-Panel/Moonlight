@@ -1,0 +1,314 @@
+//
+// Card
+//
+
+// Base
+.card {    
+    @if ($card-border-enabled)  {
+        border: $card-border-width $card-border-style var(--#{$prefix}card-border-color);
+    } @else {
+        border: 0;
+    }  
+
+    // Header
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        flex-wrap: wrap;
+        min-height: $card-header-height;
+        padding: 0 $card-px;
+        color: var(--#{$prefix}card-cap-color);
+        background-color: var(--#{$prefix}card-cap-bg);
+        border-bottom: $card-border-width $card-border-style var(--#{$prefix}card-border-color);
+
+        // Title
+        .card-title {
+            display: flex;
+            align-items: center;
+            margin: $card-header-py;
+            margin-left: 0;
+
+            &.flex-column {
+                align-items: flex-start;
+                justify-content: center;
+            }
+
+            .card-icon {
+                margin-right: 0.75rem;
+                line-height: 0;
+
+                i {
+                    font-size: 1.25rem;
+                    color: var(--#{$prefix}gray-600);
+                    line-height: 0;
+
+                    &:after,
+                    &:before {
+                        line-height: 0;
+                    }
+                }
+
+                .svg-icon {
+                    color: var(--#{$prefix}gray-600);
+                    @include svg-icon-size(24px);
+                }
+            }
+
+            &,
+            .card-label {
+                font-weight: 500;
+                font-size: 1.275rem;
+                color: var(--#{$prefix}text-dark);
+            }
+
+            .card-label {
+                margin: 0 0.75rem 0 0;
+                flex-wrap: wrap;
+            }
+
+            // Description
+            small {
+                color: var(--#{$prefix}text-muted);
+                font-size: 1rem;
+            }
+
+            // Headings
+            h1, h2, h3, h4, h5, h6 {
+                margin-bottom: 0;
+            }
+        }
+
+        // Toolbar
+        .card-toolbar {
+            display: flex;
+            align-items: center;
+            margin: $card-header-py 0;
+            flex-wrap: wrap;
+        }
+    }
+
+    // Body
+    .card-body {
+        padding: $card-py $card-px;
+        color: var(--#{$prefix}card-color);
+    }
+
+    // Footer
+    .card-footer {
+        padding: $card-py $card-px;
+        color: var(--#{$prefix}card-cap-color);
+        background-color: var(--#{$prefix}card-cap-bg);
+        border-top: $card-border-width $card-border-style var(--#{$prefix}card-border-color);
+    }
+
+    // Scroll
+    .card-scroll {
+        position: relative;
+        overflow: auto;
+    }
+
+    // Reset padding x
+    &.card-px-0 {
+        .card-header,
+        .card-body,
+        .card-footer {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
+    &.card-py-0 {
+        .card-header,
+        .card-body,
+        .card-footer {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    &.card-p-0 {
+        .card-header,
+        .card-body,
+        .card-footer {
+            padding: 0;
+        }
+    }
+
+    // Dashed style
+    &.card-dashed {
+        box-shadow: none;
+        border: $card-border-width dashed $card-border-dashed-color;
+
+        > .card-header {
+            border-bottom: 1px dashed $card-border-dashed-color;
+        }
+
+        > .card-footer {
+            border-top: 1px dashed $card-border-dashed-color;
+        }
+    }
+
+    // Bordered style
+    &.card-bordered {
+        box-shadow: none;
+        border: $card-border-width $card-border-style $card-border-color;
+    }
+
+    // Flush header and footer borders
+    &.card-flush {
+        > .card-header {
+            border-bottom: 0 !important;
+        }
+
+        > .card-footer {
+            border-top: 0 !important;
+        }
+    }
+    
+    // Enable shadow
+    &.card-shadow {
+        box-shadow: var(--#{$prefix}card-box-shadow);
+        border: 0;
+    }
+
+    // Reset styles
+    &.card-reset {
+        border: 0 !important;
+        box-shadow: none !important;
+        background-color: transparent !important;
+
+        > .card-header {
+            border-bottom: 0 !important;
+        }
+
+        > .card-footer {
+            border-top: 0 !important;
+        }
+    }
+
+    // Reset borders
+    &.card-borderless {
+        border: 0 !important;
+
+        > .card-header {
+            border-bottom: 0 !important;
+        }
+
+        > .card-footer {
+            border-top: 0 !important;
+        }
+    }
+
+    // Reset borders
+    &.card-border-0 {
+        border: 0 !important;
+    }
+}
+
+// Responsive stretch heights
+.card {
+    @each $breakpoint in map-keys($grid-breakpoints) {
+    	@include media-breakpoint-up($breakpoint) {
+    		$infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+            // Stretch
+            &.card#{$infix}-stretch {
+                height: calc(100% - var(--#{$prefix}gutter-y));
+            }
+
+            // Stretch 75
+            &.card#{$infix}-stretch-75 {
+                height: calc(75% - var(--#{$prefix}gutter-y));
+            }
+
+            // Stretch 50
+            &.card#{$infix}-stretch-50 {
+                height: calc(50% - var(--#{$prefix}gutter-y));
+            }
+
+             // Stretch 33
+            &.card#{$infix}-stretch-33 {
+                height: calc(33.333% - var(--#{$prefix}gutter-y));
+            }
+
+            // Stretch 25
+            &.card#{$infix}-stretch-25 {
+                height: calc(25% - var(--#{$prefix}gutter-y));
+            }
+
+            // Header stretch
+            .card-header#{$infix}-stretch {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                align-items: stretch;
+    
+                .card-toolbar {
+                    margin: 0;
+                    align-items: stretch;
+                }
+            }
+        }
+    }
+}
+
+// Utilities
+.card-p {
+    padding: $card-py $card-px !important;
+}
+
+.card-px {
+    padding-left: $card-px !important;
+    padding-right: $card-px !important;
+}
+
+.card-shadow {
+    box-shadow: var(--#{$prefix}card-box-shadow);
+}
+
+.card-py {
+    padding-top: $card-py !important;
+    padding-bottom: $card-py !important;
+}
+
+.card-rounded {
+    border-radius: $card-border-radius;
+}
+
+.card-rounded-start {
+    border-top-left-radius: $card-border-radius;
+    border-bottom-left-radius: $card-border-radius;
+}
+
+.card-rounded-end {
+    border-top-right-radius: $card-border-radius;
+    border-bottom-right-radius: $card-border-radius;
+}
+
+.card-rounded-top {
+    border-top-left-radius: $card-border-radius;
+    border-top-right-radius: $card-border-radius;
+}
+
+.card-rounded-bottom {
+    border-bottom-left-radius: $card-border-radius;
+    border-bottom-right-radius: $card-border-radius;
+}
+
+// Mobile mode
+@include media-breakpoint-down(md) {
+    .card {
+        > .card-header:not(.flex-nowrap) {
+            padding-top: $card-header-py;
+            padding-bottom: $card-header-py;
+        }
+    }
+}
+
+@if $enable-dark-mode {
+    @include color-mode(dark) {
+        .card {
+            --#{$prefix}card-box-shadow: #{$card-box-shadow-dark};
+        }
+    }
+}

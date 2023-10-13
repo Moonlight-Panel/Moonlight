@@ -1,0 +1,193 @@
+//
+// Form Check
+//
+
+// Customization
+.form-check {
+    // Input 
+    &:not(.form-switch) {
+        .form-check-input {
+            &[type="checkbox"] {
+                background-size: $form-check-input-bg-size;
+            }
+        }
+    }
+    
+    // Sizing
+    &.form-check-sm {
+        .form-check-input {
+            height: $form-check-input-width-sm;
+            width: $form-check-input-width-sm;
+        }
+    }
+
+    &.form-check-lg {
+        .form-check-input {
+            height: $form-check-input-width-lg;
+            width: $form-check-input-width-lg;
+        }
+    }
+
+    // Inline
+    &.form-check-inline {
+        display: inline-block;
+        margin-right: $form-check-inline-margin-end;
+    }
+
+    // Solid
+    &.form-check-solid {
+        .form-check-input {
+            border: 0;
+
+            &:not(:checked) {
+                background-color: $form-check-input-bg-solid;
+            }            
+
+            &[type=checkbox]:indeterminate {
+                background-color: $form-check-input-checked-bg-color;
+            }
+        }
+    }
+
+    // States
+    // Success state
+    &.form-check-success {
+        .form-check-input {
+            &:checked {
+                background-color: var(--#{$prefix}success);
+            }
+        }
+    }
+
+    // Danger state
+    &.form-check-danger {
+        .form-check-input {
+            &:checked {
+                background-color: var(--#{$prefix}danger);
+            }
+        }
+    }
+
+    // Warning state
+    &.form-check-warning {
+        .form-check-input {
+            &:checked {
+                background-color: var(--#{$prefix}warning);
+            }
+        }
+    }
+}
+
+// Custom checkbox and radio
+.form-check-custom {
+    display: flex;
+    align-items: center;
+    padding-left: 0;
+    margin: 0;
+
+    // Input
+    .form-check-input {
+        margin: 0;
+        float: none;
+        flex-shrink: 0;
+    }
+
+    // Label
+    .form-check-label {
+        margin-left: 0.55rem;
+    }
+}
+
+// Switch
+.form-switch {   
+    &.form-check-custom {
+        .form-check-input {
+            height: $form-switch-height;
+        }
+
+        &.form-switch-sm {
+            .form-check-input {
+                height: $form-switch-height-sm;
+                width: $form-switch-width-sm;
+            }
+        }
+
+        &.form-switch-lg {
+            .form-check-input {
+                height: $form-switch-height-lg;
+                width: $form-switch-width-lg;
+            }
+        }
+    }
+
+    // Solid
+    &.form-check-solid {
+        .form-check-input {
+            --#{$prefix}form-switch-bg: #{escape-svg($form-switch-bg-image-solid)};
+
+            &:not(:checked) {
+                background-color: $form-check-input-bg-solid;
+            } 
+        }
+    }    
+}
+
+@if $enable-dark-mode {
+    @include color-mode(dark) {
+        .form-switch .form-check-input {
+            &:focus:not(:checked) {
+                --#{$prefix}form-switch-bg: #{escape-svg($form-switch-bg-image-dark)};
+            }
+        }
+    }
+}
+
+// Image 
+.form-check-image {
+    position: relative;
+    overflow: hidden;
+
+    img {
+        max-width: 100%;    
+    }
+
+    .form-check-wrapper {        
+        @include border-radius($border-radius-lg);        
+        border: 2px solid transparent;    
+        transition: $transition-base;
+        cursor: pointer;
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+    }
+
+    .form-check-rounded {
+        @include border-radius($border-radius-lg);        
+    }        
+
+    .form-check-label {
+        font-weight: $font-weight-bold;    
+        margin-left: 0.5rem;
+    }
+
+    &.active:not(.form-check-success):not(.form-check-danger) {
+        .form-check-wrapper {
+            border-color: var(--#{$prefix}primary) !important;
+        }    
+    }
+
+    &.form-check-success.active {
+        .form-check-wrapper {
+            border-color: var(--#{$prefix}success) !important;
+        } 
+    }
+
+    &.form-check-danger.active {
+        .form-check-wrapper {
+            border-color: var(--#{$prefix}danger) !important;
+        } 
+    }
+
+    &.disabled {
+        opacity: $form-check-btn-check-disabled-opacity;
+    }
+}

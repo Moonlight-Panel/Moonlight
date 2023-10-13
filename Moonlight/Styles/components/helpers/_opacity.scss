@@ -1,0 +1,18 @@
+//
+// Opacity
+//
+
+@each $name, $value in $opacity-values {
+	// Active state
+	.opacity-active-#{$name}.active {
+		opacity: #{$value} !important;
+	}
+
+	// Active and hover states
+	.opacity-state-#{$name} {
+		&:hover,
+		&.active {
+			opacity: #{$value} !important;
+		}
+	}
+}

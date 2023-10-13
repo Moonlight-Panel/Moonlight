@@ -1,0 +1,23 @@
+//
+// leaflet
+//
+
+.leaflet-container {
+    .leaflet-pane,
+    .leaflet-top,
+    .leaflet-bottom,
+    .leaflet-control {
+        z-index: 1 !important;
+    }
+
+    .leaflet-popup-content-wrapper {
+        border-radius: $border-radius !important;
+        text-align: center;
+        box-shadow: var(--#{$prefix}box-shadow) !important;
+
+        .leaflet-popup-content {
+            font-family: $font-family-sans-serif;
+            font-size: $font-size-base;
+        }
+    }
+}

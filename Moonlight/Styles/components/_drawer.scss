@@ -1,0 +1,62 @@
+//
+// Drawer
+//
+
+// Drawer
+.drawer {
+	display: flex !important;
+	overflow: auto;
+	z-index: $drawer-z-index;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	background-color: var(--#{$prefix}drawer-bg-color);
+	transition: transform $drawer-transition-speed ease-in-out !important;
+
+	&.drawer-start {
+		left: 0;
+		transform: translateX(-100%);
+	}
+
+	&.drawer-end {
+		right: 0;
+		transform: translateX(100%);
+	}
+
+	&.drawer-on {
+		transform: none;
+		box-shadow: var(--#{$prefix}drawer-box-shadow);
+		transition: transform $drawer-transition-speed ease-in-out !important;
+	}
+}
+
+// Drawer Overlay
+.drawer-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	overflow: hidden;
+	z-index: $drawer-z-index - 1;
+	background-color: var(--#{$prefix}drawer-overlay-bg-color);
+	animation: animation-drawer-fade-in $drawer-overlay-animation-speed ease-in-out 1;
+}
+
+// Initial state
+[data-kt-drawer="true"] {
+	display: none;
+}
+
+// Animation
+@keyframes animation-drawer-fade-in {
+	from   { opacity: 0; }
+	to { opacity: 1; }
+}
+
+// Tablet & Mobile Modes
+@include media-breakpoint-down(lg) {
+	body[data-kt-drawer="on"] {
+		overflow: hidden;
+	}
+}

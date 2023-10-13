@@ -1,0 +1,27 @@
+//
+// Progress
+//
+
+// Vertical Position
+.progress-vertical {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+
+    .progress {
+        height: 100%;
+        @include border-radius($border-radius);
+        display: flex;
+        align-items: flex-end;
+        margin-right: 1rem;
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        .progress-bar {
+            width: 8px;
+            @include border-radius($border-radius);
+        }
+    }
+}

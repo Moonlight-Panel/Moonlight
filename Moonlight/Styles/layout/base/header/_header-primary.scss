@@ -1,0 +1,135 @@
+//
+// Header primary
+//
+
+// General mode
+.app-header-primary {
+    transition: $app-header-primary-base-transition;
+    display: flex;
+    align-items: stretch;   
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-header-primary {
+        @include property( z-index, $app-header-primary-base-z-index);
+        background-color: var(--#{$prefix}app-header-primary-base-bg-color);
+        box-shadow: var(--#{$prefix}app-header-primary-base-box-shadow);
+        border-bottom: var(--#{$prefix}app-header-primary-base-border-bottom);
+    }    
+
+    // Vars
+    [data-kt-app-header-primary-enabled="true"] {
+        --#{$prefix}app-header-primary-height: #{$app-header-primary-base-height};
+    }
+
+    [data-kt-app-header-primary-enabled="true"][data-kt-app-header-sticky="on"] {
+        --#{$prefix}app-header-primary-height: #{$app-header-primary-sticky-height};
+    }
+
+    [data-kt-app-header-primary-enabled="true"][data-kt-app-header-minimize="on"] {
+        --#{$prefix}app-header-primary-height: #{$app-header-primary-minimize-height};
+    } 
+
+    [data-kt-app-header-primary-enabled="true"][data-kt-app-header-sticky="on"][data-kt-app-header-primary-sticky-hide="true"] {
+        --#{$prefix}app-header-primary-height: 0;
+    }
+
+    // States
+    .app-header-primary {
+        height: var(--#{$prefix}app-header-primary-height);
+
+        [data-kt-app-header-primary-fixed="true"] & {
+            @include property( z-index, $app-header-primary-fixed-z-index);
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;            
+        }
+
+        [data-kt-app-header-primary-static="true"] & {
+            position: relative;
+        }
+
+        [data-kt-app-header-primary-sticky="on"] & {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            @include property( height, $app-header-primary-sticky-height);
+            @include property( z-index, $app-header-primary-sticky-z-index);
+
+            background-color: var(--#{$prefix}app-header-primary-sticky-bg-color);
+            box-shadow: var(--#{$prefix}app-header-primary-sticky-box-shadow);
+            border-bottom: var(--#{$prefix}app-header-primary-sticky-border-bottom);
+        }
+
+        [data-kt-app-header-primary-minimize="on"] & {
+            transition: $app-header-primary-base-transition;
+            @include property( height, $app-header-primary-minimize-height);
+            @include property( z-index, $app-header-primary-minimize-z-index);
+
+            background-color: var(--#{$prefix}app-header-primary-minimize-bg-color);
+            box-shadow: var(--#{$prefix}app-header-primary-minimize-box-shadow);
+            border-bottom: var(--#{$prefix}app-header-primary-minimize-border-bottom);
+        }
+
+        [data-kt-app-header-sticky="on"][data-kt-app-header-primary-sticky-hide="true"] & {
+            display: none !important;
+        }
+    }
+
+    // Integration
+    .app-header-primary {
+        // Sidebar
+        [data-kt-app-header-primary-enabled="true"][data-kt-app-sidebar-fixed="true"][data-kt-app-sidebar-push-header="true"] & {
+            left: calc(
+                var(--#{$prefix}app-sidebar-width) + 
+                var(--#{$prefix}app-sidebar-gap-start, 0px) + 
+                var(--#{$prefix}app-sidebar-gap-end, 0px)
+            );
+        }  
+
+        // Sidebar Panel
+        [data-kt-app-header-primary-enabled="true"][data-kt-app-sidebar-panel-fixed="true"][data-kt-app-sidebar-panel-push-header="true"] & {
+            left: calc(
+                var(--#{$prefix}app-sidebar-width) + 
+                var(--#{$prefix}app-sidebar-gap-start, 0px) + 
+                var(--#{$prefix}app-sidebar-gap-end, 0px) +
+                var(--#{$prefix}app-sidebar-panel-width) + 
+                var(--#{$prefix}app-sidebar-panel-gap-start, 0px) + 
+                var(--#{$prefix}app-sidebar-panel-gap-end, 0px)
+            );
+        }
+    } 
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-header .app-header-primary {
+        flex-grow: 1;
+        @include property( z-index, $app-header-primary-base-z-index-mobile);
+        height: var(--#{$prefix}app-header-primary-height);
+        border-bottom: var(--#{$prefix}app-header-primary-base-border-bottom);
+        box-shadow: var(--#{$prefix}app-header-primary-base-box-shadow);
+    }
+
+    .app-header-primary {        
+        background-color: var(--#{$prefix}app-header-primary-base-bg-color);          
+    }  
+
+    // Vars
+    [data-kt-app-header-primary-enabled="true"] {
+        --#{$prefix}app-header-primary-height: #{$app-header-primary-base-height-mobile};
+    }
+
+    [data-kt-app-header-primary-enabled="true"][data-kt-app-header-sticky="on"] {
+        --#{$prefix}app-header-primary-height: #{$app-header-primary-sticky-height-mobile};
+    }
+    
+    [data-kt-app-header-primary-enabled="true"][data-kt-app-header-minimize="on"] {
+        --#{$prefix}app-header-primary-height: #{$app-header-primary-minimize-height-mobile};
+    }
+}
