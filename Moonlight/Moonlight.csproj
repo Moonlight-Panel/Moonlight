@@ -19,13 +19,18 @@
       <Folder Include="App\Database\Enums\" />
       <Folder Include="App\Database\Migrations\" />
       <Folder Include="App\Exceptions\" />
-      <Folder Include="App\Helpers\" />
       <Folder Include="App\Http\" />
       <Folder Include="App\Models\Abstractions\" />
       <Folder Include="App\Models\Enums\" />
       <Folder Include="App\Models\Forms\" />
       <Folder Include="App\Repositories\" />
       <Folder Include="App\Services\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
     </ItemGroup>
 
 </Project>

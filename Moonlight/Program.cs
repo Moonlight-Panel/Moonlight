@@ -1,10 +1,29 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Moonlight.App.Extensions;
+using Moonlight.App.Helpers;
+using Moonlight.App.Helpers.LogMigrator;
+using Serilog;
+
+Directory.CreateDirectory(PathBuilder.Dir("storage"));
+Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
+
+var logConfig = new LoggerConfiguration();
+
+logConfig = logConfig.Enrich.FromLogContext()
+    .WriteTo.Console(
+        outputTemplate:
+        "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}");
+
+Log.Logger = logConfig.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllers();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddProvider(new LogMigrateProvider());
 
 var config =
     new ConfigurationBuilder().AddJsonString(
@@ -13,19 +32,11 @@ builder.Logging.AddConfiguration(config.Build());
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapControllers();
 
 app.Run();
