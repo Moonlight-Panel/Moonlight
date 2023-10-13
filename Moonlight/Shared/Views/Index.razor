@@ -1,3 +1,20 @@
 ﻿@page "/"
+@using Moonlight.App.Exceptions
 
 <h1>Hello, world!</h1>
+
+<ConfirmButton Text="Crash" WorkingText="Crashing" CssClasses="btn-danger" OnClick="Do" />
+<ConfirmButton Text="Crash" WorkingText="Crashing" CssClasses="btn-danger" OnClick="Do2" />
+
+@code
+{
+    private async Task Do()
+    {
+        throw new DisplayException("LOL");
+    }
+    
+    private async Task Do2()
+    {
+        throw new FormatException("LOL");
+    }
+}

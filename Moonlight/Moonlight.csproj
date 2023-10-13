@@ -14,21 +14,22 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App\Configuration\" />
-      <Folder Include="App\Database\Entities\" />
       <Folder Include="App\Database\Enums\" />
       <Folder Include="App\Database\Migrations\" />
-      <Folder Include="App\Exceptions\" />
       <Folder Include="App\Http\" />
-      <Folder Include="App\Models\Abstractions\" />
-      <Folder Include="App\Models\Enums\" />
       <Folder Include="App\Models\Forms\" />
       <Folder Include="App\Repositories\" />
-      <Folder Include="App\Services\" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
       <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
       <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
     </ItemGroup>

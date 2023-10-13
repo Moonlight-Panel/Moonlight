@@ -1,0 +1,66 @@
+﻿@if (ShowConfirm)
+{
+    <div class="btn-group">
+        <button class="btn btn-success me-2 rounded-end" @onclick="Do">Confirm</button>
+        <button class="btn btn-danger rounded-start" @onclick="() => SetConfirm(false)">Cancel</button>
+    </div>
+}
+else
+{
+    if (Working)
+    {
+        <button class="btn @(CssClasses) disabled" disabled="">
+            <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+            @WorkingText
+        </button>
+    }
+    else
+    {
+        <button class="btn @(CssClasses)" @onclick="() => SetConfirm(true)">
+            @Text
+            @ChildContent
+        </button>
+    }
+}
+
+@code
+{
+    private bool Working { get; set; } = false;
+    private bool ShowConfirm = false;
+
+    [Parameter]
+    public string CssClasses { get; set; } = "btn-primary";
+
+    [Parameter]
+    public string Text { get; set; } = "";
+
+    [Parameter]
+    public string WorkingText { get; set; } = "";
+
+    [Parameter]
+    public Func<Task>? OnClick { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private async Task SetConfirm(bool b)
+    {
+        ShowConfirm = b;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Do()
+    {
+        Working = true;
+        ShowConfirm = false;
+        StateHasChanged();
+        await Task.Run(async () =>
+        {
+            if (OnClick != null)
+                await OnClick.Invoke();
+
+            Working = false;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+}

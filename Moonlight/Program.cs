@@ -1,6 +1,8 @@
+using Moonlight.App.Database;
 using Moonlight.App.Extensions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.LogMigrator;
+using Moonlight.App.Services;
 using Serilog;
 
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -16,6 +18,11 @@ logConfig = logConfig.Enrich.FromLogContext()
 Log.Logger = logConfig.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<DataContext>();
+
+builder.Services.AddSingleton<ConfigService>();
+builder.Services.AddSingleton<SessionService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
