@@ -27,25 +27,33 @@ public class LetsEncryptService
 
     public async Task AutoProcess()
     {
-        if (!ConfigService.Get().Moonlight.LetsEncrypt.Enable)
+       try
+       {
+             if (!ConfigService.Get().Moonlight.LetsEncrypt.Enable)
             return;
 
-        if (await CheckNeedsRenewal())
-        {
-            try
+            if (await CheckNeedsRenewal())
             {
-                await Renew();
+                try
+                {
+                    await Renew();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Unable to issue lets encrypt certificate");
+                    Logger.Error(e);
+                }
             }
-            catch (Exception e)
-            {
-                Logger.Error("Unable to issue lets encrypt certificate");
-                Logger.Error(e);
-            }
-        }
-        else
-            Logger.Info("Skipping lets encrypt renewal");
+            else
+                Logger.Info("Skipping lets encrypt renewal");
 
-        await LoadCertificate();
+            await LoadCertificate();
+       }
+       catch(Exception e)
+       {
+            Logger.Error("Unhandled exception while auto proccessing lets encrypt certificates");
+            Logger.Error(e);
+       }
     }
 
     private Task LoadCertificate()
@@ -105,6 +113,7 @@ public class LetsEncryptService
             try
             {
                 await challenge.Validate();
+                Logger.Info("Tried to validate");
             }
             catch (Exception e)
             {
