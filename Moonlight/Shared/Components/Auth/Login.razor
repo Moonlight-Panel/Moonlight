@@ -1,0 +1,80 @@
+﻿@page "/login"
+@* Virtual route to trick blazor *@
+
+@using Moonlight.App.Services
+@using Moonlight.App.Models.Forms
+
+@inject IdentityService IdentityService
+@inject CookieService CookieService
+@inject NavigationManager Navigation
+
+<div class="w-100">
+    <div class="card-body">
+        <div class="text-start mb-8">
+            <h1 class="text-dark mb-3 fs-3x">
+                Sign In
+            </h1>
+            <div class="text-gray-400 fw-semibold fs-6">
+                Get unlimited access &amp; earn money
+            </div>
+        </div>
+
+        <SmartForm Model="Form" OnValidSubmit="OnValidSubmit">
+            <div class="fv-row mb-8">
+                <input @bind="Form.Email" type="text" placeholder="Email" class="form-control form-control-solid">
+            </div>
+
+            <div class="fv-row mb-7">
+                <input @bind="Form.Password" type="password" placeholder="Password" class="form-control form-control-solid">
+            </div>
+
+            <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-10">
+                <a href="/reset-password" class="link-primary">
+                    Forgot Password ?
+                </a>
+                <a href="/register" class="link-primary">
+                    Need an account ?
+                </a>
+            </div>
+
+            <div class="d-flex flex-stack">
+                <button type="submit" class="btn btn-primary me-2 flex-shrink-0">Sign In</button>
+                <div class="d-flex align-items-center">
+                    <div class="text-gray-400 fw-semibold fs-6 me-3 me-md-6">Or</div>
+                    @* OAuth2 Providers here *@
+                </div>
+            </div>
+        </SmartForm>
+    </div>
+</div>
+
+@code
+{
+    private LoginForm Form = new();
+
+    // 2FA
+    private bool Require2FA = false;
+    private string TwoFactorCode = "";
+
+    private async Task OnValidSubmit()
+    {
+        string token;
+
+        try
+        {
+            token = await IdentityService.Login(Form.Email, Form.Password, TwoFactorCode);
+        }
+        catch (ArgumentNullException) // IdentityService requires two factor code => show field
+        {
+            Require2FA = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        await CookieService.SetValue("token", token);
+        await IdentityService.Authenticate(token);
+
+        if (Navigation.Uri.EndsWith("/login"))
+            Navigation.NavigateTo("/");
+    }
+}

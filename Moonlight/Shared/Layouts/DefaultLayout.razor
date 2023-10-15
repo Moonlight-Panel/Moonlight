@@ -1,7 +1,7 @@
 ﻿<div class="d-flex flex-column flex-root app-root">
     <div class="app-page flex-column flex-column-fluid">
         <CascadingValue Value="this">
-            <PageHeader/>
+            <PageHeader />
             <div class="app-wrapper flex-column flex-row-fluid">
                 <Sidebar/>
                 <div class="d-flex flex-column flex-column-fluid">
@@ -25,9 +25,8 @@
 {
     [Parameter]
     public RenderFragment ChildContent { get; set; }
-
     public bool ShowMobileSidebar { get; set; }
-
+    
     public async Task ToggleMobileSidebar()
     {
         ShowMobileSidebar = !ShowMobileSidebar;

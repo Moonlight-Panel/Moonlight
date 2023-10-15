@@ -2,7 +2,11 @@ using Moonlight.App.Database;
 using Moonlight.App.Extensions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.LogMigrator;
+using Moonlight.App.Repositories;
 using Moonlight.App.Services;
+using Moonlight.App.Services.Interop;
+using Moonlight.App.Services.Users;
+using Moonlight.App.Services.Utils;
 using Serilog;
 
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -21,8 +25,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<DataContext>();
 
+// Repositories
+builder.Services.AddScoped(typeof(Repository<>));
+
+// Services / Utils
+builder.Services.AddScoped<JwtService>();
+
+// Services / Interop
+builder.Services.AddScoped<CookieService>();
+builder.Services.AddScoped<ToastService>();
+
+// Services / Users
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<UserAuthService>();
+builder.Services.AddScoped<UserDetailsService>();
+
+// Services
+builder.Services.AddScoped<IdentityService>();
 builder.Services.AddSingleton<ConfigService>();
 builder.Services.AddSingleton<SessionService>();
+builder.Services.AddSingleton<BucketService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();

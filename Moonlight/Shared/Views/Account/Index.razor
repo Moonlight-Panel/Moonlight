@@ -1,0 +1,135 @@
+﻿@page "/account"
+
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Users
+@using Moonlight.App.Models.Forms
+
+@inject IdentityService IdentityService
+@inject UserService UserService
+@inject ToastService ToastService
+
+<AccountNavigation Index="0"/>
+
+<div class="card mt-5">
+    <div class="card-body">
+        <div class="row justify-content-between align-items-center">
+            <div class="col">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="symbol symbol-circle symbol-35px symbol-md-45px">
+                            @if (IdentityService.CurrentUser.Avatar == null)
+                            {
+                                <img src="/assets/img/avatar.png" alt="Avatar">
+                            }
+                            else
+                            {
+                                <img src="/api/bucket/avatars/@(IdentityService.CurrentUser.Avatar)" alt="Avatar">
+                            }
+                        </div>
+                    </div>
+                    <div class="col ms-n2">
+                        <h4 class="mb-1">
+                            Your avatar
+                        </h4>
+                        <small class="text-body-secondary">
+                            PNG or JPG no bigger than 1000px wide and tall.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <SmartFileSelect @ref="SmartFileSelect"/>
+                <WButton OnClick="OnUpload" Text="Upload" CssClasses="ms-2 btn btn-primary" WorkingText="Uploading"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-5">
+    <SmartForm Model="Form" OnValidSubmit="OnSubmit">
+        <div class="card-body">
+            <div>
+                <div class="mb-5">
+                    <label class="form-label">Username</label>
+                    <input @bind="Form.Username" class="form-control form-control-solid" type="text" />
+                </div>
+                <div class="mb-5">
+                    <label class="form-label">Email</label>
+                    <input @bind="Form.Email" class="form-control form-control-solid" type="text" />
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </SmartForm>
+</div>
+
+<div class="card card-body mt-5">
+    <div class="text-end">
+        <ConfirmButton OnClick="OnDelete" Text="Delete account" CssClasses="btn btn-danger" />
+    </div>
+</div>
+    
+    
+
+@code
+{
+    private UpdateAccountForm Form = new();
+    private SmartFileSelect SmartFileSelect;
+
+    protected override void OnInitialized()
+    {
+        Form.Username = IdentityService.CurrentUser.Username;
+        Form.Email = IdentityService.CurrentUser.Email;
+    }
+
+    private async Task OnSubmit()
+    {
+        await UserService.Update(
+            IdentityService.CurrentUser,
+            Form.Username,
+            Form.Email
+        );
+
+        await ToastService.Success("Successfully saved changes");
+    }
+
+    private async Task OnUpload()
+    {
+        // Validation
+        if (SmartFileSelect.SelectedFile == null)
+            return;
+
+        if (!Formatter.EndsInOneOf(SmartFileSelect.SelectedFile.Name, new[]
+        {
+            ".jpg",
+            ".png"
+        }))
+        {
+            await ToastService.Danger("You are only allowed to upload JPG and PNG files");
+            return;
+        }
+
+        // Now, we are actually working
+        await UserService.Details.UpdateAvatar(
+            IdentityService.CurrentUser,
+            SmartFileSelect.SelectedFile.OpenReadStream(SmartFileSelect.MaxFileSize),
+            SmartFileSelect.SelectedFile.Name
+        );
+
+        // Reset
+        await SmartFileSelect.RemoveSelection();
+        await InvokeAsync(StateHasChanged);
+
+        await ToastService.Success("Successfully uploaded avatar");
+    }
+
+    private async Task OnDelete()
+    {
+        await UserService.Delete(IdentityService.CurrentUser);
+        await IdentityService.Authenticate();
+    }
+}
