@@ -22,9 +22,15 @@
     {
         if (!IdentityService.Flags[UserFlag.MailVerified] && ConfigService.Get().Security.EnableEmailVerify)
         {
+            <OverlayLayout>
+                <MailVerify />
+            </OverlayLayout>
         }
         else if (IdentityService.Flags[UserFlag.PasswordPending])
         {
+            <OverlayLayout>
+                <ChangePassword />
+            </OverlayLayout>
         }
         else
         {
@@ -41,6 +47,12 @@
         {
             <OverlayLayout>
                 <Register />
+            </OverlayLayout>
+        }
+        else if (url.LocalPath == "/password-reset")
+        {
+            <OverlayLayout>
+                <PasswordReset />
             </OverlayLayout>
         }
         else

@@ -5,6 +5,6 @@ namespace Moonlight.App.Models.Forms;
 public class ResetPasswordForm
 {
     [Required(ErrorMessage = "You need to specify an email address")]
-    [EmailAddress]
+    [EmailAddress(ErrorMessage = "You need to enter a valid email address")]
     public string Email { get; set; } = "";
 }

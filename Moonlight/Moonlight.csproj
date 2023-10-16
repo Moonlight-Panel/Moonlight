@@ -24,6 +24,7 @@
     <ItemGroup>
       <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
       <PackageReference Include="JWT" Version="10.1.1" />
+      <PackageReference Include="MailKit" Version="4.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

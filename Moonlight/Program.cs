@@ -4,6 +4,7 @@ using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.LogMigrator;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
+using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
@@ -40,11 +41,15 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserAuthService>();
 builder.Services.AddScoped<UserDetailsService>();
 
+// Services / Background
+builder.Services.AddSingleton<AutoMailSendService>();
+
 // Services
 builder.Services.AddScoped<IdentityService>();
 builder.Services.AddSingleton<ConfigService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<BucketService>();
+builder.Services.AddSingleton<MailService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -67,5 +72,8 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 app.MapControllers();
+
+// Auto start background services
+app.Services.GetRequiredService<AutoMailSendService>();
 
 app.Run();

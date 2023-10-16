@@ -37,7 +37,14 @@
                     <div class="menu-item px-3">
                         <div class="menu-content d-flex align-items-center px-3">
                             <div class="symbol symbol-50px me-5">
-                                <img alt="Logo" src="/metronic8/demo38/assets/media/avatars/300-2.jpg">
+                                @if (IdentityService.CurrentUser.Avatar == null)
+                                {
+                                    <img src="/assets/img/avatar.png" alt="Avatar">
+                                }
+                                else
+                                {
+                                    <img src="/api/bucket/avatars/@(IdentityService.CurrentUser.Avatar)" alt="Avatar">
+                                }
                             </div>
                             <div class="d-flex flex-column">
                                 <div class="fw-bold d-flex align-items-center fs-5">
@@ -73,7 +80,7 @@
 {
     [CascadingParameter]
     public DefaultLayout Layout { get; set; }
-    
+
     private async Task Logout()
     {
         await IdentityService.Authenticate("");
