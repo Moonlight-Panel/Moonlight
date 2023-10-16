@@ -1,0 +1,133 @@
+﻿<div class="mb-4 me-4 d-flex justify-content-end fixed-bottom" style="pointer-events: none;">
+    @if (ShowLiveChat)
+    {
+        if (ShowChatsView)
+        {
+            <div class="card border border-2 border-primary" style="pointer-events: all">
+                <div class="card-header">
+                    <span class="card-title fs-5">Chats</span>
+                    <div class="card-toolbar">
+                        <button @onclick="ToggleShow" class="btn btn-rounded-circle btn-icon">
+                            <i class="bx bx-sm bx-x"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-5">
+                    <div class="scroll-y me-n5 pe-5" style="height: 50vh; width: 40vh; display: flex; flex-direction: column;">
+                        <a href="#" @onclick="() => SetShowChats(false)" class="d-flex flex-stack py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="symbol  symbol-45px symbol-circle ">
+                                    <span class="symbol-label  bg-light-danger text-danger fs-6 fw-bolder ">M</span>
+                                </div>
+                                <div class="ms-5">
+                                    <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">Melody Macy</a>
+                                    <div class="fw-semibold text-muted">melody@altbox.com</div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end ms-2">
+                                <span class="text-muted fs-7 mb-1">2 weeks</span>
+                            </div>
+                        </a>
+                        <div class="separator separator-dashed d-none"></div>
+                        <div class="d-flex flex-stack py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="symbol  symbol-45px symbol-circle ">
+                                    <img alt="Pic" src="/metronic8/demo38/assets/media/avatars/300-1.jpg">
+                                </div>
+                                <div class="ms-5">
+                                    <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">Max Smith</a>
+                                    <div class="fw-semibold text-muted">max@kt.com</div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end ms-2">
+                                <span class="text-muted fs-7 mb-1">1 day</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card border border-2 border-primary" style="pointer-events: all">
+                <div class="card-header">
+                    <span class="card-title fs-5">Some chat</span>
+                    <div class="card-toolbar">
+                        <button @onclick="() => SetShowChats(true)" class="btn btn-rounded-circle btn-icon">
+                            <i class="bx bx-sm bx-chevron-left"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body bg-black">
+                    <div class="scroll-y me-n5 pe-5" style="height: 50vh; width: 40vh; display: flex; flex-direction: column-reverse;">
+                        @for (int i = 0; i < 9; i++)
+                        {
+                            <div class="d-flex justify-content-start mb-10 ">
+                                <div class="d-flex flex-column align-items-start">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="symbol  symbol-35px symbol-circle ">
+                                            <img alt="Pic" src="/metronic8/demo38/assets/media/avatars/300-25.jpg">
+                                        </div>
+                                        <div class="ms-3">
+                                            <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary me-1">Brian Cox</a>
+                                            <span class="text-muted fs-7 mb-1">2 mins</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-5 rounded bg-light-info text-dark fw-semibold mw-lg-400px text-start" data-kt-element="message-text">
+                                        How likely are you to recommend our company to your friends and family ?
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end mb-10 ">
+                                <div class="d-flex flex-column align-items-end">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="me-3">
+                                            <span class="text-muted fs-7 mb-1">5 mins</span>
+                                            <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary ms-1">You</a>
+                                        </div>
+                                        <div class="symbol  symbol-35px symbol-circle ">
+                                            <img alt="Pic" src="/metronic8/demo38/assets/media/avatars/300-1.jpg">
+                                        </div>
+                                    </div>
+                                    <div class="p-5 rounded bg-light-primary text-dark fw-semibold mw-lg-400px text-end" data-kt-element="message-text">
+                                        Hey there, we’re just writing to let you know that you’ve been subscribed to a repository on GitHub.
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input class="form-control" placeholder="Type a message"/>
+                        <button class="btn btn-secondary">Send</button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <button @onclick="ToggleShow" class="btn btn-lg btn-icon btn-rounded-circle btn-white border border-primary" style="pointer-events: all">
+            <i class="bx bg-lg bx-chat"></i>
+        </button>
+    }
+</div>
+
+@code
+{
+    private bool ShowLiveChat = false;
+    private bool ShowChatsView = true;
+
+    private async Task ToggleShow()
+    {
+        ShowLiveChat = !ShowLiveChat;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SetShowChats(bool state)
+    {
+        ShowChatsView = state;
+        await InvokeAsync(StateHasChanged);
+    }
+}
