@@ -1,20 +1,38 @@
 ﻿@page "/"
-@using Moonlight.App.Exceptions
 
-<h1>Hello, world!</h1>
+@using Moonlight.App.Services
 
-<ConfirmButton Text="Crash" WorkingText="Crashing" CssClasses="btn-danger" OnClick="Do" />
-<ConfirmButton Text="Crash" WorkingText="Crashing" CssClasses="btn-danger" OnClick="Do2" />
+@inject IdentityService IdentityService
 
-@code
-{
-    private async Task Do()
-    {
-        throw new DisplayException("LOL");
-    }
-    
-    private async Task Do2()
-    {
-        throw new FormatException("LOL");
-    }
-}
+<div class="card border-0" style="background-image: url('img/covers/minecraft.png'); background-repeat: no-repeat; background-position: bottom; background-size: cover">
+    <div class="card-body">
+        <span class="h2">Welcome back, <span class="text-info">@(IdentityService.CurrentUser.Username)</span></span>
+    </div>
+</div>
+
+<div class="mt-5 row">
+    <div class="col-md-3 col-12">
+        <div href="#" class="card card-body text-center fs-6">
+            <div class="mb-5">
+                Do you want to order new services? Are you searching for our service specifications and prices?
+            </div>
+            <a href="/store" class="btn btn-primary">Go to store</a>
+        </div>
+    </div>
+    <div class="col-md-3 col-12">
+        <div href="#" class="card card-body text-center fs-6">
+            <div class="mb-5">
+                Do you want to order new services? Are you searching for our service specifications and prices?
+            </div>
+            <a href="/store" class="btn btn-primary">Go to store</a>
+        </div>
+    </div>
+    <div class="col-md-3 col-12">
+        <div href="#" class="card card-body text-center fs-6">
+            <div class="mb-5">
+                Do you want to order new services? Are you searching for our service specifications and prices?
+            </div>
+            <a href="/store" class="btn btn-primary">Go to store</a>
+        </div>
+    </div>
+</div>

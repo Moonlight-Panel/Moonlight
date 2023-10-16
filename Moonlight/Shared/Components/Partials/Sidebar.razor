@@ -1,4 +1,8 @@
 ﻿@using Moonlight.Shared.Layouts
+@using Moonlight.App.Services
+@using Moonlight.App.Models.Enums
+
+@inject IdentityService IdentityService
 
 <div class="app-sidebar flex-column @(Layout.ShowMobileSidebar ? "drawer drawer-start drawer-on" : "")">
     <div class="app-sidebar-header d-flex flex-stack d-none d-lg-flex pt-8 pb-2">
@@ -20,6 +24,67 @@
                         </span>
                     </a>
                 </div>
+                <div class="menu-item">
+                    <a class="menu-link " href="/store">
+                        <span class="menu-icon">
+                            <i class="bx bx-sm bx-store"></i>
+                        </span>
+                        <span class="menu-title">
+                            Store
+                        </span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a class="menu-link " href="/services">
+                        <span class="menu-icon">
+                            <i class="bx bx-sm bxs-component"></i>
+                        </span>
+                        <span class="menu-title">
+                            Services
+                        </span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a class="menu-link " href="/community">
+                        <span class="menu-icon">
+                            <i class="bx bx-sm bx-group"></i>
+                        </span>
+                        <span class="menu-title">
+                            Community
+                        </span>
+                    </a>
+                </div>
+                @if (IdentityService.Permissions[Permission.AdminMenu])
+                {
+                    <div class="menu-item mt-5">
+                        <div class="menu-heading text-uppercase fs-7 fw-bold">
+                            Admin
+                        </div>
+                        <div class="app-sidebar-separator separator"></div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a class="menu-link " href="/admin">
+                            <span class="menu-icon">
+                                <i class="bx bx-sm bxs-dashboard"></i>
+                            </span>
+                            <span class="menu-title">
+                                Dashboard
+                            </span>
+                        </a>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <a class="menu-link " href="/admin/users">
+                            <span class="menu-icon">
+                                <i class="bx bx-sm bx-group"></i>
+                            </span>
+                            <span class="menu-title">
+                                Users
+                            </span>
+                        </a>
+                    </div>
+                }
             </div>
         </div>
     </div>

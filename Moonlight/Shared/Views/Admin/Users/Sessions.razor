@@ -1,0 +1,61 @@
+﻿@page "/admin/users/sessions"
+
+@using Moonlight.App.Extensions.Attributes
+@using Moonlight.App.Models.Enums
+@using BlazorTable
+@using Moonlight.App.Models.Abstractions
+@using Moonlight.App.Services
+
+@attribute [RequirePermission(Permission.AdminSessions)]
+
+@inject SessionService SessionService
+
+<AdminUsersNavigation Index="1"/>
+
+<div class="card">
+    <div class="card-body">
+        <LazyLoader Load="Load">
+            <Table TableItem="Session"
+                   Items="SessionService.Sessions"
+                   PageSize="50"
+                   TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                   TableHeadClass="fw-bold text-muted">
+                <Column TableItem="Session" Title="IP" Field="@(x => x.Ip)" Sortable="true" Filterable="true"/>
+                <Column TableItem="Session" Title="URL" Field="@(x => x.Url)" Sortable="true" Filterable="true"/>
+                <Column TableItem="Session" Title="User" Field="@(x => x.User)" Sortable="false" Filterable="false">
+                    <Template>
+                        <span>@(context.User?.Username ?? "Guest")</span>
+                    </Template>
+                </Column>
+                <Column TableItem="Session" Title="Last activity" Field="@(x => x.UpdatedAt)" Sortable="true" Filterable="true">
+                    <Template>
+                        <span>@(Formatter.FormatUptime(DateTime.UtcNow - context.UpdatedAt))</span>
+                    </Template>
+                </Column>
+                <Column TableItem="Session" Title="Connected since" Field="@(x => x.UpdatedAt)" Sortable="true" Filterable="true">
+                    <Template>
+                        <span>@(Formatter.FormatUptime(DateTime.UtcNow - context.CreatedAt))</span>
+                    </Template>
+                </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true" AlwaysShow="true"/>
+            </Table>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    private Task Load(LazyLoader _)
+    {
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                await InvokeAsync(StateHasChanged);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+        });
+
+        return Task.CompletedTask;
+    }
+}

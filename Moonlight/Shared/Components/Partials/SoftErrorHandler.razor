@@ -1,11 +1,14 @@
 ﻿@using System.Diagnostics
 @using Moonlight.App.Exceptions
+@using Moonlight.App.Models.Enums
+@using Moonlight.App.Services
 
 @inherits ErrorBoundaryBase
+@inject IdentityService IdentityService
 
 @if (Crashed)
 {
-    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development") // TODO: Add check for admin perms to show exceptions to admins
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" || IdentityService.Permissions[Permission.AdminViewExceptions]) // TODO: Add check for admin perms to show exceptions to admins
     {
         if (Exception != null)
         {

@@ -1,3 +1,4 @@
+using BlazorTable;
 using Moonlight.App.Database;
 using Moonlight.App.Extensions;
 using Moonlight.App.Helpers;
@@ -55,6 +56,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+builder.Services.AddBlazorTable();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddProvider(new LogMigrateProvider());

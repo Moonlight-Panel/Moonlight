@@ -36,7 +36,9 @@
         {
             <DefaultLayout>
                 <SoftErrorHandler>
-                    @Body
+                    <PermissionChecker>
+                        @Body
+                    </PermissionChecker>
                 </SoftErrorHandler>
             </DefaultLayout>
         }
