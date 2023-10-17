@@ -14,7 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App\Database\Enums\" />
       <Folder Include="App\Database\Migrations\" />
       <Folder Include="App\Http\Middleware\" />
       <Folder Include="App\Http\Requests\" />

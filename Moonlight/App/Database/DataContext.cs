@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Tickets;
 using Moonlight.App.Services;
 
 namespace Moonlight.App.Database;
@@ -9,6 +10,8 @@ public class DataContext : DbContext
     private readonly ConfigService ConfigService;
     
     public DbSet<User> Users { get; set; }
+    //public DbSet<Ticket> Tickets { get; set; }
+    //public DbSet<TicketMessage> TicketMessages { get; set; }
 
     public DataContext(ConfigService configService)
     {
