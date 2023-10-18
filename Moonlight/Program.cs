@@ -43,6 +43,7 @@ builder.Services.AddScoped<AlertService>();
 // Services / Store
 builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<StoreAdminService>();
+builder.Services.AddScoped<StoreOrderService>();
 
 // Services / Users
 builder.Services.AddScoped<UserService>();

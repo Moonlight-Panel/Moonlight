@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Moonlight.App.Database;
 
@@ -10,9 +11,11 @@ using Moonlight.App.Database;
 namespace Moonlight.App.Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231018203522_AddedUserStoreData")]
+    partial class AddedUserStoreData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.2");
@@ -231,29 +234,6 @@ namespace Moonlight.App.Database.Migrations
                     b.ToTable("ServiceShares");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.Store.Transaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Transaction");
-                });
-
             modelBuilder.Entity("Moonlight.App.Database.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -374,13 +354,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Moonlight.App.Database.Entities.Store.Transaction", b =>
-                {
-                    b.HasOne("Moonlight.App.Database.Entities.User", null)
-                        .WithMany("Transactions")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("Moonlight.App.Database.Entities.Store.Service", b =>
                 {
                     b.Navigation("Shares");
@@ -391,8 +364,6 @@ namespace Moonlight.App.Database.Migrations
                     b.Navigation("CouponUses");
 
                     b.Navigation("GiftCodeUses");
-
-                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

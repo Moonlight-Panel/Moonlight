@@ -1,4 +1,6 @@
-﻿namespace Moonlight.App.Database.Entities;
+﻿using Moonlight.App.Database.Entities.Store;
+
+namespace Moonlight.App.Database.Entities;
 
 public class User
 {
@@ -10,6 +12,11 @@ public class User
     public string? TotpKey { get; set; } = null;
     
     // Store
+    public double Balance { get; set; }
+    public List<Transaction> Transactions { get; set; } = new();
+
+    public List<CouponUse> CouponUses { get; set; } = new();
+    public List<GiftCodeUse> GiftCodeUses { get; set; } = new();
     
     // Meta data
     public string Flags { get; set; } = "";
