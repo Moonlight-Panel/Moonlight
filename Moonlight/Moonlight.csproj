@@ -26,6 +26,7 @@
       <PackageReference Include="BlazorTable" Version="1.17.0" />
       <PackageReference Include="JWT" Version="10.1.1" />
       <PackageReference Include="MailKit" Version="4.2.0" />
+      <PackageReference Include="Mappy.Net" Version="1.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

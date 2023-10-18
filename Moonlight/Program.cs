@@ -7,6 +7,7 @@ using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Interop;
+using Moonlight.App.Services.Store;
 using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
 using Serilog;
@@ -36,6 +37,12 @@ builder.Services.AddScoped<JwtService>();
 // Services / Interop
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<ModalService>();
+builder.Services.AddScoped<AlertService>();
+
+// Services / Store
+builder.Services.AddScoped<StoreService>();
+builder.Services.AddScoped<StoreAdminService>();
 
 // Services / Users
 builder.Services.AddScoped<UserService>();

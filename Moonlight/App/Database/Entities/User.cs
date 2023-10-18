@@ -9,6 +9,8 @@ public class User
     public string? Avatar { get; set; } = null;
     public string? TotpKey { get; set; } = null;
     
+    // Store
+    
     // Meta data
     public string Flags { get; set; } = "";
     public int Permissions { get; set; } = 0;

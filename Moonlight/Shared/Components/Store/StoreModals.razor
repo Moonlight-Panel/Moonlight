@@ -1,0 +1,316 @@
+﻿@using Moonlight.App.Services.Store
+@using Moonlight.App.Models.Forms.Store
+@using Moonlight.App.Database.Enums
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Repositories
+@using Mappy.Net
+
+@inject StoreService StoreService
+@inject ToastService ToastService
+@inject Repository<Category> CategoryRepository
+
+<SmartModal @ref="AddCategoryModal" CssClasses="modal-dialog-centered">
+    <div class="modal-header">
+        <h5 class="modal-title">Add new category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <SmartForm Model="AddCategoryForm" OnValidSubmit="AddCategorySubmit">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input @bind="AddCategoryForm.Name" class="form-control" type="text"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea @bind="AddCategoryForm.Description" class="form-control" type="text"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Slug</label>
+                <input @bind="AddCategoryForm.Slug" class="form-control" type="text"/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </SmartForm>
+</SmartModal>
+
+<SmartModal @ref="EditCategoryModal" CssClasses="modal-dialog-centered">
+    <div class="modal-header">
+        <h5 class="modal-title">Edit category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <SmartForm Model="EditCategoryForm" OnValidSubmit="EditCategorySubmit">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input @bind="EditCategoryForm.Name" class="form-control" type="text"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea @bind="EditCategoryForm.Description" class="form-control" type="text"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Slug</label>
+                <input @bind="EditCategoryForm.Slug" class="form-control" type="text"/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </SmartForm>
+</SmartModal>
+
+<SmartModal @ref="AddProductModal" CssClasses="modal-dialog-centered modal-lg">
+    <LazyLoader Load="LoadCategories">
+        <div class="modal-header">
+            <h5 class="modal-title">Add new product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <SmartForm Model="AddProductForm" OnValidSubmit="AddProductSubmit">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input @bind="AddProductForm.Name" class="form-control" type="text"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea @bind="AddProductForm.Description" class="form-control" type="text"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Slug</label>
+                            <input @bind="AddProductForm.Slug" class="form-control" type="text"/>
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label">Category</label>
+                            <SmartSelect @bind-Value="AddProductForm.Category" Items="Categories" DisplayField="@(x => x.Name)"/>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input @bind="AddProductForm.Price" class="form-control" type="text"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Duration</label>
+                            <input @bind="AddProductForm.Duration" class="form-control" type="number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Max instances per user</label>
+                            <input @bind="AddProductForm.MaxPerUser" class="form-control" type="number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Stock</label>
+                            <input @bind="AddProductForm.Stock" class="form-control" type="number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <SmartEnumSelect @bind-Value="AddProductForm.Type"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Config</label>
+                            <input @bind="AddProductForm.ConfigJson" class="form-control" type="text"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </SmartForm>
+    </LazyLoader>
+</SmartModal>
+
+<SmartModal @ref="EditProductModal" CssClasses="modal-dialog-centered modal-lg">
+    <LazyLoader Load="LoadCategories">
+        <div class="modal-header">
+            <h5 class="modal-title">Edit product</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <SmartForm Model="EditProductForm" OnValidSubmit="EditProductSubmit">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input @bind="EditProductForm.Name" class="form-control" type="text"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea @bind="EditProductForm.Description" class="form-control" type="text"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Slug</label>
+                            <input @bind="EditProductForm.Slug" class="form-control" type="text"/>
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label">Category</label>
+                            <SmartSelect @bind-Value="EditProductForm.Category" Items="Categories" DisplayField="@(x => x.Name)"/>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input @bind="EditProductForm.Price" class="form-control" type="text"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Duration</label>
+                            <input @bind="EditProductForm.Duration" class="form-control" type="number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Max instances per user</label>
+                            <input @bind="EditProductForm.MaxPerUser" class="form-control" type="number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Stock</label>
+                            <input @bind="EditProductForm.Stock" class="form-control" type="number"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <SmartEnumSelect @bind-Value="EditProductForm.Type"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Config</label>
+                            <input @bind="EditProductForm.ConfigJson" class="form-control" type="text"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </SmartForm>
+    </LazyLoader>
+</SmartModal>
+
+@code
+{
+    [Parameter]
+    public Func<Task> OnUpdate { get; set; }
+
+    #region Add category
+
+    private SmartModal AddCategoryModal;
+    private AddCategoryForm AddCategoryForm = new();
+
+    public Task AddCategoryShow => AddCategoryModal.Show();
+
+    private async Task AddCategorySubmit()
+    {
+        await StoreService.Admin.AddCategory(
+            AddCategoryForm.Name,
+            AddCategoryForm.Description,
+            AddCategoryForm.Slug
+            );
+
+        await ToastService.Success("Successfully added category");
+        await AddCategoryModal.Hide();
+
+        AddCategoryForm = new();
+        await OnUpdate.Invoke();
+    }
+
+    #endregion
+    
+    #region Edit category
+
+    private SmartModal EditCategoryModal;
+    private EditCategoryForm EditCategoryForm = new();
+    private Category EditCategory;
+
+    public async Task EditCategoryShow(Category category)
+    {
+        EditCategory = category;
+
+        EditCategoryForm = Mapper.Map<EditCategoryForm>(EditCategory);
+        await EditCategoryModal.Show();
+    }
+    private async Task EditCategorySubmit()
+    {
+        EditCategory = Mapper.Map(EditCategory, EditCategoryForm);
+
+        await StoreService.Admin.UpdateCategory(EditCategory);
+
+        await ToastService.Success("Successfully updated category");
+        await EditCategoryModal.Hide();
+        
+        await OnUpdate.Invoke();
+    }
+
+    #endregion
+
+    #region Add product
+
+    private SmartModal AddProductModal;
+    private AddProductForm AddProductForm = new();
+    private Category[] Categories;
+
+    public Task AddProductShow => AddProductModal.Show();
+
+    private async Task AddProductSubmit()
+    {
+        await StoreService.Admin.AddProduct(
+            AddProductForm.Name,
+            AddProductForm.Description,
+            AddProductForm.Slug,
+            AddProductForm.Type,
+            AddProductForm.ConfigJson,
+            product =>
+            {
+                product.Category = AddProductForm.Category;
+                product.Duration = AddProductForm.Duration;
+                product.Price = AddProductForm.Price;
+                product.Stock = AddProductForm.Stock;
+                product.MaxPerUser = AddProductForm.MaxPerUser;
+            }
+            );
+
+        await ToastService.Success("Successfully added product");
+        await AddProductModal.Hide();
+
+        AddProductForm = new();
+        await OnUpdate.Invoke();
+    }
+
+    #endregion
+    
+    #region Edit product
+
+    private SmartModal EditProductModal;
+    private EditProductForm EditProductForm = new();
+    private Product EditProduct;
+
+    public async Task EditProductShow(Product product)
+    {
+        EditProduct = product;
+
+        EditProductForm = Mapper.Map<EditProductForm>(EditProduct);
+        await EditProductModal.Show();
+    }
+
+    private async Task EditProductSubmit()
+    {
+        EditProduct = Mapper.Map(EditProduct, EditProductForm);
+
+        await StoreService.Admin.UpdateProduct(EditProduct);
+        
+        await ToastService.Success("Successfully updated product");
+        await EditProductModal.Hide();
+
+        await OnUpdate.Invoke();
+    }
+
+    #endregion
+
+    private Task LoadCategories(LazyLoader _)
+    {
+        Categories = CategoryRepository.Get().ToArray();
+        return Task.CompletedTask;
+    }
+}

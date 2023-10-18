@@ -1,0 +1,21 @@
+﻿.invisible-a {
+    color: inherit;
+    cursor: pointer;
+}
+
+.invisible-a:hover {
+    color: inherit;
+    cursor: pointer;
+}
+
+.blur-unless-hover {
+    filter: blur(5px);
+}
+
+.blur-unless-hover:hover {
+    filter: none;
+}
+
+.blur {
+    filter: blur(5px);
+}

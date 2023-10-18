@@ -13,6 +13,15 @@ public class ConfigV1
     [JsonProperty("Security")] public SecurityData Security { get; set; } = new();
     [JsonProperty("Database")] public DatabaseData Database { get; set; } = new();
     [JsonProperty("MailServer")] public MailServerData MailServer { get; set; } = new();
+
+    [JsonProperty("Store")] public StoreData Store { get; set; } = new();
+
+    public class StoreData
+    {
+        [JsonProperty("Currency")]
+        [Description("A string value representing the currency which will be shown to a user")]
+        public string Currency { get; set; } = "€";
+    }
     
     public class SecurityData
     {
