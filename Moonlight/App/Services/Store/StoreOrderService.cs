@@ -3,6 +3,7 @@ using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.ServiceManage;
 
 namespace Moonlight.App.Services.Store;
 
@@ -83,5 +84,34 @@ public class StoreOrderService
             throw new DisplayException("The product is out of stock");
         
         return Task.CompletedTask;
+    }
+
+    public async Task<Service> Process(User u, Product p, int durationMultiplier, Coupon? c)
+    {
+        // Validate to ensure we dont process an illegal order
+        await Validate(u, p, durationMultiplier, c);
+        
+        // Create scope and get required services
+        using var scope = ServiceScopeFactory.CreateScope();
+        var serviceService = scope.ServiceProvider.GetRequiredService<ServiceService>();
+        var transactionService = scope.ServiceProvider.GetRequiredService<TransactionService>();
+
+        // Calculate price
+        var price = p.Price * durationMultiplier;
+
+        if (c != null)
+            price = Math.Round(price * c.Percent / 100, 2);
+
+        //  Calculate duration
+        var duration = durationMultiplier * p.Duration;
+        
+        // Add transaction
+        await transactionService.Add(u, -1 * price, $"Bought product '{p.Name}' for {duration} days");
+
+        // Create service
+        return await serviceService.Admin.Create(u, p, service =>
+        {
+            service.RenewAt = DateTime.UtcNow.AddDays(duration);
+        });
     }
 }

@@ -4,11 +4,14 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities.Store
 @using Moonlight.App.Repositories
+@using Moonlight.App.Services.ServiceManage
 
 @inject ConfigService ConfigService
 @inject StoreService StoreService
 @inject IdentityService IdentityService
 @inject AlertService AlertService
+@inject NavigationManager Navigation
+@inject ServiceService ServiceService
 @inject Repository<Product> ProductRepository
 @inject Repository<Coupon> CouponRepository
 
@@ -73,7 +76,7 @@ TODO: Add 404 here
                             actualPrice = defaultPrice;
                         else
                             actualPrice = Math.Round(defaultPrice * SelectedCoupon.Percent / 100, 2);
-                        
+
                         var currency = ConfigService.Get().Store.Currency;
                     }
 
@@ -81,7 +84,7 @@ TODO: Add 404 here
                         <div class="d-flex flex-stack">
                             <div class="text-gray-700 fw-semibold me-2">Today</div>
                             <div class="d-flex align-items-senter">
-                                <span class="fw-bold">@(currency) @(defaultPrice)</span>
+                                <span class="fw-bold">@(currency) @(actualPrice)</span>
                             </div>
                         </div>
                         <div class="d-flex flex-stack">
@@ -136,7 +139,7 @@ TODO: Add 404 here
                         {
                             if (CanBeOrdered)
                             {
-                                <button class="btn btn-primary w-100">Order for @(currency) @(actualPrice)</button>
+                                <WButton OnClick="OnSubmit" Text="@($"Order for {currency} {actualPrice}")" CssClasses="btn btn-primary w-100"/>
                             }
                             else
                             {
@@ -161,7 +164,7 @@ TODO: Add 404 here
     private int DurationMultiplicator = 1;
 
     private string CouponCode = "";
-    
+
     private bool CanBeOrdered = false;
     private bool IsValidating = false;
     private string ErrorMessage = "";
@@ -226,5 +229,23 @@ TODO: Add 404 here
             .FirstOrDefault(x => x.Slug == Slug);
 
         await Revalidate();
+    }
+
+    private async Task OnSubmit()
+    {
+        if (SelectedProduct == null) // Prevent processing null
+            return;
+
+        // Process the order with the selected values
+        var service = await StoreService
+            .Order
+            .Process(
+                IdentityService.CurrentUser,
+                SelectedProduct,
+                DurationMultiplicator,
+                SelectedCoupon
+            );
+
+        Navigation.NavigateTo("/service/" + service.Id);
     }
 }

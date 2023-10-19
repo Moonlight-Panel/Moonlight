@@ -1,5 +1,7 @@
 using BlazorTable;
+using Moonlight.App.Actions.Dummy;
 using Moonlight.App.Database;
+using Moonlight.App.Database.Enums;
 using Moonlight.App.Extensions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Helpers.LogMigrator;
@@ -7,6 +9,7 @@ using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Interop;
+using Moonlight.App.Services.ServiceManage;
 using Moonlight.App.Services.Store;
 using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
@@ -44,6 +47,7 @@ builder.Services.AddScoped<AlertService>();
 builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<StoreAdminService>();
 builder.Services.AddScoped<StoreOrderService>();
+builder.Services.AddScoped<TransactionService>();
 
 // Services / Users
 builder.Services.AddScoped<UserService>();
@@ -52,6 +56,10 @@ builder.Services.AddScoped<UserDetailsService>();
 
 // Services / Background
 builder.Services.AddSingleton<AutoMailSendService>();
+
+// Services / ServiceManage
+builder.Services.AddScoped<ServiceService>();
+builder.Services.AddSingleton<ServiceAdminService>();
 
 // Services
 builder.Services.AddScoped<IdentityService>();
@@ -85,5 +93,8 @@ app.MapControllers();
 
 // Auto start background services
 app.Services.GetRequiredService<AutoMailSendService>();
+
+var serviceService = app.Services.GetRequiredService<ServiceAdminService>();
+await serviceService.RegisterAction(ServiceType.Server, new DummyActions());
 
 app.Run();

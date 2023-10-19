@@ -1,6 +1,6 @@
 ﻿namespace Moonlight.App.Database.Enums;
 
-public enum ProductType
+public enum ServiceType
 {
     Server,
     Webspace,

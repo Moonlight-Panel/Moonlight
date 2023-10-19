@@ -31,7 +31,7 @@ public class StoreAdminService
         return Task.FromResult(result);
     }
 
-    public Task<Product> AddProduct(string name, string description, string slug, ProductType type, string configJson,
+    public Task<Product> AddProduct(string name, string description, string slug, ServiceType type, string configJson,
         Action<Product>? modifyProduct = null)
     {
         if (ProductRepository.Get().Any(x => x.Slug == slug))

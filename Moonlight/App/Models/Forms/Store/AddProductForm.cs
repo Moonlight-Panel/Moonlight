@@ -31,6 +31,6 @@ public class AddProductForm
     [Range(0, double.MaxValue, ErrorMessage = "The duration needs to be equals or above 0")]
     public int Duration { get; set; }
     
-    public ProductType Type { get; set; }
+    public ServiceType Type { get; set; }
     public string ConfigJson { get; set; } = "{}";
 }

@@ -16,7 +16,7 @@ public class Product
     public int MaxPerUser { get; set; }
     public int Duration { get; set; }
     
-    public ProductType Type { get; set; }
+    public ServiceType Type { get; set; }
     public string ConfigJson { get; set; } = "{}";
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -1,0 +1,101 @@
+﻿@page "/services"
+
+@using Moonlight.App.Services.ServiceManage
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Services
+
+@inject ServiceService ServiceService
+@inject IdentityService IdentityService
+@inject ConfigService ConfigService
+
+<LazyLoader ShowAsCard="true" Load="Load">
+    <div class="row mb-5">
+        @foreach (var service in MyServices)
+        {
+            <div class="col-md-3 col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title align-items-start flex-column">
+                            <span class="card-label fw-bold text-dark fs-3">@(service.Nickname ?? $"Service {service.Id}")</span>
+                            <span class="text-gray-400 mt-1 fw-semibold fs-6">@(service.Product.Name)</span>
+                        </h3>
+                    </div>
+                    <div class="card-body fs-6">
+                        <div class="d-flex flex-stack">
+                            <div class="text-gray-700 fw-semibold me-2">Price</div>
+                            <div class="d-flex align-items-senter">
+                                <span class="fw-bold">@(ConfigService.Get().Store.Currency) @(service.Product.Price)</span>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-stack">
+                            <div class="text-gray-700 fw-semibold me-2">Renew at</div>
+                            <div class="d-flex align-items-senter">
+                                <span class="fw-bold">@(Formatter.FormatDate(service.RenewAt))</span>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-stack">
+                            <div class="text-gray-700 fw-semibold me-2">Created at</div>
+                            <div class="d-flex align-items-senter">
+                                <span class="fw-bold">@(Formatter.FormatDate(service.CreatedAt))</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer p-3">
+                        <div class="btn-group w-100 mb-3">
+                            <button class="btn btn-primary w-50 me-3">Manage</button>
+                            <button class="btn btn-secondary w-50">Manage shares</button>
+                        </div>
+                        <div class="btn-group w-100">
+                            <button class="btn btn-warning w-50 me-3">Renew</button>
+                            <button class="btn btn-danger w-50">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @foreach (var service in SharedServices)
+        {
+            <div class="col-md-3 col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title align-items-start flex-column">
+                            <span class="card-label fw-bold text-dark fs-3">@(service.Nickname ?? $"Service {service.Id}")</span>
+                            <span class="text-gray-400 mt-1 fw-semibold fs-6">@(service.Product.Name)</span>
+                        </h3>
+                    </div>
+                    <div class="card-body fs-6">
+                        <div class="d-flex flex-stack">
+                            <div class="text-gray-700 fw-semibold me-2">Shared by</div>
+                            <div class="d-flex align-items-senter">
+                                <span class="fw-bold">@(service.Owner.Username)</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-stack">
+                            <div class="text-gray-700 fw-semibold me-2">Created at</div>
+                            <div class="d-flex align-items-senter">
+                                <span class="fw-bold">@(Formatter.FormatDate(service.CreatedAt))</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer p-3 text-center">
+                        <button class="btn btn-primary">Manage</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</LazyLoader>
+
+@code
+{
+    private Service[] MyServices;
+    private Service[] SharedServices;
+
+    private async Task Load(LazyLoader _)
+    {
+        MyServices = await ServiceService.Get(IdentityService.CurrentUser);
+        SharedServices = await ServiceService.GetShared(IdentityService.CurrentUser);
+    }
+}
