@@ -55,6 +55,34 @@ public class ServiceAdminService
         return finishedService;
     }
 
+    public async Task Delete(Service s)
+    {
+        using var scope = ServiceScopeFactory.CreateScope();
+        var serviceRepo = scope.ServiceProvider.GetRequiredService<Repository<Service>>();
+        var serviceShareRepo = scope.ServiceProvider.GetRequiredService<Repository<ServiceShare>>();
+
+        var service = serviceRepo
+            .Get()
+            .Include(x => x.Product)
+            .Include(x => x.Shares)
+            .FirstOrDefault(x => x.Id == s.Id);
+
+        if (service == null)
+            throw new DisplayException("Service does not exist anymore");
+
+        if (!Actions.ContainsKey(service.Product.Type))
+            throw new DisplayException($"The product type {service.Product.Type} is not registered");
+        
+        await Actions[service.Product.Type].Delete(scope.ServiceProvider, service);
+
+        foreach (var share in service.Shares)
+        {
+            serviceShareRepo.Delete(share);
+        }
+        
+        serviceRepo.Delete(service);
+    }
+
     public Task RegisterAction(ServiceType type, ServiceActions actions) // Use this function to register service types
     {
         Actions.Add(type, actions);

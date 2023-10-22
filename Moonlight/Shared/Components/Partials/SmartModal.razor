@@ -3,7 +3,10 @@
 <div class="modal fade" id="modal@(Id)" tabindex="-1">
     <div class="modal-dialog @(CssClasses)">
         <div class="modal-content">
-            @ChildContent
+            @if (ShouldShow)
+            {
+                @ChildContent
+            }
         </div>
     </div>
 </div>
@@ -17,6 +20,7 @@
     public RenderFragment ChildContent { get; set; }
     
     private int Id;
+    private bool ShouldShow = false;
 
     protected override void OnInitialized()
     {
@@ -25,11 +29,17 @@
 
     public async Task Show()
     {
+        ShouldShow = true;
+        await InvokeAsync(StateHasChanged);
+        
         await ModalService.Show("modal" + Id);
     }
 
     public async Task Hide()
     {
         await ModalService.Hide("modal" + Id);
+        
+        ShouldShow = false;
+        await InvokeAsync(StateHasChanged);
     }
 }

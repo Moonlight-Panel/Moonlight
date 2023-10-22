@@ -1,0 +1,101 @@
+﻿@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Services
+@using Moonlight.App.Services.ServiceManage
+@using Moonlight.Shared.Components.Modals
+
+@inject ConfigService ConfigService
+@inject ToastService ToastService
+@inject ServiceService ServiceService
+
+@if (ShowDeletionScreen)
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold text-dark fs-3">Do you really wan to delete @(Service.Nickname ?? $"Service {Service.Id}")</span>
+            </h3>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-400 fs-5 fw-semibold">
+                This action cannot be undone. Your service data will be deleted and cannot be restored
+            </p>
+        </div>
+        <div class="card-footer p-3">
+            <div class="btn-group w-100">
+                <WButton OnClick="Delete" Text="Delete" CssClasses="btn btn-danger w-50 me-3" />
+                <button @onclick="() => SetShowDeletion(false)" class="btn btn-secondary w-50">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold text-dark fs-3">@(Service.Nickname ?? $"Service {Service.Id}")</span>
+                <span class="text-gray-400 mt-1 fw-semibold fs-6">@(Service.Product.Name)</span>
+            </h3>
+        </div>
+        <div class="card-body fs-6">
+            <div class="d-flex flex-stack">
+                <div class="text-gray-700 fw-semibold me-2">Renew price</div>
+                <div class="d-flex align-items-senter">
+                    <span class="fw-bold">@(ConfigService.Get().Store.Currency) @(Service.Product.Price)</span>
+                </div>
+            </div>
+            <div class="d-flex flex-stack">
+                <div class="text-gray-700 fw-semibold me-2">Renew at</div>
+                <div class="d-flex align-items-senter">
+                    <span class="fw-bold">@(Formatter.FormatDate(Service.RenewAt))</span>
+                </div>
+            </div>
+            <div class="d-flex flex-stack">
+                <div class="text-gray-700 fw-semibold me-2">Created at</div>
+                <div class="d-flex align-items-senter">
+                    <span class="fw-bold">@(Formatter.FormatDate(Service.CreatedAt))</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer p-3">
+            <div class="btn-group w-100 mb-3">
+                <a href="/service/@(Service.Id)" class="btn btn-primary w-50 me-3">Manage</a>
+                <button @onclick="() => ShareModal.Show()" class="btn btn-secondary w-50">Manage shares</button>
+            </div>
+            <div class="btn-group w-100">
+                <button class="btn btn-warning w-50 me-3">Renew</button>
+                <button @onclick="() => SetShowDeletion(true)" class="btn btn-danger w-50">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <ManageServiceShareModal @ref="ShareModal" Service="Service" />
+}
+
+
+
+@code
+{
+    [Parameter]
+    public Service Service { get; set; }
+    
+    [Parameter]
+    public Func<Task> OnChange { get; set; }
+
+    private bool ShowDeletionScreen = false;
+    private ManageServiceShareModal ShareModal;
+
+    private async Task SetShowDeletion(bool b)
+    {
+        ShowDeletionScreen = b;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    public async Task Delete()
+    {
+        await ServiceService.Admin.Delete(Service);
+
+        await ToastService.Success("Successfully deleted service");
+        await OnChange.Invoke();
+    }
+}
