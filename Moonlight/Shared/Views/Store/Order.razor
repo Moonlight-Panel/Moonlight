@@ -75,7 +75,7 @@ TODO: Add 404 here
                         if (SelectedCoupon == null)
                             actualPrice = defaultPrice;
                         else
-                            actualPrice = Math.Round(defaultPrice * SelectedCoupon.Percent / 100, 2);
+                            actualPrice = Math.Round(defaultPrice - (defaultPrice * SelectedCoupon.Percent / 100), 2);
 
                         var currency = ConfigService.Get().Store.Currency;
                     }
@@ -236,7 +236,7 @@ TODO: Add 404 here
         if (SelectedProduct == null) // Prevent processing null
             return;
 
-        // Process the order with the selected values
+    // Process the order with the selected values
         var service = await StoreService
             .Order
             .Process(

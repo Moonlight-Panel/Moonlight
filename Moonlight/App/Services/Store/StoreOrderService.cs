@@ -23,9 +23,9 @@ public class StoreOrderService
         var userRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
         var serviceRepo = scope.ServiceProvider.GetRequiredService<Repository<Service>>();
         var couponRepo = scope.ServiceProvider.GetRequiredService<Repository<Coupon>>();
-        
+
         // Ensure the values are safe and loaded by using the created scope to bypass the cache
-        
+
         var user = userRepo
             .Get()
             .Include(x => x.CouponUses)
@@ -35,11 +35,11 @@ public class StoreOrderService
         if (user == null)
             throw new DisplayException("Unsafe value detected. Please reload the page to proceed");
 
-        
+
         var product = productRepo
             .Get()
             .FirstOrDefault(x => x.Id == p.Id);
-        
+
         if (product == null)
             throw new DisplayException("Unsafe value detected. Please reload the page to proceed");
 
@@ -51,23 +51,23 @@ public class StoreOrderService
             coupon = couponRepo
                 .Get()
                 .FirstOrDefault(x => x.Id == coupon.Id);
-            
-            if(coupon == null)
-                    throw new DisplayException("Unsafe value detected. Please reload the page to proceed");
+
+            if (coupon == null)
+                throw new DisplayException("Unsafe value detected. Please reload the page to proceed");
         }
-        
+
         // Perform checks on selected order
 
         if (coupon != null && user.CouponUses.Any(x => x.Coupon.Id == coupon.Id))
             throw new DisplayException("Coupon already used");
 
-        if (coupon != null && coupon.Amount == 0)
+        if (coupon != null && coupon.Amount < 1)
             throw new DisplayException("No coupon uses left");
-        
+
         var price = product.Price * durationMultiplier;
 
         if (coupon != null)
-            price = Math.Round(price * coupon.Percent / 100, 2);
+            price = Math.Round(price - (price * coupon.Percent / 100), 2);
 
         if (user.Balance < price)
             throw new DisplayException("Order is too expensive");
@@ -82,7 +82,7 @@ public class StoreOrderService
 
         if (product.Stock < 1)
             throw new DisplayException("The product is out of stock");
-        
+
         return Task.CompletedTask;
     }
 
@@ -90,7 +90,7 @@ public class StoreOrderService
     {
         // Validate to ensure we dont process an illegal order
         await Validate(u, p, durationMultiplier, c);
-        
+
         // Create scope and get required services
         using var scope = ServiceScopeFactory.CreateScope();
         var serviceService = scope.ServiceProvider.GetRequiredService<ServiceService>();
@@ -100,18 +100,45 @@ public class StoreOrderService
         var price = p.Price * durationMultiplier;
 
         if (c != null)
-            price = Math.Round(price * c.Percent / 100, 2);
+            price = Math.Round(price - (price * c.Percent / 100), 2);
 
         //  Calculate duration
         var duration = durationMultiplier * p.Duration;
-        
+
         // Add transaction
         await transactionService.Add(u, -1 * price, $"Bought product '{p.Name}' for {duration} days");
 
-        // Create service
-        return await serviceService.Admin.Create(u, p, service =>
+        // Process coupon if used
+        if (c != null)
         {
-            service.RenewAt = DateTime.UtcNow.AddDays(duration);
-        });
+            // Remove one use from the coupon
+            var couponRepo = scope.ServiceProvider.GetRequiredService<Repository<Coupon>>();
+
+            var coupon = couponRepo
+                .Get()
+                .First(x => x.Id == c.Id);
+            
+            coupon.Amount--;
+            couponRepo.Update(coupon);
+
+            // Add coupon use to user
+            var userRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
+            
+            var user = userRepo
+                .Get()
+                .Include(x => x.CouponUses)
+                .First(x => x.Id == u.Id);
+            
+            user.CouponUses.Add(new ()
+            {
+                Coupon = coupon
+            });
+            
+            userRepo.Update(user);
+        }
+
+        // Create service
+        return await serviceService.Admin.Create(u, p,
+            service => { service.RenewAt = DateTime.UtcNow.AddDays(duration); });
     }
 }
