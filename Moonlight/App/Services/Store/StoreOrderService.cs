@@ -141,4 +141,58 @@ public class StoreOrderService
         return await serviceService.Admin.Create(u, p,
             service => { service.RenewAt = DateTime.UtcNow.AddDays(duration); });
     }
+
+    public Task ValidateRenew(User u, Service s, int durationMultiplier)
+    {
+        using var scope = ServiceScopeFactory.CreateScope();
+        var userRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
+        var serviceRepo = scope.ServiceProvider.GetRequiredService<Repository<Service>>();
+
+        var user = userRepo.Get().FirstOrDefault(x => x.Id == u.Id);
+        
+        if(user == null)
+            throw new DisplayException("Unsafe value detected. Please reload the page to proceed");
+
+        var service = serviceRepo
+            .Get()
+            .Include(x => x.Product)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == s.Id);
+        
+        if(service == null)
+            throw new DisplayException("Unsafe value detected. Please reload the page to proceed");
+        
+        var price = service.Product.Price * durationMultiplier;
+        
+        if (user.Balance < price)
+            throw new DisplayException("Order is too expensive");
+        
+        return Task.CompletedTask;
+    }
+
+    public async Task Renew(User u, Service s, int durationMultiplier)
+    {
+        await ValidateRenew(u, s, durationMultiplier);
+        
+        using var scope = ServiceScopeFactory.CreateScope();
+        var serviceRepo = scope.ServiceProvider.GetRequiredService<Repository<Service>>();
+        var transactionService = scope.ServiceProvider.GetRequiredService<TransactionService>();
+
+        var service = serviceRepo
+            .Get()
+            .Include(x => x.Product)
+            .Include(x => x.Owner)
+            .First(x => x.Id == s.Id);
+        
+        var price = service.Product.Price * durationMultiplier;
+        
+        //  Calculate duration
+        var duration = durationMultiplier * service.Product.Duration;
+
+        // Add transaction
+        await transactionService.Add(u, -1 * price, $"Renewed service '{service.Nickname ?? $"Service {service.Id}"}' for {duration} days");
+
+        service.RenewAt = service.RenewAt.AddDays(duration);
+        serviceRepo.Update(service);
+    }
 }

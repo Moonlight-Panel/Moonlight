@@ -1,5 +1,6 @@
 ﻿using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
 
 namespace Moonlight.App.Services.Store;
@@ -28,6 +29,8 @@ public class TransactionService
         // We divide the call to ensure the transaction can be written to the database 
         
         user.Balance += amount;
+        user.Balance = Math.Round(user.Balance, 2); // To prevent weird numbers
+        
         UserRepository.Update(user);
         
         return Task.CompletedTask;
