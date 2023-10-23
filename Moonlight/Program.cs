@@ -29,6 +29,13 @@ Log.Logger = logConfig.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Init plugin system
+var pluginService = new PluginService();
+builder.Services.AddSingleton(pluginService);
+
+await pluginService.Load(builder.Services);
+await pluginService.RunPreInit();
+
 builder.Services.AddDbContext<DataContext>();
 
 // Repositories
@@ -44,7 +51,7 @@ builder.Services.AddScoped<ModalService>();
 builder.Services.AddScoped<AlertService>();
 
 // Services / Store
-builder.Services.AddScoped<StoreService>();
+builder.Services.AddSingleton<StoreService>();
 builder.Services.AddScoped<StoreAdminService>();
 builder.Services.AddScoped<StoreOrderService>();
 builder.Services.AddScoped<TransactionService>();
@@ -96,5 +103,7 @@ app.Services.GetRequiredService<AutoMailSendService>();
 
 var serviceService = app.Services.GetRequiredService<ServiceAdminService>();
 await serviceService.RegisterAction(ServiceType.Server, new DummyActions());
+
+await pluginService.RunPrePost(app.Services);
 
 app.Run();

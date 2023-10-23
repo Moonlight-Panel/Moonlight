@@ -3,11 +3,36 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities.Store
 @using BlazorTable
+@using Moonlight.App.Services.Store
 
 @inject IdentityService IdentityService
 @inject ConfigService ConfigService
+@inject StoreService StoreService
 
-<AccountNavigation Index="2" />
+<AccountNavigation Index="2"/>
+
+<div class="row mt-5">
+    <div class="col-md-6 col-12">
+        <div class="card card-body">
+
+        </div>
+    </div>
+    <div class="col-md-6 col-12">
+        <div class="card card-body">
+            <div class="row">
+                @foreach (var gateway in StoreService.Gateways)
+                {
+                    <div class="col-md-4 col-12">
+                        <a @onclick:preventDefault href="#" class="card card-body bg-hover-info text-center border border-info">
+                            <i class="@(gateway.Icon)"></i>
+                            <h4 class="fw-bold mb-0 align-middle">@(gateway.Name)</h4>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="card mt-5">
     <div class="card-header">
