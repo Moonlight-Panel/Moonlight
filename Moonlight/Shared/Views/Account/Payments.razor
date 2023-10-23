@@ -1,0 +1,55 @@
+﻿@page "/account/payments"
+
+@using Moonlight.App.Services
+@using Moonlight.App.Database.Entities.Store
+@using BlazorTable
+
+@inject IdentityService IdentityService
+@inject ConfigService ConfigService
+
+<AccountNavigation Index="2" />
+
+<div class="card mt-5">
+    <div class="card-header">
+        <h3 class="card-title">Transactions</h3>
+    </div>
+    <div class="card-body">
+        <LazyLoader Load="Load">
+            <Table TableItem="Transaction"
+                   Items="Transactions"
+                   PageSize="50"
+                   TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                   TableHeadClass="fw-bold text-muted">
+                <Column TableItem="Transaction" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                    <Template>
+                        @if (context.Price < 0)
+                        {
+                            <i class="bx bx-sm bx-minus text-danger align-middle"></i>
+                        }
+                        else
+                        {
+                            <i class="bx bx-sm bx-plus text-success align-middle"></i>
+                        }
+                    </Template>
+                </Column>
+                <Column TableItem="Transaction" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                    <Template>
+                        <span>@(ConfigService.Get().Store.Currency) @(Math.Abs(context.Price))</span>
+                    </Template>
+                </Column>
+                <Column TableItem="Transaction" Title="" Field="@(x => x.Text)" Sortable="false" Filterable="false"/>
+                <Pager AlwaysShow="true"/>
+            </Table>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    private Transaction[] Transactions;
+
+    private async Task Load(LazyLoader _)
+    {
+        Transactions = await IdentityService.GetTransactions();
+    }
+}
