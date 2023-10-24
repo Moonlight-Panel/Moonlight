@@ -7,12 +7,10 @@ namespace Moonlight.App.Services.Background;
 public class AutoMailSendService // This service is responsible for sending mails automatically 
 {
     private readonly MailService MailService;
-    private readonly ConfigService ConfigService;
 
-    public AutoMailSendService(MailService mailService, ConfigService configService)
+    public AutoMailSendService(MailService mailService)
     {
         MailService = mailService;
-        ConfigService = configService;
 
         Events.OnUserRegistered += OnUserRegistered;
         Events.OnServiceOrdered += OnServiceOrdered;

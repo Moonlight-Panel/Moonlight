@@ -66,7 +66,11 @@
                    TableHeadClass="fw-bold text-muted">
                 <Column TableItem="Transaction" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
                     <Template>
-                        @if (context.Price < 0)
+                        @if (context.Price == 0)
+                        {
+                            <i class="bx bx-sm bx-circle text-info align-middle"></i>
+                        }
+                        else if (context.Price < 0)
                         {
                             <i class="bx bx-sm bx-minus text-danger align-middle"></i>
                         }
