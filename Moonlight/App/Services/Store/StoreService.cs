@@ -8,16 +8,11 @@ public class StoreService
 
     public StoreAdminService Admin => ServiceProvider.GetRequiredService<StoreAdminService>();
     public StoreOrderService Order => ServiceProvider.GetRequiredService<StoreOrderService>();
-    public readonly List<PaymentGateway> Gateways = new();
+    public StorePaymentService Payment => ServiceProvider.GetRequiredService<StorePaymentService>();
+    public StoreGiftService Gift => ServiceProvider.GetRequiredService<StoreGiftService>();
 
     public StoreService(IServiceProvider serviceProvider)
     {
         ServiceProvider = serviceProvider;
-    }
-
-    public Task RegisterGateway(PaymentGateway gateway)
-    {
-        Gateways.Add(gateway);
-        return Task.CompletedTask;
     }
 }

@@ -51,9 +51,11 @@ builder.Services.AddScoped<ModalService>();
 builder.Services.AddScoped<AlertService>();
 
 // Services / Store
-builder.Services.AddSingleton<StoreService>();
+builder.Services.AddScoped<StoreService>();
 builder.Services.AddScoped<StoreAdminService>();
 builder.Services.AddScoped<StoreOrderService>();
+builder.Services.AddScoped<StoreGiftService>();
+builder.Services.AddSingleton<StorePaymentService>();
 builder.Services.AddScoped<TransactionService>();
 
 // Services / Users

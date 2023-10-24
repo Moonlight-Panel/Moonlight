@@ -3,32 +3,51 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities.Store
 @using BlazorTable
+@using Moonlight.App.Models.Abstractions
 @using Moonlight.App.Services.Store
 
 @inject IdentityService IdentityService
 @inject ConfigService ConfigService
 @inject StoreService StoreService
+@inject ToastService ToastService
+@inject NavigationManager Navigation
 
 <AccountNavigation Index="2"/>
 
 <div class="row mt-5">
     <div class="col-md-6 col-12">
-        <div class="card card-body">
-
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Redeem gift code</h3>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <input @bind="GiftCode" class="form-control form-control-solid-bg" placeholder="Gift code..."/>
+                    <WButton OnClick="RedeemGiftCode" Text="Redeem" WorkingText="Checking" CssClasses="btn btn-primary"/>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-md-6 col-12">
         <div class="card card-body">
-            <div class="row">
-                @foreach (var gateway in StoreService.Gateways)
+            <div class="row d-flex justify-content-center">
+                <input @bind="Amount" class="form-control form-control-lg form-control-solid-bg w-50 text-center fs-2" placeholder="Enter amount to add to your account"/>
+            </div>
+            <div class="row mt-5 d-flex justify-content-center">
+                @foreach (var gateway in StoreService.Payment.Gateways)
                 {
                     <div class="col-md-4 col-12">
-                        <a @onclick:preventDefault href="#" class="card card-body bg-hover-info text-center border border-info">
+                        <a @onclick="() => SelectGateway(gateway)" @onclick:preventDefault href="#" class="card card-body bg-hover-info text-center border border-info @(SelectedGateway == gateway ? "bg-info" : "")">
                             <i class="@(gateway.Icon)"></i>
                             <h4 class="fw-bold mb-0 align-middle">@(gateway.Name)</h4>
                         </a>
                     </div>
                 }
+            </div>
+            <div class="row mt-5">
+                <div class="text-center">
+                    <WButton OnClick="LaunchPayment" Text="Add balance to your account" CssClasses="btn btn-primary"/>
+                </div>
             </div>
         </div>
     </div>
@@ -39,7 +58,7 @@
         <h3 class="card-title">Transactions</h3>
     </div>
     <div class="card-body">
-        <LazyLoader Load="Load">
+        <LazyLoader @ref="LazyLoader" Load="Load">
             <Table TableItem="Transaction"
                    Items="Transactions"
                    PageSize="50"
@@ -71,10 +90,46 @@
 
 @code
 {
+    private LazyLoader LazyLoader;
+
     private Transaction[] Transactions;
+    private string GiftCode = "";
+    private double Amount = 0;
+    private PaymentGateway? SelectedGateway;
 
     private async Task Load(LazyLoader _)
     {
         Transactions = await IdentityService.GetTransactions();
+        
+        Transactions = Transactions
+            .OrderByDescending(x => x.Id)
+            .ToArray();
+    }
+
+    private async Task RedeemGiftCode()
+    {
+        if (string.IsNullOrEmpty(GiftCode))
+            return;
+
+        await StoreService.Gift.Redeem(IdentityService.CurrentUser, GiftCode);
+
+        GiftCode = "";
+        await ToastService.Success("Successfully applied gift code");
+        await LazyLoader.Reload();
+    }
+
+    private async Task SelectGateway(PaymentGateway gateway)
+    {
+        SelectedGateway = gateway;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LaunchPayment()
+    {
+        if (SelectedGateway == null)
+            return;
+
+        var url = await SelectedGateway.Start(Amount);
+        Navigation.NavigateTo(url, true);
     }
 }
