@@ -9,7 +9,7 @@ public class PluginService
 {
     private readonly List<MoonlightPlugin> Plugins = new();
 
-    public async Task Load(IServiceCollection services)
+    public async Task Load(WebApplicationBuilder webApplicationBuilder)
     {
         var path = PathBuilder.Dir("storage", "plugins");
         Directory.CreateDirectory(path);
@@ -36,7 +36,8 @@ public class PluginService
                             // Create environment
                             plugin.Context = new PluginContext()
                             {
-                                Services = services
+                                Services = webApplicationBuilder.Services,
+                                WebApplicationBuilder = webApplicationBuilder
                             };
 
                             try
@@ -87,14 +88,15 @@ public class PluginService
         }
     }
     
-    public async Task RunPrePost(IServiceProvider provider)
+    public async Task RunPrePost(WebApplication webApplication)
     {
         foreach (var plugin in Plugins)
         {
             // Pass through the dependency injection
-            var scope = provider.CreateScope();
+            var scope = webApplication.Services.CreateScope();
             plugin.Context.Provider = scope.ServiceProvider;
             plugin.Context.Scope = scope;
+            plugin.Context.WebApplication = webApplication;
             
             Logger.Info($"Running post init tasks for {plugin.GetType().Name}");
 

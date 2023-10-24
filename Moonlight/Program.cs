@@ -33,7 +33,7 @@ var builder = WebApplication.CreateBuilder(args);
 var pluginService = new PluginService();
 builder.Services.AddSingleton(pluginService);
 
-await pluginService.Load(builder.Services);
+await pluginService.Load(builder);
 await pluginService.RunPreInit();
 
 builder.Services.AddDbContext<DataContext>();
@@ -106,6 +106,6 @@ app.Services.GetRequiredService<AutoMailSendService>();
 var serviceService = app.Services.GetRequiredService<ServiceAdminService>();
 await serviceService.RegisterAction(ServiceType.Server, new DummyActions());
 
-await pluginService.RunPrePost(app.Services);
+await pluginService.RunPrePost(app);
 
 app.Run();
