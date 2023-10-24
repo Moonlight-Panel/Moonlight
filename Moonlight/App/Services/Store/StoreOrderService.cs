@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Event;
 using Moonlight.App.Exceptions;
+using Moonlight.App.Extensions;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.ServiceManage;
 
@@ -138,8 +140,12 @@ public class StoreOrderService
         }
 
         // Create service
-        return await serviceService.Admin.Create(u, p,
+        var service = await serviceService.Admin.Create(u, p,
             service => { service.RenewAt = DateTime.UtcNow.AddDays(duration); });
+
+        await Events.OnServiceOrdered.InvokeAsync(service);
+        
+        return service;
     }
 
     public Task ValidateRenew(User u, Service s, int durationMultiplier)
