@@ -1,0 +1,27 @@
+﻿@using Moonlight.App.Extensions
+
+@typeparam TForm
+
+@foreach (var prop in typeof(TForm).GetProperties())
+{
+    <div class="col-md-@(Columns) col-12">
+        <CascadingValue Name="Property" Value="prop">
+            <CascadingValue Name="Data" Value="(object)Model">
+                @{
+                    var typeToCreate = typeof(AutoProperty<>).MakeGenericType(prop.PropertyType);
+                }
+
+                @ComponentHelper.FromType(typeToCreate)
+            </CascadingValue>
+        </CascadingValue>
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public TForm Model { get; set; }
+
+    [Parameter]
+    public int Columns { get; set; } = 6;
+}

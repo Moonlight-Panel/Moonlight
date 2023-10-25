@@ -1,5 +1,70 @@
 ﻿@page "/admin/store/coupons"
 
+@using BlazorTable
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Repositories
+@using Moonlight.Shared.Components.Modals.Store
+
+@inject Repository<Coupon> CouponRepository
+@inject Repository<CouponUse> CouponUseRepository
+@inject ToastService ToastService
+
 <AdminStoreNavigation Index="1" />
 
-@*<div class="card card"*@
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Coupons</h3>
+        <div class="card-toolbar">
+            <button @onclick="() => AddCouponModal.Show()" class="btn btn-icon btn-success"><i class="bx bx-sm bx-plus"></i></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            <Table TableItem="Coupon"
+                   Items="AllCoupons"
+                   PageSize="50"
+                   TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                   TableHeadClass="fw-bold text-muted">
+                <Column TableItem="Coupon" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+                <Column TableItem="Coupon" Title="Code" Field="@(x => x.Code)" Sortable="true" Filterable="true"/>
+                <Column TableItem="Coupon" Title="Amount" Field="@(x => x.Amount)" Sortable="true" Filterable="true"/>
+                <Column TableItem="Coupon" Title="Percent" Field="@(x => x.Percent)" Sortable="true" Filterable="true"/>
+                <Column TableItem="Coupon" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                    <Template>
+                        <a @onclick="() => Remove(context)" @onclick:preventDefault href="#" class="text-danger">Remove</a>
+                    </Template>
+                </Column>
+            </Table>
+        </LazyLoader>
+    </div>
+</div>
+
+<AddCouponModal @ref="AddCouponModal" OnUpdate="() => LazyLoader.Reload()" />
+
+@code
+{
+    private Coupon[] AllCoupons;
+    
+    private LazyLoader LazyLoader;
+    private AddCouponModal AddCouponModal;
+
+    private Task Load(LazyLoader _)
+    {
+        AllCoupons = CouponRepository
+            .Get()
+            .ToArray();
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task Remove(Coupon coupon)
+    {
+        if (CouponUseRepository.Get().Any(x => x.Coupon.Id == coupon.Id))
+            throw new DisplayException("The coupon has been used so it cannot be deleted");
+        
+        CouponRepository.Delete(coupon);
+
+        await ToastService.Success("Successfully deleted coupon");
+        await LazyLoader.Reload();
+    }
+}

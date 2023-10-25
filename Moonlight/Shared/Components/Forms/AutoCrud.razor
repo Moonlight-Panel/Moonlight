@@ -1,0 +1,67 @@
+﻿@using BlazorTable
+@using Moonlight.App.Repositories
+
+@typeparam TItem where TItem : class
+
+@inject Repository<TItem> ItemRepository
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@(Title)</h3>
+        <div class="card-toolbar">
+            <button class="btn btn-icon btn-success">
+                <i class="bx bx-sm bx-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <LazyLoader Load="LoadItems">
+            <Table TableItem="TItem"
+                   Items="Items"
+                   PageSize="50"
+                   TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                   TableHeadClass="fw-bold text-muted">
+                @ChildContent
+            </Table>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public Type CreateForm { get; set; }
+
+    [Parameter]
+    public Type UpdateForm { get; set; }
+
+    [Parameter]
+    public Func<Repository<TItem>, TItem[]> Load { get; set; }
+    
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private TItem[] Items;
+
+    protected override void OnInitialized()
+    {
+        if (CreateForm == null)
+            throw new ArgumentNullException(nameof(CreateForm));
+
+        if (UpdateForm == null)
+            throw new ArgumentNullException(nameof(UpdateForm));
+
+        if (Load == null)
+            throw new ArgumentNullException(nameof(Load));
+    }
+
+    private Task LoadItems(LazyLoader _)
+    {
+        Items = Load.Invoke(ItemRepository);
+
+        return Task.CompletedTask;
+    }
+}

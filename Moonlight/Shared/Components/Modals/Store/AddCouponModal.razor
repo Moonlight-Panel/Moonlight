@@ -1,0 +1,59 @@
+﻿@using Moonlight.App.Models.Forms.Store
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities.Store
+@using Mappy.Net
+
+@inject Repository<Coupon> CouponRepository
+@inject ToastService ToastService
+
+<SmartModal @ref="Modal" CssClasses="modal-dialog-centered modal-lg">
+    <div class="modal-header">
+        <h5 class="modal-title fs-3">Add new modal</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <SmartForm Model="Form" OnValidSubmit="OnValidSubmit">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">Code</label>
+                <input @bind="Form.Code" class="form-control" type="text"/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Percent</label>
+                <input @bind="Form.Percent" class="form-control" type="number"/>
+            </div>
+            <div>
+                <label class="form-label">Amount</label>
+                <input @bind="Form.Amount" class="form-control" type="number"/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </SmartForm>
+</SmartModal>
+
+@code
+{
+    [Parameter]
+    public Func<Task> OnUpdate { get; set; }
+
+    private SmartModal Modal;
+    private AddCouponForm Form = new();
+
+    public async Task Show()
+    {
+        await Modal.Show();
+    }
+    
+    private async Task OnValidSubmit()
+    {
+        var coupon = Mapper.Map<Coupon>(Form);
+        CouponRepository.Add(coupon);
+
+        Form = new();
+        await ToastService.Success("Successfully added new coupon");
+        await Modal.Hide();
+        await OnUpdate.Invoke();
+    }
+}
