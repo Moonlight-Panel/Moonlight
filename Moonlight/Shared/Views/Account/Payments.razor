@@ -117,7 +117,10 @@
 
         await StoreService.Gift.Redeem(IdentityService.CurrentUser, GiftCode);
 
+        // Reset
         GiftCode = "";
+        await InvokeAsync(StateHasChanged);
+        
         await ToastService.Success("Successfully applied gift code");
         await LazyLoader.Reload();
     }

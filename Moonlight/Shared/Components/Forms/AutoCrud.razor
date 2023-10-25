@@ -1,31 +1,104 @@
 ﻿@using BlazorTable
 @using Moonlight.App.Repositories
+@using System.Linq.Expressions
+@using Mappy.Net
 
 @typeparam TItem where TItem : class
+@typeparam TCreateForm
+@typeparam TUpdateForm
 
 @inject Repository<TItem> ItemRepository
+@inject ToastService ToastService
 
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@(Title)</h3>
         <div class="card-toolbar">
-            <button class="btn btn-icon btn-success">
+            <button @onclick="StartCreate" class="btn btn-icon btn-success">
                 <i class="bx bx-sm bx-plus"></i>
             </button>
         </div>
     </div>
     <div class="card-body">
-        <LazyLoader Load="LoadItems">
+        <LazyLoader @ref="LazyLoader" Load="LoadItems">
             <Table TableItem="TItem"
                    Items="Items"
                    PageSize="50"
                    TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
                    TableHeadClass="fw-bold text-muted">
                 @ChildContent
+                <Column TableItem="TItem" Field="IdExpression" Title="" Sortable="false" Filterable="false">
+                    <Template>
+                        <div class="text-end">
+                            <div class="btn-group">
+                                <button @onclick="() => StartUpdate(context)" class="btn btn-icon btn-warning">
+                                    <i class="bx bx-sm bx-slider"></i>
+                                </button>
+                                <button @onclick="() => StartDelete(context)" class="btn btn-icon btn-danger">
+                                    <i class="bx bx-sm bx-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </Template>
+                </Column>
             </Table>
         </LazyLoader>
     </div>
 </div>
+
+<SmartModal @ref="CreateModal" CssClasses="modal-dialog-centered modal-lg">
+    <div class="modal-header">
+        <h5 class="modal-title">Create</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <SmartForm Model="CreateForm" OnValidSubmit="FinishCreate">
+        <div class="modal-body">
+            <div class="row">
+                <AutoForm Columns="6" Model="CreateForm"/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </SmartForm>
+</SmartModal>
+
+<SmartModal @ref="UpdateModal" CssClasses="modal-dialog-centered modal-lg">
+    <div class="modal-header">
+        <h5 class="modal-title">Update</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <SmartForm Model="UpdateForm" OnValidSubmit="FinishUpdate">
+        <div class="modal-body">
+            <div class="row">
+                <AutoForm Columns="6" Model="UpdateForm"/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </SmartForm>
+</SmartModal>
+
+<SmartModal @ref="DeleteModal" CssClasses="modal-dialog-centered">
+    <div class="modal-header">
+        <h5 class="modal-title">Do you want to delete this item?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <p class="text-gray-400 fs-5 fw-semibold">
+            This action cannot be undone. The data will be deleted and cannot be restored
+        </p>
+    </div>
+    <div class="modal-footer p-3">
+        <div class="btn-group w-100">
+            <WButton OnClick="FinishDelete" Text="Delete" CssClasses="btn btn-danger w-50 me-3"/>
+            <button class="btn btn-secondary w-50" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</SmartModal>
 
 @code
 {
@@ -33,29 +106,42 @@
     public string Title { get; set; } = "";
 
     [Parameter]
-    public Type CreateForm { get; set; }
-
-    [Parameter]
-    public Type UpdateForm { get; set; }
-
-    [Parameter]
     public Func<Repository<TItem>, TItem[]> Load { get; set; }
-    
+
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+    
+    [Parameter]
+    public Func<TItem, Task>? ValidateAdd { get; set; }
+    
+    [Parameter]
+    public Func<TItem, Task>? ValidateUpdate { get; set; }
+    
+    [Parameter]
+    public Func<TItem, Task>? ValidateDelete { get; set; }
 
     private TItem[] Items;
+    private TCreateForm CreateForm;
+    private TUpdateForm UpdateForm;
+    private TItem ItemToUpdate;
+    private TItem ItemToDelete;
+
+    private SmartModal CreateModal;
+    private SmartModal UpdateModal;
+    private SmartModal DeleteModal;
+
+    private Expression<Func<TItem, object>> IdExpression;
+    private LazyLoader LazyLoader;
 
     protected override void OnInitialized()
     {
-        if (CreateForm == null)
-            throw new ArgumentNullException(nameof(CreateForm));
-
-        if (UpdateForm == null)
-            throw new ArgumentNullException(nameof(UpdateForm));
-
         if (Load == null)
             throw new ArgumentNullException(nameof(Load));
+
+        CreateForm = Activator.CreateInstance<TCreateForm>()!;
+        UpdateForm = Activator.CreateInstance<TUpdateForm>()!;
+
+        IdExpression = CreateExpression();
     }
 
     private Task LoadItems(LazyLoader _)
@@ -63,5 +149,87 @@
         Items = Load.Invoke(ItemRepository);
 
         return Task.CompletedTask;
+    }
+
+    private async Task StartUpdate(TItem item)
+    {
+        UpdateForm = Mapper.Map<TUpdateForm>(item);
+        ItemToUpdate = item;
+        await UpdateModal.Show();
+    }
+
+    private async Task FinishUpdate()
+    {
+        var item = Mapper.Map(ItemToUpdate, UpdateForm!);
+
+        if (ValidateUpdate != null) // Optional additional validation
+            await ValidateUpdate.Invoke(item);
+        
+        ItemRepository.Update(item);
+
+    // Reset
+        await UpdateModal.Hide();
+        await LazyLoader.Reload();
+        await ToastService.Success("Successfully updated item");
+    }
+
+    private async Task StartCreate()
+    {
+        CreateForm = Activator.CreateInstance<TCreateForm>()!;
+        await CreateModal.Show();
+    }
+
+    private async Task FinishCreate()
+    {
+        var item = Mapper.Map<TItem>(CreateForm!);
+        
+        if (ValidateAdd != null) // Optional additional validation
+            await ValidateAdd.Invoke(item);
+        
+        ItemRepository.Add(item);
+
+    // Reset
+        await CreateModal.Hide();
+        await LazyLoader.Reload();
+        await ToastService.Success("Successfully added item");
+    }
+
+    private async Task StartDelete(TItem item)
+    {
+        ItemToDelete = item;
+        await DeleteModal.Show();
+    }
+
+    private async Task FinishDelete()
+    {
+        if (ValidateDelete != null) // Optional additional validation
+            await ValidateDelete.Invoke(ItemToDelete);
+        
+        ItemRepository.Delete(ItemToDelete);
+
+    // Reset
+        await DeleteModal.Hide();
+        await LazyLoader.Reload();
+        await ToastService.Success("Successfully deleted item");
+    }
+
+    private Expression<Func<TItem, object>> CreateExpression()
+    {
+    // Parameter expression for the input object
+        var inputParam = Expression.Parameter(typeof(TItem), "input");
+
+    // Convert the input object to the actual model type (MyModel in this example)
+        var castedInput = Expression.Convert(inputParam, typeof(TItem));
+
+    // Create a property access expression using the property name
+        var propertyAccess = Expression.Property(castedInput, "Id");
+
+    // Convert the property value to an object
+        var castedResult = Expression.Convert(propertyAccess, typeof(object));
+
+    // Create a lambda expression
+        var lambda = Expression.Lambda<Func<TItem, object>>(castedResult, inputParam);
+
+        return lambda;
     }
 }
