@@ -11,4 +11,5 @@ public class Events
     public static EventHandler<User> OnUserTotpSet;
     public static EventHandler<MailVerificationEventArgs> OnUserMailVerify;
     public static EventHandler<Service> OnServiceOrdered;
+    public static EventHandler<TransactionCreatedEventArgs> OnTransactionCreated;
 }

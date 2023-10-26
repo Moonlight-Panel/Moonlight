@@ -1,5 +1,7 @@
 ﻿using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Event;
+using Moonlight.App.Extensions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Repositories;
 
@@ -14,16 +16,17 @@ public class TransactionService
         UserRepository = userRepository;
     }
 
-    public Task Add(User u, double amount, string message)
+    public async Task Add(User u, double amount, string message)
     {
         var user = UserRepository.Get().First(x => x.Id == u.Id); // Load user with current repo
-        
-        user.Transactions.Add(new Transaction()
+
+        var transaction = new Transaction()
         {
             Text = message,
             Price = amount
-        });
+        };
         
+        user.Transactions.Add(transaction);
         UserRepository.Update(user);
 
         // We divide the call to ensure the transaction can be written to the database 
@@ -32,7 +35,11 @@ public class TransactionService
         user.Balance = Math.Round(user.Balance, 2); // To prevent weird numbers
         
         UserRepository.Update(user);
-        
-        return Task.CompletedTask;
+
+        await Events.OnTransactionCreated.InvokeAsync(new()
+        {
+            Transaction = transaction,
+            User = user
+        });
     }
 }

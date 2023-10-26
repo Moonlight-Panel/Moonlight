@@ -1,6 +1,7 @@
 ﻿using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Event;
+using Moonlight.App.Event.Args;
 
 namespace Moonlight.App.Services.Background;
 
@@ -14,6 +15,18 @@ public class AutoMailSendService // This service is responsible for sending mail
 
         Events.OnUserRegistered += OnUserRegistered;
         Events.OnServiceOrdered += OnServiceOrdered;
+        Events.OnTransactionCreated += OnTransactionCreated;
+    }
+
+    private async void OnTransactionCreated(object? sender, TransactionCreatedEventArgs eventArgs)
+    {
+        await MailService.Send(
+            eventArgs.User,
+            "New transaction",
+            "transactionCreated",
+            eventArgs.Transaction,
+            eventArgs.User
+        );
     }
 
     private async void OnServiceOrdered(object? _, Service service)
