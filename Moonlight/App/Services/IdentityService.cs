@@ -1,4 +1,6 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Helpers;
 using Moonlight.App.Models.Abstractions;
@@ -23,6 +25,7 @@ public class IdentityService
     public bool IsSignedIn => CurrentUserNullable != null;
     public FlagStorage Flags { get; private set; } = new("");
     public PermissionStorage Permissions { get; private set; } = new(-1);
+    public Transaction[] Transactions => GetTransactions().Result; // TODO: make more efficient
     public EventHandler OnAuthenticationStateChanged { get; set; }
 
     public IdentityService(Repository<User> userRepository,
@@ -30,6 +33,20 @@ public class IdentityService
     {
         UserRepository = userRepository;
         JwtService = jwtService;
+    }
+    
+    // Transactions
+    public Task<Transaction[]> GetTransactions()
+    {
+        if (CurrentUserNullable == null)
+            return Task.FromResult(Array.Empty<Transaction>());
+
+        var user = UserRepository
+            .Get()
+            .Include(x => x.Transactions)
+            .First(x => x.Id == CurrentUserNullable.Id);
+
+        return Task.FromResult(user.Transactions.ToArray());
     }
 
     // Authentication

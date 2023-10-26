@@ -18,6 +18,7 @@
       <Folder Include="App\Http\Middleware\" />
       <Folder Include="App\Http\Requests\" />
       <Folder Include="App\Http\Resources\" />
+      <Folder Include="storage\logs\" />
       <Folder Include="wwwroot\img\" />
     </ItemGroup>
 
@@ -26,6 +27,7 @@
       <PackageReference Include="BlazorTable" Version="1.17.0" />
       <PackageReference Include="JWT" Version="10.1.1" />
       <PackageReference Include="MailKit" Version="4.2.0" />
+      <PackageReference Include="Mappy.Net" Version="1.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -41,6 +43,10 @@
       <PackageReference Include="QRCoder" Version="1.4.3" />
       <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
       <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="storage\config.json" />
     </ItemGroup>
 
 </Project>

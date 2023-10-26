@@ -2,6 +2,7 @@
 @using Moonlight.App.Services
 
 @inject IdentityService IdentityService
+@inject ConfigService ConfigService
 @inject CookieService CookieService
 
 <div class="app-header">
@@ -55,6 +56,17 @@
                                 </span>
                             </div>
                         </div>
+                    </div>
+                    <div class="separator my-2"></div>
+                    <div class="menu-item px-5">
+                        <a href="/account/payments" class="menu-link px-5">
+                            <span class="menu-badge">
+                                <span class="badge badge-info fw-bold fs-7 badge-lg">@(ConfigService.Get().Store.Currency) @(IdentityService.CurrentUser.Balance)</span>
+                            </span>
+                            <span class="menu-text ms-3">
+                                Payment
+                            </span>
+                        </a>
                     </div>
                     <div class="separator my-2"></div>
                     <div class="menu-item px-5">

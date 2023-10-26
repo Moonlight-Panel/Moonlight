@@ -213,7 +213,7 @@ public static class Formatter
         return builder =>
         {
             int i = 0;
-            var arr = content.Split("\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var arr = content.Split("\n");
 
             foreach (var line in arr)
             {

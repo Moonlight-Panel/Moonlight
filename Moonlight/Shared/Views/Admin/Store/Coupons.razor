@@ -1,0 +1,43 @@
+﻿@page "/admin/store/coupons"
+
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Repositories
+@using BlazorTable
+@using Moonlight.App.Models.Forms.Admin.Store
+
+@inject Repository<Coupon> CouponRepository
+
+<AdminStoreNavigation Index="1"/>
+
+<div class="mt-5">
+    <AutoCrud TItem="Coupon"
+              TCreateForm="AddCouponForm"
+              TUpdateForm="EditCouponForm"
+              Title="Manage coupons"
+              Load="LoadData"
+              ValidateAdd="Validate"
+              ValidateUpdate="Validate">
+        <Column TableItem="Coupon" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+        <Column TableItem="Coupon" Title="Code" Field="@(x => x.Code)" Sortable="true" Filterable="true"/>
+        <Column TableItem="Coupon" Title="Amount" Field="@(x => x.Amount)" Sortable="true" Filterable="true"/>
+        <Column TableItem="Coupon" Title="Percent" Field="@(x => x.Percent)" Sortable="true" Filterable="true"/>
+    </AutoCrud>
+</div>
+
+@code
+{
+    private Coupon[] LoadData(Repository<Coupon> repository)
+    {
+        return repository
+            .Get()
+            .ToArray();
+    }
+
+    private Task Validate(Coupon coupon)
+    {
+        if (CouponRepository.Get().Any(x => x.Code == coupon.Code && x.Id != coupon.Id))
+            throw new DisplayException("A coupon with that code does already exist");
+
+        return Task.CompletedTask;
+    }
+}

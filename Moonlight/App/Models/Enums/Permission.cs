@@ -9,6 +9,7 @@ public enum Permission
     AdminSessions = 1002,
     AdminUsersEdit = 1003,
     AdminTickets = 1004,
+    AdminStore = 1900,
     AdminViewExceptions = 1999,
     AdminRoot = 2000
 }

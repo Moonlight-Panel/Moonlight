@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Moonlight.App.Models.Forms;
+namespace Moonlight.App.Models.Forms.Auth;
 
 public class ResetPasswordForm
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Database.Entities.Tickets;
 using Moonlight.App.Services;
 
@@ -12,6 +13,18 @@ public class DataContext : DbContext
     public DbSet<User> Users { get; set; }
     //public DbSet<Ticket> Tickets { get; set; }
     //public DbSet<TicketMessage> TicketMessages { get; set; }
+    
+    // Store
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Service> Services { get; set; }
+    public DbSet<ServiceShare> ServiceShares { get; set; }
+    
+    public DbSet<GiftCode> GiftCodes { get; set; }
+    public DbSet<GiftCodeUse> GiftCodeUses { get; set; }
+    
+    public DbSet<Coupon> Coupons { get; set; }
+    public DbSet<CouponUse> CouponUses { get; set; }
 
     public DataContext(ConfigService configService)
     {

@@ -1,0 +1,27 @@
+﻿@typeparam TField where TField : struct
+@using Microsoft.AspNetCore.Components.Forms
+@inherits InputBase<TField>
+
+<select @bind="CurrentValue" class="form-select">
+    @foreach (var status in (TField[])Enum.GetValues(typeof(TField)))
+    {
+        if (CurrentValue.ToString() == status.ToString())
+        {
+            <option value="@(status)" selected="">@(status)</option>
+        }
+        else
+        {
+            <option value="@(status)">@(status)</option>
+        }
+    }
+</select>
+
+@code
+{
+    protected override bool TryParseValueFromString(string? value, out TField result, out string? validationErrorMessage)
+    {
+        result = Enum.Parse<TField>(value);
+        validationErrorMessage = "";
+        return false;
+    }
+}

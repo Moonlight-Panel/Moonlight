@@ -1,0 +1,41 @@
+﻿@page "/admin/store/gifts"
+
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Models.Forms.Admin.Store
+@using Moonlight.App.Repositories
+@using BlazorTable
+
+@inject Repository<GiftCode> GiftCodeRepository
+
+<AdminStoreNavigation Index="2"/>
+
+<div class="mt-5">
+    <AutoCrud TItem="GiftCode"
+              TCreateForm="AddGiftCodeForm"
+              TUpdateForm="EditGiftCodeForm"
+              Title="Manage gift codes"
+              Load="LoadData"
+              ValidateAdd="Validate">
+        <Column TableItem="GiftCode" Field="@(x => x.Code)" Title="Code" Sortable="false" Filterable="true" />
+        <Column TableItem="GiftCode" Field="@(x => x.Amount)" Title="Amount" Sortable="true" Filterable="true" />
+        <Column TableItem="GiftCode" Field="@(x => x.Value)" Title="Value" Sortable="true" Filterable="true" />
+    </AutoCrud>
+</div>
+
+@code
+{
+    private GiftCode[] LoadData(Repository<GiftCode> repository)
+    {
+        return repository
+            .Get()
+            .ToArray();
+    }
+
+    private Task Validate(GiftCode giftCode)
+    {
+        if (GiftCodeRepository.Get().Any(x => x.Code == giftCode.Code && x.Id != giftCode.Id))
+            throw new DisplayException("A gift code with that code does already exist");
+        
+        return Task.CompletedTask;
+    }
+}
