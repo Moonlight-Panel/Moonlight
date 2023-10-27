@@ -225,6 +225,34 @@ public static class Formatter
             }
         };
     }
+    
+    public static string FormatAgoFromDateTime(DateTime dt)
+    {
+        TimeSpan timeSince = DateTime.UtcNow.Subtract(dt);
+
+        if (timeSince.TotalMilliseconds < 1)
+            return "just now";
+
+        if (timeSince.TotalMinutes < 1)
+            return "less than a minute ago";
+
+        if (timeSince.TotalMinutes < 2)
+            return "1 minute ago";
+
+        if (timeSince.TotalMinutes < 60)
+            return Math.Round(timeSince.TotalMinutes) + " minutes ago";
+
+        if (timeSince.TotalHours < 2)
+            return "1 hour ago";
+
+        if (timeSince.TotalHours < 24)
+            return Math.Round(timeSince.TotalHours) + " hours ago";
+
+        if (timeSince.TotalDays < 2)
+            return "1 day ago";
+
+        return Math.Round(timeSince.TotalDays) + " days ago";
+    }
 
     // This will replace every placeholder with the respective value if specified in the model
     // For example:

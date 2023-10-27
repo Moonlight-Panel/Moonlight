@@ -1,0 +1,33 @@
+﻿@page "/community"
+
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities.Community
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.Shared.Components.Community
+
+@inject Repository<Post> PostRepository
+
+<div class="row">
+    <LazyLoader Load="Load">
+        @foreach (var post in Posts)
+        {
+            <PostView Post="post" />
+            <div class="mb-10"></div>
+        }
+    </LazyLoader>
+</div>
+
+@code
+{
+    private Post[] Posts;
+    
+    private Task Load(LazyLoader _)
+    {
+        Posts = PostRepository
+            .Get()
+            .Include(x => x.Author)
+            .ToArray();
+        
+        return Task.CompletedTask;
+    }
+}

@@ -19,7 +19,6 @@
       <Folder Include="App\Http\Requests\" />
       <Folder Include="App\Http\Resources\" />
       <Folder Include="storage\logs\" />
-      <Folder Include="wwwroot\img\" />
     </ItemGroup>
 
     <ItemGroup>
