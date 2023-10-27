@@ -1,4 +1,10 @@
 ﻿@inject IJSRuntime JsRuntime
+@using Microsoft.AspNetCore.Components.Forms
+@using Moonlight.App.Services
+@using Ganss.Xss
+@inherits InputBase<string>
+
+@inject IdentityService IdentityService
 
 <style>
     :root {
@@ -105,11 +111,15 @@
     }
 </style>
 
-<div id="@Id" class="card card-body bg-black"></div>
+<div id="@Id" class="card card-body bg-black" @onfocusout="Callback"></div>
 
 @code
 {
+    [Parameter]
+    public string InitialContent { get; set; }
+    
     private string Id;
+    private bool IsInitialized = false;
 
     protected override void OnInitialized()
     {
@@ -121,6 +131,32 @@
         if (firstRender)
         {
             await JsRuntime.InvokeVoidAsync("moonlight.textEditor.create", Id);
+            await JsRuntime.InvokeVoidAsync("moonlight.textEditor.set", Id, InitialContent);
+            CurrentValue = InitialContent;
+            IsInitialized = true;
         }
+    }
+
+    private async Task Callback()
+    {
+        if(!IsInitialized)
+            return;
+        
+        var html = await JsRuntime.InvokeAsync<string>("moonlight.textEditor.get", Id);
+        
+        var sanitizer = new HtmlSanitizer();
+        var sanitized = sanitizer.Sanitize(html);
+        
+        if(sanitized != html)
+            Logger.Warn($"XSS attempt by {IdentityService.CurrentUserNullable?.Username ?? "Guest"}: {html}", "security");
+
+        CurrentValue = sanitized;
+    }
+
+    protected override bool TryParseValueFromString(string? value, out string result, out string? validationErrorMessage)
+    {
+        result = value;
+        validationErrorMessage = "";
+        return true;
     }
 }

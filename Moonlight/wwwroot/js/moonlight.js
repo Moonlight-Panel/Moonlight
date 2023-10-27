@@ -128,6 +128,11 @@ window.moonlight = {
         {
             let editor = document.getElementById(id).ckeditorInstance;
             return editor.getData();
+        },
+        set: function (id, data)
+        {
+            let editor = document.getElementById(id).ckeditorInstance;
+            editor.setData(data);
         }
     }
 }
