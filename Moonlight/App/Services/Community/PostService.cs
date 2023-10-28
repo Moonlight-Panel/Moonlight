@@ -15,17 +15,29 @@ public class PostService
     private readonly Repository<Post> PostRepository;
     private readonly Repository<PostLike> PostLikeRepository;
     private readonly Repository<PostComment> PostCommentRepository;
+    private readonly Repository<WordFilter> WordFilterRepository;
 
-    public PostService(Repository<Post> postRepository, Repository<PostLike> postLikeRepository, Repository<PostComment> postCommentRepository)
+    public PostService(
+        Repository<Post> postRepository,
+        Repository<PostLike> postLikeRepository,
+        Repository<PostComment> postCommentRepository,
+        Repository<WordFilter> wordFilterRepository)
     {
         PostRepository = postRepository;
         PostLikeRepository = postLikeRepository;
         PostCommentRepository = postCommentRepository;
+        WordFilterRepository = wordFilterRepository;
     }
 
     // Posts
     public async Task<Post> Create(User user, string title, string content, PostType type)
     {
+        if(await CheckTextForBadWords(title))
+            throw new DisplayException("Bad word detected. Please follow the community rules");
+        
+        if(await CheckTextForBadWords(content))
+            throw new DisplayException("Bad word detected. Please follow the community rules");
+        
         var post = new Post()
         {
             Author = user,
@@ -43,6 +55,12 @@ public class PostService
 
     public async Task Update(Post post, string title, string content)
     {
+        if(await CheckTextForBadWords(title))
+            throw new DisplayException("Bad word detected. Please follow the community rules");
+        
+        if(await CheckTextForBadWords(content))
+            throw new DisplayException("Bad word detected. Please follow the community rules");
+        
         post.Title = title;
         post.Content = content;
         post.UpdatedAt = DateTime.UtcNow;
@@ -94,6 +112,9 @@ public class PostService
 
         if (!Regex.IsMatch(content, "^[ a-zA-Z0-9äöüßÄÖÜẞ,.;_\\n\\t-]+$"))
             throw new DisplayException("Illegal characters in comment content");
+        
+        if(await CheckTextForBadWords(content))
+            throw new DisplayException("Bad word detected. Please follow the community rules");
         
         //TODO: Swear word filter
         
@@ -156,5 +177,24 @@ public class PostService
 
             await Events.OnPostLiked.InvokeAsync(postWithLikes);
         }
+    }
+    
+    // Utils
+    private Task<bool> CheckTextForBadWords(string input) // This method checks for bad words using the filters added by an admin
+    {
+        var filters = WordFilterRepository
+            .Get()
+            .Select(x => x.Filter)
+            .ToArray();
+        
+        //TODO: Add timer for regex matching to create warnings
+        
+        foreach (var filter in filters)
+        {
+            if (Regex.IsMatch(input, filter))
+                return Task.FromResult(true);
+        }
+        
+        return Task.FromResult(false);
     }
 }

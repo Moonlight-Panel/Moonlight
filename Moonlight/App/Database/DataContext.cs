@@ -27,10 +27,11 @@ public class DataContext : DbContext
     public DbSet<Coupon> Coupons { get; set; }
     public DbSet<CouponUse> CouponUses { get; set; }
     
-    // Posts
+    // Community
     public DbSet<Post> Posts { get; set; }
     public DbSet<PostComment> PostComments { get; set; }
     public DbSet<PostLike> PostLikes { get; set; }
+    public DbSet<WordFilter> WordFilters { get; set; }
 
     public DataContext(ConfigService configService)
     {

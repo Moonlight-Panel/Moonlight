@@ -4,6 +4,10 @@
 @using Moonlight.App.Models.Forms.Admin.Store
 @using Moonlight.App.Repositories
 @using BlazorTable
+@using Moonlight.App.Extensions.Attributes
+@using Moonlight.App.Models.Enums
+
+@attribute [RequirePermission(Permission.AdminStore)]
 
 @inject Repository<GiftCode> GiftCodeRepository
 

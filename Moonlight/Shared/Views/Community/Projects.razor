@@ -11,14 +11,14 @@
 
 <div class="row">
     <div class="col-md-2 col-12 mb-5">
-        <CommunityNavigation Index="2" />
-        
+        <CommunityNavigation Index="2"/>
+
         <div class="card card-body mt-5">
             <button @onclick="() => CreateModal.Show()" class="btn btn-success">Create new post</button>
         </div>
     </div>
     <div class="col-md-10 col-12">
-        <div class="card border-primary">
+        <div class="card border-primary mb-5">
             <div class="card-body fs-5">
                 You have a interesting project or a fun game server you want to share with the community?
                 You can share it here. Please keep in mind to follow basic rules and dont offend anyone.
@@ -26,19 +26,17 @@
             </div>
         </div>
 
-        <div class="row mt-3">
-            <LazyLoader @ref="LazyLoader" Load="Load">
-                @foreach (var post in Posts)
-                {
-                    <PostView Post="post" OnUpdate="() => LazyLoader.Reload()"/>
-                    <div class="mb-10"></div>
-                }
-            </LazyLoader>
-        </div>
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            @foreach (var post in Posts)
+            {
+                <PostView Post="post" OnUpdate="() => LazyLoader.Reload()"/>
+                <div class="mb-10"></div>
+            }
+        </LazyLoader>
     </div>
 </div>
 
-<CreatePostModal @ref="CreateModal" OnUpdate="() => LazyLoader.Reload()" PostType="PostType.Event" />
+<CreatePostModal @ref="CreateModal" OnUpdate="() => LazyLoader.Reload()" PostType="PostType.Project"/>
 
 @code
 {
