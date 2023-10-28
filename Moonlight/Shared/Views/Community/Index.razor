@@ -8,10 +8,10 @@
 @inject Repository<Post> PostRepository
 
 <div class="row">
-    <LazyLoader Load="Load">
+    <LazyLoader @ref="LazyLoader" Load="Load">
         @foreach (var post in Posts)
         {
-            <PostView Post="post" />
+            <PostView Post="post" OnUpdate="() => LazyLoader.Reload()" />
             <div class="mb-10"></div>
         }
     </LazyLoader>
@@ -19,6 +19,7 @@
 
 @code
 {
+    private LazyLoader LazyLoader;
     private Post[] Posts;
     
     private Task Load(LazyLoader _)

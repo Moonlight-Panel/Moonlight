@@ -45,6 +45,7 @@ public class PostService
     {
         post.Title = title;
         post.Content = content;
+        post.UpdatedAt = DateTime.UtcNow;
         
         PostRepository.Update(post);
 
@@ -53,6 +54,30 @@ public class PostService
 
     public async Task Delete(Post post)
     {
+        var postWithData = PostRepository
+            .Get()
+            .Include(x => x.Comments)
+            .Include(x => x.Likes)
+            .First(x => x.Id == post.Id);
+        
+        // Cache relational data to delete later on
+        var likes = postWithData.Likes.ToArray();
+        var comments = postWithData.Comments.ToArray();
+        
+        // Clear relations
+        postWithData.Comments.Clear();
+        postWithData.Likes.Clear();
+        
+        PostRepository.Update(postWithData);
+        
+        // Delete relational data
+        foreach (var like in likes)
+            PostLikeRepository.Delete(like);
+
+        foreach (var comment in comments)
+            PostCommentRepository.Delete(comment);
+        
+        // Now delete the post itself
         PostRepository.Delete(post);
         await Events.OnPostDeleted.InvokeAsync(post);
     }
@@ -67,7 +92,7 @@ public class PostService
         if (content.Length > 1024)
             throw new DisplayException("Comment content cannot be longer than 1024 characters");
 
-        if (!Regex.IsMatch(content, "^[a-zA-Z0-9äöüßÄÖÜẞ,.;_\\n\\t-]+$"))
+        if (!Regex.IsMatch(content, "^[ a-zA-Z0-9äöüßÄÖÜẞ,.;_\\n\\t-]+$"))
             throw new DisplayException("Illegal characters in comment content");
         
         //TODO: Swear word filter
