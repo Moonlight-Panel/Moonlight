@@ -23,9 +23,12 @@ window.moonlight = {
         }
     },
     modals: {
-        show: function (id)
+        show: function (id, focus)
         {
-            let modal = new bootstrap.Modal(document.getElementById(id));
+            let modal = new bootstrap.Modal(document.getElementById(id), {
+                focus: focus
+            });
+            
             modal.show();
         },
         hide: function (id)

@@ -8,6 +8,13 @@
 
 <style>
     :root {
+        /* 
+        Fix from https://ckeditor.com/docs/ckeditor5/latest/installation/integrations/css.html
+        to make the editor work with bootstrap    
+         */
+        --ck-z-default: 100;
+        --ck-z-modal: calc( var(--ck-z-default) + 999 );
+        
         /* Overrides the border radius setting in the theme. */
         --ck-border-radius: 4px;
     
@@ -111,12 +118,18 @@
     }
 </style>
 
-<div id="@Id" class="card card-body bg-black" @onfocusout="Callback"></div>
+<div id="@Id" class="card card-body bg-black @(CssClasses)" @onfocusout="Callback" style="@(Styles)"></div>
 
 @code
 {
     [Parameter]
     public string InitialContent { get; set; }
+
+    [Parameter]
+    public string CssClasses { get; set; } = "";
+
+    [Parameter]
+    public string Styles { get; set; } = ""; // We added this parameter to allow custom heights to be set
     
     private string Id;
     private bool IsInitialized = false;

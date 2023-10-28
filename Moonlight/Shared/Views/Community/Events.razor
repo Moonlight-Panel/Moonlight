@@ -1,4 +1,4 @@
-﻿@page "/community"
+﻿@page "/community/events"
 
 @using Moonlight.App.Repositories
 @using Moonlight.App.Database.Entities.Community
@@ -9,13 +9,13 @@
 @using Moonlight.Shared.Components.Community
 @using Moonlight.Shared.Components.Modals.Community
 
-@inject Repository<Post> PostRepository
 @inject IdentityService IdentityService
+@inject Repository<Post> PostRepository
 
 <div class="row">
     <div class="col-md-2 col-12 mb-5">
-        <CommunityNavigation Index="0"/>
-
+        <CommunityNavigation Index="1" />
+        
         @if (IdentityService.Permissions[Permission.AdminCommunity])
         {
             <div class="card card-body mt-5">
@@ -24,27 +24,28 @@
         }
     </div>
     <div class="col-md-10 col-12">
-        <div class="card border-primary mb-5">
+        <div class="card border-primary">
             <div class="card-body fs-5">
-                These announcements provide you with the latest news and information.
-                The posts here have been created by an admin and can contain valuable information
-                so consider reading it from time to time
+                Planned events and current happenings can be found here.
+                If you want to know what will happen in the future or is going on now have a look at the posts below
             </div>
         </div>
 
-        <LazyLoader @ref="LazyLoader" Load="Load">
-            @foreach (var post in Posts)
-            {
-                <PostView Post="post" OnUpdate="() => LazyLoader.Reload()"/>
-                <div class="mb-10"></div>
-            }
-        </LazyLoader>
+        <div class="row mt-3">
+            <LazyLoader @ref="LazyLoader" Load="Load">
+                @foreach (var post in Posts)
+                {
+                    <PostView Post="post" OnUpdate="() => LazyLoader.Reload()"/>
+                    <div class="mb-10"></div>
+                }
+            </LazyLoader>
+        </div>
     </div>
 </div>
 
 @if (IdentityService.Permissions[Permission.AdminCommunity])
 {
-    <CreatePostModal @ref="CreateModal" OnUpdate="() => LazyLoader.Reload()" PostType="PostType.Announcement"/>
+    <CreatePostModal @ref="CreateModal" OnUpdate="() => LazyLoader.Reload()" PostType="PostType.Event" />
 }
 
 @code
@@ -58,7 +59,7 @@
         Posts = PostRepository
             .Get()
             .Include(x => x.Author)
-            .Where(x => x.Type == PostType.Announcement)
+            .Where(x => x.Type == PostType.Event)
             .ToArray();
 
         return Task.CompletedTask;

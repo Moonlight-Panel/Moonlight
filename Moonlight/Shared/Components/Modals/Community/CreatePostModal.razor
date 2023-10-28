@@ -1,0 +1,64 @@
+﻿@using Moonlight.App.Models.Forms.Community
+@using Moonlight.App.Services
+@using Moonlight.App.Services.Community
+@using Moonlight.App.Database.Enums
+
+@inject PostService PostService
+@inject IdentityService IdentityService
+@inject ToastService ToastService
+
+<SmartModal @ref="Modal" CssClasses="modal-fullscreen">
+    <div class="modal-header">
+        <h5 class="modal-title fs-3">Create a new post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <SmartForm Model="Form" OnValidSubmit="Submit">
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input @bind="Form.Title" class="form-control form-control-solid-bg"/>
+            </div>
+            <div>
+                <TextEditor @bind-Value="Form.Content" InitialContent="A well written post content from you" Styles="height: 55vh"/>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </SmartForm>
+</SmartModal>
+
+@code
+{
+    [Parameter]
+    public Func<Task>? OnUpdate { get; set; }
+
+    [Parameter]
+    public PostType PostType { get; set; }
+
+    private AddPostForm Form = new();
+    private SmartModal Modal;
+
+    public async Task Show()
+    {
+        Form = new();
+        await Modal.Show(false);
+    }
+
+    private async Task Submit()
+    {
+        await PostService.Create(
+            IdentityService.CurrentUser,
+            Form.Title,
+            Form.Content,
+            PostType
+            );
+
+        await Modal.Hide();
+        await ToastService.Success("Successfully created post");
+
+        if (OnUpdate != null)
+            await OnUpdate.Invoke();
+    }
+}
