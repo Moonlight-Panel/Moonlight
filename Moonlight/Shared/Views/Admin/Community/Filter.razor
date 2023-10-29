@@ -9,12 +9,12 @@
 
 @attribute [RequirePermission(Permission.AdminCommunity)]
 
-<AdminCommunityNavigation Index="1" />
+<AdminCommunityNavigation Index="1"/>
 
-<div class="card card-body border-primary fs-5 mt-5">
-    To protect from trollers and toxic people you can configure words using 
+<Tooltip>
+    To protect from trollers and toxic people you can configure words using
     regex expressions to block automatically to ensure no one can write bad things in the community tab.
-</div>
+</Tooltip>
 
 <div class="mt-5">
     <AutoCrud TItem="WordFilter"
@@ -22,8 +22,8 @@
               TUpdateForm="EditWordFilter"
               Title="Manage word filter"
               Load="LoadData">
-        <Column TableItem="WordFilter" Field="@(x => x.Id)" Title="Id" Sortable="false" Filterable="true" />
-        <Column TableItem="WordFilter" Field="@(x => x.Filter)" Title="Filter" Sortable="false" Filterable="true" />
+        <Column TableItem="WordFilter" Field="@(x => x.Id)" Title="Id" Sortable="false" Filterable="true"/>
+        <Column TableItem="WordFilter" Field="@(x => x.Filter)" Title="Filter" Sortable="false" Filterable="true"/>
     </AutoCrud>
 </div>
 
