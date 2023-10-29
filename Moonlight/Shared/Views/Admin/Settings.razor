@@ -1,0 +1,95 @@
+﻿@page "/admin/settings"
+@using Moonlight.App.Services
+
+@inject ConfigService ConfigService
+
+@if (ModelToShow == null)
+{
+    <h1>Nope</h1>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            @{
+                string title;
+
+                if (Path.Length == 0)
+                    title = "Configuration";
+                else
+                    title = string.Join(
+                        " > ",
+                        Path.Select(x =>
+                            x.EndsWith("Data") ? Formatter.ReplaceEnd(x, "Data", "") : x));
+            }
+
+            <h3 class="card-title">@(title)</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 col-12">
+                    @{
+                        var props = ModelToShow
+                            .GetType()
+                            .GetProperties()
+                            .Where(x => x.PropertyType.Assembly.FullName!.Contains("Moonlight") && x.PropertyType.IsClass)
+                            .ToArray();
+                    }
+                    
+                    @foreach (var prop in props)
+                    {
+                        <div class="d-flex flex-stack">
+                            <div class="d-flex align-items-center flex-row-fluid flex-wrap">
+                                <a href="/admin/settings?section=@(Section + "/" + prop.Name)" class="fs-5 text-primary">@(prop.Name)</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="col-md-9 col-12">
+                    <AutoForm Model="ModelToShow" Columns="6" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Section { get; set; } = "";
+
+    private object? ModelToShow = new();
+    private string[] Path = Array.Empty<string>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Section != null && Section.StartsWith("/"))
+            Section = Section.TrimStart('/');
+
+        Path = Section != null ? Section.Split("/") : Array.Empty<string>();
+        
+        ModelToShow = Resolve(ConfigService.Get(), Path, 0);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private object? Resolve(object model, string[] path, int index)
+    {
+        if (path.Length == 0)
+            return model;
+
+        if (path.Length == index)
+            return model;
+
+        var prop = model
+            .GetType()
+            .GetProperties()
+            .FirstOrDefault(x => x.PropertyType.Assembly.FullName!.Contains("Moonlight") && x.PropertyType.IsClass && x.Name == path[index]);
+
+        if (prop == null)
+            return null;
+
+        return Resolve(prop.GetValue(model)!, path, index + 1);
+    }
+}
