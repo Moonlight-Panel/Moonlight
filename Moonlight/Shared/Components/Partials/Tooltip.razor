@@ -1,0 +1,9 @@
+﻿<div class="card card-body border-primary fs-5 mt-5">
+    @ChildContent
+</div>
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

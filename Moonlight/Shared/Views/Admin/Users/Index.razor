@@ -11,7 +11,7 @@
 
 <AdminUsersNavigation Index="0"/>
 
-<div class="card">
+<div class="card mt-5">
     <div class="card-body">
         <LazyLoader Load="Load">
             <Table TableItem="User"
@@ -20,12 +20,12 @@
                    TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
                    TableHeadClass="fw-bold text-muted">
                 <Column TableItem="User" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-                <Column TableItem="User" Title="Email" Field="@(x => x.Email)" Sortable="true" Filterable="true">
+                <Column TableItem="User" Title="Username" Field="@(x => x.Username)" Sortable="true" Filterable="true">
                     <Template>
-                        <a href="/admin/users/view/@(context.Id)">@(context.Email)</a>
+                        <a href="/admin/users/view/@(context.Id)">@(context.Username)</a>
                     </Template>
                 </Column>
-                <Column TableItem="User" Title="Username" Field="@(x => x.Username)" Sortable="true" Filterable="true"/>
+                <Column TableItem="User" Title="Email" Field="@(x => x.Email)" Sortable="true" Filterable="true"/>
                 <Column TableItem="User" Title="Created at" Field="@(x => x.CreatedAt)" Sortable="true" Filterable="true">
                     <Template>
                         <span>@(Formatter.FormatDate(context.CreatedAt))</span>
