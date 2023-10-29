@@ -58,6 +58,7 @@
             .Get()
             .Include(x => x.Author)
             .Where(x => x.Type == PostType.Event)
+            .OrderByDescending(x => x.CreatedAt)
             .ToArray();
 
         return Task.CompletedTask;

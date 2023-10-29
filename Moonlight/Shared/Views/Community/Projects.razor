@@ -50,6 +50,7 @@
             .Get()
             .Include(x => x.Author)
             .Where(x => x.Type == PostType.Project)
+            .OrderByDescending(x => x.CreatedAt)
             .ToArray();
 
         return Task.CompletedTask;

@@ -177,6 +177,7 @@
             .ThenInclude(x => x.Author)
             .First(x => x.Id == Post.Id)
             .Comments
+            .OrderBy(x => x.CreatedAt)
             .ToArray();
 
         return Task.CompletedTask;
