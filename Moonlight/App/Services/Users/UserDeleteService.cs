@@ -104,6 +104,9 @@ public class UserDeleteService
             TransactionRepository.Delete(transaction);
         
         // User
-        UserRepository.Delete(user);
+        
+        // We need to use this in order to entity framework not crashing because of the previous deleted data
+        var userToDelete = UserRepository.Get().First(x => x.Id == user.Id);
+        UserRepository.Delete(userToDelete);
     }
 }
