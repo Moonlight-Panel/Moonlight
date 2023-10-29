@@ -11,6 +11,7 @@ public class UserService
 
     public UserAuthService Auth => ServiceProvider.GetRequiredService<UserAuthService>();
     public UserDetailsService Details => ServiceProvider.GetRequiredService<UserDetailsService>();
+    public UserDeleteService Delete => ServiceProvider.GetRequiredService<UserDeleteService>();
     
     public UserService(
         Repository<User> userRepository,
@@ -39,12 +40,6 @@ public class UserService
 
         UserRepository.Update(user);
 
-        return Task.CompletedTask;
-    }
-
-    public Task Delete(User user)
-    {
-        UserRepository.Delete(user);
         return Task.CompletedTask;
     }
 }

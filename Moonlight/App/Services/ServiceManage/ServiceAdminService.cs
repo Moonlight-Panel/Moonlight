@@ -75,7 +75,7 @@ public class ServiceAdminService
         
         await Actions[service.Product.Type].Delete(scope.ServiceProvider, service);
 
-        foreach (var share in service.Shares)
+        foreach (var share in service.Shares.ToArray())
         {
             serviceShareRepo.Delete(share);
         }

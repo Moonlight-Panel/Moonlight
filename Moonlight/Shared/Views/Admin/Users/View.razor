@@ -230,7 +230,7 @@
 
     private async Task Delete()
     {
-        await UserService.Delete(User!);
+        await UserService.Delete.Perform(User!);
         await ToastService.Success("Successfully deleted user");
         Navigation.NavigateTo("/admin/users");
     }
