@@ -66,6 +66,7 @@ builder.Services.AddScoped<PostService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<UserAuthService>();
 builder.Services.AddScoped<UserDetailsService>();
+builder.Services.AddScoped<UserDeleteService>();
 
 // Services / Background
 builder.Services.AddSingleton<AutoMailSendService>();

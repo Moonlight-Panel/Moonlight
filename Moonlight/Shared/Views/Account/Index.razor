@@ -130,7 +130,7 @@
 
     private async Task OnDelete()
     {
-        await UserService.Delete(IdentityService.CurrentUser);
+        await UserService.Delete.Perform(IdentityService.CurrentUser);
         await IdentityService.Authenticate();
     }
 }
