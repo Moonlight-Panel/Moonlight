@@ -1,0 +1,8 @@
+﻿@page "/admin/community"
+
+@using Moonlight.App.Extensions.Attributes
+@using Moonlight.App.Models.Enums
+
+@attribute [RequirePermission(Permission.AdminCommunity)]
+
+<AdminCommunityNavigation Index="0" />

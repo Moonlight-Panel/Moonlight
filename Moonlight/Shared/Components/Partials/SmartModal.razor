@@ -27,12 +27,12 @@
         Id = GetHashCode();
     }
 
-    public async Task Show()
+    public async Task Show(bool focus = true) // Focus can be specified to fix issues with other components
     {
         ShouldShow = true;
         await InvokeAsync(StateHasChanged);
         
-        await ModalService.Show("modal" + Id);
+        await ModalService.Show("modal" + Id, focus);
     }
 
     public async Task Hide()

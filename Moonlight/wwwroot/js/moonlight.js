@@ -23,9 +23,12 @@ window.moonlight = {
         }
     },
     modals: {
-        show: function (id)
+        show: function (id, focus)
         {
-            let modal = new bootstrap.Modal(document.getElementById(id));
+            let modal = new bootstrap.Modal(document.getElementById(id), {
+                focus: focus
+            });
+            
             modal.show();
         },
         hide: function (id)
@@ -104,6 +107,35 @@ window.moonlight = {
             })
 
             return text;
+        }
+    },
+    textEditor: {
+        create: function(id)
+        {
+            BalloonEditor
+                .create(document.getElementById(id), {
+                    toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ],
+                    heading: {
+                        options: [
+                            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' }
+                        ]
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        get: function (id)
+        {
+            let editor = document.getElementById(id).ckeditorInstance;
+            return editor.getData();
+        },
+        set: function (id, data)
+        {
+            let editor = document.getElementById(id).ckeditorInstance;
+            editor.setData(data);
         }
     }
 }

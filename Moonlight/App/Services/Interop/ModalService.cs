@@ -11,11 +11,11 @@ public class ModalService
         JsRuntime = jsRuntime;
     }
 
-    public async Task Show(string id)
+    public async Task Show(string id, bool focus = true) // Focus can be specified to fix issues with other components
     {
         try
         {
-            await JsRuntime.InvokeVoidAsync("moonlight.modals.show", id);
+            await JsRuntime.InvokeVoidAsync("moonlight.modals.show", id, focus);
         }
         catch (Exception)
         {

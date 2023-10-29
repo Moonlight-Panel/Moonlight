@@ -1,0 +1,66 @@
+﻿@page "/community/events"
+
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities.Community
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Database.Enums
+@using Moonlight.App.Models.Enums
+@using Moonlight.App.Services
+@using Moonlight.Shared.Components.Community
+@using Moonlight.Shared.Components.Modals.Community
+
+@inject IdentityService IdentityService
+@inject Repository<Post> PostRepository
+
+<div class="row">
+    <div class="col-md-2 col-12 mb-5">
+        <CommunityNavigation Index="1"/>
+
+        @if (IdentityService.Permissions[Permission.AdminCommunity])
+        {
+            <div class="card card-body mt-5">
+                <button @onclick="() => CreateModal.Show()" class="btn btn-success">Create new post</button>
+            </div>
+        }
+    </div>
+    <div class="col-md-10 col-12">
+        <div class="card border-primary mb-5">
+            <div class="card-body fs-5">
+                Planned events and current happenings can be found here.
+                If you want to know what will happen in the future or is going on now have a look at the posts below
+            </div>
+        </div>
+
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            @foreach (var post in Posts)
+            {
+                <PostView Post="post" OnUpdate="() => LazyLoader.Reload()"/>
+                <div class="mb-10"></div>
+            }
+        </LazyLoader>
+    </div>
+</div>
+
+@if (IdentityService.Permissions[Permission.AdminCommunity])
+{
+    <CreatePostModal @ref="CreateModal" OnUpdate="() => LazyLoader.Reload()" PostType="PostType.Event"/>
+}
+
+@code
+{
+    private LazyLoader LazyLoader;
+    private CreatePostModal CreateModal;
+    private Post[] Posts;
+
+    private Task Load(LazyLoader _)
+    {
+        Posts = PostRepository
+            .Get()
+            .Include(x => x.Author)
+            .Where(x => x.Type == PostType.Event)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+}

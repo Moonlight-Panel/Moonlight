@@ -8,6 +8,7 @@ using Moonlight.App.Helpers.LogMigrator;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Background;
+using Moonlight.App.Services.Community;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.ServiceManage;
 using Moonlight.App.Services.Store;
@@ -57,6 +58,9 @@ builder.Services.AddScoped<StoreOrderService>();
 builder.Services.AddScoped<StoreGiftService>();
 builder.Services.AddSingleton<StorePaymentService>();
 builder.Services.AddScoped<TransactionService>();
+
+// Services / Community
+builder.Services.AddScoped<PostService>();
 
 // Services / Users
 builder.Services.AddScoped<UserService>();

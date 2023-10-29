@@ -54,7 +54,7 @@
     <SmartForm Model="CreateForm" OnValidSubmit="FinishCreate">
         <div class="modal-body">
             <div class="row">
-                <AutoForm Columns="6" Model="CreateForm"/>
+                <AutoForm Columns="@(CreateForm.GetType().GetProperties().Length > 1 ? 6 : 12)" Model="CreateForm"/>
             </div>
         </div>
         <div class="modal-footer">
@@ -72,7 +72,7 @@
     <SmartForm Model="UpdateForm" OnValidSubmit="FinishUpdate">
         <div class="modal-body">
             <div class="row">
-                <AutoForm Columns="6" Model="UpdateForm"/>
+                <AutoForm Columns="@(UpdateForm.GetType().GetProperties().Length > 1 ? 6 : 12)" Model="UpdateForm"/>
             </div>
         </div>
         <div class="modal-footer">

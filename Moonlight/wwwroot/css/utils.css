@@ -19,3 +19,7 @@
 .blur {
     filter: blur(5px);
 }
+
+.ck-powered-by {
+    display: none;
+}
