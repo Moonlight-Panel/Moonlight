@@ -24,13 +24,13 @@ public class PropBinder<T>
         get => (int)PropertyInfo.GetValue(DataObject)!;
         set => PropertyInfo.SetValue(DataObject, value);
     }
-    
+
     public long LongValue
     {
         get => (long)PropertyInfo.GetValue(DataObject)!;
         set => PropertyInfo.SetValue(DataObject, value);
     }
-    
+
     public bool BoolValue
     {
         get => (bool)PropertyInfo.GetValue(DataObject)!;
@@ -48,7 +48,7 @@ public class PropBinder<T>
         get => (T)PropertyInfo.GetValue(DataObject)!;
         set => PropertyInfo.SetValue(DataObject, value);
     }
-    
+
     public double DoubleValue
     {
         get => (double)PropertyInfo.GetValue(DataObject)!;

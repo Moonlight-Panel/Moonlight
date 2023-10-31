@@ -21,7 +21,12 @@ public class ConfigService
 
         var text = File.ReadAllText(Path);
         Data = JsonConvert.DeserializeObject<ConfigV1>(text) ?? new();
-        text = JsonConvert.SerializeObject(Data, Formatting.Indented);
+        Save();
+    }
+
+    public void Save()
+    {
+        var text = JsonConvert.SerializeObject(Data, Formatting.Indented);
         File.WriteAllText(Path, text);
     }
 

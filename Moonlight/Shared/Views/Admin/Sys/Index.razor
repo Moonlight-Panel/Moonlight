@@ -1,0 +1,8 @@
+﻿@page "/admin/sys"
+
+@using Moonlight.App.Extensions.Attributes
+@using Moonlight.App.Models.Enums
+
+@attribute [RequirePermission(Permission.AdminRoot)]
+
+<AdminSysNavigation Index="0" />

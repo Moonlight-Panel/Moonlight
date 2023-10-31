@@ -133,6 +133,11 @@
         Binder = new(Property, Data);
     }
 
+    protected override void OnParametersSet()
+    {
+        Binder = new(Property, Data);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
