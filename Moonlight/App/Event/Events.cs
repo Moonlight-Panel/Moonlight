@@ -1,6 +1,7 @@
 ﻿using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Community;
 using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Database.Entities.Tickets;
 using Moonlight.App.Event.Args;
 
 namespace Moonlight.App.Event;
@@ -19,4 +20,7 @@ public class Events
     public static EventHandler<Post> OnPostLiked;
     public static EventHandler<PostComment> OnPostCommentCreated;
     public static EventHandler<PostComment> OnPostCommentDeleted;
+    public static EventHandler<Ticket> OnTicketCreated;
+    public static EventHandler<TicketMessageEventArgs> OnTicketMessage;
+    public static EventHandler<Ticket> OnTicketUpdated;
 }

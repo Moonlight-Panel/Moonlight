@@ -12,6 +12,7 @@ using Moonlight.App.Services.Community;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.ServiceManage;
 using Moonlight.App.Services.Store;
+using Moonlight.App.Services.Ticketing;
 using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
 using Serilog;
@@ -74,6 +75,11 @@ builder.Services.AddSingleton<AutoMailSendService>();
 // Services / ServiceManage
 builder.Services.AddScoped<ServiceService>();
 builder.Services.AddSingleton<ServiceAdminService>();
+
+// Services / Ticketing
+builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<TicketChatService>();
+builder.Services.AddScoped<TicketCreateService>();
 
 // Services
 builder.Services.AddScoped<IdentityService>();
