@@ -1,5 +1,6 @@
 using BlazorTable;
 using Moonlight.App.Actions.Dummy;
+using Moonlight.App.Api;
 using Moonlight.App.Database;
 using Moonlight.App.Database.Enums;
 using Moonlight.App.Extensions;
@@ -81,6 +82,7 @@ builder.Services.AddSingleton<ConfigService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<BucketService>();
 builder.Services.AddSingleton<MailService>();
+builder.Services.AddSingleton<ApiManagementService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -100,6 +102,7 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseWebSockets();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
