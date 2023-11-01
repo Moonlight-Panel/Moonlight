@@ -17,7 +17,7 @@ public class RequestDataContext
         var bytes = Data.Take(4).ToList();
         Data.RemoveRange(0, 4);
 
-        if (BitConverter.IsLittleEndian) // because of java (the app needing th api is written in java/kotlin) we need to use big endian
+        if (BitConverter.IsLittleEndian) // because of java (the app needing the api is written in java/kotlin) we need to use big endian
         {
             bytes.Reverse();
         }

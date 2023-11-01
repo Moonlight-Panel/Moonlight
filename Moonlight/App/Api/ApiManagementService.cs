@@ -7,11 +7,13 @@ public class ApiManagementService
 {
     public Dictionary<int, Type> Requests;
     public List<ApiUserContext> Contexts;
+    private readonly IServiceProvider ServiceProvider;
 
-    public ApiManagementService()
+    public ApiManagementService(IServiceProvider serviceProvider)
     {
         Requests = new Dictionary<int, Type>();
         Contexts = new List<ApiUserContext>();
+        ServiceProvider = serviceProvider;
 
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -37,6 +39,7 @@ public class ApiManagementService
         var type = Requests[id];
         var obj = Activator.CreateInstance(type) as AbstractRequest;
         obj!.Context = context;
+        obj!.ServiceProvider = ServiceProvider.CreateScope().ServiceProvider;
 
         return obj!;
     }
@@ -48,7 +51,7 @@ public class ApiManagementService
         var request = GetRequest(id, context);
         
         request.ReadData(rqd);
-        request.ProcessRequest();
+        await request.ProcessRequest();
 
         var rbd = new ResponseDataBuilder();
         rbd = request.CreateResponse(rbd);

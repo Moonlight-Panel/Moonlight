@@ -14,7 +14,7 @@ public class PingRequest : AbstractRequest
         return builder;
     }
 
-    public override void ProcessRequest()
+    public override async Task ProcessRequest()
     {
         
     }
