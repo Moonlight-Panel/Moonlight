@@ -1,4 +1,14 @@
-﻿<div class="d-flex flex-column flex-root" id="kt_app_root">
+﻿@* disable any reconnect screens *@
+
+<style>
+    #components-reconnect-modal
+    {
+        display: none !important;
+        pointer-events: none;
+    }
+</style>
+
+<div class="d-flex flex-column flex-root" id="kt_app_root">
     <div class="d-flex flex-column flex-lg-row flex-column-fluid">
         <a href="/" class="d-block d-lg-none mx-auto py-20">
             <img alt="Logo" src="/metronic8/demo38/assets/media/logos/default.svg" class="theme-light-show h-25px">
