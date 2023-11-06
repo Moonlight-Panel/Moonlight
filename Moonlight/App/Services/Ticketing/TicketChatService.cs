@@ -60,17 +60,17 @@ public class TicketChatService
         return Task.CompletedTask;
     }
 
-    public async Task SendMessage(string content, Stream? attachmentStream = null, string? attachmentString = null)
+    public async Task SendMessage(string content, Stream? attachmentStream = null, string? attachmentName = null)
     {
         if(string.IsNullOrEmpty(content))
             return;
 
-        string? attachmentName = null;
+        string? attachmentBucketName = null;
 
         // Check and download attachments
         if (attachmentStream != null && attachmentName != null)
         {
-            attachmentName = await BucketService.Store(
+            attachmentBucketName = await BucketService.Store(
                 "ticketAttachments",
                 attachmentStream,
                 attachmentName
@@ -81,7 +81,7 @@ public class TicketChatService
         var message = new TicketMessage()
         {
             Content = content,
-            Attachment = attachmentName,
+            Attachment = attachmentBucketName,
             CreatedAt = DateTime.UtcNow,
             Sender = IdentityService.CurrentUser,
             IsSupport = IsSupporter

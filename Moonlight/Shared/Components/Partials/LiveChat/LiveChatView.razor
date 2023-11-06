@@ -1,4 +1,5 @@
 ﻿@using Moonlight.App.Services.Ticketing
+@using System.Text.RegularExpressions
 
 @implements IDisposable
 
@@ -33,23 +34,44 @@
                                 </div>
                             </div>
                             <div class="p-5 rounded bg-light-@(message.IsSupport ? "info" : "primary") text-dark fw-semibold mw-lg-400px text-@(orientation)">
-                                @(message.Content)
+                                @(Formatter.FormatLineBreaks(message.Content))
+
+                                @if (message.Attachment != null)
+                                {
+                                    <div class="mt-3">
+                                        @if (Regex.IsMatch(message.Attachment, @"\.(jpg|jpeg|png|gif|bmp)$"))
+                                        {
+                                            <img src="/api/bucket/ticketAttachments/@(message.Attachment)" class="img-fluid" alt="Attachment"/>
+                                        }
+                                        else
+                                        {
+                                            <a href="/api/bucket/ticketAttachments/@(message.Attachment)" target="_blank" class="btn btn-secondary">
+                                                <i class="me-2 bx bx-download"></i> @(message.Attachment)
+                                            </a>
+                                        }
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
                 }
                 else
                 {
-                    @* System msgs here *@
+                    <div class="separator separator-content">@(message.Content)</div>
                 }
             }
         </div>
     </LazyLoader>
 </div>
 <div class="card-footer">
-    <div class="input-group">
-        <input @bind="MyMessageContent" class="form-control" placeholder="Type a message"/>
-        <WButton OnClick="SendMessage" Text="Send" CssClasses="btn btn-secondary"></WButton>
+    <div class="row">
+        <div class="input-group">
+            <textarea @bind="MyMessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
+            <ChatFileSelect @ref="FileSelect"/>
+            <WButton OnClick="SendMessage" CssClasses="ms-2 btn btn-icon btn-bg-light btn-color-white">
+                <i class="bx bx-sm bx-send"></i>
+            </WButton>
+        </div>
     </div>
 </div>
 
@@ -57,6 +79,8 @@
 {
     [CascadingParameter]
     public LiveChatMain LiveChatMain { get; set; }
+
+    private ChatFileSelect FileSelect;
 
     private bool HasStarted = false;
     private string MyMessageContent = "";
@@ -81,13 +105,25 @@
 
     private async Task SendMessage()
     {
-        if (string.IsNullOrEmpty(MyMessageContent))
+        if (string.IsNullOrEmpty(MyMessageContent) && FileSelect.SelectedFile == null)
             return;
 
         if (!HasStarted)
             return;
 
-        await TicketService.Chat.SendMessage(MyMessageContent);
+        if (FileSelect.SelectedFile == null)
+            await TicketService.Chat.SendMessage(MyMessageContent);
+        else
+        {
+            await TicketService.Chat.SendMessage(
+                string.IsNullOrEmpty(MyMessageContent) ? $"Upload of {FileSelect.SelectedFile.Name}" : MyMessageContent,
+                FileSelect.SelectedFile.OpenReadStream(1024 * 1024 * 5),
+                FileSelect.SelectedFile.Name
+                );
+
+            await FileSelect.RemoveSelection();
+        }
+
         MyMessageContent = "";
         await InvokeAsync(StateHasChanged);
     }

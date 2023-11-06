@@ -32,30 +32,7 @@
                 {
                     <a href="#" @onclick="() => LiveChatMain.OpenTicket(ticket)" @onclick:preventDefault class="d-flex flex-stack py-4">
                         <div class="d-flex align-items-center">
-                            <div class="symbol symbol-45px symbol-circle">
-                                @{
-                                    string color = "";
-
-                                    switch (ticket.Priority)
-                                    {
-                                        case TicketPriority.Critical:
-                                            color = "danger";
-                                            break;
-                                        case TicketPriority.High:
-                                            color = "warning";
-                                            break;
-                                        case TicketPriority.Medium:
-                                            color = "primary";
-                                            break;
-                                        case TicketPriority.Low:
-                                            color = "secondary";
-                                            break;
-                                    }
-                                }
-
-                                <span class="symbol-label bg-@(color) text-white fs-6 fw-bolder">@(ticket.Priority.ToString().First())</span>
-                            </div>
-                            <div class="ms-5">
+                            <div>
                                 <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">@(ticket.Name)</a>
                                 <div class="fw-semibold text-muted">@(ticket.Description.Length > 100 ? string.Concat(ticket.Description.Take(97)) : ticket.Description)</div>
                             </div>
