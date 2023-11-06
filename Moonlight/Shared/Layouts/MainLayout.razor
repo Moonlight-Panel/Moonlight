@@ -2,6 +2,7 @@
 @using Moonlight.App.Models.Abstractions
 @using Moonlight.App.Models.Enums
 @using Moonlight.Shared.Components.Auth
+@using Moonlight.App.Event
 
 @inherits LayoutComponentBase
 @implements IDisposable
@@ -11,6 +12,7 @@
 @inject IdentityService IdentityService
 @inject SessionService SessionService
 @inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -23,13 +25,19 @@
         if (!IdentityService.Flags[UserFlag.MailVerified] && ConfigService.Get().Security.EnableEmailVerify)
         {
             <OverlayLayout>
-                <MailVerify />
+                <MailVerify/>
             </OverlayLayout>
         }
         else if (IdentityService.Flags[UserFlag.PasswordPending])
         {
             <OverlayLayout>
-                <ChangePassword />
+                <ChangePassword/>
+            </OverlayLayout>
+        }
+        else if (RestartLock)
+        {
+            <OverlayLayout>
+                <RestartAlert/>
             </OverlayLayout>
         }
         else
@@ -48,19 +56,19 @@
         if (url.LocalPath == "/register")
         {
             <OverlayLayout>
-                <Register />
+                <Register/>
             </OverlayLayout>
         }
         else if (url.LocalPath == "/password-reset")
         {
             <OverlayLayout>
-                <PasswordReset />
+                <PasswordReset/>
             </OverlayLayout>
         }
         else
         {
             <OverlayLayout>
-                <Login />
+                <Login/>
             </OverlayLayout>
         }
     }
@@ -90,6 +98,7 @@ else
 @code
 {
     private bool Initialized = false;
+    private bool RestartLock = false;
 
     private Session? MySession;
 
@@ -113,6 +122,12 @@ else
                 MySession.Url = Navigation.Uri;
                 MySession.UpdatedAt = DateTime.UtcNow;
             }
+        };
+
+        Events.OnMoonlightRestart += async (_, _) =>
+        {
+            RestartLock = true;
+            await InvokeAsync(StateHasChanged);
         };
     }
 

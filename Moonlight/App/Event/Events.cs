@@ -19,4 +19,5 @@ public class Events
     public static EventHandler<Post> OnPostLiked;
     public static EventHandler<PostComment> OnPostCommentCreated;
     public static EventHandler<PostComment> OnPostCommentDeleted;
+    public static EventHandler OnMoonlightRestart;
 }
