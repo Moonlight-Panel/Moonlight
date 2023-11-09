@@ -30,85 +30,110 @@
                     <div class="card-header">
                         <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
                             <li class="nav-item mt-2">
-                                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(0 == 0 ? "active" : "")" href="/account">
-                                    Request
+                                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(ShowDetails ? "" : "active")" @onclick="() => SetShowDetails(false)" @onclick:preventDefault href="#">
+                                    General
                                 </a>
                             </li>
                             <li class="nav-item mt-2">
-                                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(0 == 1 ? "active" : "")" href="/account/security">
+                                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(ShowDetails ? "active" : "")" @onclick="() => SetShowDetails(true)" @onclick:preventDefault href="#">
                                     Details
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-borderless align-middle mb-0 fs-5">
-                                <tbody>
-                                <tr>
-                                    <th>
-                                        <span>Ticket ID</span>
-                                    </th>
-                                    <td>@(Ticket.Id)</td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        <span>User</span>
-                                    </th>
-                                    <td>
-                                        <a href="/admin/users/view/@(Ticket.Creator.Id)">@(Ticket.Creator.Username)</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        <span>Service</span>
-                                    </th>
-                                    <td>
-                                        @if (Ticket.Service == null)
-                                        {
-                                            <span>None</span>
-                                        }
-                                        else
-                                        {
-                                            <a href="/service/@(Ticket.Service.Id)">@(Ticket.Service.Nickname ?? $"Service {Ticket.Service.Id}")</a>
-                                        }
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        <span>Status</span>
-                                    </th>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" @bind="EditOpen"/>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        <span>Priority</span>
-                                    </th>
-                                    <td>
-                                        <SmartEnumSelect @bind-Value="EditPriority"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>
-                                        <span>Created at</span>
-                                    </th>
-                                    <td>
-                                        <span>@(Formatter.FormatDate(Ticket.CreatedAt))</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th></th>
-                                    <td>
-                                        <WButton OnClick="Save" Text="Save" CssClasses="btn-primary" />
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        @if (ShowDetails)
+                        {
+                            <div class="mb-4 pb-2 g-3">
+                                <span class="fs-2 fw-bold">@(Ticket.Name)</span>
+                            </div>
+                            
+                            <span class="fs-4">
+                                Description
+                            </span>
+
+                            <p class="fs-5 text-muted">
+                                @(Formatter.FormatLineBreaks(Ticket.Description))
+                            </p>
+
+                            <span class="fs-4">
+                                Tries:
+                            </span>
+
+                            <p class="fs-5 text-muted">
+                                @(Formatter.FormatLineBreaks(Ticket.Tries))
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-borderless align-middle mb-0 fs-5">
+                                    <tbody>
+                                    <tr>
+                                        <th>
+                                            <span>Ticket ID</span>
+                                        </th>
+                                        <td>@(Ticket.Id)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>User</span>
+                                        </th>
+                                        <td>
+                                            <a href="/admin/users/view/@(Ticket.Creator.Id)">@(Ticket.Creator.Username)</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Service</span>
+                                        </th>
+                                        <td>
+                                            @if (Ticket.Service == null)
+                                            {
+                                                <span>None</span>
+                                            }
+                                            else
+                                            {
+                                                <a href="/service/@(Ticket.Service.Id)">@(Ticket.Service.Nickname ?? $"Service {Ticket.Service.Id}")</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Status</span>
+                                        </th>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" @bind="EditOpen"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Priority</span>
+                                        </th>
+                                        <td>
+                                            <SmartEnumSelect @bind-Value="EditPriority"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Created at</span>
+                                        </th>
+                                        <td>
+                                            <span>@(Formatter.FormatDate(Ticket.CreatedAt))</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <td>
+                                            <WButton OnClick="Save" Text="Save" CssClasses="btn-primary"/>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -185,9 +210,10 @@
 {
     [Parameter]
     public int Id { get; set; }
-    
+
     private Ticket? Ticket;
     private bool HasStarted = false;
+    private bool ShowDetails = false;
 
     // Message compose cache
     private ChatFileSelect FileSelect;
@@ -204,7 +230,7 @@
             .Include(x => x.Creator)
             .Include(x => x.Service)
             .FirstOrDefault(x => x.Id == Id);
-        
+
         return Task.CompletedTask;
     }
 
@@ -216,7 +242,7 @@
 
             TicketService.Chat.OnUpdate += OnUpdate;
             await TicketService.Chat.Start(Ticket, true);
-            
+
             EditOpen = TicketService.Chat.Ticket.Open;
             EditPriority = TicketService.Chat.Ticket.Priority;
 
@@ -249,19 +275,25 @@
         MessageContent = "";
         await InvokeAsync(StateHasChanged);
     }
-    
+
     private async Task Save()
     {
         await TicketService.Chat.Update(EditOpen, EditPriority);
         await ToastService.Success("Successfully updated ticket");
     }
 
+    private async Task SetShowDetails(bool b)
+    {
+        ShowDetails = b;
+        await InvokeAsync(StateHasChanged);
+    }
+
     private async Task OnUpdate()
     {
-        // Overwrite current cached data
+    // Overwrite current cached data
         EditOpen = TicketService.Chat.Ticket.Open;
         EditPriority = TicketService.Chat.Ticket.Priority;
-        
+
         await InvokeAsync(StateHasChanged);
     }
 
