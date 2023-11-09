@@ -23,6 +23,7 @@ Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 var logConfig = new LoggerConfiguration();
 
 logConfig = logConfig.Enrich.FromLogContext()
+    .MinimumLevel.Debug()
     .WriteTo.Console(
         outputTemplate:
         "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}");

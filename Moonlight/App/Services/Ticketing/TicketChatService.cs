@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities.Tickets;
+using Moonlight.App.Database.Enums;
 using Moonlight.App.Event;
 using Moonlight.App.Event.Args;
 using Moonlight.App.Extensions;
@@ -50,7 +51,31 @@ public class TicketChatService
         return Task.CompletedTask;
     }
 
-    public Task Stop()
+    public async Task Update(bool open, TicketPriority priority) // Updated and syncs ticket states to all listeners
+    {
+        if (Ticket.Open != open)
+        {
+            Ticket.Open = open;
+            
+            if(open)
+                await SendSystemMessage("Ticket has been opened");
+            else
+                await SendSystemMessage("Ticket has been closed");
+        }
+
+        if (Ticket.Priority != priority)
+        {
+            Ticket.Priority = priority;
+            
+            await SendSystemMessage($"Ticket priority to {priority}");
+        }
+        
+        TicketRepository.Update(Ticket);
+
+        await Events.OnTicketUpdated.InvokeAsync(Ticket);
+    }
+
+    public Task Stop() // Clear cache and stop listeners
     {
         Events.OnTicketMessage -= OnTicketMessage;
         Events.OnTicketUpdated -= OnTicketUpdated;
@@ -60,7 +85,24 @@ public class TicketChatService
         return Task.CompletedTask;
     }
 
-    public async Task SendMessage(string content, Stream? attachmentStream = null, string? attachmentName = null)
+    #region Sending
+
+    public async Task SendSystemMessage(string content) // use this to send a message shown in a seperator
+    {
+        // Build the message model
+        var message = new TicketMessage()
+        {
+            Content = content,
+            Attachment = null,
+            CreatedAt = DateTime.UtcNow,
+            Sender = null,
+            IsSupport = IsSupporter
+        };
+
+        await SyncMessage(message);
+    }
+
+    public async Task SendMessage(string content, Stream? attachmentStream = null, string? attachmentName = null) // Regular send method
     {
         if(string.IsNullOrEmpty(content))
             return;
@@ -87,6 +129,11 @@ public class TicketChatService
             IsSupport = IsSupporter
         };
 
+        await SyncMessage(message);
+    }
+
+    private async Task SyncMessage(TicketMessage message) // Use this function to save and sync function to others
+    {
         // Save ticket to the db
         var t = TicketRepository
             .Get()
@@ -102,6 +149,8 @@ public class TicketChatService
             TicketMessage = message
         });
     }
+
+    #endregion
 
     // Event handlers
     private async void OnTicketUpdated(object? _, Ticket ticket)

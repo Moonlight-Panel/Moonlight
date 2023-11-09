@@ -8,7 +8,7 @@
 <div class="card-header">
     <span class="card-title fs-5">@(HasStarted ? TicketService.Chat.Ticket.Name : "Loading")</span>
     <div class="card-toolbar">
-        <button @onclick="() => LiveChatMain.SetViewIndex(1)" class="btn btn-rounded-circle btn-icon">
+        <button @onclick="() => TicketPopupMain.SetViewIndex(1)" class="btn btn-rounded-circle btn-icon">
             <i class="bx bx-sm bx-chevron-left"></i>
         </button>
     </div>
@@ -66,7 +66,7 @@
 <div class="card-footer">
     <div class="row">
         <div class="input-group">
-            <textarea @bind="MyMessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
+            <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
             <ChatFileSelect @ref="FileSelect"/>
             <WButton OnClick="SendMessage" CssClasses="ms-2 btn btn-icon btn-bg-light btn-color-white">
                 <i class="bx bx-sm bx-send"></i>
@@ -78,12 +78,12 @@
 @code
 {
     [CascadingParameter]
-    public LiveChatMain LiveChatMain { get; set; }
-
-    private ChatFileSelect FileSelect;
+    public TicketPopupMain TicketPopupMain { get; set; }
 
     private bool HasStarted = false;
-    private string MyMessageContent = "";
+    
+    private ChatFileSelect FileSelect;
+    private string MessageContent = "";
 
     private async Task Load(LazyLoader lazyLoader)
     {
@@ -91,7 +91,7 @@
 
     // Initialize chat service and start it
         TicketService.Chat.OnUpdate = OnUpdate;
-        await TicketService.Chat.Start(LiveChatMain.CurrentTicket);
+        await TicketService.Chat.Start(TicketPopupMain.CurrentTicket);
 
     // Let the ui know that we are ready
         HasStarted = true;
@@ -105,18 +105,18 @@
 
     private async Task SendMessage()
     {
-        if (string.IsNullOrEmpty(MyMessageContent) && FileSelect.SelectedFile == null)
+        if (string.IsNullOrEmpty(MessageContent) && FileSelect.SelectedFile == null)
             return;
 
         if (!HasStarted)
             return;
 
         if (FileSelect.SelectedFile == null)
-            await TicketService.Chat.SendMessage(MyMessageContent);
+            await TicketService.Chat.SendMessage(MessageContent);
         else
         {
             await TicketService.Chat.SendMessage(
-                string.IsNullOrEmpty(MyMessageContent) ? $"Upload of {FileSelect.SelectedFile.Name}" : MyMessageContent,
+                string.IsNullOrEmpty(MessageContent) ? $"Upload of {FileSelect.SelectedFile.Name}" : MessageContent,
                 FileSelect.SelectedFile.OpenReadStream(1024 * 1024 * 5),
                 FileSelect.SelectedFile.Name
                 );
@@ -124,7 +124,7 @@
             await FileSelect.RemoveSelection();
         }
 
-        MyMessageContent = "";
+        MessageContent = "";
         await InvokeAsync(StateHasChanged);
     }
 

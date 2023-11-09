@@ -11,7 +11,7 @@
 <div class="card-header">
     <span class="card-title fs-5">Your tickets</span>
     <div class="card-toolbar">
-        <button @onclick="() => LiveChatMain.SetViewIndex(0)" class="btn btn-rounded-circle btn-icon">
+        <button @onclick="() => TicketPopupMain.SetViewIndex(0)" class="btn btn-rounded-circle btn-icon">
             <i class="bx bx-sm bx-x"></i>
         </button>
     </div>
@@ -19,7 +19,7 @@
 <div class="card-body pt-5">
     <div class="scroll-y me-n5 pe-5" style="height: 50vh; width: 40vh; display: flex; flex-direction: column;">
         <div class="d-flex flex-stack py-2 justify-content-center">
-            <h3 class="align-middle text-center">Need help? Create a <a @onclick="() => LiveChatMain.SetViewIndex(3)" @onclick:preventDefault href="#" class="text-primary">ticket</a></h3>
+            <h3 class="align-middle text-center">Need help? Create a <a @onclick="() => TicketPopupMain.SetViewIndex(3)" @onclick:preventDefault href="#" class="text-primary">ticket</a></h3>
         </div>
 
         <div class="d-flex flex-stack py-4">
@@ -30,7 +30,7 @@
             {
                 foreach (var ticket in Tickets)
                 {
-                    <a href="#" @onclick="() => LiveChatMain.OpenTicket(ticket)" @onclick:preventDefault class="d-flex flex-stack py-4">
+                    <a href="#" @onclick="() => TicketPopupMain.OpenTicket(ticket)" @onclick:preventDefault class="d-flex flex-stack py-4">
                         <div class="d-flex align-items-center">
                             <div>
                                 <a href="#" class="fs-5 fw-bold text-gray-900 text-hover-primary mb-2">@(ticket.Name)</a>
@@ -54,7 +54,7 @@
 @code
 {
     [CascadingParameter]
-    public LiveChatMain LiveChatMain { get; set; }
+    public TicketPopupMain TicketPopupMain { get; set; }
 
     private Ticket[] Tickets;
 

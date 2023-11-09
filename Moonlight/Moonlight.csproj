@@ -47,6 +47,17 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="storage\config.json" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Partials\TicketPopup\LiveChatCreate.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Partials\TicketPopup\LiveChatMain.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Partials\TicketPopup\LiveChatOverview.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Partials\TicketPopup\LiveChatView.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Shared\Components\TicketPopup\LiveChatCreate.razor" />
+      <AdditionalFiles Include="Shared\Components\TicketPopup\LiveChatMain.razor" />
+      <AdditionalFiles Include="Shared\Components\TicketPopup\LiveChatOverview.razor" />
+      <AdditionalFiles Include="Shared\Components\TicketPopup\LiveChatView.razor" />
     </ItemGroup>
 
 </Project>

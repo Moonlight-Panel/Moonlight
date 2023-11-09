@@ -11,7 +11,7 @@
 <div class="card-header">
     <span class="card-title fs-5">Create a new ticket</span>
     <div class="card-toolbar">
-        <button @onclick="() => LiveChatMain.SetViewIndex(1)" class="btn btn-rounded-circle btn-icon">
+        <button @onclick="() => TicketPopupMain.SetViewIndex(1)" class="btn btn-rounded-circle btn-icon">
             <i class="bx bx-sm bx-chevron-left"></i>
         </button>
     </div>
@@ -49,7 +49,7 @@
 @code
 {
     [CascadingParameter]
-    public LiveChatMain LiveChatMain { get; set; }
+    public TicketPopupMain TicketPopupMain { get; set; }
 
     private Service[] Services;
     private CreateTicketForm Form = new();
@@ -77,6 +77,6 @@
             Form.Service
             );
 
-        await LiveChatMain.OpenTicket(ticket);
+        await TicketPopupMain.OpenTicket(ticket);
     }
 }
