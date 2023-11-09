@@ -2,6 +2,7 @@
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Community;
 using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Database.Entities.Tickets;
 using Moonlight.App.Repositories;
 using Moonlight.App.Services.Community;
 using Moonlight.App.Services.ServiceManage;
@@ -16,6 +17,8 @@ public class UserDeleteService
     private readonly Repository<Transaction> TransactionRepository;
     private readonly Repository<CouponUse> CouponUseRepository;
     private readonly Repository<GiftCodeUse> GiftCodeUseRepository;
+    private readonly Repository<Ticket> TicketRepository;
+    private readonly Repository<TicketMessage> TicketMessageRepository;
     private readonly ServiceService ServiceService;
     private readonly PostService PostService;
 
@@ -27,7 +30,9 @@ public class UserDeleteService
         Repository<User> userRepository,
         Repository<GiftCodeUse> giftCodeUseRepository,
         Repository<CouponUse> couponUseRepository,
-        Repository<Transaction> transactionRepository)
+        Repository<Transaction> transactionRepository,
+        Repository<Ticket> ticketRepository,
+        Repository<TicketMessage> ticketMessageRepository)
     {
         ServiceRepository = serviceRepository;
         ServiceService = serviceService;
@@ -37,6 +42,8 @@ public class UserDeleteService
         GiftCodeUseRepository = giftCodeUseRepository;
         CouponUseRepository = couponUseRepository;
         TransactionRepository = transactionRepository;
+        TicketRepository = ticketRepository;
+        TicketMessageRepository = ticketMessageRepository;
     }
 
     public async Task Perform(User user)
@@ -102,6 +109,42 @@ public class UserDeleteService
 
         foreach (var transaction in transactions)
             TransactionRepository.Delete(transaction);
+        
+        // Tickets and ticket messages
+
+        // First we need to fetch every message this user has sent and delete it as admin accounts can have messages
+        // in tickets they dont own
+        var messagesFromUser = TicketMessageRepository
+            .Get()
+            .Where(x => x.Sender.Id == user.Id)
+            .ToArray();
+
+        foreach (var message in messagesFromUser)
+        {
+            TicketMessageRepository.Delete(message);
+        }
+        
+        // Now we can only delete the tickets the user actually owns
+        var tickets = TicketRepository
+            .Get()
+            .Include(x => x.Messages)
+            .Where(x => x.Creator.Id == user.Id)
+            .ToArray();
+
+        foreach (var ticket in tickets)
+        {
+            var messages = ticket.Messages.ToArray(); // Cache message models
+            
+            ticket.Messages.Clear();
+            TicketRepository.Update(ticket);
+            
+            foreach (var ticketMessage in messages)
+            {
+                TicketMessageRepository.Delete(ticketMessage);
+            }
+            
+            TicketRepository.Delete(ticket);
+        }
         
         // User
         
