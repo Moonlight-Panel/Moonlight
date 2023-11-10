@@ -63,4 +63,22 @@ public class BucketService
         else
             throw new FileNotFoundException();
     }
+
+    public Task Delete(string bucket, string file, bool ignoreNotFound = false)
+    {
+        var filePath = PathBuilder.File(BasePath, bucket, file);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            return Task.CompletedTask;
+        }
+
+        // This section will only be reached if the file does not exist
+        
+        if (!ignoreNotFound)
+            throw new FileNotFoundException();
+        
+        return Task.CompletedTask;
+    }
 }
