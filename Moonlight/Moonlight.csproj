@@ -44,9 +44,4 @@
       <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
       <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
     </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="storage\config.json" />
-    </ItemGroup>
-
 </Project>

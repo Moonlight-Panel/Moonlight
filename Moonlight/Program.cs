@@ -12,6 +12,7 @@ using Moonlight.App.Services.Community;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.ServiceManage;
 using Moonlight.App.Services.Store;
+using Moonlight.App.Services.Ticketing;
 using Moonlight.App.Services.Sys;
 using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
@@ -26,6 +27,7 @@ Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 var logConfig = new LoggerConfiguration();
 
 logConfig = logConfig.Enrich.FromLogContext()
+    .MinimumLevel.Debug()
     .WriteTo.Console(
         outputTemplate:
         "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}");
@@ -78,6 +80,11 @@ builder.Services.AddSingleton<AutoMailSendService>();
 // Services / ServiceManage
 builder.Services.AddScoped<ServiceService>();
 builder.Services.AddSingleton<ServiceAdminService>();
+
+// Services / Ticketing
+builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<TicketChatService>();
+builder.Services.AddScoped<TicketCreateService>();
 
 // Services
 builder.Services.AddScoped<IdentityService>();

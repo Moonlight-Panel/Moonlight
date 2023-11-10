@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Database.Enums;
+﻿using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Database.Enums;
 
 namespace Moonlight.App.Database.Entities.Tickets;
 
@@ -11,8 +12,9 @@ public class Ticket
     public string Tries { get; set; } = "";
     public TicketPriority Priority { get; set; } = TicketPriority.Low;
     public bool Open { get; set; } = true;
+    public Service? Service { get; set; }
 
-    public List<TicketMessage> Messages = new();
+    public List<TicketMessage> Messages { get; set; } = new();
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

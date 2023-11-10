@@ -16,17 +16,25 @@ public class UserDetailsService
 
     public async Task UpdateAvatar(User user, Stream stream, string fileName)
     {
+        if (user.Avatar != null)
+        {
+            await BucketService.Delete("avatars", user.Avatar, true);
+        }
+        
         var file = await BucketService.Store("avatars", stream, fileName);
 
         user.Avatar = file;
         UserRepository.Update(user);
     }
 
-    public Task UpdateAvatar(User user) // Overload to reset avatar
+    public async Task UpdateAvatar(User user) // Overload to reset avatar
     {
+        if (user.Avatar != null)
+        {
+            await BucketService.Delete("avatars", user.Avatar, true);
+        }
+        
         user.Avatar = null;
         UserRepository.Update(user);
-
-        return Task.CompletedTask;
     }
 }

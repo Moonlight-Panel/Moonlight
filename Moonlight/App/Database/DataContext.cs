@@ -12,8 +12,6 @@ public class DataContext : DbContext
     private readonly ConfigService ConfigService;
     
     public DbSet<User> Users { get; set; }
-    //public DbSet<Ticket> Tickets { get; set; }
-    //public DbSet<TicketMessage> TicketMessages { get; set; }
     
     // Store
     public DbSet<Category> Categories { get; set; }
@@ -32,6 +30,10 @@ public class DataContext : DbContext
     public DbSet<PostComment> PostComments { get; set; }
     public DbSet<PostLike> PostLikes { get; set; }
     public DbSet<WordFilter> WordFilters { get; set; }
+    
+    // Tickets
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<TicketMessage> TicketMessages { get; set; }
 
     public DataContext(ConfigService configService)
     {

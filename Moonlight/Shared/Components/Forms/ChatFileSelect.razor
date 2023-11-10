@@ -2,24 +2,23 @@
 
 @inject ToastService ToastService
 
-<InputFile OnChange="OnFileChanged" type="file" id="fileUpload" hidden=""/>
-<label for="fileUpload" class="">
-    @if (SelectedFile != null)
-    {
-        <div class="input-group">
-            <input type="text" class="form-control disabled" value="@(SelectedFile.Name)" disabled="">
-            <button class="btn btn-danger" type="button" @onclick="RemoveSelection">
-                Remove
-            </button>
-        </div>
-    }
-    else
-    {
-        <div class="btn btn-primary me-3 btn-icon">
-            <i class="bx bx-upload"></i>
-        </div>
-    }
-</label>
+@{
+    var id = $"fileUpload{GetHashCode()}";
+}
+
+<InputFile OnChange="OnFileChanged" type="file" id="@id" hidden=""/>
+@if (SelectedFile != null)
+{
+    <button @onclick="RemoveSelection" class="btn btn-icon btn-bg-light btn-color-danger rounded-start rounded-end">
+        <i class="bx bx-sm bx-x"></i>
+    </button>
+}
+else
+{
+    <label for="@id" class="btn btn-icon btn-bg-light btn-color-primary rounded-start rounded-end">
+        <i class="bx bx-sm bx-upload"></i>
+    </label>
+}
 
 @code
 {
