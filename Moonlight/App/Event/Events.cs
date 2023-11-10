@@ -23,4 +23,5 @@ public class Events
     public static EventHandler<Ticket> OnTicketCreated;
     public static EventHandler<TicketMessageEventArgs> OnTicketMessage;
     public static EventHandler<Ticket> OnTicketUpdated;
+    public static EventHandler OnMoonlightRestart;
 }

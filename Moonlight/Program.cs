@@ -13,9 +13,13 @@ using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.ServiceManage;
 using Moonlight.App.Services.Store;
 using Moonlight.App.Services.Ticketing;
+using Moonlight.App.Services.Sys;
 using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
 using Serilog;
+
+var configService = new ConfigService();
+var moonlightService = new MoonlightService(configService);
 
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
@@ -84,10 +88,11 @@ builder.Services.AddScoped<TicketCreateService>();
 
 // Services
 builder.Services.AddScoped<IdentityService>();
-builder.Services.AddSingleton<ConfigService>();
+builder.Services.AddSingleton(configService);
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<BucketService>();
 builder.Services.AddSingleton<MailService>();
+builder.Services.AddSingleton(moonlightService);
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -104,6 +109,7 @@ var config =
 builder.Logging.AddConfiguration(config.Build());
 
 var app = builder.Build();
+moonlightService.Application = app;
 
 app.UseStaticFiles();
 app.UseRouting();
