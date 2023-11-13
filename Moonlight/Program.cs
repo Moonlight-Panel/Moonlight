@@ -9,6 +9,7 @@ using Moonlight.App.Repositories;
 using Moonlight.App.Services;
 using Moonlight.App.Services.Background;
 using Moonlight.App.Services.Community;
+using Moonlight.App.Services.Discord.Bot;
 using Moonlight.App.Services.Interop;
 using Moonlight.App.Services.ServiceManage;
 using Moonlight.App.Services.Store;
@@ -26,6 +27,7 @@ Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 var logConfig = new LoggerConfiguration();
 
 logConfig = logConfig.Enrich.FromLogContext()
+    .MinimumLevel.Debug() //TODO: REMOVE DEBUG LOGGING
     .WriteTo.Console(
         outputTemplate:
         "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}");
@@ -79,6 +81,9 @@ builder.Services.AddSingleton<AutoMailSendService>();
 builder.Services.AddScoped<ServiceService>();
 builder.Services.AddSingleton<ServiceAdminService>();
 
+// ThirdParty / Discord
+builder.Services.AddSingleton<DiscordBotService>();
+
 // Services
 builder.Services.AddScoped<IdentityService>();
 builder.Services.AddSingleton(configService);
@@ -113,6 +118,7 @@ app.MapControllers();
 
 // Auto start background services
 app.Services.GetRequiredService<AutoMailSendService>();
+app.Services.GetRequiredService<DiscordBotService>();
 
 var serviceService = app.Services.GetRequiredService<ServiceAdminService>();
 await serviceService.RegisterAction(ServiceType.Server, new DummyActions());

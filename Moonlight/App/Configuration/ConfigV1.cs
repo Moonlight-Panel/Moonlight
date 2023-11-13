@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using AngleSharp.Dom;
 using Moonlight.App.Helpers;
 using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ public class ConfigV1
     [JsonProperty("MailServer")] public MailServerData MailServer { get; set; } = new();
 
     [JsonProperty("Store")] public StoreData Store { get; set; } = new();
+    [JsonProperty("Discord")] public DiscordData Discord { get; set; } = new();
 
     public class StoreData
     {
@@ -69,5 +71,45 @@ public class ConfigV1
         [JsonProperty("Password")] public string Password { get; set; } = "s3cr3t";
 
         [JsonProperty("UseSsl")] public bool UseSsl { get; set; } = true;
+    }
+    
+    public class DiscordData
+    {
+        [JsonProperty("Bot")] public BotData Bot { get; set; } = new();
+
+        [JsonProperty("WebHook")] public WebHookData WebHook { get; set; } = new();
+        
+        
+        public class BotData
+        {
+            [JsonProperty("Enable")]
+            [Description("Sets if the Bot is enabeled or not")]
+            public bool Enable { get; set; } = false;
+            
+            [JsonProperty("Token")]
+            [Description("Set here your Bot Token. Get one here https://discord.dev")]
+            public string Token { get; set; } = "Token here";
+            
+            [JsonProperty("GuildId")]
+            [Description("Set here your Discord Guild Id")]
+            public long GuildId { get; set; }
+            
+            [JsonProperty("LoggingId")]
+            [Description("This must be a PostChannel Recomended use: /setup")]
+            public long LoggingId { get; set; }
+            
+            
+        }
+        
+        public class WebHookData
+        {
+            [JsonProperty("Enable")]
+            [Description("Sets if the WebHook features are enabeled or not")]
+            public bool Enable { get; set; } = false;
+            
+            [JsonProperty("WebHook")]
+            [Description("")]
+            public string WebHook { get; set; } = "https://discord.dev/";
+        }
     }
 }

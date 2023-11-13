@@ -18,12 +18,15 @@
       <Folder Include="App\Http\Middleware\" />
       <Folder Include="App\Http\Requests\" />
       <Folder Include="App\Http\Resources\" />
+      <Folder Include="App\Services\Discord\WebHook\" />
       <Folder Include="storage\logs\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
       <PackageReference Include="BlazorTable" Version="1.17.0" />
+      <PackageReference Include="Discord.Net" Version="3.12.0" />
+      <PackageReference Include="Discord.Net.Webhook" Version="3.12.0" />
       <PackageReference Include="HtmlSanitizer" Version="8.0.746" />
       <PackageReference Include="JWT" Version="10.1.1" />
       <PackageReference Include="MailKit" Version="4.2.0" />
