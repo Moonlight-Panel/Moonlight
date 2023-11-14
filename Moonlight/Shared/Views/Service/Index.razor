@@ -1,0 +1,92 @@
+﻿@page "/service/{Id:int}/{Route?}"
+
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Services.ServiceManage
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Models.Abstractions
+@using Moonlight.App.Services
+
+@inject Repository<Service> ServiceRepository
+@inject ServiceService ServiceService
+@inject IdentityService IdentityService
+@inject PluginService PluginService
+
+<LazyLoader Load="Load" ShowAsCard="true">
+    @if (Service == null)
+    {
+        <NotFoundAlert />
+    }
+    else
+    {
+        <CascadingValue Name="Service" Value="Service">
+            <CascadingValue Name="Implementation" Value="Implementation">
+                <CascadingValue Name="Route" Value="Route">
+                    <CascadingValue Name="Pages" Value="ServiceUiPages">
+                        @Implementation.GetUserLayout()
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+    
+    [Parameter]
+    public string? Route { get; set; }
+    
+    private Service? Service;
+    private ServiceImplementation Implementation;
+    private ServiceUiPage[] ServiceUiPages;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Requesting service");
+        
+        // Load service with relational data
+        Service = ServiceRepository
+            .Get()
+            .Include(x => x.Product)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if(Service == null)
+            return;
+        
+        // Check permissions
+        if (!await ServiceService.Manage.CheckAccess(Service, IdentityService.CurrentUser))
+            Service = null;
+
+        if (Service == null)
+            return;
+        
+        
+        await lazyLoader.SetText("Loading implementation");
+
+        Implementation = ServiceService.Type.Get(Service.Product.Type);
+        
+        await lazyLoader.SetText("Building ui");
+        
+        // Build ui pages
+        List<ServiceUiPage> pagesWithoutPlugins = new();
+        
+        // -- Add default here --
+        
+        // Add implementation pages
+        pagesWithoutPlugins.AddRange(Implementation.GetUserPages(Service, IdentityService.CurrentUser));
+        
+        // Modify pages through plugins
+        ServiceUiPages = await PluginService.BuildServiceUiPages(pagesWithoutPlugins.ToArray(), new()
+        {
+            Product = Service.Product,
+            Service = Service,
+            User = IdentityService.CurrentUser
+        });
+        
+        // Done :D
+    }
+}

@@ -80,6 +80,8 @@ builder.Services.AddSingleton<AutoMailSendService>();
 // Services / ServiceManage
 builder.Services.AddScoped<ServiceService>();
 builder.Services.AddSingleton<ServiceAdminService>();
+builder.Services.AddSingleton<ServiceTypeService>();
+builder.Services.AddSingleton<ServiceManageService>();
 
 // Services / Ticketing
 builder.Services.AddScoped<TicketService>();
@@ -121,8 +123,9 @@ app.MapControllers();
 // Auto start background services
 app.Services.GetRequiredService<AutoMailSendService>();
 
-var serviceService = app.Services.GetRequiredService<ServiceAdminService>();
-await serviceService.RegisterAction(ServiceType.Server, new DummyActions());
+var serviceService = app.Services.GetRequiredService<ServiceTypeService>();
+
+serviceService.Register<DummyServiceImplementation>(ServiceType.Server);
 
 await pluginService.RunPrePost(app);
 

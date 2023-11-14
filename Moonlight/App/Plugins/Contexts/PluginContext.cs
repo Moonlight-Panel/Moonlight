@@ -1,4 +1,8 @@
-﻿namespace Moonlight.App.Plugins.Contexts;
+﻿using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Store;
+using Moonlight.App.Models.Abstractions;
+
+namespace Moonlight.App.Plugins.Contexts;
 
 public class PluginContext
 {
@@ -9,4 +13,5 @@ public class PluginContext
     public WebApplication WebApplication { get; set; }
     public List<Action> PreInitTasks = new();
     public List<Action> PostInitTasks = new();
+    public Action<List<ServiceUiPage>, ServiceManageContext>? BuildServiceUiPages = null;
 }

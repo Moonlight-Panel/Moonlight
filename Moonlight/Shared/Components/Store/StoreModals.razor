@@ -109,13 +109,12 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Type</label>
-                            <SmartEnumSelect @bind-Value="AddProductForm.Type"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Config</label>
-                            <input @bind="AddProductForm.ConfigJson" class="form-control" type="text"/>
+                            <SmartEnumSelect @bind-Value="AddProductServiceType"/>
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <DynamicTypedAutoForm Model="AddProductConfig" Columns="6"/>
                 </div>
             </div>
             <div class="modal-footer">
@@ -172,13 +171,12 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Type</label>
-                            <SmartEnumSelect @bind-Value="EditProductForm.Type"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Config</label>
-                            <input @bind="EditProductForm.ConfigJson" class="form-control" type="text"/>
+                            <SmartEnumSelect @bind-Value="EditProductServiceType"/>
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <DynamicTypedAutoForm Model="EditProductConfig" Columns="6"/>
                 </div>
             </div>
             <div class="modal-footer">
@@ -217,7 +215,7 @@
     }
 
     #endregion
-    
+
     #region Edit category
 
     private SmartModal EditCategoryModal;
@@ -231,6 +229,7 @@
         EditCategoryForm = Mapper.Map<EditCategoryForm>(EditCategory);
         await EditCategoryModal.Show();
     }
+
     private async Task EditCategorySubmit()
     {
         EditCategory = Mapper.Map(EditCategory, EditCategoryForm);
@@ -239,7 +238,7 @@
 
         await ToastService.Success("Successfully updated category");
         await EditCategoryModal.Hide();
-        
+
         await OnUpdate.Invoke();
     }
 
@@ -250,17 +249,30 @@
     private SmartModal AddProductModal;
     private AddProductForm AddProductForm = new();
     private Category[] Categories;
+    private object AddProductConfig = new();
+
+    private ServiceType AddProductServiceType
+    {
+        set
+        {
+            if (AddProductConfig.GetType() != StoreService.Admin.GetProductConfigType(value))
+                AddProductConfig = StoreService.Admin.CreateNewProductConfig(value);
+
+            AddProductForm.Type = value;
+            InvokeAsync(StateHasChanged);
+        }
+        get => AddProductForm.Type;
+    }
 
     public Task AddProductShow => AddProductModal.Show();
 
     private async Task AddProductSubmit()
     {
-        await StoreService.Admin.AddProduct(
+        var product = await StoreService.Admin.AddProduct(
             AddProductForm.Name,
             AddProductForm.Description,
             AddProductForm.Slug,
             AddProductForm.Type,
-            AddProductForm.ConfigJson,
             product =>
             {
                 product.Category = AddProductForm.Category;
@@ -271,6 +283,8 @@
             }
             );
 
+        StoreService.Admin.SaveProductConfig(product, AddProductConfig);
+
         await ToastService.Success("Successfully added product");
         await AddProductModal.Hide();
 
@@ -279,16 +293,31 @@
     }
 
     #endregion
-    
+
     #region Edit product
 
     private SmartModal EditProductModal;
     private EditProductForm EditProductForm = new();
     private Product EditProduct;
+    private object EditProductConfig = new();
+
+    private ServiceType EditProductServiceType
+    {
+        set
+        {
+            if (EditProductConfig.GetType() != StoreService.Admin.GetProductConfigType(value))
+                EditProductConfig = StoreService.Admin.CreateNewProductConfig(value);
+
+            EditProductForm.Type = value;
+            InvokeAsync(StateHasChanged);
+        }
+        get => EditProductForm.Type;
+    }
 
     public async Task EditProductShow(Product product)
     {
         EditProduct = product;
+        EditProductConfig = StoreService.Admin.GetProductConfig(product);
 
         EditProductForm = Mapper.Map<EditProductForm>(EditProduct);
         await EditProductModal.Show();
@@ -299,7 +328,8 @@
         EditProduct = Mapper.Map(EditProduct, EditProductForm);
 
         await StoreService.Admin.UpdateProduct(EditProduct);
-        
+        StoreService.Admin.SaveProductConfig(EditProduct, EditProductConfig);
+
         await ToastService.Success("Successfully updated product");
         await EditProductModal.Hide();
 

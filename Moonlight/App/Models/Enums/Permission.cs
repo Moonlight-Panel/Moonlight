@@ -10,6 +10,7 @@ public enum Permission
     AdminUsersEdit = 1003,
     AdminTickets = 1004,
     AdminCommunity = 1030,
+    AdminServices = 1050,
     AdminStore = 1900,
     AdminViewExceptions = 1999,
     AdminRoot = 2000

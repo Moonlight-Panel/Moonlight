@@ -5,15 +5,16 @@
 @foreach (var prop in typeof(TForm).GetProperties())
 {
     <div class="col-md-@(Columns) col-12">
-        <CascadingValue Name="Property" Value="prop">
-            <CascadingValue Name="Data" Value="(object)Model">
-                @{
-                    var typeToCreate = typeof(AutoProperty<>).MakeGenericType(prop.PropertyType);
-                }
+        @{
+            var typeToCreate = typeof(AutoProperty<>).MakeGenericType(prop.PropertyType);
+            var rf = ComponentHelper.FromType(typeToCreate, parameters =>
+            {
+                parameters.Add("Data", Model);
+                parameters.Add("Property", prop);
+            });
+        }
 
-                @ComponentHelper.FromType(typeToCreate)
-            </CascadingValue>
-        </CascadingValue>
+        @rf
     </div>
 }
 

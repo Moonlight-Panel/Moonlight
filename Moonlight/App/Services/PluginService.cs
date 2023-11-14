@@ -1,5 +1,8 @@
 ﻿using System.Reflection;
+using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Helpers;
+using Moonlight.App.Models.Abstractions;
 using Moonlight.App.Plugins;
 using Moonlight.App.Plugins.Contexts;
 
@@ -103,6 +106,20 @@ public class PluginService
             foreach (var postInitTask in plugin.Context.PostInitTasks)
                 await Task.Run(postInitTask);
         }
+    }
+
+    public Task<ServiceUiPage[]> BuildServiceUiPages(ServiceUiPage[] pages, ServiceManageContext context)
+    {
+        var list = pages.ToList();
+
+        foreach (var plugin in Plugins)
+        {
+            // Only build if the plugin adds a page
+            if(plugin.Context.BuildServiceUiPages != null)
+                plugin.Context.BuildServiceUiPages.Invoke(list, context);
+        }
+        
+        return Task.FromResult(list.ToArray());
     }
 
     private string[] FindFiles(string dir)
