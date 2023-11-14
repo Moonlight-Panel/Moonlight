@@ -12,25 +12,23 @@ public class CommandControllerModule : BaseModule
     private async Task OnSlashCommandExecuted(SocketSlashCommand command)
     {
         if(!ConfigService.Get().Discord.Bot.Enable == false) return;
+        if(command.User.IsBot) return;
+        var dsc = Scope.ServiceProvider.GetRequiredService<DiscordBotService>();
         
         //Global Commands
         switch (command.CommandName)
         {
-            case "help":
-                
-            break;
+            case "help": await dsc.HelpCommand.Handler(command); break;
         }
         
         //Guild Commands that can only be executed on the main Guild (Support Server)
         if(command.GuildId != (ulong)DiscordConfig.GuildId) return;
         switch (command.CommandName)
         {
-            case "help":
-                
-                break;
+            case "setup": await dsc.SetupCommand.Handler(command); break;
         }
     }
 
     public override Task Init()
-    { throw new NotImplementedException(); }
+        { throw new NotImplementedException(); }
 }

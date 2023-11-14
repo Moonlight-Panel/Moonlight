@@ -96,9 +96,11 @@ public class ConfigV1
             
             [JsonProperty("LoggingId")]
             [Description("This must be a PostChannel Recomended use: /setup")]
-            public long LoggingId { get; set; }
+            public long PostChannelId { get; set; }
             
-            
+            [JsonProperty("ThreadChannels")]
+            [Description("This is reqired for Logging Don't Touch")]
+            public List<long>? PostIds { get; set; }
         }
         
         public class WebHookData

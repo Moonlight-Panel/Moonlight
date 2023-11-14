@@ -23,9 +23,10 @@ public class DiscordBotService
     private readonly DiscordSocketClient Client;
     
     // References
-    public CommandControllerModule CommandControllerModule { get; private set; }
     public EmbedBuilderModule EmbedBuilderModule { get; private set; }
+    public CommandControllerModule CommandControllerModule { get; private set; }
     public HelpCommand HelpCommand { get; private set; }
+    public SetupCommand SetupCommand { get; private set; }
     
     
     public DiscordBotService(IServiceScopeFactory serviceScopeFactory, ConfigService configService)
@@ -34,7 +35,7 @@ public class DiscordBotService
         ConfigService = configService;
         Client = new DiscordSocketClient( new DiscordSocketConfig
         {
-            GatewayIntents = GatewayIntents.All
+            GatewayIntents = GatewayIntents.Guilds
         });
 
         Task.Run(MainAsync);
@@ -54,6 +55,7 @@ public class DiscordBotService
         //Commands
         CommandControllerModule = new CommandControllerModule(Client, ConfigService, ServiceScope);
         HelpCommand = new HelpCommand(Client, ConfigService, ServiceScope);
+        SetupCommand = new SetupCommand(Client, ConfigService, ServiceScope);
         
         
         //Module
@@ -73,7 +75,7 @@ public class DiscordBotService
         Logger.Info($"Invite link: https://discord.com/api/oauth2/authorize?client_id={Client.CurrentUser.Id}&permissions=1099511696391&scope=bot%20applications.commands");
         Logger.Info($"Login as {Client.CurrentUser.Username}#{Client.CurrentUser.DiscriminatorValue}");
 
-        CreateCommands();
+        Init();
     }
     
     
@@ -94,7 +96,7 @@ public class DiscordBotService
     }
 
     #region InitLogic
-    public async void CreateCommands()
+    public async void Init()
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
