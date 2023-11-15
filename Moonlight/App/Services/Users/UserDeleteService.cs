@@ -12,6 +12,7 @@ namespace Moonlight.App.Services.Users;
 public class UserDeleteService
 {
     private readonly Repository<Service> ServiceRepository;
+    private readonly Repository<ServiceShare> ServiceShareRepository;
     private readonly Repository<Post> PostRepository;
     private readonly Repository<User> UserRepository;
     private readonly Repository<Transaction> TransactionRepository;
@@ -32,7 +33,8 @@ public class UserDeleteService
         Repository<CouponUse> couponUseRepository,
         Repository<Transaction> transactionRepository,
         Repository<Ticket> ticketRepository,
-        Repository<TicketMessage> ticketMessageRepository)
+        Repository<TicketMessage> ticketMessageRepository,
+        Repository<ServiceShare> serviceShareRepository)
     {
         ServiceRepository = serviceRepository;
         ServiceService = serviceService;
@@ -44,6 +46,7 @@ public class UserDeleteService
         TransactionRepository = transactionRepository;
         TicketRepository = ticketRepository;
         TicketMessageRepository = ticketMessageRepository;
+        ServiceShareRepository = serviceShareRepository;
     }
 
     public async Task Perform(User user)
@@ -81,6 +84,17 @@ public class UserDeleteService
         foreach (var service in ServiceRepository.Get().Where(x => x.Owner.Id == user.Id).ToArray())
         {
             await ServiceService.Admin.Delete(service);
+        }
+        
+        // Service shares
+        var shares = ServiceShareRepository
+            .Get()
+            .Where(x => x.User.Id == user.Id)
+            .ToArray();
+
+        foreach (var share in shares)
+        {
+            ServiceShareRepository.Delete(share);
         }
         
         // Transactions - Coupons - Gift codes

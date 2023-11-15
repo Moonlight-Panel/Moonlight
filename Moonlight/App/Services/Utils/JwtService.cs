@@ -1,5 +1,6 @@
 ﻿using JWT.Algorithms;
 using JWT.Builder;
+using Moonlight.App.Helpers;
 using Newtonsoft.Json;
 
 namespace Moonlight.App.Services.Utils;
@@ -47,6 +48,7 @@ public class JwtService
         }
         catch (Exception e)
         {
+            Logger.Warn(e.Message);
             return Task.FromResult(false);
         }
     }

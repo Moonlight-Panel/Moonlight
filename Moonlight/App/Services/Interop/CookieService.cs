@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using Moonlight.App.Helpers;
 
 namespace Moonlight.App.Services.Interop;
 
@@ -30,7 +31,9 @@ public class CookieService
             if(string.IsNullOrEmpty(cookiePart))
                 continue;
             
-            var cookieKeyValue = cookiePart.Split("=");
+            var cookieKeyValue = cookiePart.Split("=")
+                .Select(x => x.Trim()) // There may be spaces e.g. with the "AspNetCore.Culture" key
+                .ToArray();
 
             if (cookieKeyValue.Length == 2)
             {

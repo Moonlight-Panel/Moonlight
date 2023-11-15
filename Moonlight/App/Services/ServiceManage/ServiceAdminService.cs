@@ -1,27 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.App.Database.Entities;
 using Moonlight.App.Database.Entities.Store;
-using Moonlight.App.Database.Enums;
 using Moonlight.App.Exceptions;
-using Moonlight.App.Models.Abstractions;
 using Moonlight.App.Repositories;
 
 namespace Moonlight.App.Services.ServiceManage;
 
 public class ServiceAdminService
 {
-    public readonly Dictionary<ServiceType, ServiceActions> Actions = new();
     private readonly IServiceScopeFactory ServiceScopeFactory;
+    private readonly ServiceDefinitionService ServiceDefinitionService;
 
-    public ServiceAdminService(IServiceScopeFactory serviceScopeFactory)
+    public ServiceAdminService(IServiceScopeFactory serviceScopeFactory, ServiceDefinitionService serviceDefinitionService)
     {
         ServiceScopeFactory = serviceScopeFactory;
+        ServiceDefinitionService = serviceDefinitionService;
     }
 
     public async Task<Service> Create(User u, Product p, Action<Service>? modifyService = null)
     {
-        if (!Actions.ContainsKey(p.Type))
-            throw new DisplayException($"The product type {p.Type} is not registered");
+        var impl = ServiceDefinitionService.Get(p);
         
         // Load models in new scope
         using var scope = ServiceScopeFactory.CreateScope();
@@ -49,8 +47,7 @@ public class ServiceAdminService
         var finishedService = serviceRepo.Add(service);
 
         // Call the action for the logic behind the service type
-        var actions = Actions[product.Type];
-        await actions.Create(scope.ServiceProvider, finishedService);
+        await impl.Actions.Create(scope.ServiceProvider, finishedService);
 
         return finishedService;
     }
@@ -63,17 +60,15 @@ public class ServiceAdminService
 
         var service = serviceRepo
             .Get()
-            .Include(x => x.Product)
             .Include(x => x.Shares)
             .FirstOrDefault(x => x.Id == s.Id);
 
         if (service == null)
             throw new DisplayException("Service does not exist anymore");
 
-        if (!Actions.ContainsKey(service.Product.Type))
-            throw new DisplayException($"The product type {service.Product.Type} is not registered");
+        var impl = ServiceDefinitionService.Get(service);
         
-        await Actions[service.Product.Type].Delete(scope.ServiceProvider, service);
+        await impl.Actions.Delete(scope.ServiceProvider, service);
 
         foreach (var share in service.Shares.ToArray())
         {
@@ -81,11 +76,5 @@ public class ServiceAdminService
         }
         
         serviceRepo.Delete(service);
-    }
-
-    public Task RegisterAction(ServiceType type, ServiceActions actions) // Use this function to register service types
-    {
-        Actions.Add(type, actions);
-        return Task.CompletedTask;
     }
 }

@@ -1,0 +1,98 @@
+﻿@page "/service/{Id:int}/{Route?}"
+
+@using Moonlight.App.Repositories
+@using Moonlight.App.Database.Entities.Store
+@using Moonlight.App.Services.ServiceManage
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Models.Abstractions.Services
+@using Moonlight.App.Services
+
+@inject Repository<Service> ServiceRepository
+@inject ServiceService ServiceService
+@inject IdentityService IdentityService
+@inject PluginService PluginService
+
+<LazyLoader Load="Load" ShowAsCard="true">
+    @if (Service == null)
+    {
+        <NotFoundAlert />
+    }
+    else
+    {
+        if (NeedsRenewal)
+        {
+            <NeedsRenewalAlert />
+        }
+        else
+        {
+            <CascadingValue Name="Service" Value="Service">
+                <CascadingValue Name="Implementation" Value="Definition">
+                    <CascadingValue Name="Route" Value="Route">
+                        <CascadingValue Name="ViewContext" Value="ViewContext">
+                            @ViewContext.Layout
+                        </CascadingValue>
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        }
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+    
+    [Parameter]
+    public string? Route { get; set; }
+    
+    private Service? Service;
+    private ServiceDefinition Definition;
+    private ServiceViewContext ViewContext;
+
+    private bool NeedsRenewal = false;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Requesting service");
+        
+        // Load service with relational data
+        Service = ServiceRepository
+            .Get()
+            .Include(x => x.Product)
+            .Include(x => x.Owner)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if(Service == null)
+            return;
+        
+        // Check permissions
+        if (!await ServiceService.Manage.CheckAccess(Service, IdentityService.CurrentUser))
+            Service = null;
+
+        if (Service == null)
+            return;
+
+        NeedsRenewal = await ServiceService.Manage.NeedsRenewal(Service);
+        
+        if(NeedsRenewal) // Stop loading more data
+            return;
+        
+        // Load implementation
+        await lazyLoader.SetText("Loading implementation");
+        Definition = ServiceService.Definition.Get(Service.Product.Type);
+        
+        // Build dynamic user interface
+        await lazyLoader.SetText("Building dynamic user interface");
+
+        ViewContext = new ServiceViewContext()
+        {
+            Service = Service,
+            Product = Service.Product,
+            User = IdentityService.CurrentUser
+        };
+
+        await Definition.BuildUserView(ViewContext);
+        await PluginService.BuildUserServiceView(ViewContext);
+    }
+}

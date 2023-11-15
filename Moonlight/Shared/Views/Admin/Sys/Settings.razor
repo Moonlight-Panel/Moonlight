@@ -83,15 +83,16 @@ else
                         @foreach (var prop in Properties)
                         {
                             <div class="col-md-6 col-12">
-                                <CascadingValue Name="Property" Value="prop">
-                                    <CascadingValue Name="Data" Value="ModelToShow">
-                                        @{
-                                            var typeToCreate = typeof(AutoProperty<>).MakeGenericType(prop.PropertyType);
-                                        }
-
-                                        @ComponentHelper.FromType(typeToCreate)
-                                    </CascadingValue>
-                                </CascadingValue>
+                                @{
+                                    var typeToCreate = typeof(AutoProperty<>).MakeGenericType(prop.PropertyType);
+                                    var rf = ComponentHelper.FromType(typeToCreate, parameters =>
+                                    {
+                                        parameters.Add("Data", ModelToShow);
+                                        parameters.Add("Property", prop);
+                                    });
+                                }
+                                
+                                @rf
                             </div>
                         }
                     </LazyLoader>

@@ -2,6 +2,8 @@
 using Moonlight.App.Database.Enums;
 using Moonlight.App.Exceptions;
 using Moonlight.App.Repositories;
+using Moonlight.App.Services.ServiceManage;
+using Newtonsoft.Json;
 
 namespace Moonlight.App.Services.Store;
 
@@ -9,11 +11,16 @@ public class StoreAdminService
 {
     private readonly Repository<Product> ProductRepository;
     private readonly Repository<Category> CategoryRepository;
+    private readonly ServiceService ServiceService;
 
-    public StoreAdminService(Repository<Product> productRepository, Repository<Category> categoryRepository)
+    public StoreAdminService(
+        Repository<Product> productRepository,
+        Repository<Category> categoryRepository,
+        ServiceService serviceService)
     {
         ProductRepository = productRepository;
         CategoryRepository = categoryRepository;
+        ServiceService = serviceService;
     }
 
     public Task<Category> AddCategory(string name, string description, string slug)
@@ -31,8 +38,7 @@ public class StoreAdminService
         return Task.FromResult(result);
     }
 
-    public Task<Product> AddProduct(string name, string description, string slug, ServiceType type, string configJson,
-        Action<Product>? modifyProduct = null)
+    public Task<Product> AddProduct(string name, string description, string slug, ServiceType type, Action<Product>? modifyProduct = null)
     {
         if (ProductRepository.Get().Any(x => x.Slug == slug))
             throw new DisplayException("A product with that slug does already exist");
@@ -43,7 +49,7 @@ public class StoreAdminService
             Description = description,
             Slug = slug,
             Type = type,
-            ConfigJson = configJson
+            ConfigJson = "{}"
         };
         
         if(modifyProduct != null)
@@ -68,7 +74,7 @@ public class StoreAdminService
     {
         if (ProductRepository.Get().Any(x => x.Id != product.Id && x.Slug == product.Slug))
             throw new DisplayException("A product with that slug does already exist");
-        
+
         ProductRepository.Update(product);
         
         return Task.CompletedTask;
@@ -95,5 +101,37 @@ public class StoreAdminService
         ProductRepository.Delete(product);
         
         return Task.CompletedTask;
+    }
+    
+    // Product config
+    public Type GetProductConfigType(ServiceType type)
+    {
+        try
+        {
+            var impl = ServiceService.Definition.Get(type);
+            return impl.ConfigType;
+        }
+        catch (ArgumentException)
+        {
+            return typeof(object);
+        }
+    }
+    public object CreateNewProductConfig(ServiceType type)
+    {
+        var config = Activator.CreateInstance(GetProductConfigType(type))!;
+        return config;
+    }
+    public object GetProductConfig(Product product)
+    {
+        var impl = ServiceService.Definition.Get(product.Type);
+        
+        return JsonConvert.DeserializeObject(product.ConfigJson, impl.ConfigType) ??
+               CreateNewProductConfig(product.Type);
+    }
+
+    public void SaveProductConfig(Product product, object config)
+    {
+        product.ConfigJson = JsonConvert.SerializeObject(config);
+        ProductRepository.Update(product);
     }
 }

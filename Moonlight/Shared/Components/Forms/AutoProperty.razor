@@ -94,14 +94,14 @@
                     var prop = typeof(TProp).GetProperties().First(x => x.Name == attribute.DisplayProp);
                     return prop.GetValue(x) as string ?? "N/A";
                 });
-                
+
                 var searchFunc = new Func<TProp, string>(x =>
                 {
                     var prop = typeof(TProp).GetProperties().First(x => x.Name == attribute.SelectorProp);
                     return prop.GetValue(x) as string ?? "N/A";
                 });
-                
-                <SmartDropdown @bind-Value="Binder.Class" DisplayFunc="displayFunc" SearchProp="searchFunc" Items="Items" />
+
+                <SmartDropdown @bind-Value="Binder.Class" DisplayFunc="displayFunc" SearchProp="searchFunc" Items="Items"/>
             }
             else
             {
@@ -110,8 +110,8 @@
                     var prop = typeof(TProp).GetProperties().First(x => x.Name == attribute.DisplayProp);
                     return prop.GetValue(x) as string ?? "N/A";
                 });
-                
-                <SmartSelect @bind-Value="Binder.Class" DisplayField="displayFunc" Items="Items" CanBeNull="true" />
+
+                <SmartSelect @bind-Value="Binder.Class" DisplayField="displayFunc" Items="Items" CanBeNull="true"/>
             }
         }
     }
@@ -119,10 +119,10 @@
 
 @code
 {
-    [CascadingParameter(Name = "Data")]
+    [Parameter]
     public object Data { get; set; }
 
-    [CascadingParameter(Name = "Property")]
+    [Parameter]
     public PropertyInfo Property { get; set; }
 
     private PropBinder<TProp> Binder;

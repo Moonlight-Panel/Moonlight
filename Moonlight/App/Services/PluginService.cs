@@ -1,5 +1,9 @@
 ﻿using System.Reflection;
+using Moonlight.App.Database.Entities;
+using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Helpers;
+using Moonlight.App.Models.Abstractions;
+using Moonlight.App.Models.Abstractions.Services;
 using Moonlight.App.Plugins;
 using Moonlight.App.Plugins.Contexts;
 
@@ -103,6 +107,26 @@ public class PluginService
             foreach (var postInitTask in plugin.Context.PostInitTasks)
                 await Task.Run(postInitTask);
         }
+    }
+
+    public Task BuildUserServiceView(ServiceViewContext context)
+    {
+        foreach (var plugin in Plugins)
+        {
+            plugin.Context.BuildUserServiceView?.Invoke(context);
+        }
+        
+        return Task.CompletedTask;
+    }
+    
+    public Task BuildAdminServiceView(ServiceViewContext context)
+    {
+        foreach (var plugin in Plugins)
+        {
+            plugin.Context.BuildAdminServiceView?.Invoke(context);
+        }
+        
+        return Task.CompletedTask;
     }
 
     private string[] FindFiles(string dir)
