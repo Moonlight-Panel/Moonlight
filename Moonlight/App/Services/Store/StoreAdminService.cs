@@ -108,7 +108,7 @@ public class StoreAdminService
     {
         try
         {
-            var impl = ServiceService.Type.Get(type);
+            var impl = ServiceService.Definition.Get(type);
             return impl.ConfigType;
         }
         catch (ArgumentException)
@@ -123,7 +123,7 @@ public class StoreAdminService
     }
     public object GetProductConfig(Product product)
     {
-        var impl = ServiceService.Type.Get(product.Type);
+        var impl = ServiceService.Definition.Get(product.Type);
         
         return JsonConvert.DeserializeObject(product.ConfigJson, impl.ConfigType) ??
                CreateNewProductConfig(product.Type);

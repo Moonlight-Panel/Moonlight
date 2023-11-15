@@ -5,6 +5,7 @@
 @using Moonlight.App.Services.ServiceManage
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Models.Abstractions
+@using Moonlight.App.Models.Abstractions.Services
 @using Moonlight.App.Services
 
 @inject Repository<Service> ServiceRepository
@@ -20,10 +21,10 @@
     else
     {
         <CascadingValue Name="Service" Value="Service">
-            <CascadingValue Name="Implementation" Value="Implementation">
+            <CascadingValue Name="Implementation" Value="Definition">
                 <CascadingValue Name="Route" Value="Route">
-                    <CascadingValue Name="Pages" Value="ServiceUiPages">
-                        @Implementation.GetUserLayout()
+                    <CascadingValue Name="ViewContext" Value="ViewContext">
+                        @ViewContext.Layout
                     </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
@@ -40,8 +41,8 @@
     public string? Route { get; set; }
     
     private Service? Service;
-    private ServiceImplementation Implementation;
-    private ServiceUiPage[] ServiceUiPages;
+    private ServiceDefinition Definition;
+    private ServiceViewContext ViewContext;
 
     private async Task Load(LazyLoader lazyLoader)
     {
@@ -64,29 +65,21 @@
         if (Service == null)
             return;
         
-        
+        // Load implementation
         await lazyLoader.SetText("Loading implementation");
+        Definition = ServiceService.Definition.Get(Service.Product.Type);
+        
+        // Build dynamic user interface
+        await lazyLoader.SetText("Building dynamic user interface");
 
-        Implementation = ServiceService.Type.Get(Service.Product.Type);
-        
-        await lazyLoader.SetText("Building ui");
-        
-        // Build ui pages
-        List<ServiceUiPage> pagesWithoutPlugins = new();
-        
-        // -- Add default here --
-        
-        // Add implementation pages
-        pagesWithoutPlugins.AddRange(Implementation.GetUserPages(Service, IdentityService.CurrentUser));
-        
-        // Modify pages through plugins
-        ServiceUiPages = await PluginService.BuildServiceUiPages(pagesWithoutPlugins.ToArray(), new()
+        ViewContext = new ServiceViewContext()
         {
-            Product = Service.Product,
             Service = Service,
+            Product = Service.Product,
             User = IdentityService.CurrentUser
-        });
-        
-        // Done :D
+        };
+
+        await Definition.BuildUserView(ViewContext);
+        await PluginService.BuildUserServiceView(ViewContext);
     }
 }

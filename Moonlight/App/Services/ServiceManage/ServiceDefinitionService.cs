@@ -2,24 +2,25 @@
 using Moonlight.App.Database.Entities.Store;
 using Moonlight.App.Database.Enums;
 using Moonlight.App.Models.Abstractions;
+using Moonlight.App.Models.Abstractions.Services;
 using Moonlight.App.Repositories;
 
 namespace Moonlight.App.Services.ServiceManage;
 
-public class ServiceTypeService
+public class ServiceDefinitionService
 {
-    private readonly Dictionary<ServiceType, ServiceImplementation> ServiceImplementations = new();
+    private readonly Dictionary<ServiceType, ServiceDefinition> ServiceImplementations = new();
     
     private readonly IServiceScopeFactory ServiceScopeFactory;
 
-    public ServiceTypeService(IServiceScopeFactory serviceScopeFactory)
+    public ServiceDefinitionService(IServiceScopeFactory serviceScopeFactory)
     {
         ServiceScopeFactory = serviceScopeFactory;
     }
 
-    public void Register<T>(ServiceType type) where T : ServiceImplementation
+    public void Register<T>(ServiceType type) where T : ServiceDefinition
     {
-        var impl = Activator.CreateInstance<T>() as ServiceImplementation;
+        var impl = Activator.CreateInstance<T>() as ServiceDefinition;
 
         if (impl == null)
             throw new ArgumentException("The provided type is not an service implementation");
@@ -30,7 +31,7 @@ public class ServiceTypeService
         ServiceImplementations.Add(type, impl);
     }
 
-    public ServiceImplementation Get(Service s)
+    public ServiceDefinition Get(Service s)
     {
         using var scope = ServiceScopeFactory.CreateScope();
         var serviceRepo = scope.ServiceProvider.GetRequiredService<Repository<Service>>();
@@ -43,9 +44,9 @@ public class ServiceTypeService
         return Get(service.Product);
     }
 
-    public ServiceImplementation Get(Product p) => Get(p.Type);
+    public ServiceDefinition Get(Product p) => Get(p.Type);
     
-    public ServiceImplementation Get(ServiceType type)
+    public ServiceDefinition Get(ServiceType type)
     {
         if (!ServiceImplementations.ContainsKey(type))
             throw new ArgumentException($"No service implementation found for {type}");

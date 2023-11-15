@@ -9,17 +9,17 @@ namespace Moonlight.App.Services.ServiceManage;
 public class ServiceAdminService
 {
     private readonly IServiceScopeFactory ServiceScopeFactory;
-    private readonly ServiceTypeService ServiceTypeService;
+    private readonly ServiceDefinitionService ServiceDefinitionService;
 
-    public ServiceAdminService(IServiceScopeFactory serviceScopeFactory, ServiceTypeService serviceTypeService)
+    public ServiceAdminService(IServiceScopeFactory serviceScopeFactory, ServiceDefinitionService serviceDefinitionService)
     {
         ServiceScopeFactory = serviceScopeFactory;
-        ServiceTypeService = serviceTypeService;
+        ServiceDefinitionService = serviceDefinitionService;
     }
 
     public async Task<Service> Create(User u, Product p, Action<Service>? modifyService = null)
     {
-        var impl = ServiceTypeService.Get(p);
+        var impl = ServiceDefinitionService.Get(p);
         
         // Load models in new scope
         using var scope = ServiceScopeFactory.CreateScope();
@@ -66,7 +66,7 @@ public class ServiceAdminService
         if (service == null)
             throw new DisplayException("Service does not exist anymore");
 
-        var impl = ServiceTypeService.Get(service);
+        var impl = ServiceDefinitionService.Get(service);
         
         await impl.Actions.Delete(scope.ServiceProvider, service);
 

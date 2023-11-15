@@ -13,7 +13,7 @@ public class ServiceService // This service is used for managing services and cr
     private readonly Repository<User> UserRepository;
 
     public ServiceAdminService Admin => ServiceProvider.GetRequiredService<ServiceAdminService>();
-    public ServiceTypeService Type => ServiceProvider.GetRequiredService<ServiceTypeService>();
+    public ServiceDefinitionService Definition => ServiceProvider.GetRequiredService<ServiceDefinitionService>();
     public ServiceManageService Manage => ServiceProvider.GetRequiredService<ServiceManageService>();
 
     public ServiceService(IServiceProvider serviceProvider, Repository<Service> serviceRepository, Repository<User> userRepository)

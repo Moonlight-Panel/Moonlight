@@ -17,4 +17,7 @@ public static class ComponentHelper
         
         builder.CloseComponent();
     };
+
+    public static RenderFragment FromType<T>(Action<Dictionary<string, object>>? buildAttributes = null) where T : ComponentBase =>
+        FromType(typeof(T), buildAttributes);
 }

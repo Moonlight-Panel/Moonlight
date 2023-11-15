@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using Moonlight.App.Database.Entities;
-using Moonlight.App.Extensions.Attributes;
 
 namespace Moonlight.App.Actions.Dummy;
 
