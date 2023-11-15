@@ -1,11 +1,15 @@
-﻿@page "/service/{Id:int}/{Route?}"
+﻿@page "/admin/services/view/{Id:int}/{Route?}"
 
 @using Moonlight.App.Repositories
 @using Moonlight.App.Database.Entities.Store
 @using Moonlight.App.Services.ServiceManage
 @using Microsoft.EntityFrameworkCore
+@using Moonlight.App.Extensions.Attributes
 @using Moonlight.App.Models.Abstractions.Services
+@using Moonlight.App.Models.Enums
 @using Moonlight.App.Services
+
+@attribute [RequirePermission(Permission.AdminServices)]
 
 @inject Repository<Service> ServiceRepository
 @inject ServiceService ServiceService
@@ -57,13 +61,6 @@
         if(Service == null)
             return;
         
-        // Check permissions
-        if (!await ServiceService.Manage.CheckAccess(Service, IdentityService.CurrentUser))
-            Service = null;
-
-        if (Service == null)
-            return;
-        
         // Load implementation
         await lazyLoader.SetText("Loading implementation");
         Definition = ServiceService.Definition.Get(Service.Product.Type);
@@ -78,7 +75,7 @@
             User = IdentityService.CurrentUser
         };
 
-        await Definition.BuildUserView(ViewContext);
-        await PluginService.BuildUserServiceView(ViewContext);
+        await Definition.BuildAdminView(ViewContext);
+        await PluginService.BuildAdminServiceView(ViewContext);
     }
 }
