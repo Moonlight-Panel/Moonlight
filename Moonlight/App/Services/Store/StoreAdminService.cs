@@ -11,16 +11,19 @@ public class StoreAdminService
 {
     private readonly Repository<Product> ProductRepository;
     private readonly Repository<Category> CategoryRepository;
+    private readonly Repository<Service> ServiceRepository;
     private readonly ServiceService ServiceService;
 
     public StoreAdminService(
         Repository<Product> productRepository,
         Repository<Category> categoryRepository,
-        ServiceService serviceService)
+        ServiceService serviceService,
+        Repository<Service> serviceRepository)
     {
         ProductRepository = productRepository;
         CategoryRepository = categoryRepository;
         ServiceService = serviceService;
+        ServiceRepository = serviceRepository;
     }
 
     public Task<Category> AddCategory(string name, string description, string slug)
@@ -96,7 +99,8 @@ public class StoreAdminService
 
     public Task DeleteProduct(Product product)
     {
-        //TODO: Implement checks if services with that product id exist
+        if (ServiceRepository.Get().Any(x => x.Product.Id == product.Id))
+            throw new DisplayException("Product cannot be deleted as services related to this products exist. Delete the services first");
         
         ProductRepository.Delete(product);
         

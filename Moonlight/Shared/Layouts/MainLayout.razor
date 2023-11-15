@@ -3,6 +3,7 @@
 @using Moonlight.App.Models.Enums
 @using Moonlight.Shared.Components.Auth
 @using Moonlight.App.Event
+@using Moonlight.App.Services.Utils
 
 @inherits LayoutComponentBase
 @implements IDisposable
@@ -12,7 +13,7 @@
 @inject IdentityService IdentityService
 @inject SessionService SessionService
 @inject NavigationManager Navigation
-@inject IJSRuntime JsRuntime
+@inject ConnectionService ConnectionService
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -140,7 +141,7 @@ else
 
             MySession = new()
             {
-    //Ip = ConnectionService.GetIp(), TODO: Implement
+                Ip = await ConnectionService.GetIpAddress(),
                 Url = Navigation.Uri,
                 User = IdentityService.CurrentUserNullable
             };

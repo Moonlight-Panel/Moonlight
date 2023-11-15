@@ -11,16 +11,13 @@
 @inject IdentityService IdentityService
 @inject AlertService AlertService
 @inject NavigationManager Navigation
-@inject ServiceService ServiceService
 @inject Repository<Product> ProductRepository
 @inject Repository<Coupon> CouponRepository
 
 <LazyLoader Load="Load">
     @if (SelectedProduct == null)
     {
-        @*
-TODO: Add 404 here
-*@
+        <NotFoundAlert />
     }
     else
     {

@@ -50,6 +50,7 @@ builder.Services.AddScoped(typeof(Repository<>));
 
 // Services / Utils
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<ConnectionService>();
 
 // Services / Interop
 builder.Services.AddScoped<CookieService>();

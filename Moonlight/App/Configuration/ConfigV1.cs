@@ -32,6 +32,10 @@ public class ConfigV1
         [JsonProperty("EnableEmailVerify")]
         [Description("This will users force to verify their email address if they havent already")]
         public bool EnableEmailVerify { get; set; } = false;
+
+        [JsonProperty("EnableReverseProxyMode")]
+        [Description("Enable this option if you are using a reverse proxy to access moonlight. This will configure some parts of moonlight to act correctly like the ip detection")]
+        public bool EnableReverseProxyMode { get; set; } = false;
     }
 
     public class DatabaseData
@@ -69,5 +73,9 @@ public class ConfigV1
         [JsonProperty("Password")] public string Password { get; set; } = "s3cr3t";
 
         [JsonProperty("UseSsl")] public bool UseSsl { get; set; } = true;
+
+        [JsonProperty("SenderName")]
+        [Description("This will be shown as the system emails sender name in apps like gmail")]
+        public string SenderName { get; set; } = "Moonlight System";
     }
 }

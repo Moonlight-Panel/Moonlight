@@ -116,8 +116,6 @@ public class PostService
         if(await CheckTextForBadWords(content))
             throw new DisplayException("Bad word detected. Please follow the community rules");
         
-        //TODO: Swear word filter
-        
         var comment = new PostComment()
         {
             Author = user,

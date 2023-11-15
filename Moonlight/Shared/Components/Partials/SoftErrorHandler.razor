@@ -8,7 +8,7 @@
 
 @if (Crashed)
 {
-    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" || IdentityService.Permissions[Permission.AdminViewExceptions]) // TODO: Add check for admin perms to show exceptions to admins
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" || IdentityService.Permissions[Permission.AdminViewExceptions])
     {
         if (Exception != null)
         {

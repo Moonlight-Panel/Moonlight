@@ -28,7 +28,7 @@ public class MailService
             var message = new MimeMessage();
 
             message.From.Add(new MailboxAddress(
-                "Moonlight System", //TODO: Replace with config option
+                config.SenderName,
                 config.Email
             ));
 
