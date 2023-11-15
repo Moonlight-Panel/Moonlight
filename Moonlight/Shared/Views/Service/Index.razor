@@ -19,15 +19,22 @@
     }
     else
     {
-        <CascadingValue Name="Service" Value="Service">
-            <CascadingValue Name="Implementation" Value="Definition">
-                <CascadingValue Name="Route" Value="Route">
-                    <CascadingValue Name="ViewContext" Value="ViewContext">
-                        @ViewContext.Layout
+        if (NeedsRenewal)
+        {
+            <NeedsRenewalAlert />
+        }
+        else
+        {
+            <CascadingValue Name="Service" Value="Service">
+                <CascadingValue Name="Implementation" Value="Definition">
+                    <CascadingValue Name="Route" Value="Route">
+                        <CascadingValue Name="ViewContext" Value="ViewContext">
+                            @ViewContext.Layout
+                        </CascadingValue>
                     </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
-        </CascadingValue>
+        }
     }
 </LazyLoader>
 
@@ -42,6 +49,8 @@
     private Service? Service;
     private ServiceDefinition Definition;
     private ServiceViewContext ViewContext;
+
+    private bool NeedsRenewal = false;
 
     private async Task Load(LazyLoader lazyLoader)
     {
@@ -62,6 +71,11 @@
             Service = null;
 
         if (Service == null)
+            return;
+
+        NeedsRenewal = await ServiceService.Manage.NeedsRenewal(Service);
+        
+        if(NeedsRenewal) // Stop loading more data
             return;
         
         // Load implementation

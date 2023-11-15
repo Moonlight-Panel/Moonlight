@@ -128,7 +128,13 @@ else
     <div class="card">
         <div class="card-header">
             <h3 class="card-title align-items-start flex-column">
-                <span class="card-label fw-bold text-dark fs-3">@(Service.Nickname ?? $"Service {Service.Id}")</span>
+                <span class="card-label fw-bold text-dark fs-3">
+                    @(Service.Nickname ?? $"Service {Service.Id}")
+                    @if (NeedsRenewal)
+                    {
+                        <span class="ms-2 text-danger">(Expired)</span>
+                    }
+                </span>
                 <span class="text-gray-400 mt-1 fw-semibold fs-6">@(Service.Product.Name)</span>
             </h3>
         </div>
@@ -177,14 +183,28 @@ else
     [Parameter]
     public Func<Task> OnChange { get; set; }
 
+    // Renew access state
+    private bool NeedsRenewal = false;
+
+    // States
     private bool ShowDeletionScreen = false;
-    private bool ShowRenewScreen = false;
     private ManageServiceShareModal ShareModal;
 
+    // Renewing
     private int DurationMultiplier = 1;
     private bool CanBeRenewed = false;
     private bool IsValidating = false;
     private string ErrorMessage = "";
+    private bool ShowRenewScreen = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            NeedsRenewal = await ServiceService.Manage.NeedsRenewal(Service);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
 
     private Task Revalidate()
     {

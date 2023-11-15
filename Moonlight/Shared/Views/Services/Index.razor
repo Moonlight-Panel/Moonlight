@@ -19,11 +19,19 @@
 
         @foreach (var service in SharedServices)
         {
+            var needsRenewal = SharedRenewalStates[service];
+            
             <div class="col-md-3 col-12">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title align-items-start flex-column">
-                            <span class="card-label fw-bold text-dark fs-3">@(service.Nickname ?? $"Service {service.Id}")</span>
+                            <span class="card-label fw-bold text-dark fs-3">
+                                @(service.Nickname ?? $"Service {service.Id}")
+                                @if (needsRenewal)
+                                {
+                                    <span class="ms-2 text-danger">(Expired)</span>
+                                }
+                            </span>
                             <span class="text-gray-400 mt-1 fw-semibold fs-6">@(service.Product.Name)</span>
                         </h3>
                     </div>
@@ -57,10 +65,19 @@
     
     private Service[] MyServices;
     private Service[] SharedServices;
+    private Dictionary<Service, bool> SharedRenewalStates = new();
 
     private async Task Load(LazyLoader _)
     {
+        // Load all services
         MyServices = await ServiceService.Get(IdentityService.CurrentUser);
         SharedServices = await ServiceService.GetShared(IdentityService.CurrentUser);
+
+        // Load all services renewal states
+        foreach (var service in SharedServices)
+        {
+            if(!SharedRenewalStates.ContainsKey(service))
+                SharedRenewalStates.Add(service, await ServiceService.Manage.NeedsRenewal(service));
+        }
     }
 }

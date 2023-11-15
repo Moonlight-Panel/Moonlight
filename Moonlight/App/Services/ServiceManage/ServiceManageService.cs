@@ -45,4 +45,17 @@ public class ServiceManageService
         // No match
         return Task.FromResult(false);
     }
+
+    public Task<bool> NeedsRenewal(Service s)
+    {
+        // We fetch the service in a new scope wo ensure that we are not caching
+        using var scope = ServiceScopeFactory.CreateScope();
+        var serviceRepo = scope.ServiceProvider.GetRequiredService<Repository<Service>>();
+
+        var service = serviceRepo
+            .Get()
+            .First(x => x.Id == s.Id);
+        
+        return Task.FromResult(DateTime.UtcNow > service.RenewAt);
+    }
 }
