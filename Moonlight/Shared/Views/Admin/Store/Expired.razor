@@ -48,9 +48,10 @@
                 <Column TableItem="Service" Field="@(x => x.CreatedAt)" Title="Created at" Filterable="true" Sortable="true"/>
                 <Column TableItem="Service" Field="@(x => x.RenewAt)" Title="" Filterable="false" Sortable="true">
                     <Template>
-                        <span>Expired since @(Formatter.FormatAgoFromDateTime(context.RenewAt))</span>
+                        <span>Expired @(Formatter.FormatAgoFromDateTime(context.RenewAt))</span>
                     </Template>
                 </Column>
+                <Pager ShowPageNumber="true" ShowTotalCount="true" AlwaysShow="true"/>
             </Table>
         </LazyLoader>
     </div>
