@@ -9,7 +9,6 @@ public class SetupCommand : BaseModule
     public SetupCommand(DiscordSocketClient client, ConfigService configService, IServiceScope scope) : base(client, configService, scope)
         { }
     
-    [RequireUserPermission(GuildPermission.Administrator)]
     public async Task Handler(SocketSlashCommand command)
     {
         var dsc = Scope.ServiceProvider.GetRequiredService<DiscordBotService>();
@@ -71,7 +70,7 @@ public class SetupCommand : BaseModule
     
     public override async Task Init()
     {
-        var command = new SlashCommandBuilder()
+        var command = new SlashCommandBuilder
         {
             Name = "setup",
             Description = "Setup the bot and Channels",
@@ -88,6 +87,6 @@ public class SetupCommand : BaseModule
             })
         };
         
-        await Client.GetGuild((ulong)DiscordConfig.GuildId).CreateApplicationCommandAsync(command.Build());
+        await Client.GetGuild(Convert.ToUInt64(DiscordConfig.GuildId)).CreateApplicationCommandAsync(command.Build());
     }
 }

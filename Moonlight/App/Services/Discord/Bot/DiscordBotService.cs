@@ -119,8 +119,7 @@ public class DiscordBotService
             { }
             catch (Exception ex)
             {
-                Logger.Error($"Module Error '{instance}' \n{ex.Message}");
-                Logger.Error(ex.InnerException);
+                Logger.Error($"Module Error '{instance}' \n{ex}");
             }
         }
 
