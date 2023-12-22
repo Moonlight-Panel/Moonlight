@@ -21,11 +21,13 @@
               Load="LoadData"
               ValidateAdd="Validate"
               ValidateUpdate="Validate">
-        <Column TableItem="Coupon" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
-        <Column TableItem="Coupon" Title="Code" Field="@(x => x.Code)" Sortable="true" Filterable="true"/>
-        <Column TableItem="Coupon" Title="Amount" Field="@(x => x.Amount)" Sortable="true" Filterable="true"/>
-        <Column TableItem="Coupon" Title="Percent" Field="@(x => x.Percent)" Sortable="true" Filterable="true"/>
-        <Pager ShowPageNumber="true" ShowTotalCount="true" AlwaysShow="true"/>
+        <View>
+            <Column TableItem="Coupon" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+            <Column TableItem="Coupon" Title="Code" Field="@(x => x.Code)" Sortable="true" Filterable="true"/>
+            <Column TableItem="Coupon" Title="Amount" Field="@(x => x.Amount)" Sortable="true" Filterable="true"/>
+            <Column TableItem="Coupon" Title="Percent" Field="@(x => x.Percent)" Sortable="true" Filterable="true"/>
+            <Pager ShowPageNumber="true" ShowTotalCount="true" AlwaysShow="true"/>
+        </View>
     </AutoCrud>
 </div>
 

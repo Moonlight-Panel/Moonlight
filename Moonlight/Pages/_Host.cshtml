@@ -1,7 +1,14 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
+@using Moonlight.App.Services.Sys
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@inject MoonlightThemeService MoonlightThemeService
+
+@{
+    var themes = await MoonlightThemeService.GetEnabled();
+}
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -10,17 +17,25 @@
     <base href="~/"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Moonlight</title>
-    
+
     <link rel="shortcut icon" href="/img/logo.svg">
-    
+
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered"/>
-    
-    <link href="/css/theme.css" rel="stylesheet" type="text/css"/>
+
+    @foreach (var theme in themes)
+    {
+        var finalUrl = theme.CssUrl.StartsWith("/") ? theme.CssUrl : $"/api/assetproxy/theme/{theme.Id}/css";
+        
+        <!-- Theme: @(theme.Name) by @(theme.Author) -->
+        <link href="@(finalUrl)" rel="stylesheet" type="text/css"/>
+    }
+
     <link href="/css/utils.css" rel="stylesheet" type="text/css"/>
     <link href="/css/blazor.css" rel="stylesheet" type="text/css"/>
     <link href="/css/boxicons.min.css" rel="stylesheet" type="text/css"/>
     <link href="/css/sweetalert2dark.css" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet" type="text/css">
+    <link href="/css/interfont.css" rel="stylesheet" type="text/css"/>
+    @* <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet" type="text/css"> *@
 </head>
 <body data-kt-app-header-fixed="true"
       data-kt-app-header-fixed-mobile="true"
@@ -40,6 +55,18 @@
 <script src="/_content/BlazorTable/BlazorTable.min.js"></script>
 <script src="/js/sweetalert2.js"></script>
 <script src="/js/ckeditor.js"></script>
+
+@foreach (var theme in themes)
+{
+    if (!string.IsNullOrEmpty(theme.JsUrl))
+    {
+        var finalUrl = theme.JsUrl.StartsWith("/") ? theme.JsUrl : $"/api/assetproxy/theme/{theme.Id}/js";
+        
+        <!-- Theme: @(theme.Name) by @(theme.Author) -->
+        <script src="@(finalUrl)"></script>
+    }
+}
+
 <script src="/_framework/blazor.server.js"></script>
 </body>
 </html>

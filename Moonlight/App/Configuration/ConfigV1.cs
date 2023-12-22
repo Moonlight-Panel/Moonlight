@@ -16,6 +16,12 @@ public class ConfigV1
 
     [JsonProperty("Store")] public StoreData Store { get; set; } = new();
 
+    [JsonProperty("Theme")] public ThemeData Theme { get; set; } = new();
+    public class ThemeData
+    {
+        [JsonProperty("EnableDefault")] public bool EnableDefault { get; set; } = true;
+    }
+    
     public class StoreData
     {
         [JsonProperty("Currency")]

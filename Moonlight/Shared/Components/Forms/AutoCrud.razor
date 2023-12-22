@@ -14,7 +14,8 @@
     <div class="card-header">
         <h3 class="card-title">@(Title)</h3>
         <div class="card-toolbar">
-            <button @onclick="StartCreate" class="btn btn-icon btn-success">
+            @Toolbar
+            <button @onclick="StartCreate" class="btn btn-icon btn-success ms-3">
                 <i class="bx bx-sm bx-plus"></i>
             </button>
         </div>
@@ -26,7 +27,7 @@
                    PageSize="50"
                    TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
                    TableHeadClass="fw-bold text-muted">
-                @ChildContent
+                @View
                 <Column TableItem="TItem" Field="IdExpression" Title="" Sortable="false" Filterable="false">
                     <Template>
                         <div class="text-end">
@@ -109,7 +110,10 @@
     public Func<Repository<TItem>, TItem[]> Load { get; set; }
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment View { get; set; }
+    
+    [Parameter]
+    public RenderFragment Toolbar { get; set; }
     
     [Parameter]
     public Func<TItem, Task>? ValidateAdd { get; set; }
@@ -143,6 +147,8 @@
 
         IdExpression = CreateExpression();
     }
+
+    public async Task Reload() => await LazyLoader.Reload();
 
     private Task LoadItems(LazyLoader _)
     {
