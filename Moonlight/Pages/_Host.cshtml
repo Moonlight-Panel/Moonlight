@@ -55,7 +55,7 @@
 
 @foreach (var theme in themes)
 {
-    if (theme.JsUrl != null)
+    if (!string.IsNullOrEmpty(theme.JsUrl))
     {
         <!-- Theme: @(theme.Name) by @(theme.Author) -->
         <script src="@(theme.JsUrl)"></script>

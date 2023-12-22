@@ -22,8 +22,10 @@
               TUpdateForm="EditWordFilter"
               Title="Manage word filter"
               Load="LoadData">
-        <Column TableItem="WordFilter" Field="@(x => x.Id)" Title="Id" Sortable="false" Filterable="true"/>
-        <Column TableItem="WordFilter" Field="@(x => x.Filter)" Title="Filter" Sortable="false" Filterable="true"/>
+        <View>
+            <Column TableItem="WordFilter" Field="@(x => x.Id)" Title="Id" Sortable="false" Filterable="true"/>
+            <Column TableItem="WordFilter" Field="@(x => x.Filter)" Title="Filter" Sortable="false" Filterable="true"/>
+        </View>
     </AutoCrud>
 </div>
 
