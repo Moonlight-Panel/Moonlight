@@ -25,8 +25,7 @@
         <Column TableItem="Theme" Title="Author" Field="@(x => x.Author)" Sortable="true" Filterable="true"/>
         <Column TableItem="Theme" Field="@(x => x.Id)" Title="" Filterable="false" Sortable="false">
             <Template>
-                @if (EnabledThemes
-                    .Any(x => x.Name == context.Name && x.Author == context.Author))
+                @if (context.Enabled)
                 {
                     <span class="text-success">Enabled</span>
                 }
@@ -55,13 +54,8 @@
 
 @code
 {
-    private ApplicationTheme[] EnabledThemes;
-
     private Theme[] LoadData(Repository<Theme> repository)
     {
-    // No async => .Result needs to be used.   :c
-        EnabledThemes = MoonlightThemeService.GetEnabled().Result;
-
         return repository.Get().ToArray();
     }
 
