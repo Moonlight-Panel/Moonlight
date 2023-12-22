@@ -1,7 +1,14 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
+@using Moonlight.App.Services.Sys
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@inject MoonlightThemeService MoonlightThemeService
+
+@{
+    var themes = await MoonlightThemeService.GetEnabled();
+}
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -10,12 +17,17 @@
     <base href="~/"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Moonlight</title>
-    
+
     <link rel="shortcut icon" href="/img/logo.svg">
-    
+
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered"/>
-    
-    <link href="/css/theme.css" rel="stylesheet" type="text/css"/>
+
+    @foreach (var theme in themes)
+    {
+        <!-- Theme: @(theme.Name) by @(theme.Author) -->
+        <link href="@(theme.CssUrl)" rel="stylesheet" type="text/css"/>
+    }
+
     <link href="/css/utils.css" rel="stylesheet" type="text/css"/>
     <link href="/css/blazor.css" rel="stylesheet" type="text/css"/>
     <link href="/css/boxicons.min.css" rel="stylesheet" type="text/css"/>
@@ -40,6 +52,16 @@
 <script src="/_content/BlazorTable/BlazorTable.min.js"></script>
 <script src="/js/sweetalert2.js"></script>
 <script src="/js/ckeditor.js"></script>
+
+@foreach (var theme in themes)
+{
+    if (theme.JsUrl != null)
+    {
+        <!-- Theme: @(theme.Name) by @(theme.Author) -->
+        <script src="@(theme.JsUrl)"></script>
+    }
+}
+
 <script src="/_framework/blazor.server.js"></script>
 </body>
 </html>

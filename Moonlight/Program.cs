@@ -19,7 +19,6 @@ using Moonlight.App.Services.Utils;
 using Serilog;
 
 var configService = new ConfigService();
-var moonlightService = new MoonlightService(configService);
 
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
@@ -95,7 +94,8 @@ builder.Services.AddSingleton(configService);
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<BucketService>();
 builder.Services.AddSingleton<MailService>();
-builder.Services.AddSingleton(moonlightService);
+builder.Services.AddSingleton<MoonlightService>();
+builder.Services.AddSingleton<MoonlightThemeService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -112,7 +112,6 @@ var config =
 builder.Logging.AddConfiguration(config.Build());
 
 var app = builder.Build();
-moonlightService.Application = app;
 
 app.UseStaticFiles();
 app.UseRouting();
@@ -124,8 +123,10 @@ app.MapControllers();
 // Auto start background services
 app.Services.GetRequiredService<AutoMailSendService>();
 
-var serviceService = app.Services.GetRequiredService<ServiceDefinitionService>();
+var moonlightService = app.Services.GetRequiredService<MoonlightService>();
+moonlightService.Application = app;
 
+var serviceService = app.Services.GetRequiredService<ServiceDefinitionService>();
 serviceService.Register<DummyServiceDefinition>(ServiceType.Server);
 
 await pluginService.RunPrePost(app);

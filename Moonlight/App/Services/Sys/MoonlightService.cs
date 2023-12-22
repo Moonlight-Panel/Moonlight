@@ -7,11 +7,15 @@ namespace Moonlight.App.Services.Sys;
 public class MoonlightService // This service can be used to perform strictly panel specific actions
 {
     private readonly ConfigService ConfigService;
-    public WebApplication Application { get; set; } // Do NOT modify using a plugin
+    private readonly IServiceProvider ServiceProvider;
     
-    public MoonlightService(ConfigService configService)
+    public WebApplication Application { get; set; } // Do NOT modify using a plugin
+    public MoonlightThemeService Theme { get; set; }
+    
+    public MoonlightService(ConfigService configService, IServiceProvider serviceProvider)
     {
         ConfigService = configService;
+        ServiceProvider = serviceProvider;
     }
 
     public async Task Restart()

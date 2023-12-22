@@ -34,6 +34,9 @@ public class DataContext : DbContext
     // Tickets
     public DbSet<Ticket> Tickets { get; set; }
     public DbSet<TicketMessage> TicketMessages { get; set; }
+    
+    // Themes
+    public DbSet<Theme> Themes { get; set; }
 
     public DataContext(ConfigService configService)
     {

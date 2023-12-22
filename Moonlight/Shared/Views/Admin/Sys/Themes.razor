@@ -1,0 +1,72 @@
+﻿@page "/admin/sys/themes"
+
+@using Moonlight.App.Extensions.Attributes
+@using Moonlight.App.Models.Enums
+@using Moonlight.App.Models.Forms.Admin.Sys.Themes
+@using Moonlight.App.Repositories
+@using Moonlight.App.Services.Sys
+@using BlazorTable
+@using Moonlight.App.Models.Abstractions
+
+@attribute [RequirePermission(Permission.AdminRoot)]
+
+@inject MoonlightThemeService MoonlightThemeService
+
+<AdminSysNavigation Index="2"/>
+
+<div class="mt-5">
+    <AutoCrud TItem="Theme"
+              TCreateForm="AddThemeForm"
+              TUpdateForm="EditThemeForm"
+              Title="Manage themes"
+              Load="LoadData">
+        <Column TableItem="Theme" Title="Id" Field="@(x => x.Id)" Sortable="true" Filterable="true"/>
+        <Column TableItem="Theme" Title="Name" Field="@(x => x.Name)" Sortable="true" Filterable="true"/>
+        <Column TableItem="Theme" Title="Author" Field="@(x => x.Author)" Sortable="true" Filterable="true"/>
+        <Column TableItem="Theme" Field="@(x => x.Id)" Title="" Filterable="false" Sortable="false">
+            <Template>
+                @if (EnabledThemes
+                    .Any(x => x.Name == context.Name && x.Author == context.Author))
+                {
+                    <span class="text-success">Enabled</span>
+                }
+                else
+                {
+                    <span class="text-muted">Disabled</span>
+                }
+            </Template>
+        </Column>
+        <Column TableItem="Theme" Field="@(x => x.Id)" Title="" Filterable="false" Sortable="false">
+            <Template>
+                <div class="text-end">
+                    <div class="btn-group">
+                        @if (context.DonateUrl != null)
+                        {
+                            <a class="btn btn-sm btn-info" href="@(context.DonateUrl)" target="_blank">Donate</a>
+                        }
+                        <WButton OnClick="() => ExportTheme(context)" Text="Export" CssClasses="btn btn-sm btn-secondary"/>
+                    </div>
+                </div>
+            </Template>
+        </Column>
+        <Pager ShowPageNumber="true" ShowTotalCount="true" AlwaysShow="true"/>
+    </AutoCrud>
+</div>
+
+@code
+{
+    private ApplicationTheme[] EnabledThemes;
+
+    private Theme[] LoadData(Repository<Theme> repository)
+    {
+    // No async => .Result needs to be used.   :c
+        EnabledThemes = MoonlightThemeService.GetEnabled().Result;
+
+        return repository.Get().ToArray();
+    }
+
+    private Task ExportTheme(Theme theme)
+    {
+        return Task.CompletedTask;
+    }
+}
