@@ -1,4 +1,5 @@
-﻿using Moonlight.App.Database.Entities;
+﻿using Mappy.Net;
+using Moonlight.App.Database.Entities;
 using Moonlight.App.Models.Abstractions;
 using Moonlight.App.Repositories;
 
@@ -25,20 +26,13 @@ public class MoonlightThemeService
         themes.AddRange(themeRepo
             .Get()
             .ToArray()
-            .Select(x => new ApplicationTheme()
-            {
-                Name = x.Name,
-                Author = x.Author,
-                CssUrl = x.CssUrl,
-                JsUrl = x.JsUrl,
-                Enabled = x.Enabled,
-                DonateUrl = x.DonateUrl
-            }));
+            .Select(x => Mapper.Map<ApplicationTheme>(x)));
 
         if (ConfigService.Get().Theme.EnableDefault)
         {
             themes.Insert(0, new()
             {
+                Id = 0,
                 Name = "Moonlight Default",
                 Author = "MasuOwO",
                 Enabled = true,

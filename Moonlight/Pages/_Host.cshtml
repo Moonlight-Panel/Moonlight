@@ -24,15 +24,18 @@
 
     @foreach (var theme in themes)
     {
+        var finalUrl = theme.CssUrl.StartsWith("/") ? theme.CssUrl : $"/api/assetproxy/theme/{theme.Id}/css";
+        
         <!-- Theme: @(theme.Name) by @(theme.Author) -->
-        <link href="@(theme.CssUrl)" rel="stylesheet" type="text/css"/>
+        <link href="@(finalUrl)" rel="stylesheet" type="text/css"/>
     }
 
     <link href="/css/utils.css" rel="stylesheet" type="text/css"/>
     <link href="/css/blazor.css" rel="stylesheet" type="text/css"/>
     <link href="/css/boxicons.min.css" rel="stylesheet" type="text/css"/>
     <link href="/css/sweetalert2dark.css" rel="stylesheet" type="text/css"/>
-    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet" type="text/css">
+    <link href="/css/interfont.css" rel="stylesheet" type="text/css"/>
+    @* <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet" type="text/css"> *@
 </head>
 <body data-kt-app-header-fixed="true"
       data-kt-app-header-fixed-mobile="true"
@@ -57,8 +60,10 @@
 {
     if (!string.IsNullOrEmpty(theme.JsUrl))
     {
+        var finalUrl = theme.JsUrl.StartsWith("/") ? theme.JsUrl : $"/api/assetproxy/theme/{theme.Id}/js";
+        
         <!-- Theme: @(theme.Name) by @(theme.Author) -->
-        <script src="@(theme.JsUrl)"></script>
+        <script src="@(finalUrl)"></script>
     }
 }
 
