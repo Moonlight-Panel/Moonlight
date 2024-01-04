@@ -1,0 +1,30 @@
+﻿@page "/admin/sys/diagnose"
+@using Moonlight.App.Extensions.Attributes
+@using Moonlight.App.Models.Enums
+@using Moonlight.App.Services.Sys
+
+@attribute [RequirePermission(Permission.AdminRoot)]
+
+@inject MoonlightService MoonlightService
+@inject FileDownloadService DownloadService
+
+<AdminSysNavigation Index="3" />
+
+<Tooltip Color="danger">
+    Dont share this file with random people.
+    We do our best to clear this file from sensitive information but it can still contain some.
+    Its safe to share with official moonlight panel developers
+</Tooltip>
+
+<div class="card card-body mt-5">
+    <WButton Text="Generate diagnose" OnClick="GenerateDiagnose" />
+</div>
+
+@code
+{
+    private async Task GenerateDiagnose()
+    {
+        var data = await MoonlightService.GenerateDiagnoseReport();
+        await DownloadService.DownloadBytes("moonlight-diagnose.zip", data);
+    }
+}

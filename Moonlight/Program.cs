@@ -18,22 +18,29 @@ using Moonlight.App.Services.Users;
 using Moonlight.App.Services.Utils;
 using Serilog;
 
+var builder = WebApplication.CreateBuilder(args);
+
 var configService = new ConfigService();
 
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 
 var logConfig = new LoggerConfiguration();
+var now = DateTime.UtcNow;
+var logPath = PathBuilder.File("storage", "logs", $"moonlight-{now.Day}-{now.Month}-{now.Year}---{now.Hour}-{now.Minute}.log");
 
 logConfig = logConfig.Enrich.FromLogContext()
-    .MinimumLevel.Debug()
+    .WriteTo.File(logPath, outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}")
     .WriteTo.Console(
         outputTemplate:
         "{Timestamp:HH:mm:ss} [{Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}");
 
-Log.Logger = logConfig.CreateLogger();
+if (args.Contains("--debug") || builder.Environment.IsDevelopment())
+    logConfig = logConfig.MinimumLevel.Debug();
+else
+    logConfig = logConfig.MinimumLevel.Information();
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = logConfig.CreateLogger();
 
 // Init plugin system
 var pluginService = new PluginService();
@@ -126,6 +133,7 @@ app.Services.GetRequiredService<AutoMailSendService>();
 
 var moonlightService = app.Services.GetRequiredService<MoonlightService>();
 moonlightService.Application = app;
+moonlightService.LogPath = logPath;
 
 var serviceService = app.Services.GetRequiredService<ServiceDefinitionService>();
 serviceService.Register<DummyServiceDefinition>(ServiceType.Server);
