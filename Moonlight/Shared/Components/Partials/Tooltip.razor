@@ -1,4 +1,4 @@
-﻿<div class="card card-body border-primary fs-5 mt-5">
+﻿<div class="card card-body border-@(Color) fs-5 mt-5">
     @ChildContent
 </div>
 
@@ -6,4 +6,6 @@
 {
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public string Color { get; set; } = "primary";
 }

@@ -81,6 +81,8 @@ public class PluginService
         Logger.Info($"Loaded {Plugins.Count} plugin(s)");
     }
 
+    public Task<MoonlightPlugin[]> GetLoadedPlugins() => Task.FromResult(Plugins.ToArray());
+
     public async Task RunPreInit()
     {
         foreach (var plugin in Plugins)

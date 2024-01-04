@@ -34,4 +34,27 @@ public class ConfigService
     {
         return Data;
     }
+
+    public string GetDiagnoseJson()
+    {
+        var text = File.ReadAllText(Path);
+        var data = JsonConvert.DeserializeObject<ConfigV1>(text) ?? new();
+
+        // Security token
+        data.Security.Token = "";
+
+        // Database
+        if (string.IsNullOrEmpty(data.Database.Password))
+            data.Database.Password = "WAS EMPTY";
+        else
+            data.Database.Password = "WAS NOT EMPTY";
+        
+        // Mailserver
+        if (string.IsNullOrEmpty(data.MailServer.Password))
+            data.MailServer.Password = "WAS EMPTY";
+        else
+            data.MailServer.Password = "WAS NOT EMPTY";
+
+        return JsonConvert.SerializeObject(data, Formatting.Indented);
+    }
 }

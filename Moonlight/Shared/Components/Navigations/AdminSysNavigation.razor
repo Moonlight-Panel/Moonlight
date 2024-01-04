@@ -16,12 +16,16 @@
                     <i class="bx bx-sm bx-palette me-2"></i> Themes
                 </a>
             </li>
+            <li class="nav-item mt-2">
+                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(Index == 3 ? "active" : "")" href="/admin/sys/diagnose">
+                    <i class="bx bx-sm bx-pulse me-2"></i> Diagnose
+                </a>
+            </li>
         </ul>
     </div>
 </div>
 
 @code
 {
-    [Parameter]
-    public int Index { get; set; }
+    [Parameter] public int Index { get; set; }
 }
