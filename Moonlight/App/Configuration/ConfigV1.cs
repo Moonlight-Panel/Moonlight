@@ -17,6 +17,14 @@ public class ConfigV1
     [JsonProperty("Store")] public StoreData Store { get; set; } = new();
 
     [JsonProperty("Theme")] public ThemeData Theme { get; set; } = new();
+    [JsonProperty("Advertisement")] public AdvertisementData Advertisement { get; set; } = new();
+    
+    public class AdvertisementData
+    {
+        [JsonProperty("PreventAdBlockers")]
+        [Description("This prevents users from using ad blockers while using moonlight. (Note: The detection might not always work)")]
+        public bool PreventAdBlockers { get; set; }
+    }
     public class ThemeData
     {
         [JsonProperty("EnableDefault")] public bool EnableDefault { get; set; } = true;
