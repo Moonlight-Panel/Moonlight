@@ -134,7 +134,7 @@
     private async Task LaunchPayment()
     {
         if (SelectedGateway == null)
-            return;
+            throw new DisplayException("You need to select a payment method");
 
         var url = await SelectedGateway.Start(Amount);
         Navigation.NavigateTo(url, true);
