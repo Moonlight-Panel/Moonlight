@@ -5,6 +5,7 @@
 @using Moonlight.App.Services.ServiceManage
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.App.Models.Abstractions.Services
+@using Moonlight.App.Models.Enums
 @using Moonlight.App.Services
 
 @inject Repository<Service> ServiceRepository
@@ -19,7 +20,8 @@
     }
     else
     {
-        if (NeedsRenewal)
+        // An admin should still be able to manage the service, that's why we check for permissions here
+        if (NeedsRenewal && !IdentityService.Permissions[Permission.AdminServices])
         {
             <NeedsRenewalAlert />
         }
@@ -50,7 +52,7 @@
     private ServiceDefinition Definition;
     private ServiceViewContext ViewContext;
 
-    private bool NeedsRenewal = false;
+    private bool NeedsRenewal;
 
     private async Task Load(LazyLoader lazyLoader)
     {
@@ -73,9 +75,12 @@
         if (Service == null)
             return;
 
+        // Check expiration
         NeedsRenewal = await ServiceService.Manage.NeedsRenewal(Service);
         
-        if(NeedsRenewal) // Stop loading more data
+        // Stop loading more data if the user is not an admin
+        // because a admin should still be able to manage the service
+        if(NeedsRenewal && !IdentityService.Permissions[Permission.AdminServices])
             return;
         
         // Load implementation
