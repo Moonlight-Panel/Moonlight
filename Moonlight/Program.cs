@@ -64,6 +64,7 @@ builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<ModalService>();
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddScoped<FileDownloadService>();
+builder.Services.AddScoped<AdBlockService>();
 
 // Services / Store
 builder.Services.AddScoped<StoreService>();

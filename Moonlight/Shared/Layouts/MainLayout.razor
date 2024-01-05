@@ -14,6 +14,7 @@
 @inject SessionService SessionService
 @inject NavigationManager Navigation
 @inject ConnectionService ConnectionService
+@inject AdBlockService AdBlockService
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -39,6 +40,12 @@
         {
             <OverlayLayout>
                 <RestartAlert/>
+            </OverlayLayout>
+        }
+        else if (ConfigService.Get().Advertisement.PreventAdBlockers && AdBlockerDetected)
+        {
+            <OverlayLayout>
+                <AdBlockAlert />
             </OverlayLayout>
         }
         else
@@ -100,6 +107,7 @@ else
 {
     private bool Initialized = false;
     private bool RestartLock = false;
+    private bool AdBlockerDetected = false;
 
     private Session? MySession;
 
@@ -147,6 +155,9 @@ else
             };
 
             await SessionService.Register(MySession);
+            
+            if(ConfigService.Get().Advertisement.PreventAdBlockers)
+                AdBlockerDetected = await AdBlockService.Detect();
 
             Initialized = true;
 

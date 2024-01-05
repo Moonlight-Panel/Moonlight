@@ -120,6 +120,25 @@ window.moonlight = {
             anchorElement.click();
             anchorElement.remove();
             URL.revokeObjectURL(url);
+        },
+        vendo: function ()
+        {
+            try 
+            {
+                var request = new XMLHttpRequest();
+
+                request.open("GET", "https://pagead2.googlesyndication.com/pagead/js/aidsbygoogle.js?client=ca-pub-1234567890123456", false);
+                request.send();
+
+                if(request.status === 404)
+                    return false;
+
+                return true;
+            }
+            catch (e) 
+            {
+                return false;
+            }
         }
     },
     textEditor: {
