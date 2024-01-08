@@ -66,22 +66,34 @@
 <div class="card-footer">
     <div class="row">
         <div class="input-group">
-            <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
-            <ChatFileSelect @ref="FileSelect"/>
-            <WButton OnClick="SendMessage" CssClasses="ms-2 btn btn-icon btn-bg-light btn-color-white">
-                <i class="bx bx-sm bx-send"></i>
-            </WButton>
+            @if (HasStarted && TicketService.Chat.Ticket.Open)
+            {
+                <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
+                <ChatFileSelect @ref="FileSelect"/>
+                <WButton OnClick="SendMessage" CssClasses="ms-2 btn btn-icon btn-bg-light btn-color-white">
+                    <i class="bx bx-sm bx-send"></i>
+                </WButton>
+            }
+            else
+            {
+                <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3 disabled" disabled="disabled" placeholder="Type a message" style="height: 1vh"></textarea>
+                <label class="btn btn-icon btn-bg-light btn-color-primary rounded-start rounded-end disabled" disabled="">
+                    <i class="bx bx-sm bx-upload"></i>
+                </label>
+                <button class="ms-2 btn btn-icon btn-bg-light btn-color-white disabled" disabled="disabled">
+                    <i class="bx bx-sm bx-send"></i>
+                </button>
+            }
         </div>
     </div>
 </div>
 
 @code
 {
-    [CascadingParameter]
-    public TicketPopupMain TicketPopupMain { get; set; }
+    [CascadingParameter] public TicketPopupMain TicketPopupMain { get; set; }
 
     private bool HasStarted = false;
-    
+
     private ChatFileSelect FileSelect;
     private string MessageContent = "";
 
@@ -89,11 +101,11 @@
     {
         await lazyLoader.SetText("Starting chat client");
 
-    // Initialize chat service and start it
+        // Initialize chat service and start it
         TicketService.Chat.OnUpdate = OnUpdate;
         await TicketService.Chat.Start(TicketPopupMain.CurrentTicket);
 
-    // Let the ui know that we are ready
+        // Let the ui know that we are ready
         HasStarted = true;
         await InvokeAsync(StateHasChanged);
     }
@@ -119,7 +131,7 @@
                 string.IsNullOrEmpty(MessageContent) ? $"Upload of {FileSelect.SelectedFile.Name}" : MessageContent,
                 FileSelect.SelectedFile.OpenReadStream(1024 * 1024 * 5),
                 FileSelect.SelectedFile.Name
-                );
+            );
 
             await FileSelect.RemoveSelection();
         }
