@@ -18,14 +18,24 @@
 </div>
 <div class="card-body pt-5">
     <div class="scroll-y me-n5 pe-5" style="height: 50vh; width: 40vh; display: flex; flex-direction: column;">
-        <div class="d-flex flex-stack py-2 justify-content-center">
-            <h3 class="align-middle text-center">Need help? Create a <a @onclick="() => TicketPopupMain.SetViewIndex(3)" @onclick:preventDefault href="#" class="text-primary">ticket</a></h3>
+        <div class="d-flex flex-stack py-2">
+            <div class="btn-group w-100">
+                <button class="btn btn-primary" type="button" @onclick="() => TicketPopupMain.SetViewIndex(3)">Create ticket</button>
+                @if (ViewClosed)
+                {
+                    <button class="btn btn-success" type="button" @onclick="ToggleViewClosed">Open tickets</button>
+                }
+                else
+                {
+                    <button class="btn btn-danger" type="button" @onclick="ToggleViewClosed">Closed tickets</button>
+                }
+            </div>
         </div>
 
         <div class="d-flex flex-stack py-4">
         </div>
 
-        <LazyLoader Load="LoadTickets">
+        <LazyLoader @ref="LazyLoader" Load="LoadTickets">
             @if (Tickets.Any())
             {
                 foreach (var ticket in Tickets)
@@ -45,7 +55,7 @@
             }
             else
             {
-                <div class="text-center text-muted fs-5">No open tickets found</div>
+                <div class="text-center text-muted fs-5">No @(ViewClosed ? "closed" : "open") tickets found</div>
             }
         </LazyLoader>
     </div>
@@ -56,16 +66,27 @@
     [CascadingParameter]
     public TicketPopupMain TicketPopupMain { get; set; }
 
+    private LazyLoader LazyLoader;
+    
     private Ticket[] Tickets;
+    private bool ViewClosed = false;
 
     private Task LoadTickets(LazyLoader _)
     {
         Tickets = TicketRepository
             .Get()
             .Where(x => x.Creator.Id == IdentityService.CurrentUser.Id)
-            .Where(x => x.Open)
+            .Where(x => x.Open == !ViewClosed)
             .ToArray();
 
         return Task.CompletedTask;
+    }
+
+    private async Task ToggleViewClosed()
+    {
+        ViewClosed = !ViewClosed;
+        await InvokeAsync(StateHasChanged);
+
+        await LazyLoader.Reload();
     }
 }
