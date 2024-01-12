@@ -61,7 +61,11 @@ public class WingsServerConverter
             .First(x => x.Id == server.Image.Id);
         
         // Container
-        wingsServer.Settings.Container.Image = image.DockerImages[server.DockerImageIndex].Name;
+
+        if(server.DockerImageIndex >= image.DockerImages.Count() || server.DockerImageIndex == -1)
+            wingsServer.Settings.Container.Image = image.DockerImages.Last().Name;
+        else
+            wingsServer.Settings.Container.Image = image.DockerImages[server.DockerImageIndex].Name;
 
         // Egg
         wingsServer.Settings.Egg.Id = image.Uuid;
