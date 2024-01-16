@@ -21,6 +21,9 @@ public class ConfigService
 
         var text = File.ReadAllText(Path);
         Data = JsonConvert.DeserializeObject<ConfigV1>(text) ?? new();
+        
+        ApplyEnvironmentVariables("Moonlight", Data);
+        
         Save();
     }
 
@@ -56,5 +59,44 @@ public class ConfigService
             data.MailServer.Password = "WAS NOT EMPTY";
 
         return JsonConvert.SerializeObject(data, Formatting.Indented);
+    }
+
+    private void ApplyEnvironmentVariables(string prefix, object objectToLookAt)
+    {
+        foreach (var property in objectToLookAt.GetType().GetProperties())
+        {
+            var envName = $"{prefix}_{property.Name}";
+            
+            if (property.PropertyType.Assembly == GetType().Assembly)
+            {
+                ApplyEnvironmentVariables(envName, property.GetValue(objectToLookAt)!);
+            }
+            else
+            {
+                if(!Environment.GetEnvironmentVariables().Contains(envName))
+                    continue;
+
+                var envValue = Environment.GetEnvironmentVariable(envName)!;
+
+                if (property.PropertyType == typeof(string))
+                {
+                    property.SetValue(objectToLookAt, envValue);
+                }
+                else if (property.PropertyType == typeof(int))
+                {
+                    if(!int.TryParse(envValue, out int envIntValue))
+                        continue;
+                    
+                    property.SetValue(objectToLookAt, envIntValue);
+                }
+                else if (property.PropertyType == typeof(bool))
+                {
+                    if(!bool.TryParse(envValue, out bool envBoolValue))
+                        continue;
+                    
+                    property.SetValue(objectToLookAt, envBoolValue);
+                }
+            }
+        }
     }
 }
