@@ -10,14 +10,18 @@
 
 <AdminSysNavigation Index="3" />
 
-<Tooltip Color="danger">
-    Dont share this file with random people.
-    We do our best to clear this file from sensitive information but it can still contain some.
-    Its safe to share with official moonlight panel developers
-</Tooltip>
-
-<div class="card card-body mt-5">
-    <WButton Text="Generate diagnose" OnClick="GenerateDiagnose" />
+<div class="row">
+    <div class="col-md-6 col-12">
+        <Tooltip Color="danger">
+            Dont share this file with random people.
+            We do our best to clear this file from sensitive information but it can still contain some.
+            Its safe to share with official moonlight panel developers
+        </Tooltip>
+        
+        <div class="card card-body mt-5">
+            <WButton Text="Generate diagnose" OnClick="GenerateDiagnose" />
+        </div>
+    </div>
 </div>
 
 @code
