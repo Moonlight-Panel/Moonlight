@@ -65,6 +65,10 @@ else
         {
             Exception = exception;
             Crashed = true;
+
+            var username = IdentityService.IsSignedIn ? IdentityService.CurrentUser.Username : "Guest";
+            Logger.Warn($"A crash occured in the view of the user '{username}'");
+            Logger.Warn(exception);
         }
         
         Recover();
