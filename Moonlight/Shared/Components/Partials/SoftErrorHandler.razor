@@ -33,7 +33,7 @@ else
     {
         foreach (var errorMessage in ErrorMessages)
         {
-            <div class="alert alert-danger bg-danger text-white p-3 mb-5 fw-bold">
+            <div class="alert alert-danger bg-danger text-white p-3 mb-5 fw-semibold fs-5 text-center">
                 @errorMessage
             </div>
         }
@@ -65,6 +65,10 @@ else
         {
             Exception = exception;
             Crashed = true;
+
+            var username = IdentityService.IsSignedIn ? IdentityService.CurrentUser.Username : "Guest";
+            Logger.Warn($"A crash occured in the view of the user '{username}'");
+            Logger.Warn(exception);
         }
         
         Recover();

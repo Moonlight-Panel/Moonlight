@@ -4,7 +4,6 @@
 @using Moonlight.App.Services
 @using Moonlight.App.Database.Entities.Store
 @using Moonlight.App.Repositories
-@using Moonlight.App.Services.ServiceManage
 
 @inject ConfigService ConfigService
 @inject StoreService StoreService
@@ -33,17 +32,17 @@
                 </div>
                 <div class="row mb-5">
                     <div class="col-md-4 col-12">
-                        <a @onclick="() => SetDurationMultiplier(1)" @onclick:preventDefault href="#" class="card card-body bg-hover-secondary text-center @(DurationMultiplier == 1 ? "border border-info" : "")">
+                        <a @onclick="() => SetDurationMultiplier(1)" @onclick:preventDefault href="#" class="card card-body bg-hover-secondary text-center @(DurationMultiplier == 1 ? "border border-2 border-info" : "")">
                             <h4 class="fw-bold mb-0 align-middle">@(SelectedProduct.Duration * 1) days</h4>
                         </a>
                     </div>
                     <div class="col-md-4 col-12">
-                        <a @onclick="() => SetDurationMultiplier(2)" @onclick:preventDefault href="#" class="card card-body bg-hover-secondary text-center @(DurationMultiplier == 2 ? "border border-info" : "")">
+                        <a @onclick="() => SetDurationMultiplier(2)" @onclick:preventDefault href="#" class="card card-body bg-hover-secondary text-center @(DurationMultiplier == 2 ? "border border-2 border-info" : "")">
                             <h4 class="fw-bold mb-0 align-middle">@(SelectedProduct.Duration * 2) days</h4>
                         </a>
                     </div>
                     <div class="col-md-4 col-12">
-                        <a @onclick="() => SetDurationMultiplier(3)" @onclick:preventDefault href="#" class="card card-body bg-hover-secondary text-center @( DurationMultiplier == 3 ? "border border-info" : "")">
+                        <a @onclick="() => SetDurationMultiplier(3)" @onclick:preventDefault href="#" class="card card-body bg-hover-secondary text-center @( DurationMultiplier == 3 ? "border border-2 border-info" : "")">
                             <h4 class="fw-bold mb-0 align-middle">@(SelectedProduct.Duration * 3) days</h4>
                         </a>
                     </div>

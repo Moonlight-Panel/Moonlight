@@ -51,6 +51,11 @@
                             <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(ticket.CreatedAt))</span>
                         </div>
                     </a>
+
+                    if (ticket.Id != Tickets.Last().Id)
+                    {
+                        <span class="separator"></span>
+                    }
                 }
             }
             else

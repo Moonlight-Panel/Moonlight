@@ -16,7 +16,7 @@
 
 <div class="row mt-5">
     <div class="col-md-6 col-12">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-header">
                 <h3 class="card-title">Redeem gift code</h3>
             </div>
@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="col-md-6 col-12">
-        <div class="card card-body">
+        <div class="card card-body h-100">
             <div class="row d-flex justify-content-center">
                 <input @bind="Amount" class="form-control form-control-lg form-control-solid-bg w-50 text-center fs-2" placeholder="Enter amount to add to your account"/>
             </div>
@@ -61,7 +61,7 @@
         <LazyLoader @ref="LazyLoader" Load="Load">
             <Table TableItem="Transaction"
                    Items="Transactions"
-                   PageSize="50"
+                   PageSize="10"
                    TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
                    TableHeadClass="fw-bold text-muted">
                 <Column TableItem="Transaction" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
