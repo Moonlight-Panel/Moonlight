@@ -86,6 +86,11 @@
                     </Template>
                 </Column>
                 <Column TableItem="Transaction" Title="" Field="@(x => x.Text)" Sortable="false" Filterable="false"/>
+                <Column TableItem="Transaction" Title="" Field="@(x => x.CreatedAt)" Sortable="false" Filterable="false">
+                    <Template>
+                        <span>@(Formatter.FormatDate(context.CreatedAt))</span>
+                    </Template>
+                </Column>
                 <Pager AlwaysShow="true"/>
             </Table>
         </LazyLoader>
@@ -104,7 +109,7 @@
     private async Task Load(LazyLoader _)
     {
         Transactions = await IdentityService.GetTransactions();
-        
+
         Transactions = Transactions
             .OrderByDescending(x => x.Id)
             .ToArray();
@@ -120,7 +125,7 @@
         // Reset
         GiftCode = "";
         await InvokeAsync(StateHasChanged);
-        
+
         await ToastService.Success("Successfully applied gift code");
         await LazyLoader.Reload();
     }
