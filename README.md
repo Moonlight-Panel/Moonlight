@@ -97,7 +97,7 @@ Distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 
 * **Marcel Baumgartner** - *Endelon Hosting* - [Marcel Baumgartner](https://github.com/Marcel-Baumgartner) - *Moonlights core system & frontend*
 * **Daniel Balk** - *Endelon Hosting* - [Daniel Balk](https://github.com/Daniel-Balk) - *Notification system & frontend*
 * **Spielepapagei** - *Endelon Hosting* - [Spielepapagei](https://github.com/Spielepapagei) - *Discord Bot & support tickets*
-* **Dannyx** - *None* - [Dannyx](https://github.com/Dannyx1604) - *Grammer check and translations*
+* **Dannyx** - *None* - [Dannyx](https://github.com/Dannyx1604) - *Grammar check and translations*
 
 ## Some screenshots
 Only user area (outdated)
