@@ -1,11 +1,11 @@
 ﻿@page "/register"
 @* Virtual route to trick blazor *@
-
-@using Moonlight.App.Services
-@using Moonlight.App.Models.Forms
-@using Moonlight.App.Services.Users
-@using Moonlight.App.Exceptions
-@using Moonlight.App.Models.Forms.Auth
+@using Moonlight.Core.Models.Forms
+@using Moonlight.Core.Exceptions
+@using Moonlight.Core.Models.Forms.Auth
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Core.Services.Users
 
 @inject IdentityService IdentityService
 @inject UserService UserService

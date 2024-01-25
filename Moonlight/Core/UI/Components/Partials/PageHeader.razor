@@ -1,0 +1,102 @@
+﻿@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Core.UI.Layouts
+
+@inject IdentityService IdentityService
+@inject ConfigService ConfigService
+@inject CookieService CookieService
+
+<div class="app-header">
+    <div class="app-container container-fluid d-flex align-items-stretch flex-stack">
+        <div class="d-flex align-items-center d-block d-lg-none ms-n3" title="Show sidebar menu">
+            <a href="#" @onclick="Layout.ToggleMobileSidebar" @onclick:preventDefault class="btn btn-icon btn-active-color-primary w-35px h-35px me-2">
+                <i class="bx bx-sm bx-menu"></i>
+            </a>
+            <a href="/">
+                <img alt="Logo" src="/img/logo.svg" class="h-30px">
+            </a>
+        </div>
+        <div class="app-navbar flex-lg-grow-1">
+            <div class="app-navbar-item d-flex align-items-stretch flex-lg-grow-1">
+            </div>
+
+            <div class="app-navbar-item ms-1 ms-md-3">
+                <ConnectionIndicator/>
+            </div>
+
+            <div class="app-navbar-item ms-5 ms-md-5">
+                <div class="cursor-pointer symbol symbol-circle symbol-35px symbol-md-45px" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                    @if (IdentityService.CurrentUser.Avatar == null)
+                    {
+                        <img src="/assets/img/avatar.png" alt="Avatar">
+                    }
+                    else
+                    {
+                        <img src="/api/bucket/avatars/@(IdentityService.CurrentUser.Avatar)" alt="Avatar">
+                    }
+                </div>
+                <div class="dropdown-menu dropdown-menu-end menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" aria-labelledby="dropdownMenuLink">
+                    <div class="menu-item px-3">
+                        <div class="menu-content d-flex align-items-center px-3">
+                            <div class="symbol symbol-50px me-5">
+                                @if (IdentityService.CurrentUser.Avatar == null)
+                                {
+                                    <img src="/assets/img/avatar.png" alt="Avatar">
+                                }
+                                else
+                                {
+                                    <img src="/api/bucket/avatars/@(IdentityService.CurrentUser.Avatar)" alt="Avatar">
+                                }
+                            </div>
+                            <div class="d-flex flex-column">
+                                <div class="fw-bold d-flex align-items-center fs-5">
+                                    @(IdentityService.CurrentUser.Username)
+                                </div>
+                                <span class="fw-semibold text-muted fs-7">
+                                    @(IdentityService.CurrentUser.Email)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="separator my-2"></div>
+                    <div class="menu-item px-5">
+                        <a href="/account/payments" class="menu-link px-5">
+                            <span class="menu-badge">
+                                <span class="badge badge-info fw-semibold fs-7 badge-lg">@(ConfigService.Get().Store.Currency) @(IdentityService.CurrentUser.Balance)</span>
+                            </span>
+                            <span class="menu-text ms-3">
+                                Payment
+                            </span>
+                        </a>
+                    </div>
+                    <div class="separator my-2"></div>
+                    <div class="menu-item px-5">
+                        <a href="/account" class="menu-link px-5">
+                            Account
+                        </a>
+                    </div>
+                    <div class="separator my-2"></div>
+                    <div class="menu-item px-5">
+                        <a href="#" @onclick="Logout" @onclick:preventDefault class="menu-link px-5">
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public DefaultLayout Layout { get; set; }
+
+    private async Task Logout()
+    {
+        await IdentityService.Authenticate("");
+        await CookieService.SetValue("token", "");
+    }
+}

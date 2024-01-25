@@ -1,15 +1,18 @@
 ﻿@page "/admin/users/view/{Id:int}"
-
-@using Moonlight.App.Extensions.Attributes
-@using Moonlight.App.Models.Enums
-@using Moonlight.App.Repositories
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.App.Database.Entities.Store
-@using Moonlight.App.Models.Forms.Admin.Users
-@using Moonlight.App.Services
 @using Mappy.Net
 @using BlazorTable
-@using Moonlight.App.Services.Users
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Database.Entities.Store
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Models.Forms.Admin.Users
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Core.Services.Users
+@using Moonlight.Features.StoreSystem.Entities
 
 @attribute [RequirePermission(Permission.AdminUsers)]
 

@@ -1,10 +1,14 @@
 ﻿@page "/account/payments"
-
-@using Moonlight.App.Services
-@using Moonlight.App.Database.Entities.Store
 @using BlazorTable
-@using Moonlight.App.Models.Abstractions
-@using Moonlight.App.Services.Store
+@using Moonlight.Core.Database.Entities.Store
+@using Moonlight.Core.Exceptions
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Abstractions
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Features.StoreSystem.Entities
+@using Moonlight.Features.StoreSystem.Models.Abstractions
+@using Moonlight.Features.StoreSystem.Services
 
 @inject IdentityService IdentityService
 @inject ConfigService ConfigService

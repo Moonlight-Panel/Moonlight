@@ -1,0 +1,47 @@
+﻿@using Moonlight.Features.Ticketing.Entities
+<div class="mb-4 me-4 d-flex justify-content-end fixed-bottom" style="pointer-events: none;">
+    <CascadingValue Value="this">
+        @if (ViewIndex == 0)
+            {
+                <button @onclick="() => SetViewIndex(1)" class="btn btn-lg btn-icon btn-rounded-circle bg-secondary btn-white border border-2 border-warning" style="pointer-events: all">
+                    <i class="bx bg-lg bx-chat"></i>
+                </button>
+            }
+            else
+            {
+                <div class="card border border-2 border-warning" style="pointer-events: all; height: 70vh">
+                    @if (ViewIndex == 1)
+                    {
+                        <TicketPopupOverview />
+                    }
+                    else if (ViewIndex == 2)
+                    {
+                        <TicketPopupView />
+                    }
+                    else if (ViewIndex == 3)
+                    {
+                        <TicketPopupCreate />
+                    }
+                </div>
+            }
+    </CascadingValue>
+</div>
+
+@code
+{
+    private int ViewIndex = 0;
+    
+    public Ticket CurrentTicket { get; private set; }
+
+    public async Task SetViewIndex(int index)
+    {
+        ViewIndex = index;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task OpenTicket(Ticket ticket)
+    {
+        CurrentTicket = ticket;
+        await SetViewIndex(2);
+    }
+}

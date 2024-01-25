@@ -1,11 +1,12 @@
 ﻿@page "/account/security"
-
-@using Moonlight.App.Services
-@using Moonlight.App.Services.Users
 @using OtpNet
 @using QRCoder
-@using Moonlight.App.Models.Enums
-@using Moonlight.App.Models.Forms.Auth
+@using Moonlight.Core.Models.Forms.Auth
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Core.Services.Users
+@using Moonlight.Core.Exceptions
+@using Moonlight.Core.Models.Enums
 
 @inject IdentityService IdentityService
 @inject UserService UserService

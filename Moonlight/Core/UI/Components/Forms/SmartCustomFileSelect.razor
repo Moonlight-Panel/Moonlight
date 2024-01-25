@@ -1,0 +1,58 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Services.Interop
+
+@inject ToastService ToastService
+
+<InputFile OnChange="OnFileChanged" type="file" id="fileUpload" hidden=""/>
+<label for="fileUpload" class="">
+    @if (SelectedFile == null)
+    {
+        @ChildContent
+    }
+</label>
+
+@code
+{
+    [Parameter]
+    public IBrowserFile? SelectedFile { get; set; }
+
+    [Parameter]
+    public int MaxFileSize { get; set; } = 1024 * 1024 * 5;
+    
+    [Parameter]
+    public Func<IBrowserFile, Task>? OnFileSelected { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private async Task OnFileChanged(InputFileChangeEventArgs arg)
+    {
+        if (arg.FileCount > 0)
+        {
+            if (arg.File.Size < MaxFileSize)
+            {
+                SelectedFile = arg.File;
+
+                await InvokeAsync(StateHasChanged);
+
+                if(OnFileSelected != null)
+                    await OnFileSelected.Invoke(SelectedFile);
+                
+                return;
+            }
+
+            await ToastService.Danger($"The uploaded file should not be bigger than {Formatter.FormatSize(MaxFileSize)}");
+        }
+
+        SelectedFile = null;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task RemoveSelection()
+    {
+        SelectedFile = null;
+        await InvokeAsync(StateHasChanged);
+    }
+}

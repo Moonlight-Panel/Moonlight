@@ -1,13 +1,15 @@
 ﻿@page "/admin/sys/themes"
-
-@using Moonlight.App.Extensions.Attributes
-@using Moonlight.App.Models.Enums
-@using Moonlight.App.Models.Forms.Admin.Sys.Themes
-@using Moonlight.App.Repositories
 @using BlazorTable
 @using Mappy.Net
 @using Microsoft.AspNetCore.Components.Forms
-@using Moonlight.App.Models.Json.Theme
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Exceptions
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Models.Forms.Admin.Sys.Themes
+@using Moonlight.Core.Models.Json.Theme
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services.Interop
 @using Newtonsoft.Json
 
 @attribute [RequirePermission(Permission.AdminRoot)]

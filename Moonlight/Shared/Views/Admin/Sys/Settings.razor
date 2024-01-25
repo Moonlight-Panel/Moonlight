@@ -1,8 +1,10 @@
 ﻿@page "/admin/sys/settings"
-@using Moonlight.App.Services
 @using System.Reflection
-@using Moonlight.App.Extensions.Attributes
-@using Moonlight.App.Models.Enums
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
 
 @attribute [RequirePermission(Permission.AdminRoot)]
 

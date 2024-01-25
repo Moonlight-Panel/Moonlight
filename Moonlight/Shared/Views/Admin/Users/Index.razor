@@ -1,9 +1,10 @@
 ﻿@page "/admin/users"
-
-@using Moonlight.App.Extensions.Attributes
-@using Moonlight.App.Models.Enums
-@using Moonlight.App.Repositories
 @using BlazorTable
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Repositories
 
 @attribute [RequirePermission(Permission.AdminUsers)]
 

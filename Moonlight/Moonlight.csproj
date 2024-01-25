@@ -14,11 +14,42 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App\Database\Migrations\" />
-      <Folder Include="App\Http\Middleware\" />
-      <Folder Include="App\Http\Requests\" />
-      <Folder Include="App\Http\Resources\" />
-      <Folder Include="storage\logs\" />
+      <Folder Include="Core\Database\Migrations\" />
+      <Folder Include="Core\Http\Middleware\" />
+      <Folder Include="Core\Http\Requests\" />
+      <Folder Include="Core\Http\Resources\" />
+      <Folder Include="Core\UI\Components\" />
+      <Folder Include="Core\UI\Views\" />
+      <Folder Include="Features\Dummy\Configuration\" />
+      <Folder Include="Features\Dummy\Entities\" />
+      <Folder Include="Features\Dummy\Exceptions\" />
+      <Folder Include="Features\Dummy\Extensions\" />
+      <Folder Include="Features\Dummy\Helpers\" />
+      <Folder Include="Features\Dummy\Http\Controllers\" />
+      <Folder Include="Features\Dummy\Http\Middleware\" />
+      <Folder Include="Features\Dummy\Http\Requests\" />
+      <Folder Include="Features\Dummy\Http\Resources\" />
+      <Folder Include="Features\Dummy\Models\Abstractions\" />
+      <Folder Include="Features\Dummy\Models\Forms\" />
+      <Folder Include="Features\Dummy\Services\" />
+      <Folder Include="Features\Dummy\UI\Components\" />
+      <Folder Include="Features\Dummy\UI\Views\" />
+      <Folder Include="Features\StoreSystem\Exceptions\" />
+      <Folder Include="Features\StoreSystem\Extensions\" />
+      <Folder Include="Features\StoreSystem\Helpers\" />
+      <Folder Include="Features\StoreSystem\Http\Controllers\" />
+      <Folder Include="Features\StoreSystem\Http\Middleware\" />
+      <Folder Include="Features\StoreSystem\Http\Requests\" />
+      <Folder Include="Features\StoreSystem\Http\Resources\" />
+      <Folder Include="Features\Ticketing\Configuration\" />
+      <Folder Include="Features\Ticketing\Exceptions\" />
+      <Folder Include="Features\Ticketing\Extensions\" />
+      <Folder Include="Features\Ticketing\Helpers\" />
+      <Folder Include="Features\Ticketing\Http\Controllers\" />
+      <Folder Include="Features\Ticketing\Http\Middleware\" />
+      <Folder Include="Features\Ticketing\Http\Requests\" />
+      <Folder Include="Features\Ticketing\Http\Resources\" />
+      <Folder Include="Features\Ticketing\Models\Abstractions\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,5 +75,53 @@
       <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
       <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
       <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Core\UI\Components\Forms\AutoCrud.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\AutoForm.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\AutoProperty.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\ChatFileSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\ConfirmButton.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\DynamicTypedAutoForm.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartCustomFileSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartDropdown.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartEnumSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartFileSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartForm.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\TextEditor.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\WButton.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\ConnectionIndicator.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\LazyLoader.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\PageHeader.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\PermissionChecker.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\Sidebar.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\SmartModal.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\SoftErrorHandler.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\Tooltip.razor" />
+      <AdditionalFiles Include="Core\UI\Layouts\DefaultLayout.razor" />
+      <AdditionalFiles Include="Core\UI\Layouts\MainLayout.razor" />
+      <AdditionalFiles Include="Core\UI\Layouts\OverlayLayout.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\AutoCrud.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\AutoForm.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\AutoProperty.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\ChatFileSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\ConfirmButton.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\DynamicTypedAutoForm.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartCustomFileSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartDropdown.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartEnumSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartFileSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartForm.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\TextEditor.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\WButton.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Layouts\DefaultLayout.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Layouts\MainLayout.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Layouts\OverlayLayout.razor" />
     </ItemGroup>
 </Project>

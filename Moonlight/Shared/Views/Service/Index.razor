@@ -1,12 +1,11 @@
 ﻿@page "/service/{Id:int}/{Route?}"
-
-@using Moonlight.App.Repositories
-@using Moonlight.App.Database.Entities.Store
-@using Moonlight.App.Services.ServiceManage
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.App.Models.Abstractions.Services
-@using Moonlight.App.Models.Enums
-@using Moonlight.App.Services
+@using Moonlight.Core.Database.Entities.Store
+@using Moonlight.Core.Models.Abstractions.Services
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.ServiceManage
 
 @inject Repository<Service> ServiceRepository
 @inject ServiceService ServiceService

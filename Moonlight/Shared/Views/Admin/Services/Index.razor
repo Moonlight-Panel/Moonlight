@@ -1,11 +1,10 @@
 ﻿@page "/admin/services"
-
-@using Moonlight.App.Extensions.Attributes
-@using Moonlight.App.Models.Enums
-@using Moonlight.App.Repositories
-@using Moonlight.App.Database.Entities.Store
 @using Microsoft.EntityFrameworkCore
 @using BlazorTable
+@using Moonlight.Core.Database.Entities.Store
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Repositories
 
 @attribute [RequirePermission(Permission.AdminServices)]
 

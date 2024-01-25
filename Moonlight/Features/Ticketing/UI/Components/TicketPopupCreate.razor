@@ -1,0 +1,83 @@
+﻿@using Moonlight.Core.Database.Entities.Store
+@using Moonlight.Core.Exceptions
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services
+@using Moonlight.Features.Ticketing.Models.Forms
+@using Moonlight.Features.Ticketing.Services
+
+@inject IdentityService IdentityService
+@inject Repository<Service> ServiceRepository
+@inject TicketService TicketService
+
+<div class="card-header">
+    <span class="card-title fs-5">Create a new ticket</span>
+    <div class="card-toolbar">
+        <button @onclick="() => TicketPopupMain.SetViewIndex(1)" class="btn btn-rounded-circle btn-icon">
+            <i class="bx bx-sm bx-chevron-left"></i>
+        </button>
+    </div>
+</div>
+<div class="card-body" style="width: 45vh; overflow-y: scroll">
+    <LazyLoader Load="LoadServices">
+        <SmartForm Model="Form" OnValidSubmit="CreateTicket">
+            <div class="mb-5">
+                <label class="form-label">Name</label>
+                <input @bind="Form.Name" class="form-control" type="text"/>
+            </div>
+            <div class="mb-5">
+                <label class="form-label">Description</label>
+                <textarea @bind="Form.Description" class="form-control"></textarea>
+            </div>
+            <div class="mb-5">
+                <label class="form-label">Tries</label>
+                <textarea @bind="Form.Tries" class="form-control"></textarea>
+            </div>
+            <div class="mb-5">
+                <label class="form-label">Service</label>
+                <SmartSelect TField="Service"
+                             @bind-Value="Form.Service"
+                             Items="Services"
+                             DisplayField="@(x => x.Nickname ?? $"Service {x.Id}")"
+                             CanBeNull="true"/>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </SmartForm>
+    </LazyLoader>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public TicketPopupMain TicketPopupMain { get; set; }
+
+    private Service[] Services;
+    private CreateTicketForm Form = new();
+
+    private async Task LoadServices(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading your services");
+
+        Services = ServiceRepository
+            .Get()
+            .Where(x => x.Owner.Id == IdentityService.CurrentUser.Id)
+            .ToArray();
+    }
+
+    private async Task CreateTicket()
+    {
+    // Prevent some annoying users
+        if (Form.Description.Trim().ToLower() == Form.Tries.Trim().ToLower())
+            throw new DisplayException("Please fill out the form correctly");
+
+        var ticket = await TicketService.Create.Perform(
+            Form.Name,
+            Form.Description,
+            Form.Tries,
+            Form.Service
+            );
+
+        await TicketPopupMain.OpenTicket(ticket);
+    }
+}
