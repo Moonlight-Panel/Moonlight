@@ -1,13 +1,13 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
-@using Moonlight.App.Services.Sys
+@using Moonlight.Features.Theming.Services
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-@inject MoonlightThemeService MoonlightThemeService
+@inject ThemeService ThemeService
 
 @{
-    var themes = await MoonlightThemeService.GetEnabled();
+    var themes = await ThemeService.GetEnabled();
 }
 
 <!DOCTYPE html>

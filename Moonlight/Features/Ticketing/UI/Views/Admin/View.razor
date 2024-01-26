@@ -1,0 +1,307 @@
+﻿@page "/admin/tickets/view/{Id:int}"
+
+@using System.Text.RegularExpressions
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Features.Ticketing.Entities
+@using Moonlight.Features.Ticketing.Entities.Enums
+@using Moonlight.Features.Ticketing.Services
+@using Moonlight.Features.Ticketing.UI.Components
+
+@attribute [RequirePermission(Permission.AdminTickets)]
+
+@implements IDisposable
+
+@inject TicketService TicketService
+@inject ToastService ToastService
+@inject Repository<Ticket> TicketRepository
+
+<LazyLoader Load="LoadTicket" ShowAsCard="true">
+    @if (Ticket == null)
+    {
+        <NotFoundAlert/>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-3 col-12 mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
+                            <li class="nav-item mt-2">
+                                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(ShowDetails ? "" : "active")" @onclick="() => SetShowDetails(false)" @onclick:preventDefault href="#">
+                                    General
+                                </a>
+                            </li>
+                            <li class="nav-item mt-2">
+                                <a class="nav-link text-active-primary ms-0 me-10 py-5 @(ShowDetails ? "active" : "")" @onclick="() => SetShowDetails(true)" @onclick:preventDefault href="#">
+                                    Details
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        @if (ShowDetails)
+                        {
+                            <div class="mb-4 pb-2 g-3">
+                                <span class="fs-2 fw-bold">@(Ticket.Name)</span>
+                            </div>
+                            
+                            <span class="fs-4">
+                                Description
+                            </span>
+
+                            <p class="fs-5 text-muted">
+                                @(Formatter.FormatLineBreaks(Ticket.Description))
+                            </p>
+
+                            <span class="fs-4">
+                                Tries:
+                            </span>
+
+                            <p class="fs-5 text-muted">
+                                @(Formatter.FormatLineBreaks(Ticket.Tries))
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-borderless align-middle mb-0 fs-5">
+                                    <tbody>
+                                    <tr>
+                                        <th>
+                                            <span>Ticket ID</span>
+                                        </th>
+                                        <td>@(Ticket.Id)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>User</span>
+                                        </th>
+                                        <td>
+                                            <a href="/admin/users/view/@(Ticket.Creator.Id)">@(Ticket.Creator.Username)</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Service</span>
+                                        </th>
+                                        <td>
+                                            @if (Ticket.Service == null)
+                                            {
+                                                <span>None</span>
+                                            }
+                                            else
+                                            {
+                                                <a href="/service/@(Ticket.Service.Id)">@(Ticket.Service.Nickname ?? $"Service {Ticket.Service.Id}")</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Open</span>
+                                        </th>
+                                        <td>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" @bind="EditOpen"/>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Priority</span>
+                                        </th>
+                                        <td>
+                                            <SmartEnumSelect @bind-Value="EditPriority"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <span>Created at</span>
+                                        </th>
+                                        <td>
+                                            <span>@(Formatter.FormatDate(Ticket.CreatedAt))</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <td>
+                                            <WButton OnClick="Save" Text="Save" CssClasses="btn-primary"/>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9 col-12">
+                <div class="card">
+                    <div class="card-body bg-black p-8">
+                        <LazyLoader Load="LoadChatClient">
+                            <div class="scroll-y" style="display: flex; flex-direction: column-reverse; height: 70vh">
+                                @foreach (var message in TicketService.Chat.Messages.OrderByDescending(x => x.CreatedAt))
+                                {
+                                    var orientation = message.IsSupport ? "end" : "start";
+
+                                    if (message.Sender != null)
+                                    {
+                                        <div class="d-flex justify-content-@(orientation) mb-10 ">
+                                            <div class="d-flex flex-column align-items-@(orientation)">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="symbol symbol-35px symbol-circle ">
+                                                        <img alt="Avatar" src="/api/bucket/avatars/@(message.Sender.Avatar)">
+                                                    </div>
+                                                    <div class="ms-3">
+                                                        <div class="fs-5 fw-bold text-gray-900 me-1">@(message.Sender.Username)</div>
+                                                        <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt))</span>
+                                                    </div>
+                                                </div>
+                                                <div class="p-5 rounded bg-light-@(message.IsSupport ? "info" : "primary") text-dark fw-semibold mw-lg-400px text-@(orientation)">
+                                                    @(Formatter.FormatLineBreaks(message.Content))
+
+                                                    @if (message.Attachment != null)
+                                                    {
+                                                        <div class="mt-3">
+                                                            @if (Regex.IsMatch(message.Attachment, @"\.(jpg|jpeg|png|gif|bmp)$"))
+                                                            {
+                                                                <img src="/api/bucket/ticketAttachments/@(message.Attachment)" class="img-fluid" alt="Attachment"/>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="/api/bucket/ticketAttachments/@(message.Attachment)" target="_blank" class="btn btn-secondary">
+                                                                    <i class="me-2 bx bx-download"></i> @(message.Attachment)
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="separator separator-content my-15">@(message.Content)</div>
+                                    }
+                                }
+                            </div>
+                        </LazyLoader>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="input-group">
+                                <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
+                                <ChatFileSelect @ref="FileSelect"/>
+                                <WButton OnClick="SendMessage" CssClasses="ms-2 btn btn-icon btn-bg-light btn-color-white">
+                                    <i class="bx bx-sm bx-send"></i>
+                                </WButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ticket? Ticket;
+    private bool HasStarted = false;
+    private bool ShowDetails = false;
+
+    // Message compose cache
+    private ChatFileSelect FileSelect;
+    private string MessageContent = "";
+
+    // Edit cache
+    private bool EditOpen;
+    private TicketPriority EditPriority;
+
+    private Task LoadTicket(LazyLoader _)
+    {
+        Ticket = TicketRepository
+            .Get()
+            .Include(x => x.Creator)
+            .Include(x => x.Service)
+            .FirstOrDefault(x => x.Id == Id);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task LoadChatClient(LazyLoader lazyLoader)
+    {
+        if (Ticket != null)
+        {
+            await lazyLoader.SetText("Starting chat client");
+
+            TicketService.Chat.OnUpdate += OnUpdate;
+            await TicketService.Chat.Start(Ticket, true);
+
+            EditOpen = TicketService.Chat.Ticket.Open;
+            EditPriority = TicketService.Chat.Ticket.Priority;
+
+            HasStarted = true;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(MessageContent) && FileSelect.SelectedFile == null)
+            return;
+
+        if (!HasStarted)
+            return;
+
+        if (FileSelect.SelectedFile == null)
+            await TicketService.Chat.SendMessage(MessageContent);
+        else
+        {
+            await TicketService.Chat.SendMessage(
+                string.IsNullOrEmpty(MessageContent) ? $"Upload of {FileSelect.SelectedFile.Name}" : MessageContent,
+                FileSelect.SelectedFile.OpenReadStream(1024 * 1024 * 5),
+                FileSelect.SelectedFile.Name
+                );
+
+            await FileSelect.RemoveSelection();
+        }
+
+        MessageContent = "";
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Save()
+    {
+        await TicketService.Chat.Update(EditOpen, EditPriority);
+        await ToastService.Success("Successfully updated ticket");
+    }
+
+    private async Task SetShowDetails(bool b)
+    {
+        ShowDetails = b;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnUpdate()
+    {
+    // Overwrite current cached data
+        EditOpen = TicketService.Chat.Ticket.Open;
+        EditPriority = TicketService.Chat.Ticket.Priority;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async void Dispose()
+    {
+        await TicketService.Chat.Stop();
+    }
+}

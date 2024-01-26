@@ -1,0 +1,63 @@
+﻿@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Models.Abstractions
+@using Moonlight.Core.Services
+@inject IdentityService IdentityService
+
+@if (Allowed)
+{
+    @ChildContent
+}
+else
+{
+    <h1>Ha, nein ;)</h1>
+}
+
+@code
+{
+    [CascadingParameter(Name = "TargetPageType")]
+    public Type? TargetPageType { get; set; }
+    
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private bool Allowed = false;
+
+    protected override Task OnParametersSetAsync()
+    {
+        if(TargetPageType == null)
+            return Task.CompletedTask;
+        
+        var attributes = TargetPageType.GetCustomAttributes(true);
+        var permAttrs = attributes
+            .Where(x => x.GetType() == typeof(RequirePermissionAttribute))
+            .Select(x => x as RequirePermissionAttribute)
+            .ToArray();
+
+        Allowed = true;
+
+        if (permAttrs.Any())
+        {
+            Allowed = false;
+            
+            foreach (var permissionRequired in permAttrs)
+            {
+                if(permissionRequired == null)
+                    continue;
+            
+                var permission = PermissionStorage.GetFromInteger(permissionRequired.PermissionInteger);
+
+                if (IdentityService.Permissions[permission])
+                {
+                    Allowed = true;
+                }
+            }
+        }
+
+        if (!Allowed)
+        {
+            //Logger.Warn($"{IdentityService.Ip} has tried to access {NavigationManager.Uri} without permission", "security");
+        }
+        
+        return Task.CompletedTask;
+    }
+}

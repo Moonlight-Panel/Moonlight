@@ -1,0 +1,148 @@
+﻿@using System.Text.RegularExpressions
+@using Moonlight.Core.Helpers
+@using Moonlight.Features.Ticketing.Services
+
+@implements IDisposable
+
+@inject TicketService TicketService
+
+<div class="card-header">
+    <span class="card-title fs-5">@(HasStarted ? TicketService.Chat.Ticket.Name : "Loading")</span>
+    <div class="card-toolbar">
+        <button @onclick="() => TicketPopupMain.SetViewIndex(1)" class="btn btn-rounded-circle btn-icon">
+            <i class="bx bx-sm bx-chevron-left"></i>
+        </button>
+    </div>
+</div>
+<div class="card-body bg-black py-0">
+    <LazyLoader Load="Load">
+        <div class="scroll-y me-n5 pe-5" style="height: 50vh; width: 40vh; display: flex; flex-direction: column-reverse;">
+            @foreach (var message in TicketService.Chat.Messages.OrderByDescending(x => x.CreatedAt))
+            {
+                var orientation = message.IsSupport ? "start" : "end";
+
+                @if (message.Sender != null)
+                {
+                    <div class="d-flex justify-content-@(orientation) mb-10 ">
+                        <div class="d-flex flex-column align-items-@(orientation)">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="symbol symbol-35px symbol-circle ">
+                                    <img alt="Avatar" src="/api/bucket/avatars/@(message.Sender.Avatar)">
+                                </div>
+                                <div class="ms-3">
+                                    <div class="fs-5 fw-bold text-gray-900 me-1">@(message.Sender.Username)</div>
+                                    <span class="text-muted fs-7 mb-1">@(Formatter.FormatAgoFromDateTime(message.CreatedAt))</span>
+                                </div>
+                            </div>
+                            <div class="p-5 rounded bg-light-@(message.IsSupport ? "info" : "primary") text-dark fw-semibold mw-lg-400px text-@(orientation)">
+                                @(Formatter.FormatLineBreaks(message.Content))
+
+                                @if (message.Attachment != null)
+                                {
+                                    <div class="mt-3">
+                                        @if (Regex.IsMatch(message.Attachment, @"\.(jpg|jpeg|png|gif|bmp)$"))
+                                        {
+                                            <img src="/api/bucket/ticketAttachments/@(message.Attachment)" class="img-fluid" alt="Attachment"/>
+                                        }
+                                        else
+                                        {
+                                            <a href="/api/bucket/ticketAttachments/@(message.Attachment)" target="_blank" class="btn btn-secondary">
+                                                <i class="me-2 bx bx-download"></i> @(message.Attachment)
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="separator separator-content my-15">@(message.Content)</div>
+                }
+            }
+        </div>
+    </LazyLoader>
+</div>
+<div class="card-footer">
+    <div class="row">
+        <div class="input-group">
+            @if (HasStarted && TicketService.Chat.Ticket.Open)
+            {
+                <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3" placeholder="Type a message" style="height: 1vh"></textarea>
+                <ChatFileSelect @ref="FileSelect"/>
+                <WButton OnClick="SendMessage" CssClasses="ms-2 btn btn-icon btn-bg-light btn-color-white">
+                    <i class="bx bx-sm bx-send"></i>
+                </WButton>
+            }
+            else
+            {
+                <textarea @bind="MessageContent" class="form-control form-control-solid-bg rounded-end me-3 disabled" disabled="disabled" placeholder="Type a message" style="height: 1vh"></textarea>
+                <label class="btn btn-icon btn-bg-light btn-color-primary rounded-start rounded-end disabled" disabled="">
+                    <i class="bx bx-sm bx-upload"></i>
+                </label>
+                <button class="ms-2 btn btn-icon btn-bg-light btn-color-white disabled" disabled="disabled">
+                    <i class="bx bx-sm bx-send"></i>
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter] public TicketPopupMain TicketPopupMain { get; set; }
+
+    private bool HasStarted = false;
+
+    private ChatFileSelect FileSelect;
+    private string MessageContent = "";
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Starting chat client");
+
+        // Initialize chat service and start it
+        TicketService.Chat.OnUpdate = OnUpdate;
+        await TicketService.Chat.Start(TicketPopupMain.CurrentTicket);
+
+        // Let the ui know that we are ready
+        HasStarted = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnUpdate() // This will be called to update the ui. Additional updates and check may be added here
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(MessageContent) && FileSelect.SelectedFile == null)
+            return;
+
+        if (!HasStarted)
+            return;
+
+        if (FileSelect.SelectedFile == null)
+            await TicketService.Chat.SendMessage(MessageContent);
+        else
+        {
+            await TicketService.Chat.SendMessage(
+                string.IsNullOrEmpty(MessageContent) ? $"Upload of {FileSelect.SelectedFile.Name}" : MessageContent,
+                FileSelect.SelectedFile.OpenReadStream(1024 * 1024 * 5),
+                FileSelect.SelectedFile.Name
+            );
+
+            await FileSelect.RemoveSelection();
+        }
+
+        MessageContent = "";
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async void Dispose()
+    {
+        await TicketService.Chat.Stop();
+    }
+}

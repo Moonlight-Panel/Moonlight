@@ -1,0 +1,266 @@
+﻿@page "/admin/tickets"
+
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.Core.Event
+@using Moonlight.Core.Event.Args
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Repositories
+@using Moonlight.Features.Ticketing.Entities
+@using Moonlight.Features.Ticketing.Entities.Enums
+
+@attribute [RequirePermission(Permission.AdminTickets)]
+
+@implements IDisposable
+
+@inject Repository<Ticket> TicketRepository
+
+<div class="row mb-5">
+    <LazyLoader @ref="StatisticsLazyLoader" Load="LoadStatistics" ShowAsCard="true">
+        <div class="col-md-4 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                Total Tickets
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(TotalTicketsCount)
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-0">
+                                <i class="text-primary bx bx-purchase-tag bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                Pending tickets
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(PendingTicketsCount)
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-">
+                                <i class="text-primary bx bx-hourglass bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                Closed tickets
+                            </h6>
+                            <span class="h2 mb-0">
+                                @(ClosedTicketsCount)
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-">
+                                <i class="text-primary bx bx-lock bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </LazyLoader>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">
+            Ticket overview
+        </span>
+        <div class="card-toolbar">
+            <div class="btn-group">
+                <WButton Text="Overview" CssClasses="btn-secondary" OnClick="() => UpdateFilter(0)" />
+                <WButton Text="Closed tickets" CssClasses="btn-secondary" OnClick="() => UpdateFilter(1)" />
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <LazyLoader @ref="TicketLazyLoader" Load="LoadTickets" ShowAsCard="true">
+            <div class="table-responsive">
+                <Table TableItem="Ticket" Items="AllTickets" PageSize="25" TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3" TableHeadClass="fw-bold text-muted">
+                    <Column TableItem="Ticket" Title="Id" Field="@(x => x.Id)" Filterable="true" Sortable="true"/>
+                    <Column TableItem="Ticket" Title="Name" Field="@(x => x.Name)" Filterable="true" Sortable="false">
+                        <Template>
+                            <a href="/admin/tickets/view/@(context.Id)">@(context.Name)</a>
+                        </Template>
+                    </Column>
+                    <Column TableItem="Ticket" Title="User" Field="@(x => x.Id)" Filterable="false" Sortable="false">
+                        <Template>
+                            <a href="/admin/users/view/@(context.Creator.Id)">@(context.Creator.Username)</a>
+                        </Template>
+                    </Column>
+                    <Column TableItem="Ticket" Title="Created at" Field="@(x => x.CreatedAt)" Filterable="true" Sortable="true">
+                        <Template>
+                            <span>@(Formatter.FormatDate(context.CreatedAt))</span>
+                        </Template>
+                    </Column>
+                    <Column TableItem="Ticket" Title="Priority" Field="@(x => x.Priority)" Filterable="true" Sortable="true">
+                        <Template>
+                            @switch (context.Priority)
+                            {
+                                case TicketPriority.Low:
+                                    <span class="badge bg-success">@(context.Priority)</span>
+                                    break;
+                                case TicketPriority.Medium:
+                                    <span class="badge bg-primary">@(context.Priority)</span>
+                                    break;
+                                case TicketPriority.High:
+                                    <span class="badge bg-warning">@(context.Priority)</span>
+                                    break;
+                                case TicketPriority.Critical:
+                                    <span class="badge bg-danger">@(context.Priority)</span>
+                                    break;
+                            }
+                        </Template>
+                    </Column>
+                    <Column TableItem="Ticket" Title="Status" Field="@(x => x.Open)" Filterable="true" Sortable="true">
+                        <Template>
+                            @if (context.Open)
+                            {
+                                <span class="badge bg-success">Open</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Closed</span>
+                            }
+                        </Template>
+                    </Column>
+                    <Pager AlwaysShow="true" ShowPageNumber="true" ShowTotalCount="true"/>
+                </Table>
+            </div>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    // Lazy loaders
+    private LazyLoader TicketLazyLoader;
+    private LazyLoader StatisticsLazyLoader;
+    
+    // Statistics
+    private int TotalTicketsCount;
+    private int ClosedTicketsCount;
+    private int PendingTicketsCount;
+    
+    // Data
+    private int Filter = 0;
+    private Ticket[] AllTickets;
+
+    protected override void OnInitialized()
+    {
+        Events.OnTicketCreated += OnTicketCreated;
+        Events.OnTicketUpdated += OnTicketUpdated;
+        Events.OnTicketMessage += OnTicketMessage;
+    }
+
+    #region Lazyloaders
+
+    private Task LoadStatistics(LazyLoader lazyLoader)
+    {
+        TotalTicketsCount = TicketRepository
+            .Get()
+            .Count();
+        
+        ClosedTicketsCount = TicketRepository
+            .Get()
+            .Count(x => !x.Open);
+
+        PendingTicketsCount = TicketRepository
+            .Get()
+            .Where(x => x.Open)
+            .Count(x => x.Messages.All(x => !x.IsSupport));
+        
+        return Task.CompletedTask;
+    }
+
+    private Task LoadTickets(LazyLoader lazyLoader)
+    {
+        if (Filter == 0)
+        {
+            AllTickets = TicketRepository
+                .Get()
+                .Include(x => x.Creator)
+                .Include(x => x.Service)
+                .ThenInclude(x => x.Product)
+                .Where(x => x.Open)
+                .ToArray();
+        }
+        else if (Filter == 1)
+        {
+            AllTickets = TicketRepository
+                .Get()
+                .Include(x => x.Creator)
+                .Include(x => x.Service)
+                .ThenInclude(x => x.Product)
+                .Where(x => !x.Open)
+                .ToArray();
+        }
+        
+        return Task.CompletedTask;
+    }
+    
+    #endregion
+
+    private async Task UpdateFilter(int filter)
+    {
+        Filter = filter;
+
+        await TicketLazyLoader.Reload();
+    }
+
+    #region Events
+
+    private async void OnTicketMessage(object? sender, TicketMessageEventArgs message)
+    {
+        if(!message.TicketMessage.IsSupport) // Only update if support has sent messages as the pending tickets depend on that
+            return;
+        
+        await StatisticsLazyLoader.Reload();
+        await TicketLazyLoader.Reload();
+    }
+
+    private async void OnTicketUpdated(object? o, Ticket e)
+    {
+        await StatisticsLazyLoader.Reload();
+        await TicketLazyLoader.Reload();
+    }
+
+    private async void OnTicketCreated(object? o, Ticket e)
+    {
+        await StatisticsLazyLoader.Reload();
+        await TicketLazyLoader.Reload();
+    }
+
+    #endregion
+
+    public void Dispose() // Unsubscribe to events
+    {
+        Events.OnTicketCreated -= OnTicketCreated;
+        Events.OnTicketUpdated -= OnTicketUpdated;
+        Events.OnTicketMessage -= OnTicketMessage;
+    }
+}

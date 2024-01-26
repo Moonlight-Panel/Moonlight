@@ -14,11 +14,27 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App\Database\Migrations\" />
-      <Folder Include="App\Http\Middleware\" />
-      <Folder Include="App\Http\Requests\" />
-      <Folder Include="App\Http\Resources\" />
-      <Folder Include="storage\logs\" />
+      <Folder Include="Core\Database\Migrations\" />
+      <Folder Include="Core\Http\Middleware\" />
+      <Folder Include="Core\Http\Requests\" />
+      <Folder Include="Core\Http\Resources\" />
+      <Folder Include="Core\UI\Components\" />
+      <Folder Include="Features\Dummy\Configuration\" />
+      <Folder Include="Features\Dummy\Entities\" />
+      <Folder Include="Features\Dummy\Exceptions\" />
+      <Folder Include="Features\Dummy\Extensions\" />
+      <Folder Include="Features\Dummy\Helpers\" />
+      <Folder Include="Features\Dummy\Http\Controllers\" />
+      <Folder Include="Features\Dummy\Http\Middleware\" />
+      <Folder Include="Features\Dummy\Http\Requests\" />
+      <Folder Include="Features\Dummy\Http\Resources\" />
+      <Folder Include="Features\Dummy\Models\Abstractions\" />
+      <Folder Include="Features\Dummy\Models\Forms\" />
+      <Folder Include="Features\Dummy\Services\" />
+      <Folder Include="Features\Dummy\UI\Components\" />
+      <Folder Include="Features\Dummy\UI\Views\" />
+      <Folder Include="Features\StoreSystem\Helpers\" />
+      <Folder Include="Features\Ticketing\Models\Abstractions\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,5 +60,93 @@
       <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
       <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
       <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Core\UI\Components\Alerts\NotFoundAlert.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Alerts\RestartAlert.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Auth\ChangePassword.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Auth\Login.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Auth\MailVerify.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Auth\PasswordReset.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Auth\Register.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\AutoCrud.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\AutoForm.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\AutoProperty.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\ConfirmButton.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\DynamicTypedAutoForm.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartCustomFileSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartDropdown.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartEnumSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartFileSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartForm.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\SmartSelect.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\TextEditor.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Forms\WButton.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Navigations\AccountNavigation.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Navigations\AdminSysNavigation.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Navigations\AdminUsersNavigation.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\ConnectionIndicator.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\LazyLoader.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\PageHeader.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\PermissionChecker.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\Sidebar.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\SmartModal.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\SoftErrorHandler.razor" />
+      <AdditionalFiles Include="Core\UI\Components\Partials\Tooltip.razor" />
+      <AdditionalFiles Include="Core\UI\Layouts\DefaultLayout.razor" />
+      <AdditionalFiles Include="Core\UI\Layouts\MainLayout.razor" />
+      <AdditionalFiles Include="Core\UI\Layouts\OverlayLayout.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Account\Index.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Account\Payments.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Account\Security.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Index.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Services\Index.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Services\View.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Sys\Diagnose.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Sys\Index.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Sys\Settings.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Users\Index.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Users\Sessions.razor" />
+      <AdditionalFiles Include="Core\UI\Views\Admin\Users\View.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\AutoCrud.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\AutoForm.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\AutoProperty.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\ChatFileSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\ConfirmButton.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\DynamicTypedAutoForm.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartCustomFileSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartDropdown.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartEnumSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartFileSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartForm.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\SmartSelect.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\TextEditor.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Forms\WButton.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Layouts\DefaultLayout.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Layouts\MainLayout.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Layouts\OverlayLayout.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Auth\ChangePassword.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Auth\Login.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Auth\MailVerify.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Auth\PasswordReset.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Auth\Register.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Alerts\NotFoundAlert.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Alerts\RestartAlert.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Navigations\AccountNavigation.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Navigations\AdminSysNavigation.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Components\Navigations\AdminUsersNavigation.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Index.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Services\Index.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Services\View.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Sys\Diagnose.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Sys\Index.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Sys\Settings.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Users\Index.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Users\Sessions.razor" />
+      <_ContentIncludedByDefault Remove="Shared\Views\Admin\Users\View.razor" />
     </ItemGroup>
 </Project>

@@ -1,0 +1,41 @@
+﻿@page "/admin/community/filter"
+
+@using BlazorTable
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Repositories
+@using Moonlight.Features.Community.Entities
+@using Moonlight.Features.Community.Models.Forms.Admin
+@using Moonlight.Features.Community.UI.Components
+
+@attribute [RequirePermission(Permission.AdminCommunity)]
+
+<AdminCommunityNavigation Index="1"/>
+
+<Tooltip>
+    To protect from trollers and toxic people you can configure words using
+    regex expressions to block automatically to ensure no one can write bad things in the community tab.
+</Tooltip>
+
+<div class="mt-5">
+    <AutoCrud TItem="WordFilter"
+              TCreateForm="AddWordFilter"
+              TUpdateForm="EditWordFilter"
+              Title="Manage word filter"
+              Load="LoadData">
+        <View>
+            <Column TableItem="WordFilter" Field="@(x => x.Id)" Title="Id" Sortable="false" Filterable="true"/>
+            <Column TableItem="WordFilter" Field="@(x => x.Filter)" Title="Filter" Sortable="false" Filterable="true"/>
+        </View>
+    </AutoCrud>
+</div>
+
+@code
+{
+    private WordFilter[] LoadData(Repository<WordFilter> repository)
+    {
+        return repository
+            .Get()
+            .ToArray();
+    }
+}

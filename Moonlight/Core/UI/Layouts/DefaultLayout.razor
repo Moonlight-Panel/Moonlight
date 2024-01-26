@@ -1,0 +1,39 @@
+﻿@using Moonlight.Features.Ticketing.UI.Components
+
+<div class="d-flex flex-column flex-root app-root">
+    <div class="app-page flex-column flex-column-fluid">
+        <CascadingValue Value="this">
+            <PageHeader />
+            <div class="app-wrapper flex-column flex-row-fluid">
+                <Sidebar/>
+                <div class="d-flex flex-column flex-column-fluid">
+                    <div class="app-content flex-column-fluid">
+                        <div class="app-container container-fluid">
+                            @ChildContent
+                            
+                            <TicketPopupMain />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </CascadingValue>
+    </div>
+</div>
+
+@if (ShowMobileSidebar)
+{
+    <div style="z-index: 105;" class="drawer-overlay" @onclick="ToggleMobileSidebar"></div>
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    public bool ShowMobileSidebar { get; set; }
+    
+    public async Task ToggleMobileSidebar()
+    {
+        ShowMobileSidebar = !ShowMobileSidebar;
+        await InvokeAsync(StateHasChanged);
+    }
+}
