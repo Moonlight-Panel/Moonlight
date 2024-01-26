@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using Moonlight.Core.Helpers;
+using Moonlight.Features.Advertisement.Configuration;
 using Moonlight.Features.StoreSystem.Configuration;
+using Moonlight.Features.Theming.Configuration;
 using Newtonsoft.Json;
 
 namespace Moonlight.Core.Configuration;
@@ -19,17 +21,6 @@ public class ConfigV1
 
     [JsonProperty("Theme")] public ThemeData Theme { get; set; } = new();
     [JsonProperty("Advertisement")] public AdvertisementData Advertisement { get; set; } = new();
-    
-    public class AdvertisementData
-    {
-        [JsonProperty("PreventAdBlockers")]
-        [Description("This prevents users from using ad blockers while using moonlight. (Note: The detection might not always work)")]
-        public bool PreventAdBlockers { get; set; }
-    }
-    public class ThemeData
-    {
-        [JsonProperty("EnableDefault")] public bool EnableDefault { get; set; } = true;
-    }
     
     public class SecurityData
     {

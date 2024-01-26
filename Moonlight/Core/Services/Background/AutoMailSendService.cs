@@ -1,7 +1,7 @@
 ﻿using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Database.Entities.Store;
 using Moonlight.Core.Event;
 using Moonlight.Core.Event.Args;
+using Moonlight.Features.ServiceManagement.Entities;
 
 namespace Moonlight.Core.Services.Background;
 

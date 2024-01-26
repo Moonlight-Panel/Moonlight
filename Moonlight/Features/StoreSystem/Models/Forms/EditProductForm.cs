@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Moonlight.Core.Database.Entities.Store;
-using Moonlight.Core.Database.Enums;
+using Moonlight.Features.ServiceManagement.Entities.Enums;
 using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.StoreSystem.Models.Forms;

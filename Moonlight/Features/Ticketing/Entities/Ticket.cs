@@ -1,5 +1,5 @@
 ﻿using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Database.Entities.Store;
+using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.Ticketing.Entities.Enums;
 
 namespace Moonlight.Features.Ticketing.Entities;

@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Database.Entities.Store;
 using Moonlight.Core.Services;
 using Moonlight.Features.Community.Entities;
+using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.StoreSystem.Entities;
+using Moonlight.Features.Theming.Entities;
 using Moonlight.Features.Ticketing.Entities;
 
 namespace Moonlight.Core.Database;

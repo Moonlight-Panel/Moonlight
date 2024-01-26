@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Database.Enums;
 using Moonlight.Core.Event;
 using Moonlight.Core.Exceptions;
 using Moonlight.Core.Extensions;

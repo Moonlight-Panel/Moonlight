@@ -1,5 +1,5 @@
-﻿using Moonlight.Core.Database.Entities.Store;
-using Moonlight.Core.Models.Abstractions.Services;
+﻿using Moonlight.Features.ServiceManagement.Entities;
+using Moonlight.Features.ServiceManagement.Models.Abstractions;
 
 namespace Moonlight.Core.Actions.Dummy;
 

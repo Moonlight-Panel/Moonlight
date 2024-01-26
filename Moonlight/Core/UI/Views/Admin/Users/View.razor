@@ -1,0 +1,240 @@
+﻿@page "/admin/users/view/{Id:int}"
+@using Microsoft.EntityFrameworkCore
+@using Mappy.Net
+@using BlazorTable
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Extensions.Attributes
+@using Moonlight.Core.Helpers
+@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Models.Forms.Admin.Users
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Core.Services.Users
+@using Moonlight.Features.ServiceManagement.Entities
+@using Moonlight.Features.StoreSystem.Entities
+
+@attribute [RequirePermission(Permission.AdminUsers)]
+
+@inject Repository<User> UserRepository
+@inject Repository<Service> ServiceRepository
+@inject SessionService SessionService
+@inject UserService UserService
+@inject ToastService ToastService
+@inject ConfigService ConfigService
+@inject NavigationManager Navigation
+
+<LazyLoader Load="Load" ShowAsCard="true">
+    @if (User == null)
+    {
+        <NotFoundAlert/>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-4 col-12">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title">User details</h3>
+                    </div>
+                    <SmartForm Model="UserForm" OnValidSubmit="UpdateUser">
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label class="form-label">
+                                    Username
+                                </label>
+                                <input @bind="UserForm.Username" type="text" class="form-control form-control-solid" placeholder="Enter a new username">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Email
+                                </label>
+                                <input @bind="UserForm.Email" type="text" class="form-control form-control-solid" placeholder="Enter a new email address">
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </SmartForm>
+                </div>
+                <div class="card mb-3">
+                    <SmartForm Model="PasswordForm" OnValidSubmit="UpdatePassword">
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label class="form-label">
+                                    New password
+                                </label>
+                                <input @bind="PasswordForm.Password" type="password" class="form-control form-control-solid" placeholder="Enter a new password">
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </div>
+                    </SmartForm>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body text-end">
+                        <ConfirmButton OnClick="Delete" Text="Delete user" CssClasses="btn-danger" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-12">
+                <div class="card mb-3">
+                    <div class="card-body fs-6">
+                        <div class="mb-5">
+                            <div class="fw-bold">Online status</div>
+                            @if (Online)
+                            {
+                                <div class="text-success">Online</div>
+                            }
+                            else
+                            {
+                                <div class="text-danger">Offline</div>
+                            }
+                        </div>
+                        <div class="mb-5">
+                            <div class="fw-bold">Registered at</div>
+                            <div class="text-gray-600">
+                                @Formatter.FormatDate(User.CreatedAt)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Transactions</h3>
+                    </div>
+                    <div class="card-body">
+                        <Table TableItem="Transaction"
+                               Items="Transactions"
+                               PageSize="3"
+                               TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                               TableHeadClass="fw-bold text-muted">
+                            <Column TableItem="Transaction" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false" Width="10%">
+                                <Template>
+                                    @if (context.Price == 0)
+                                    {
+                                        <i class="bx bx-sm bx-circle text-info align-middle"></i>
+                                    }
+                                    else if (context.Price < 0)
+                                    {
+                                        <i class="bx bx-sm bx-minus text-danger align-middle"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bx bx-sm bx-plus text-success align-middle"></i>
+                                    }
+                                </Template>
+                            </Column>
+                            <Column TableItem="Transaction" Title="" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                <Template>
+                                    <span>@(ConfigService.Get().Store.Currency) @(Math.Abs(context.Price))</span>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Transaction" Title="" Field="@(x => x.Text)" Sortable="false" Filterable="false"/>
+                            <Pager AlwaysShow="true"/>
+                        </Table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-12">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Services</h3>
+                    </div>
+                    <div class="card-body">
+                        <Table TableItem="Service"
+                               Items="Services"
+                               PageSize="10"
+                               TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                               TableHeadClass="fw-bold text-muted">
+                            <Column TableItem="Service" Title="Id" Field="@(x => x.Id)" Sortable="false" Filterable="false"/>
+                            <Column TableItem="Service" Title="Name" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                <Template>
+                                    <a href="/service/@(context.Id)">@(context.Nickname ?? $"Service {context.Id}")</a>
+                                </Template>
+                            </Column>
+                            <Column TableItem="Service" Title="Product" Field="@(x => x.Id)" Sortable="false" Filterable="false">
+                                <Template>
+                                    <span>@(context.Product.Name)</span>
+                                </Template>
+                            </Column>
+                            <Pager AlwaysShow="true"/>
+                        </Table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private User? User;
+    private bool Online;
+    private Service[] Services;
+    private Transaction[] Transactions;
+
+    private UpdateUserForm UserForm;
+    private UpdateUserPasswordForm PasswordForm = new();
+
+    private async Task Load(LazyLoader lazyLoader) // We use the text feature here because users have a lot of data related to them
+    {
+        await lazyLoader.SetText("Loading user");
+        User = UserRepository
+            .Get()
+            .Include(x => x.Transactions)
+            .Include(x => x.CouponUses)
+            .Include(x => x.GiftCodeUses)
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (User != null)
+        {
+            UserForm = Mapper.Map<UpdateUserForm>(User);
+
+            await lazyLoader.SetText("Checking online status");
+            Online = SessionService
+                .GetSessions()
+                .Where(x => x.User != null)
+                .Any(x => x.User!.Id == User.Id);
+
+            await lazyLoader.SetText("Loading user services");
+            Services = ServiceRepository
+                .Get()
+                .Include(x => x.Product)
+                .Where(x => x.Owner.Id == User.Id)
+                .ToArray();
+
+            await lazyLoader.SetText("Sorting transactions");
+            Transactions = User.Transactions
+                .OrderByDescending(x => x.Id)
+                .ToArray();
+        }
+    }
+
+    private async Task UpdateUser()
+    {
+        await UserService.Update(User!, UserForm.Username, UserForm.Email);
+        await ToastService.Success("Successfully updated user");
+    }
+
+    private async Task UpdatePassword()
+    {
+        await UserService.Auth.ChangePassword(User!, PasswordForm.Password);
+        await ToastService.Success("Successfully updated user password");
+    }
+
+    private async Task Delete()
+    {
+        await UserService.Delete.Perform(User!);
+        await ToastService.Success("Successfully deleted user");
+        Navigation.NavigateTo("/admin/users");
+    }
+}

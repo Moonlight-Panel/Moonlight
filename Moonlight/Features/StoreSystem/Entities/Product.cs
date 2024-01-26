@@ -1,4 +1,4 @@
-﻿using Moonlight.Core.Database.Enums;
+﻿using Moonlight.Features.ServiceManagement.Entities.Enums;
 
 namespace Moonlight.Features.StoreSystem.Entities;
 

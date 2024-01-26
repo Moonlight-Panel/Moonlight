@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Database.Entities.Store;
 using Moonlight.Core.Exceptions;
 using Moonlight.Core.Helpers;
 using Moonlight.Core.Models.Abstractions;

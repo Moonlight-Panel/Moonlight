@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Database.Entities.Store;
 using Moonlight.Core.Event;
 using Moonlight.Core.Exceptions;
 using Moonlight.Core.Extensions;
 using Moonlight.Core.Repositories;
-using Moonlight.Core.Services.ServiceManage;
+using Moonlight.Features.ServiceManagement.Entities;
+using Moonlight.Features.ServiceManagement.Services;
 using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.StoreSystem.Services;

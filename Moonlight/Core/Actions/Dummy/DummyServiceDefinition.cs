@@ -1,7 +1,7 @@
 ﻿using Moonlight.Core.Actions.Dummy.Layouts;
 using Moonlight.Core.Actions.Dummy.Pages;
 using Moonlight.Core.Helpers;
-using Moonlight.Core.Models.Abstractions.Services;
+using Moonlight.Features.ServiceManagement.Models.Abstractions;
 
 namespace Moonlight.Core.Actions.Dummy;
 

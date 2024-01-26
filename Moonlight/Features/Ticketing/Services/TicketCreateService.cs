@@ -1,8 +1,8 @@
-﻿using Moonlight.Core.Database.Entities.Store;
-using Moonlight.Core.Event;
+﻿using Moonlight.Core.Event;
 using Moonlight.Core.Extensions;
 using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
+using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.Ticketing.Entities;
 using Moonlight.Features.Ticketing.Entities.Enums;
 

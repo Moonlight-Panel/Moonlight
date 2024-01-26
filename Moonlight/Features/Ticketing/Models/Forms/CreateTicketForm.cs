@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Moonlight.Core.Database.Entities.Store;
+using Moonlight.Features.ServiceManagement.Entities;
 
 namespace Moonlight.Features.Ticketing.Models.Forms;
 

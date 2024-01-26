@@ -1,5 +1,4 @@
-﻿using Moonlight.Core.Database.Entities.Store;
-using Moonlight.Features.StoreSystem.Entities;
+﻿using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Core.Database.Entities;
 

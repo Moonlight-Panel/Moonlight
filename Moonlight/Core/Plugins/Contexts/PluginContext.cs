@@ -1,4 +1,4 @@
-﻿using Moonlight.Core.Models.Abstractions.Services;
+﻿using Moonlight.Features.ServiceManagement.Models.Abstractions;
 
 namespace Moonlight.Core.Plugins.Contexts;
 

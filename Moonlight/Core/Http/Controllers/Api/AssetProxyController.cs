@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Moonlight.Core.Helpers;
-using Moonlight.Core.Services.Sys;
+using Moonlight.Features.Theming.Services;
 
 namespace Moonlight.Core.Http.Controllers.Api;
 
@@ -8,9 +8,9 @@ namespace Moonlight.Core.Http.Controllers.Api;
 [Route("api/assetproxy")]
 public class AssetProxyController : Controller
 {
-    private readonly MoonlightThemeService ThemeService;
+    private readonly ThemeService ThemeService;
 
-    public AssetProxyController(MoonlightThemeService themeService)
+    public AssetProxyController(ThemeService themeService)
     {
         ThemeService = themeService;
     }
