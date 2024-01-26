@@ -13,6 +13,8 @@ using Moonlight.Core.Services.Users;
 using Moonlight.Core.Services.Utils;
 using Moonlight.Features.Advertisement.Services;
 using Moonlight.Features.Community.Services;
+using Moonlight.Features.Servers.Http.Middleware;
+using Moonlight.Features.Servers.Services;
 using Moonlight.Features.ServiceManagement.Entities.Enums;
 using Moonlight.Features.ServiceManagement.Services;
 using Moonlight.Features.StoreSystem.Services;
@@ -50,6 +52,10 @@ builder.Services.AddSingleton(pluginService);
 
 await pluginService.Load(builder);
 await pluginService.RunPreInit();
+
+// TODO: Add automatic assembly scanning
+// dependency injection registration
+// using attributes
 
 builder.Services.AddDbContext<DataContext>();
 
@@ -99,6 +105,9 @@ builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<TicketChatService>();
 builder.Services.AddScoped<TicketCreateService>();
 
+// Services / Servers
+builder.Services.AddSingleton<NodeService>();
+
 // Services
 builder.Services.AddScoped<IdentityService>();
 builder.Services.AddSingleton(configService);
@@ -126,6 +135,8 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseMiddleware<NodeMiddleware>();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

@@ -33,6 +33,14 @@
       <Folder Include="Features\Dummy\Services\" />
       <Folder Include="Features\Dummy\UI\Components\" />
       <Folder Include="Features\Dummy\UI\Views\" />
+      <Folder Include="Features\Servers\Configuration\" />
+      <Folder Include="Features\Servers\Exceptions\" />
+      <Folder Include="Features\Servers\Helpers\" />
+      <Folder Include="Features\Servers\Http\Requests\" />
+      <Folder Include="Features\Servers\Http\Resources\" />
+      <Folder Include="Features\Servers\Models\Forms\" />
+      <Folder Include="Features\Servers\UI\Components\" />
+      <Folder Include="Features\Servers\UI\Views\" />
       <Folder Include="Features\StoreSystem\Helpers\" />
       <Folder Include="Features\Ticketing\Models\Abstractions\" />
     </ItemGroup>

@@ -2,6 +2,7 @@
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Services;
 using Moonlight.Features.Community.Entities;
+using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.StoreSystem.Entities;
 using Moonlight.Features.Theming.Entities;
@@ -39,6 +40,15 @@ public class DataContext : DbContext
     
     // Themes
     public DbSet<Theme> Themes { get; set; }
+    
+    // Servers
+    public DbSet<Server> Servers { get; set; }
+    public DbSet<ServerAllocation> ServerAllocations { get; set; }
+    public DbSet<ServerImage> ServerImages { get; set; }
+    public DbSet<ServerNode> ServerNodes { get; set; }
+    public DbSet<ServerVariable> ServerVariables { get; set; }
+    public DbSet<ServerDockerImage> ServerDockerImages { get; set; }
+    public DbSet<ServerImageVariable> ServerImageVariables { get; set; }
 
     public DataContext(ConfigService configService)
     {
