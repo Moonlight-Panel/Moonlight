@@ -1,0 +1,85 @@
+@using XtermBlazor
+@using Moonlight.Core.Services.Interop
+
+@inject ClipboardService ClipboardService
+@inject ToastService ToastService
+
+<Xterm @ref="Term" Options="Options" AddonIds="AddonIds" OnFirstRender="OnFirstRender" />
+
+@code 
+{
+    private Xterm Term;
+
+    private readonly TerminalOptions Options = new()
+    {
+        CursorBlink = false,
+        CursorWidth = 0,
+        Theme =
+        {
+            Background = "#000000",
+            CursorAccent = "#000000",
+            Cursor = "#000000"
+        },
+        DisableStdin = true,
+        FontFamily = "monospace"
+    };
+
+    private readonly string[] AddonIds = new[]
+    {
+        "xterm-addon-fit",
+        "xterm-addon-web-links",
+        "xterm-addon-search"
+    };
+
+    private bool HasBeenRendered = false;
+    private readonly List<string> UnRenderedMessageCache = new();
+
+    public async Task WriteLine(string content)
+    {
+        if(HasBeenRendered)
+            await Term.WriteLine(content);
+        else
+        {
+            lock (UnRenderedMessageCache)
+                UnRenderedMessageCache.Add(content);
+        }
+    }
+
+    private async void OnFirstRender()
+    {
+        try
+        {
+            await Term.InvokeAddonFunctionVoidAsync("xterm-addon-fit", "fit");
+            
+            // This disables the key handling for xterm completely in order to allow Strg + C copying and other features
+            Term.AttachCustomKeyEventHandler(key =>
+            {
+                if (key.CtrlKey && key.Code == "KeyC" && key.Type == "keydown")
+                {
+                    Task.Run(async () =>
+                    {
+                        var content = await Term.GetSelection();
+                        await ClipboardService.Copy(content);
+                        await ToastService.Info("Copied console selection to clipboard");
+                    });
+                }
+
+                return false;
+            });
+        }
+        catch (Exception){ /* Ignore all js errors as the addons are not that important to risk a crash of the ui */ }
+        
+        string[] messagesToWrite;
+
+        lock (UnRenderedMessageCache)
+        {
+            messagesToWrite = UnRenderedMessageCache.ToArray();
+            UnRenderedMessageCache.Clear();
+        }
+
+        foreach (var message in messagesToWrite)
+            await Term.WriteLine(message);
+
+        HasBeenRendered = true;
+    }
+}

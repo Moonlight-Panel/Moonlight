@@ -79,10 +79,35 @@ public class WsPacketConnection
         return typedPacketType.GetProperty("Data")!.GetValue(typedPacket);
     }
 
+    public async Task<T?> Receive<T>() where T : class
+    {
+        var o = await Receive();
+
+        if (o == null)
+            return default;
+        
+        return (T)o;
+    }
+
     public async Task Close()
     {
         if(WebSocket.State == WebSocketState.Open) 
-            await WebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+            await WebSocket.CloseOutputAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+    }
+    
+    public async Task WaitForClose()
+    {
+        var source = new TaskCompletionSource();
+
+        Task.Run(async () =>
+        {
+            while (WebSocket.State == WebSocketState.Open)
+                await Task.Delay(10);
+            
+            source.SetResult();
+        });
+
+        await source.Task;
     }
 
     public class RawPacket

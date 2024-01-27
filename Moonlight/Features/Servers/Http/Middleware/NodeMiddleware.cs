@@ -8,12 +8,12 @@ namespace Moonlight.Features.Servers.Http.Middleware;
 public class NodeMiddleware
 {
     private RequestDelegate Next;
-    private readonly Repository<ServerNode> NodeRepository;
+    private readonly IServiceProvider ServiceProvider;
 
-    public NodeMiddleware(RequestDelegate next, Repository<ServerNode> nodeRepository)
+    public NodeMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
     {
         Next = next;
-        NodeRepository = nodeRepository;
+        ServiceProvider = serviceProvider;
     }
 
     public async Task Invoke(HttpContext context)
@@ -57,7 +57,7 @@ public class NodeMiddleware
             return;
         }
 
-        var token = context.Request.Headers["Authorization"];
+        var token = context.Request.Headers["Authorization"].ToString();
 
         // Check if header is null
         if (string.IsNullOrEmpty(token))
@@ -65,9 +65,12 @@ public class NodeMiddleware
             context.Response.StatusCode = 403;
             return;
         }
+
+        using var scope = ServiceProvider.CreateScope();
+        var nodeRepo = scope.ServiceProvider.GetRequiredService<Repository<ServerNode>>();
         
         // Check if any node has the token specified by the request
-        var node = NodeRepository
+        var node = nodeRepo
             .Get()
             .FirstOrDefault(x => x.Token == token);
 

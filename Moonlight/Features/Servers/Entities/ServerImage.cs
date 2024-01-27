@@ -20,5 +20,7 @@ public class ServerImage
     public string? UpdateUrl { get; set; }
 
     public List<ServerImageVariable> Variables = new();
+
+    public int DefaultDockerImageIndex { get; set; } = 0;
     public List<ServerDockerImage> DockerImages { get; set; }
 }

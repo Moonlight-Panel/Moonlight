@@ -25,7 +25,7 @@ public class ServersControllers : Controller
     public async Task<ActionResult> GetAllServersWs()
     {
         // Validate if it is even a websocket connection
-        if (HttpContext.WebSockets.IsWebSocketRequest)
+        if (!HttpContext.WebSockets.IsWebSocketRequest)
             return BadRequest("This endpoint is only available for websockets");
 
         // Accept websocket connection 
@@ -33,6 +33,7 @@ public class ServersControllers : Controller
         
         // Build connection wrapper
         var wsPacketConnection = new WsPacketConnection(websocket);
+        await wsPacketConnection.RegisterPacket<int>("amount");
         await wsPacketConnection.RegisterPacket<ServerConfiguration>("serverConfiguration");
         
         // Read server data for the node
@@ -42,9 +43,8 @@ public class ServersControllers : Controller
         var servers = ServerRepository
             .Get()
             .Include(x => x.Allocations)
+            .Include(x => x.Variables)
             .Include(x => x.MainAllocation)
-            .Include(x => x.Image)
-            .ThenInclude(x => x.Variables)
             .Include(x => x.Image)
             .ThenInclude(x => x.DockerImages)
             .Where(x => x.Node.Id == node.Id)
@@ -54,14 +54,59 @@ public class ServersControllers : Controller
         var serverConfigurations = servers
             .Select(x => x.ToServerConfiguration())
             .ToArray();
+        
+        // Send the amount of configs the node will receive
+        await wsPacketConnection.Send(servers.Length);
 
         // Send the server configurations
         foreach (var serverConfiguration in serverConfigurations)
             await wsPacketConnection.Send(serverConfiguration);
-        
-        // Close the connection
-        await wsPacketConnection.Close();
+
+        await wsPacketConnection.WaitForClose();
 
         return Ok();
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ServerConfiguration>> GetServerById(int id)
+    {
+        var node = (HttpContext.Items["Node"] as ServerNode)!;
+        
+        var server = ServerRepository
+            .Get()
+            .Include(x => x.Allocations)
+            .Include(x => x.MainAllocation)
+            .Include(x => x.Image)
+            .ThenInclude(x => x.Variables)
+            .Include(x => x.Image)
+            .ThenInclude(x => x.DockerImages)
+            .Where(x => x.Node.Id == node.Id)
+            .FirstOrDefault(x => x.Id == id);
+
+        if (server == null)
+            return NotFound();
+
+        var configuration = server.ToServerConfiguration();
+
+        return Ok(configuration);
+    }
+    
+    [HttpGet("{id:int}/install")]
+    public async Task<ActionResult<ServerInstallConfiguration>> GetServerInstallById(int id)
+    {
+        var node = (HttpContext.Items["Node"] as ServerNode)!;
+        
+        var server = ServerRepository
+            .Get()
+            .Include(x => x.Image)
+            .Where(x => x.Node.Id == node.Id)
+            .FirstOrDefault(x => x.Id == id);
+
+        if (server == null)
+            return NotFound();
+
+        var configuration = server.ToServerInstallConfiguration();
+
+        return Ok(configuration);
     }
 }

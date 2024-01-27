@@ -60,4 +60,15 @@ public static class ServerExtensions
 
         return serverConfiguration;
     }
+
+    public static ServerInstallConfiguration ToServerInstallConfiguration(this Server server)
+    {
+        var installConfiguration = new ServerInstallConfiguration();
+
+        installConfiguration.DockerImage = server.Image.InstallDockerImage;
+        installConfiguration.Script = server.Image.InstallScript;
+        installConfiguration.Shell = server.Image.InstallShell;
+
+        return installConfiguration;
+    }
 }

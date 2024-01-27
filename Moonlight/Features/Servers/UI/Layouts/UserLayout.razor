@@ -1,0 +1,289 @@
+@using Moonlight.Features.ServiceManagement.Entities
+@using Moonlight.Features.ServiceManagement.Models.Abstractions
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Services
+@using Moonlight.Core.Repositories
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Models.Enums
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.Core.Helpers
+@using Moonlight.Features.Servers.UI.Components
+
+@inject Repository<Server> ServerRepository
+@inject ServerService ServerService
+@inject ToastService ToastService
+
+@implements IDisposable
+
+<LazyLoader Load="Load" ShowAsCard="true">
+    <div class="card card-body pb-0 pt-5">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex flex-row">
+                <div class="d-flex flex-column ms-3">
+                    <span class="fw-bold text-gray-900 fs-3">
+                        @(Service.Nickname ?? $"Service {Service.Id}")
+                    </span>
+                    <span class="text-gray-500 pt-2 fw-semibold fs-6">
+                        @(Server.Image.Name)
+                    </span>
+                </div>
+                <div class="vr mx-4"></div>
+                <div class="d-flex flex-column">
+                    <div class="text-gray-900 fs-4">
+                        @{
+                            var color = "secondary";
+
+                            switch (Meta.State)
+                            {
+                                case ServerState.Stopping:
+                                    color = "warning";
+                                    break;
+
+                                case ServerState.Starting:
+                                    color = "warning";
+                                    break;
+
+                                case ServerState.Offline:
+                                    color = "danger";
+                                    break;
+
+                                case ServerState.Online:
+                                    color = "success";
+                                    break;
+
+                                case ServerState.Installing:
+                                    color = "primary";
+                                    break;
+
+                                case ServerState.Join2Start:
+                                    color = "info";
+                                    break;
+                            }
+                        }
+
+                        <i class="bx bx-sm bxs-circle text-@(color) @(Meta.State != ServerState.Offline ? $"pulse pulse-{color}" : "") align-middle"></i>
+                        <span class="align-middle">
+                            @(Meta.State)
+                            <span class="text-muted">(@(Formatter.FormatUptime(DateTime.UtcNow - Meta.LastChangeTimestamp)))</span>
+                        </span>
+                    </div>
+                    <div class="text-gray-800 pt-3 fw-semibold fs-5 row">
+                        <div class="col-auto">
+                            <span>
+                                <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span>
+                                <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                <span class="align-middle">188.75.252.37:10324</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="mt-2">
+                    @if (Meta.State == ServerState.Offline)
+                    {
+                        <WButton
+                            OnClick="Start"
+                            CssClasses="btn btn-light-success btn-icon me-1 my-1">
+                            <i class="bx bx-sm bx-play"></i>
+                        </WButton>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-light-success btn-icon me-1 my-1 disabled" disabled="">
+                            <i class="bx bx-sm bx-play"></i>
+                        </button>
+                    }
+
+                    @if (Meta.State == ServerState.Offline || Meta.State == ServerState.Installing)
+                    {
+                        <button class="btn btn-light-warning btn-icon me-1 my-1 disabled" disabled="">
+                            <i class="bx bx-sm bx-power-off"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <WButton
+                            OnClick="Stop"
+                            CssClasses="btn btn-light-warning btn-icon me-1 my-1">
+                            <i class="bx bx-sm bx-power-off"></i>
+                        </WButton>
+                    }
+
+                    @if (Meta.State == ServerState.Offline || Meta.State == ServerState.Installing)
+                    {
+                        <button class="btn btn-light-danger btn-icon me-1 my-1 disabled" disabled="">
+                            <i class="bx bx-sm bx-bomb"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <WButton
+                            OnClick="Kill"
+                            CssClasses="btn btn-light-danger btn-icon me-1 my-1">
+                            <i class="bx bx-sm bx-bomb"></i>
+                        </WButton>
+                    }
+                </div>
+            </div>
+        </div>
+        <ul class="ms-2 mt-5 nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-6 fw-bold text-nowrap flex-nowrap hide-scrollbar" style="overflow-x: auto; overflow-y: hidden">
+            @{
+                var routeWithSlash = "/" + (Route ?? "");
+            }
+
+            @foreach (var uiPage in ViewContext.Pages)
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-active-primary ms-0 me-10v @(routeWithSlash == uiPage.Route ? "active" : "")" href="/service/@($"{Service.Id}{uiPage.Route}")">
+                        <i class="@(uiPage.Icon) me-2"></i>
+                        @(uiPage.Name)
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="mt-5">
+        @if (IsInstalling)
+        {
+            <div class="card card-body bg-black p-3">
+                <Terminal @ref="InstallTerminal"/>
+            </div>
+        }
+        else
+        {
+            <CascadingValue Value="Server">
+                <CascadingValue Value="Service">
+                    <CascadingValue Value="Meta">
+                        <SmartRouter Route="@Route">
+                            @foreach (var uiPage in ViewContext.Pages)
+                            {
+                                <Route Path="@uiPage.Route">
+                                    @uiPage.Component
+                                </Route>
+                            }
+                        </SmartRouter>
+                    </CascadingValue>
+                </CascadingValue>
+            </CascadingValue>
+        }
+    </div>
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public Service Service { get; set; }
+
+    [Parameter]
+    public ServiceViewContext ViewContext { get; set; }
+
+    [Parameter]
+    public string? Route { get; set; }
+
+    private Server Server;
+    private ServerMeta Meta;
+    private CancellationTokenSource BackgroundCancel = new();
+
+    private Terminal? InstallTerminal;
+    private bool IsInstalling = false;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading server information");
+
+        Server = ServerRepository
+            .Get()
+            .Include(x => x.Image)
+            .Include(x => x.Node)
+            .Include(x => x.Variables)
+            .Include(x => x.Allocations)
+            .Include(x => x.MainAllocation)
+            .First(x => x.Service.Id == Service.Id);
+
+        /*
+        
+    // Load meta and setup event handlers
+        Meta = await ServerService.Meta.Get(Server);
+        Meta.OnStateChanged += async Task () =>
+        {
+            await InvokeAsync(StateHasChanged);
+
+    // Change from offline to installing
+    // This will trigger the initialisation of the install view
+            if (Meta.State == ServerState.Installing && !IsInstalling)
+            {
+                IsInstalling = true;
+
+    // After this call, we should have access to the install terminal reference
+                await InvokeAsync(StateHasChanged);
+
+                Meta.OnConsoleMessage += OnInstallConsoleMessage;
+            }
+    // Change from installing to offline
+    // This will trigger the destruction of the install view
+            else if (Meta.State == ServerState.Offline && IsInstalling)
+            {
+                IsInstalling = false;
+
+                Meta.OnConsoleMessage -= OnInstallConsoleMessage;
+
+    // After this call, the install terminal will disappear
+                await InvokeAsync(StateHasChanged);
+
+                await ToastService.Info("Server installation complete");
+            }
+        };
+
+    // Send console subscription and add auto resubscribe for it
+        await ServerService.Console.Subscribe(Server);
+
+    // We need this to revalidate to the daemon that we are still interested
+    // in the console logs. By default the expiration time is 15 minutes from last
+    // subscription so every 10 minutes should ensure we are subscribed
+        Task.Run(async () =>
+        {
+            while (!BackgroundCancel.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromMinutes(10));
+                await ServerService.Console.Subscribe(Server);
+            }
+        });
+        
+        // In order to update the timer correctly, we are calling a re
+        Task.Run(async () =>
+        {
+            while (!BackgroundCancel.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                await InvokeAsync(StateHasChanged);
+            }
+        });
+        
+        */
+    }
+
+    private async Task OnInstallConsoleMessage(string message)
+    {
+        if(InstallTerminal != null)
+            await InstallTerminal.WriteLine(message);
+    }
+
+    private async Task Start() => await ServerService.SendPowerAction(Server, PowerAction.Start);
+
+    private async Task Stop() => await ServerService.SendPowerAction(Server, PowerAction.Stop);
+
+    private async Task Kill() => await ServerService.SendPowerAction(Server, PowerAction.Kill);
+
+    public void Dispose()
+    {
+        BackgroundCancel.Cancel();
+    }
+}

@@ -1,4 +1,5 @@
 using BlazorTable;
+using Microsoft.AspNetCore.WebSockets;
 using Moonlight.Core.Database;
 using Moonlight.Core.Actions.Dummy;
 using Moonlight.Core.Database;
@@ -13,6 +14,7 @@ using Moonlight.Core.Services.Users;
 using Moonlight.Core.Services.Utils;
 using Moonlight.Features.Advertisement.Services;
 using Moonlight.Features.Community.Services;
+using Moonlight.Features.Servers.Actions;
 using Moonlight.Features.Servers.Http.Middleware;
 using Moonlight.Features.Servers.Services;
 using Moonlight.Features.ServiceManagement.Entities.Enums;
@@ -73,6 +75,7 @@ builder.Services.AddScoped<ModalService>();
 builder.Services.AddScoped<AlertService>();
 builder.Services.AddScoped<FileDownloadService>();
 builder.Services.AddScoped<AdBlockService>();
+builder.Services.AddScoped<ClipboardService>();
 
 // Services / Store
 builder.Services.AddScoped<StoreService>();
@@ -107,6 +110,7 @@ builder.Services.AddScoped<TicketCreateService>();
 
 // Services / Servers
 builder.Services.AddSingleton<NodeService>();
+builder.Services.AddSingleton<ServerService>();
 
 // Services
 builder.Services.AddScoped<IdentityService>();
@@ -135,6 +139,7 @@ var app = builder.Build();
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseWebSockets();
 
 app.UseMiddleware<NodeMiddleware>();
 
@@ -150,7 +155,7 @@ moonlightService.Application = app;
 moonlightService.LogPath = logPath;
 
 var serviceService = app.Services.GetRequiredService<ServiceDefinitionService>();
-serviceService.Register<DummyServiceDefinition>(ServiceType.Server);
+serviceService.Register<ServerServiceDefinition>(ServiceType.Server);
 
 await pluginService.RunPrePost(app);
 

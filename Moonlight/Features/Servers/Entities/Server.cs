@@ -6,8 +6,6 @@ public class Server
 {
     public int Id { get; set; }
     public Service Service { get; set; }
-    
-    public string Name { get; set; }
 
     public int Cpu { get; set; }
     public int Memory { get; set; }
