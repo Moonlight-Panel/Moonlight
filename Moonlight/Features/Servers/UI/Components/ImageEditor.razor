@@ -1,0 +1,154 @@
+<SmartForm Model="Form" OnValidSubmit="AddImage">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">General</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-5">
+                <div class="col-md-6">
+                    <label class="form-label">Name</label>
+                    <input @bind="Form.Name" type="text" class="form-control form-control-solid" placeholder="Name of your image">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Author</label>
+                    <input @bind="Form.Author" type="text" class="form-control form-control-solid" placeholder="Name of the image author">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Donate URL</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        (Optional) URL to link donation pages for the author
+                    </div>
+                    <input @bind="Form.DonateUrl" type="text" class="form-control form-control-solid">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Update URL</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        (Optional) URL to enable auto updates on images. This link needs to be a direct download link to a json file
+                    </div>
+                    <input @bind="Form.UpdateUrl" type="text" class="form-control form-control-solid">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+            <span class="card-title">Installation</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-5 mb-5">
+                <div class="col-md-6">
+                    <label class="form-label">Install docker image</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        This specifies the docker image to use for the script execution
+                    </div>
+                    <input @bind="Form.InstallDockerImage" type="text" class="form-control form-control-solid">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Install shell</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        This is the shell to pass the install script to
+                    </div>
+                    <input @bind="Form.InstallShell" type="text" class="form-control form-control-solid">
+                </div>
+            </div>
+            @* TODO: Add vscode editor or similar *@
+            <label class="form-label">Install script</label>
+            <textarea @bind="Form.InstallScript" class="form-control form-control-solid"></textarea>
+        </div>
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+            <span class="card-title">Startup, Control & Allocations</span>
+        </div>
+        <div class="card-body">
+            <label class="form-label">Startup command</label>
+            <div class="form-text fs-5 mb-2 mt-0">
+                This command gets passed to the container of the image to execute. Server variables can be used here
+            </div>
+            <input @bind="Form.StartupCommand" type="text" class="form-control form-control-solid"/>
+            <div class="row g-5 mt-5">
+                <div class="col-md-4">
+                    <label class="form-label">Stop command</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        This command will get written into the input stream of the server process when the server should get stopped
+                    </div>
+                    <input @bind="Form.StopCommand" type="text" class="form-control form-control-solid">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Online detection</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        The regex string you specify here will be used in order to detect if a server is up and running
+                    </div>
+                    <input @bind="Form.OnlineDetection" type="text" class="form-control form-control-solid">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Allocations Amount</label>
+                    <div class="form-text fs-5 mb-2 mt-0">
+                        The allocations (aka. ports) a image needs in order to be created
+                    </div>
+                    <input @bind="Form.AllocationsNeeded" type="number" class="form-control form-control-solid">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+            <span class="card-title">Docker images</span>
+            <div class="card-toolbar">
+                <button @onclick="AddDockerImage" type="button" class="btn btn-icon btn-success">
+                    <i class="bx bx-sm bx-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-5">
+                @foreach (var dockerImage in DockerImages)
+                {
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input @bind="dockerImage.Name" type="text" class="form-control form-control-solid" placeholder="moonlightpanel/images:minecraft17">
+                            <WButton OnClick="() => RemoveDockerImage(dockerImage)" CssClasses="btn btn-danger">Remove</WButton>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+            <span class="card-title">Variables</span>
+            <div class="card-toolbar">
+                <button @onclick="AddVariable" type="button" class="btn btn-icon btn-success">
+                    <i class="bx bx-sm bx-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-5">
+                @foreach (var variable in Variables)
+                {
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input @bind="variable.Key" type="text" class="form-control form-control-solid" placeholder="Key">
+                            <input @bind="variable.Value" type="text" class="form-control form-control-solid" placeholder="Default value">
+                            <WButton OnClick="() => RemoveVariable(variable)" CssClasses="btn btn-danger">Remove</WButton>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <ParseConfigEditor @ref="ParseConfigEditor"/>
+    </div>
+    <div class="card mt-5">
+        <div class="card-body text-end">
+            <button class="btn btn-success" type="submit">Save changes</button>
+        </div>
+    </div>
+</SmartForm>
+
+@code
+{
+    
+}
