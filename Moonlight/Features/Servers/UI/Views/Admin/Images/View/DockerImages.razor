@@ -1,0 +1,65 @@
+@page "/admin/servers/images/{Id:int}/dockerimages"
+
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Core.Repositories
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Moonlight.Features.Servers.UI.Components
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+
+@inject Repository<ServerImage> ImageRepository
+
+<LazyLoader ShowAsCard="true" Load="Load">
+    @if (Image == null)
+    {
+        <NotFoundAlert />
+    }
+    else
+    {
+        <AdminImageViewNavigation Index="4" ImageId="@Id" />
+        
+        <AutoListCrud TItem="ServerDockerImage"
+                      TRootItem="ServerImage"
+                      TCreateForm="CreateDockerImage"
+                      TUpdateForm="UpdateDockerImage"
+                      Field="@(x => x.DockerImages)"
+                      RootItem="Image"
+                      Title="Manage docker images">
+            <View>
+                <Column TableItem="ServerDockerImage" Field="@(x => x.Id)" Title="Id" />
+                <Column TableItem="ServerDockerImage" Field="@(x => x.DisplayName)" Title="Display name" />
+                <Column TableItem="ServerDockerImage" Field="@(x => x.Name)" Title="Name" />
+                <Column TableItem="ServerDockerImage" Field="@(x => x.AutoPull)" Title="">
+                    <Template>
+                        @if (context.AutoPull)
+                        {
+                            <i class="bx bx-sm bx-check text-success"></i>
+                        }
+                        else
+                        {
+                            <i class="bx bx-sm bx-x text-danger"></i>
+                        }
+                    </Template>
+                </Column>
+            </View>
+        </AutoListCrud>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private ServerImage? Image;
+
+    private Task Load(LazyLoader arg)
+    {
+        Image = ImageRepository
+            .Get()
+            .Include(x => x.DockerImages)
+            .FirstOrDefault(x => x.Id == Id);
+        
+        return Task.CompletedTask;
+    }
+}

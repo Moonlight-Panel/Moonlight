@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonlight.Features.Servers.Models.Forms.Admin.Images;
+namespace Moonlight.Features.Servers.Models.Forms.Admin.Images.Parsing;
 
 public class ParseConfigForm
 {

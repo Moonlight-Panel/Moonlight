@@ -1,6 +1,7 @@
 @using BlazorTable
 @using System.Linq.Expressions
 @using Mappy.Net
+@using Moonlight.Core.Repositories
 @using Moonlight.Core.Services.Interop
 
 @typeparam TItem where TItem : class
@@ -9,6 +10,8 @@
 @typeparam TUpdateForm
 
 @inject ToastService ToastService
+@inject Repository<TRootItem> RootRepository
+@inject Repository<TItem> ItemRepository
 
 <div class="card">
     <div class="card-header">
@@ -174,7 +177,7 @@
         if (ValidateUpdate != null) // Optional additional validation
             await ValidateUpdate.Invoke(item);
         
-        //ItemRepository.Update(item);
+        ItemRepository.Update(item);
 
     // Reset
         await UpdateModal.Hide();
@@ -196,6 +199,7 @@
             await ValidateAdd.Invoke(item);
         
         Field.Invoke(RootItem).Add(item);
+        RootRepository.Update(RootItem);
 
     // Reset
         await CreateModal.Hide();
@@ -215,6 +219,13 @@
             await ValidateDelete.Invoke(ItemToDelete);
 
         Field.Invoke(RootItem).Remove(ItemToDelete);
+        RootRepository.Update(RootItem);
+
+        try
+        {
+            ItemRepository.Delete(ItemToDelete);
+        }
+        catch (Exception) { /* ignored, as we dont want such an operation to fail the request */ }
 
     // Reset
         await DeleteModal.Hide();

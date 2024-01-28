@@ -6,12 +6,15 @@
 @using Moonlight.Core.Repositories
 @using Moonlight.Core.Services.Interop
 @using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.UI.Components
 
 @inject Repository<ServerImage> ImageRepository
 @inject Repository<ServerImageVariable> ImageVariableRepository
 @inject Repository<ServerDockerImage> DockerImageRepository
 @inject Repository<Server> ServerRepository
 @inject ToastService ToastService
+
+<AdminServersNavigation Index="1"/>
 
 <div class="card">
     <div class="card-header">
@@ -30,7 +33,13 @@
                    TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
                    TableHeadClass="fw-bold text-muted">
                 <Column TableItem="ServerImage" Field="@(x => x.Id)" Title="Id"/>
-                <Column TableItem="ServerImage" Field="@(x => x.Name)" Title="Name"/>
+                <Column TableItem="ServerImage" Field="@(x => x.Name)" Title="Name">
+                    <Template>
+                        <a href="/admin/servers/images/@(context.Id)">
+                            @context.Name
+                        </a>
+                    </Template>
+                </Column>
                 <Column TableItem="ServerImage" Field="@(x => x.Author)" Title="Author"/>
                 <Column TableItem="ServerImage" Field="@(x => x.Id)" Title="">
                     <Template>
@@ -54,7 +63,7 @@
                     <Template>
                         <div class="text-end">
                             <div class="btn-group">
-                                <a href="/admin/servers/images/view/@(context.Id)" class="btn btn-icon btn-warning">
+                                <a href="/admin/servers/images/@(context.Id)" class="btn btn-icon btn-warning">
                                     <i class="bx bx-sm bx-slider"></i>
                                 </a>
                                 <ConfirmButton OnClick="() => Delete(context)" CssClasses="btn btn-icon btn-danger">

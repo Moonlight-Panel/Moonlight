@@ -1,0 +1,35 @@
+@page "/admin/servers/images/{Id:int}/variables"
+
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Core.Repositories
+@using Moonlight.Features.Servers.UI.Components
+
+@inject Repository<ServerImage> ImageRepository
+
+<LazyLoader ShowAsCard="true" Load="Load">
+    @if (Image == null)
+    {
+        <NotFoundAlert />
+    }
+    else
+    {
+        <AdminImageViewNavigation Index="5" ImageId="@Id" />
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private ServerImage? Image;
+
+    private Task Load(LazyLoader arg)
+    {
+        Image = ImageRepository
+            .Get()
+            .FirstOrDefault(x => x.Id == Id);
+        
+        return Task.CompletedTask;
+    }
+}

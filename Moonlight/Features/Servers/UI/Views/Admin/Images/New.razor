@@ -1,10 +1,53 @@
 @page "/admin/servers/images/new"
 
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Moonlight.Core.Services.Interop
+@using Moonlight.Core.Repositories
 @using Moonlight.Features.Servers.Entities
+@using Mappy.Net
 
+@inject NavigationManager Navigation
+@inject ToastService ToastService
+@inject Repository<ServerImage> ImageRepository
 
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Create new image</span>
+    </div>
+    <SmartForm Model="Form" OnValidSubmit="Submit">
+        <div class="card-body row">
+            <AutoForm TForm="CreateImageForm" Model="Form" />
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-success">Create</button>
+            </div>
+        </div>
+    </SmartForm>
+</div>
 
 @code
 {
-    private ServerImage Image;
+    private CreateImageForm Form = new();
+
+    private async Task Submit()
+    {
+        var image = Mapper.Map<ServerImage>(Form);
+
+        image.InstallDockerImage = "alpine:latest";
+        image.InstallShell = "/bin/ash";
+        image.InstallScript = "#! /bin/ash\necho Installation done";
+
+        image.AllocationsNeeded = 1;
+        image.StartupCommand = "";
+        image.StopCommand = "^C";
+        image.OnlineDetection = "Done";
+
+        image.ParseConfigurations = "[]";
+
+        ImageRepository.Add(image);
+        
+        await ToastService.Success("Successfully created image");
+        Navigation.NavigateTo("/admin/servers/images");
+    }
 }
