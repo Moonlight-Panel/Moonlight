@@ -2,9 +2,12 @@
 
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Core.Repositories
+@using Moonlight.Core.Services.Interop
 @using Moonlight.Features.Servers.UI.Components
+@using Moonlight.Core.Exceptions
 
 @inject Repository<ServerImage> ImageRepository
+@inject ToastService ToastService
 
 <LazyLoader ShowAsCard="true" Load="Load">
     @if (Image == null)
@@ -14,6 +17,14 @@
     else
     {
         <AdminImageViewNavigation Index="2" ImageId="@Id" />
+        
+        <ParseConfigEditor @ref="ParseConfigEditor" InitialContent="@Image.ParseConfigurations" />
+        
+        <div class="card card-body mt-5">
+            <div class="d-flex justify-content-end">
+                <WButton Text="Save" CssClasses="btn btn-success" OnClick="OnSave" />
+            </div>
+        </div>
     }
 </LazyLoader>
 
@@ -24,6 +35,8 @@
 
     private ServerImage? Image;
 
+    private ParseConfigEditor ParseConfigEditor;
+
     private Task Load(LazyLoader arg)
     {
         Image = ImageRepository
@@ -31,5 +44,20 @@
             .FirstOrDefault(x => x.Id == Id);
         
         return Task.CompletedTask;
+    }
+
+    private async Task OnSave()
+    {
+        try
+        {
+            Image!.ParseConfigurations = await ParseConfigEditor.ValidateAndGet();
+            ImageRepository.Update(Image);
+
+            await ToastService.Success("Successfully updated image");
+        }
+        catch (DisplayException e)
+        {
+            await ToastService.Danger(e.Message);
+        }
     }
 }

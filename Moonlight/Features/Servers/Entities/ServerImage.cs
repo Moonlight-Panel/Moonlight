@@ -22,5 +22,6 @@ public class ServerImage
     public List<ServerImageVariable> Variables { get; set; } = new();
 
     public int DefaultDockerImageIndex { get; set; } = 0;
+    public bool AllowUserToChangeDockerImage { get; set; }
     public List<ServerDockerImage> DockerImages { get; set; }
 }
