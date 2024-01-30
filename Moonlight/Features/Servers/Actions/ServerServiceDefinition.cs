@@ -10,7 +10,7 @@ public class ServerServiceDefinition : ServiceDefinition
     public override Type ConfigType => typeof(ServerConfig);
     public override async Task BuildUserView(ServiceViewContext context)
     {
-        context.Layout = ComponentHelper.FromType<UserLayout>();
+        context.Layout = typeof(UserLayout);
     }
 
     public override Task BuildAdminView(ServiceViewContext context)

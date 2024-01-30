@@ -1,6 +1,7 @@
 ﻿@page "/service/{Id:int}/{Route?}"
+
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.Core.Models.Enums
+@using Moonlight.Core.Helpers
 @using Moonlight.Core.Repositories
 @using Moonlight.Core.Services
 @using Moonlight.Features.ServiceManagement.Entities
@@ -19,22 +20,13 @@
     }
     else
     {
-        // An admin should still be able to manage the service, that's why we check for permissions here
-        if (NeedsRenewal && !IdentityService.Permissions[Permission.AdminServices])
+        if (NeedsRenewal)
         {
             <NeedsRenewalAlert />
         }
         else
         {
-            <CascadingValue Name="Service" Value="Service">
-                <CascadingValue Name="Implementation" Value="Definition">
-                    <CascadingValue Name="Route" Value="Route">
-                        <CascadingValue Name="ViewContext" Value="ViewContext">
-                            @ViewContext.Layout
-                        </CascadingValue>
-                    </CascadingValue>
-                </CascadingValue>
-            </CascadingValue>
+            @Layout
         }
     }
 </LazyLoader>
@@ -51,7 +43,9 @@
     private ServiceDefinition Definition;
     private ServiceViewContext ViewContext;
 
-    private bool NeedsRenewal;
+    private bool NeedsRenewal = false;
+
+    private RenderFragment Layout;
 
     private async Task Load(LazyLoader lazyLoader)
     {
@@ -74,12 +68,9 @@
         if (Service == null)
             return;
 
-        // Check expiration
         NeedsRenewal = await ServiceService.Manage.NeedsRenewal(Service);
         
-        // Stop loading more data if the user is not an admin
-        // because a admin should still be able to manage the service
-        if(NeedsRenewal && !IdentityService.Permissions[Permission.AdminServices])
+        if(NeedsRenewal) // Stop loading more data
             return;
         
         // Load implementation
@@ -98,5 +89,13 @@
 
         await Definition.BuildUserView(ViewContext);
         await PluginService.BuildUserServiceView(ViewContext);
+
+        Layout = ComponentHelper.FromType(ViewContext.Layout, parameters =>
+        {
+            parameters.Add("Service", Service);
+            parameters.Add("Implementation", Definition);
+            parameters.Add("Route", Route!);
+            parameters.Add("ViewContext", ViewContext);
+        });
     }
 }
