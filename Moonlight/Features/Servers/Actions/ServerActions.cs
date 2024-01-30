@@ -102,6 +102,8 @@ public class ServerActions : ServiceActions
             });
         }
 
+        serverRepo.Add(server);
+
         await serverService.Sync(server);
         await serverService.SendPowerAction(server, PowerAction.Install);
     }

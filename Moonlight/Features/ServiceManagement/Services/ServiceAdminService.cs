@@ -47,9 +47,17 @@ public class ServiceAdminService
         // Add new service in database
         var finishedService = serviceRepo.Add(service);
 
-        // Call the action for the logic behind the service type
-        await impl.Actions.Create(scope.ServiceProvider, finishedService);
-
+        try
+        {
+            // Call the action for the logic behind the service type
+            await impl.Actions.Create(scope.ServiceProvider, finishedService);
+        }
+        catch (Exception) // Handle any implementation errors and let the creation fail
+        {
+            serviceRepo.Delete(finishedService);
+            throw;
+        }
+        
         return finishedService;
     }
 

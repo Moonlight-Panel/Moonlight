@@ -48,7 +48,7 @@ public class ServerService
             .First(x => x.Id == server.Id);
 
         var protocol = serverWithNode.Node.UseSsl ? "https" : "http";
-        var remoteUrl = $"{protocol}://{serverWithNode.Node.Fqdn}/";
+        var remoteUrl = $"{protocol}://{serverWithNode.Node.Fqdn}:{serverWithNode.Node.HttpPort}/";
         
         return new HttpApiClient<NodeException>(remoteUrl, serverWithNode.Node.Token);
     }

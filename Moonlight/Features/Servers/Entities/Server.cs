@@ -14,7 +14,7 @@ public class Server
     public ServerImage Image { get; set; }
     public int DockerImageIndex { get; set; }
     public string? OverrideStartupCommand { get; set; }
-    public List<ServerVariable> Variables { get; set; }
+    public List<ServerVariable> Variables { get; set; } = new();
 
     public ServerNode Node { get; set; }
     public ServerAllocation MainAllocation { get; set; }
