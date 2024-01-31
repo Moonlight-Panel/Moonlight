@@ -106,8 +106,6 @@
       <AdditionalFiles Include="Core\UI\Views\Account\Payments.razor" />
       <AdditionalFiles Include="Core\UI\Views\Account\Security.razor" />
       <AdditionalFiles Include="Core\UI\Views\Admin\Index.razor" />
-      <AdditionalFiles Include="Core\UI\Views\Admin\Services\Index.razor" />
-      <AdditionalFiles Include="Core\UI\Views\Admin\Services\View.razor" />
       <AdditionalFiles Include="Core\UI\Views\Admin\Sys\Diagnose.razor" />
       <AdditionalFiles Include="Core\UI\Views\Admin\Sys\Index.razor" />
       <AdditionalFiles Include="Core\UI\Views\Admin\Sys\Settings.razor" />
