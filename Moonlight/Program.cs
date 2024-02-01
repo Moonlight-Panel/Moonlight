@@ -23,7 +23,6 @@ Directory.CreateDirectory(PathBuilder.Dir("storage"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 
 // Setup logger
-
 var now = DateTime.UtcNow;
 var logPath = PathBuilder.File("storage", "logs",
     $"moonlight-{now.Day}-{now.Month}-{now.Year}---{now.Hour}-{now.Minute}.log");
@@ -32,6 +31,12 @@ Logger.Setup(
     logPath: logPath,
     logInFile: true,
     logInConsole: true
+);
+
+// Check database migrations
+await DatabaseCheckHelper.Check(
+    new DataContext(configService),
+    false
 );
 
 // Init plugin system

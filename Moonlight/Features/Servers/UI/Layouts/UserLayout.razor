@@ -1,17 +1,15 @@
 @using Moonlight.Features.ServiceManagement.Entities
 @using Moonlight.Features.ServiceManagement.Models.Abstractions
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Services
-
-
 @using Moonlight.Features.Servers.Models.Abstractions
 @using Moonlight.Features.Servers.Models.Enums
-@using Microsoft.EntityFrameworkCore
+@using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.Components
 @using MoonCore.Abstractions
 @using MoonCore.Helpers
 @using MoonCoreUI.Services
-
-@using Moonlight.Features.Servers.UI.Components
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.Features.ServiceManagement.UI.Components
 
 @inject Repository<Server> ServerRepository
 @inject ServerService ServerService
@@ -190,6 +188,9 @@
 
     [Parameter]
     public string? Route { get; set; }
+    
+    [Parameter]
+    public ServiceDefinition Implementation { get; set; }
 
     private Server Server;
     private ServerMeta Meta;
@@ -211,8 +212,8 @@
             .Include(x => x.MainAllocation)
             .First(x => x.Service.Id == Service.Id);
 
-        /*
-        
+        Meta = new ServerMeta();
+/*
     // Load meta and setup event handlers
         Meta = await ServerService.Meta.Get(Server);
         Meta.OnStateChanged += async Task () =>
@@ -259,7 +260,7 @@
                 await ServerService.Console.Subscribe(Server);
             }
         });
-        
+
         // In order to update the timer correctly, we are calling a re
         Task.Run(async () =>
         {
@@ -269,7 +270,7 @@
                 await InvokeAsync(StateHasChanged);
             }
         });
-        
+
         */
     }
 
