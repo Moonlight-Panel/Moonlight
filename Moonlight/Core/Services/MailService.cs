@@ -1,16 +1,20 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
+using MoonCore.Attributes;
+using MoonCore.Helpers;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Helpers;
 
 namespace Moonlight.Core.Services;
 
+[Singleton]
 public class MailService
 {
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
     private readonly string BasePath;
 
-    public MailService(ConfigService configService)
+    public MailService(ConfigService<ConfigV1> configService)
     {
         ConfigService = configService;
 

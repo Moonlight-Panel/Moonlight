@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Helpers;
-using Moonlight.Core.Repositories;
+using MoonCore.Abstractions;
+using MoonCore.Exceptions;
+using MoonCore.Helpers;
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Models.Enums;
 using Moonlight.Features.Servers.Services;

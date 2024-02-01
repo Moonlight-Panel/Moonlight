@@ -2,14 +2,17 @@
 
 @using Moonlight.Core.Extensions.Attributes
 @using Moonlight.Core.Models.Enums
-@using Moonlight.Core.Repositories
+
 @using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Models.Forms.Admin
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.Core.Exceptions
-@using Moonlight.Core.Helpers
+
+
 @using BlazorTable
+@using MoonCore.Abstractions
+@using MoonCore.Exceptions
+@using MoonCore.Helpers
 
 @attribute [RequirePermission(Permission.AdminServers)]
 

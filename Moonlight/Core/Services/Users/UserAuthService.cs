@@ -1,28 +1,32 @@
-﻿using Moonlight.Core.Database.Entities;
+﻿using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
+using MoonCore.Helpers;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
+using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Event;
-using Moonlight.Core.Exceptions;
 using Moonlight.Core.Extensions;
-using Moonlight.Core.Helpers;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.Models.Enums;
 using Moonlight.Core.Models.Templates;
-using Moonlight.Core.Repositories;
 using Moonlight.Core.Services.Utils;
 using OtpNet;
 
 namespace Moonlight.Core.Services.Users;
 
+[Scoped]
 public class UserAuthService
 {
     private readonly Repository<User> UserRepository;
     private readonly JwtService JwtService;
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
     private readonly MailService MailService;
 
     public UserAuthService(
         Repository<User> userRepository,
         JwtService jwtService,
-        ConfigService configService,
+        ConfigService<ConfigV1> configService,
         MailService mailService)
     {
         UserRepository = userRepository;

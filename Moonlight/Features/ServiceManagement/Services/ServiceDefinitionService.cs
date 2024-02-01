@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Moonlight.Core.Repositories;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.ServiceManagement.Entities.Enums;
 using Moonlight.Features.ServiceManagement.Models.Abstractions;
@@ -7,6 +9,7 @@ using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.ServiceManagement.Services;
 
+[Singleton]
 public class ServiceDefinitionService
 {
     private readonly Dictionary<ServiceType, ServiceDefinition> ServiceImplementations = new();

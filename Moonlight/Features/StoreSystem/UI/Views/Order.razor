@@ -1,14 +1,20 @@
 ﻿@page "/store/order/{slug}"
 
-@using Moonlight.Core.Exceptions
-@using Moonlight.Core.Helpers
-@using Moonlight.Core.Repositories
+
+
+
 @using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
+
 @using Moonlight.Features.StoreSystem.Entities
 @using Moonlight.Features.StoreSystem.Services
+@using MoonCore.Helpers
+@using MoonCore.Services
+@using MoonCore.Exceptions
+@using MoonCoreUI.Services
+@using MoonCore.Abstractions
+@using Moonlight.Core.Configuration
 
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject StoreService StoreService
 @inject IdentityService IdentityService
 @inject AlertService AlertService

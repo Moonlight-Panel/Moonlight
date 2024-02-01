@@ -1,21 +1,25 @@
 ﻿using System.IO.Compression;
+using MoonCore.Attributes;
+using MoonCore.Helpers;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
 using Moonlight.Core.Event;
 using Moonlight.Core.Extensions;
-using Moonlight.Core.Helpers;
 using Moonlight.Features.Theming.Services;
 
 namespace Moonlight.Core.Services;
 
+[Singleton]
 public class MoonlightService // This service can be used to perform strictly panel specific actions
 {
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
     private readonly IServiceProvider ServiceProvider;
     
     public WebApplication Application { get; set; } // Do NOT modify using a plugin
     public string LogPath { get; set; } // Do NOT modify using a plugin
     public ThemeService Theme => ServiceProvider.GetRequiredService<ThemeService>();
     
-    public MoonlightService(ConfigService configService, IServiceProvider serviceProvider)
+    public MoonlightService(ConfigService<ConfigV1> configService, IServiceProvider serviceProvider)
     {
         ConfigService = configService;
         ServiceProvider = serviceProvider;
@@ -53,9 +57,11 @@ public class MoonlightService // This service can be used to perform strictly pa
         
         // TODO: Add node settings here
         
+        // TODO: Reimplement as extension here
+        
         // Add config
-        var config = ConfigService.GetDiagnoseJson();
-        await zip.AddFromText("config.json", config);
+        //var config = ConfigService.GetDiagnoseJson();
+        //await zip.AddFromText("config.json", config);
         
         // Make a list of plugins
         var pluginService = scope.ServiceProvider.GetRequiredService<PluginService>();

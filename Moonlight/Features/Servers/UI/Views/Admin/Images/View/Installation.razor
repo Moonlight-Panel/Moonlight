@@ -1,10 +1,12 @@
 @page "/admin/servers/images/{Id:int}/installation"
 
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Core.Repositories
+
 @using Moonlight.Features.Servers.Models.Forms.Admin.Images
 @using Mappy.Net
-@using Moonlight.Core.Services.Interop
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+
 @using Moonlight.Features.Servers.UI.Components
 
 @inject Repository<ServerImage> ImageRepository

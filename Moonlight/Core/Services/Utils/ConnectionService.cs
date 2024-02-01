@@ -1,13 +1,17 @@
-﻿using Moonlight.Core.Helpers;
+﻿using MoonCore.Attributes;
+using MoonCore.Helpers;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
 
 namespace Moonlight.Core.Services.Utils;
 
+[Scoped]
 public class ConnectionService
 {
     private readonly IHttpContextAccessor ContextAccessor;
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
 
-    public ConnectionService(IHttpContextAccessor contextAccessor, ConfigService configService)
+    public ConnectionService(IHttpContextAccessor contextAccessor, ConfigService<ConfigV1> configService)
     {
         ContextAccessor = contextAccessor;
         ConfigService = configService;

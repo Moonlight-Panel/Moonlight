@@ -1,12 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Repositories;
+
+
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.ServiceManagement.Services;
 
+[Singleton]
 public class ServiceAdminService
 {
     private readonly IServiceScopeFactory ServiceScopeFactory;

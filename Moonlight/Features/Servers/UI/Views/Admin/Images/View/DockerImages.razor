@@ -1,13 +1,15 @@
 @page "/admin/servers/images/{Id:int}/dockerimages"
 
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Core.Repositories
+
 @using Moonlight.Features.Servers.Models.Forms.Admin.Images
 @using Moonlight.Features.Servers.UI.Components
 @using BlazorTable
 @using Microsoft.EntityFrameworkCore
-@using Moonlight.Core.Services.Interop
+
 @using Microsoft.AspNetCore.Components.Forms
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
 
 @inject Repository<ServerImage> ImageRepository
 @inject ToastService ToastService

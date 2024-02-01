@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using MoonCoreUI.Attributes;
 using Moonlight.Core.Extensions.Attributes;
 using Moonlight.Features.ServiceManagement.Entities.Enums;
 using Moonlight.Features.StoreSystem.Entities;

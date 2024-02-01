@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Repositories;
+
 using Moonlight.Features.Community.Entities;
 using Moonlight.Features.Community.Services;
 using Moonlight.Features.ServiceManagement.Entities;
@@ -10,6 +12,7 @@ using Moonlight.Features.Ticketing.Entities;
 
 namespace Moonlight.Core.Services.Users;
 
+[Scoped]
 public class UserDeleteService
 {
     private readonly Repository<Service> ServiceRepository;

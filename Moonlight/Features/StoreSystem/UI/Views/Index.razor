@@ -1,17 +1,22 @@
 ﻿@page "/store"
 
-@using Moonlight.Core.Helpers
+
 @using Moonlight.Core.Models.Enums
-@using Moonlight.Core.Repositories
+
 @using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
+
 @using Moonlight.Features.StoreSystem.Entities
 @using Moonlight.Features.StoreSystem.Services
 @using Moonlight.Features.StoreSystem.UI.Components
+@using MoonCore.Helpers
+@using MoonCore.Services
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
 
 @inject Repository<Category> CategoryRepository
 @inject Repository<Product> ProductRepository
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject IdentityService IdentityService
 @inject AlertService AlertService
 @inject ToastService ToastService

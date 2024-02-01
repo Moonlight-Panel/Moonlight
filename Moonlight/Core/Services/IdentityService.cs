@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
+using MoonCore.Helpers;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Helpers;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.Models.Enums;
-using Moonlight.Core.Repositories;
 using Moonlight.Core.Services.Utils;
 using Moonlight.Features.StoreSystem.Entities;
 using OtpNet;
@@ -13,6 +14,7 @@ namespace Moonlight.Core.Services;
 
 // This service allows you to reauthenticate, login and force login
 // It does also contain the permission system accessor for the current user
+[Scoped]
 public class IdentityService
 {
     private readonly Repository<User> UserRepository;

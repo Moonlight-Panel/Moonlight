@@ -1,14 +1,15 @@
 ﻿@page "/admin/sys/settings"
 @using System.Reflection
+@using MoonCore.Services
+@using MoonCoreUI.Helpers
+@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
 @using Moonlight.Core.Extensions.Attributes
-@using Moonlight.Core.Helpers
 @using Moonlight.Core.Models.Enums
-@using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
 
 @attribute [RequirePermission(Permission.AdminRoot)]
 
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject ToastService ToastService
 
 <AdminSysNavigation Index="1" />

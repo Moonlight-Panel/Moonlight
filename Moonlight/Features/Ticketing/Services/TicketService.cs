@@ -1,5 +1,8 @@
-﻿namespace Moonlight.Features.Ticketing.Services;
+﻿using MoonCore.Attributes;
 
+namespace Moonlight.Features.Ticketing.Services;
+
+[Scoped]
 public class TicketService
 {
     private readonly IServiceProvider ServiceProvider;

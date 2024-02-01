@@ -1,6 +1,7 @@
 using System.Net.WebSockets;
 using Microsoft.AspNetCore.Mvc;
-using Moonlight.Core.Helpers;
+using MoonCore.Helpers;
+
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Extensions.Attributes;
 using Moonlight.Features.Servers.Models.Packets;

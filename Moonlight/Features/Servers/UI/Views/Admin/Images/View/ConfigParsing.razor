@@ -1,10 +1,13 @@
 @page "/admin/servers/images/{Id:int}/configparsing"
 
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Core.Repositories
-@using Moonlight.Core.Services.Interop
+
+
 @using Moonlight.Features.Servers.UI.Components
-@using Moonlight.Core.Exceptions
+
+@using MoonCore.Exceptions
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
 
 @inject Repository<ServerImage> ImageRepository
 @inject ToastService ToastService

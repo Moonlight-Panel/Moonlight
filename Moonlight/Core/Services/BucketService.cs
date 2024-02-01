@@ -1,7 +1,9 @@
-﻿using Moonlight.Core.Helpers;
+﻿using MoonCore.Attributes;
+using MoonCore.Helpers;
 
 namespace Moonlight.Core.Services;
 
+[Singleton]
 public class BucketService
 {
     private readonly string BasePath;

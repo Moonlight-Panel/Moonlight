@@ -1,16 +1,20 @@
 ﻿using JWT.Algorithms;
 using JWT.Builder;
-using Moonlight.Core.Helpers;
+using MoonCore.Attributes;
+using MoonCore.Helpers;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
 using Newtonsoft.Json;
 
 namespace Moonlight.Core.Services.Utils;
 
+[Singleton]
 public class JwtService
 {
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
     private readonly TimeSpan DefaultDuration = TimeSpan.FromDays(365 * 10);
 
-    public JwtService(ConfigService configService)
+    public JwtService(ConfigService<ConfigV1> configService)
     {
         ConfigService = configService;
     }

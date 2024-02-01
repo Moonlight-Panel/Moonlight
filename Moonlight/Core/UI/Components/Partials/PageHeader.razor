@@ -1,9 +1,11 @@
 ﻿@using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
 @using Moonlight.Core.UI.Layouts
+@using Moonlight.Core.Configuration
+@using MoonCore.Services
+@using MoonCoreUI.Services
 
 @inject IdentityService IdentityService
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject CookieService CookieService
 
 <div class="app-header">

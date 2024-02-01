@@ -1,6 +1,7 @@
-﻿using Moonlight.Core.Event;
+﻿using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using Moonlight.Core.Event;
 using Moonlight.Core.Extensions;
-using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.Ticketing.Entities;
@@ -8,6 +9,7 @@ using Moonlight.Features.Ticketing.Entities.Enums;
 
 namespace Moonlight.Features.Ticketing.Services;
 
+[Scoped]
 public class TicketCreateService
 {
     private readonly Repository<Ticket> TicketRepository;

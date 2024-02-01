@@ -1,7 +1,9 @@
-﻿using Moonlight.Core.Models.Abstractions;
+﻿using MoonCore.Attributes;
+using Moonlight.Core.Models.Abstractions;
 
 namespace Moonlight.Core.Services;
 
+[Singleton]
 public class SessionService
 {
     private readonly List<Session> AllSessions = new();

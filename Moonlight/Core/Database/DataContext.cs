@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Services;
 using Moonlight.Features.Community.Entities;
@@ -12,7 +14,7 @@ namespace Moonlight.Core.Database;
 
 public class DataContext : DbContext
 {
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
     
     public DbSet<User> Users { get; set; }
     
@@ -50,7 +52,7 @@ public class DataContext : DbContext
     public DbSet<ServerDockerImage> ServerDockerImages { get; set; }
     public DbSet<ServerImageVariable> ServerImageVariables { get; set; }
 
-    public DataContext(ConfigService configService)
+    public DataContext(ConfigService<ConfigV1> configService)
     {
         ConfigService = configService;
     }

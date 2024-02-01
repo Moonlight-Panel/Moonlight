@@ -1,5 +1,8 @@
-﻿namespace Moonlight.Features.StoreSystem.Services;
+﻿using MoonCore.Attributes;
 
+namespace Moonlight.Features.StoreSystem.Services;
+
+[Scoped]
 public class StoreService
 {
     private readonly IServiceProvider ServiceProvider;

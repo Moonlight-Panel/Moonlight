@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Moonlight.Core.Helpers;
-using Moonlight.Core.Repositories;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Helpers;
+
+
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Exceptions;
 using Moonlight.Features.Servers.Helpers;
@@ -9,6 +12,7 @@ using Moonlight.Features.Servers.Models.Enums;
 
 namespace Moonlight.Features.Servers.Services;
 
+[Singleton]
 public class ServerService
 {
     public readonly MetaCache<ServerMeta> Meta = new();

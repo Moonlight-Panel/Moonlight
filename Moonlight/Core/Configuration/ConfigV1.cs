@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Moonlight.Core.Helpers;
+using MoonCore.Helpers;
 using Moonlight.Features.Advertisement.Configuration;
 using Moonlight.Features.StoreSystem.Configuration;
 using Moonlight.Features.Theming.Configuration;

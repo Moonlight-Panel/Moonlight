@@ -1,11 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Repositories;
+
+
 using Moonlight.Features.ServiceManagement.Entities;
 
 namespace Moonlight.Features.ServiceManagement.Services;
 
+[Scoped]
 public class ServiceService // This service is used for managing services and create the connection to the actual logic behind a service type
 {
     private readonly IServiceProvider ServiceProvider;

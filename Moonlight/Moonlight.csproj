@@ -15,6 +15,7 @@
 
     <ItemGroup>
       <Folder Include="Core\Database\Migrations\" />
+      <Folder Include="Core\Helpers\" />
       <Folder Include="Core\Http\Middleware\" />
       <Folder Include="Core\Http\Requests\" />
       <Folder Include="Core\Http\Resources\" />
@@ -47,23 +48,13 @@
       <PackageReference Include="HtmlSanitizer" Version="8.0.746" />
       <PackageReference Include="JWT" Version="10.1.1" />
       <PackageReference Include="MailKit" Version="4.2.0" />
-      <PackageReference Include="Mappy.Net" Version="1.0.2" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
       <PackageReference Include="MimeTypes" Version="2.4.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="MoonCoreUI" Version="1.0.0" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
-      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />
-      <PackageReference Include="Serilog" Version="3.1.0-dev-02078" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0-dev-00923" />
-      <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00972" />
       <PackageReference Include="XtermBlazor" Version="1.10.0" />
     </ItemGroup>
 
@@ -75,28 +66,14 @@
       <AdditionalFiles Include="Core\UI\Components\Auth\MailVerify.razor" />
       <AdditionalFiles Include="Core\UI\Components\Auth\PasswordReset.razor" />
       <AdditionalFiles Include="Core\UI\Components\Auth\Register.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\AutoCrud.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\AutoForm.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\AutoProperty.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\ConfirmButton.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\DynamicTypedAutoForm.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\SmartCustomFileSelect.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\SmartDropdown.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\SmartEnumSelect.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\SmartFileSelect.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\SmartForm.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\SmartSelect.razor" />
       <AdditionalFiles Include="Core\UI\Components\Forms\TextEditor.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Forms\WButton.razor" />
       <AdditionalFiles Include="Core\UI\Components\Navigations\AccountNavigation.razor" />
       <AdditionalFiles Include="Core\UI\Components\Navigations\AdminSysNavigation.razor" />
       <AdditionalFiles Include="Core\UI\Components\Navigations\AdminUsersNavigation.razor" />
       <AdditionalFiles Include="Core\UI\Components\Partials\ConnectionIndicator.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Partials\LazyLoader.razor" />
       <AdditionalFiles Include="Core\UI\Components\Partials\PageHeader.razor" />
       <AdditionalFiles Include="Core\UI\Components\Partials\PermissionChecker.razor" />
       <AdditionalFiles Include="Core\UI\Components\Partials\Sidebar.razor" />
-      <AdditionalFiles Include="Core\UI\Components\Partials\SmartModal.razor" />
       <AdditionalFiles Include="Core\UI\Components\Partials\SoftErrorHandler.razor" />
       <AdditionalFiles Include="Core\UI\Components\Partials\Tooltip.razor" />
       <AdditionalFiles Include="Core\UI\Layouts\DefaultLayout.razor" />

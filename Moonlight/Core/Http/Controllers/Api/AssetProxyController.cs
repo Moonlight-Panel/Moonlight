@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Moonlight.Core.Helpers;
+using MoonCore.Helpers;
 using Moonlight.Features.Theming.Services;
 
 namespace Moonlight.Core.Http.Controllers.Api;

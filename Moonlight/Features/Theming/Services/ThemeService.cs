@@ -1,18 +1,23 @@
 ﻿using Mappy.Net;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
 using Moonlight.Core.Models.Abstractions;
-using Moonlight.Core.Repositories;
+
 using Moonlight.Core.Services;
 using Moonlight.Features.Theming.Entities;
 using Moonlight.Features.Theming.Models.Abstractions;
 
 namespace Moonlight.Features.Theming.Services;
 
+[Singleton]
 public class ThemeService
 {
     private readonly IServiceProvider ServiceProvider;
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
 
-    public ThemeService(IServiceProvider serviceProvider, ConfigService configService)
+    public ThemeService(IServiceProvider serviceProvider, ConfigService<ConfigV1> configService)
     {
         ServiceProvider = serviceProvider;
         ConfigService = configService;

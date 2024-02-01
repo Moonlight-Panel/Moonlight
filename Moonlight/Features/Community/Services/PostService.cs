@@ -1,15 +1,17 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Event;
-using Moonlight.Core.Exceptions;
 using Moonlight.Core.Extensions;
-using Moonlight.Core.Repositories;
 using Moonlight.Features.Community.Entities;
 using Moonlight.Features.Community.Entities.Enums;
 
 namespace Moonlight.Features.Community.Services;
 
+[Scoped]
 public class PostService
 {
     private readonly Repository<Post> PostRepository;

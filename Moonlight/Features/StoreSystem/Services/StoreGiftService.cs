@@ -1,11 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Repositories;
+
+
 using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.StoreSystem.Services;
 
+[Singleton]
 public class StoreGiftService
 {
     private readonly IServiceScopeFactory ServiceScopeFactory;
