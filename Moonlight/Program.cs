@@ -1,9 +1,12 @@
 using BlazorTable;
+using MoonCore.Abstractions;
 using MoonCore.Helpers;
 using MoonCore.Extensions;
 using MoonCore.Services;
+using MoonCoreUI.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
+using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
 using Moonlight.Features.Servers.Actions;
 using Moonlight.Features.Servers.Http.Middleware;
@@ -38,14 +41,24 @@ builder.Services.AddSingleton(pluginService);
 await pluginService.Load(builder);
 await pluginService.RunPreInit();
 
-// TODO: Add automatic assembly scanning
-// dependency injection registration
-// using attributes
-
 builder.Services.AddDbContext<DataContext>();
 
 // Services
+builder.Services.AddScoped(typeof(Repository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<CookieService>();
+builder.Services.AddScoped<FileDownloadService>();
+builder.Services.AddScoped<AlertService>();
+builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<ClipboardService>();
+builder.Services.AddScoped<ModalService>();
 builder.Services.AddSingleton(configService);
+
+// Configure interop
+ToastService.Prefix = "moonlight.toasts";
+ModalService.Prefix = "moonlight.modals";
+AlertService.Prefix = "moonlight.alerts";
+ClipboardService.Prefix = "moonlight.clipboard";
+FileDownloadService.Prefix = "moonlight.utils";
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
