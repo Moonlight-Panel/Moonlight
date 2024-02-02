@@ -1,0 +1,49 @@
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.UI.Components
+
+@implements IDisposable
+
+<div class="card card-body bg-black p-3">
+    <Terminal @ref="Terminal" />
+    <div class="mt-3">
+        <div class="input-group">
+            <input class="form-control form-control-transparent text-white" placeholder="Enter command"/>
+            <button class="btn btn-secondary rounded-start">Execute</button>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public ServerMeta Meta { get; set; }
+
+    private Terminal Terminal;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            string[] messages;
+
+            lock (Meta.ConsoleMessages)
+                messages = Meta.ConsoleMessages.TakeLast(100).ToArray();
+
+            foreach (var message in messages)
+                await Terminal.WriteLine(message);
+            
+            Meta.OnConsoleMessage += OnConsoleMessage;
+        }
+    }
+
+    private async Task OnConsoleMessage(string message)
+    {
+        await Terminal.WriteLine(message);
+    }
+
+    public void Dispose()
+    {
+        if(Meta != null)
+            Meta.OnConsoleMessage -= OnConsoleMessage;
+    }
+}

@@ -24,4 +24,15 @@ public class MetaCache<T>
         
         return Task.CompletedTask;
     }
+
+    public Task<T> Get(int id)
+    {
+        lock (Cache)
+        {
+            if(!Cache.ContainsKey(id))
+                Cache.Add(id, Activator.CreateInstance<T>());
+
+            return Task.FromResult(Cache[id]);
+        }
+    }
 }

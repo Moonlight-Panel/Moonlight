@@ -211,11 +211,9 @@
             .Include(x => x.Allocations)
             .Include(x => x.MainAllocation)
             .First(x => x.Service.Id == Service.Id);
-
-        Meta = new ServerMeta();
-/*
+        
     // Load meta and setup event handlers
-        Meta = await ServerService.Meta.Get(Server);
+        Meta = await ServerService.Meta.Get(Server.Id);
         Meta.OnStateChanged += async Task () =>
         {
             await InvokeAsync(StateHasChanged);
@@ -247,7 +245,7 @@
         };
 
     // Send console subscription and add auto resubscribe for it
-        await ServerService.Console.Subscribe(Server);
+        await ServerService.SubscribeToConsole(Server);
 
     // We need this to revalidate to the daemon that we are still interested
     // in the console logs. By default the expiration time is 15 minutes from last
@@ -257,7 +255,7 @@
             while (!BackgroundCancel.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromMinutes(10));
-                await ServerService.Console.Subscribe(Server);
+                await ServerService.SubscribeToConsole(Server);
             }
         });
 
@@ -270,8 +268,6 @@
                 await InvokeAsync(StateHasChanged);
             }
         });
-
-        */
     }
 
     private async Task OnInstallConsoleMessage(string message)

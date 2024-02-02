@@ -41,6 +41,12 @@ public class ServerService
         await httpClient.Post($"servers/{server.Id}/power/{powerAction.ToString().ToLower()}");
     }
 
+    public async Task SubscribeToConsole(Server server)
+    {
+        using var httpClient = CreateHttpClient(server);
+        await httpClient.Post($"servers/{server.Id}/subscribe");
+    }
+
     private HttpApiClient<NodeException> CreateHttpClient(Server server)
     {
         using var scope = ServiceProvider.CreateScope();
