@@ -5,7 +5,7 @@
 @inject ClipboardService ClipboardService
 @inject ToastService ToastService
 
-<Xterm @ref="Term" Options="Options" AddonIds="AddonIds" OnFirstRender="OnFirstRender" />
+<Xterm @ref="Term" Options="Options" OnFirstRender="OnFirstRender" />
 
 @code 
 {
@@ -23,13 +23,6 @@
         },
         DisableStdin = true,
         FontFamily = "monospace"
-    };
-
-    private readonly string[] AddonIds = new[]
-    {
-        "xterm-addon-fit",
-        "xterm-addon-web-links",
-        "xterm-addon-search"
     };
 
     private bool HasBeenRendered = false;

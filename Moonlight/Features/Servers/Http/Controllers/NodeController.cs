@@ -1,9 +1,9 @@
 using System.Net.WebSockets;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Helpers;
+using Moonlight.Features.Servers.Api.Packets;
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Extensions.Attributes;
-using Moonlight.Features.Servers.Models.Packets;
 using Moonlight.Features.Servers.Services;
 
 namespace Moonlight.Features.Servers.Http.Controllers;
@@ -82,8 +82,6 @@ public class NodeController : Controller
                 {
                     lock (meta.ConsoleMessages)
                         meta.ConsoleMessages.Add(serverOutputMessage.Message);
-
-                    meta.LastChangeTimestamp = DateTime.UtcNow;
                 });
 
                 await (await ServerService.Meta.Get(serverOutputMessage.Id)).OnConsoleMessage.Invoke(serverOutputMessage

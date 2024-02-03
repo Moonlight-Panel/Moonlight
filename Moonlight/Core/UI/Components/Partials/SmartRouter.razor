@@ -1,0 +1,12 @@
+<CascadingValue TValue="SmartRouter" Value="@this">
+    @ChildContent
+</CascadingValue>
+
+@code
+{
+    [Parameter]
+    public string? Route { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

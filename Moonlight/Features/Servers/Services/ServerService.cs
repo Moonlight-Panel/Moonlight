@@ -2,8 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MoonCore.Abstractions;
 using MoonCore.Attributes;
 using MoonCore.Helpers;
-
-
+using Moonlight.Features.Servers.Api.Requests;
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Exceptions;
 using Moonlight.Features.Servers.Helpers;
@@ -45,6 +44,16 @@ public class ServerService
     {
         using var httpClient = CreateHttpClient(server);
         await httpClient.Post($"servers/{server.Id}/subscribe");
+    }
+
+    public async Task SendCommand(Server server, string command)
+    {
+        using var httpClient = CreateHttpClient(server);
+        
+        await httpClient.Post($"servers/{server.Id}/command", new EnterCommand()
+        {
+            Command = command
+        });
     }
 
     private HttpApiClient<NodeException> CreateHttpClient(Server server)

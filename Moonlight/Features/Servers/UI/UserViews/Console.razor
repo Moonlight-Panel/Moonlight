@@ -1,5 +1,9 @@
 @using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Services
 @using Moonlight.Features.Servers.UI.Components
+@using Moonlight.Features.Servers.Entities
+
+@inject ServerService ServerService
 
 @implements IDisposable
 
@@ -7,8 +11,8 @@
     <Terminal @ref="Terminal" />
     <div class="mt-3">
         <div class="input-group">
-            <input class="form-control form-control-transparent text-white" placeholder="Enter command"/>
-            <button class="btn btn-secondary rounded-start">Execute</button>
+            <input @bind="CommandInput" class="form-control form-control-transparent text-white" placeholder="Enter command"/>
+            <WButton CssClasses="btn btn-secondary rounded-start" Text="Execute" OnClick="SendCommand" />
         </div>
     </div>
 </div>
@@ -17,8 +21,12 @@
 {
     [CascadingParameter]
     public ServerMeta Meta { get; set; }
+    
+    [CascadingParameter]
+    public Server Server { get; set; }
 
     private Terminal Terminal;
+    private string CommandInput = "";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -40,10 +48,19 @@
     {
         await Terminal.WriteLine(message);
     }
+    
+    private async Task SendCommand()
+    {
+        await ServerService.SendCommand(Server, CommandInput);
+        CommandInput = "";
+
+        await InvokeAsync(StateHasChanged);
+    }
 
     public void Dispose()
     {
         if(Meta != null)
             Meta.OnConsoleMessage -= OnConsoleMessage;
     }
+
 }
