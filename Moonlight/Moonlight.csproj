@@ -34,6 +34,14 @@
       <Folder Include="Features\Dummy\Services\" />
       <Folder Include="Features\Dummy\UI\Components\" />
       <Folder Include="Features\Dummy\UI\Views\" />
+      <Folder Include="Features\FileManager\Entities\" />
+      <Folder Include="Features\FileManager\Exceptions\" />
+      <Folder Include="Features\FileManager\Extensions\" />
+      <Folder Include="Features\FileManager\Http\Middleware\" />
+      <Folder Include="Features\FileManager\Http\Requests\" />
+      <Folder Include="Features\FileManager\Http\Resources\" />
+      <Folder Include="Features\FileManager\Models\Forms\" />
+      <Folder Include="Features\FileManager\UI\Views\" />
       <Folder Include="Features\Servers\Api\Resources\" />
       <Folder Include="Features\Servers\Configuration\" />
       <Folder Include="Features\Servers\Http\Requests\" />
@@ -53,8 +61,8 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MoonCore" Version="1.0.2" />
-      <PackageReference Include="MoonCoreUI" Version="1.0.1" />
+      <PackageReference Include="MoonCore" Version="1.0.5" />
+      <PackageReference Include="MoonCoreUI" Version="1.0.3" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />
       <PackageReference Include="XtermBlazor" Version="1.10.1" />

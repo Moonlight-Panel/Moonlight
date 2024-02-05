@@ -26,6 +26,9 @@
 @import "vendors/plugins/variables";
 @import "vendors/plugins/variables-dark";
 
+// Enable plugin styles here
+@import "vendors/plugins/dropzone";
+
 // Custom layout variables
 @import "layout/base/variables";
 @import "layout/variables.custom";

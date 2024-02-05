@@ -13,14 +13,20 @@ using Moonlight.Features.Servers.Http.Middleware;
 using Moonlight.Features.ServiceManagement.Entities.Enums;
 using Moonlight.Features.ServiceManagement.Services;
 
+Directory.CreateDirectory(PathBuilder.Dir("storage"));
+Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 var configService = new ConfigService<ConfigV1>(
     PathBuilder.File("storage", "config.json")
 );
 
-Directory.CreateDirectory(PathBuilder.Dir("storage"));
-Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var uploadLimit = ByteSizeValue.FromMegaBytes(configService.Get().WebServer.HttpUploadLimit).Bytes;
+    options.Limits.MaxRequestBodySize = uploadLimit;
+});
 
 // Setup logger
 var now = DateTime.UtcNow;

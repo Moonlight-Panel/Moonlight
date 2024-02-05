@@ -3,7 +3,10 @@ class ToastHelper {
         var toastElement = buildToast(title, description, color);
         var toastWrapper = getOrCreateToastWrapper();
         toastWrapper.append(toastElement);
-        this.bootstrapToast = new bootstrap.Toast(toastElement);
+        this.bootstrapToast = new bootstrap.Toast(toastElement, {
+            autohide: false
+        });
+        this.domElement = toastElement;
 
         this.show = function () {
             this.bootstrapToast.show();
@@ -14,6 +17,10 @@ class ToastHelper {
                     toastElement.remove();
                 }, timeout);
             }
+        }
+
+        this.showAlways = function () {
+            this.bootstrapToast.show();
         }
 
         this.hide = function () {
@@ -51,7 +58,7 @@ function buildToastHeader(title, color) {
         toastHeader.setAttribute('class', 'toast-header');
 
         var strong = document.createElement('strong');
-        strong.setAttribute('class', 'me-auto '  + (color ? 'text-' + color : ''));
+        strong.setAttribute('class', 'me-auto text-white');
         strong.textContent = title;
 
         var closeButton = document.createElement('button');

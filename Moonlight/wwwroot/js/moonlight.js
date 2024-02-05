@@ -20,6 +20,25 @@ window.moonlight = {
         {
             var toast = new ToastHelper(title, message, color, timeout);
             toast.show();
+        },
+        create: function (id, text) {
+            var toast = new ToastHelper("Progress", text, "secondary", 0);
+            toast.showAlways();
+
+            toast.domElement.setAttribute('data-ml-toast-id', id);
+        },
+        modify: function (id, text) {
+            var toast = document.querySelector('[data-ml-toast-id="' + id + '"]');
+
+            toast.getElementsByClassName("toast-body")[0].innerText = text;
+        },
+        remove: function (id) {
+            var toast = document.querySelector('[data-ml-toast-id="' + id + '"]');
+            bootstrap.Toast.getInstance(toast).hide();
+
+            setTimeout(() => {
+                toast.remove();
+            }, 2);
         }
     },
     modals: {
@@ -39,7 +58,7 @@ window.moonlight = {
         }
     },
     alerts: {
-        getHelper: function(){
+        getHelper: function () {
             return Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -92,18 +111,13 @@ window.moonlight = {
                 }
             })
         },
-        text: function (title, description) {
-            const {value: text} = this.getHelper().fire({
+        text: async function (title, description, initialValue) {
+            const {value: text} = await this.getHelper().fire({
                 title: title,
                 input: 'text',
                 inputLabel: description,
-                inputValue: "",
-                showCancelButton: false,
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'You need to enter a value'
-                    }
-                }
+                inputValue: initialValue,
+                showCancelButton: false
             })
 
             return text;
@@ -201,6 +215,118 @@ window.moonlight = {
                     console.error('Async: Could not copy text: ', err);
                 }
             );
+        }
+    },
+    dropzone: {
+        create: function (elementId, url) {
+            var id = "#" + elementId;
+            var dropzone = document.querySelector(id);
+
+            // set the preview element template
+            var previewNode = dropzone.querySelector(".dropzone-item");
+            previewNode.id = "";
+            var previewTemplate = previewNode.parentNode.innerHTML;
+            previewNode.parentNode.removeChild(previewNode);
+
+            var fileDropzone = new Dropzone(id, {
+                url: url,
+                maxFilesize: 100,
+                previewTemplate: previewTemplate,
+                previewsContainer: id + " .dropzone-items",
+                clickable: ".dropzone-panel",
+                createImageThumbnails: false,
+                ignoreHiddenFiles: false,
+                disablePreviews: false
+            });
+
+            fileDropzone.on("addedfile", function (file) {
+                const dropzoneItems = dropzone.querySelectorAll('.dropzone-item');
+                dropzoneItems.forEach(dropzoneItem => {
+                    dropzoneItem.style.display = '';
+                });
+
+                // Create a progress bar for the current file
+                var progressBar = dropzone.querySelector('.dropzone-item .progress-bar');
+                progressBar.style.width = "0%";
+            });
+
+// Update the progress bar for each file
+            fileDropzone.on("uploadprogress", function (file, progress, bytesSent) {
+                var dropzoneItem = file.previewElement;
+                var progressBar = dropzoneItem.querySelector('.progress-bar');
+                progressBar.style.width = progress + "%";
+            });
+
+// Hide the progress bar for each file when the upload is complete
+            fileDropzone.on("complete", function (file) {
+                var dropzoneItem = file.previewElement;
+                var progressBar = dropzoneItem.querySelector('.progress-bar');
+
+                setTimeout(function () {
+                    progressBar.style.opacity = "1";
+                    progressBar.classList.remove("bg-primary");
+                    progressBar.classList.add("bg-success");
+                }, 300);
+            });
+        },
+        updateUrl: function (elementId, url) {
+            Dropzone.forElement("#" + elementId).options.url = url;
+        }
+    },
+    editor: {
+        instance: {},
+
+        create: function (mount, theme, mode, initialContent, lines, fontSize) {
+            this.instance = ace.edit(mount);
+
+            this.instance.setTheme("ace/theme/" + theme);
+            this.instance.session.setMode("ace/mode/" + mode);
+            this.instance.setShowPrintMargin(false);
+            this.instance.setOptions({
+                minLines: lines,
+                maxLines: lines
+            });
+
+            this.instance.setValue(initialContent);
+            this.instance.setFontSize(fontSize);
+        },
+
+        setValue: function (content) {
+            this.instance.setValue(content);
+            this.instance.moveCursorTo(0);
+        },
+
+        getValue: function () {
+            return this.instance.getValue();
+        },
+
+        setMode: function (mode) {
+            this.instance.session.setMode("ace/mode/" + mode);
+        }
+    },
+    hotkeys: {
+        registerListener: function (dotNetObjRef) {
+            moonlight.hotkeys.listener = (event) => {
+                // Because we dont want too much traffic and not spy on the user,
+                // we define the hotkeys here, in order to filter them before sending the
+                // key input to moonlight. This gives browser plugins also the ability to
+                // add custom shortcuts and hotkeys
+
+                if (event.code === "KeyS" && event.ctrlKey) {
+                    event.preventDefault();
+                    dotNetObjRef.invokeMethodAsync('OnHotkeyPressed', "save");
+                }
+
+                if (event.code === "KeyX" && event.ctrlKey) {
+                    event.preventDefault();
+                    dotNetObjRef.invokeMethodAsync('OnHotkeyPressed', "close");
+                }
+            };
+
+            window.addEventListener('keydown', moonlight.hotkeys.listener);
+        },
+        unregisterListener: function () {
+            window.removeEventListener('keydown', moonlight.hotkeys.listener);
         }
     }
 }
