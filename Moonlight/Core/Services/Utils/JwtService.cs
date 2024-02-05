@@ -19,11 +19,12 @@ public class JwtService
         ConfigService = configService;
     }
 
-    public Task<string> Create(Action<Dictionary<string, string>> data, TimeSpan? validDuration = null)
+    public Task<string> Create(Action<Dictionary<string, string>> data, string type, TimeSpan? validDuration = null)
     {
         var builder = new JwtBuilder()
             .WithSecret(ConfigService.Get().Security.Token)
             .IssuedAt(DateTime.UtcNow)
+            .AddHeader("Type", type)
             .ExpirationTime(DateTime.UtcNow.Add(validDuration ?? DefaultDuration))
             .WithAlgorithm(new HMACSHA512Algorithm());
 
@@ -38,17 +39,39 @@ public class JwtService
         return Task.FromResult(jwt);
     }
 
-    public Task<bool> Validate(string token)
+    public Task<bool> Validate(string token, params string[] allowedJwtTypes)
     {
         try
         {
-            _ = new JwtBuilder()
+            var headerJson = new JwtBuilder()
                 .WithSecret(ConfigService.Get().Security.Token)
                 .WithAlgorithm(new HMACSHA512Algorithm())
                 .MustVerifySignature()
-                .Decode(token);
+                .DecodeHeader(token);
+
+            if (headerJson == null)
+                return Task.FromResult(false);
             
-            return Task.FromResult(true);
+            // Jwt type validation
+            if(allowedJwtTypes.Length == 0)
+                return Task.FromResult(true);
+            
+            var headerData = JsonConvert.DeserializeObject<Dictionary<string, string>>(headerJson);
+            
+            if(headerData == null) // => Invalid header
+                return Task.FromResult(false);
+            
+            if(!headerData.ContainsKey("Type")) // => Invalid header, Type is missing
+                return Task.FromResult(false);
+
+            foreach (var name in allowedJwtTypes)
+            {
+                if(headerData["Type"] == name) // => Correct type found
+                    return Task.FromResult(true);
+            }
+            
+            // None found? Invalid type!
+            return Task.FromResult(false);
         }
         catch (Exception e)
         {

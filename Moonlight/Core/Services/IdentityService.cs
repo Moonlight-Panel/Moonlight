@@ -152,7 +152,7 @@ public class IdentityService
         {
             data.Add("userId", user.Id.ToString());
             data.Add("issuedAt", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
-        }, TimeSpan.FromDays(10));
+        }, "User", TimeSpan.FromDays(10));
 
         return token;
     }

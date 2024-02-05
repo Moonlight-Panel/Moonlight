@@ -101,7 +101,10 @@ public class UserAuthService
 
     public async Task SendVerification(User user)
     {
-        var jwt = await JwtService.Create(data => { data.Add("mailToVerify", user.Email); }, TimeSpan.FromMinutes(10));
+        var jwt = await JwtService.Create(data =>
+        {
+            data.Add("mailToVerify", user.Email);
+        }, "EmailVerification", TimeSpan.FromMinutes(10));
 
         await MailService.Send(user, "Verify your account", "verifyMail", user, new MailVerify()
         {
@@ -118,7 +121,10 @@ public class UserAuthService
         if (user == null)
             throw new DisplayException("An account with that email was not found");
 
-        var jwt = await JwtService.Create(data => { data.Add("accountToReset", user.Id.ToString()); });
+        var jwt = await JwtService.Create(data =>
+        {
+            data.Add("accountToReset", user.Id.ToString());
+        }, "PasswordReset", TimeSpan.FromHours(1));
         
         await MailService.Send(user, "Password reset for your account", "passwordReset", user, new ResetPassword()
         {
