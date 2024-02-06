@@ -245,7 +245,7 @@
         };
 
     // Send console subscription and add auto resubscribe for it
-        await ServerService.SubscribeToConsole(Server);
+        await ServerService.Console.Subscribe(Server);
 
     // We need this to revalidate to the daemon that we are still interested
     // in the console logs. By default the expiration time is 15 minutes from last
@@ -255,7 +255,7 @@
             while (!BackgroundCancel.IsCancellationRequested)
             {
                 await Task.Delay(TimeSpan.FromMinutes(10));
-                await ServerService.SubscribeToConsole(Server);
+                await ServerService.Console.Subscribe(Server);
             }
         });
 
@@ -276,11 +276,11 @@
             await InstallTerminal.WriteLine(message);
     }
 
-    private async Task Start() => await ServerService.SendPowerAction(Server, PowerAction.Start);
+    private async Task Start() => await ServerService.Console.SendAction(Server, PowerAction.Start);
 
-    private async Task Stop() => await ServerService.SendPowerAction(Server, PowerAction.Stop);
+    private async Task Stop() => await ServerService.Console.SendAction(Server, PowerAction.Stop);
 
-    private async Task Kill() => await ServerService.SendPowerAction(Server, PowerAction.Kill);
+    private async Task Kill() => await ServerService.Console.SendAction(Server, PowerAction.Kill);
 
     public void Dispose()
     {

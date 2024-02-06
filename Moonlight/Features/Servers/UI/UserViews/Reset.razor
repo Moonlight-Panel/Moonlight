@@ -38,7 +38,7 @@
     
     private async Task ResetServer()
     {
-        await ServerService.SendPowerAction(Server, PowerAction.Install);
+        await ServerService.Console.SendAction(Server, PowerAction.Install);
     }
 
     private async Task OnStateChanged()

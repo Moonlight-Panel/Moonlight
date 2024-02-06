@@ -1,13 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using MoonCore.Abstractions;
 using MoonCore.Attributes;
-using MoonCore.Helpers;
-using Moonlight.Features.Servers.Api.Requests;
 using Moonlight.Features.Servers.Entities;
-using Moonlight.Features.Servers.Exceptions;
+using Moonlight.Features.Servers.Extensions;
 using Moonlight.Features.Servers.Helpers;
 using Moonlight.Features.Servers.Models.Abstractions;
-using Moonlight.Features.Servers.Models.Enums;
 
 namespace Moonlight.Features.Servers.Services;
 
@@ -15,6 +10,7 @@ namespace Moonlight.Features.Servers.Services;
 public class ServerService
 {
     public readonly MetaCache<ServerMeta> Meta = new();
+    public ServerConsoleService Console => ServiceProvider.GetRequiredService<ServerConsoleService>();
 
     private readonly IServiceProvider ServiceProvider;
 
@@ -25,50 +21,12 @@ public class ServerService
 
     public async Task Sync(Server server)
     {
-        using var httpClient = CreateHttpClient(server);
+        using var httpClient = server.CreateHttpClient(ServiceProvider);
         await httpClient.Post($"servers/{server.Id}/sync");
     }
 
     public async Task SyncDelete(Server server)
     {
         
-    }
-
-    public async Task SendPowerAction(Server server, PowerAction powerAction)
-    {
-        using var httpClient = CreateHttpClient(server);
-        await httpClient.Post($"servers/{server.Id}/power/{powerAction.ToString().ToLower()}");
-    }
-
-    public async Task SubscribeToConsole(Server server)
-    {
-        using var httpClient = CreateHttpClient(server);
-        await httpClient.Post($"servers/{server.Id}/subscribe");
-    }
-
-    public async Task SendCommand(Server server, string command)
-    {
-        using var httpClient = CreateHttpClient(server);
-        
-        await httpClient.Post($"servers/{server.Id}/command", new EnterCommand()
-        {
-            Command = command
-        });
-    }
-
-    private HttpApiClient<NodeException> CreateHttpClient(Server server)
-    {
-        using var scope = ServiceProvider.CreateScope();
-        var serverRepo = scope.ServiceProvider.GetRequiredService<Repository<Server>>();
-
-        var serverWithNode = serverRepo
-            .Get()
-            .Include(x => x.Node)
-            .First(x => x.Id == server.Id);
-
-        var protocol = serverWithNode.Node.UseSsl ? "https" : "http";
-        var remoteUrl = $"{protocol}://{serverWithNode.Node.Fqdn}:{serverWithNode.Node.HttpPort}/";
-        
-        return new HttpApiClient<NodeException>(remoteUrl, serverWithNode.Node.Token);
     }
 }

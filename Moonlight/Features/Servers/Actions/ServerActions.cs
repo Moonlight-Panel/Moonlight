@@ -105,7 +105,7 @@ public class ServerActions : ServiceActions
         serverRepo.Add(server);
 
         await serverService.Sync(server);
-        await serverService.SendPowerAction(server, PowerAction.Install);
+        await serverService.Console.SendAction(server, PowerAction.Install);
     }
 
     public override Task Update(IServiceProvider provider, Service service)

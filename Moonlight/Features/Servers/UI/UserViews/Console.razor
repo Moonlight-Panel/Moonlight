@@ -51,7 +51,7 @@
     
     private async Task SendCommand()
     {
-        await ServerService.SendCommand(Server, CommandInput);
+        await ServerService.Console.SendCommand(Server, CommandInput);
         CommandInput = "";
 
         await InvokeAsync(StateHasChanged);

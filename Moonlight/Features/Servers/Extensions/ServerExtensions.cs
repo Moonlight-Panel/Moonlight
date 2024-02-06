@@ -1,4 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Helpers;
 using Moonlight.Features.Servers.Entities;
+using Moonlight.Features.Servers.Exceptions;
 using Moonlight.Features.Servers.Models.Abstractions;
 
 namespace Moonlight.Features.Servers.Extensions;
@@ -70,5 +74,18 @@ public static class ServerExtensions
         installConfiguration.Shell = server.Image.InstallShell;
 
         return installConfiguration;
+    }
+
+    public static HttpApiClient<NodeException> CreateHttpClient(this Server server, IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var serverRepo = scope.ServiceProvider.GetRequiredService<Repository<Server>>();
+
+        var serverWithNode = serverRepo
+            .Get()
+            .Include(x => x.Node)
+            .First(x => x.Id == server.Id);
+
+        return serverWithNode.Node.CreateHttpClient();
     }
 }
