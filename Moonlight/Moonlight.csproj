@@ -44,7 +44,6 @@
       <Folder Include="Features\FileManager\UI\Views\" />
       <Folder Include="Features\Servers\Api\Resources\" />
       <Folder Include="Features\Servers\Configuration\" />
-      <Folder Include="Features\Servers\Http\Requests\" />
       <Folder Include="Features\Servers\Http\Resources\" />
       <Folder Include="Features\StoreSystem\Helpers\" />
       <Folder Include="Features\Ticketing\Models\Abstractions\" />
@@ -54,6 +53,7 @@
     <ItemGroup>
       <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
       <PackageReference Include="BlazorTable" Version="1.17.0" />
+      <PackageReference Include="FluentFTP" Version="49.0.2" />
       <PackageReference Include="HtmlSanitizer" Version="8.0.746" />
       <PackageReference Include="JWT" Version="10.1.1" />
       <PackageReference Include="MailKit" Version="4.2.0" />
@@ -61,7 +61,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MoonCore" Version="1.0.5" />
+      <PackageReference Include="MoonCore" Version="1.0.7" />
       <PackageReference Include="MoonCoreUI" Version="1.0.3" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />

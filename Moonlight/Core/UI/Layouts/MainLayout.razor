@@ -20,6 +20,7 @@
 @inject NavigationManager Navigation
 @inject ConnectionService ConnectionService
 @inject AdBlockService AdBlockService
+@inject HotKeyService HotKeyService
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -163,6 +164,8 @@ else
             
             if(ConfigService.Get().Advertisement.PreventAdBlockers)
                 AdBlockerDetected = await AdBlockService.Detect();
+
+            await HotKeyService.Initialize();
 
             Initialized = true;
 

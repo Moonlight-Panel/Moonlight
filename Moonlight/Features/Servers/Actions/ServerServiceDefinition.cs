@@ -15,6 +15,7 @@ public class ServerServiceDefinition : ServiceDefinition
         context.Layout = typeof(UserLayout);
 
         await context.AddPage<Console>("Console", "/console", "bx bx-sm bxs-terminal");
+        await context.AddPage<Files>("Files", "/files", "bx bx-sm bxs-folder");
         await context.AddPage<Reset>("Reset", "/reset", "bx bx-sm bx-revision");
     }
 

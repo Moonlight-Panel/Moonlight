@@ -56,6 +56,9 @@ public class MailService
                 
                 try
                 {
+                    Logger.Debug($"Sending {templateName} mail to {user.Email}");
+                    Logger.Debug($"Body: {body.HtmlBody}");
+                    
                     await smtpClient.ConnectAsync(config.Host, config.Port, config.UseSsl);
                     await smtpClient.AuthenticateAsync(config.Email, config.Password);
                     await smtpClient.SendAsync(message);
