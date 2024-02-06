@@ -1,9 +1,14 @@
 @using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
 @using MoonCoreUI.Services
 @using MoonCore.Helpers
+@using Moonlight.Features.FileManager.Services
 
 @inject ToastService ToastService
 @inject AlertService AlertService
+@inject SharedFileAccessService SharedFileAccessService
+@inject NavigationManager Navigation
+
+@implements IDisposable
 
 <LazyLoader @ref="LazyLoader" Load="Load">
     <table class="w-100 table table-responsive table-row-bordered">
@@ -181,6 +186,9 @@
                                     <li>
                                         <a href="#" @onclick:preventDefault @onclick="() => Rename(entry)" class="dropdown-item">Rename</a>
                                     </li>
+                                    <li>
+                                        <a href="#" @onclick:preventDefault @onclick="() => Download(entry)" class="dropdown-item">Download</a>
+                                    </li>
                                     @if (OnMoveRequested != null)
                                     {
                                         <li>
@@ -266,7 +274,9 @@
                 await OnFileClicked.Invoke(fileEntry);
         }
     }
-    
+
+    #region Actions
+
     private async Task Delete(params FileEntry[] entries)
     {
         if (entries.Length == 0)
@@ -294,8 +304,8 @@
     private async Task Rename(FileEntry fileEntry)
     {
         var name = await AlertService.Text($"Rename '{fileEntry.Name}'", "", fileEntry.Name);
-        
-        if(string.IsNullOrEmpty(name))
+
+        if (string.IsNullOrEmpty(name))
             return;
 
         await FileAccess.Move(fileEntry.Name, name);
@@ -305,11 +315,33 @@
 
     private async Task RequestMove(FileEntry fileEntry)
     {
-        if(OnMoveRequested == null)
+        if (OnMoveRequested == null)
             return;
 
         await OnMoveRequested.Invoke(fileEntry);
     }
+
+    private async Task Download(FileEntry fileEntry)
+    {
+        try
+        {
+            await SharedFileAccessService.Register(FileAccess);
+            var token = await SharedFileAccessService.GenerateToken(FileAccess);
+            var url = $"/api/download?token={token}&name={fileEntry.Name}";
+
+            await ToastService.Info("Starting download...");
+            Navigation.NavigateTo(url, true);
+        }
+        catch (Exception e)
+        {
+            Logger.Warn("Unable to start download");
+            Logger.Warn(e);
+
+            await ToastService.Danger("Failed to start download");
+        }
+    }
+
+    #endregion
 
     #region Selection
 
@@ -334,7 +366,7 @@
 
         await InvokeAsync(StateHasChanged);
     }
-    
+
     private async Task ToggleAll(ChangeEventArgs args)
     {
         if (args.Value == null)
@@ -366,7 +398,7 @@
         {
             await loader.SetText("Switching directory on target");
             await FileAccess.ChangeDirectory(name);
-            
+
             if (OnPathChanged != null)
                 await OnPathChanged.Invoke(await FileAccess.GetCurrentDirectory());
         });
@@ -378,7 +410,7 @@
         {
             await loader.SetText("Switching directory on target");
             await FileAccess.SetDirectory(path);
-            
+
             if (OnPathChanged != null)
                 await OnPathChanged.Invoke(await FileAccess.GetCurrentDirectory());
         });
@@ -387,4 +419,9 @@
     #endregion
 
     public async Task Refresh() => await LazyLoader.Reload();
+
+    public async void Dispose()
+    {
+        await SharedFileAccessService.Unregister(FileAccess);
+    }
 }

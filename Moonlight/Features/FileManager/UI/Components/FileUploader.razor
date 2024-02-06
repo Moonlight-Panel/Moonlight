@@ -64,7 +64,9 @@
         if (firstRender)
         {
             await SharedFileAccessService.Register(FileAccess);
-            var url = await SharedFileAccessService.GenerateUrl(FileAccess);
+            
+            var token = await SharedFileAccessService.GenerateToken(FileAccess);
+            var url = $"/api/upload?token={token}";
 
             await DropzoneService.Create(DropzoneId, url);
 
@@ -74,7 +76,8 @@
                 {
                     await Task.Delay(TimeSpan.FromMinutes(5));
 
-                    var newUrl = await SharedFileAccessService.GenerateUrl(FileAccess);
+                    var newToken = await SharedFileAccessService.GenerateToken(FileAccess);
+                    var newUrl = $"/api/upload?token={newToken}";
                     await DropzoneService.UpdateUrl(DropzoneId, newUrl);
                 }
             });

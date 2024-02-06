@@ -18,7 +18,10 @@ public class SharedFileAccessService
     public Task<int> Register(IFileAccess fileAccess)
     {
         lock (FileAccesses)
-            FileAccesses.Add(fileAccess);
+        {
+            if(!FileAccesses.Contains(fileAccess))
+                FileAccesses.Add(fileAccess);
+        }
 
         return Task.FromResult(fileAccess.GetHashCode());
     }
@@ -47,13 +50,13 @@ public class SharedFileAccessService
         }
     }
 
-    public async Task<string> GenerateUrl(IFileAccess fileAccess)
+    public async Task<string> GenerateToken(IFileAccess fileAccess)
     {
         var token = await JwtService.Create(data =>
         {
             data.Add("FileAccessId", fileAccess.GetHashCode().ToString());
-        }, "FileUpload", TimeSpan.FromMinutes(6));
-        
-        return $"/api/upload?token={token}";
+        }, "FileAccess", TimeSpan.FromMinutes(6));
+
+        return token;
     }
 }

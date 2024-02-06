@@ -45,7 +45,7 @@ public class UploadController : Controller
             return BadRequest("Too many files sent");
 
         // Validate request
-        if (!await JwtService.Validate(uploadToken, "FileUpload"))
+        if (!await JwtService.Validate(uploadToken, "FileAccess"))
             return StatusCode(403);
 
         var uploadContext = await JwtService.Decode(uploadToken);
