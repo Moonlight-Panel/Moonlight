@@ -77,9 +77,8 @@ public class ServersControllers : Controller
         var server = ServerRepository
             .Get()
             .Include(x => x.Allocations)
+            .Include(x => x.Variables)
             .Include(x => x.MainAllocation)
-            .Include(x => x.Image)
-            .ThenInclude(x => x.Variables)
             .Include(x => x.Image)
             .ThenInclude(x => x.DockerImages)
             .Where(x => x.Node.Id == node.Id)
