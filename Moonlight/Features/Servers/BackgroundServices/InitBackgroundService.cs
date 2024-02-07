@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using MoonCore.Abstractions;
 using MoonCore.Attributes;
 using MoonCore.Helpers;
@@ -31,6 +32,16 @@ public class InitBackgroundService : BackgroundService
             try
             {
                 await nodeService.Boot(node);
+            }
+            catch (HttpRequestException e)
+            {
+                if(e.InnerException is SocketException socketException)
+                    Logger.Warn($"Unable to auto boot node '{node.Name}'. Unable to reach the daemon: {socketException.Message}");
+                else
+                {
+                    Logger.Warn($"An error occured while booting node '{node.Name}'");
+                    Logger.Warn(e);
+                }
             }
             catch (Exception e)
             {

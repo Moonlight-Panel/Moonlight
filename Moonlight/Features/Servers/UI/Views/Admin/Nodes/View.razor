@@ -1,7 +1,166 @@
 @page "/admin/servers/nodes/{Id:int}"
 
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Abstractions
+@using MoonCore.Exceptions
+@using MoonCoreUI.Services
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
+
+@inject Repository<ServerNode> NodeRepository
+@inject Repository<Server> ServerRepository
+@inject Repository<ServerAllocation> AllocationRepository
+@inject ToastService ToastService
+@inject AlertService AlertService
+
+<LazyLoader @ref="LazyLoader" Load="Load" ShowAsCard="true">
+    @if (Node == null)
+    {
+        <NotFoundAlert/>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-6 col-12 mb-5">
+
+            </div>
+            <div class="col-md-6 col-12 mb-5">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <span class="card-title">Allocation Quick Add</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group me-1">
+                            <input @bind="AllocationStart" class="form-control w-25" type="number"/>
+                            <span class="input-group-text">-</span>
+                            <input @bind="AllocationEnd" class="form-control w-25" type="number"/>
+                            <WButton OnClick="AddAllocations" Text="Add" CssClasses="btn btn-primary"/>
+                        </div>
+                    </div>
+                </div>
+                <AutoListCrud TItem="ServerAllocation"
+                              TRootItem="ServerNode"
+                              TCreateForm="CreateServerAllocation"
+                              TUpdateForm="UpdateServerAllocation"
+                              RootItem="Node"
+                              Field="@(x => x.Allocations)"
+                              Title="Allocations"
+                              ValidateAdd="ValidateAdd"
+                              ValidateUpdate="ValidateUpdate"
+                              ValidateDelete="ValidateDelete">
+                    <Toolbar>
+                        <div class="me-1">
+                            <WButton OnClick="DeleteAllAllocations" CssClasses="btn btn-icon btn-danger">
+                                <i class="bx bx-sm bx-trash"></i>
+                            </WButton>
+                        </div>
+                    </Toolbar>
+                    <View>
+                        <Column TableItem="ServerAllocation" Field="@(x => x.Id)" Title="Id"/>
+                        <Column TableItem="ServerAllocation" Field="@(x => x.IpAddress)" Title="IpAddress"/>
+                        <Column TableItem="ServerAllocation" Field="@(x => x.Port)" Title="Port"/>
+                    </View>
+                </AutoListCrud>
+            </div>
+        </div>
+    }
+</LazyLoader>
+
 @code
 {
-    [Parameter]
-    public int Id { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    private ServerNode? Node;
+    private int AllocationStart = 2000;
+    private int AllocationEnd = 3000;
+
+    private LazyLoader LazyLoader;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading allocations");
+
+        Node = NodeRepository
+            .Get()
+            .Include(x => x.Allocations)
+            .FirstOrDefault(x => x.Id == Id);
+    }
+
+    private async Task AddAllocations()
+    {
+        int skipped = 0;
+        int added = 0;
+
+        for (int i = AllocationStart; i <= AllocationEnd; i++)
+        {
+            if (Node!.Allocations.Any(x => x.Port == i))
+                skipped++;
+            else
+            {
+                Node.Allocations.Add(new()
+                {
+                    Port = i
+                });
+
+                added++;
+            }
+        }
+
+        NodeRepository.Update(Node!);
+
+        await ToastService.Success($"Added {added} allocations and skipped {skipped} ports due to existing allocations");
+        await LazyLoader.Reload();
+    }
+
+    private Task ValidateAdd(ServerAllocation allocation)
+    {
+        if (Node!.Allocations.Any(x => x.Port == allocation.Port && x.IpAddress == allocation.IpAddress))
+            throw new DisplayException("A allocation with these ip and port does already exist");
+
+        return Task.CompletedTask;
+    }
+
+    private Task ValidateUpdate(ServerAllocation allocation)
+    {
+        if (Node!.Allocations.Any(x => x.Port == allocation.Port && x.IpAddress == allocation.IpAddress && x.Id != allocation.Id))
+            throw new DisplayException("A allocation with these ip and port does already exist");
+
+        return Task.CompletedTask;
+    }
+
+    private Task ValidateDelete(ServerAllocation allocation)
+    {
+        if (ServerRepository
+            .Get()
+            .Any(x => x.Allocations.Any(y => y.Id == allocation.Id)))
+        {
+            throw new DisplayException("A server is using this allocation. Delete the server in order to delete this allocation");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task DeleteAllAllocations()
+    {
+        if (!await AlertService.YesNo("Do you really want to delete all allocations?", "Yes", "No"))
+            return;
+
+        foreach (var allocation in Node!.Allocations.ToArray()) // To array in order to prevent collection modified exception
+        {
+            if (ServerRepository
+                .Get()
+                .Any(x => x.Allocations.Any(y => y.Id == allocation.Id)))
+            {
+                await ToastService.Danger($"Unable to delete allocation with port {allocation.Port} due to a server using this allocation");
+                continue;
+            }
+
+            AllocationRepository.Delete(allocation);
+        }
+
+        await ToastService.Success("Successfully deleted allocations");
+        await LazyLoader.Reload();
+    }
+
 }

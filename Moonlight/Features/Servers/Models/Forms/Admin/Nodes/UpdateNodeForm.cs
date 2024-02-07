@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Moonlight.Features.Servers.Models.Forms.Admin;
+namespace Moonlight.Features.Servers.Models.Forms.Admin.Nodes;
 
-public class CreateNodeForm
+public class UpdateNodeForm
 {
     [Required(ErrorMessage = "You need to specify a name")]
     public string Name { get; set; }

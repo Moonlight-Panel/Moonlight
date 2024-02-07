@@ -1,5 +1,6 @@
 ﻿using JWT.Algorithms;
 using JWT.Builder;
+using JWT.Exceptions;
 using MoonCore.Attributes;
 using MoonCore.Helpers;
 using MoonCore.Services;
@@ -43,6 +44,14 @@ public class JwtService
     {
         try
         {
+            // Without the body decode call the jwt validation would not work for some weird reason.
+            // It would not throw an error when the signature is invalid
+            _ = new JwtBuilder()
+                .WithSecret(ConfigService.Get().Security.Token)
+                .WithAlgorithm(new HMACSHA512Algorithm())
+                .MustVerifySignature()
+                .Decode(token);
+            
             var headerJson = new JwtBuilder()
                 .WithSecret(ConfigService.Get().Security.Token)
                 .WithAlgorithm(new HMACSHA512Algorithm())
@@ -51,26 +60,32 @@ public class JwtService
 
             if (headerJson == null)
                 return Task.FromResult(false);
-            
+
             // Jwt type validation
-            if(allowedJwtTypes.Length == 0)
+            if (allowedJwtTypes.Length == 0)
                 return Task.FromResult(true);
-            
+
             var headerData = JsonConvert.DeserializeObject<Dictionary<string, string>>(headerJson);
-            
-            if(headerData == null) // => Invalid header
+
+            if (headerData == null) // => Invalid header
                 return Task.FromResult(false);
-            
-            if(!headerData.ContainsKey("Type")) // => Invalid header, Type is missing
+
+            if (!headerData.ContainsKey("Type")) // => Invalid header, Type is missing
                 return Task.FromResult(false);
 
             foreach (var name in allowedJwtTypes)
             {
-                if(headerData["Type"] == name) // => Correct type found
+                if (headerData["Type"] == name) // => Correct type found
                     return Task.FromResult(true);
             }
-            
+
             // None found? Invalid type!
+            return Task.FromResult(false);
+        }
+        catch (SignatureVerificationException)
+        {
+            Logger.Warn($"A manipulated jwt has been found. Required jwt types: {string.Join(" ", allowedJwtTypes)} Jwt: {token}");
+            
             return Task.FromResult(false);
         }
         catch (Exception e)
@@ -91,11 +106,17 @@ public class JwtService
                 .Decode(token);
 
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            
+
             return Task.FromResult(data)!;
         }
-        catch (Exception)
+        catch (SignatureVerificationException)
         {
+            return Task.FromResult(new Dictionary<string, string>());
+        }
+        catch (Exception e)
+        {
+            Logger.Warn("An unknown error occured while processing token");
+            Logger.Warn(e);
             return Task.FromResult<Dictionary<string, string>>(null!);
         }
     }

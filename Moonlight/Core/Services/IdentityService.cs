@@ -75,7 +75,7 @@ public class IdentityService
         if (string.IsNullOrEmpty(Token))
             return;
 
-        if (!await JwtService.Validate(Token))
+        if (!await JwtService.Validate(Token, "User"))
             return;
 
         var data = await JwtService.Decode(Token);
