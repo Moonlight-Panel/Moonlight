@@ -3,7 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0.100-preview.3 AS build
 WORKDIR /src
 COPY ["Moonlight/Moonlight.csproj", "Moonlight/"]
 RUN dotnet restore "Moonlight/Moonlight.csproj"
@@ -17,4 +17,6 @@ RUN dotnet publish "Moonlight.csproj" -c Release -o /app/publish /p:UseAppHost=f
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /app/storage
+RUN rm -r /app/storage/*
 ENTRYPOINT ["dotnet", "Moonlight.dll"]

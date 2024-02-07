@@ -47,7 +47,6 @@
       <Folder Include="Features\Servers\Http\Resources\" />
       <Folder Include="Features\StoreSystem\Helpers\" />
       <Folder Include="Features\Ticketing\Models\Abstractions\" />
-      <Folder Include="storage\plugins\" />
     </ItemGroup>
 
     <ItemGroup>
