@@ -2,7 +2,7 @@
 <center>
 <p align="center">
   <a href="https://github.com/Moonlight-Panel/Moonlight">
-    <img src="https://my.endelon-hosting.de/api/moonlight/resources/images/logo.svg" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/Moonlight-Panel/Resources/main/public/images/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Moonlight Panel</h3>
