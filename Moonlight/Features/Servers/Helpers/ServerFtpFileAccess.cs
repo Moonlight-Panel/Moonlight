@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using FluentFTP;
+using MoonCore.Helpers;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
 namespace Moonlight.Features.Servers.Helpers;
@@ -94,12 +95,18 @@ public class ServerFtpFileAccess : IFileAccess
         {
             var fromEntry = Client.GetObjectInfo(from);
 
+            var dest = to + Path.GetFileName(from);
+            var fromWithSlash = from.StartsWith("/") ? from : "/" + from;
+            
+            if (fromWithSlash == dest)
+                return Task.CompletedTask;
+
             if (fromEntry.Type == FtpObjectType.Directory)
                 // We need to add the folder name here, because some ftp servers would refuse to move the folder if its missing
-                Client.MoveDirectory(from, to + Path.GetFileName(from));
+                Client.MoveDirectory(from, dest);
             else
                 // We need to add the file name here, because some ftp servers would refuse to move the file if its missing
-                Client.MoveFile(from, to + Path.GetFileName(from));
+                Client.MoveFile(from, dest);
             
             return Task.CompletedTask;
         });
