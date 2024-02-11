@@ -16,8 +16,9 @@ public class ServerServiceDefinition : ServiceDefinition
 
         await context.AddPage<Console>("Console", "/", "bx bx-sm bxs-terminal");
         await context.AddPage<Files>("Files", "/files", "bx bx-sm bxs-folder");
-        await context.AddPage<Reset>("Reset", "/reset", "bx bx-sm bx-revision");
+        await context.AddPage<Network>("Network", "/network", "bx bx-sm bx-cloud");
         await context.AddPage<Variables>("Variables", "/variables", "bx bx-sm bx-slider");
+        await context.AddPage<Reset>("Reset", "/reset", "bx bx-sm bx-revision");
     }
 
     public override Task BuildAdminView(ServiceViewContext context)

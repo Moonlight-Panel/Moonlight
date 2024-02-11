@@ -1,0 +1,65 @@
+@using Moonlight.Features.Servers.Entities
+@using System.Net
+
+<div class="row">
+    @foreach (var allocation in Server.Allocations)
+    {
+        <div class="col-md-12 col-12 my-3">
+            <div class="card card-body">
+                <div class="d-flex justify-content-between align-items-center px-8">
+                    <div>
+                        <label class="form-label">FQDN (or dedicated ip address)</label>
+                        <div class="fw-semibold fs-3">
+                            @if (allocation.IpAddress == "0.0.0.0")
+                            {
+                                @Server.Node.Fqdn
+                            }
+                            else
+                            {
+                                @allocation.IpAddress
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">IP Address</label>
+                        @if (allocation.IpAddress != "0.0.0.0" || IsIpAddress(Server.Node.Fqdn))
+                        {
+                            <div class="fw-semibold fs-3">
+                                -
+                            </div>
+                        }
+                        else
+                        {
+                            //TODO: Resolve domains addresses here
+                            <div class="fw-semibold fs-3">
+                                188.75.252.37
+                            </div>
+                        }
+                    </div>
+                    <div>
+                        <label class="form-label">Port</label>
+                        <div class="fw-semibold fs-3">
+                            @allocation.Port
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Notes</label>
+                        <input type="text" class="form-control" placeholder="What is this allocation for?"/>
+                    </div>
+                    <div>
+                        <button class="btn btn-danger disabled" type="button" disabled="disabled">
+                            <i class="bx bx-sm bx-trash"></i>Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code
+{
+    [CascadingParameter] public Server Server { get; set; }
+
+    private bool IsIpAddress(string input) => IPAddress.TryParse(input, out _);
+}
