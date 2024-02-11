@@ -35,7 +35,7 @@
             string[] messages;
 
             lock (Meta.ConsoleMessages)
-                messages = Meta.ConsoleMessages.TakeLast(100).ToArray();
+                messages = Meta.ConsoleMessages.TakeLast(50).ToArray();
 
             foreach (var message in messages)
                 await Terminal.WriteLine(message);
