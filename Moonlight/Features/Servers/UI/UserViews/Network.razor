@@ -1,61 +1,72 @@
 @using Moonlight.Features.Servers.Entities
 @using System.Net
 
-<div class="row">
-    @foreach (var allocation in Server.Allocations)
-    {
-        <div class="col-md-12 col-12 my-3">
-            <div class="card card-body">
-                <div class="d-flex justify-content-between align-items-center px-8">
-                    <div>
-                        <label class="form-label">FQDN (or dedicated ip address)</label>
-                        <div class="fw-semibold fs-3">
-                            @if (allocation.IpAddress == "0.0.0.0")
-                            {
-                                @Server.Node.Fqdn
-                            }
-                            else
-                            {
-                                @allocation.IpAddress
-                            }
-                        </div>
-                    </div>
-                    <div>
-                        <label class="form-label">IP Address</label>
-                        @if (allocation.IpAddress != "0.0.0.0" || IsIpAddress(Server.Node.Fqdn))
-                        {
-                            <div class="fw-semibold fs-3">
-                                -
-                            </div>
-                        }
-                        else
-                        {
-                            //TODO: Resolve domains addresses here
-                            <div class="fw-semibold fs-3">
-                                188.75.252.37
-                            </div>
-                        }
-                    </div>
-                    <div>
-                        <label class="form-label">Port</label>
-                        <div class="fw-semibold fs-3">
-                            @allocation.Port
-                        </div>
-                    </div>
-                    <div>
-                        <label class="form-label">Notes</label>
-                        <input type="text" class="form-control" placeholder="What is this allocation for?"/>
-                    </div>
-                    <div>
-                        <button class="btn btn-danger disabled" type="button" disabled="disabled">
-                            <i class="bx bx-sm bx-trash"></i>Remove
-                        </button>
-                    </div>
+<div class="card card-body mb-8 pb-1 d-none d-md-flex">
+    <div class="row g-3 align-items-center mx-2">
+        <div class="col">
+            <label class="form-label fs-5">FQDN (or dedicated ip address)</label>
+        </div>
+        <div class="col">
+            <label class="form-label fs-5">IP Address</label>
+        </div>
+        <div class="col">
+            <label class="form-label fs-5">Port</label>
+        </div>
+        <div class="col">
+            <label class="form-label fs-5">Notes</label>
+        </div>
+        <div class="col">
+        </div>
+    </div>
+</div>
+
+@foreach (var allocation in Server.Allocations)
+{
+    <div class="card card-body py-2 my-3">
+        <div class="row g-3 align-items-center mx-2">
+            <div class="col">
+                <div class="fw-semibold fs-3">
+                    @if (allocation.IpAddress == "0.0.0.0")
+                    {
+                        @Server.Node.Fqdn
+                    }
+                    else
+                    {
+                        @allocation.IpAddress
+                    }
                 </div>
             </div>
+            <div class="col">
+                @if (allocation.IpAddress != "0.0.0.0" || IsIpAddress(Server.Node.Fqdn))
+                {
+                    <div class="fw-semibold fs-3">
+                        -
+                    </div>
+                }
+                else
+                {
+                    //TODO: Resolve domains addresses here
+                    <div class="fw-semibold fs-3">
+                        188.75.252.37
+                    </div>
+                }
+            </div>
+            <div class="col">
+                <div class="fw-semibold fs-3">
+                    @allocation.Port
+                </div>
+            </div>
+            <div class="col d-none d-sm-block">
+                <input type="text" class="form-control" placeholder="What is this allocation for?"/>
+            </div>
+            <div class="col text-end">
+                <button class="btn btn-icon btn-danger disabled" type="button" disabled="disabled">
+                    <i class="bx bx-sm bx-trash"></i>
+                </button>
+            </div>
         </div>
-    }
-</div>
+    </div>
+}
 
 @code
 {
