@@ -141,7 +141,7 @@
 
             @foreach (var uiPage in ViewContext.Pages)
             {
-                <li class="nav-item">
+                <li class="nav-item mx-1">
                     <a class="nav-link text-active-primary ms-0 me-10v @(routeWithSlash == uiPage.Route ? "active" : "")" href="/service/@($"{Service.Id}{uiPage.Route}")">
                         <i class="@(uiPage.Icon) me-2"></i>
                         @(uiPage.Name)
