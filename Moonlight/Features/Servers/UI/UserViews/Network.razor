@@ -25,7 +25,7 @@
     <div class="card card-body py-2 my-3">
         <div class="row g-3 align-items-center mx-2">
             <div class="col">
-                <div class="fw-semibold fs-3">
+                <div class="fs-3">
                     @if (allocation.IpAddress == "0.0.0.0")
                     {
                         @Server.Node.Fqdn
@@ -39,20 +39,20 @@
             <div class="col">
                 @if (allocation.IpAddress != "0.0.0.0" || IsIpAddress(Server.Node.Fqdn))
                 {
-                    <div class="fw-semibold fs-3">
+                    <div class="fs-3">
                         -
                     </div>
                 }
                 else
                 {
                     //TODO: Resolve domains addresses here
-                    <div class="fw-semibold fs-3">
+                    <div class="fs-3">
                         188.75.252.37
                     </div>
                 }
             </div>
             <div class="col">
-                <div class="fw-semibold fs-3">
+                <div class="fs-3">
                     @allocation.Port
                 </div>
             </div>
