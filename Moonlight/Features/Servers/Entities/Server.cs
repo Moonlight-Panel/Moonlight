@@ -19,4 +19,6 @@ public class Server
     public ServerNode Node { get; set; }
     public ServerAllocation MainAllocation { get; set; }
     public List<ServerAllocation> Allocations { get; set; } = new();
+
+    public List<ServerSchedule> Schedules { get; set; } = new();
 }

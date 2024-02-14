@@ -51,6 +51,7 @@ public class DataContext : DbContext
     public DbSet<ServerVariable> ServerVariables { get; set; }
     public DbSet<ServerDockerImage> ServerDockerImages { get; set; }
     public DbSet<ServerImageVariable> ServerImageVariables { get; set; }
+    public DbSet<ServerSchedule> ServerSchedules { get; set; }
 
     public DataContext(ConfigService<ConfigV1> configService)
     {

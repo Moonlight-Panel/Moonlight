@@ -43,7 +43,6 @@
       <Folder Include="Features\FileManager\Models\Forms\" />
       <Folder Include="Features\FileManager\UI\Views\" />
       <Folder Include="Features\Servers\Api\Resources\" />
-      <Folder Include="Features\Servers\Configuration\" />
       <Folder Include="Features\Servers\Http\Resources\" />
       <Folder Include="Features\StoreSystem\Helpers\" />
       <Folder Include="Features\Ticketing\Models\Abstractions\" />
@@ -52,6 +51,7 @@
     <ItemGroup>
       <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
       <PackageReference Include="BlazorTable" Version="1.17.0" />
+      <PackageReference Include="Cronos" Version="0.8.3" />
       <PackageReference Include="FluentFTP" Version="49.0.2" />
       <PackageReference Include="HtmlSanitizer" Version="8.0.746" />
       <PackageReference Include="JWT" Version="10.1.1" />

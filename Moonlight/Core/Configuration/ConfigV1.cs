@@ -2,6 +2,7 @@
 using MoonCore.Helpers;
 using Moonlight.Features.Advertisement.Configuration;
 using Moonlight.Features.FileManager.Configuration;
+using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.StoreSystem.Configuration;
 using Moonlight.Features.Theming.Configuration;
 using Newtonsoft.Json;
@@ -26,6 +27,8 @@ public class ConfigV1
     [JsonProperty("FileManager")] public FileManagerData FileManager { get; set; } = new();
     
     [JsonProperty("WebServer")] public WebServerData WebServer { get; set; } = new();
+
+    [JsonProperty("Servers")] public ServersData Servers { get; set; } = new();
     
     public class WebServerData
     {
