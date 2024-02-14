@@ -36,7 +36,8 @@ var logPath = PathBuilder.File("storage", "logs",
 Logger.Setup(
     logPath: logPath,
     logInFile: true,
-    logInConsole: true
+    logInConsole: true,
+    isDebug: builder.Environment.IsDevelopment()
 );
 
 // Check database migrations
