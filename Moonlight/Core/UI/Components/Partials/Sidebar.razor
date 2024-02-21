@@ -5,10 +5,17 @@
 @inject IdentityService IdentityService
 
 <div class="app-sidebar flex-column @(Layout.ShowMobileSidebar ? "drawer drawer-start drawer-on" : "")">
-    <div class="app-sidebar-header d-flex flex-stack d-none d-lg-flex pt-8 pb-2">
+    <div class="app-sidebar-header d-flex flex-start flex-lg-stack gap-2 gap-lg-0 align-items-center pb-4 pt-lg-8 pt-4 ps-lg-7 ps-4">
+        <div class="d-block d-lg-none">
+            <a href="#" @onclick="Layout.ToggleMobileSidebar" @onclick:preventDefault class="btn btn-icon btn-active-color-primary w-35px h-35px">
+                <i class="bx bx-sm bx-menu"></i>
+            </a>
+        </div>
         <a href="/" class="app-sidebar-logo">
-            <img alt="Logo" src="/img/logo.png" class="h-50px d-none d-sm-inline app-sidebar-logo-default">
+            <img alt="Logo" src="/img/logo.png" class="h-50px d-none d-lg-inline app-sidebar-logo-default">
+            <img alt="Logo" src="/img/logo.svg" class="h-30px d-inline d-lg-none">
         </a>
+        
     </div>
     <div class="app-sidebar-navs flex-column-fluid py-6" id="kt_app_sidebar_navs">
         <div class="app-sidebar-wrapper hover-scroll-y my-2" style="height: 811px;">
