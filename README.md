@@ -12,6 +12,9 @@
   </p>
 </p>
 
+> [!IMPORTANT]  
+> Moonlight is currently in the process of being rewritten to be more modular and more focused on the users needs. If you want to learn more, have a look [here](https://github.com/Moonlight-Panel/Moonlight/tree/v2)
+
 ![Contributors](https://img.shields.io/github/contributors/Moonlight-Panel/Moonlight?color=dark-green) ![Stargazers](https://img.shields.io/github/stars/Moonlight-Panel/Moonlight?style=social) ![Issues](https://img.shields.io/github/issues/Moonlight-Panel/Moonlight) 
 
 ## About The Project
