@@ -1,0 +1,30 @@
+//
+// Container
+//
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+	.app-container {
+		padding-left: $app-container-padding-x !important;
+        padding-right: $app-container-padding-x !important;
+	}
+
+	.app-container-fit-desktop {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+	.app-container { 
+		max-width: none;
+		padding-left: $app-container-padding-x-mobile !important;
+        padding-right: $app-container-padding-x-mobile !important;
+	}
+
+	.app-container-fit-mobile {
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+}

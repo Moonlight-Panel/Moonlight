@@ -1,0 +1,112 @@
+@using MoonCoreUI.Services
+@using Moonlight.Core.Services
+@using MoonCore.Helpers
+@using Moonlight.Core.Helpers
+@using Moonlight.Features.FileManager.Helpers
+@using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
+
+@inject ToastService ToastService
+@inject HotKeyService HotKeyService
+
+@implements IDisposable
+
+<div class="card mb-2 border-0 rounded">
+    <div class="card-body py-3 rounded" style="background-color: rgb(21, 21, 33)">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex align-items-center">
+                <span class="fw-bold fs-5 align-middle">@(File.Name) (@(Formatter.FormatSize(File.Size)))</span>
+            </div>
+            <div class="btn-group">
+                <WButton OnClick="OnClose" CssClasses="btn btn-sm btn-primary">
+                    <i class="bx bx-sm bx-arrow-back"></i>Back
+                </WButton>
+                <WButton OnClick="OnSave" CssClasses="btn btn-sm btn-success">
+                    <i class="bx bx-sm bx-save"></i>Save
+                </WButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+<Editor @ref="Editor" InitialContent="Loading file"/>
+
+@code
+{
+    [Parameter] public FileEntry File { get; set; }
+
+    [Parameter] public IFileAccess FileAccess { get; set; }
+
+    [Parameter] public bool CloseOnSave { get; set; } = false;
+
+    [Parameter] public Func<Task>? OnClosed { get; set; }
+
+    private Editor Editor;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize the editor
+            await Editor.Initialize();
+
+            // Load file and check the file type
+            var fileData = await FileAccess.ReadFile(File.Name);
+            var mode = EditorModeDetector.GetModeFromFile(File.Name);
+
+            // Finalize editor
+            await Editor.SetMode(mode);
+            await Editor.SetContent(fileData);
+
+            HotKeyService.HotKeyPressed += OnHotKeyPressed;
+        }
+    }
+
+    private async Task OnClose()
+    {
+        if (OnClosed != null)
+            await OnClosed.Invoke();
+    }
+
+    private async Task OnSave()
+    {
+        try
+        {
+            var content = await Editor.GetContent();
+            await FileAccess.WriteFile(File.Name, content);
+        }
+        catch (Exception e)
+        {
+            Logger.Warn($"An unhandled error has occured while saving a file using access type {FileAccess.GetType().FullName}");
+            Logger.Warn(e);
+
+            await ToastService.Danger("An unknown error has occured while saving the file. Please try again later");
+            return;
+        }
+
+        await ToastService.Success("Successfully saved file");
+
+        if (CloseOnSave)
+        {
+            if (OnClosed != null)
+                await OnClosed.Invoke();
+        }
+    }
+
+    private async Task OnHotKeyPressed(string hotKey)
+    {
+        switch (hotKey)
+        {
+            case "save":
+                await OnSave();
+                break;
+            case "close":
+                await OnClose();
+                break;
+        }
+    }
+
+    public void Dispose()
+    {
+        HotKeyService.HotKeyPressed -= OnHotKeyPressed;
+    }
+}

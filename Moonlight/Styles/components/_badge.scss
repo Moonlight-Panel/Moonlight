@@ -1,0 +1,75 @@
+//
+// Badge
+//
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    
+    // Fixed size
+    &.badge-circle,
+    &.badge-square {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: $badge-size;
+        min-width: $badge-size;
+        padding: 0 0.1rem;
+        line-height: 0;
+    }
+
+    // Circle
+    &.badge-circle {
+        border-radius: 50%;
+        padding: 0;
+        min-width: unset;
+        width: $badge-size;
+    }
+
+    // Sizes
+    &.badge-sm {
+        min-width: $badge-size-sm;
+        font-size: $badge-font-size-sm;
+
+        &.badge-square {
+            height: $badge-size-sm;
+        }
+
+        &.badge-circle {
+            width: $badge-size-sm;
+            height: $badge-size-sm;
+        }
+    }
+
+    &.badge-lg {
+        min-width: $badge-size-lg;
+        font-size: $badge-font-size-lg;
+
+        &.badge-square {
+            height: $badge-size-lg;
+        }
+
+        &.badge-circle {
+            width: $badge-size-lg;
+            height: $badge-size-lg;
+        }
+    }
+}
+
+@each $name, $value in $theme-colors {
+    .badge-#{$name} {
+        color: var(--#{$prefix}#{$name}-inverse);
+        background-color: var(--#{$prefix}#{$name});
+
+        &.badge-outline {
+            border: 1px solid var(--#{$prefix}#{$name});
+            color: var(--#{$prefix}#{$name});
+            background-color: transparent;
+        }
+    }
+
+    .badge-light-#{$name} {
+        color: var(--#{$prefix}#{$name});
+        background-color: var(--#{$prefix}#{$name}-light);
+    }    
+}

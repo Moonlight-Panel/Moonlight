@@ -1,0 +1,111 @@
+//
+// Scroll
+//
+
+
+// Customize native scrollbars only for desktop mode
+@include media-breakpoint-up(lg) {
+    main,
+    span,
+    ol,
+    ul,
+    pre,
+    div {
+        // Firefox
+        scrollbar-width: thin;
+
+        // Webkit
+        &::-webkit-scrollbar {            
+            width: var(--#{$prefix}scrollbar-size);
+            height: var(--#{$prefix}scrollbar-size);
+        }
+
+        ::-webkit-scrollbar-track {
+           background-color: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            @include border-radius(var(--#{$prefix}scrollbar-size));
+        }
+
+        // Default color
+        @include scrollbar-color(var(--#{$prefix}scrollbar-color), var(--#{$prefix}scrollbar-hover-color));
+    }
+}
+
+// Scroll
+.scroll,
+.hover-scroll,
+.hover-scroll-overlay {
+    overflow: scroll;
+    position: relative;
+
+    // Tablet & mobile modes
+    @include media-breakpoint-down(lg) {
+        overflow: auto;
+    }
+}
+
+.scroll-x,
+.hover-scroll-x,
+.hover-scroll-overlay-x {
+    overflow-x: scroll;
+    position: relative;
+
+    // Tablet & mobile modes
+    @include media-breakpoint-down(lg) {
+        overflow-x: auto;
+    }
+}
+
+.scroll-y,
+.hover-scroll-y,
+.hover-scroll-overlay-y {
+    overflow-y: scroll;
+    position: relative;
+
+    // Tablet & mobile modes
+    @include media-breakpoint-down(lg) {
+        overflow-y: auto;
+    }
+}
+
+.hover-scroll,
+.hover-scroll-overlay,
+.hover-scroll-x,
+.hover-scroll-overlay-x,
+.hover-scroll-y,
+.hover-scroll-overlay-y {
+    @include scrollbar-color(transparent, var(--#{$prefix}scrollbar-color));
+}
+
+// Utilities  
+.scroll-ps {
+    padding-left: var(--#{$prefix}scrollbar-size) !important;
+}
+
+.scroll-ms {
+    margin-left: var(--#{$prefix}scrollbar-size) !important;
+}
+
+.scroll-mb {
+    margin-bottom: var(--#{$prefix}scrollbar-size) !important;
+}
+
+.scroll-pe {
+    padding-right: var(--#{$prefix}scrollbar-size) !important;
+}
+
+.scroll-me {
+    margin-right: var(--#{$prefix}scrollbar-size) !important;
+}
+
+.scroll-px {
+    padding-left: var(--#{$prefix}scrollbar-size) !important;
+    padding-right: var(--#{$prefix}scrollbar-size) !important;
+}
+
+.scroll-mx {
+    margin-left: var(--#{$prefix}scrollbar-size) !important;
+    margin-right: var(--#{$prefix}scrollbar-size) !important;
+}

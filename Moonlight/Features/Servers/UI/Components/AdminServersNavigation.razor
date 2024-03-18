@@ -1,0 +1,21 @@
+<div class="row mb-3">
+    <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6 border-bottom-0">
+        <li class="nav-item">
+            <a class="nav-link text-white @(Index == 0 ? "active" : "")" href="/admin/servers">Servers</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white @(Index == 1 ? "active" : "")" href="/admin/servers/nodes">Nodes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white @(Index == 2 ? "active" : "")" href="/admin/servers/images">Images</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white @(Index == 3 ? "active" : "")" href="/admin/servers/manager">Manager</a>
+        </li>
+    </ul>
+</div>
+
+@code
+{
+    [Parameter] public int Index { get; set; } = 0;
+}

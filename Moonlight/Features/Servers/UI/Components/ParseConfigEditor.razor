@@ -1,0 +1,169 @@
+@using Newtonsoft.Json
+@using Mappy.Net
+@using MoonCore.Helpers
+@using Moonlight.Features.Servers.Models
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images.Parsing
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Components.Forms
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Parse configurations</span>
+        <div class="card-toolbar">
+            <button @onclick="AddConfig" type="button" class="btn btn-icon btn-success">
+                <i class="bx bx-sm bx-plus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        @foreach (var config in Configs)
+        {
+            <div class="accordion" id="accordionPc">
+                <div class="accordion-item mb-3">
+                    <div class="accordion-header" id="apch@(config.GetHashCode())">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#apcb@(config.GetHashCode())" aria-expanded="false" aria-controls="apcb@(config.GetHashCode())">
+                            <span class="h5">@(string.IsNullOrEmpty(config.Key.File) ? "File path is missing" : config.Key.File)</span>
+                        </button>
+                    </div>
+                    <div id="apcb@(config.GetHashCode())" class="accordion-collapse collapse" aria-labelledby="apch@(config.GetHashCode())" data-bs-parent="#accordionPc">
+                        <div class="accordion-body">
+                            <div class="row g-5">
+                                <div class="col-md-5">
+                                    <label class="form-label">File path</label>
+                                    <div class="form-text fs-5 mb-2 mt-0">
+                                        A relative path from the servers main directory to the file you want to modify
+                                    </div>
+                                    <input @bind="config.Key.File" type="text" class="form-control" placeholder="e.g. configs/paper-global.yml">
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label">Type</label>
+                                    <div class="form-text fs-5 mb-2 mt-0">
+                                        This specifies the type of parser to use. e.g. "properties" or "file"
+                                    </div>
+                                    <input @bind="config.Key.Type" type="text" class="form-control" placeholder="properties">
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="text-end">
+                                        <WButton OnClick="() => RemoveConfig(config.Key)" CssClasses="btn btn-danger">Remove</WButton>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header border-bottom-0">
+                                    <div class="card-title"></div>
+                                    <div class="card-toolbar">
+                                        <button @onclick="() => AddOption(config.Key)" type="button" class="btn btn-icon btn-success">
+                                            <i class="bx bx-sm bx-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body pt-0">
+                                    <div class="row g-4">
+                                        @foreach (var option in config.Value)
+                                        {
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <input @bind="option.Key" type="text" class="form-control" placeholder="Key">
+                                                    <input @bind="option.Value" type="text" class="form-control" placeholder="Value (Variables with {{VARIABLE}})">
+                                                    <WButton OnClick="() => RemoveOption(config.Key, option)" CssClasses="btn btn-danger">Remove</WButton>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public string InitialContent { get; set; }
+    
+    private Dictionary<ParseConfigForm, List<ParseConfigOptionForm>> Configs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Set(InitialContent);
+    }
+
+    public async Task Set(string content)
+    {
+        Configs.Clear();
+        
+        var configs = JsonConvert.DeserializeObject<ServerParseConfig[]>(content)
+                      ?? Array.Empty<ServerParseConfig>();
+
+        foreach (var config in configs)
+        {
+            var options = config.Configuration.Select(x => new ParseConfigOptionForm()
+            {
+                Key = x.Key,
+                Value = x.Value
+            }).ToList();
+            
+            
+            Configs.Add(Mapper.Map<ParseConfigForm>(config), options);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task<string> ValidateAndGet()
+    {
+        await Validate();
+        return await Get();
+    }
+
+    public async Task Validate()
+    {
+        await ValidatorHelper.ValidateRange(Configs.Keys);
+
+        foreach (var options in Configs.Values)
+            await ValidatorHelper.ValidateRange(options);
+    }
+
+    public Task<string> Get()
+    {
+        var finalConfigs = Configs.Select(x => new ServerParseConfig()
+        {
+            File = x.Key.File,
+            Type = x.Key.Type,
+            Configuration = x.Value.ToDictionary(y => y.Key, y => y.Value)
+        }).ToList();
+
+        var result = JsonConvert.SerializeObject(finalConfigs);
+
+        return Task.FromResult(result);
+    }
+
+    private async Task AddConfig()
+    {
+        Configs.Add(new(), new());
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RemoveConfig(ParseConfigForm config)
+    {
+        Configs.Remove(config);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddOption(ParseConfigForm config)
+    {
+        Configs[config].Add(new());
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RemoveOption(ParseConfigForm config, ParseConfigOptionForm option)
+    {
+        Configs[config].Remove(option);
+        await InvokeAsync(StateHasChanged);
+    }
+}

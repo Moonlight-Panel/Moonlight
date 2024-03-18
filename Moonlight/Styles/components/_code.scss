@@ -1,0 +1,15 @@
+//
+// Code
+//
+
+code:not([class*="language-"]) {
+    font-weight: $code-font-weight;
+    color: var(--#{$prefix}code-color);
+    line-height: inherit;
+    font-size: inherit;
+    background-color: var(--#{$prefix}code-bg);
+    padding: $code-padding;
+    margin: $code-margin;
+    box-shadow: var(--#{$prefix}code-box-shadow);
+    @include border-radius($code-border-radius);
+}

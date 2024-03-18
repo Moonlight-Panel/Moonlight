@@ -1,0 +1,22 @@
+@using Moonlight.Features.Servers.Entities
+
+<div class="card card-body p-8 fs-5">
+    In order to setup this node, make sure you have a clean linux (tested with ubuntu 22.04) server with the capabilities to run docker.
+    Then login into the server via ssh and execute the following command
+    
+    <div class="mt-8">
+        <CodeBlock>
+            @GenerateSetupCommand()
+        </CodeBlock>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public ServerNode Node { get; set; }
+
+    private string GenerateSetupCommand()
+    {
+        return $"echo Do somthing smart here with {Node.Name}";
+    }
+}

@@ -1,0 +1,136 @@
+//
+// Landing elements
+//
+
+// Variables
+$landing-dark-color: #13263C;
+$landing-header-height: 100px;
+$landing-header-height-tablet-and-mobile: 70px;
+$landing-header-sticky-height: 70px;
+$landing-header-sticky-height-tablet-and-mobile: 70px;
+
+// Utility classes
+.landing-dark-bg {
+    background-color: $landing-dark-color;
+}
+
+.landing-dark-color {
+    color: $landing-dark-color;
+}
+
+.landing-dark-border {
+    border:1px dashed #2C3F5B;
+}
+
+.landing-dark-separator {
+    border-top:1px dashed #2C3F5B;
+}
+
+.landing-curve  {
+    position: relative;
+
+    svg {
+        position: relative;
+        top: 0;  
+        display: block;
+    }
+}
+
+// Landing header
+.landing-header {
+    display: flex;
+    align-items: center;    
+    height: $landing-header-height;
+
+    // Logos
+    .logo-default {
+        display: block;
+    }
+
+    .logo-sticky {
+        display: none;
+    }
+
+    // Menu
+    .menu {
+        // Menu link
+        .menu-link {
+            &.active {
+                color: $white;
+            }
+        }
+
+        // Header menu sticky mode
+        [data-kt-sticky-landing-header="on"] & {
+            // Menu link
+            .menu-link {
+                &.active {
+                    color: $primary;
+                    background-color: rgba(#EFF2F5, 0.4);
+                }
+            }
+        }
+    }
+
+    // Sticky header modes
+    [data-kt-sticky-landing-header="on"] & {        
+        padding: 0;
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 100;
+        background-color: $white;
+        box-shadow: 0px 10px 30px 0px rgba(82,63,105,0.05);
+        height: $landing-header-sticky-height;
+        
+        // Logos
+        .logo-sticky {
+            display: block;
+        }
+
+        .logo-default {
+            display: none;
+        }
+    }
+}
+
+// Fix body padding top when Landing sticky header is on
+body[data-kt-sticky-landing-header="on"] {
+    padding-top: $landing-header-height;
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Landing header
+    .landing-header {
+        height: $landing-header-height-tablet-and-mobile;
+
+        // Menu wrapper
+        .landing-menu-wrapper {
+            position: relative;
+            overflow: auto;
+        }
+
+        // Sticky header modes
+        [data-kt-sticky-landing-header="on"] & { 
+            height: $landing-header-sticky-height-tablet-and-mobile;
+        }
+
+        // Menu
+        .menu {
+            // Menu link
+            .menu-link {
+                &.active {
+                    color: $primary;
+                    background-color: rgba(#EFF2F5, 0.4);
+                }
+            }
+        }
+    }
+
+    // Fix body padding top when Landing sticky header is on
+    body[data-kt-sticky-landing-header="on"] {
+        padding-top: $landing-header-height-tablet-and-mobile;
+    }
+}

@@ -1,0 +1,184 @@
+@using Moonlight.Core.Services
+@using Moonlight.Core.Models.Abstractions
+@using Moonlight.Core.Models.Forms
+@using OtpNet
+@using QRCoder
+@using MoonCore.Exceptions
+
+@inject IdentityService IdentityService
+@inject IAuthenticationProvider AuthenticationProvider
+
+@if (IdentityService.CurrentUser.Totp)
+{
+    <div class="d-flex justify-content-center flex-column text-center">
+        <div class="d-flex justify-content-center">
+            <div class="symbol symbol-circle h-90px w-90px bg-success text-center d-flex justify-content-center align-items-center">
+                <i class="bx bx-lg bx-check text-white align-middle p-10"></i>
+            </div>
+        </div>
+        <div class="fw-semibold text-center fs-2 mt-3">Two Factor Authentication</div>
+        <div class="d-flex justify-content-center mt-7">
+            <div class="fs-4 text-center text-wrap">
+                Two factor authentication is enabled on your account. You will be asked every time you login for your two factor authentication code in order to verify its really you trying to log in
+            </div>
+        </div>
+        <div class="mt-5 d-flex justify-content-center">
+            <ConfirmButton Text="Disable" CssClasses="btn btn-danger" OnClick="Disable"/>
+        </div>
+    </div>
+}
+else
+{
+    if (HasStarted)
+    {
+        if (HasCompletedAppLinks)
+        {
+            <div class="d-flex justify-content-center flex-column text-center">
+                <div class="fw-semibold text-center fs-2 mt-3">Scan the qr code with the chosen app and enter the generated code below</div>
+                <div class="row g-3 mt-3 mb-5">
+                    <div class="col-md-6 col-12">
+                        @{
+                            var qrGenerator = new QRCodeGenerator();
+
+                            var qrCodeData = qrGenerator.CreateQrCode
+                            (
+                                $"otpauth://totp/{Uri.EscapeDataString(IdentityService.CurrentUser.Email)}?secret={Key}&issuer={Uri.EscapeDataString("Moonlight")}",
+                                QRCodeGenerator.ECCLevel.Q
+                            );
+
+                            var qrCode = new PngByteQRCode(qrCodeData);
+                            byte[] qrCodeAsPngByteArr = qrCode.GetGraphic(5);
+                            var base64 = Convert.ToBase64String(qrCodeAsPngByteArr);
+                        }
+                        <div class="text-center">
+                            <img src="data:image/png;base64,@(base64)" alt="QR Code" class="img-fluid rounded" style="max-height: 25vh">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="alert alert-warning fs-5">
+                            If you having trouble using the QR code, select manual entry on your app, and enter your username and the code:
+                            <span class="fw-semibold">@Key</span>
+                        </div>
+                    </div>
+                </div>
+                <SmartForm Model="CodeForm" OnValidSubmit="VerifyAndEnable">
+                    <input @bind="CodeForm.Code" type="number" class="form-control form-control-lg form-control-solid text-center my-8" placeholder="Enter authentication code" name="code">
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">
+                            Continue
+                            <i class="bx bx-sm bx-right-arrow-alt"></i>
+                        </button>
+                    </div>
+                </SmartForm>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-center flex-column text-center">
+                <div class="fw-semibold text-center fs-2 mt-3">Make sure to have one of the following apps installed on your phone</div>
+                <div class="d-flex justify-content-center mt-7">
+                    <div class="fs-4">
+                        <div class="d-flex flex-column">
+                            <li class="d-flex align-items-center py-2">
+                                <span class="bullet me-5"></span>
+                                <a href="https://support.google.com/accounts/answer/1066447?hl=en" target="_blank">Google Authenticator</a>
+                            </li>
+                            <li class="d-flex align-items-center py-2">
+                                <span class="bullet me-5"></span>
+                                <a href="https://www.microsoft.com/en-us/account/authenticator" target="_blank">Microsoft Authenticator</a>
+                            </li>
+                            <li class="d-flex align-items-center py-2">
+                                <span class="bullet me-5"></span>
+                                <a href="https://authy.com/download/" target="_blank">Authy</a>
+                            </li>
+                            <li class="d-flex align-items-center py-2">
+                                <span class="bullet me-5"></span>
+                                <a href="https://support.1password.com/one-time-passwords/" target="_blank">1Password</a>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 d-flex justify-content-center">
+                    <button @onclick="CompleteAppLinks" class="btn btn-primary">
+                        Continue
+                        <i class="bx bx-sm bx-right-arrow-alt"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="d-flex justify-content-center flex-column text-center">
+            <div class="d-flex justify-content-center">
+                <div class="symbol symbol-circle h-90px w-90px bg-warning text-center d-flex justify-content-center align-items-center">
+                    <i class="bx bx-lg bx-shield text-white align-middle p-10"></i>
+                </div>
+            </div>
+            <div class="fw-semibold text-center fs-2 mt-3">Two Factor Authentication</div>
+            <div class="d-flex justify-content-center mt-7">
+                <div class="fs-4 text-center text-wrap">
+                    Enable two factor authentication to improve your account security
+                </div>
+            </div>
+            <div class="mt-5 d-flex justify-content-center">
+                <button @onclick="Start" class="btn btn-primary">
+                    Continue
+                    <i class="bx bx-sm bx-right-arrow-alt"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
+
+@code
+{
+    private bool HasCompletedAppLinks = false;
+    private bool HasStarted = false;
+
+    private string Key = "";
+    private TwoFactorCodeForm CodeForm = new();
+
+    private async Task Disable()
+    {
+        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, "");
+        await IdentityService.Authenticate(true);
+
+        HasStarted = false;
+        HasCompletedAppLinks = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Start()
+    {
+        HasStarted = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CompleteAppLinks()
+    {
+        Key = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20));
+
+        HasCompletedAppLinks = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task VerifyAndEnable()
+    {
+        // Validate the code
+        var totp = new Totp(Base32Encoding.ToBytes(Key));
+        var correctCode = totp.ComputeTotp();
+
+        if (CodeForm.Code != correctCode)
+            throw new DisplayException("Invalid code entered. Please try again");
+        
+        // Enable two factor auth for user
+        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, Key);
+        await IdentityService.Authenticate(true);
+
+        HasStarted = false;
+        HasCompletedAppLinks = false;
+        CodeForm = new();
+        await InvokeAsync(StateHasChanged);
+    }
+}

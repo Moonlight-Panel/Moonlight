@@ -1,0 +1,33 @@
+<ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mt-5 mx-3 fs-6 border-bottom-0 text-nowrap flex-nowrap hide-scrollbar pb-1" style="overflow-x: auto; overflow-y: hidden;">
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 0 ? "active" : "")" href="/server/@(ServerId)/">Console</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 1 ? "active" : "")" href="/server/@(ServerId)/files">Files</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 5 ? "active" : "")" href="/server/@(ServerId)/stats">Stats</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 6 ? "active" : "")" href="/server/@(ServerId)/backups">Backups</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 2 ? "active" : "")" href="/server/@(ServerId)/network">Network</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 7 ? "active" : "")" href="/server/@(ServerId)/schedules">Schedules</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 3 ? "active" : "")" href="/server/@(ServerId)/variables">Variables</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white @(Index == 4 ? "active" : "")" href="/server/@(ServerId)/reset">Reset</a>
+    </li>
+</ul>
+
+@code
+{
+    [Parameter] public int Index { get; set; } = 0;
+
+    [Parameter] public int ServerId { get; set; }
+}

@@ -1,0 +1,12 @@
+
+//
+// Dropdown
+//
+
+@if $enable-dark-mode {
+    @include color-mode(dark) {
+        .dropdown-menu {
+            @include box-shadow($dropdown-box-shadow-dark);
+        }
+    }
+}

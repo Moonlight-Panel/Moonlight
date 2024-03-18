@@ -1,0 +1,34 @@
+//
+// Print
+//
+
+// Add .app-print-content-only class to body element in order to allow printing only the content area
+@media print {
+    .app-print-content-only {
+        padding: 0 !important;
+        background: none !important;
+
+        .app-wrapper,
+        .app-page,
+        .app-page-title,
+        .app-content,
+        .app-container {
+            background: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .app-aside,
+        .app-aside-panel,
+        .app-sidebar,
+        .app-sidebar-panel,
+        .app-header,
+        .app-footer,
+        .app-toolbar,
+        .drawer,
+        .scrolltop,
+        .btn {
+            display: none !important;
+        }
+    }
+}

@@ -1,0 +1,9 @@
+//
+// Header
+//
+
+@import "variables.custom";
+
+.app-header {
+  background-color: lighten($body-bg-dark, 2);
+}

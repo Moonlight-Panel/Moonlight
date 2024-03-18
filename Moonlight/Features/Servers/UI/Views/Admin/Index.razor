@@ -1,0 +1,79 @@
+@page "/admin/servers"
+
+@using Moonlight.Features.Servers.UI.Components
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Abstractions
+@using MoonCore.Exceptions
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Forms.Admin.Servers
+@using Moonlight.Features.Servers.Services
+
+@inject ServerService ServerService
+@inject Repository<Server> ServerRepository
+
+@attribute [RequirePermission(5000)]
+
+<AdminServersNavigation Index="0"/>
+
+<AutoCrud TItem="Server"
+          TCreateForm="CreateServerForm"
+          TUpdateForm="CreateServerForm"
+          Title=""
+          Load="Load"
+          CustomAdd="CustomAdd"
+          ValidateUpdate="ValidateUpdate"
+          CustomDelete="CustomDelete">
+    <View>
+        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
+        <CrudColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
+        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Image">
+            <Template>
+                <span>@(context.Image.Name)</span>
+            </Template>
+        </CrudColumn>
+        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Node">
+            <Template>
+                <span>@(context.Node.Name)</span>
+            </Template>
+        </CrudColumn>
+        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="User">
+            <Template>
+                <span>@(context.Owner.Username)</span>
+            </Template>
+        </CrudColumn>
+    </View>
+    <NoItemsView>
+        <IconAlert Title="No servers found" Color="primary" Icon="bx-search-alt">
+            Create a new server in order to manage it using this page. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
+        </IconAlert>
+    </NoItemsView>
+</AutoCrud>
+
+@code
+{
+    private Server[] Load(Repository<Server> repository)
+    {
+        return repository
+            .Get()
+            .Include(x => x.Owner)
+            .Include(x => x.Image)
+            .Include(x => x.Node)
+            .ToArray();
+    }
+
+    private async Task CustomAdd(Server form) => await ServerService.Create(form);
+
+    private async Task CustomDelete(Server s) => await ServerService.Delete(s);
+
+    private Task ValidateUpdate(Server server)
+    {
+        var oldServer = ServerRepository
+            .Get()
+            .First(x => x.Id == server.Id);
+
+        if (oldServer.UseVirtualDisk != server.UseVirtualDisk)
+            throw new DisplayException("Unable to switch from/to virtual disks. This is not supported at the moment");
+        
+        return Task.CompletedTask;
+    }
+}

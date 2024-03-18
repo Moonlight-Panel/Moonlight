@@ -1,0 +1,218 @@
+@using Moonlight.Features.Servers.Entities
+@using System.Net
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Abstractions
+@using MoonCore.Helpers
+@using MoonCoreUI.Services
+
+@inject Repository<ServerNetwork> NetworkRepository
+@inject Repository<Server> ServerRepository
+@inject ToastService ToastService
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+    <div class="card mb-5">
+        <div class="card-body p-5">
+            <div class="d-flex justify-content-between">
+                <div class="fs-4 fw-semibold">
+                    <i class="bx bx-md bx-globe text-info me-3 align-middle"></i> Public Network
+                </div>
+                <div class="form-check form-switch">
+                    @if (!Server.DisablePublicNetwork)
+                    {
+                        <input class="form-check-input" type="checkbox" checked="checked" @onchange="() => UpdatePublicNetwork(true)">
+                    }
+                    else
+                    {
+                        <input class="form-check-input" type="checkbox" @onchange="() => UpdatePublicNetwork(false)">
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-body mb-15 py-3 px-5">
+        @if (!Server.DisablePublicNetwork)
+        {
+            <CrudTable TItem="ServerAllocation" Items="Server.Allocations" PageSize="25" ShowPagination="false">
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.IpAddress)" Title="FQDN or dedicated IP">
+                    <Template>
+                        @if (context!.IpAddress == "0.0.0.0")
+                        {
+                            if (IsIpAddress(Server.Node.Fqdn))
+                            {
+                                <span>-</span>
+                            }
+                            else
+                            {
+                                <span>@Server.Node.Fqdn</span>
+                            }
+                        }
+                        else
+                        {
+                            <span>@context.IpAddress</span>
+                        }
+                    </Template>
+                </CrudColumn>
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.IpAddress)" Title="IP address">
+                    <Template>
+                        @if (context!.IpAddress == "0.0.0.0")
+                        {
+                            if (IsIpAddress(Server.Node.Fqdn))
+                            {
+                                <span>@Server.Node.Fqdn</span>
+                            }
+                            else
+                            {
+                                <span>1.2.3.4</span>
+                            }
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </Template>
+                </CrudColumn>
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.Port)" Title="Port"/>
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.Note)" Title="Notes">
+                    <Template>
+                        <input class="form-control" placeholder="What is this allocation for?"/>
+                    </Template>
+                </CrudColumn>
+                <CrudColumn TItem="ServerAllocation">
+                    <Template>
+                        <div class="d-flex justify-content-end">
+                            <WButton CssClasses="btn btn-icon btn-danger disabled">
+                                <i class="bx bx-sm bx-trash"></i>
+                            </WButton>
+                        </div>
+                    </Template>
+                </CrudColumn>
+            </CrudTable>
+        }
+        else
+        {
+            <div class="text-center fs-4">Public network is disabled</div>
+        }
+    </div>
+
+    <div class="card mb-5">
+        <div class="card-body p-5">
+            <div class="fs-4 fw-semibold">
+                <i class="bx bx-md bx-lock-alt text-info me-3 align-middle"></i> Private Network
+            </div>
+        </div>
+    </div>
+
+    @if (Networks.Length == 0)
+    {
+        <div class="card card-body py-3 px-5">
+            <IconAlert Icon="bx-search-alt" Color="primary" Title="No private network found">
+                Create a new private network in order to connect multiple servers on the same node
+                <div class="d-flex justify-content-center mt-5 mb-5">
+                    <a href="/servers/networks" class="btn btn-primary">Create private network</a>
+                </div>
+            </IconAlert>
+        </div>
+    }
+    else
+    {
+        if (Server.Network == null)
+        {
+            <div class="row g-5">
+                <div class="col-md-6 col-12">
+                    <div class="card card-body">
+                        <IconAlert Color="info" Icon="bx-id-card" Title="Network Identity">
+                            <div>Visible to other servers when in a private network as:</div>
+                            <div class="text-primary fw-semibold fs-3 my-3">moonlight-runtime-@(Server.Id)</div>
+                        </IconAlert>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12">
+                    @foreach (var network in Networks)
+                    {
+                        <div class="card card-body px-5 mb-3">
+                            <div class="row">
+                                <div class="col-6 d-flex align-items-center">
+                                    <div class="fs-4 fw-semibold">@(network.Name)</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-end">
+                                        <WButton CssClasses="btn btn-primary" Text="Join network" OnClick="() => SetNetwork(network)"></WButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-5">
+                <div class="col-md-6 col-12">
+                    <div class="card card-body">
+                        <IconAlert Color="info" Icon="bx-id-card" Title="Network Identity">
+                            <div>Visible to other servers as:</div>
+                            <div class="text-primary fw-semibold fs-3 my-3">moonlight-runtime-@(Server.Id)</div>
+                        </IconAlert>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12">
+                    <div class="d-flex flex-row">
+                        <div class="card card-body px-5">
+                            <div class="row">
+                                <div class="col-6 d-flex align-items-center">
+                                    <div class="fs-4 fw-semibold">@(Server.Network.Name)</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-end">
+                                        <WButton CssClasses="btn btn-danger" Text="Leave network" OnClick="() => SetNetwork(null)"></WButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter] public Server Server { get; set; }
+
+    private bool IsIpAddress(string input) => IPAddress.TryParse(input, out _);
+
+    private ServerNetwork[] Networks;
+    private LazyLoader LazyLoader;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading available networks");
+
+        Networks = NetworkRepository
+            .Get()
+            .Where(x => x.User.Id == Server.Owner.Id)
+            .Where(x => x.Node.Id == Server.Node.Id)
+            .ToArray();
+    }
+
+    private async Task SetNetwork(ServerNetwork? network)
+    {
+        Server.Network = network;
+        ServerRepository.Update(Server);
+
+        await ToastService.Success("Successfully updated network state");
+        await LazyLoader.Reload();
+    }
+
+    private async Task UpdatePublicNetwork(bool value)
+    {
+        Server.DisablePublicNetwork = value;
+        ServerRepository.Update(Server);
+
+        await ToastService.Success("Successfully updated public network state");
+        await LazyLoader.Reload();
+    }
+}

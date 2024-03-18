@@ -1,0 +1,211 @@
+//
+// Sidebar
+//
+
+// General mode
+.app-sidebar {
+    .separator {
+        border-bottom: var(--#{$prefix}app-separator-border);
+        margin: 0.75rem 0;
+    }
+
+    .menu-heading {
+        color: var(--#{$prefix}gray-700);
+    }
+}
+
+.app-sidebar-navs {
+    overflow: hidden;    
+}
+
+.app-sidebar-header {
+    padding: 0 $app-sidebar-base-px;
+    @include app-layout-transition(padding);
+}
+
+.app-sidebar-menu-primary.menu {
+    padding: 0 $app-sidebar-base-px;
+    @include app-layout-transition(padding);
+
+    // Root items
+    > .menu-item {
+        > .menu-link {
+            .menu-title {
+                font-size: 1.1rem;
+                font-weight: $font-weight-bold;
+            }
+        }
+
+        @include menu-link-default-state( 
+            $title-color: var(--#{$prefix}gray-700), 
+            $icon-color: var(--#{$prefix}gray-500),  
+            $bullet-color: var(--#{$prefix}gray-400),  
+            $arrow-color: var(--#{$prefix}gray-500),  
+            $bg-color: null,
+            $all-links: false
+        );
+        
+        @include menu-link-hover-state( 
+            $title-color: var(--#{$prefix}gray-900), 
+            $icon-color: var(--#{$prefix}gray-700),  
+            $bullet-color: var(--#{$prefix}gray-500),  
+            $arrow-color: var(--#{$prefix}gray-700),  
+            $bg-color: null,
+            $all-links: false
+        );
+        
+        @include menu-link-show-state( 
+            $title-color: var(--#{$prefix}gray-900), 
+            $icon-color: var(--#{$prefix}gray-700),  
+            $bullet-color: var(--#{$prefix}gray-500),  
+            $arrow-color: var(--#{$prefix}gray-700),  
+            $bg-color: null,
+            $all-links: false
+        );
+        
+        @include menu-link-here-state( 
+            $title-color: var(--#{$prefix}gray-900), 
+            $icon-color: var(--#{$prefix}gray-700),  
+            $bullet-color: var(--#{$prefix}gray-500),  
+            $arrow-color: var(--#{$prefix}gray-700),   
+            $bg-color: null,
+            $all-links: false
+        );
+
+        @include menu-link-active-state( 
+            $title-color: var(--#{$prefix}white), 
+            $icon-color: var(--#{$prefix}white), 
+            $bullet-color: var(--#{$prefix}white), 
+            $arrow-color: var(--#{$prefix}white), 
+            $bg-color: var(--#{$prefix}primary-active), 
+            $all-links: false
+        ); 
+
+        // Child items
+        .menu-item {
+            > .menu-link {
+                .menu-title {
+                    font-size: 1.1rem;
+                    font-weight: $font-weight-bold;
+                }
+            }
+
+            @include menu-link-default-state( 
+                $title-color: var(--#{$prefix}gray-600), 
+                $icon-color: var(--#{$prefix}gray-400),  
+                $bullet-color: var(--#{$prefix}gray-300),  
+                $arrow-color: var(--#{$prefix}gray-400), 
+                $bg-color: null,
+                $all-links: true
+            );
+            
+            @include menu-link-hover-state( 
+                $title-color: var(--#{$prefix}gray-800), 
+                $icon-color: var(--#{$prefix}gray-600),  
+                $bullet-color: var(--#{$prefix}gray-400),  
+                $arrow-color: var(--#{$prefix}gray-600),
+                $bg-color: null,
+                $all-links: true
+            );
+            
+            @include menu-link-show-state( 
+               $title-color: var(--#{$prefix}gray-800), 
+                $icon-color: var(--#{$prefix}gray-600),  
+                $bullet-color: var(--#{$prefix}gray-400),  
+                $arrow-color: var(--#{$prefix}gray-600),
+                $bg-color: null,
+                $all-links: false
+            );
+            
+            @include menu-link-here-state( 
+                $title-color: var(--#{$prefix}gray-800), 
+                $icon-color: var(--#{$prefix}gray-600),  
+                $bullet-color: var(--#{$prefix}gray-400),  
+                $arrow-color: var(--#{$prefix}gray-600),
+                $bg-color: null,
+                $all-links: true
+            );
+
+            @include menu-link-active-state( 
+                $title-color: var(--#{$prefix}white), 
+                $icon-color: var(--#{$prefix}white), 
+                $bullet-color: var(--#{$prefix}white), 
+                $arrow-color: var(--#{$prefix}white), 
+                $bg-color: var(--#{$prefix}primary-active), 
+                $all-links: true
+            ); 
+        }
+    }    
+} 
+
+.app-sidebar-menu-secondary.menu {
+    padding: 0 $app-sidebar-base-px;
+    @include app-layout-transition(padding);
+
+    @include menu-link-default-state( 
+        $title-color: var(--#{$prefix}gray-700), 
+        $icon-color: var(--#{$prefix}gray-500), 
+        $bullet-color: null, 
+        $arrow-color: null, 
+        $bg-color: null,
+        $all-links: true
+    );
+    
+    @include menu-link-hover-state( 
+        $title-color: var(--#{$prefix}gray-900), 
+        $icon-color: var(--#{$prefix}gray-700), 
+        $bullet-color: null,  
+        $arrow-color: null, 
+        $bg-color: null,
+        $all-links: true
+    );
+    
+    @include menu-link-show-state( 
+        $title-color: var(--#{$prefix}gray-900), 
+        $icon-color: var(--#{$prefix}gray-700), 
+        $bullet-color: null,  
+        $arrow-color: null, 
+        $bg-color: null,
+        $all-links: true
+    );
+    
+    @include menu-link-here-state( 
+        $title-color: var(--#{$prefix}gray-900), 
+        $icon-color: var(--#{$prefix}gray-700), 
+        $bullet-color: null,  
+        $arrow-color: null, 
+        $bg-color: null,
+        $all-links: true
+    );
+
+    @include menu-link-active-state( 
+        $title-color: var(--#{$prefix}gray-700),
+        $icon-color:  var(--#{$prefix}gray-700), 
+        $bullet-color: null, 
+        $arrow-color: null, 
+        $bg-color: var(--#{$prefix}gray-100),
+        $all-links: true
+    );  
+
+    .menu-link {
+        .menu-title {
+            font-size: 1.1rem;
+            font-weight: $font-weight-bold;
+        }  
+        
+        .menu-icon {
+            .bullet {
+                &.bullet-dot {
+                    height: 12px;
+                    width: 12px;	
+                }	
+            }
+        }
+
+        &.active {
+            border: var(--#{$prefix}app-separator-border); 
+        }          
+    }    
+}       
+
+

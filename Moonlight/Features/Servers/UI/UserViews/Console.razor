@@ -1,0 +1,128 @@
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.Components
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Api.Packets
+@using Moonlight.Features.Servers.Models.Enums
+@using MoonCore.Helpers
+@using ApexCharts
+
+@inject ServerService ServerService
+
+@implements IDisposable
+
+<div class="row g-5">
+    <div class="col-md-9 col-12">
+        <div class="card card-body bg-black border-0 p-3 h-100">
+            <Terminal @ref="Terminal"/>
+            <div class="mt-3">
+                <div class="input-group">
+                    <input @bind="CommandInput" class="form-control form-control-transparent text-white" placeholder="Enter command"/>
+                    <WButton CssClasses="btn btn-secondary rounded-start" Text="Execute" OnClick="SendCommand"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-12">
+        <div class="d-flex flex-column">
+            <div class="pb-3">
+                @{
+                    var coreText = Server.Cpu > 100 ? "Cores" : "Core";
+                    var cpuText = $"{Math.Round(CurrentStats.CpuUsage / Server.Cpu * 100, 1)}% / {Math.Round(Server.Cpu / 100D, 2)} {coreText}";
+                }
+
+                <StatCard Icon="bx-chip" Description="CPU Usage" Value="@cpuText"/>
+            </div>
+
+            <div class="pb-3">
+                @{
+                    string memoryHas;
+
+                    if (Server.Memory >= 1024)
+                        memoryHas = $"{ByteSizeValue.FromMegaBytes(Server.Memory).GigaBytes} GB";
+                    else
+                        memoryHas = $"{Server.Memory} MB";
+
+                    var memoryText = $"{Formatter.FormatSize(CurrentStats.MemoryUsage)} / {memoryHas}";
+                }
+
+                <StatCard Icon="bx-microchip" Description="Memory Usage" Value="@memoryText"/>
+            </div>
+
+            <div class="pb-3">
+                @{
+                    var networkText = $"{Formatter.FormatSize(CurrentStats.NetRead)} / {Formatter.FormatSize(CurrentStats.NetWrite)}";
+                }
+
+                <StatCard Icon="bx-transfer-alt" Description="Network Traffic (Read / Write)" Value="@networkText"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter] public ServerConsole ServerConsole { get; set; }
+
+    [CascadingParameter] public Server Server { get; set; }
+
+    private Terminal Terminal;
+    private string CommandInput = "";
+
+    private ServerStats CurrentStats = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var text = "";
+
+            foreach (var line in ServerConsole.Messages.TakeLast(50))
+                text += line + "\n\r";
+
+            await Terminal.Write(text);
+
+
+            ServerConsole.OnNewMessage += OnMessage;
+
+            ServerConsole.OnStatsChange += HandleStats;
+            ServerConsole.OnStateChange += HandleState;
+        }
+    }
+
+    private async Task HandleState(ServerState state)
+    {
+        if (state == ServerState.Offline || state == ServerState.Join2Start)
+        {
+            CurrentStats = new();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task HandleStats(ServerStats stats)
+    {
+        CurrentStats = stats;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnMessage(string message)
+    {
+        await Terminal.WriteLine(message);
+    }
+
+    private async Task SendCommand()
+    {
+        await ServerService.Console.SendCommand(Server, CommandInput);
+        CommandInput = "";
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ServerConsole.OnStateChange -= HandleState;
+        ServerConsole.OnStatsChange -= HandleStats;
+        ServerConsole.OnNewMessage -= OnMessage;
+    }
+}

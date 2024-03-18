@@ -1,0 +1,16 @@
+﻿<div class="row @CssClasses">
+    <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6 border-bottom-0">
+        <li class="nav-item">
+            <a class="nav-link text-white border-secondary border-bottom-2 pe-10">
+                @ChildContent
+            </a>
+        </li>
+    </ul>
+</div>
+
+@code
+{
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public string CssClasses { get; set; } = "my-8";
+}

@@ -1,0 +1,282 @@
+@using Moonlight.Core.Configuration
+@using MoonCore.Helpers
+@using MoonCore.Services
+@using MoonCoreUI.Services
+@using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
+
+@inject AlertService AlertService
+@inject ConfigService<CoreConfiguration> ConfigService
+@inject ToastService ToastService
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <div class="badge badge-primary badge-lg fs-5 py-2">
+                @{
+                    var elements = Path
+                        .Split("/")
+                        .Where(x => !string.IsNullOrEmpty(x))
+                        .ToList();
+
+                    int i = 1;
+                    var root = "/";
+                }
+
+                <a href="#" @onclick:preventDefault @onclick="() => NavigateToPath(root)" class="invisible-a mx-2 text-white">/</a>
+                @foreach (var element in elements)
+                {
+                    var pathToCd = "/" + string.Join('/', elements.Take(i));
+
+                    <a href="#" @onclick:preventDefault @onclick="() => NavigateToPath(pathToCd)" class="invisible-a text-white">@(element)</a>
+                    <div class="mx-2 text-white">/</div>
+
+                    i++;
+                }
+            </div>
+        </div>
+        <div class="card-toolbar">
+            @if (ShowFileUploader)
+            {
+                <button type="button" @onclick="ToggleFileUploader" class="btn btn-light-primary me-3">
+                    Back
+                </button>
+            }
+            else
+            {
+                <a href="javascript:void(0)" class="btn btn-secondary me-3">
+                    <i class="bx bx-sm bx-link-external me-2"></i>
+                    Launch
+                </a>
+                <button type="button" @onclick="ToggleFileUploader" class="btn btn-light-primary me-3">
+                    <i class="bx bx-sm bx-upload me-2"></i>
+                    Upload
+                </button>
+                <div class="dropdown">
+                    <a class="btn btn-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        New
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li>
+                            <a href="#" @onclick:preventDefault @onclick="CreateFile" class="dropdown-item">
+                                <i class="bx bx-sm bx-file text-primary me-2 align-middle"></i>
+                                <span class="align-middle fs-6">File</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" @onclick:preventDefault @onclick="CreateDirectory" class="dropdown-item">
+                                <i class="bx bx-sm bx-folder text-primary me-2 align-middle"></i>
+                                <span class="align-middle fs-6">Folder</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card-body" @ondragenter="() => ToggleFileUploader(true)">
+        @if (ShowFileUploader)
+        {
+            <FileUploader @ref="FileUploader" FileAccess="FileAccess"/>
+        }
+        else if (ShowFileEditor)
+        {
+            <FileEditor File="EditorOpenFile" FileAccess="FileAccess" OnClosed="OnEditorClosed"/>
+        }
+        else
+        {
+            <FileView @ref="FileView"
+                      FileAccess="FileAccess"
+                      OnPathChanged="OnPathChanged"
+                      OnFileClicked="OnFileClicked"
+                      OnMoveRequested="StartMove"/>
+        }
+    </div>
+</div>
+
+<SmartModal @ref="MoveModal" CssClasses="modal-dialog-centered">
+    <div class="modal-header">
+        <h5 class="modal-title">Select the location to move '@(MoveEntry.Name)'</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body" style="overflow-y: scroll; max-height: 80vh">
+        <FileView
+            FileAccess="MoveAccess"
+            ShowActions="false"
+            ShowHeader="false"
+            ShowSelect="false"
+            ShowSize="false"
+            ShowLastModified="false"/>
+    </div>
+    <div class="modal-footer p-3">
+        <div class="btn-group w-100">
+            <WButton OnClick="FinishMove" Text="Move" CssClasses="btn btn-primary w-50 me-3"/>
+            <button class="btn btn-secondary w-50" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</SmartModal>
+
+@code
+{
+    [Parameter] public IFileAccess FileAccess { get; set; }
+
+    // Navigation
+    private string Path = "/";
+    private FileView? FileView;
+
+    // Uploading
+    private bool ShowFileUploader = false;
+    private FileUploader? FileUploader;
+
+    // Editing
+    private bool ShowFileEditor = false;
+    private FileEntry EditorOpenFile;
+
+    // Move
+    private FileEntry MoveEntry;
+    private SmartModal MoveModal;
+    private IFileAccess MoveAccess;
+
+    private async Task OnPathChanged(string path)
+    {
+        Path = path;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task NavigateToPath(string path)
+    {
+        if (ShowFileUploader)
+            await ToggleFileUploader(false);
+
+        if (FileView == null)
+            return;
+
+        await FileView.NavigateToPath(path);
+    }
+
+    #region Uploader
+
+    private async Task ToggleFileUploader() => await ToggleFileUploader(!ShowFileUploader);
+
+    private async Task ToggleFileUploader(bool b)
+    {
+        ShowFileUploader = b;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region mkdir / touch
+
+    private async Task CreateFile()
+    {
+        if (FileView == null)
+            return;
+
+        var name = await AlertService.Text("Enter the filename", "");
+        
+        if(string.IsNullOrEmpty(name))
+            return;
+
+        if (name.Contains(".."))
+        {
+            Logger.Warn($"Someone tried to use path transversal to create a file: '{name}'", "security");
+            return;
+        }
+
+        await FileAccess.CreateFile(name);
+
+        await FileView.Refresh();
+
+        // Open editor to start editing
+        await OpenEditor(new FileEntry()
+        {
+            Size = 0,
+            Name = name,
+            IsFile = true,
+            IsDirectory = false,
+            LastModifiedAt = DateTime.UtcNow
+        });
+    }
+
+    private async Task CreateDirectory()
+    {
+        if (FileView == null)
+            return;
+
+        var name = await AlertService.Text("Enter the folder name", "");
+        
+        if(string.IsNullOrEmpty(name))
+            return;
+        
+        if (name.Contains(".."))
+        {
+            Logger.Warn($"Someone tried to use path transversal to create a file: '{name}'", "security");
+            return;
+        }
+
+        await FileAccess.CreateDirectory(name);
+
+        await FileView.Refresh();
+    }
+
+    #endregion
+
+    #region Editor
+
+    private async Task OnFileClicked(FileEntry fileEntry) => await OpenEditor(fileEntry);
+
+    private async Task OpenEditor(FileEntry fileEntry)
+    {
+        var fileSizeInKilobytes = ByteSizeValue.FromBytes(fileEntry.Size).KiloBytes;
+
+        if (fileSizeInKilobytes > ConfigService.Get().Customisation.FileManager.MaxFileOpenSize)
+        {
+            await ToastService.Danger("Unable to open file as it exceeds the max file size limit");
+            return;
+        }
+
+        EditorOpenFile = fileEntry;
+
+        // Prepare editor
+        ShowFileEditor = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnEditorClosed()
+    {
+        ShowFileEditor = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Move
+
+    private async Task StartMove(FileEntry fileEntry)
+    {
+        MoveEntry = fileEntry;
+        MoveAccess = FileAccess.Clone();
+
+        await MoveAccess.SetDirectory("/");
+        await MoveModal.Show();
+    }
+
+    private async Task FinishMove()
+    {
+        var pathToMove = await MoveAccess.GetCurrentDirectory();
+        MoveAccess.Dispose();
+
+        // Perform move and process ui updates
+        await FileAccess.Move(MoveEntry.Name, pathToMove + MoveEntry.Name);
+
+        await MoveModal.Hide();
+
+        if (FileView == null)
+            return;
+
+        await FileView.Refresh();
+    }
+
+    #endregion
+
+}

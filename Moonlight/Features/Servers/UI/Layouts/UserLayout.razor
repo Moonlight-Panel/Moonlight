@@ -1,0 +1,334 @@
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Models.Enums
+@using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.Components
+@using MoonCore.Abstractions
+@using MoonCore.Helpers
+@using MoonCoreUI.Services
+@using Microsoft.EntityFrameworkCore
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.UI.UserViews
+@using System.Net.Sockets
+@using System.Net.WebSockets
+
+@inject Repository<Server> ServerRepository
+@inject ServerService ServerService
+@inject ToastService ToastService
+
+@implements IDisposable
+
+<LazyLoader Load="Load" ShowAsCard="true">
+    <div class="card card-body pb-5 pt-5">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex flex-row">
+                <div class="d-flex flex-column ms-3">
+                    <span class="fw-bold text-gray-900 fs-3">
+                        @Server.Name
+                    </span>
+                    <span class="text-gray-500 pt-2 fw-semibold fs-6">
+                        @(Server.Image.Name)
+                    </span>
+                </div>
+                <div class="vr mx-4"></div>
+                <div class="d-flex flex-column">
+                    <div class="text-gray-900 fs-4">
+                        @{
+                            var color = ServerUtilsHelper.GetColorFromState(Console.State);
+                        }
+
+                        <i class="bx bx-sm bxs-circle text-@(color) @(Console.State != ServerState.Offline ? $"pulse pulse-{color}" : "") align-middle"></i>
+                        <span class="align-middle">
+                            @(Console.State)
+                            <span class="text-muted">(@(Formatter.FormatUptime(DateTime.UtcNow - Console.LastStateChangeTimestamp)))</span>
+                        </span>
+                    </div>
+                    <div class="text-gray-800 pt-3 fw-semibold fs-5 row">
+                        <div class="col-auto">
+                            <span>
+                                <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span>
+                                <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                <span class="align-middle">188.75.252.37:10324</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="mt-2">
+                    @if (Console.State == ServerState.Offline)
+                    {
+                        <WButton
+                            OnClick="Start"
+                            CssClasses="btn btn-light-success btn-icon me-1 my-1">
+                            <i class="bx bx-sm bx-play"></i>
+                        </WButton>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-light-success btn-icon me-1 my-1 disabled" disabled="">
+                            <i class="bx bx-sm bx-play"></i>
+                        </button>
+                    }
+
+                    @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
+                    {
+                        <button class="btn btn-light-warning btn-icon me-1 my-1 disabled" disabled="">
+                            <i class="bx bx-sm bx-power-off"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <WButton
+                            OnClick="Stop"
+                            CssClasses="btn btn-light-warning btn-icon me-1 my-1">
+                            <i class="bx bx-sm bx-power-off"></i>
+                        </WButton>
+                    }
+
+                    @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
+                    {
+                        <button class="btn btn-light-danger btn-icon me-1 my-1 disabled" disabled="">
+                            <i class="bx bx-sm bx-bomb"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <WButton
+                            OnClick="Kill"
+                            CssClasses="btn btn-light-danger btn-icon me-1 my-1">
+                            <i class="bx bx-sm bx-bomb"></i>
+                        </WButton>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ServerNavigation Index="@GetIndex()" ServerId="@Id"/>
+
+    <div class="mt-3">
+        @if (IsInstalling)
+        {
+            <div class="card card-body bg-black p-3">
+                <Terminal @ref="InstallTerminal" EnableClipboard="false"/>
+            </div>
+        }
+        else if (IsConsoleDisconnected)
+        {
+            <IconAlert Title="Connection to server lost" Color="danger" Icon="bx-error">
+                We lost the connection to the server. Please refresh the page in order to retry. If this error persists please contact the support
+            </IconAlert>
+        }
+        else if (IsNodeOffline)
+        {
+            <IconAlert Title="Unable to establish a connection to the server" Color="danger" Icon="bx-error">
+                We are unable to establish a connection to the server. Please refresh the page in order to retry. If this error persists please contact the support
+            </IconAlert>
+        }
+        else
+        {
+            <CascadingValue Value="Server">
+                <CascadingValue Value="Console">
+                    <SmartRouter Route="@Route">
+                        <Route Path="/">
+                            <Console/>
+                        </Route>
+
+                        <Route Path="/files">
+                            <Files/>
+                        </Route>
+
+                        <Route Path="/stats">
+                            <Stats/>
+                        </Route>
+
+                        <Route Path="/backups">
+                            <Backups/>
+                        </Route>
+
+                        <Route Path="/network">
+                            <Network/>
+                        </Route>
+
+                        <Route Path="/schedules">
+                            <Schedules/>
+                        </Route>
+
+                        <Route Path="/variables">
+                            <Variables/>
+                        </Route>
+
+                        <Route Path="/reset">
+                            <Reset/>
+                        </Route>
+                    </SmartRouter>
+                </CascadingValue>
+            </CascadingValue>
+        }
+    </div>
+</LazyLoader>
+
+@code
+{
+    [Parameter] public string? Route { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    private Server Server;
+    private ServerConsole Console;
+
+    private Terminal? InstallTerminal;
+    private bool IsInstalling = false;
+    private bool IsConsoleDisconnected = false;
+    private bool IsNodeOffline = false;
+
+    private Timer UpdateTimer;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading server information");
+
+        Server = ServerRepository
+            .Get()
+            .Include(x => x.Image)
+            .Include(x => x.Node)
+            .Include(x => x.Variables)
+            .Include(x => x.Allocations)
+            .Include(x => x.Network)
+            .Include(x => x.MainAllocation)
+            .Include(x => x.Owner)
+            .First(x => x.Id == Id);
+
+        await lazyLoader.SetText("Establishing a connection to the server");
+
+        // Create console wrapper
+        Console = new ServerConsole(Server);
+
+        // Configure
+        Console.OnStateChange += async state =>
+        {
+            // General rerender to update the state text in the ui
+            // NOTE: Obsolete because of the update timer
+            //await InvokeAsync(StateHasChanged);
+
+            // Change from offline to installing
+            // This will trigger the initialisation of the install view
+            if (state == ServerState.Installing && !IsInstalling)
+            {
+                IsInstalling = true;
+
+                // After this call, we should have access to the install terminal reference
+                await InvokeAsync(StateHasChanged);
+
+                Console.OnNewMessage += OnInstallConsoleMessage;
+            }
+            // Change from installing to offline
+            // This will trigger the destruction of the install view
+            else if (state == ServerState.Offline && IsInstalling)
+            {
+                IsInstalling = false;
+
+                Console.OnNewMessage -= OnInstallConsoleMessage;
+
+                // After this call, the install terminal will disappear
+                await InvokeAsync(StateHasChanged);
+
+                await ToastService.Info("Server installation complete");
+            }
+        };
+
+        Console.OnDisconnected += async () =>
+        {
+            IsConsoleDisconnected = true;
+            await InvokeAsync(StateHasChanged);
+        };
+
+        try
+        {
+            await Console.Connect();
+        }
+        catch (WebSocketException e)
+        {
+            // We want to check if its an connection error, if yes we want to show the user that its an error with the connection
+            // If not we proceed with the throwing for the soft error handler.
+
+            if (e.InnerException is not HttpRequestException httpRequestException)
+                throw;
+
+            if (httpRequestException.InnerException is not SocketException socketException)
+                throw;
+
+            Logger.Warn($"Unable to access the node's websocket endpoint: {socketException.Message}");
+
+            // Change the ui and...
+            IsNodeOffline = true;
+            await InvokeAsync(StateHasChanged);
+
+            // ... stop loading more data
+            return;
+        }
+
+        UpdateTimer = new Timer(async _ => { await InvokeAsync(StateHasChanged); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    }
+
+    private async Task OnInstallConsoleMessage(string message)
+    {
+        if (InstallTerminal != null)
+            await InstallTerminal.WriteLine(message);
+    }
+
+    private async Task Start() => await ServerService.Console.SendAction(Server, PowerAction.Start);
+
+    private async Task Stop() => await ServerService.Console.SendAction(Server, PowerAction.Stop);
+
+    private async Task Kill() => await ServerService.Console.SendAction(Server, PowerAction.Kill);
+
+    public async void Dispose()
+    {
+        if (UpdateTimer != null)
+            await UpdateTimer.DisposeAsync();
+
+        if (Console != null)
+            await Console.Close();
+    }
+
+    private int GetIndex()
+    {
+        if (string.IsNullOrEmpty(Route))
+            return 0;
+
+        var route = "/" + (Route ?? "");
+
+        switch (route)
+        {
+            case "/files":
+                return 1;
+
+            case "/stats":
+                return 5;
+
+            case "/backups":
+                return 6;
+
+            case "/network":
+                return 2;
+                
+            case "/schedules":
+                return 7;
+
+            case "/variables":
+                return 3;
+
+            case "/reset":
+                return 4;
+
+            default:
+                return 0;
+        }
+    }
+}

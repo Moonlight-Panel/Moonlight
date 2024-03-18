@@ -1,0 +1,128 @@
+@using XtermBlazor
+
+@using MoonCoreUI.Services
+
+@inject ClipboardService ClipboardService
+@inject ToastService ToastService
+@inject IJSRuntime JsRuntime
+
+@implements IAsyncDisposable
+
+<Xterm @ref="Term" Options="Options" OnFirstRender="OnFirstRender" AddonIds="Addons" />
+
+@code 
+{
+    [Parameter] public bool EnableClipboard { get; set; } = true;
+    
+    private Xterm Term;
+
+    private readonly TerminalOptions Options = new()
+    {
+        CursorBlink = false,
+        CursorWidth = 1,
+        Theme =
+        {
+            Background = "#000000",
+            CursorAccent = "#000000",
+            Cursor = "#000000"
+        },
+        DisableStdin = true,
+        FontFamily = "monospace"
+    };
+
+    private readonly string[] Addons = new[]
+    {
+        "xterm-addon-fit"
+    };
+
+    private bool HasBeenRendered = false;
+    private readonly List<string> UnRenderedMessageCache = new();
+
+    public async Task WriteLine(string content)
+    {
+        if (HasBeenRendered)
+        {
+            try
+            {
+                await Term.WriteLine(content);
+            }
+            catch (TaskCanceledException) { /* ignore task canceled exceptions */ }
+        }
+        else
+        {
+            lock (UnRenderedMessageCache)
+                UnRenderedMessageCache.Add(content);
+        }
+    }
+    
+    public async Task Write(string content)
+    {
+        if (HasBeenRendered)
+        {
+            try
+            {
+                await Term.Write(content);
+            }
+            catch (TaskCanceledException) { /* ignore task canceled exceptions */ }
+        }
+        else
+        {
+            lock (UnRenderedMessageCache)
+                UnRenderedMessageCache.Add(content);
+        }
+    }
+
+    private async void OnFirstRender()
+    {
+        try
+        {
+            await Term.InvokeAddonFunctionVoidAsync("xterm-addon-fit", "fit");
+
+            if (EnableClipboard)
+            {
+                // This disables the key handling for xterm completely in order to allow Strg + C copying and other features
+                Term.AttachCustomKeyEventHandler(key =>
+                {
+                    if (key.CtrlKey && key.Code == "KeyC" && key.Type == "keydown")
+                    {
+                        Task.Run(async () =>
+                        {
+                            var content = await Term.GetSelection();
+                            await ClipboardService.Copy(content);
+                            await ToastService.Info("Copied console selection to clipboard");
+                        });
+                    }
+
+                    return false;
+                });
+            }
+
+            await JsRuntime.InvokeVoidAsync("serverTerminal.registerResize", Term.Id);
+        }
+        catch (Exception){ /* Ignore all js errors as the addons are not that important to risk a crash of the ui */ }
+        
+        string[] messagesToWrite;
+
+        lock (UnRenderedMessageCache)
+        {
+            messagesToWrite = UnRenderedMessageCache.ToArray();
+            UnRenderedMessageCache.Clear();
+        }
+
+        foreach (var message in messagesToWrite)
+            await Term.WriteLine(message);
+
+        HasBeenRendered = true;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("serverTerminal.unregisterResize", Term.Id);
+        }
+        catch (Exception) { /* ignore all errors */ }
+        
+        await Term.DisposeAsync();
+    }
+}

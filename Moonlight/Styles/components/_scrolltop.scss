@@ -1,0 +1,69 @@
+//
+// Scrolltop
+//
+
+.scrolltop {    
+    position: fixed;
+    display: none;
+    cursor: pointer;
+    z-index: $scrolltop-z-index;
+    justify-content: center;
+    align-items: center;
+    width: $scrolltop-size;
+    height: $scrolltop-size;
+    bottom: $scrolltop-bottom;
+    right: $scrolltop-end;    
+    background-color: var(--#{$prefix}scrolltop-bg-color);
+    box-shadow: var(--#{$prefix}scrolltop-box-shadow);
+    opacity: $scrolltop-opacity;
+    transition: $transition-link;
+    @include border-radius($border-radius);
+
+    .svg-icon {
+        @include svg-icon-size(24px);
+        color: var(--#{$prefix}scrolltop-icon-color);
+    }
+
+    > i {
+        font-size: 1.3rem;
+        color: var(--#{$prefix}scrolltop-icon-color);
+    }
+
+    &:hover {
+        background-color: var(--#{$prefix}scrolltop-bg-color-hover);
+
+        .svg-icon,
+        i {
+            color: var(--#{$prefix}scrolltop-icon-color-hover);
+        }
+    }
+
+    [data-kt-scrolltop="on"] & {
+        opacity: var(--#{$prefix}scrolltop-opacity-on);
+        animation: animation-scrolltop .4s ease-out 1;
+        display: flex;
+
+        &:hover {
+            transition: $transition-link;
+            opacity: var(--#{$prefix}scrolltop-opacity-hover);
+        }
+    }
+
+    
+}
+
+// Tablet & Mobile Modess
+@include media-breakpoint-down(lg) {
+    .scrolltop { 
+        bottom: $scrolltop-bottom-mobile;
+        right: $scrolltop-end-mobile;    
+        width: $scrolltop-size-mobile;
+        height: $scrolltop-size-mobile;
+    }
+}
+
+// Animations
+@keyframes animation-scrolltop {
+    from   { margin-bottom: -15px; }
+    to {  margin-bottom: 0; }
+}

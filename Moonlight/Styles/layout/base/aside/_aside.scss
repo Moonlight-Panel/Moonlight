@@ -1,0 +1,275 @@
+//
+// Aside
+//
+
+// General mode
+.app-aside {    
+    transition: $app-aside-base-transition;
+    background-color: var(--#{$prefix}app-aside-base-bg-color);
+    box-shadow: var(--#{$prefix}app-aside-base-box-shadow);
+}
+
+// Utilities
+.app-aside-minimize-d-flex,
+.app-aside-sticky-d-flex,
+.app-aside-collapse-d-flex,
+.app-aside-minimize-mobile-d-flex,
+.app-aside-collapse-mobile-d-flex {
+    display: none;    
+}
+
+// Desktop mode
+@include media-breakpoint-up(lg) {
+    // Base
+    .app-aside {        
+        display: flex;    
+        flex-shrink: 0;
+        width: var(--#{$prefix}app-aside-width); 
+        @include property( z-index, $app-aside-base-z-index);
+        @include property( margin-left, $app-aside-base-gap-start);
+        @include property( margin-right, $app-aside-base-gap-end);
+        @include property( margin-top, $app-aside-base-gap-top);
+        @include property( margin-bottom, $app-aside-base-gap-bottom);        
+    }    
+
+    // Vars
+    :root {
+        --#{$prefix}app-aside-width: #{$app-aside-base-width};
+        --#{$prefix}app-aside-width-actual: #{$app-aside-base-width};
+        --#{$prefix}app-aside-gap-start: #{$app-aside-base-gap-start};
+        --#{$prefix}app-aside-gap-end: #{$app-aside-base-gap-end};
+        --#{$prefix}app-aside-gap-top: #{$app-aside-base-gap-top};
+        --#{$prefix}app-aside-gap-bottom: #{$app-aside-base-gap-bottom};
+    }
+
+    [data-kt-app-aside-stacked="true"] {
+        --#{$prefix}app-aside-width: calc(var(--#{$prefix}app-aside-primary-width) + var(--#{$prefix}app-aside-secondary-width));
+    }
+
+    [data-kt-app-aside-minimize="on"] {
+        --#{$prefix}app-aside-width: #{$app-aside-minimize-width};
+        --#{$prefix}app-aside-gap-start: #{$app-aside-minimize-gap-start};
+        --#{$prefix}app-aside-gap-end: #{$app-aside-minimize-gap-end};
+        --#{$prefix}app-aside-gap-top: #{$app-aside-minimize-gap-top};
+        --#{$prefix}app-aside-gap-bottom: #{$app-aside-minimize-gap-bottom};
+    }
+
+    [data-kt-app-aside-sticky="on"] {
+        --#{$prefix}app-aside-width: #{$app-aside-sticky-width};
+        --#{$prefix}app-aside-gap-start: #{$app-aside-sticky-gap-start};
+        --#{$prefix}app-aside-gap-end: #{$app-aside-sticky-gap-end};
+        --#{$prefix}app-aside-gap-top: #{$app-aside-sticky-gap-top};
+        --#{$prefix}app-aside-gap-bottom: #{$app-aside-sticky-gap-bottom};
+    }    
+
+    [data-kt-app-aside-collapse="on"] {
+        --#{$prefix}app-aside-width: 0px;  
+    }
+
+    // States
+    .app-aside {
+        [data-kt-app-aside-static="true"] & {
+            position: relative;
+        }
+
+        [data-kt-app-aside-offcanvas="true"] & {
+            display: none;
+        }
+
+        [data-kt-app-aside-fixed="true"] & {
+            position: fixed;
+            @include property( z-index, $app-aside-fixed-z-index);
+            @include property( top, $app-aside-fixed-top);
+            @include property( bottom, $app-aside-fixed-bottom);
+            @include property( right, $app-aside-fixed-right);
+        }  
+
+        [data-kt-app-aside-stacked="true"] & {
+            align-items: stretch; 
+        }
+
+        [data-kt-app-aside-sticky="on"] & {
+            position: fixed;
+            transition: $app-aside-base-transition;
+
+            box-shadow: var(--#{$prefix}app-aside-sticky-box-shadow);
+            border-left: var(--#{$prefix}aside-sticky-border-start);
+            border-right: var(--#{$prefix}app-aside-sticky-border-end);
+
+            @include property( top, $app-aside-sticky-top);
+            @include property( bottom, $app-aside-sticky-bottom);
+            @include property( left, $app-aside-sticky-left);
+            @include property( z-index, $app-aside-sticky-z-index);
+            @include property( margin-left, $app-aside-sticky-gap-start);
+            @include property( margin-right, $app-aside-sticky-gap-end);
+            @include property( margin-top, $app-aside-sticky-gap-top);
+            @include property( margin-bottom, $app-aside-sticky-gap-bottom);
+        }
+
+        [data-kt-app-aside-minimize="on"] & {
+            transition: $app-aside-base-transition;
+
+            //background-color: var(--#{$prefix}app-aside-minimize-bg-color);
+            //box-shadow: var(--#{$prefix}app-aside-minimize-box-shadow);
+            //border-start: var(--#{$prefix}app-aside-minimize-border-start);
+            //border-end: var(--#{$prefix}app-aside-minimize-border-end);
+
+            @include property( margin-left, $app-aside-minimize-gap-start);
+            @include property( margin-right, $app-aside-minimize-gap-end);
+            @include property( margin-top, $app-aside-minimize-gap-top);
+            @include property( margin-bottom, $app-aside-minimize-gap-bottom);
+        }
+
+        [data-kt-app-aside-hoverable="true"] & {
+            .app-aside-wrapper {
+                width: var(--#{$prefix}app-aside-width-actual); 
+            }
+        }
+
+        [data-kt-app-aside-hoverable="true"][data-kt-app-aside-minimize="on"] &:hover:not(.animating) {
+            transition: $app-aside-base-transition;
+			width: var(--#{$prefix}app-aside-width-actual);
+            box-shadow: var(--#{$prefix}app-aside-minimize-hover-box-shadow);
+        }
+
+        [data-kt-app-aside-collapse="on"] & {
+            transition: $app-aside-base-transition;
+            width: var(--#{$prefix}app-aside-width-actual);
+            margin-right: calc( -1 * var(--#{$prefix}app-aside-width-actual));
+        }
+    }
+
+    // Utilities
+    [data-kt-app-aside-minimize="on"] {
+        .app-aside-minimize-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-minimize-d-flex {
+            display: flex !important;    
+        }
+    }
+
+    [data-kt-app-aside-sticky="on"] {
+        .app-aside-sticky-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-sticky-d-flex {
+            display: flex !important;    
+        }
+    } 
+
+    [data-kt-app-aside-collapse="on"] {
+        .app-aside-collapse-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-collapse-d-flex {
+            display: flex !important;    
+        }
+    }
+
+    // Integration
+    .app-aside {
+        // Header
+        [data-kt-app-aside-fixed="true"][data-kt-app-header-fixed="true"]:not([data-kt-app-aside-push-header="true"]) & {
+            top: var(--#{$prefix}app-header-height);
+        }
+
+        // Toolbar
+        [data-kt-app-aside-fixed="true"][data-kt-app-header-fixed="true"][data-kt-app-toolbar-fixed="true"]:not([data-kt-app-aside-push-toolbar="true"]) & {
+            top: calc(var(--#{$prefix}app-header-height) + var(--#{$prefix}app-toolbar-height, 0px));
+        }
+    }
+}
+
+// Tablet & mobile modes
+@include media-breakpoint-down(lg) {
+    // Base
+    .app-aside {
+        display: none;
+        width: var(--#{$prefix}app-aside-width);
+        @include property( z-index, $app-aside-base-z-index-mobile);
+        @include property( margin-left, $app-aside-base-gap-start-mobile);
+        @include property( margin-right, $app-aside-base-gap-end-mobile);
+        @include property( margin-top, $app-aside-base-gap-top-mobile);
+        @include property( margin-bottom, $app-aside-base-gap-bottom-mobile);
+    }
+
+    // Vars
+    :root {
+        --#{$prefix}app-aside-width: #{$app-aside-base-width-mobile};
+        --#{$prefix}app-aside-width-actual: #{$app-aside-base-width-mobile};
+        --#{$prefix}app-aside-gap-start: #{$app-aside-base-gap-start-mobile};
+        --#{$prefix}app-aside-gap-end: #{$app-aside-base-gap-end-mobile};
+        --#{$prefix}app-aside-gap-top: #{$app-aside-base-gap-top-mobile};
+        --#{$prefix}app-aside-gap-bottom: #{$app-aside-base-gap-bottom-mobile};
+    }
+
+    [data-kt-app-aside-minimize-mobile="on"] {
+        --#{$prefix}app-aside-width: #{$app-aside-minimize-width-mobile};
+        --#{$prefix}app-aside-gap-start: #{$app-aside-minimize-gap-start-mobile};
+        --#{$prefix}app-aside-gap-end: #{$app-aside-minimize-gap-end-mobile};
+        --#{$prefix}app-aside-gap-top: #{$app-aside-minimize-gap-top-mobile};
+        --#{$prefix}app-aside-gap-bottom: #{$app-aside-minimize-gap-bottom-mobile};
+    }
+
+    [data-kt-app-aside-collapse-mobile="on"] {
+        --#{$prefix}app-aside-width: 0px;
+    }
+
+    // States
+    .app-aside {
+        [data-kt-app-aside-stacked="true"] & {
+            align-items: stretch; 
+        }
+            
+        [data-kt-app-aside-minimize-mobile="on"] & {
+            transition: $app-aside-base-transition;        
+            @include property( margin-left, $app-aside-minimize-gap-start-mobile);
+            @include property( margin-right, $app-aside-minimize-gap-end-mobile);
+            @include property( margin-top, $app-aside-minimize-gap-top-mobile);
+            @include property( margin-bottom, $app-aside-minimize-gap-bottom-mobile);
+        }
+
+        [data-kt-app-aside-hoverable-mobile="true"] & {
+            .app-aside-wrapper {
+                width: var(--#{$prefix}app-aside-width-actual); 
+            }
+        }
+
+        [data-kt-app-aside-hoverable-mobile="true"][data-kt-app-aside-minimize-mobile="on"] &:hover:not(.animating) {
+            transition: $app-aside-base-transition;
+			width: var(--#{$prefix}app-aside-width-actual);
+            box-shadow: var(--#{$prefix}app-aside-minimize-hover-box-shadow-mobile);
+        }
+
+        [data-kt-app-aside-collapse-mobile="on"] & {
+            transition: $app-aside-base-transition;
+            width: var(--#{$prefix}app-aside-width-actual);
+            margin-right: calc( -1 * var(--#{$prefix}app-aside-width-actual));
+        }
+    }
+
+    // Utilities
+    [data-kt-app-aside-minimize-mobile="on"] {
+        .app-aside-minimize-mobile-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-minimize-mobile-d-flex {
+            display: flex !important;    
+        }
+    }
+
+    [data-kt-app-aside-collapse-mobile="on"] {
+        .app-aside-collapse-mobile-d-none {
+            display: none !important;    
+        }
+
+        .app-aside-collapse-mobile-d-flex {
+            display: flex !important;    
+        }
+    }
+}

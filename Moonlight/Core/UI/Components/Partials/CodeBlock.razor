@@ -1,0 +1,8 @@
+<textarea class="card card-body p-3 bg-gray-100 border-secondary border border-2 text-muted border-active-secondary w-100" spellcheck="false" autocomplete="off">
+        @ChildContent
+</textarea>
+
+@code
+{
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}

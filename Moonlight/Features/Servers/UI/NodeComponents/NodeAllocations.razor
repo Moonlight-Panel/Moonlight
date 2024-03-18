@@ -1,0 +1,153 @@
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
+@using BlazorTable
+@using MoonCore.Abstractions
+@using MoonCore.Exceptions
+@using MoonCoreUI.Services
+
+@inject Repository<ServerNode> NodeRepository
+@inject Repository<ServerAllocation> AllocationRepository
+@inject Repository<Server> ServerRepository
+@inject AlertService AlertService
+@inject ToastService ToastService
+
+<div class="row">
+    <div class="col-md-4 col-12">
+        <div class="card mb-3">
+            <div class="card-header">
+                <span class="card-title">Allocation Quick Add</span>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <input @bind="IpAddress" class="form-control" placeholder="Ip address"/>
+                </div>
+                <div class="input-group mb-3">
+                    <input @bind="AllocationStart" class="form-control w-25" type="number"/>
+                    <span class="input-group-text">-</span>
+                    <input @bind="AllocationEnd" class="form-control w-25" type="number"/>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <WButton OnClick="AddAllocations" Text="Add" CssClasses="btn btn-primary"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 col-12">
+        <AutoListCrud TRootItem="ServerNode"
+                      TItem="ServerAllocation"
+                      TCreateForm="CreateAllocationForm"
+                      TUpdateForm="UpdateAllocationForm"
+                      Title=""
+                      Field="@(x => x.Allocations)"
+                      RootItem="Node"
+                      @ref="Crud"
+                      ValidateDelete="ValidateDelete"
+                      ValidateAdd="ValidateAdd">
+            <Toolbar>
+                <WButton CssClasses="btn btn-icon btn-danger" OnClick="DeleteAllAllocations">
+                    <i class="bx bx-sm bx-trash"></i>
+                </WButton>
+            </Toolbar>
+            <View>
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.Id)" Title="Id"/>
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.IpAddress)" Title="Ip address"/>
+                <CrudColumn TItem="ServerAllocation" Field="@(x => x.Port)" Title="Port"/>
+            </View>
+            <NoItemsView>
+                <IconAlert Title="No allocations found" Color="primary" Icon="bx-search-alt">
+                    In order for a server to be deployed on this node allocations need to be created here
+                </IconAlert>
+            </NoItemsView>
+        </AutoListCrud>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public ServerNode Node { get; set; }
+
+    // A bit long, lol
+    private AutoListCrud<ServerAllocation, ServerNode, CreateAllocationForm, UpdateAllocationForm> Crud;
+    
+    // Quick add values
+    private string IpAddress = "0.0.0.0";
+    private int AllocationStart = 2000;
+    private int AllocationEnd = 3000;
+
+    private async Task AddAllocations()
+    {
+        if (string.IsNullOrEmpty(IpAddress))
+            throw new DisplayException("You need to provide an ip address");
+        
+        int skipped = 0;
+        int added = 0;
+
+        for (int i = AllocationStart; i <= AllocationEnd; i++)
+        {
+            if (Node!.Allocations.Any(x => x.Port == i && x.IpAddress == IpAddress))
+                skipped++;
+            else
+            {
+                Node.Allocations.Add(new()
+                {
+                    Port = i,
+                    IpAddress = IpAddress
+                });
+
+                added++;
+            }
+        }
+
+        NodeRepository.Update(Node!);
+
+        await ToastService.Success($"Added {added} allocations and skipped {skipped} ports due to existing allocations");
+        await Crud.Reload();
+    }
+
+    private async Task DeleteAllAllocations()
+    {
+        if (!await AlertService.YesNo("Do you really want to delete all allocations?", "Yes", "No"))
+            return;
+
+        foreach (var allocation in Node!.Allocations.ToArray()) // To array in order to prevent collection modified exception
+        {
+            // Check if a server is using this allocation before deleting
+
+            if (ServerRepository
+                .Get()
+                .Any(x => x.Allocations.Any(y => y.Id == allocation.Id)))
+            {
+                await ToastService.Danger($"Unable to delete allocation with port {allocation.Port} due to a server using this allocation");
+                continue;
+            }
+
+            AllocationRepository.Delete(allocation);
+        }
+
+        await ToastService.Success("Successfully deleted allocations");
+        await Crud.Reload();
+    }
+
+    private Task ValidateDelete(ServerAllocation allocation)
+    {
+        // Check if allocation is associated with a server
+        var serverWithThisAllocation = ServerRepository
+            .Get()
+            .FirstOrDefault(x => x.Allocations.Any(y => y.Id == allocation.Id));
+
+        if (serverWithThisAllocation != null)
+        {
+            throw new DisplayException($"The server '{serverWithThisAllocation.Name}' (ID: {serverWithThisAllocation.Id}) is using this allocation. Delete the server in order to delete this allocation");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ValidateAdd(ServerAllocation allocation)
+    {
+        if (Node!.Allocations.Any(x => x.Port == allocation.Port && x.IpAddress == allocation.IpAddress))
+            throw new DisplayException("A allocation with these ip and port does already exist");
+
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,54 @@
+@using Moonlight.Features.Servers.Entities
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+@using System.Text.RegularExpressions
+
+@inject Repository<ServerVariable> ServerVariableRepository
+@inject ToastService ToastService
+
+@if (ImageVariable.AllowEdit)
+{
+    <div class="input-group">
+        <input @bind="CurrentValue" type="text" class="form-control" placeholder="@(ImageVariable.DefaultValue)"/>
+        <WButton OnClick="Update" CssClasses="btn btn-icon btn-primary">
+            <i class="bx bx-sm bx-save"></i>
+        </WButton>
+    </div>
+}
+else
+{
+    <div class="input-group">
+        <input value="@Variable.Value" type="text" class="form-control disabled" disabled=""/>
+    </div>
+}
+
+@code
+{
+    [Parameter] public ServerVariable Variable { get; set; }
+
+    [Parameter] public ServerImageVariable ImageVariable { get; set; }
+
+    [Parameter] public Func<Task> OnChanged { get; set; }
+
+    private string CurrentValue = "";
+
+    protected override void OnInitialized()
+    {
+        CurrentValue = Variable.Value;
+    }
+
+    private async Task Update()
+    {
+        if (!string.IsNullOrEmpty(ImageVariable.Filter) && !Regex.IsMatch(CurrentValue, ImageVariable.Filter))
+        {
+            await ToastService.Danger("Invalid variable value format");
+            return;
+        }
+
+        Variable.Value = CurrentValue;
+        ServerVariableRepository.Update(Variable);
+
+        await ToastService.Success("Successfully changed variable");
+        await OnChanged.Invoke();
+    }
+}

@@ -1,0 +1,219 @@
+﻿@using Moonlight.Features.Servers.Entities
+@using MoonCore.Abstractions
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Helpers
+@using MoonCoreUI.Services
+@using Moonlight.Features.Servers.Events
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Models.Enums
+@using Moonlight.Features.Servers.Services
+
+@inject IServiceProvider ServiceProvider
+@inject ServerService ServerService
+@inject ToastService ToastService
+@inject AlertService AlertService
+@inject NavigationManager Navigation
+
+@implements IDisposable
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+    <div class="card card-body px-5 py-3 mb-5">
+        <div class="d-flex justify-content-end">
+            <WButton OnClick="Create" CssClasses="btn btn-primary" Text="Create backup"/>
+        </div>
+    </div>
+
+    @if (AllBackups.Any())
+    {
+        foreach (var backup in AllBackups)
+        {
+            <div class="card card-body px-5 py-2 my-3">
+                <div class="row">
+                    <div class="col-2 fs-5 d-flex align-items-center">
+                        <div class="symbol symbol-circle bg-secondary text-center d-flex justify-content-center align-items-center">
+                            @if (backup.Completed)
+                            {
+                                if (backup.Successful)
+                                {
+                                    <i class="bx bx-sm bx-check-circle text-success align-middle p-2"></i>
+                                }
+                                else
+                                {
+                                    <i class="bx bx-sm bx-error-circle text-danger align-middle p-2"></i>
+                                }
+                            }
+                            else
+                            {
+                                <i class="bx bx-sm bx-time-five text-white align-middle p-2"></i>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-5 fs-5 d-flex align-items-center justify-content-center">
+                        @if (backup.Completed)
+                        {
+                            if (backup.Successful)
+                            {
+                                <span><span class="d-none d-md-inline">Created at </span>@(Formatter.FormatDate(backup.CreatedAt))</span>
+                            }
+                            else
+                            {
+                                <span><span class="d-none d-md-inline">Failed at </span>@(Formatter.FormatDate(backup.CreatedAt))</span>
+                            }
+                        }
+                        else
+                        {
+                            <span>Creating...</span>
+                        }
+                    </div>
+                    <div class="col-md-3 d-none d-md-flex fs-5 d-flex align-items-center justify-content-center">
+                        @(Formatter.FormatSize(backup.Size))
+                    </div>
+                    <div class="col-md-3 col-5 d-flex justify-content-end">
+                        @if (backup.Completed)
+                        {
+                            if (backup.Successful)
+                            {
+                                if (Console.State == ServerState.Offline)
+                                {
+                                    <WButton OnClick="() => Restore(backup)" CssClasses="btn btn-icon btn-primary me-2">
+                                        <i class="bx bx-sm bx-revision"></i>
+                                    </WButton>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-icon btn-primary disabled me-2" disabled="">
+                                        <i class="bx bx-sm bx-revision"></i>
+                                    </button>
+                                }
+                                <WButton OnClick="() => Download(backup)" CssClasses="btn btn-icon btn-info me-2">
+                                    <i class="bx bx-sm bx-download"></i>
+                                </WButton>
+                                <WButton OnClick="() => Delete(backup)" CssClasses="btn btn-icon btn-danger">
+                                    <i class="bx bx-sm bx-trash"></i>
+                                </WButton>
+                            }
+                            else
+                            {
+                                <button class="btn btn-icon btn-primary disabled me-2" disabled="">
+                                    <i class="bx bx-sm bx-revision"></i>
+                                </button>
+                                <button class="btn btn-icon btn-info disabled me-2" disabled="">
+                                    <i class="bx bx-sm bx-download"></i>
+                                </button>
+                                <WButton OnClick="() => Delete(backup, false)" CssClasses="btn btn-icon btn-danger">
+                                    <i class="bx bx-sm bx-trash"></i>
+                                </WButton>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-icon btn-primary disabled me-2" disabled="">
+                                <i class="bx bx-sm bx-revision"></i>
+                            </button>
+                            <button class="btn btn-icon btn-info disabled me-2" disabled="">
+                                <i class="bx bx-sm bx-download"></i>
+                            </button>
+                            <button class="btn btn-icon btn-danger disabled" disabled="">
+                                <i class="bx bx-sm bx-trash"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <IconAlert Title="No backups found" Color="primary" Icon="bx-search-alt">
+            We were unable to find any backups associated to this server. Create a backup to start securing your data
+        </IconAlert>
+    }
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter] public Server Server { get; set; }
+    
+    [CascadingParameter] public ServerConsole Console { get; set; }
+
+    private ServerBackup[] AllBackups;
+    private LazyLoader LazyLoader;
+
+    protected override void OnInitialized()
+    {
+        ServerEvents.OnBackupCompleted += HandleBackupCompleted;
+        Console.OnStateChange += HandleStateChange;
+    }
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        // We need to use a new scope here in order ty bypass the cache of the repo (which comes from ef core)
+        using var scope = ServiceProvider.CreateScope();
+        var serverRepo = scope.ServiceProvider.GetRequiredService<Repository<Server>>();
+
+        AllBackups = serverRepo
+            .Get()
+            .Include(x => x.Backups)
+            .First(x => x.Id == Server.Id)
+            .Backups
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+
+    public async Task Create()
+    {
+        await ServerService.Backup.Create(Server);
+
+        await ToastService.Info("Started backup creation");
+        await LazyLoader.Reload();
+    }
+    
+    public async Task Restore(ServerBackup backup)
+    {
+        if(!await AlertService.YesNo("Do you really want to restore this backup? All files on the server will be deleted and replaced by the backup"))
+            return;
+        
+        await ServerService.Backup.Restore(Server, backup);
+
+        await ToastService.Success("Successfully restored backup");
+    }
+
+    public async Task Delete(ServerBackup backup, bool safeDelete = true)
+    {
+        if(!await AlertService.YesNo("Do you really want to delete this backup? Deleted backups cannot be restored"))
+            return;
+        
+        await ServerService.Backup.Delete(Server, backup, safeDelete);
+
+        await ToastService.Success("Successfully deleted backup");
+        await LazyLoader.Reload();
+    }
+
+    private async Task Download(ServerBackup backup)
+    {
+        var url = await ServerService.Backup.GetDownloadUrl(Server, backup);
+        Navigation.NavigateTo(url, true);
+    }
+
+    private async Task HandleBackupCompleted((Server server, ServerBackup backup) data)
+    {
+        if (data.server.Id != Server.Id)
+            return;
+
+        if (data.backup.Successful)
+            await ToastService.Success("Successfully created backup");
+        else
+            await ToastService.Danger("Backup creation failed");
+
+        await LazyLoader.Reload();
+    }
+
+    private async Task HandleStateChange(ServerState _) => await InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        ServerEvents.OnBackupCompleted -= HandleBackupCompleted;
+        Console.OnStateChange -= HandleStateChange;
+    }
+}

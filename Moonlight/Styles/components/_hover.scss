@@ -1,0 +1,53 @@
+//
+// Hover effects
+//
+
+.hover-elevate-up {
+	transition: transform 0.3s ease;
+
+	&:hover {
+		transform: translateY(-2.5%);
+		transition: transform 0.3s ease;
+		will-change: transform;
+	}
+}
+
+.hover-elevate-down {
+	transition: transform 0.3s ease;
+
+	&:hover {
+		transform: translateY(2.5%);
+		transition: transform 0.3s ease;
+		will-change: transform;
+	}
+}
+
+.hover-scale {
+	transition: transform 0.3s ease;
+
+	&:hover {
+		transform: scale(1.1);
+		transition: transform 0.3s ease;
+		will-change: transform;
+	}
+}
+
+.hover-rotate-end {
+	transition: transform 0.3s ease;
+
+	&:hover {
+		transform: rotate(4deg);
+		transition: transform 0.3s ease;
+		will-change: transform;
+	}
+}
+
+.hover-rotate-start {
+	transition: transform 0.3s ease;
+
+	&:hover {
+		transform: rotate(-4deg);
+		transition: transform 0.3s ease;
+		will-change: transform;
+	}
+}

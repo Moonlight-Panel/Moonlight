@@ -1,0 +1,78 @@
+@page "/account"
+
+@using Moonlight.Core.Services
+@using Moonlight.Core.Models.Forms
+@using Mappy.Net
+@using MoonCoreUI.Services
+@using Moonlight.Core.Models.Abstractions
+@using Moonlight.Core.UI.Components.Navigations
+
+@inject IdentityService IdentityService
+@inject ToastService ToastService
+@inject IAuthenticationProvider AuthenticationProvider
+
+<div class="card card-body bg-primary mb-8">
+    <div class="d-flex align-items-center">
+        <span class="fs-2 fw-semibold">
+            @* the @@@ looks weird, ik that, it will result in @username *@
+
+            @@@IdentityService.CurrentUser.Username
+        </span>
+    </div>
+</div>
+
+<AccountNavigation Index="0"/>
+
+<LazyLoader Load="Load" ShowAsCard="true">
+
+    <div class="row g-5">
+        <div class="col-md-3 col-12">
+            <div class="card card-body h-100">
+                <div class="d-flex flex-column justify-content-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="symbol symbol-100px symbol-lg-160px symbol-fixed">
+                            <img src="/api/core/avatar" alt="image">
+                        </div>
+                    </div>
+                    <div class="fs-4 mt-5 text-center">
+                        To change your profile picture go to <a href="https://gravatar.com/">Gravatar</a> and
+                        register with the same email address you are using here
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 col-12">
+            <div class="card">
+                <SmartForm Model="Form" OnValidSubmit="Update">
+                    <div class="card-body">
+                        <AutoForm TForm="UpdateAccountForm" Columns="12" Model="Form"/>
+                    </div>
+                    <div class="card-footer d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </SmartForm>
+            </div>
+        </div>
+    </div>
+</LazyLoader>
+
+@code
+{
+    private UpdateAccountForm Form = new();
+
+    private Task Load(LazyLoader _)
+    {
+        Form = Mapper.Map<UpdateAccountForm>(IdentityService.CurrentUser);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Update()
+    {
+        await AuthenticationProvider.ChangeDetails(IdentityService.CurrentUser, Form.Email, Form.Username);
+        await ToastService.Success("Successfully updated details");
+
+        // This will trigger a re-render as well as an update of the model
+        await IdentityService.Authenticate(true);
+    }
+}

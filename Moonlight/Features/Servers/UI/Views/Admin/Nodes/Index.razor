@@ -1,0 +1,85 @@
+@page "/admin/servers/nodes"
+
+@using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
+@using Moonlight.Features.Servers.UI.Components
+@using Moonlight.Features.Servers.Entities
+@using MoonCore.Abstractions
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Exceptions
+@using MoonCore.Helpers
+
+@inject Repository<Server> ServerRepository
+@inject Repository<ServerNode> NodeRepository
+
+@attribute [RequirePermission(5001)]
+
+<AdminServersNavigation Index="1"/>
+
+<AutoCrud TItem="ServerNode"
+          TCreateForm="CreateNodeForm"
+          TUpdateForm="UpdateNodeForm"
+          Title=""
+          Load="Load"
+          ValidateAdd="ValidateAdd"
+          ValidateDelete="ValidateDelete">
+    <Actions>
+        <a href="/admin/servers/nodes/view/@(context.Id)" class="btn btn-icon btn-info">
+            <i class="bx bx-sm bx-wrench"></i>
+        </a>
+    </Actions>
+    <View>
+        <CrudColumn TItem="ServerNode" Field="@(x => x.Id)" Title="Id"/>
+        <CrudColumn TItem="ServerNode" Field="@(x => x.Name)" Title="Name"/>
+        <CrudColumn TItem="ServerNode" Field="@(x => x.Fqdn)" Title="Fqdn"/>
+        <CrudColumn TItem="ServerNode" Field="@(x => x.Id)" Title="Status">
+            <Template>
+                <span class="text-success">Online</span>
+            </Template>
+        </CrudColumn>
+    </View>
+    <NoItemsView>
+        <IconAlert Title="No nodes found" Color="primary" Icon="bx-search-alt">
+            Add a new node in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
+        </IconAlert>
+    </NoItemsView>
+</AutoCrud>
+
+@code
+{
+    private ServerNode[] Load(Repository<ServerNode> repository)
+    {
+        return repository
+            .Get()
+            .ToArray();
+    }
+
+    private Task ValidateDelete(ServerNode node)
+    {
+        if (ServerRepository
+            .Get()
+            .Any(x => x.Node.Id == node.Id))
+        {
+            throw new DisplayException("There are still servers on this node. Delete the servers in order to delete the node");
+        }
+
+        if (NodeRepository
+            .Get()
+            .Include(x => x.Allocations)
+            .First(x => x.Id == node.Id)
+            .Allocations
+            .Any())
+        {
+            throw new DisplayException("There are still allocations on this node. Delete the allocations in order to delete the node");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ValidateAdd(ServerNode node)
+    {
+        node.Token = Formatter.GenerateString(32);
+        
+        return Task.CompletedTask;
+    }
+}

@@ -1,0 +1,66 @@
+//
+// Separator
+//
+
+.separator {
+    display: block;
+    height: 0;
+    border-bottom: 1px solid var(--#{$prefix}border-color);
+
+    &.separator-dotted {
+        border-bottom-style: dotted;
+        border-bottom-color: var(--#{$prefix}border-dashed-color);
+    }
+
+    &.separator-dashed {
+        border-bottom-style: dashed;
+        border-bottom-color: var(--#{$prefix}border-dashed-color);
+    }
+
+    &.separator-content {
+        display: flex;
+        align-items: center;
+        border-bottom: 0;
+        text-align: center;
+
+        &::before,
+        &::after {
+            content: " ";
+            width: 50%;
+            border-bottom: 1px solid var(--#{$prefix}border-color);
+        }
+
+        &::before{
+            margin-right: 1.25rem;
+        }
+
+        &::after{
+            margin-left: 1.25rem;
+        }
+
+        &.separator-dotted {
+            &::before,
+            &::after {
+                border-bottom-style: dotted;
+                border-bottom-color: var(--#{$prefix}border-dashed-color);
+            }
+        }
+
+        &.separator-dashed {
+            &::before,
+            &::after {
+                border-bottom-style: dashed;
+                border-bottom-color: var(--#{$prefix}border-dashed-color);
+            }
+        }
+
+        @each $color, $value in $theme-colors {
+            &.border-#{$color}{
+                &::before,
+                &::after {
+                    border-color: $value !important; 
+                }
+            }
+        }
+    }
+}

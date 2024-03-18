@@ -1,0 +1,53 @@
+@using Moonlight.Features.Servers.Entities
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+
+@inject Repository<ServerVariable> ServerVariableRepository
+@inject ToastService ToastService
+
+@if (ImageVariable.AllowEdit)
+{
+    <div class="input-group">
+        <input @bind="CurrentValue" type="number" class="form-control" placeholder="@(ImageVariable.DefaultValue)"/>
+        <WButton OnClick="Update" CssClasses="btn btn-icon btn-primary">
+            <i class="bx bx-sm bx-save"></i>
+        </WButton>
+    </div>
+}
+else
+{
+    <div class="input-group">
+        <input value="@Variable.Value" type="number" class="form-control disabled" disabled=""/>
+    </div>
+}
+
+@code
+{
+    [Parameter] public ServerVariable Variable { get; set; }
+
+    [Parameter] public ServerImageVariable ImageVariable { get; set; }
+
+    [Parameter] public Func<Task> OnChanged { get; set; }
+
+    private string CurrentValue = "";
+
+    protected override void OnInitialized()
+    {
+        CurrentValue = Variable.Value;
+    }
+
+    private async Task Update()
+    {
+        if (!int.TryParse(CurrentValue, out _))
+        {
+            await ToastService.Danger("Invalid variable value. Variable must be a number");
+            return;
+        }
+
+        Variable.Value = CurrentValue;
+        ServerVariableRepository.Update(Variable);
+
+        await ToastService.Success("Successfully changed variable");
+        await OnChanged.Invoke();
+    }
+}

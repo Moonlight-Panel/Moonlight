@@ -1,0 +1,71 @@
+//
+// Nav
+//
+
+// Nav pills
+.nav-pills {
+	.nav-item {
+		margin-right: 0.5rem;
+
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+}
+
+// Stretch items
+.nav-stretch {
+	align-items: stretch;
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+
+	.nav-item {
+		display: flex;
+		align-items: stretch;
+		padding-top: 0 !important;
+		padding-bottom: 0 !important;
+	}
+
+	.nav-link {
+		display: flex;
+		align-items: center;
+	}
+}
+
+// Nav group
+.nav-group {
+	padding: 0.35rem;
+	@include border-radius($border-radius);
+	background-color: var(--#{$prefix}gray-100);
+
+	// Outline nav group
+	&.nav-group-outline {	
+		background-color: transparent;
+		border: 1px solid var(--#{$prefix}border-color);	
+	}
+
+	// Fluid option
+	&.nav-group-fluid {
+		display: flex;
+
+		> label,
+		> .btn {
+			position: relative;
+			flex-shrink: 0;
+			flex-grow: 1;
+			flex-basis: 0;
+		}
+
+		> label {
+			margin-right: 0.1rem;
+
+			> .btn {
+				width: 100%;
+			}
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+}

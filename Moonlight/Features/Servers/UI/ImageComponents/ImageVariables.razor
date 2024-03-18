@@ -1,0 +1,52 @@
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images.Variables
+@using BlazorTable
+
+<AutoListCrud TItem="ServerImageVariable"
+              TRootItem="ServerImage"
+              TCreateForm="CreateImageVariable"
+              TUpdateForm="UpdateImageVariable"
+              RootItem="Image"
+              Field="@(x => x.Variables)">
+    <View>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.Id)" Title="Id"/>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.DisplayName)" Title="Display name"/>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.Key)" Title="Key"/>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.DefaultValue)" Title="Default value"/>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.Filter)" Title="Filter"/>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.AllowView)" Title="View">
+            <Template>
+                @if (context.AllowView)
+                {
+                    <i class="bx bx-sm bx-check text-success"></i>
+                }
+                else
+                {
+                    <i class="bx bx-sm bx-x text-danger"></i>
+                }
+            </Template>
+        </CrudColumn>
+        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.AllowEdit)" Title="Edit">
+            <Template>
+                @if (context.AllowEdit)
+                {
+                    <i class="bx bx-sm bx-check text-success"></i>
+                }
+                else
+                {
+                    <i class="bx bx-sm bx-x text-danger"></i>
+                }
+            </Template>
+        </CrudColumn>
+    </View>
+    <NoItemsView>
+        <IconAlert Title="No variables found" Color="primary" Icon="bx-search-alt">
+            Add a new variable in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
+        </IconAlert>
+    </NoItemsView>
+</AutoListCrud>
+
+@code
+{
+    [Parameter] public ServerImage Image { get; set; }
+}

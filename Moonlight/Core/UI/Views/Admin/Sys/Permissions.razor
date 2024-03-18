@@ -1,0 +1,97 @@
+﻿@page "/admin/sys/permissions"
+
+@using Moonlight.Core.UI.Components.Navigations
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Services
+
+@inject Repository<User> UserRepository
+@inject PermissionService PermissionService
+@inject ToastService ToastService
+
+@attribute [RequirePermission(9999)]
+
+<AdminSysNavigation Index="3"/>
+
+<LazyLoader Load="Load">
+    <div class="card card-body p-5">
+        <div class="input-group">
+            <SmartDropdown @bind-Value="SelectedUser"
+                           Items="Users"
+                           Placeholder="Select a user"
+                           DisplayFunc="@(x => x.Username)"
+                           SearchProp="@(x => x.Username)"/>
+        </div>
+    </div>
+
+    @if (SelectedUser != null)
+    {
+        <div class="card card-body p-5 mt-5">
+            <div class="row g-3">
+                <div class="col-md-1 col-2 d-flex align-items-center justify-content-center">
+                    <input class="form-control fs-3 text-center" type="number" @bind="SelectedUser.Permissions" @bind:event="oninput"/>
+                </div>
+                <div class="col-md-11 col-10">
+                    <label class="form-label">Permission Level</label>
+                    <input @bind="SelectedUser.Permissions" @bind:event="oninput" type="range" class="form-range" min="0" max="9999"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-body p-5 mt-5">
+            <div class="d-flex flex-column">
+                @{
+                    var permissions = PermissionService.Definitions
+                        .Where(x => x.Key <= SelectedUser.Permissions)
+                        .Select(x => x.Value);
+                }
+
+                @foreach (var permission in permissions)
+                {
+                    <li class="d-flex align-items-center py-2 fs-6">
+                        <span class="bullet me-5"></span> @permission.Name
+                        <span class="ms-3 text-muted">/ @permission.Description</span>
+                    </li>
+                }
+            </div>
+        </div>
+
+        <div class="card card-body p-5 d-flex justify-content-center mt-5">
+            @if (SelectedUser == null)
+            {
+                <button class="btn btn-primary disabled" disabled="">Apply</button>
+            }
+            else
+            {
+                <WButton OnClick="SavePermissions" CssClasses="btn btn-primary" Text="Apply"/>
+            }
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    private User? SelectedUser;
+
+    private User[] Users;
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        Users = UserRepository
+            .Get()
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task SavePermissions()
+    {
+        if (SelectedUser == null)
+            return;
+
+        UserRepository.Update(SelectedUser);
+
+        await ToastService.Success("Successfully saved user permissions");
+    }
+}

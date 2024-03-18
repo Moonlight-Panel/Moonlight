@@ -1,0 +1,122 @@
+﻿@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Newtonsoft.Json
+@using ApexCharts
+@using MoonCore.Helpers
+@using Moonlight.Features.Servers.Api.Packets
+@using Moonlight.Features.Servers.Models.Enums
+@using Moonlight.Features.Servers.UI.Components
+
+@implements IDisposable
+
+<LazyLoader Load="Load">
+    <div class="row g-8">
+        <div class="col-md-3 col-12">
+            @{
+                var coreText = Server.Cpu > 100 ? "Cores" : "Core";
+                var cpuText = $"{Math.Round(CurrentStats.CpuUsage / Server.Cpu * 100, 1)}% / {Math.Round(Server.Cpu / 100D, 2)} {coreText}";
+            }
+
+            <StatCard Icon="bx-chip" Description="CPU Usage" Value="@cpuText"/>
+        </div>
+        <div class="col-md-3 col-12">
+            @{
+                string memoryHas;
+
+                if (Server.Memory >= 1024)
+                    memoryHas = $"{ByteSizeValue.FromMegaBytes(Server.Memory).GigaBytes} GB";
+                else
+                    memoryHas = $"{Server.Memory} MB";
+                
+                var memoryText = $"{Formatter.FormatSize(CurrentStats.MemoryUsage)} / {memoryHas}";
+            }
+
+            <StatCard Icon="bx-microchip" Description="Memory Usage" Value="@memoryText"/>
+        </div>
+        <div class="col-md-3 col-12">
+            @{
+                var networkText = $"{Formatter.FormatSize(CurrentStats.NetRead)} / {Formatter.FormatSize(CurrentStats.NetWrite)}";
+            }
+
+            <StatCard Icon="bx-transfer-alt" Description="Network Traffic (Read / Write)" Value="@networkText"/>
+        </div>
+        <div class="col-md-3 col-12">
+            @{
+                var ioText = $"{Formatter.FormatSize(CurrentStats.IoRead)} / {Formatter.FormatSize(CurrentStats.IoWrite)}";
+            }
+
+            <StatCard Icon="bx-hdd" Description="IO Usage (Read / Write)" Value="@ioText"/>
+        </div>
+        <div class="col-md-6 col-12">
+            <div class="card card-body p-2">
+                <div class="text-center fs-4 mt-2">CPU Usage</div>
+                <div style="height: 25vh">
+                    <ServerStatsGraph Console="Console" Min="0" Max="100" Unit="%" Field1="@(x => x.CpuUsage / Server.Cpu * 100)"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-12">
+            <div class="card card-body p-2">
+                <div class="text-center fs-4 mt-2">Memory Usage</div>
+                <div style="height: 25vh">
+                    <ServerStatsGraph Console="Console" Min="0" Max="Server.Memory" Unit="MB" Field1="@(x => ByteSizeValue.FromBytes(x.MemoryUsage).MegaBytes)"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-12">
+            <div class="card card-body p-2">
+                <div class="text-center fs-4 mt-2">Network Usage</div>
+                <div style="height: 25vh">
+                    <ServerStatsGraph Console="Console" Min="0" Max="1024" Unit="KB" AllowDynamicView="true" Field1="@(x => ByteSizeValue.FromBytes(x.NetWrite).KiloBytes)" Field2="@(x => ByteSizeValue.FromBytes(x.NetRead).KiloBytes)"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-12">
+            <div class="card card-body p-2">
+                <div class="text-center fs-4 mt-2">IO Usage</div>
+                <div style="height: 25vh">
+                    <ServerStatsGraph Console="Console" Min="0" Max="1024" Unit="KB" Field1="@(x => x.IoWrite)" Field2="@(x => x.IoRead)"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter] public ServerConsole Console { get; set; }
+
+    [CascadingParameter] public Server Server { get; set; }
+
+    private ServerStats CurrentStats = new();
+
+    private Task Load(LazyLoader lazyLoader)
+    {
+        Console.OnStatsChange += HandleStats;
+        Console.OnStateChange += HandleState;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleState(ServerState state)
+    {
+        if (state == ServerState.Offline || state == ServerState.Join2Start)
+        {
+            CurrentStats = new();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task HandleStats(ServerStats stats)
+    {
+        CurrentStats = stats;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Console.OnStateChange -= HandleState;
+        Console.OnStatsChange -= HandleStats;
+    }
+}

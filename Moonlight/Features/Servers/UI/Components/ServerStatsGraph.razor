@@ -1,0 +1,223 @@
+@using ApexCharts
+@using MoonCore.Helpers
+@using Moonlight.Features.Servers.Api.Packets
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Models.Abstractions
+
+@implements IDisposable
+
+<LazyLoader Load="Load">
+    <ApexChart @ref="Chart" TItem="StatCacheItem" Options="Options">
+
+        <ApexPointSeries TItem="StatCacheItem"
+                         Items="Cache"
+                         SeriesType="@Type"
+                         Color="#7439ea"
+                         Name=""
+                         ShowDataLabels="false"
+                         XValue="@(e => e.Index)"
+                         YValue="@(e => Field1.Invoke(e.Stats))"/>
+
+        @if (Field2 != null)
+        {
+            <ApexPointSeries TItem="StatCacheItem"
+                             Items="Cache"
+                             Name=""
+                             Color="#0d6efd"
+                             ShowDataLabels="false"
+                             SeriesType="@Type"
+                             XValue="@(e => e.Index)"
+                             YValue="@(e => Field2.Invoke(e.Stats))"/>
+        }
+    </ApexChart>
+</LazyLoader>
+
+@code
+{
+    [Parameter] public int Min { get; set; }
+
+    [Parameter] public int Max { get; set; }
+
+    [Parameter] public ServerConsole Console { get; set; }
+
+    [Parameter] public Func<ServerStats, decimal?> Field1 { get; set; }
+
+    [Parameter] public Func<ServerStats, decimal?>? Field2 { get; set; }
+
+    [Parameter] public string Unit { get; set; } = "";
+
+    [Parameter] public bool AllowDynamicView { get; set; } = false;
+    
+    [Parameter] public SeriesType Type { get; set; }
+
+    private readonly List<StatCacheItem> Cache = new();
+    private ApexChart<StatCacheItem>? Chart;
+    private ApexChartOptions<StatCacheItem> Options;
+
+    private int IndexCounter = 1;
+    private int Counter = 0;
+
+    private bool HasBeenInitialized = false;
+
+    protected override void OnInitialized()
+    {
+        if (Field1 == null)
+            throw new ArgumentNullException(nameof(Field1));
+    }
+
+    private Task Load(LazyLoader arg)
+    {
+        Options = CreateApexOptions();
+
+        Options.Yaxis.Add(new()
+        {
+            Labels = new()
+            {
+                Show = true,
+                Style = new()
+                {
+                    CssClass = "fs-6",
+                    Colors = new("#FFFFFF")
+                },
+                Formatter = $"function (value) {{ return Math.round(value) + ' {Unit}' }}"
+            }
+        });
+
+        Options.Yaxis.Add(new()
+        {
+            Labels = new()
+            {
+                Show = false
+            }
+        });
+
+        if (!AllowDynamicView)
+        {
+            foreach (var yaxi in Options.Yaxis)
+            {
+                yaxi.Min = Min;
+                yaxi.Max = Max;
+            }
+        }
+
+        Console.OnStatsChange += HandleStats;
+
+        for (int i = 0; i < 30; i++)
+        {
+            Cache.Add(new()
+            {
+                Index = IndexCounter,
+                Stats = new()
+            });
+
+            IndexCounter++;
+        }
+
+        HasBeenInitialized = true;
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleStats(ServerStats stats)
+    {
+        if (Chart == null)
+            return;
+
+        if (Counter > 30)
+        {
+            await Chart.UpdateSeriesAsync();
+            Counter = 0;
+        }
+
+        IndexCounter++;
+        var item = new StatCacheItem()
+        {
+            Index = IndexCounter,
+            Stats = stats
+        };
+
+        Cache.Add(item);
+
+        if (Cache.Count > 30)
+            Cache.RemoveAt(0);
+
+        try
+        {
+            await Chart.AppendDataAsync(new[] { item });
+        }
+        catch (TaskCanceledException) { /* ignore task canceled exception */ }
+
+        Counter++;
+    }
+
+    public void Dispose()
+    {
+        if (HasBeenInitialized)
+        {
+            Chart.Dispose();
+            Console.OnStatsChange -= HandleStats;
+        }
+    }
+
+    private ApexChartOptions<StatCacheItem> CreateApexOptions()
+    {
+        return new()
+        {
+            Stroke = new()
+            {
+                Curve = new CurveSelections()
+                {
+                    Curve.Smooth
+                }
+            },
+            Title = new()
+            {
+                Text = ""
+            },
+            Chart = new()
+            {
+                Toolbar = new()
+                {
+                    Show = false
+                },
+                Animations = new()
+                {
+                    Easing = Easing.Linear,
+                    DynamicAnimation = new()
+                    {
+                        Speed = 950
+                    }
+                },
+                Zoom = new Zoom
+                {
+                    Enabled = false
+                },
+                Height = "100%"
+            },
+            Tooltip = new()
+            {
+                Enabled = false
+            },
+            Xaxis = new()
+            {
+                Range = 20,
+                Tooltip = new()
+                {
+                    Enabled = false
+                },
+                Labels = new()
+                {
+                    Show = false
+                }
+            },
+            Yaxis = new(),
+            Series = new()
+        };
+    }
+
+    private class StatCacheItem
+    {
+        public int Index { get; set; }
+        public ServerStats Stats { get; set; }
+    }
+}

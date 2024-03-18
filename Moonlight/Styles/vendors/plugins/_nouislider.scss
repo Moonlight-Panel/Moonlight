@@ -1,0 +1,103 @@
+//
+// NoUiSlider
+//
+
+
+// Base
+.noUi-target {
+    border: 0;
+    background: var(--#{$prefix}gray-100);
+    box-shadow:none;
+
+    &.noUi-horizontal {
+        height: 15px;
+
+        .noUi-handle {
+            width: 24px;
+            height: 24px;
+            top: -4.5px;
+            border-radius: 50%;
+            outline: none;
+
+            &::before {
+                display: none;
+            }
+
+            &::after {
+                display: none;
+            }
+        }
+    }
+
+    &.noUi-vertical {
+        height: 150px;
+        width: 15px;
+
+        .noUi-handle {
+            width: 24px;
+            height: 24px;
+            right: -4.5px;
+            border-radius: 50%;
+            outline: none;
+
+            &::before {
+                display: none;
+            }
+
+            &::after {
+                display: none;
+            }
+        }
+    }
+
+    .noUi-connect {
+        background: var(--#{$prefix}component-active-bg);
+    }
+
+    .noUi-handle {
+        background-color: $white; //var(--#{$prefix}body-bg);
+        border: 1px solid var(--#{$prefix}gray-200);
+        box-shadow:var(--#{$prefix}box-shadow-sm)
+    }
+
+    // Small size
+    &.noUi-sm {
+       @include nouislider-size(6px, 20px, 20px, 7px);
+    }
+
+    // Large size
+    &.noUi-lg {
+        @include nouislider-size(18px, 30px, 30px, 6px);
+    }
+}
+    
+// Theme colors
+@each $name, $value in $theme-colors {
+    // NoUiSlider success color option
+    .noUi-target.noUi-target-#{$name} {
+        .noUi-connects {
+            background-color: var(--#{$prefix}#{$name}-light);
+
+            .noUi-connect {
+                background-color: var(--#{$prefix}#{$name});
+            }
+        }
+
+        .noUi-handle {
+            border: 1px solid var(--#{$prefix}#{$name});
+            box-shadow: 0 3px 6px -3px rgba(var(--#{$prefix}#{$name}), 0.7);
+            background-color: var(--#{$prefix}#{$name});
+        }
+    }
+}
+
+// Tooltip
+.noUi-tooltip {
+    box-shadow: var(--#{$prefix}tooltip-box-shadow);
+    background: var(--#{$prefix}tooltip-bg);
+    color: var(--#{$prefix}tooltip-color);
+    font-size: $tooltip-font-size;
+    border: 0;
+    padding: 0.5rem 0.75rem;
+    @include border-radius($tooltip-border-radius);
+}

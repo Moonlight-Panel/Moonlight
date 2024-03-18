@@ -1,0 +1,60 @@
+@using Moonlight.Features.FileManager.Services
+@using MoonCore.Helpers
+
+@inject EditorService EditorService
+
+<div id="@Identifier" @onfocusout="FocusOut"></div>
+
+@code
+{
+    [Parameter] public string InitialContent { get; set; } = "";
+    [Parameter] public string Theme { get; set; } = "one_dark";
+    [Parameter] public string Mode { get; set; } = "text";
+    [Parameter] public int Lines { get; set; } = 30;
+    [Parameter] public int FontSize { get; set; } = 15;
+    [Parameter] public bool EnableAutoInit { get; set; } = false;
+    [Parameter] public Func<string, Task>? OnChanged { get; set; }
+    
+    private string Identifier;
+    
+    protected override void OnInitialized()
+    {
+        Identifier = "editor" + GetHashCode();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if(EnableAutoInit)
+                await Initialize();
+        }
+    }
+
+    public async Task Initialize()
+    {
+        await EditorService.Create(
+            Identifier,
+            Theme,
+            Mode,
+            InitialContent,
+            Lines,
+            FontSize
+        );
+    }
+
+    public async Task<string> GetContent() => await EditorService.GetValue();
+
+    public async Task SetContent(string content) => await EditorService.SetValue(content);
+
+    public async Task SetMode(string mode) => await EditorService.SetMode(mode);
+
+    private async Task FocusOut()
+    {
+        if (OnChanged != null)
+        {
+            var content = await GetContent();
+            await OnChanged.Invoke(content);
+        }
+    }
+}

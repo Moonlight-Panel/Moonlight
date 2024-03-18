@@ -1,0 +1,15 @@
+//
+// Bootstrap extended functions
+//
+
+@function theme-inverse-color($key: "primary") {
+    @return get($theme-inverse-colors, $key);
+}
+
+@function theme-active-color($key: "primary") {
+    @return get($theme-active-colors, $key);
+}
+
+@function theme-light-color($key: "primary") {
+    @return get($theme-light-colors, $key);
+}

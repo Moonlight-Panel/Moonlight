@@ -1,0 +1,13 @@
+@page "/server/{Id:int}/{Route?}"
+@using Moonlight.Features.Servers.UI.Layouts
+
+<UserLayout Id="@Id" Route="@Route" />
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+    
+    [Parameter]
+    public string? Route { get; set; }
+}

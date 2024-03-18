@@ -1,0 +1,35 @@
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Moonlight.Features.FileManager.UI.Components
+
+<div class="mt-5 card card-body p-8">
+    <div class="row g-5">
+        <div class="col-md-6 col-12">
+            <SingleAutoProperty TItem="UpdateImageDetailedForm"
+                                Model="Form"
+                                Field="@(x => x.InstallShell)"/>
+        </div>
+        <div class="col-md-6 col-12">
+            <SingleAutoProperty TItem="UpdateImageDetailedForm"
+                                Model="Form"
+                                Field="@(x => x.InstallDockerImage)"/>
+        </div>
+        <div class="col-12">
+            <Editor InitialContent="@Form.InstallScript"
+                    Mode="sh"
+                    Lines="25"
+                    EnableAutoInit="true"
+                    OnChanged="OnEditorValueChanged"/>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public UpdateImageDetailedForm Form { get; set; }
+    
+    private Task OnEditorValueChanged(string content)
+    {
+        Form.InstallScript = content;
+        return Task.CompletedTask;
+    }
+}

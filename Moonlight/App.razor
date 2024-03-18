@@ -1,0 +1,26 @@
+﻿@using Moonlight.Core.UI.Layouts
+@using Moonlight.Core.Services
+
+@inject FeatureService FeatureService
+
+@{
+    var assemblies = FeatureService.UiContext.RouteAssemblies;
+    var firstAssembly = assemblies.First();
+    var additionalAssemblies = assemblies.Skip(1).ToArray();
+}
+
+<Router AppAssembly="@firstAssembly" AdditionalAssemblies="@additionalAssemblies">
+    <Found Context="routeData">
+        <CascadingValue TValue="Type" Name="TargetPageType" Value="@routeData.PageType">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </CascadingValue>
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <IconAlert Title="Unknown page" Icon="bx-search">
+                The address you are trying to access is not associated with any page. To resume please go back or to the <a href="/">homepage</a>
+            </IconAlert>
+        </LayoutView>
+    </NotFound>
+</Router>

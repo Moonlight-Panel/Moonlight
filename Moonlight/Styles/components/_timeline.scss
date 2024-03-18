@@ -1,0 +1,75 @@
+//
+// Timeline
+//
+
+// Base
+.timeline {
+	// Item
+	.timeline-item {
+		position: relative;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		align-items: flex-start;
+
+		&:last-child {
+			.timeline-line {
+				bottom: 100%;
+			}
+		}
+	}        
+
+	// Line
+	.timeline-line {
+		display: block;
+		content: " ";
+		justify-content: center;     
+		position: absolute;
+		z-index: 0;
+		left: 0;
+		top:0;
+		bottom: 0;
+		transform: translate(50%);
+		border-left-width: 1px;
+		border-left-style: dashed;
+		border-left-color: var(--#{$prefix}gray-300); 
+	}
+
+	// Line solid
+	.timeline-line-solid {				
+		border-left-style: solid !important;				
+	}
+
+	// Icon
+	.timeline-icon {
+		z-index: 1;
+		flex-shrink: 0;
+		margin-right: 1rem;
+	}
+
+	// Content
+	.timeline-content {
+		width: 100%;
+		overflow: auto;
+		margin-bottom: 1.5rem;
+	}
+
+	// Vertical center 
+	&.timeline-center {
+		.timeline-item {
+			align-items: center;
+
+			&:first-child {
+                .timeline-line {
+                    top: 50%;
+                }
+            }
+
+            &:last-child {
+                .timeline-line {
+                    bottom: 50%;
+                }
+            }
+		}
+	}
+}

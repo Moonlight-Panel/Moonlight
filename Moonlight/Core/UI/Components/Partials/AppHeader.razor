@@ -1,0 +1,96 @@
+﻿@using Moonlight.Core.Services
+@using MoonCoreUI.Services
+
+@inject IdentityService IdentityService
+@inject CookieService CookieService
+
+<div class="app-header d-flex flex-column flex-stack">
+    <div class="d-flex flex-stack flex-grow-1">
+        <div class="app-header-logo d-flex align-items-center ps-lg-12">
+
+            <!-- TODO: Hookup mobile sidebar visibility -->
+            <div class="btn btn-icon btn-secondary w-35px h-35px ms-3 me-5 d-flex d-lg-none" onclick="showSidebarDrawer()">
+                <i class="bx bx-sm bx-menu fs-2"></i>
+            </div>
+
+            <a href="/" class="app-sidebar-logo">
+                <img class="d-none d-md-block" alt="Logo" src="/img/logo.png" style="max-width: 180px">
+                <img class="d-md-none h-30px" alt="Logo" src="/svg/logo.svg">
+            </a>
+        </div>
+
+        <div class="app-navbar flex-grow-1 justify-content-end">
+
+            <div class="app-navbar-item ms-2 ms-lg-6 me-8">
+                <ConnectionIndicator />
+            </div>
+
+            @if (IdentityService.IsLoggedIn)
+            {
+                <div class="app-navbar-item ms-2 ms-lg-6 me-8">
+
+                    <div class="cursor-pointer symbol symbol-circle symbol-40px symbol-lg-45px" id="dropdownMenuLink" data-bs-toggle="dropdown">
+                        <img src="/api/core/avatar" alt="Avatar">
+                    </div>
+
+                    <div class="dropdown-menu dropdown-menu-end menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-color fw-semibold py-4 fs-6 w-275px" aria-labelledby="dropdownMenuLink">
+                        <div class="menu-item px-3">
+                            <div class="menu-content d-flex align-items-center px-3">
+                                <div class="symbol symbol-50px me-5">
+                                    <img src="/api/core/avatar" alt="Avatar">
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <div class="fw-bold d-flex align-items-center fs-5">
+                                        @IdentityService.CurrentUser.Username
+                                    </div>
+                                    <span class="fw-semibold text-muted fs-7">
+                                        @IdentityService.CurrentUser.Email
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="separator my-2"></div>
+                        <div class="menu-item px-5">
+                            <a href="/account" class="menu-link px-5">
+                                Account
+                            </a>
+                        </div>
+                        <div class="separator my-2"></div>
+                        <div class="menu-item px-5">
+                            <a href="#" @onclick="Logout" @onclick:preventDefault class="menu-link px-5">
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="app-header-separator"></div>
+</div>
+
+@code
+{
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            IdentityService.OnAuthenticationStateChanged += OnAuthenticationStateChanged;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnAuthenticationStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Logout()
+    {
+        // Reset token
+        await CookieService.SetValue("token", "");
+
+        // Reset token in identity service
+        await IdentityService.Authenticate("");
+    }
+}

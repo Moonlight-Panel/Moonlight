@@ -1,0 +1,30 @@
+//
+// SVG Icon
+//
+
+.svg-icon {
+    line-height: 1;
+    color: var(--#{$prefix}text-muted);
+    @include svg-icon-size(get($font-sizes, 5));
+
+    // Theme colors
+    @each $name, $color in $theme-text-colors {
+        &.svg-icon-#{$name} {
+            color: var(--#{$prefix}text-#{$name});
+        }
+    }
+
+    // Responsive icon sizes
+    @each $breakpoint in map-keys($grid-breakpoints) {
+        @include media-breakpoint-up($breakpoint) {
+            $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+            // Sizes
+            @each $name, $value in $font-sizes {
+                &.svg-icon#{$infix}-#{$name} {
+                    @include svg-icon-size($value, true);
+                }
+            }
+        }
+    }
+}

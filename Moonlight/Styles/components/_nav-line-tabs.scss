@@ -1,0 +1,68 @@
+//
+// Nav
+//
+
+// Line tabs
+.nav-line-tabs {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: var(--#{$prefix}border-color);
+
+	.nav-item {
+		margin-bottom: -1px;
+
+		// Base link
+		.nav-link {
+			color: var(--#{$prefix}gray-500);
+			border: 0;
+			border-bottom: 1px solid transparent;
+			transition: $transition-link;
+			padding: 0.5rem 0;
+			margin: 0 1rem;
+		}
+
+		// First Item
+		&:first-child {
+			.nav-link {
+				margin-left: 0;
+			}
+		}
+
+		// Last Item
+		&:last-child {
+			.nav-link {
+				margin-right: 0;
+			}
+		}
+	}
+
+	// Active & Hover States
+	.nav-item .nav-link.active,
+  	.nav-item.show .nav-link,
+	.nav-item .nav-link:hover:not(.disabled) {
+		background-color: transparent;
+		border: 0;
+		border-bottom: 1px solid var(--#{$prefix}primary);
+		transition: $transition-link;
+  	}
+
+	// 2x Line
+	&.nav-line-tabs-2x {
+		border-bottom-width: 2px;
+
+		.nav-item {
+			margin-bottom: -2px;
+
+			.nav-link {
+				border-bottom-width: 2px;
+			}
+		}
+
+		// Active & Hover States
+		.nav-item .nav-link.active,
+	  	.nav-item.show .nav-link,
+		.nav-item .nav-link:hover:not(.disabled) {
+			border-bottom-width: 2px;
+		}
+	}
+}

@@ -1,0 +1,196 @@
+@page "/servers"
+
+@using MoonCore.Abstractions
+@using Moonlight.Features.Servers.Entities
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Helpers
+@using Moonlight.Core.Services
+@using Moonlight.Features.Servers.Api.Packets
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Models.Enums
+@using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.Components
+
+@inject Repository<Server> ServerRepository
+@inject IdentityService IdentityService
+@inject ServerService ServerService
+
+<ServersNavigation Index="0"/>
+
+<LazyLoader Load="Load">
+    @if (Servers.Length == 0)
+    {
+        <IconAlert Title="No servers found" Color="primary" Icon="bxs-binoculars">
+            We were unable to find any server associated with your account. Create a server and it will show up here
+        </IconAlert>
+    }
+    else
+    {
+        foreach (var server in Servers)
+        {
+            var color = "secondary";
+            var unknownStatus = false;
+            var state = ServerState.Offline;
+
+            lock (StateCache)
+            {
+                if (StateCache.ContainsKey(server.Id))
+                    state = StateCache[server.Id];
+                else
+                    unknownStatus = true;
+            }
+
+            if (!unknownStatus)
+                color = ServerUtilsHelper.GetColorFromState(state);
+
+            var unknownStats = false;
+            ServerStats? stats = default;
+
+            lock (StatsCache)
+            {
+                if (StatsCache.ContainsKey(server.Id))
+                    stats = StatsCache[server.Id];
+                else
+                    unknownStats = true;
+            }
+
+            <div class="row my-4">
+                <a href="/server/@(server.Id)" class="card card-body px-4 py-5 bg-hover-secondary fs-4 border-5 border-start border-@color">
+                    <div class="row">
+                        <div class="col">
+                            <div class="d-flex align-items-center">
+                                <span class="ms-3">
+                                    <i class="bx bx-sm bxs-circle text-@(color) @(state != ServerState.Offline ? $"pulse pulse-{color}" : "") align-middle"></i>
+                                    <span class="ms-2 align-middle">
+                                        @(unknownStatus ? "Loading" : state)
+                                    </span>
+                                    <span class="ms-5 fw-semibold">
+                                        @server.Name
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col d-none d-md-block">
+                            <div class="d-flex align-items-center">
+                                <span>
+                                    <i class="bx bx-sm bx-globe align-middle text-info me-1"></i>
+                                    <span class="align-middle">@(server.Node.Fqdn):@(server.MainAllocation.Port)</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col d-none d-lg-block">
+                            <div class="d-flex align-items-center justify-content-around">
+                                <span>
+                                    <i class="bx bx-sm bx-chip align-middle text-info me-1"></i>
+                                    @if (unknownStats)
+                                    {
+                                        <span class="align-middle">
+                                            N/A
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="align-middle">
+                                            @(Math.Round(stats!.CpuUsage, 2))%
+                                        </span>
+                                    }
+                                </span>
+                                <span>
+                                    <i class="bx bx-sm bx-microchip align-middle text-info me-1"></i>
+                                    @if (unknownStats)
+                                    {
+                                        <span class="align-middle">
+                                            N/A
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="align-middle">
+                                            @(Formatter.FormatSize(stats!.MemoryUsage))
+                                        </span>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col d-none d-xxl-flex">
+                            <div class="d-flex align-items-center">
+                                <span>
+                                    <i class="bx bx-sm bx-server align-middle text-info me-1"></i>
+                                    <span class="align-middle">@(server.Node.Name)</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    }
+</LazyLoader>
+
+@code
+{
+    private Server[] Servers;
+    private Dictionary<int, ServerState> StateCache = new();
+    private Dictionary<int, ServerStats> StatsCache = new();
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading servers");
+
+        Servers = ServerRepository
+            .Get()
+            .Include(x => x.MainAllocation)
+            .Include(x => x.Node)
+            .Include(x => x.Image)
+            .Where(x => x.Owner.Id == IdentityService.CurrentUser.Id)
+            .ToArray();
+
+        Task.Run(async () =>
+        {
+            foreach (var server in Servers)
+            {
+                try
+                {
+                    var state = await ServerService.GetState(server);
+
+                    lock (StateCache)
+                    {
+                        if (!StateCache.ContainsKey(server.Id))
+                            StateCache.Add(server.Id, state);
+                    }
+
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn($"Unable to get server state for server {server.Id}");
+                    Logger.Warn(e);
+                }
+            }
+        });
+
+        Task.Run(async () =>
+        {
+            foreach (var server in Servers)
+            {
+                try
+                {
+                    var stats = await ServerService.GetStats(server);
+
+                    lock (StatsCache)
+                    {
+                        if (!StatsCache.ContainsKey(server.Id))
+                            StatsCache.Add(server.Id, stats);
+                    }
+
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn($"Unable to get server stats for server {server.Id}");
+                    Logger.Warn(e);
+                }
+            }
+        });
+    }
+}

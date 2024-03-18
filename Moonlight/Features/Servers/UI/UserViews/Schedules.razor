@@ -1,0 +1,390 @@
+﻿@using Moonlight.Features.Servers.Entities
+@using MoonCore.Abstractions
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Helpers
+@using MoonCoreUI.Services
+@using Moonlight.Features.Servers.Models.Forms.Users.Schedules
+@using Moonlight.Features.Servers.Services
+@using Newtonsoft.Json
+
+@inject Repository<Server> ServerRepository
+@inject Repository<ServerSchedule> ScheduleRepository
+@inject Repository<ServerScheduleItem> ScheduleItemRepository
+@inject ServerScheduleService ScheduleService
+@inject ToastService ToastService
+@inject AlertService AlertService
+
+<LazyLoader @ref="LazyLoader" Load="Load">
+    <div class="row g-5">
+        <div class="col-md-3 col-12">
+            <div class="card card-body p-5">
+                <div class="d-flex flex-column">
+                    <WButton OnClick="CreateSchedule" CssClasses="btn btn-primary my-3 mb-5" Text="Create new schedule"/>
+
+                    @foreach (var schedule in ServerWithSchedules.Schedules)
+                    {
+                        <WButton OnClick="() => SelectSchedule(schedule)" CssClasses="btn btn-secondary my-3" Text="@schedule.Name"/>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 col-12">
+            @if (SelectedSchedule == null)
+            {
+                <IconAlert Title="No schedule selected" Color="primary" Icon="bx-search-alt">
+                    Select or create a schedule in order to manage the it
+                </IconAlert>
+            }
+            else
+            {
+                <div class="card card-body px-4 pt-3 pb-3 mb-3 bg-secondary">
+                    <div class="row g-3 text-center">
+                        <div class="col-md-3 col-6 fs-6 d-flex align-items-center">
+                            <span>
+                                <span class="fw-bold me-2">Name:</span>@(SelectedSchedule.Name)
+                            </span>
+                        </div>
+                        <div class="col-md-3 col-6 fs-6 d-flex align-items-center">
+                            <span>
+                                <span class="fw-bold me-2">Trigger</span>Every hour
+                            </span>
+                        </div>
+                        <div class="col-md-2 col-6 fs-6 d-flex align-items-center">
+                            <span>
+                                <span class="fw-bold me-2">Last run:</span>@(SelectedSchedule.LastRun == DateTime.MinValue ? "Never" : Formatter.FormatDate(SelectedSchedule.LastRun))
+                            </span>
+                        </div>
+                        <div class="col-md-2 col-5 fs-6 d-flex align-items-center">
+                            <span>
+                                <span class="fw-bold me-2">Execution time:</span>@(SelectedSchedule.ExecutionSeconds)s
+                            </span>
+                        </div>
+                        <div class="col-md-2 col-12 d-flex justify-content-center justify-content-md-end">
+                            <WButton OnClick="RunSelectedSchedule" CssClasses="btn btn-icon btn-success me-2">
+                                <i class="bx bx-sm bx-play"></i>
+                            </WButton>
+                            <WButton OnClick="DeleteCurrentSchedule" CssClasses="btn btn-icon btn-danger">
+                                <i class="bx bx-sm bx-trash"></i>
+                            </WButton>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column">
+                    @if (SelectedSchedule.Items.Any())
+                    {
+                        foreach (var item in SortedItems)
+                        {
+                            var action = ScheduleService.Actions.ContainsKey(item.Action) ? ScheduleService.Actions[item.Action] : null;
+
+                            <div class="card card-body px-5 py-4 py-md-2 my-2">
+                                <div class="row g-3">
+                                    <div class="col-md-1 fs-5 d-none d-md-flex align-items-center">
+                                        <div class="symbol symbol-circle bg-secondary text-center d-flex justify-content-center align-items-center">
+                                            <i class="bx bx-sm @(action != null ? action.Icon : "") text-white align-middle p-3"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 col-12 fs-5 d-flex align-items-center justify-content-center justify-content-md-start">
+                                        @if (action == null)
+                                        {
+                                            <div>Unknown action</div>
+                                        }
+                                        else
+                                        {
+                                            <div>@action.DisplayName</div>
+                                        }
+                                    </div>
+                                    <div class="col-md-3 col-12 d-flex justify-content-center justify-content-md-end">
+                                        @if (action != null && action.FormType != typeof(object)) // Handle empty forms
+                                        {
+                                            <WButton OnClick="() => ConfigureScheduleItem(item)" CssClasses="btn btn-icon btn-primary me-2">
+                                                <i class="bx bx-sm bx-cog"></i>
+                                            </WButton>
+                                        }
+                                        @if (item.Priority == 0)
+                                        {
+                                            <button class="btn btn-icon btn-secondary me-2 disabled" disabled="">
+                                                <i class="bx bx-sm bx-arrow-to-top"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <WButton OnClick="() => MoveItem(item, -1)" CssClasses="btn btn-icon btn-secondary me-2">
+                                                <i class="bx bx-sm bx-arrow-to-top"></i>
+                                            </WButton>
+                                        }
+                                        @if (item == SortedItems.Last())
+                                        {
+                                            <button class="btn btn-icon btn-secondary me-2 disabled" disabled="">
+                                                <i class="bx bx-sm bx-arrow-to-top"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <WButton OnClick="() => MoveItem(item, 1)" CssClasses="btn btn-icon btn-secondary me-2">
+                                                <i class="bx bx-sm bx-arrow-to-bottom"></i>
+                                            </WButton>
+                                        }
+                                        <WButton OnClick="() => DeleteItem(item)" CssClasses="btn btn-icon btn-danger me-2">
+                                            <i class="bx bx-sm bx-trash"></i>
+                                        </WButton>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="mb-5">
+                            <IconAlert Title="No actions found" Color="primary" Icon="bx-search-alt">
+                                Create a new action in order to start automating your server
+                            </IconAlert>
+                        </div>
+                    }
+                    <div class="mt-5 d-flex justify-content-center">
+                        <div class="input-group">
+                            <select class="form-select" @bind="NewItemActionType">
+                                @foreach (var action in ScheduleService.Actions)
+                                {
+                                    <option value="@action.Key">@action.Value.DisplayName</option>
+                                }
+                            </select>
+                            <WButton OnClick="CreateScheduleItem" CssClasses="btn btn-primary" Text="Add new action"/>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</LazyLoader>
+
+<FormModalLauncher @ref="Launcher"/>
+
+@code
+{
+    [CascadingParameter] public Server Server { get; set; }
+
+    private Server ServerWithSchedules;
+    private LazyLoader LazyLoader;
+    private FormModalLauncher Launcher;
+
+    private ServerSchedule? SelectedSchedule;
+    private List<ServerScheduleItem> SortedItems = new();
+
+    private string NewItemActionType = "";
+
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading server schedules");
+
+        ServerWithSchedules = ServerRepository
+            .Get()
+            .Include(x => x.Schedules)
+            .ThenInclude(x => x.Items)
+            .First(x => x.Id == Server.Id);
+
+        // Trigger reselect to update sort cache
+        if (SelectedSchedule != null)
+            await SelectSchedule(SelectedSchedule);
+    }
+
+    private async Task SelectSchedule(ServerSchedule? schedule)
+    {
+        SelectedSchedule = schedule;
+
+        if (SelectedSchedule != null)
+        {
+            SortedItems = SelectedSchedule
+                .Items
+                .OrderBy(x => x.Priority)
+                .ToList();
+        }
+        else
+            SortedItems = new();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CreateSchedule()
+    {
+        await Launcher.Show<CreateScheduleForm>("Create a new schedule", async form =>
+        {
+            ServerWithSchedules.Schedules.Add(new()
+            {
+                Name = form.Name
+            });
+
+            ServerRepository.Update(ServerWithSchedules);
+
+            NewItemActionType = "";
+
+            await ToastService.Success("Successfully added new schedule");
+            await LazyLoader.Reload();
+        });
+    }
+
+    private async Task CreateScheduleItem()
+    {
+        if (string.IsNullOrEmpty(NewItemActionType))
+            return;
+
+        if (ScheduleService.Actions.All(x => x.Key != NewItemActionType))
+            return;
+
+        if (SelectedSchedule == null)
+            return;
+
+        var action = ScheduleService.Actions.First(x => x.Key == NewItemActionType).Value;
+
+        if (action.FormType == typeof(object)) // Handle empty form types
+        {
+            await AddScheduleAction(NewItemActionType, SelectedSchedule.Items.Count, new());
+            return;
+        }
+
+        await Launcher.Show("Configure action", async formData => { await AddScheduleAction(NewItemActionType, SelectedSchedule.Items.Count, formData); }, action.FormType);
+    }
+
+    private async Task AddScheduleAction(string type, int priority, object data)
+    {
+        var scheduleItem = new ServerScheduleItem()
+        {
+            Action = type,
+            Priority = priority,
+            DataJson = JsonConvert.SerializeObject(data)
+        };
+
+        SelectedSchedule!.Items.Add(scheduleItem);
+
+        ScheduleRepository.Update(SelectedSchedule);
+
+        NewItemActionType = ""; // Reset
+        
+        await ToastService.Success("Successfully added new action");
+        await LazyLoader.Reload();
+    }
+
+    private async Task ConfigureScheduleItem(ServerScheduleItem item)
+    {
+        if (ScheduleService.Actions.All(x => x.Key != item.Action))
+            return;
+
+        if (SelectedSchedule == null)
+            return;
+
+        var action = ScheduleService.Actions.First(x => x.Key == item.Action).Value;
+
+        var formModel = JsonConvert.DeserializeObject(item.DataJson, action.FormType)!;
+
+        await Launcher.Show("Configure action", async formData =>
+        {
+            item.DataJson = JsonConvert.SerializeObject(formData);
+
+            ScheduleItemRepository.Update(item);
+
+            await ToastService.Success("Successfully updated action");
+        }, action.FormType, formModel: formModel);
+    }
+
+    private async Task MoveItem(ServerScheduleItem item, int move)
+    {
+        var oldIndex = SortedItems.IndexOf(item);
+
+        if (oldIndex == 0 && move < 0)
+            return;
+
+        if (oldIndex == SortedItems.Count - 1 && move > 0)
+            return;
+
+        SortedItems.RemoveAt(oldIndex);
+        SortedItems.Insert(oldIndex + move, item);
+
+        await FixPriorities();
+
+        await InvokeAsync(StateHasChanged);
+
+        await ToastService.Success("Successfully moved item");
+    }
+
+    private async Task DeleteItem(ServerScheduleItem item)
+    {
+        if (SelectedSchedule == null)
+            return;
+
+        if (!await AlertService.YesNo("Do you really want to delete this action? This cannot be undone"))
+            return;
+
+        SortedItems.Remove(item);
+        SelectedSchedule.Items.Remove(item);
+
+        ScheduleRepository.Update(SelectedSchedule);
+
+        await FixPriorities();
+
+        await ToastService.Success("Successfully deleted action");
+        await LazyLoader.Reload();
+    }
+
+    private Task FixPriorities()
+    {
+        // Fix priorities
+        var i = 0;
+        foreach (var scheduleItem in SortedItems)
+        {
+            scheduleItem.Priority = i;
+            ScheduleItemRepository.Update(scheduleItem);
+
+            i++;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task DeleteCurrentSchedule()
+    {
+        if (SelectedSchedule == null)
+            return;
+
+        if (!await AlertService.YesNo($"Do you really want to delete the schedule '{SelectedSchedule.Name}'? This cannot be undone"))
+            return;
+
+        foreach (var item in SelectedSchedule.Items.ToArray())
+        {
+            try
+            {
+                ScheduleItemRepository.Delete(item);
+            }
+            catch (Exception)
+            {
+                /* this should not fail the operation */
+            }
+        }
+
+        ScheduleRepository.Delete(SelectedSchedule);
+
+        SelectedSchedule = null;
+
+        await ToastService.Success("Successfully deleted schedule");
+        await LazyLoader.Reload();
+    }
+
+    private async Task RunSelectedSchedule()
+    {
+        if (SelectedSchedule == null)
+            return;
+
+        await ToastService.CreateProgress("scheduleRun", "Running schedule");
+        
+        var result = await ScheduleService.Run(Server, SelectedSchedule);
+
+        await ToastService.RemoveProgress("scheduleRun");
+
+        if (result.Failed)
+            await ToastService.Danger($"Schedule run failed ({result.ExecutionSeconds}s)");
+        else
+            await ToastService.Success($"Schedule run was successful ({result.ExecutionSeconds}s)");
+
+        await LazyLoader.Reload();
+    }
+}

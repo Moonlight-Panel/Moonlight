@@ -1,0 +1,13 @@
+//
+// TinyMCE
+//
+
+
+// Base
+.tox-target{
+    display: none;
+}
+
+.tox-tinymce{
+    @include border-radius($border-radius !important);
+}

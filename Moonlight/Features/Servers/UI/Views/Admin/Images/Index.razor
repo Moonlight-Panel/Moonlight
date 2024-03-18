@@ -1,0 +1,254 @@
+@page "/admin/servers/images"
+
+@using Moonlight.Features.Servers.UI.Components
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Abstractions
+@using MoonCore.Exceptions
+@using MoonCoreUI.Services
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Microsoft.AspNetCore.Components.Forms
+@using MoonCore.Helpers
+
+@inject Repository<Server> ServerRepository
+@inject Repository<ServerImageVariable> VariableRepository
+@inject Repository<ServerDockerImage> DockerImageRepository
+@inject Repository<ServerImage> ImageRepository
+
+@inject ImageConversionHelper ImageConversionHelper
+@inject FileDownloadService FileDownloadService
+@inject ToastService ToastService
+@inject AlertService AlertService
+
+@attribute [RequirePermission(5002)]
+
+<AdminServersNavigation Index="2"/>
+
+<AutoCrud TItem="ServerImage"
+          TCreateForm="CreateImageForm"
+          TUpdateForm="UpdateImageForm"
+          Title=""
+          Load="Load"
+          ValidateDelete="ValidateDelete"
+          ValidateAdd="ValidateAdd"
+          @ref="Crud">
+    <Actions>
+        <a href="/admin/servers/images/view/@(context.Id)" class="btn btn-icon btn-info">
+            <i class="bx bx-sm bx-wrench"></i>
+        </a>
+    </Actions>
+    <View>
+        <CrudColumn TItem="ServerImage" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
+        <CrudColumn TItem="ServerImage" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
+        <CrudColumn TItem="ServerImage" Field="@(x => x.Author)" Title="Author" Filterable="true"/>
+        <CrudColumn TItem="ServerImage">
+            <Template>
+                @if (!string.IsNullOrEmpty(context.UpdateUrl))
+                {
+                    <WButton CssClasses="btn btn-sm btn-info me-3">
+                        <i class="bx bx-refresh"></i>
+                        Update
+                    </WButton>
+                }
+
+                @if (!string.IsNullOrEmpty(context.DonateUrl))
+                {
+                    <a class="btn btn-sm btn-primary me-3" href="@(context.DonateUrl)" target="_blank">
+                        <i class="bx bxs-heart text-danger"></i>
+                        Donate
+                    </a>
+                }
+
+                <WButton OnClick="() => Export(context)" CssClasses="btn btn-sm btn-warning">
+                    <i class="bx bx-download"></i>
+                    Export
+                </WButton>
+            </Template>
+        </CrudColumn>
+    </View>
+    <NoItemsView>
+        <IconAlert Title="No images found" Color="primary" Icon="bx-search-alt">
+            Download and import a image from our <a href="https://github.com/Moonlight-Panel/Images">repository</a> or create a new one. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
+        </IconAlert>
+    </NoItemsView>
+    <Toolbar>
+        <SmartCustomFileSelect @ref="EggUpload" OnFileSelected="ImportEgg">
+            <a class="btn btn-info me-3">
+                Import egg
+            </a>
+        </SmartCustomFileSelect>
+        <SmartCustomFileSelect @ref="ImageUpload" OnFileSelected="Import">
+            <a class="btn btn-info me-3">
+                Import
+            </a>
+        </SmartCustomFileSelect>
+    </Toolbar>
+</AutoCrud>
+
+@code
+{
+    private AutoCrud<ServerImage, CreateImageForm, UpdateImageForm> Crud;
+    private SmartCustomFileSelect ImageUpload;
+    private SmartCustomFileSelect EggUpload;
+
+    private ServerImage[] Load(Repository<ServerImage> repository)
+    {
+        return repository.Get().ToArray();
+    }
+
+    private Task ValidateDelete(ServerImage serverImage)
+    {
+        if (ServerRepository.Get().Any(x => x.Image.Id == serverImage.Id))
+            throw new DisplayException("A server using this image exists. Please delete the servers using this image to continue");
+
+        var image = ImageRepository
+            .Get()
+            .Include(x => x.Variables)
+            .Include(x => x.DockerImages)
+            .First(x => x.Id == serverImage.Id);
+
+        // Cache relational data
+        var variables = image.Variables.ToArray();
+        var dockerImages = image.DockerImages.ToArray();
+
+        // Unlink data
+        image.DockerImages.Clear();
+        image.Variables.Clear();
+
+        // Save changes
+        ImageRepository.Update(image);
+
+        // Delete variables (errors ignored)
+        foreach (var variable in variables)
+        {
+            try
+            {
+                VariableRepository.Delete(variable);
+            }
+            catch (Exception)
+            {
+                /* this should not fail the operation */
+            }
+        }
+
+        // Delete docker images (errors ignored)
+        foreach (var dockerImage in dockerImages)
+        {
+            try
+            {
+                DockerImageRepository.Delete(dockerImage);
+            }
+            catch (Exception)
+            {
+                /* this should not fail the operation */
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ValidateAdd(ServerImage image)
+    {
+        // Set defaults
+
+        image.StopCommand = "^C";
+        image.StartupCommand = "echo Startup command here";
+        image.AllocationsNeeded = 1;
+        image.InstallScript = "#! /bin/bash\necho Done";
+        image.InstallShell = "/bin/bash";
+        image.InstallDockerImage = "debian:latest";
+        image.OnlineDetection = "Running";
+        image.AllowDockerImageChange = false;
+        image.DefaultDockerImage = 0;
+        image.ParseConfiguration = "[]";
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Export(ServerImage image)
+    {
+        var json = await ImageConversionHelper.ExportAsJson(image);
+        await FileDownloadService.DownloadString($"{image.Name}.json", json);
+
+        await ToastService.Success($"Successfully exported '{image.Name}'");
+    }
+
+    private async Task Import(IBrowserFile file)
+    {
+        try
+        {
+            var stream = file.OpenReadStream();
+
+            using var sr = new StreamReader(stream);
+            var content = await sr.ReadToEndAsync();
+
+            var image = await ImageConversionHelper.ImportFromJson(content);
+
+            ImageRepository.Add(image);
+            await ToastService.Success($"Successfully imported '{image.Name}'");
+
+            await ImageUpload.RemoveSelection();
+            await Crud.Reload();
+        }
+        catch (DisplayException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            Logger.Warn("An error occured while importing a image");
+            Logger.Warn(e);
+
+            await ToastService.Danger("Unable to import egg: " + e.Message);
+        }
+        finally
+        {
+            await ImageUpload.RemoveSelection();
+        }
+    }
+    
+    private async Task ImportEgg(IBrowserFile file)
+    {
+        var confirm = await AlertService.YesNo("Importing pterodactyl eggs is a experimental feature and may result in unusable images. Are you sure you want to proceed?", 
+            "Yes, i take the risk", 
+            "Cancel");
+
+        if (!confirm)
+        {
+            await EggUpload.RemoveSelection();
+            return;
+        }
+
+        try
+        {
+            var stream = file.OpenReadStream();
+
+            using var sr = new StreamReader(stream);
+            var content = await sr.ReadToEndAsync();
+
+            var image = await ImageConversionHelper.ImportFromEggJson(content);
+
+            ImageRepository.Add(image);
+            await ToastService.Success($"Successfully imported '{image.Name}'");
+
+            await EggUpload.RemoveSelection();
+            await Crud.Reload();
+        }
+        catch (DisplayException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            Logger.Warn("An error occured while importing a pterodactyl egg");
+            Logger.Warn(e);
+
+            await ToastService.Danger("Unable to import egg: " + e.Message);
+        }
+        finally
+        {
+            await EggUpload.RemoveSelection();
+        }
+    }
+}

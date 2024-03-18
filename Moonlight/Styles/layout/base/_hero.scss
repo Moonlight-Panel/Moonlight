@@ -1,0 +1,13 @@
+//
+// Hero
+//
+
+// General mode
+.app-hero { 
+    display: flex;
+    align-items: stretch;
+    background-color: var(--#{$prefix}app-hero-bg-color); 
+    box-shadow: var(--#{$prefix}app-hero-box-shadow); 
+    border-top: var(--#{$prefix}app-hero-border-top); 
+    border-bottom: var(--#{$prefix}app-hero-border-bottom); 
+}

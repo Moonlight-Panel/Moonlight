@@ -1,0 +1,133 @@
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Helpers
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Models.Enums
+@using Moonlight.Features.Servers.Services
+@using MoonCoreUI.Services
+
+@implements IDisposable
+
+@inject ServerService ServerService
+@inject AlertService AlertService
+@inject ToastService ToastService
+@inject NavigationManager Navigation
+
+<div class="row g-8">
+    <div class="col-md-6 col-12">
+        <div class="card card-body p-8 h-100">
+            <p class="fs-6">
+                This will run the install script of the image again. Server files will be changed or deleted so be cautious
+            </p>
+            @if (Console.State == ServerState.Offline)
+            {
+                <WButton OnClick="Reinstall" CssClasses="btn btn-primary mt-auto" Text="Reinstall"/>
+            }
+            else
+            {
+                <button class="btn btn-primary disabled mt-auto" disabled="">Reinstall</button>
+            }
+        </div>
+    </div>
+    <div class="col-md-6 col-12">
+        <div class="card card-body p-8 h-100">
+            <p class="fs-6">
+                This will delete all files and run the install script. Please make sure you create a backup before resetting the server
+            </p>
+            @if (Console.State == ServerState.Offline)
+            {
+                <WButton OnClick="ResetServer" CssClasses="btn btn-warning mt-auto" Text="Reset"/>
+            }
+            else
+            {
+                <button class="btn btn-warning disabled mt-auto" disabled="">Reset</button>
+            }
+        </div>
+    </div>
+    <div class="col-md-6 col-12"> @* TODO: Make deleting configurable to show or not *@
+        <div class="card card-body p-8 h-100">
+            <p class="fs-6">
+                This deletes your server. The deleted data is not recoverable. Please make sure you have a backup of the data before deleting the server
+            </p>
+            @if (Console.State == ServerState.Offline)
+            {
+                <WButton OnClick="Delete" CssClasses="btn btn-danger mt-auto" Text="Delete"/>
+            }
+            else
+            {
+                <button class="btn btn-danger disabled mt-auto" disabled="">Delete</button>
+            }
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter] public Server Server { get; set; }
+
+    [CascadingParameter] public ServerConsole Console { get; set; }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Console.OnStateChange += OnStateChanged;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Reinstall()
+    {
+        if (!await AlertService.YesNo("Do you want to reinstall this server? This may replace/delete some files"))
+            return;
+
+        await ServerService.Console.SendAction(Server, PowerAction.Install);
+    }
+
+    private async Task ResetServer()
+    {
+        if (!await AlertService.YesNo("Do you want to reset this server? This will delete all files and run the install script"))
+            return;
+
+        await ToastService.CreateProgress("serverReset", "Reset: Deleting files");
+
+        using var fileAccess = await ServerService.OpenFileAccess(Server);
+
+        var files = await fileAccess.List();
+        int i = 0;
+
+        foreach (var fileEntry in files)
+        {
+            i++;
+
+            await ToastService.ModifyProgress("serverReset", $"Reset: Deleting files [{i} / {files.Length}]");
+            await fileAccess.Delete(fileEntry.Name);
+        }
+
+        await ToastService.ModifyProgress("serverReset", "Reset: Starting install script");
+
+        await ServerService.Console.SendAction(Server, PowerAction.Install);
+
+        await ToastService.RemoveProgress("serverReset");
+    }
+
+    private async Task Delete()
+    {
+        var input = await AlertService.Text($"Please type '{Server.Name}' to confirm deleting this server");
+        
+        if(input != Server.Name)
+            return;
+
+        await ServerService.Delete(Server);
+
+        await ToastService.Success("Successfully deleted server");
+        Navigation.NavigateTo("/servers");
+    }
+
+    private async Task OnStateChanged(ServerState _) => await InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Console.OnStateChange -= OnStateChanged;
+    }
+}

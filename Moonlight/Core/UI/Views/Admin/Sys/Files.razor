@@ -1,0 +1,19 @@
+﻿@page "/admin/sys/files"
+
+@using Moonlight.Core.UI.Components.Navigations
+@using Moonlight.Features.FileManager.UI.Components
+@using Moonlight.Core.Helpers
+@using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
+
+@attribute [RequirePermission(9999)]
+
+<AdminSysNavigation Index="2"/>
+
+<div class="mt-5">
+    <FileManager FileAccess="FileAccess" />
+</div>
+
+@code
+{
+    private BaseFileAccess FileAccess = new(new HostFileActions("storage"));
+}

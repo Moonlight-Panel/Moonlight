@@ -1,0 +1,85 @@
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images.DockerImages
+@using Microsoft.AspNetCore.Components.Forms
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+
+<div class="card mb-10">
+    <div class="card-body">
+        <div class="row g-8">
+            <div class="col-md-6 col-12">
+                <label class="form-label">Default docker image</label>
+                <SmartSelect TField="ServerDockerImage"
+                             @bind-Value="SelectedDockerImage"
+                             Items="Image.DockerImages"
+                             DisplayField="@(x => x.Name)"
+                             CanBeNull="true"/>
+            </div>
+            <div class="col-md-6 col-12">
+                <label class="form-label">Allow user to change the docker image</label>
+                <div class="form-check">
+                    <InputCheckbox @bind-Value="Form.AllowDockerImageChange" class="form-check-input"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<AutoListCrud TItem="ServerDockerImage"
+              TRootItem="ServerImage"
+              TCreateForm="CreateDockerImage"
+              TUpdateForm="UpdateDockerImage"
+              RootItem="Image"
+              Field="@(x => x.DockerImages)">
+    <View>
+        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.Id)" Title="Id"/>
+        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.DisplayName)" Title="Display name"/>
+        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.Name)" Title="Name"/>
+        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.AutoPull)" Title="Auto pull">
+            <Template>
+                @if (context.AutoPull)
+                {
+                    <i class="bx bx-sm bx-check text-success"></i>
+                }
+                else
+                {
+                    <i class="bx bx-sm bx-x text-danger"></i>
+                }
+            </Template>
+        </CrudColumn>
+    </View>
+    <NoItemsView>
+        <IconAlert Title="No docker images found" Color="primary" Icon="bx-search-alt">
+            Add a new docker image in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
+        </IconAlert>
+    </NoItemsView>
+</AutoListCrud>
+
+@code
+{
+    [Parameter] public ServerImage Image { get; set; }
+    [Parameter] public UpdateImageDetailedForm Form { get; set; }
+    
+    private ServerDockerImage? SelectedDockerImage
+    {
+        get
+        {
+            if (Form.DefaultDockerImage >= Image.DockerImages.Count)
+                return null;
+
+            if (Form.DefaultDockerImage == -1)
+                return null;
+
+            return Image.DockerImages[Form.DefaultDockerImage];
+        }
+        set
+        {
+            if (value == null)
+            {
+                Form.DefaultDockerImage = -1;
+                return;
+            }
+
+            Form.DefaultDockerImage = Image.DockerImages.IndexOf(value);
+        }
+    }
+}

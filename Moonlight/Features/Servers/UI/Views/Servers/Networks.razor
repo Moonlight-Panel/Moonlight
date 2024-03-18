@@ -1,0 +1,94 @@
+﻿@page "/servers/networks"
+
+@using Moonlight.Features.Servers.UI.Components
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Forms.Users.Networks
+@using MoonCore.Abstractions
+@using Moonlight.Core.Services
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Exceptions
+
+@inject IdentityService IdentityService
+@inject Repository<Server> ServerRepository
+
+<ServersNavigation Index="1"/>
+
+<AutoCrud TItem="ServerNetwork"
+          TCreateForm="CreateNetworkForm"
+          TUpdateForm="UpdateNetworkForm"
+          Load="Load"
+          ValidateAdd="ValidateAdd">
+    <View>
+        <CrudColumn TItem="ServerNetwork" Field="@(x => x.Name)" Title="Name"/>
+        <CrudColumn TItem="ServerNetwork" Title="Node">
+            <Template>
+                <span>@(context!.Node.Name)</span>
+            </Template>
+        </CrudColumn>
+        <CrudColumn TItem="ServerNetwork" Title="Used by">
+            <Template>
+                @{
+                    var servers = UsedByCache[context.Id];
+                }
+
+                <span>
+                    @foreach (var server in servers)
+                    {
+                        <span><a href="/server/@(server.Id)">@(server.Name)</a> @(server != servers.Last() ? "," : "")</span>
+                    }
+                </span>
+            </Template>
+        </CrudColumn>
+    </View>
+    <NoItemsView>
+        <IconAlert Icon="bx-search-alt" Color="primary" Title="No private network found">
+            Create a new private network in order to connect multiple servers on the same node
+        </IconAlert>
+    </NoItemsView>
+</AutoCrud>
+
+@code
+{
+    private readonly Dictionary<int, Server[]> UsedByCache = new();
+
+    private ServerNetwork[] Load(Repository<ServerNetwork> repository)
+    {
+        var result = repository
+            .Get()
+            .Include(x => x.Node)
+            .Where(x => x.User.Id == IdentityService.CurrentUser.Id)
+            .ToArray();
+
+        UsedByCache.Clear();
+
+        foreach (var network in result)
+        {
+            var serversUsingThisNetwork = ServerRepository
+                .Get()
+                .Where(x => x.Network.Id == network.Id)
+                .Where(x => x.Owner.Id == IdentityService.CurrentUser.Id)
+                .ToArray();
+
+            UsedByCache.Add(network.Id, serversUsingThisNetwork);
+        }
+
+        return result;
+    }
+
+    private Task ValidateAdd(ServerNetwork network)
+    {
+        if (!ServerRepository
+                .Get()
+                .Any(x => x.Node.Id == network.Node.Id && x.Owner.Id == IdentityService.CurrentUser.Id))
+        {
+            throw new DisplayException("You need a server on the selected node in order to create a network on the node");
+        }
+
+        //TODO: Add config to check the amount of networks created
+
+        // Set user as the crud is not allowed to set it (user crud and so on)
+        network.User = IdentityService.CurrentUser;
+        
+        return Task.CompletedTask;
+    }
+}

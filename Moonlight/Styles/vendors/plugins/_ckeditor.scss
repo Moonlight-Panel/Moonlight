@@ -1,0 +1,54 @@
+//
+// CKEditor
+//
+
+
+// Base
+.ck-target{
+    display: none;
+}
+
+.ck-toolbar{
+    @include border-radius($border-radius !important);
+}
+
+.ck-content{
+    min-height: 200px;
+    @include border-radius($border-radius !important);
+
+    &.ck-focused{
+        border-color: var(--#{$prefix}primary) !important;
+        box-shadow: none !important;
+    }
+}
+
+// CKEditor Classic & Document
+.ck-editor{
+    .ck-toolbar{
+        @include border-top-radius($border-radius !important);
+        @include border-bottom-radius(0 !important);
+    }
+    .ck-content{
+        @include border-bottom-radius($border-radius !important);
+        @include border-top-radius(0 !important);
+    }
+}
+
+// CKEditor Inline / Balloon / Balloon Block
+.ck-body {
+    .ck-balloon-panel{
+        .ck-content{
+            min-height: 200px;
+            border-color: transparent !important;
+
+            &.ck-focused{
+                border-color: var(--#{$prefix}primary) !important;
+            }
+        }
+
+        &.ck-toolbar-container,
+        .ck-toolbar {
+            @include border-radius($border-radius !important);
+        }
+    }
+}

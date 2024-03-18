@@ -1,0 +1,96 @@
+﻿@page "/admin/sys"
+
+@using Moonlight.Core.UI.Components.Navigations
+@using Moonlight.Core.Services
+@using Moonlight.Core.Helpers
+@using MoonCore.Helpers
+
+@inject MoonlightService MoonlightService
+
+@attribute [RequirePermission(9999)]
+
+@implements IDisposable
+
+<AdminSysNavigation Index="0"/>
+
+<div class="row g-5 mt-5">
+    <LazyLoader Load="LoadStatistics">
+        <div class="col-md-3 col-12">
+            @{
+                var cpuUsageText = $"{CpuUsage}%";
+            }
+            
+            <StatCard Value="@cpuUsageText" Description="Cpu usage" Icon="bxs-chip"/>
+        </div>
+        <div class="col-md-3 col-12">
+            @{
+                var memoryUsageText = Formatter.FormatSize(MemoryUsage);
+            }
+            
+            <StatCard Value="@memoryUsageText" Description="Memory usage" Icon="bxs-microchip"/>
+        </div>
+        <div class="col-md-3 col-12">
+            <StatCard Value="bf6641c (up-to-date)" Description="Version" Icon="bxs-purchase-tag"/>
+        </div>
+        <div class="col-md-3 col-12">
+            @{
+                var uptimeText = Formatter.FormatUptime(Uptime);
+            }
+            
+            <StatCard Value="@uptimeText" Description="Uptime" Icon="bxs-time-five"/>
+        </div>
+        <div class="col-md-3 col-12">
+            <StatCard Value="@OsName" Description="Operating system" Icon="bx-fingerprint"/>
+        </div>
+    </LazyLoader>
+</div>
+
+<SectionTitle>Actions</SectionTitle>
+
+<div class="row">
+    <div class="col-md-3 col-12">
+        <div class="card card-body p-5">
+            <div class="row">
+                <div class="col-3 text-center d-flex align-items-center">
+                    <i class="bx bx-lg text-white align-middle bx-refresh"></i>
+                </div>
+                <div class="col-9 d-flex align-items-center">
+                    <ConfirmButton OnClick="MoonlightService.Restart" Text="Restart" CssClasses="btn btn-lg btn-danger w-100"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private string OsName;
+    private int CpuUsage;
+    private long MemoryUsage;
+    private TimeSpan Uptime;
+    private Timer? UpdateTimer;
+
+    private async Task LoadStatistics(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading system statistics");
+
+        OsName = await HostSystemHelper.GetOsName();
+        CpuUsage = await HostSystemHelper.GetCpuUsage();
+        MemoryUsage = await HostSystemHelper.GetMemoryUsage();
+        Uptime = await MoonlightService.GetUptime();
+
+        UpdateTimer = new(async _ =>
+        {
+            CpuUsage = await HostSystemHelper.GetCpuUsage();
+            MemoryUsage = await HostSystemHelper.GetMemoryUsage();
+            Uptime = await MoonlightService.GetUptime();
+
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    }
+
+    public void Dispose()
+    {
+        UpdateTimer?.Dispose();
+    }
+}
