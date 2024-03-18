@@ -1,23 +1,26 @@
 ﻿@using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Models.Enums
 @using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
 @using Moonlight.Core.Services.Utils
 @using Moonlight.Core.Event
 @using Moonlight.Core.UI.Components.Auth
 @using Moonlight.Features.Advertisement.Services
 @using Moonlight.Features.Advertisement.UI.Components
+@using MoonCoreUI.Services
+@using MoonCore.Services
+@using Moonlight.Core.Configuration
 
 @inherits LayoutComponentBase
 @implements IDisposable
 
 @inject CookieService CookieService
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject IdentityService IdentityService
 @inject SessionService SessionService
 @inject NavigationManager Navigation
 @inject ConnectionService ConnectionService
 @inject AdBlockService AdBlockService
+@inject HotKeyService HotKeyService
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -161,6 +164,8 @@ else
             
             if(ConfigService.Get().Advertisement.PreventAdBlockers)
                 AdBlockerDetected = await AdBlockService.Detect();
+
+            await HotKeyService.Initialize();
 
             Initialized = true;
 

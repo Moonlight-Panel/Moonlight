@@ -1,5 +1,8 @@
-﻿using Moonlight.Core.Exceptions;
-using Moonlight.Core.Repositories;
+﻿using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
+
+
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.ServiceManagement.Entities.Enums;
 using Moonlight.Features.ServiceManagement.Services;
@@ -8,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace Moonlight.Features.StoreSystem.Services;
 
+[Scoped]
 public class StoreAdminService
 {
     private readonly Repository<Product> ProductRepository;

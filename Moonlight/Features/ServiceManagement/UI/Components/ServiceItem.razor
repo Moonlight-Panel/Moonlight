@@ -1,12 +1,17 @@
-﻿@using Moonlight.Core.Exceptions
-@using Moonlight.Core.Helpers
+﻿
+
 @using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
+
 @using Moonlight.Features.ServiceManagement.Entities
 @using Moonlight.Features.ServiceManagement.Services
 @using Moonlight.Features.StoreSystem.Services
+@using MoonCore.Helpers
+@using MoonCore.Services
+@using MoonCore.Exceptions
+@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
 
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject ToastService ToastService
 @inject ServiceService ServiceService
 @inject StoreService StoreService

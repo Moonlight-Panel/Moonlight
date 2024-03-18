@@ -1,0 +1,72 @@
+@page "/admin/servers/images/{Id:int}/installation"
+
+@using Moonlight.Features.Servers.Entities
+
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Mappy.Net
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+
+@using Moonlight.Features.Servers.UI.Components
+
+@inject Repository<ServerImage> ImageRepository
+@inject ToastService ToastService
+
+<LazyLoader ShowAsCard="true" Load="Load">
+    @if (Image == null)
+    {
+        <NotFoundAlert />
+    }
+    else
+    {
+        <AdminImageViewNavigation Index="3" ImageId="@Id" />
+        
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Update image installation details</span>
+            </div>
+            <SmartForm Model="Form" OnValidSubmit="Submit">
+                <div class="card-body row">
+                    <AutoForm TForm="UpdateImageInstallationForm" Model="Form" />
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </div>
+            </SmartForm>
+        </div>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    private ServerImage? Image;
+    
+    private UpdateImageInstallationForm Form = new();
+
+    private Task Load(LazyLoader arg)
+    {
+        Image = ImageRepository
+            .Get()
+            .FirstOrDefault(x => x.Id == Id);
+
+        if (Image != null)
+        {
+            Form = Mapper.Map<UpdateImageInstallationForm>(Image);
+        }
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task Submit()
+    {
+        Image = Mapper.Map(Image, Form);
+        ImageRepository.Update(Image!);
+        
+        await ToastService.Success("Successfully updated image");
+    }
+}

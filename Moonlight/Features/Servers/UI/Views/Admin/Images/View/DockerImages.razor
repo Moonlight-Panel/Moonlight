@@ -1,0 +1,130 @@
+@page "/admin/servers/images/{Id:int}/dockerimages"
+
+@using Moonlight.Features.Servers.Entities
+
+@using Moonlight.Features.Servers.Models.Forms.Admin.Images
+@using Moonlight.Features.Servers.UI.Components
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+
+@using Microsoft.AspNetCore.Components.Forms
+@using MoonCore.Abstractions
+@using MoonCoreUI.Services
+
+@inject Repository<ServerImage> ImageRepository
+@inject ToastService ToastService
+
+<LazyLoader ShowAsCard="true" Load="Load">
+    @if (Image == null)
+    {
+        <NotFoundAlert/>
+    }
+    else
+    {
+        <AdminImageViewNavigation Index="4" ImageId="@Id"/>
+
+        <div class="card mb-5">
+            <div class="card-body">
+                <div class="row ">
+                    <div class="col-md-6 col-12">
+                        <label class="form-label">Default docker image</label>
+                        <SmartSelect TField="ServerDockerImage"
+                                     @bind-Value="SelectedDockerImage"
+                                     Items="Image.DockerImages"
+                                     DisplayField="@(x => x.Name)"
+                                     CanBeNull="true"/>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <label class="form-label">Allow user to change the docker image</label>
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="Image.AllowUserToChangeDockerImage" class="form-check-input"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <WButton Text="Save" CssClasses="btn btn-success" OnClick="OnSave"/>
+            </div>
+        </div>
+
+        <AutoListCrud TItem="ServerDockerImage"
+                      TRootItem="ServerImage"
+                      TCreateForm="CreateDockerImage"
+                      TUpdateForm="UpdateDockerImage"
+                      Field="@(x => x.DockerImages)"
+                      RootItem="Image"
+                      Title="Manage docker images">
+            <View>
+                <Column TableItem="ServerDockerImage" Field="@(x => x.Id)" Title="Id"/>
+                <Column TableItem="ServerDockerImage" Field="@(x => x.DisplayName)" Title="Display name"/>
+                <Column TableItem="ServerDockerImage" Field="@(x => x.Name)" Title="Name"/>
+                <Column TableItem="ServerDockerImage" Field="@(x => x.AutoPull)" Title="Auto pull">
+                    <Template>
+                        @if (context.AutoPull)
+                        {
+                            <i class="bx bx-sm bx-check text-success"></i>
+                        }
+                        else
+                        {
+                            <i class="bx bx-sm bx-x text-danger"></i>
+                        }
+                    </Template>
+                </Column>
+            </View>
+        </AutoListCrud>
+    }
+</LazyLoader>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private ServerImage? Image;
+
+    private ServerDockerImage? SelectedDockerImage
+    {
+        get
+        {
+            if (Image == null)
+                return null;
+
+            if (Image.DefaultDockerImageIndex >= Image.DockerImages.Count)
+                return null;
+
+            if (Image.DefaultDockerImageIndex == -1)
+                return null;
+
+            return Image.DockerImages[Image.DefaultDockerImageIndex];
+        }
+        set
+        {
+            if (Image == null)
+                return;
+
+            if (value == null)
+            {
+                Image.DefaultDockerImageIndex = -1;
+                return;
+            }
+
+            Image.DefaultDockerImageIndex = Image.DockerImages.IndexOf(value);
+        }
+    }
+
+    private Task Load(LazyLoader arg)
+    {
+        Image = ImageRepository
+            .Get()
+            .Include(x => x.DockerImages)
+            .FirstOrDefault(x => x.Id == Id);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnSave()
+    {
+        ImageRepository.Update(Image!);
+
+        await ToastService.Success("Successfully updated image");
+    }
+}

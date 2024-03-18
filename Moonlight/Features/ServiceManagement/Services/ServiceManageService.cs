@@ -1,12 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.Models.Enums;
-using Moonlight.Core.Repositories;
+
 using Moonlight.Features.ServiceManagement.Entities;
 
 namespace Moonlight.Features.ServiceManagement.Services;
 
+[Singleton]
 public class ServiceManageService
 {
     private readonly IServiceScopeFactory ServiceScopeFactory;

@@ -1,9 +1,11 @@
-﻿using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Repositories;
+﻿using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
+using Moonlight.Core.Database.Entities;
 
 namespace Moonlight.Core.Services.Users;
 
+[Scoped]
 public class UserService
 {
     private readonly Repository<User> UserRepository;

@@ -2,14 +2,16 @@
 @using Microsoft.EntityFrameworkCore
 @using Mappy.Net
 @using BlazorTable
+@using MoonCore.Abstractions
+@using MoonCore.Helpers
+@using MoonCore.Services
+@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
 @using Moonlight.Core.Database.Entities
 @using Moonlight.Core.Extensions.Attributes
-@using Moonlight.Core.Helpers
 @using Moonlight.Core.Models.Enums
 @using Moonlight.Core.Models.Forms.Admin.Users
-@using Moonlight.Core.Repositories
 @using Moonlight.Core.Services
-@using Moonlight.Core.Services.Interop
 @using Moonlight.Core.Services.Users
 @using Moonlight.Features.ServiceManagement.Entities
 @using Moonlight.Features.StoreSystem.Entities
@@ -21,7 +23,7 @@
 @inject SessionService SessionService
 @inject UserService UserService
 @inject ToastService ToastService
-@inject ConfigService ConfigService
+@inject ConfigService<ConfigV1> ConfigService
 @inject NavigationManager Navigation
 
 <LazyLoader Load="Load" ShowAsCard="true">

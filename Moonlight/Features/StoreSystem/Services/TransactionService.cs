@@ -1,11 +1,13 @@
-﻿using Moonlight.Core.Database.Entities;
+﻿using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Event;
 using Moonlight.Core.Extensions;
-using Moonlight.Core.Repositories;
 using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.StoreSystem.Services;
 
+[Scoped]
 public class TransactionService
 {
     private readonly Repository<User> UserRepository;

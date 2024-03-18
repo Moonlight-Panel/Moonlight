@@ -1,0 +1,53 @@
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Models.Enums
+@using Moonlight.Features.Servers.Services
+
+@implements IDisposable
+
+@inject ServerService ServerService
+
+<div class="card card-body">
+    @if (Meta.State == ServerState.Offline)
+    {
+        <ConfirmButton OnClick="ResetServer" CssClasses="btn btn-danger" Text="Reset server" />
+    }
+    else
+    {
+        <button class="btn btn-danger disabled" disabled="">Reset server</button>
+    }
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public Server Server { get; set; }
+    
+    [CascadingParameter]
+    public ServerMeta Meta { get; set; }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Meta.OnStateChanged += OnStateChanged;
+        }
+        
+        return Task.CompletedTask;
+    }
+    
+    private async Task ResetServer()
+    {
+        await ServerService.Console.SendAction(Server, PowerAction.Install);
+    }
+
+    private async Task OnStateChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Meta.OnStateChanged -= OnStateChanged;
+    }
+}

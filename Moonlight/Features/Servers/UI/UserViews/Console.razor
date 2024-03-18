@@ -1,0 +1,66 @@
+@using Moonlight.Features.Servers.Models.Abstractions
+@using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.Components
+@using Moonlight.Features.Servers.Entities
+
+@inject ServerService ServerService
+
+@implements IDisposable
+
+<div class="card card-body bg-black border-0 p-3">
+    <Terminal @ref="Terminal" />
+    <div class="mt-3">
+        <div class="input-group">
+            <input @bind="CommandInput" class="form-control form-control-transparent text-white" placeholder="Enter command"/>
+            <WButton CssClasses="btn btn-secondary rounded-start" Text="Execute" OnClick="SendCommand" />
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    public ServerMeta Meta { get; set; }
+    
+    [CascadingParameter]
+    public Server Server { get; set; }
+
+    private Terminal Terminal;
+    private string CommandInput = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            string[] messages;
+
+            lock (Meta.ConsoleMessages)
+                messages = Meta.ConsoleMessages.TakeLast(50).ToArray();
+
+            foreach (var message in messages)
+                await Terminal.WriteLine(message);
+            
+            Meta.OnConsoleMessage += OnConsoleMessage;
+        }
+    }
+
+    private async Task OnConsoleMessage(string message)
+    {
+        await Terminal.WriteLine(message);
+    }
+    
+    private async Task SendCommand()
+    {
+        await ServerService.Console.SendCommand(Server, CommandInput);
+        CommandInput = "";
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if(Meta != null)
+            Meta.OnConsoleMessage -= OnConsoleMessage;
+    }
+
+}

@@ -1,12 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Exceptions;
-using Moonlight.Core.Repositories;
+
+
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.StoreSystem.Entities;
 
 namespace Moonlight.Features.ServiceManagement.Services;
 
+[Singleton]
 public class ServiceAdminService
 {
     private readonly IServiceScopeFactory ServiceScopeFactory;
@@ -47,9 +51,17 @@ public class ServiceAdminService
         // Add new service in database
         var finishedService = serviceRepo.Add(service);
 
-        // Call the action for the logic behind the service type
-        await impl.Actions.Create(scope.ServiceProvider, finishedService);
-
+        try
+        {
+            // Call the action for the logic behind the service type
+            await impl.Actions.Create(scope.ServiceProvider, finishedService);
+        }
+        catch (Exception) // Handle any implementation errors and let the creation fail
+        {
+            serviceRepo.Delete(finishedService);
+            throw;
+        }
+        
         return finishedService;
     }
 

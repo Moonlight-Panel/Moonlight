@@ -1,8 +1,10 @@
 ﻿using Microsoft.JSInterop;
-using Moonlight.Core.Helpers;
+using MoonCore.Attributes;
+using MoonCore.Helpers;
 
 namespace Moonlight.Features.Advertisement.Services;
 
+[Scoped]
 public class AdBlockService
 {
     private readonly IJSRuntime JsRuntime;

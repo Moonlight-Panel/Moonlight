@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
-using Moonlight.Core.Helpers;
+using MoonCore.Helpers;
 using Moonlight.Features.Advertisement.Configuration;
+using Moonlight.Features.FileManager.Configuration;
+using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.StoreSystem.Configuration;
 using Moonlight.Features.Theming.Configuration;
 using Newtonsoft.Json;
@@ -21,6 +23,19 @@ public class ConfigV1
 
     [JsonProperty("Theme")] public ThemeData Theme { get; set; } = new();
     [JsonProperty("Advertisement")] public AdvertisementData Advertisement { get; set; } = new();
+    
+    [JsonProperty("FileManager")] public FileManagerData FileManager { get; set; } = new();
+    
+    [JsonProperty("WebServer")] public WebServerData WebServer { get; set; } = new();
+
+    [JsonProperty("Servers")] public ServersData Servers { get; set; } = new();
+    
+    public class WebServerData
+    {
+        [JsonProperty("HttpUploadLimit")]
+        [Description("This sets the kestrel upload limit in megabytes. Changing this will need an restart")]
+        public int HttpUploadLimit { get; set; } = 100 * 1024;
+    }
     
     public class SecurityData
     {

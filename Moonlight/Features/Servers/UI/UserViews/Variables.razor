@@ -1,0 +1,110 @@
+@using Moonlight.Features.Servers.Entities
+@using MoonCore.Abstractions
+@using Microsoft.EntityFrameworkCore
+@using MoonCoreUI.Services
+
+@inject Repository<Server> ServerRepository
+@inject Repository<ServerImage> ImageRepository
+@inject Repository<ServerVariable> ServerVariableRepository
+@inject ToastService ToastService
+
+<LazyLoader @ref="LazyLoader" Load="Load" ShowAsCard="true">
+    <div class="row mb-5">
+        <div class="col-md-6 col-12">
+            <div class="card card-body p-5">
+                <label class="form-label">Docker image</label>
+                @if (Image.AllowUserToChangeDockerImage)
+                {
+                    <SmartSelect @bind-Value="SelectedDockerImage"
+                                 Items="Image.DockerImages"
+                                 DisplayField="@(x => x.DisplayName)"
+                                 OnChange="OnDockerImageChanged"/>
+                }
+                else
+                {
+                    <select class="form-select disabled" disabled="disabled">
+                        <option>@SelectedDockerImage.DisplayName</option>
+                    </select>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="d-flex row g-5">
+        @foreach (var variable in Server.Variables)
+        {
+            var imageVariable = Image.Variables.FirstOrDefault(x => x.Key == variable.Key);
+
+            if (imageVariable != null && imageVariable.AllowUserToView)
+            {
+                <div class="d-flex flex-column col-md-3 col-12">
+                    <div class="card card-body p-5">
+                        <label class="form-label">@(imageVariable.DisplayName)</label>
+                        <div class="form-text fs-5 mb-2 mt-0">
+                            @imageVariable.Description
+                        </div>
+                        <div class="mt-auto">
+                            @if (imageVariable.AllowUserToEdit)
+                            {
+                                <div class="input-group">
+                                    <input @bind="variable.Value" type="text" class="form-control" placeholder="@(imageVariable.DefaultValue)"/>
+                                    <WButton OnClick="() => UpdateVariable(variable)" CssClasses="btn btn-icon btn-primary">
+                                        <i class="bx bx-sm bx-save"></i>
+                                    </WButton>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="input-group">
+                                    <input value="@variable.Value" type="text" class="form-control disabled" disabled=""/>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</LazyLoader>
+
+@code
+{
+    [CascadingParameter] public Server Server { get; set; }
+
+    private ServerImage Image;
+    private LazyLoader LazyLoader;
+
+    private ServerDockerImage SelectedDockerImage;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Loading server image data");
+
+        Image = ImageRepository
+            .Get()
+            .Include(x => x.Variables)
+            .Include(x => x.DockerImages)
+            .First(x => x.Id == Server.Image.Id);
+
+        if (Server.DockerImageIndex >= Image.DockerImages.Count || Server.DockerImageIndex == -1)
+            SelectedDockerImage = Image.DockerImages.Last();
+        else
+            SelectedDockerImage = Image.DockerImages[Server.DockerImageIndex];
+    }
+
+    private async Task OnDockerImageChanged()
+    {
+        Server.DockerImageIndex = Image.DockerImages.IndexOf(SelectedDockerImage);
+        ServerRepository.Update(Server);
+
+        await ToastService.Success("Successfully changed docker image");
+        await LazyLoader.Reload();
+    }
+
+    private async Task UpdateVariable(ServerVariable variable)
+    {
+        ServerVariableRepository.Update(variable);
+
+        await ToastService.Success("Successfully changed variable");
+        await LazyLoader.Reload();
+    }
+}

@@ -1,0 +1,141 @@
+@page "/admin/servers/images"
+
+@using BlazorTable
+@using Microsoft.EntityFrameworkCore
+@using MoonCore.Abstractions
+@using MoonCore.Exceptions
+@using MoonCoreUI.Services
+
+
+
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.UI.Components
+
+@inject Repository<ServerImage> ImageRepository
+@inject Repository<ServerImageVariable> ImageVariableRepository
+@inject Repository<ServerDockerImage> DockerImageRepository
+@inject Repository<Server> ServerRepository
+@inject ToastService ToastService
+
+<AdminServersNavigation Index="1"/>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Manage server images</h3>
+        <div class="card-toolbar">
+            <a href="/admin/servers/images/new" class="btn btn-icon btn-success ms-3">
+                <i class="bx bx-sm bx-plus"></i>
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <LazyLoader @ref="LazyLoader" Load="Load">
+            <Table TableItem="ServerImage"
+                   Items="Images"
+                   PageSize="50"
+                   TableClass="table table-row-bordered table-row-gray-100 align-middle gs-0 gy-3 fs-6"
+                   TableHeadClass="fw-bold text-muted">
+                <Column TableItem="ServerImage" Field="@(x => x.Id)" Title="Id"/>
+                <Column TableItem="ServerImage" Field="@(x => x.Name)" Title="Name">
+                    <Template>
+                        <a href="/admin/servers/images/@(context.Id)">
+                            @context.Name
+                        </a>
+                    </Template>
+                </Column>
+                <Column TableItem="ServerImage" Field="@(x => x.Author)" Title="Author"/>
+                <Column TableItem="ServerImage" Field="@(x => x.Id)" Title="">
+                    <Template>
+                        @if (!string.IsNullOrEmpty(context.UpdateUrl))
+                        {
+                            <WButton OnClick="() => Update(context)" CssClasses="btn btn-sm btn-primary">
+                                <span>Update</span>
+                                <i class="bx bx-sm bx-refresh"></i>
+                            </WButton>
+                        }
+                        @if (!string.IsNullOrEmpty(context.DonateUrl))
+                        {
+                            <a href="@(context.DonateUrl)" target="_blank" class="btn btn-sm btn-info">
+                                <span>Donate</span>
+                                <i class="bx bx-sm bxs-heart text-danger"></i>
+                            </a>
+                        }
+                    </Template>
+                </Column>
+                <Column TableItem="ServerImage" Field="@(x => x.Id)" Title="" Sortable="false" Filterable="false">
+                    <Template>
+                        <div class="text-end">
+                            <div class="btn-group">
+                                <a href="/admin/servers/images/@(context.Id)" class="btn btn-icon btn-warning">
+                                    <i class="bx bx-sm bx-slider"></i>
+                                </a>
+                                <ConfirmButton OnClick="() => Delete(context)" CssClasses="btn btn-icon btn-danger">
+                                    <i class="bx bx-sm bx-trash"></i>
+                                </ConfirmButton>
+                            </div>
+                        </div>
+                    </Template>
+                </Column>
+            </Table>
+        </LazyLoader>
+    </div>
+</div>
+
+@code
+{
+    private LazyLoader LazyLoader;
+    private ServerImage[] Images;
+
+    private Task Load(LazyLoader arg)
+    {
+        Images = ImageRepository
+            .Get()
+            .ToArray();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Update(ServerImage image)
+    {
+    }
+
+    private async Task Delete(ServerImage image)
+    {
+        var anyServerWithThisImage = ServerRepository
+            .Get()
+            .Any(x => x.Image.Id == image.Id);
+
+        if (anyServerWithThisImage)
+            throw new DisplayException("This image cannot be deleted, because one or more server depend on it. Delete the server(s) first and then delete the image");
+
+        var imageWithData = ImageRepository
+            .Get()
+            .Include(x => x.Variables)
+            .Include(x => x.DockerImages)
+            .First(x => x.Id == image.Id);
+
+        // Cache and clear relational data
+
+        var variables = imageWithData.Variables.ToArray();
+        var dockerImages = imageWithData.DockerImages.ToArray();
+
+        imageWithData.DockerImages.Clear();
+        imageWithData.Variables.Clear();
+
+        ImageRepository.Update(imageWithData);
+
+        foreach (var variable in variables)
+            ImageVariableRepository.Delete(variable);
+
+        foreach (var dockerImage in dockerImages)
+            DockerImageRepository.Delete(dockerImage);
+
+        // And now we can clear the image
+
+        ImageRepository.Delete(imageWithData);
+
+        // and notify the user
+        await ToastService.Success("Successfully deleted image");
+        await LazyLoader.Reload();
+    }
+}

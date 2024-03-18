@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using MoonCoreUI.Helpers;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Helpers;
+
 using Moonlight.Features.ServiceManagement.Entities;
 using Moonlight.Features.StoreSystem.Entities;
 
@@ -15,7 +16,7 @@ public class ServiceViewContext
 
     // Content
     public List<ServiceUiPage> Pages { get; set; } = new();
-    public RenderFragment Layout { get; set; }
+    public Type Layout { get; set; }
 
     public Task AddPage<T>(string name, string route, string icon = "") where T : ComponentBase
     {

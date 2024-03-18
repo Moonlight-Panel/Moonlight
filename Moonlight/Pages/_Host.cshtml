@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Moonlight.Features.Theming.Services
 @namespace Moonlight.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
@@ -25,7 +26,7 @@
     @foreach (var theme in themes)
     {
         var finalUrl = theme.CssUrl.StartsWith("/") ? theme.CssUrl : $"/api/assetproxy/theme/{theme.Id}/css";
-        
+
         <!-- Theme: @(theme.Name) by @(theme.Author) -->
         <link href="@(finalUrl)" rel="stylesheet" type="text/css"/>
     }
@@ -36,6 +37,11 @@
     <link href="/css/sweetalert2dark.css" rel="stylesheet" type="text/css"/>
     <link href="/css/interfont.css" rel="stylesheet" type="text/css"/>
     @* <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet" type="text/css"> *@
+
+    <link href="/_content/XtermBlazor/XtermBlazor.css" rel="stylesheet" type="text/css"/>
+
+    <link href="/editor/ace.css" rel="stylesheet" type="text/css"/>
+    <link href="/editor/dracula.css"/>
 </head>
 <body data-kt-app-header-fixed="true"
       data-kt-app-header-fixed-mobile="true"
@@ -55,17 +61,22 @@
 <script src="/_content/BlazorTable/BlazorTable.min.js"></script>
 <script src="/js/sweetalert2.js"></script>
 <script src="/js/ckeditor.js"></script>
+<script src="/js/dropzone.min.js"></script>
+
+<script src="/_content/XtermBlazor/XtermBlazor.min.js"></script>
 
 @foreach (var theme in themes)
 {
     if (!string.IsNullOrEmpty(theme.JsUrl))
     {
         var finalUrl = theme.JsUrl.StartsWith("/") ? theme.JsUrl : $"/api/assetproxy/theme/{theme.Id}/js";
-        
+
         <!-- Theme: @(theme.Name) by @(theme.Author) -->
         <script src="@(finalUrl)"></script>
     }
 }
+
+<script src="/editor/ace.js"></script>
 
 <script src="/_framework/blazor.server.js"></script>
 </body>

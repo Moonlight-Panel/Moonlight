@@ -1,28 +1,32 @@
-﻿using Moonlight.Core.Database.Entities;
+﻿using MoonCore.Abstractions;
+using MoonCore.Attributes;
+using MoonCore.Exceptions;
+using MoonCore.Helpers;
+using MoonCore.Services;
+using Moonlight.Core.Configuration;
+using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Event;
-using Moonlight.Core.Exceptions;
 using Moonlight.Core.Extensions;
-using Moonlight.Core.Helpers;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.Models.Enums;
 using Moonlight.Core.Models.Templates;
-using Moonlight.Core.Repositories;
 using Moonlight.Core.Services.Utils;
 using OtpNet;
 
 namespace Moonlight.Core.Services.Users;
 
+[Scoped]
 public class UserAuthService
 {
     private readonly Repository<User> UserRepository;
     private readonly JwtService JwtService;
-    private readonly ConfigService ConfigService;
+    private readonly ConfigService<ConfigV1> ConfigService;
     private readonly MailService MailService;
 
     public UserAuthService(
         Repository<User> userRepository,
         JwtService jwtService,
-        ConfigService configService,
+        ConfigService<ConfigV1> configService,
         MailService mailService)
     {
         UserRepository = userRepository;
@@ -97,7 +101,10 @@ public class UserAuthService
 
     public async Task SendVerification(User user)
     {
-        var jwt = await JwtService.Create(data => { data.Add("mailToVerify", user.Email); }, TimeSpan.FromMinutes(10));
+        var jwt = await JwtService.Create(data =>
+        {
+            data.Add("mailToVerify", user.Email);
+        }, "EmailVerification", TimeSpan.FromMinutes(10));
 
         await MailService.Send(user, "Verify your account", "verifyMail", user, new MailVerify()
         {
@@ -114,7 +121,10 @@ public class UserAuthService
         if (user == null)
             throw new DisplayException("An account with that email was not found");
 
-        var jwt = await JwtService.Create(data => { data.Add("accountToReset", user.Id.ToString()); });
+        var jwt = await JwtService.Create(data =>
+        {
+            data.Add("accountToReset", user.Id.ToString());
+        }, "PasswordReset", TimeSpan.FromHours(1));
         
         await MailService.Send(user, "Password reset for your account", "passwordReset", user, new ResetPassword()
         {
