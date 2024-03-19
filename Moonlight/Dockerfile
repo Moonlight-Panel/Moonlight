@@ -19,4 +19,9 @@ RUN dotnet publish "Moonlight.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Copy default assets
+RUN mkdir -p /app/Assets
+COPY ./Moonlight/Assets ./Assets
+
 ENTRYPOINT ["dotnet", "Moonlight.dll"]
