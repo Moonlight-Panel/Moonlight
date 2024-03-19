@@ -6,6 +6,7 @@ using MoonCore.Services;
 using MoonCoreUI.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
+using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Implementations.Diagnose;
 using Moonlight.Core.Interfaces;
 using Moonlight.Core.Models;
@@ -136,6 +137,45 @@ public class CoreFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IDiagnoseAction>(new PluginsDiagnoseAction());
         await pluginService.RegisterImplementation<IDiagnoseAction>(new FeatureDiagnoseAction());
         await pluginService.RegisterImplementation<IDiagnoseAction>(new LogDiagnoseAction());
+        
+        // Startup job services
+        var startupJobService = app.Services.GetRequiredService<StartupJobService>();
+
+        await startupJobService.AddJob("Default user creation", TimeSpan.FromSeconds(3), async provider =>
+        {
+            using var scope = provider.CreateScope();
+            
+            var configService = scope.ServiceProvider.GetRequiredService<ConfigService<CoreConfiguration>>();
+            var userRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
+            var authenticationProvider = scope.ServiceProvider.GetRequiredService<IAuthenticationProvider>();
+            
+            if(!configService.Get().Authentication.UseDefaultAuthentication)
+                return;
+            
+            if(userRepo.Get().Any())
+                return;
+
+            // Define credentials
+            var password = Formatter.GenerateString(32);
+            var username = "adminowo";
+            var email = "adminowo@example.com";
+
+            // Register user
+            var registeredUser = await authenticationProvider.Register(username, email, password);
+
+            if (registeredUser == null)
+            {
+                Logger.Warn("Unable to create default user. Register function returned null");
+                return;
+            }
+
+            // Give user admin permissions
+            var user = userRepo.Get().First(x => x.Username == username);
+            user.Permissions = 9999;
+            userRepo.Update(user);
+            
+            Logger.Info($"Default login: Email: '{email}' Password: '{password}'");
+        });
     }
 
     public override Task OnUiInitialized(UiInitContext context)
