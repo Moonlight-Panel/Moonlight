@@ -6,6 +6,9 @@ namespace Moonlight.Core.Configuration;
 
 public class CoreConfiguration
 {
+    [JsonProperty("AppUrl")]
+    [Description("This defines the public url of moonlight. This will be used by the nodes to communicate with moonlight")]
+    public string AppUrl { get; set; } = "";
     [JsonProperty("Database")] public DatabaseData Database { get; set; } = new();
     [JsonProperty("Features")] public FeaturesData Features { get; set; } = new();
     [JsonProperty("Authentication")] public AuthenticationData Authentication { get; set; } = new();

@@ -1,4 +1,8 @@
 @using Moonlight.Features.Servers.Entities
+@using MoonCore.Services
+@using Moonlight.Core.Configuration
+
+@inject ConfigService<CoreConfiguration> ConfigService
 
 <div class="card card-body p-8 fs-5">
     In order to setup this node, make sure you have a clean linux (tested with ubuntu 22.04) server with the capabilities to run docker.
@@ -15,8 +19,12 @@
 {
     [Parameter] public ServerNode Node { get; set; }
 
+    private string Channel = "custom";
+
     private string GenerateSetupCommand()
     {
-        return $"echo Do somthing smart here with {Node.Name}";
+        var appUrl = ConfigService.Get().AppUrl;
+        
+        return $"curl https://get-moonlight.app/install.sh | bash; mlcli daemon install {Channel} {appUrl} {Node.Token} {Node.HttpPort} {Node.Fqdn} {Node.Ssl.ToString().ToLower()}";
     }
 }
