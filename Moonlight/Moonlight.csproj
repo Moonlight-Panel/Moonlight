@@ -78,7 +78,6 @@
       <Folder Include="storage\logs\" />
       <Folder Include="Styles\" />
       <Folder Include="wwwroot\css\" />
-      <Folder Include="wwwroot\js\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -109,6 +108,7 @@
       <_ContentIncludedByDefault Remove="Features\ScheduleDesigner\UI\Components\ScheduleEditor.razor" />
       <_ContentIncludedByDefault Remove="Features\ScheduleDesigner\UI\Components\ScheduleLinkItem.razor" />
       <_ContentIncludedByDefault Remove="Features\ScheduleDesigner\UI\Components\ScheduleNodeItem.razor" />
+      <_ContentIncludedByDefault Remove="wwwroot\svg\logo.svg" />
     </ItemGroup>
 
 </Project>
