@@ -28,7 +28,7 @@
                     memoryHas = $"{ByteSizeValue.FromMegaBytes(Server.Memory).GigaBytes} GB";
                 else
                     memoryHas = $"{Server.Memory} MB";
-                
+
                 var memoryText = $"{Formatter.FormatSize(CurrentStats.MemoryUsage)} / {memoryHas}";
             }
 
@@ -36,17 +36,17 @@
         </div>
         <div class="col-md-3 col-12">
             @{
-                var networkText = $"{Formatter.FormatSize(CurrentStats.NetRead)} / {Formatter.FormatSize(CurrentStats.NetWrite)}";
+                var networkReadText = Formatter.FormatSize(CurrentStats.NetRead);
             }
 
-            <StatCard Icon="bx-transfer-alt" Description="Network Traffic (Read / Write)" Value="@networkText"/>
+            <StatCard Icon="bx-transfer-alt" Description="Network Read" Value="@networkReadText"/>
         </div>
         <div class="col-md-3 col-12">
             @{
-                var ioText = $"{Formatter.FormatSize(CurrentStats.IoRead)} / {Formatter.FormatSize(CurrentStats.IoWrite)}";
+                var networkWriteText = Formatter.FormatSize(CurrentStats.NetWrite);
             }
 
-            <StatCard Icon="bx-hdd" Description="IO Usage (Read / Write)" Value="@ioText"/>
+            <StatCard Icon="bx-transfer-alt" Description="Network Write" Value="@networkWriteText"/>
         </div>
         <div class="col-md-6 col-12">
             <div class="card card-body p-2">
@@ -66,17 +66,17 @@
         </div>
         <div class="col-md-6 col-12">
             <div class="card card-body p-2">
-                <div class="text-center fs-4 mt-2">Network Usage</div>
+                <div class="text-center fs-4 mt-2">Network Read</div>
                 <div style="height: 25vh">
-                    <ServerStatsGraph Console="Console" Min="0" Max="1024" Unit="KB" AllowDynamicView="true" Field1="@(x => ByteSizeValue.FromBytes(x.NetWrite).KiloBytes)" Field2="@(x => ByteSizeValue.FromBytes(x.NetRead).KiloBytes)"/>
+                    <ServerStatsGraph Console="Console" Min="0" Max="1024" Unit="MB" AllowDynamicView="true" Field1="@(x => ByteSizeValue.FromBytes(x.NetRead).MegaBytes)"/>
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-12">
             <div class="card card-body p-2">
-                <div class="text-center fs-4 mt-2">IO Usage</div>
+                <div class="text-center fs-4 mt-2">Network Write</div>
                 <div style="height: 25vh">
-                    <ServerStatsGraph Console="Console" Min="0" Max="1024" Unit="KB" Field1="@(x => x.IoWrite)" Field2="@(x => x.IoRead)"/>
+                    <ServerStatsGraph Console="Console" Min="0" Max="1024" Unit="MB" AllowDynamicView="true" Field1="@(x => ByteSizeValue.FromBytes(x.NetWrite).MegaBytes)"/>
                 </div>
             </div>
         </div>
