@@ -76,6 +76,7 @@
       <Folder Include="Features\FileManager\Http\Resources\" />
       <Folder Include="Features\Servers\Http\Resources\" />
       <Folder Include="storage\assetOverrides\" />
+      <Folder Include="storage\logs\" />
       <Folder Include="Styles\" />
       <Folder Include="wwwroot\css\" />
       <Folder Include="wwwroot\js\" />
@@ -91,7 +92,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MoonCore" Version="1.1.2" />
+      <PackageReference Include="MoonCore" Version="1.1.6" />
       <PackageReference Include="MoonCoreUI" Version="1.1.4" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />

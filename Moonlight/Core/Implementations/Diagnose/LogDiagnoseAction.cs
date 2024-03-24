@@ -9,7 +9,7 @@ public class LogDiagnoseAction : IDiagnoseAction
 {
     public async Task GenerateReport(ZipArchive archive, IServiceProvider serviceProvider)
     {
-        var path = PathBuilder.File("storage", "logs", "latest.log");
+        var path = PathBuilder.File("storage", "logs", "moonlight.log");
         
         if(!File.Exists(path))
             return;
