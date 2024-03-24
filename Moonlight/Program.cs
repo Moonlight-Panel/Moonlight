@@ -4,6 +4,7 @@ using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
+using Moonlight.Core.Http.Middleware;
 using Moonlight.Core.Services;
 
 // Create needed storage directories
@@ -99,5 +100,10 @@ await featureService.UiInit();
 await pluginService.Initialized(app);
 
 app.Services.StartBackgroundServices<Program>();
+
+if (Environment.GetEnvironmentVariables().Contains("DEBUG_HTTP"))
+{
+    app.UseMiddleware<DebugLogMiddleware>();
+}
 
 app.Run();

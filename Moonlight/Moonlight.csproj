@@ -51,7 +51,6 @@
 
     <ItemGroup>
       <Folder Include="Core\Database\Migrations\" />
-      <Folder Include="Core\Http\Middleware\" />
       <Folder Include="Core\Http\Requests\" />
       <Folder Include="Core\Http\Resources\" />
       <Folder Include="Core\UI\Components\Forms\" />
