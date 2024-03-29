@@ -74,7 +74,7 @@
       <Folder Include="Features\FileManager\Http\Requests\" />
       <Folder Include="Features\FileManager\Http\Resources\" />
       <Folder Include="Features\Servers\Http\Resources\" />
-      <Folder Include="storage\assetOverrides\" />
+      <Folder Include="storage\assetOverrides\x\y\" />
       <Folder Include="storage\logs\" />
       <Folder Include="Styles\" />
       <Folder Include="wwwroot\css\" />
@@ -83,6 +83,7 @@
     <ItemGroup>
       <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
       <PackageReference Include="Blazor-ApexCharts" Version="2.3.3" />
+      <PackageReference Include="Blazor.ContextMenu" Version="1.17.0" />
       <PackageReference Include="BlazorTable" Version="1.17.0" />
       <PackageReference Include="FluentFTP" Version="49.0.2" />
       <PackageReference Include="JWT" Version="10.1.1" />

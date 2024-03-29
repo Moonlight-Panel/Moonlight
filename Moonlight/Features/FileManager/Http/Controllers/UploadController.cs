@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Core.Services;
 using Moonlight.Features.FileManager.Models.Enums;
@@ -46,6 +47,20 @@ public class UploadController : Controller
         if (Request.Form.Files.Count > 1)
             return BadRequest("Too many files sent");
 
+        if (!Request.Form.ContainsKey("path"))
+            return BadRequest("Path is missing");
+
+        var path = Request.Form["path"].First() ?? "";
+
+        if (string.IsNullOrEmpty(path))
+            return BadRequest("Path is missing");
+        
+        if (path.Contains(".."))
+        {
+            Logger.Warn("A path transversal attack has been detected while processing upload path", "security");
+            return BadRequest("Invalid path. This attempt has been logged ;)");
+        }
+
         // Validate request
         if (!await JwtService.Validate(uploadToken, FileManagerJwtType.FileAccess))
             return StatusCode(403);
@@ -66,7 +81,7 @@ public class UploadController : Controller
         
         // Actually upload the file
         var file = Request.Form.Files.First();
-        await fileAccess.WriteFileStream(file.FileName, file.OpenReadStream());
+        await fileAccess.WriteFileStream(path, file.OpenReadStream());
         
         // Cleanup
         fileAccess.Dispose();

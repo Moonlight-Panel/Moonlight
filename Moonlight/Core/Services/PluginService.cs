@@ -127,7 +127,7 @@ public class PluginService
         {
             try
             {
-                var assembly = Assembly.LoadFile(dllFile);
+                var assembly = Assembly.LoadFile(Path.GetFullPath(dllFile));
 
                 var pluginTypes = assembly
                     .GetTypes()

@@ -1,4 +1,5 @@
-﻿using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
+﻿using MoonCore.Helpers;
+using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
 namespace Moonlight.Core.Helpers;
 
@@ -87,6 +88,9 @@ public class HostFileActions : IFileActions
     public Task WriteFile(string name, string content)
     {
         var fullPath = GetFullPath(name);
+        
+        EnsureDir(fullPath);
+        
         File.WriteAllText(fullPath, content);
         return Task.CompletedTask;
     }
@@ -101,10 +105,18 @@ public class HostFileActions : IFileActions
     {
         var fullPath = GetFullPath(name);
         
+        EnsureDir(fullPath);
+        
         using (var fileStream = File.Create(fullPath))
             dataStream.CopyTo(fileStream);
 
         return Task.CompletedTask;
+    }
+
+    private void EnsureDir(string path)
+    {
+        var pathWithoutFileName = Formatter.ReplaceEnd(path, Path.GetFileName(path), "");
+        Directory.CreateDirectory(pathWithoutFileName);
     }
 
     public IFileActions Clone()

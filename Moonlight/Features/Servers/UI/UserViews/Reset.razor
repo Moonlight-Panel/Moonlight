@@ -101,7 +101,7 @@
             i++;
 
             await ToastService.ModifyProgress("serverReset", $"Reset: Deleting files [{i} / {files.Length}]");
-            await fileAccess.Delete(fileEntry.Name);
+            await fileAccess.Delete(fileEntry);
         }
 
         await ToastService.ModifyProgress("serverReset", "Reset: Starting install script");

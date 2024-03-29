@@ -1,0 +1,12 @@
+@page "/test"
+
+@using Moonlight.Features.FileManager.UI.NewFileManager
+@using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
+@using Moonlight.Core.Helpers
+
+<FileManager FileAccess="FileAccess" />
+
+@code
+{
+    private BaseFileAccess FileAccess = new(new HostFileActions("storage"));
+}

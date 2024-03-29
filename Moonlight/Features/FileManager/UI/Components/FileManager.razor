@@ -117,7 +117,7 @@
 
 @code
 {
-    [Parameter] public IFileAccess FileAccess { get; set; }
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
 
     // Navigation
     private string Path = "/";
@@ -134,7 +134,7 @@
     // Move
     private FileEntry MoveEntry;
     private SmartModal MoveModal;
-    private IFileAccess MoveAccess;
+    private BaseFileAccess MoveAccess;
 
     private async Task OnPathChanged(string path)
     {
@@ -267,7 +267,7 @@
         MoveAccess.Dispose();
 
         // Perform move and process ui updates
-        await FileAccess.Move(MoveEntry.Name, pathToMove + MoveEntry.Name);
+        await FileAccess.Move(MoveEntry, pathToMove + MoveEntry.Name);
 
         await MoveModal.Hide();
 

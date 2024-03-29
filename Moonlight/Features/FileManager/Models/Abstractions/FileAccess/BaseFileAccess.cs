@@ -2,7 +2,7 @@
 
 namespace Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
-public class BaseFileAccess : IFileAccess
+public class BaseFileAccess : IDisposable
 {
     private readonly IFileActions Actions;
 
@@ -46,18 +46,26 @@ public class BaseFileAccess : IFileAccess
         return Task.FromResult(CurrentDirectory);
     }
 
-    public async Task Delete(string path)
+    public async Task Delete(FileEntry entry)
     {
-        var finalPath = CurrentDirectory + path;
+        var finalPath = CurrentDirectory + entry.Name;
 
         await Actions.Delete(finalPath);
     }
 
-    public async Task Move(string from, string to)
+    public async Task Move(FileEntry entry, string to)
     {
-        var finalPathFrom = CurrentDirectory + from;
+        var finalPathFrom = CurrentDirectory + entry.Name;
 
         await Actions.Move(finalPathFrom, to);
+    }
+
+    public async Task Rename(string from, string to)
+    {
+        var finalPathFrom = CurrentDirectory + from;
+        var finalPathTo = CurrentDirectory + to;
+
+        await Actions.Move(finalPathFrom, finalPathTo);
     }
 
     public async Task CreateDirectory(string name)
@@ -102,7 +110,7 @@ public class BaseFileAccess : IFileAccess
         await Actions.WriteFileStream(finalPath, dataStream);
     }
 
-    public IFileAccess Clone()
+    public BaseFileAccess Clone()
     {
         return new BaseFileAccess(Actions.Clone())
         {

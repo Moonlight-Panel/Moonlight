@@ -10,14 +10,14 @@ namespace Moonlight.Features.FileManager.Services;
 public class SharedFileAccessService
 {
     private readonly JwtService<FileManagerJwtType> JwtService;
-    private readonly List<IFileAccess> FileAccesses = new();
+    private readonly List<BaseFileAccess> FileAccesses = new();
 
     public SharedFileAccessService(JwtService<FileManagerJwtType> jwtService)
     {
         JwtService = jwtService;
     }
 
-    public Task<int> Register(IFileAccess fileAccess)
+    public Task<int> Register(BaseFileAccess fileAccess)
     {
         lock (FileAccesses)
         {
@@ -28,7 +28,7 @@ public class SharedFileAccessService
         return Task.FromResult(fileAccess.GetHashCode());
     }
 
-    public Task Unregister(IFileAccess fileAccess)
+    public Task Unregister(BaseFileAccess fileAccess)
     {
         lock (FileAccesses)
         {
@@ -39,20 +39,20 @@ public class SharedFileAccessService
         return Task.CompletedTask;
     }
 
-    public Task<IFileAccess?> Get(int id)
+    public Task<BaseFileAccess?> Get(int id)
     {
         lock (FileAccesses)
         {
             var fileAccess = FileAccesses.FirstOrDefault(x => x.GetHashCode() == id);
 
             if (fileAccess == null)
-                return Task.FromResult<IFileAccess?>(null);
+                return Task.FromResult<BaseFileAccess?>(null);
             
-            return Task.FromResult<IFileAccess?>(fileAccess.Clone());
+            return Task.FromResult<BaseFileAccess?>(fileAccess.Clone());
         }
     }
 
-    public async Task<string> GenerateToken(IFileAccess fileAccess)
+    public async Task<string> GenerateToken(BaseFileAccess fileAccess)
     {
         var token = await JwtService.Create(data =>
         {

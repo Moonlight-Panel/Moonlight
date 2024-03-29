@@ -51,7 +51,7 @@
 
 @code
 {
-    [Parameter] public IFileAccess FileAccess { get; set; }
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
 
     private CancellationTokenSource Cancellation = new();
     private string DropzoneId;
@@ -65,12 +65,12 @@
     {
         if (firstRender)
         {
-            await SharedFileAccessService.Register(FileAccess);
+            //await SharedFileAccessService.Register(FileAccess);
 
-            var token = await SharedFileAccessService.GenerateToken(FileAccess);
-            var url = $"/api/upload?token={token}";
+            //var token = await SharedFileAccessService.GenerateToken(FileAccess);
+            //var url = $"/api/upload?token={token}";
 
-            await DropzoneService.Create(DropzoneId, url);
+            //await DropzoneService.Create(DropzoneId, url);
 
             Task.Run(async () => // Update the dropzone url every 5 minutes so the token does not expire
             {
@@ -78,9 +78,9 @@
                 {
                     await Task.Delay(TimeSpan.FromMinutes(5));
 
-                    var newToken = await SharedFileAccessService.GenerateToken(FileAccess);
-                    var newUrl = $"/api/upload?token={newToken}";
-                    await DropzoneService.UpdateUrl(DropzoneId, newUrl);
+                    //var newToken = await SharedFileAccessService.GenerateToken(FileAccess);
+                    //var newUrl = $"/api/upload?token={newToken}";
+                    //await DropzoneService.UpdateUrl(DropzoneId, newUrl);
                 }
             });
         }
@@ -89,6 +89,6 @@
     public async void Dispose()
     {
         Cancellation.Cancel();
-        await SharedFileAccessService.Unregister(FileAccess);
+        //await SharedFileAccessService.Unregister(FileAccess);
     }
 }

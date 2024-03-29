@@ -1,0 +1,440 @@
+@using MoonCore.Helpers
+@using MoonCore.Services
+@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
+@using Moonlight.Core.Services
+@using Moonlight.Features.FileManager.Interfaces
+@using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
+@using Moonlight.Features.FileManager.Services
+
+@inject AlertService AlertService
+@inject ToastService ToastService
+@inject FileManagerInteropService FileManagerInteropService
+@inject SharedFileAccessService FileAccessService
+@inject ConfigService<CoreConfiguration> ConfigService
+@inject NavigationManager Navigation
+@inject PluginService PluginService
+@inject IServiceProvider ServiceProvider
+
+@implements IDisposable
+
+<div class="card card-body px-5">
+    <div class="d-flex justify-content-center justify-content-md-between">
+        <div class="d-none d-md-flex justify-content-start align-items-center">
+            <div class="badge badge-primary badge-lg fs-5 py-2 text-center">
+                @{
+                    var parts = Path
+                        .Split("/")
+                        .Where(x => !string.IsNullOrEmpty(x))
+                        .ToArray();
+
+                    var i = 1;
+                }
+
+                <a href="#" class="text-white mx-1" @onclick:preventDefault @onclick="() => NavigateBackToLevel(0)">/</a>
+
+                @foreach (var part in parts)
+                {
+                    var x = i + 0;
+
+                    <a href="#" class="text-white mx-1" @onclick:preventDefault @onclick="() => NavigateBackToLevel(x)">@(part)</a>
+                    <div class="mx-2 text-white">/</div>
+
+                    i++;
+                }
+            </div>
+        </div>
+        <div class="d-flex justify-content-center justify-content-md-end align-items-center">
+            <WButton OnClick="ManualRefresh" CssClasses="btn btn-icon btn-light-info">
+                <i class="bx bx-sm bx-refresh"></i>
+            </WButton>
+            <label for="fileManagerSelect" class="btn btn-light-primary mx-2">Upload</label>
+            <input id="fileManagerSelect" type="file" hidden="hidden" multiple/>
+            <div class="dropdown">
+                <a class="btn btn-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    New
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                    <li>
+                        <a href="#" class="dropdown-item" @onclick:preventDefault @onclick="CreateFile">
+                            <i class="bx bx-sm bx-file text-primary me-2 align-middle"></i>
+                            <span class="align-middle fs-6">File</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-item" @onclick:preventDefault @onclick="CreateDirectory">
+                            <i class="bx bx-sm bx-folder text-primary me-2 align-middle"></i>
+                            <span class="align-middle fs-6">Folder</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ShowEditor)
+{
+    <div class="card card-body px-2 py-2 mt-5">
+        <FileEditor @ref="Editor" FileAccess="FileAccess" File="FileToEdit" OnClosed="CloseEditor"/>
+    </div>
+}
+else
+{
+    <div id="fileManagerUpload" class="card card-body px-5 py-3 mt-5">
+        <FileView @ref="View"
+                  FileAccess="FileAccess"
+                  OnEntryClicked="OnEntryClicked"
+                  OnNavigateUpClicked="OnNavigateUpClicked"
+                  EnableContextMenu="true">
+            <ContextMenuTemplate>
+                @foreach (var action in Actions)
+                {
+                    if(!action.Filter.Invoke(context))
+                        continue;
+                    
+                    <a class="dropdown-item" href="#" @onclick:preventDefault @onclick="() => InvokeContextAction(action, context)">
+                        <i class="bx bx-sm @action.Icon text-@action.Color align-middle"></i>
+                        <span class="align-middle ms-3">@action.Name</span>
+                    </a>
+                }
+
+                <a class="dropdown-item" href="#" @onclick:preventDefault @onclick="() => Move(context)">
+                    <i class="bx bx-sm bx-move text-info align-middle"></i>
+                    <span class="align-middle ms-3">Move</span>
+                </a>
+            </ContextMenuTemplate>
+        </FileView>
+    </div>
+
+    <SmartModal @ref="MoveModal" CssClasses="modal-lg modal-dialog-centered">
+        <div class="modal-header">
+            <h5 class="modal-title">Select a new location</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="HideMove"></button>
+        </div>
+        <div class="modal-body">
+            <FileView @ref="MoveView"
+                      FileAccess="MoveAccess"
+                      Filter="FolderOnlyFilter"
+                      ShowDate="false"
+                      ShowSelect="false"
+                      ShowSize="false"
+                      OnEntryClicked="OnFolderClicked"
+                      OnNavigateUpClicked="OnMoveUpClicked"
+                      EnableContextMenu="false"/>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideMove">Close</button>
+            <button type="button" class="btn btn-primary" @onclick="FinishMove">Save changes</button>
+        </div>
+    </SmartModal>
+}
+
+@code
+{
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
+
+    private FileView View;
+    private string Path = "/";
+
+    private IFileManagerAction[] Actions;
+
+    // Editor
+    private FileEditor Editor;
+    private FileEntry FileToEdit;
+    private bool ShowEditor = false;
+
+    // Move
+    private SmartModal MoveModal;
+    private BaseFileAccess MoveAccess;
+    private FileView MoveView;
+    private bool InMoveState = false;
+    private Func<FileEntry, bool> FolderOnlyFilter = entry => entry.IsDirectory;
+    private Func<FileEntry, Task> OnFolderClicked;
+    private Func<Task> OnMoveUpClicked;
+    private List<FileEntry> FilesToMove = new();
+
+    private Timer? UploadTokenTimer;
+
+    protected override void OnInitialized()
+    {
+        OnFolderClicked = async entry =>
+        {
+            await MoveAccess.ChangeDirectory(entry.Name);
+            await MoveView.Refresh();
+        };
+        OnMoveUpClicked = async () =>
+        {
+            await MoveAccess.ChangeDirectory("..");
+            await MoveView.Refresh();
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        // Load plugin ui and options
+        Actions = await PluginService.GetImplementations<IFileManagerAction>();
+
+
+        // Setup upload url update timer
+        UploadTokenTimer = new(async _ =>
+        {
+            await FileAccessService.Register(FileAccess);
+            var token = await FileAccessService.GenerateToken(FileAccess);
+            var url = $"/api/upload?token={token}";
+
+            await FileManagerInteropService.UpdateUrl("fileManager", url);
+        }, null, TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(5));
+
+        // Create initial url
+        await FileAccessService.Register(FileAccess);
+        var token = await FileAccessService.GenerateToken(FileAccess);
+        var url = $"/api/upload?token={token}";
+
+        // Refresh the file view when a upload is completed
+        FileManagerInteropService.OnUploadStateChanged += async () => { await View.Refresh(); };
+
+        // Initialize drop area & file select
+        await FileManagerInteropService.UpdateUrl("fileManager", url);
+        await FileManagerInteropService.InitDropzone("fileManagerUpload", "fileManager");
+        await FileManagerInteropService.InitFileSelect("fileManagerSelect", "fileManager");
+    }
+
+    private async Task OnEntryClicked(FileEntry entry)
+    {
+        if (entry.IsFile)
+        {
+            var fileSizeInKilobytes = ByteSizeValue.FromBytes(entry.Size).KiloBytes;
+
+            if (fileSizeInKilobytes > ConfigService.Get().Customisation.FileManager.MaxFileOpenSize)
+            {
+                await ToastService.Danger("Unable to open file as it exceeds the max file size limit");
+                return;
+            }
+
+            await OpenEditor(entry);
+        }
+        else
+        {
+            await FileAccess.ChangeDirectory(entry.Name);
+            await View.Refresh();
+
+            await Refresh();
+        }
+    }
+
+    private async Task InvokeContextAction(IFileManagerAction action, FileEntry entry)
+    {
+        await View.HideContextMenu();
+
+        await action.Execute(FileAccess, View, entry, ServiceProvider);
+    }
+
+    #region Navigation & Refreshing
+
+    private async Task OnNavigateUpClicked()
+    {
+        await FileAccess.ChangeDirectory("..");
+        await View.Refresh();
+
+        await Refresh();
+    }
+
+    private async Task NavigateBackToLevel(int level)
+    {
+        if (ShowEditor) // Ignore navigation events while the editor is open
+            return;
+
+        var path = await FileAccess.GetCurrentDirectory();
+
+        var parts = path.Split("/");
+        var pathToNavigate = string.Join("/", parts.Take(level + 1)) + "/";
+
+        await FileAccess.SetDirectory(pathToNavigate);
+        await View.Refresh();
+        await Refresh();
+    }
+
+    private async Task ManualRefresh()
+    {
+        if (ShowEditor) // Ignore refresh while editor is open
+            return;
+
+        await View.Refresh();
+        await Refresh();
+
+        await ToastService.Info("Refreshed");
+    }
+
+    private async Task Refresh()
+    {
+        Path = await FileAccess.GetCurrentDirectory();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Actions
+
+    private async Task DeleteSelection()
+    {
+        var itemsToDelete = View.Selection;
+
+        await ToastService.CreateProgress("fileManagerDeleteFile", "Deleting items");
+
+        var i = 1;
+        foreach (var entry in itemsToDelete)
+        {
+            await ToastService.ModifyProgress("fileManagerDeleteFile", $"[{i}/{FilesToMove.Count}] Deleting items");
+            await FileAccess.Delete(entry);
+
+            i++;
+        }
+
+        await ToastService.RemoveProgress("fileManagerDeleteFile");
+
+        await ToastService.Success($"Successfully deleted {FilesToMove.Count} items");
+    }
+
+    #endregion
+
+    #region Create Dir / File
+
+    private async Task CreateDirectory()
+    {
+        var name = await AlertService.Text("Enter a name for the new directory");
+
+        if (string.IsNullOrEmpty(name) || name.Contains(".."))
+            return;
+
+        await FileAccess.CreateDirectory(name);
+
+        await ToastService.Success("Successfully created directory");
+        await View.Refresh();
+    }
+
+    private async Task CreateFile()
+    {
+        var name = await AlertService.Text("Enter a name for the new file");
+
+        if (string.IsNullOrEmpty(name) || name.Contains(".."))
+            return;
+
+        await FileAccess.CreateFile(name);
+
+        // We build a virtual entry here so we dont need to fetch one
+        await OpenEditor(new()
+        {
+            Name = name,
+            Size = 0,
+            IsFile = true,
+            IsDirectory = false,
+            LastModifiedAt = DateTime.UtcNow
+        });
+    }
+
+    #endregion
+
+    #region File Editor
+
+    private async Task OpenEditor(FileEntry entry)
+    {
+        FileToEdit = entry;
+        ShowEditor = true;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CloseEditor()
+    {
+        ShowEditor = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Move
+
+    private async Task Move(FileEntry entry)
+    {
+        await View.HideContextMenu();
+
+        FilesToMove.Clear();
+
+        FilesToMove.Add(entry);
+
+        await StartMove();
+    }
+
+    private async Task MoveSelection()
+    {
+        FilesToMove.Clear();
+
+        FilesToMove.AddRange(View.Selection);
+
+        await StartMove();
+    }
+
+    private async Task StartMove()
+    {
+        // Cleanup if modal was removed in any other way
+        if (InMoveState)
+            await HideMove();
+
+        // Prepare file access and show modal
+        InMoveState = true;
+        await InvokeAsync(StateHasChanged);
+
+        MoveAccess = FileAccess.Clone();
+        await MoveAccess.SetDirectory("/");
+
+        await MoveModal.Show();
+    }
+
+    private async Task HideMove()
+    {
+        await MoveModal.Hide();
+        MoveAccess.Dispose();
+
+        InMoveState = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FinishMove()
+    {
+        var target = await MoveAccess.GetCurrentDirectory();
+
+        await HideMove();
+
+        await ToastService.CreateProgress("fileManagerMoveFile", "Moving items");
+
+        var i = 1;
+        foreach (var entry in FilesToMove)
+        {
+            await ToastService.ModifyProgress("fileManagerMoveFile", $"[{i}/{FilesToMove.Count}] Moving items");
+            await FileAccess.Move(entry, target + entry.Name);
+
+            i++;
+        }
+
+        await ToastService.RemoveProgress("fileManagerMoveFile");
+
+        await ToastService.Success($"Successfully moved {FilesToMove.Count} items");
+
+        await View.Refresh();
+    }
+
+    #endregion
+
+    public async void Dispose()
+    {
+        if (UploadTokenTimer != null)
+            await UploadTokenTimer.DisposeAsync();
+
+        await FileAccessService.Unregister(FileAccess);
+    }
+}

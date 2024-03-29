@@ -208,7 +208,7 @@ public class ServerService
             await Backup.Delete(serverWithBackups, backup, false);
     }
 
-    public async Task<IFileAccess> OpenFileAccess(Server s)
+    public async Task<BaseFileAccess> OpenFileAccess(Server s)
     {
         using var scope = ServiceProvider.CreateScope();
 

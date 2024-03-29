@@ -210,7 +210,7 @@
 
 @code
 {
-    [Parameter] public IFileAccess FileAccess { get; set; }
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
 
     [Parameter] public Func<FileEntry, bool>? Filter { get; set; }
     [Parameter] public bool ShowSize { get; set; } = true;
@@ -297,7 +297,7 @@
         {
             await ToastService.ModifyProgress(toastId, $"[{i + 1}/{entries.Length}] Deleting '{entry.Name}'");
 
-            await FileAccess.Delete(entry.Name);
+            await FileAccess.Delete(entry);
 
             i++;
         }
@@ -315,7 +315,7 @@
         if (string.IsNullOrEmpty(name))
             return;
 
-        await FileAccess.Move(fileEntry.Name, await FileAccess.GetCurrentDirectory() + name);
+        await FileAccess.Move(fileEntry, await FileAccess.GetCurrentDirectory() + name);
 
         await LazyLoader.Reload();
     }
@@ -332,12 +332,12 @@
     {
         try
         {
-            await SharedFileAccessService.Register(FileAccess);
-            var token = await SharedFileAccessService.GenerateToken(FileAccess);
-            var url = $"/api/download?token={token}&name={fileEntry.Name}";
+            //await SharedFileAccessService.Register(FileAccess);
+            //var token = await SharedFileAccessService.GenerateToken(FileAccess);
+            //var url = $"/api/download?token={token}&name={fileEntry.Name}";
 
             await ToastService.Info("Starting download...");
-            Navigation.NavigateTo(url, true);
+            //Navigation.NavigateTo(url, true);
         }
         catch (Exception e)
         {
@@ -429,6 +429,6 @@
 
     public async void Dispose()
     {
-        await SharedFileAccessService.Unregister(FileAccess);
+        //await SharedFileAccessService.Unregister(FileAccess);
     }
 }
