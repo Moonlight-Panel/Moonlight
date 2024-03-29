@@ -61,7 +61,8 @@ else
     builder.WebHost.ConfigureMoonCoreHttp(
         httpConfig.HttpPort,
         httpConfig.EnableSsl,
-        httpConfig.HttpsPort
+        httpConfig.HttpsPort,
+        certificate
     );
 }
 
