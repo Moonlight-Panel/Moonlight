@@ -5,7 +5,7 @@ using Moonlight.Features.FileManager.UI.NewFileManager;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
-public class DeleteAction : IFileManagerAction
+public class DeleteContextAction : IFileManagerContextAction
 {
     public string Name => "Delete";
     public string Icon => "bxs-trash";

@@ -5,7 +5,7 @@ using Moonlight.Features.FileManager.UI.NewFileManager;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
-public class RenameAction : IFileManagerAction
+public class RenameContextAction : IFileManagerContextAction
 {
     public string Name => "Rename";
     public string Icon => "bxs-rename";

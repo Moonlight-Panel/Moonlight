@@ -65,19 +65,16 @@
                     <a class="btn btn-primary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         New
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
-                        <li>
-                            <a href="#" class="dropdown-item" @onclick:preventDefault @onclick="CreateFile">
-                                <i class="bx bx-sm bx-file text-primary me-2 align-middle"></i>
-                                <span class="align-middle fs-6">File</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="dropdown-item" @onclick:preventDefault @onclick="CreateDirectory">
-                                <i class="bx bx-sm bx-folder text-primary me-2 align-middle"></i>
-                                <span class="align-middle fs-6">Folder</span>
-                            </a>
-                        </li>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        @foreach (var action in CreateActions)
+                        {
+                            <li>
+                                <a href="#" class="dropdown-item" @onclick:preventDefault @onclick="() => InvokeCreateAction(action)">
+                                    <i class="bx bx-sm @action.Icon text-@action.Color me-2 align-middle"></i>
+                                    <span class="align-middle fs-6">@action.Name</span>
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             }
@@ -101,7 +98,7 @@ else
                   OnSelectionChanged="OnSelectionChanged"
                   EnableContextMenu="true">
             <ContextMenuTemplate>
-                @foreach (var action in Actions)
+                @foreach (var action in ContextActions)
                 {
                     if(!action.Filter.Invoke(context))
                         continue;
@@ -150,8 +147,9 @@ else
     private FileView View;
     private string Path = "/";
 
-    private IFileManagerAction[] Actions;
+    private IFileManagerContextAction[] ContextActions;
     private IFileManagerSelectionAction[] SelectionActions;
+    private IFileManagerCreateAction[] CreateActions;
 
     // Editor
     private FileEditor Editor;
@@ -173,8 +171,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         // Load plugin ui and options
-        Actions = await PluginService.GetImplementations<IFileManagerAction>();
+        ContextActions = await PluginService.GetImplementations<IFileManagerContextAction>();
         SelectionActions = await PluginService.GetImplementations<IFileManagerSelectionAction>();
+        CreateActions = await PluginService.GetImplementations<IFileManagerCreateAction>();
         
         OnFolderClicked = async entry =>
         {
@@ -241,11 +240,11 @@ else
         }
     }
 
-    private async Task InvokeContextAction(IFileManagerAction action, FileEntry entry)
+    private async Task InvokeContextAction(IFileManagerContextAction contextAction, FileEntry entry)
     {
         await View.HideContextMenu();
 
-        await action.Execute(FileAccess, View, entry, ServiceProvider);
+        await contextAction.Execute(FileAccess, View, entry, ServiceProvider);
     }
 
     private async Task InvokeSelectionAction(IFileManagerSelectionAction action)
@@ -254,6 +253,11 @@ else
         
         // Refresh resets the selection 
         await View.Refresh();
+    }
+
+    private async Task InvokeCreateAction(IFileManagerCreateAction action)
+    {
+        await action.Execute(FileAccess, View, ServiceProvider);
     }
     
     private async Task OnSelectionChanged(FileEntry[] _) => await InvokeAsync(StateHasChanged);
@@ -302,68 +306,7 @@ else
     }
 
     #endregion
-
-    #region Actions
-
-    private async Task DeleteSelection()
-    {
-        var itemsToDelete = View.Selection;
-
-        await ToastService.CreateProgress("fileManagerDeleteFile", "Deleting items");
-
-        var i = 1;
-        foreach (var entry in itemsToDelete)
-        {
-            await ToastService.ModifyProgress("fileManagerDeleteFile", $"[{i}/{FilesToMove.Count}] Deleting items");
-            await FileAccess.Delete(entry);
-
-            i++;
-        }
-
-        await ToastService.RemoveProgress("fileManagerDeleteFile");
-
-        await ToastService.Success($"Successfully deleted {FilesToMove.Count} items");
-    }
-
-    #endregion
-
-    #region Create Dir / File
-
-    private async Task CreateDirectory()
-    {
-        var name = await AlertService.Text("Enter a name for the new directory");
-
-        if (string.IsNullOrEmpty(name) || name.Contains(".."))
-            return;
-
-        await FileAccess.CreateDirectory(name);
-
-        await ToastService.Success("Successfully created directory");
-        await View.Refresh();
-    }
-
-    private async Task CreateFile()
-    {
-        var name = await AlertService.Text("Enter a name for the new file");
-
-        if (string.IsNullOrEmpty(name) || name.Contains(".."))
-            return;
-
-        await FileAccess.CreateFile(name);
-
-        // We build a virtual entry here so we dont need to fetch one
-        await OpenEditor(new()
-        {
-            Name = name,
-            Size = 0,
-            IsFile = true,
-            IsDirectory = false,
-            LastModifiedAt = DateTime.UtcNow
-        });
-    }
-
-    #endregion
-
+    
     #region File Editor
 
     private async Task OpenEditor(FileEntry entry)
