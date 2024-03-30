@@ -29,6 +29,7 @@ public class DeleteSelectionAction : IFileManagerSelectionAction
 
         await toastService.RemoveProgress("fileManagerSelectionDelete");
 
-        await toastService.Success($"Successfully deleted selection");
+        await toastService.Success("Successfully deleted selection");
+        await fileManager.View.Refresh();
     }
 }

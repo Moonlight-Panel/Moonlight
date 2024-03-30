@@ -50,8 +50,8 @@
                 foreach (var action in SelectionActions)
                 {
                     var cssClass = $"btn btn-{action.Color} mx-2";
-                    
-                    <WButton Text="@action.Name" CssClasses="@cssClass" OnClick="() => InvokeSelectionAction(action)" />
+
+                    <WButton Text="@action.Name" CssClasses="@cssClass" OnClick="() => InvokeSelectionAction(action)"/>
                 }
             }
             else
@@ -100,42 +100,37 @@ else
             <ContextMenuTemplate>
                 @foreach (var action in ContextActions)
                 {
-                    if(!action.Filter.Invoke(context))
+                    if (!action.Filter.Invoke(context))
                         continue;
-                    
+
                     <a class="dropdown-item" href="#" @onclick:preventDefault @onclick="() => InvokeContextAction(action, context)">
                         <i class="bx bx-sm @action.Icon text-@action.Color align-middle"></i>
                         <span class="align-middle ms-3">@action.Name</span>
                     </a>
                 }
-
-                <a class="dropdown-item" href="#" @onclick:preventDefault @onclick="() => Move(context)">
-                    <i class="bx bx-sm bx-move text-info align-middle"></i>
-                    <span class="align-middle ms-3">Move</span>
-                </a>
             </ContextMenuTemplate>
         </FileView>
     </div>
 
-    <SmartModal @ref="MoveModal" CssClasses="modal-lg modal-dialog-centered">
+    <SmartModal @ref="FolderSelectModal" CssClasses="modal-lg modal-dialog-centered">
         <div class="modal-header">
-            <h5 class="modal-title">Select a new location</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="HideMove"></button>
+            <h5 class="modal-title">@FolderSelectTitle</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="HideFolderSelect"></button>
         </div>
         <div class="modal-body">
-            <FileView @ref="MoveView"
-                      FileAccess="MoveAccess"
-                      Filter="FolderOnlyFilter"
+            <FileView @ref="FolderSelectView"
+                      FileAccess="FolderSelectFileAccess"
+                      Filter="FolderSelectFilter"
                       ShowDate="false"
                       ShowSelect="false"
                       ShowSize="false"
-                      OnEntryClicked="OnFolderClicked"
-                      OnNavigateUpClicked="OnMoveUpClicked"
+                      OnEntryClicked="EntryClickFolderSelect"
+                      OnNavigateUpClicked="NavigateUpFolderSelect"
                       EnableContextMenu="false"/>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideMove">Close</button>
-            <button type="button" class="btn btn-primary" @onclick="FinishMove">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideFolderSelect">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="SubmitFolderSelect">Submit</button>
         </div>
     </SmartModal>
 }
@@ -156,15 +151,14 @@ else
     private FileEntry FileToEdit;
     private bool ShowEditor = false;
 
-    // Move
-    private SmartModal MoveModal;
-    private BaseFileAccess MoveAccess;
-    private FileView MoveView;
-    private bool InMoveState = false;
-    private Func<FileEntry, bool> FolderOnlyFilter = entry => entry.IsDirectory;
-    private Func<FileEntry, Task> OnFolderClicked;
-    private Func<Task> OnMoveUpClicked;
-    private List<FileEntry> FilesToMove = new();
+    // Folder select dialog
+    private bool FolderSelectIsOpen = false;
+    private SmartModal FolderSelectModal;
+    private BaseFileAccess FolderSelectFileAccess;
+    private string FolderSelectTitle;
+    private Func<string, Task> FolderSelectResult;
+    private FileView FolderSelectView;
+    private Func<FileEntry, bool> FolderSelectFilter => entry => entry.IsDirectory;
 
     private Timer? UploadTokenTimer;
 
@@ -174,17 +168,6 @@ else
         ContextActions = await PluginService.GetImplementations<IFileManagerContextAction>();
         SelectionActions = await PluginService.GetImplementations<IFileManagerSelectionAction>();
         CreateActions = await PluginService.GetImplementations<IFileManagerCreateAction>();
-        
-        OnFolderClicked = async entry =>
-        {
-            await MoveAccess.ChangeDirectory(entry.Name);
-            await MoveView.Refresh();
-        };
-        OnMoveUpClicked = async () =>
-        {
-            await MoveAccess.ChangeDirectory("..");
-            await MoveView.Refresh();
-        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -250,7 +233,7 @@ else
     private async Task InvokeSelectionAction(IFileManagerSelectionAction action)
     {
         await action.Execute(FileAccess, this, View.Selection, ServiceProvider);
-        
+
         // Refresh resets the selection 
         await View.Refresh();
     }
@@ -259,7 +242,7 @@ else
     {
         await action.Execute(FileAccess, this, ServiceProvider);
     }
-    
+
     private async Task OnSelectionChanged(FileEntry[] _) => await InvokeAsync(StateHasChanged);
 
     #region Navigation & Refreshing
@@ -306,7 +289,7 @@ else
     }
 
     #endregion
-    
+
     #region File Editor
 
     public async Task OpenEditor(FileEntry entry)
@@ -325,75 +308,48 @@ else
 
     #endregion
 
-    #region Move
+    #region Selects
 
-    private async Task Move(FileEntry entry)
+    public async Task OpenFolderSelect(string title, Func<string, Task> onResult)
     {
-        await View.HideContextMenu();
+        if (FolderSelectIsOpen)
+            await HideFolderSelect();
 
-        FilesToMove.Clear();
+        FolderSelectResult = onResult;
+        FolderSelectTitle = title;
 
-        FilesToMove.Add(entry);
+        FolderSelectFileAccess = FileAccess.Clone();
+        await FolderSelectFileAccess.SetDirectory("/");
 
-        await StartMove();
+        await FolderSelectModal.Show();
     }
 
-    private async Task MoveSelection()
+    public async Task HideFolderSelect()
     {
-        FilesToMove.Clear();
-
-        FilesToMove.AddRange(View.Selection);
-
-        await StartMove();
+        await FolderSelectModal.Hide();
+        FolderSelectIsOpen = false;
+        FolderSelectFileAccess.Dispose();
     }
 
-    private async Task StartMove()
+    private async Task SubmitFolderSelect()
     {
-        // Cleanup if modal was removed in any other way
-        if (InMoveState)
-            await HideMove();
+        var path = await FolderSelectFileAccess.GetCurrentDirectory();
 
-        // Prepare file access and show modal
-        InMoveState = true;
-        await InvokeAsync(StateHasChanged);
+        await HideFolderSelect();
 
-        MoveAccess = FileAccess.Clone();
-        await MoveAccess.SetDirectory("/");
-
-        await MoveModal.Show();
+        await FolderSelectResult.Invoke(path);
     }
 
-    private async Task HideMove()
+    private async Task NavigateUpFolderSelect()
     {
-        await MoveModal.Hide();
-        MoveAccess.Dispose();
-
-        InMoveState = false;
-        await InvokeAsync(StateHasChanged);
+        await FolderSelectFileAccess.ChangeDirectory("..");
+        await FolderSelectView.Refresh();
     }
 
-    private async Task FinishMove()
+    private async Task EntryClickFolderSelect(FileEntry entry)
     {
-        var target = await MoveAccess.GetCurrentDirectory();
-
-        await HideMove();
-
-        await ToastService.CreateProgress("fileManagerMoveFile", "Moving items");
-
-        var i = 1;
-        foreach (var entry in FilesToMove)
-        {
-            await ToastService.ModifyProgress("fileManagerMoveFile", $"[{i}/{FilesToMove.Count}] Moving items");
-            await FileAccess.Move(entry, target + entry.Name);
-
-            i++;
-        }
-
-        await ToastService.RemoveProgress("fileManagerMoveFile");
-
-        await ToastService.Success($"Successfully moved {FilesToMove.Count} items");
-
-        await View.Refresh();
+        await FolderSelectFileAccess.ChangeDirectory(entry.Name);
+        await FolderSelectView.Refresh();
     }
 
     #endregion
