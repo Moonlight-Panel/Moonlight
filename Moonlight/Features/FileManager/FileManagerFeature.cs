@@ -52,9 +52,11 @@ public class FileManagerFeature : MoonlightFeature
         // Register default file manager actions in plugin service
         var pluginService = context.Application.Services.GetRequiredService<PluginService>();
 
-        await pluginService.RegisterImplementation<IFileManagerAction>(new RenameFileManagerAction());
-        await pluginService.RegisterImplementation<IFileManagerAction>(new DownloadFileManagerAction());
-        await pluginService.RegisterImplementation<IFileManagerAction>(new DeleteFileManagerAction());
+        await pluginService.RegisterImplementation<IFileManagerAction>(new RenameAction());
+        await pluginService.RegisterImplementation<IFileManagerAction>(new DownloadAction());
+        await pluginService.RegisterImplementation<IFileManagerAction>(new DeleteAction());
+
+        await pluginService.RegisterImplementation<IFileManagerSelectionAction>(new DeleteSelectionAction());
     }
 
     public override async Task OnSessionInitialized(SessionInitContext context)

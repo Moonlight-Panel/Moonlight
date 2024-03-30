@@ -8,7 +8,7 @@ using Moonlight.Features.FileManager.UI.NewFileManager;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
-public class DownloadFileManagerAction : IFileManagerAction
+public class DownloadAction : IFileManagerAction
 {
     public string Name => "Download";
     public string Icon => "bxs-cloud-download";
