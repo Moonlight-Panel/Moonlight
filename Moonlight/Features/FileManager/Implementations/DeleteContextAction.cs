@@ -12,11 +12,11 @@ public class DeleteContextAction : IFileManagerContextAction
     public string Color => "danger";
     public Func<FileEntry, bool> Filter => _ => true;
 
-    public async Task Execute(BaseFileAccess access, FileView view, FileEntry entry, IServiceProvider serviceProvider)
+    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
     {
         await access.Delete(entry);
 
-        await view.Refresh();
+        await fileManager.View.Refresh();
 
         var toastService = serviceProvider.GetRequiredService<ToastService>();
         await toastService.Success("Successfully deleted item");

@@ -144,7 +144,7 @@ else
 {
     [Parameter] public BaseFileAccess FileAccess { get; set; }
 
-    private FileView View;
+    public FileView View { get; private set; }
     private string Path = "/";
 
     private IFileManagerContextAction[] ContextActions;
@@ -244,12 +244,12 @@ else
     {
         await View.HideContextMenu();
 
-        await contextAction.Execute(FileAccess, View, entry, ServiceProvider);
+        await contextAction.Execute(FileAccess, this, entry, ServiceProvider);
     }
 
     private async Task InvokeSelectionAction(IFileManagerSelectionAction action)
     {
-        await action.Execute(FileAccess, View, View.Selection, ServiceProvider);
+        await action.Execute(FileAccess, this, View.Selection, ServiceProvider);
         
         // Refresh resets the selection 
         await View.Refresh();
@@ -257,7 +257,7 @@ else
 
     private async Task InvokeCreateAction(IFileManagerCreateAction action)
     {
-        await action.Execute(FileAccess, View, ServiceProvider);
+        await action.Execute(FileAccess, this, ServiceProvider);
     }
     
     private async Task OnSelectionChanged(FileEntry[] _) => await InvokeAsync(StateHasChanged);
@@ -309,7 +309,7 @@ else
     
     #region File Editor
 
-    private async Task OpenEditor(FileEntry entry)
+    public async Task OpenEditor(FileEntry entry)
     {
         FileToEdit = entry;
         ShowEditor = true;
@@ -317,7 +317,7 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task CloseEditor()
+    public async Task CloseEditor()
     {
         ShowEditor = false;
         await InvokeAsync(StateHasChanged);

@@ -8,5 +8,5 @@ public interface IFileManagerSelectionAction
     public string Name { get; }
     public string Color { get; }
 
-    public Task Execute(BaseFileAccess access, FileView view, FileEntry[] entries, IServiceProvider provider);
+    public Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry[] entries, IServiceProvider provider);
 }

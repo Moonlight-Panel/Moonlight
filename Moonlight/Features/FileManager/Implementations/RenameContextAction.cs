@@ -12,7 +12,7 @@ public class RenameContextAction : IFileManagerContextAction
     public string Color => "info";
     public Func<FileEntry, bool> Filter => _ => true;
     
-    public async Task Execute(BaseFileAccess access, FileView view, FileEntry entry, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider provider)
     {
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();
@@ -24,7 +24,7 @@ public class RenameContextAction : IFileManagerContextAction
 
         await access.Rename(entry.Name, newName);
 
-        await view.Refresh();
+        await fileManager.View.Refresh();
         await toastService.Success("Successfully renamed file");
     }
 }

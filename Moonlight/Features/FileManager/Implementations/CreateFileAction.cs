@@ -11,7 +11,7 @@ public class CreateFileAction : IFileManagerCreateAction
     public string Icon => "bx-file";
     public string Color => "primary";
     
-    public async Task Execute(BaseFileAccess access, FileView view, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, IServiceProvider provider)
     {
         var alertService = provider.GetRequiredService<AlertService>();
         
@@ -21,17 +21,15 @@ public class CreateFileAction : IFileManagerCreateAction
             return;
 
         await access.CreateFile(name);
-
-        /*
         
         // We build a virtual entry here so we dont need to fetch one
-        await OpenEditor(new()
+        await fileManager.OpenEditor(new()
         {
             Name = name,
             Size = 0,
             IsFile = true,
             IsDirectory = false,
             LastModifiedAt = DateTime.UtcNow
-        });*/
+        });
     }
 }

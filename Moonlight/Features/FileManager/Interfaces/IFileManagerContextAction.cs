@@ -10,5 +10,5 @@ public interface IFileManagerContextAction
     public string Color { get; }
     public Func<FileEntry, bool> Filter { get; }
 
-    public Task Execute(BaseFileAccess access, FileView view, FileEntry entry, IServiceProvider provider);
+    public Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider provider);
 }

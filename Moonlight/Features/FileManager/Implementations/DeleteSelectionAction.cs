@@ -10,7 +10,7 @@ public class DeleteSelectionAction : IFileManagerSelectionAction
     public string Name => "Delete";
     public string Color => "danger";
     
-    public async Task Execute(BaseFileAccess access, FileView view, FileEntry[] entries, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry[] entries, IServiceProvider provider)
     {
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();

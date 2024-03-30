@@ -15,7 +15,7 @@ public class DownloadContextAction : IFileManagerContextAction
     public string Color => "primary";
     public Func<FileEntry, bool> Filter => entry => entry.IsFile;
 
-    public async Task Execute(BaseFileAccess access, FileView view, FileEntry entry, IServiceProvider serviceProvider)
+    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
     {
         var fileAccessService = serviceProvider.GetRequiredService<SharedFileAccessService>();
         var navigation = serviceProvider.GetRequiredService<NavigationManager>();

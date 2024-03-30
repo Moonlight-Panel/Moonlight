@@ -11,7 +11,7 @@ public class CreateFolderAction : IFileManagerCreateAction
     public string Icon => "bx-folder";
     public string Color => "primary";
     
-    public async Task Execute(BaseFileAccess access, FileView view, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, IServiceProvider provider)
     {
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();
@@ -24,6 +24,6 @@ public class CreateFolderAction : IFileManagerCreateAction
         await access.CreateDirectory(name);
 
         await toastService.Success("Successfully created directory");
-        await view.Refresh();
+        await fileManager.View.Refresh();
     }
 }

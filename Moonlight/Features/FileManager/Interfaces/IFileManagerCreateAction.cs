@@ -9,5 +9,5 @@ public interface IFileManagerCreateAction
     public string Icon { get; }
     public string Color { get; }
     
-    public Task Execute(BaseFileAccess access, FileView view, IServiceProvider provider);
+    public Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, IServiceProvider provider);
 }
