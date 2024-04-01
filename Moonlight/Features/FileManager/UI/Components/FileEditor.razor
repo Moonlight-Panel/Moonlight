@@ -34,7 +34,7 @@
 {
     [Parameter] public FileEntry File { get; set; }
 
-    [Parameter] public IFileAccess FileAccess { get; set; }
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
 
     [Parameter] public bool CloseOnSave { get; set; } = false;
 

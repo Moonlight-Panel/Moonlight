@@ -19,7 +19,7 @@
 {
     [CascadingParameter] public Server Server { get; set; }
 
-    private IFileAccess FileAccess;
+    private BaseFileAccess FileAccess;
 
     private async Task Load(LazyLoader lazyLoader)
     {

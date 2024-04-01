@@ -1,247 +1,287 @@
-@using MoonCoreUI.Services
 @using MoonCore.Helpers
-@using Moonlight.Core.Services
 @using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
-@using Moonlight.Features.FileManager.Services
+@using BlazorContextMenu
 
-@inject ToastService ToastService
-@inject AlertService AlertService
-@inject SharedFileAccessService SharedFileAccessService
-@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
 
-@implements IDisposable
-
-<LazyLoader @ref="LazyLoader" Load="Load">
-    <table class="w-100 table table-responsive table-row-bordered">
+<div class="@(IsLoading ? "table-loading" : "")">
+    @if (IsLoading)
+    {
+        <div class="table-loading-message table-loading-message fs-3 fw-bold text-white">
+            Loading...
+        </div>
+    }
+    <table class="w-100 table table-row-bordered @(IsLoading ? "blur" : "table-hover") fs-6">
         <tbody>
-
-        @if (ShowHeader)
-        {
-            <tr>
-                @if (ShowSelect)
-                {
-                    <td class="w-10px align-middle">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" @oninput="args => ToggleAll(args)">
-                        </div>
-                    </td>
-                }
-                @if (ShowIcons)
-                {
-                    <td></td>
-                }
-                <td class="align-middle fs-6 text-muted">
-                    Name
+        <tr class="text-muted">
+            @if (ShowSelect)
+            {
+                <td class="w-10px align-middle">
+                    <div class="form-check">
+                        @if (IsAllSelected)
+                        {
+                            <input class="form-check-input" type="checkbox" value="1" checked="checked" @oninput="() => ChangeAllSelection(false)">
+                        }
+                        else
+                        {
+                            <input class="form-check-input" type="checkbox" value="0" @oninput="() => ChangeAllSelection(true)">
+                        }
+                    </div>
                 </td>
-                @if (ShowSize)
-                {
-                    <td class="align-middle fs-6 text-muted d-none d-sm-table-cell text-end">
-                        Size
-                    </td>
-                }
-                @if (ShowLastModified)
-                {
-                    <td class="align-middle fs-6 text-muted d-none d-sm-table-cell text-end">
-                        Last modified at
-                    </td>
-                }
-                @if (SelectedEntries.Count == 0)
-                {
-                    <td></td>
-                }
-                else
-                {
-                    <td class="w-50 fs-6 text-end">
-                        <span class="text-primary">@SelectedEntries.Count</span> element(s) selected
-                        <div class="ms-2 btn-group">
-                            <WButton OnClick="() => Delete(SelectedEntries.ToArray())" CssClasses="btn btn-icon btn-danger">
-                                <i class="text-white bx bx-sm bx-trash"></i>
-                            </WButton>
-                        </div>
-                    </td>
-                }
-            </tr>
-        }
+            }
+            <td class="w-10px"></td>
+            <td>Name</td>
+            @if (ShowSize)
+            {
+                <td class="d-none d-md-table-cell">Size</td>
+            }
+            @if (ShowDate)
+            {
+                <td class="d-none d-md-table-cell">Last modified</td>
+            }
+            @if (EnableContextMenu)
+            {
+                <td></td>
+            }
+            @if (AdditionTemplate != null)
+            {
+                <td></td>
+            }
+        </tr>
 
-        @if (ShowGoUp && Path != "/" && !DisableNavigation)
+        @if (Path != "/" && ShowNavigateUp)
         {
-            <tr>
+            <tr class="fw-semibold">
                 @if (ShowSelect)
                 {
-                    <td class="w-10px align-middle">
-                    </td>
+                    <td class="align-middle w-10px"></td>
                 }
-                @if (ShowIcons)
-                {
-                    <td class="w-10px align-middle">
-                    </td>
-                }
-                <td class="align-middle fs-6">
-                    @{
-                        var upPath = "..";
-                    }
-
-                    <a href="#"
-                       @onclick:preventDefault
-                       @onclick="() => Navigate(upPath)">
-                        Go up
+                <td class="w-10px">
+                    <i class="bx bx-sm bx-chevrons-left"></i>
+                </td>
+                <td>
+                    <a href="#" @onclick:preventDefault @onclick="NavigateUp">
+                        Back to parent folder
                     </a>
                 </td>
                 @if (ShowSize)
                 {
-                    <td class="align-middle fs-6 d-none d-sm-table-cell text-end">
-                        <span>-</span>
-                    </td>
+                    <td></td>
                 }
-                @if (ShowLastModified)
+                @if (ShowDate)
                 {
-                    <td class="align-middle fs-6 d-none d-sm-table-cell text-end">
-                        -
-                    </td>
+                    <td></td>
                 }
-                @if (ShowActions)
+                @if (EnableContextMenu)
                 {
-                    <td class="w-50 text-end">
-                    </td>
+                    <td></td>
+                }
+                @if (AdditionTemplate != null)
+                {
+                    <td></td>
                 }
             </tr>
         }
 
         @foreach (var entry in Entries)
         {
-            <tr>
-                @if (ShowSelect)
-                {
-                    <td class="w-10px align-middle">
-                        <div class="form-check">
-                            @if (SelectedEntries.Contains(entry))
-                            {
-                                <input class="form-check-input" type="checkbox" value="1" checked="checked" @oninput="args => HandleSelected(entry, args)">
-                            }
-                            else
-                            {
-                                <input class="form-check-input" type="checkbox" value="0" @oninput="args => HandleSelected(entry, args)">
-                            }
-                        </div>
-                    </td>
-                }
-                @if (ShowIcons)
-                {
-                    <td class="w-10px align-middle">
+            if (EnableContextMenu)
+            {
+                <ContextMenuTrigger MenuId="@ContextMenuId" WrapperTag="tr" Data="entry">
+                    @if (ShowSelect)
+                    {
+                        <td class="w-10px align-middle">
+                            <div class="form-check">
+                                @if (SelectionCache.ContainsKey(entry) && SelectionCache[entry])
+                                {
+                                    <input class="form-check-input" type="checkbox" value="1" checked="checked" @oninput="() => ChangeSelection(entry, false)">
+                                }
+                                else
+                                {
+                                    <input class="form-check-input" type="checkbox" value="0" @oninput="() => ChangeSelection(entry, true)">
+                                }
+                            </div>
+                        </td>
+                    }
+                    <td class="align-middle w-10px">
                         @if (entry.IsFile)
                         {
-                            <i class="bx bx-md bx-file"></i>
+                            <i class="bx bx-md bxs-file-blank text-white"></i>
                         }
                         else
                         {
-                            <i class="bx bx-md bx-folder"></i>
+                            <i class="bx bx-md bxs-folder text-primary"></i>
                         }
                     </td>
-                }
-                <td class="align-middle fs-6">
-                    @if (DisableNavigation)
-                    {
-                        <span>@(entry.Name)</span>
-                    }
-                    else
-                    {
-                        <a href="#"
-                           @onclick:preventDefault
-                           @onclick="() => HandleClick(entry)">
-                            @(entry.Name)
+                    <td class="align-middle">
+                        <a href="#" @onclick:preventDefault @onclick="() => HandleEntryClick(entry)">
+                            @entry.Name
                         </a>
+                    </td>
+                    @if (ShowSize)
+                    {
+                        <td class="align-middle d-none d-md-table-cell">
+                            @if (entry.IsFile)
+                            {
+                                @Formatter.FormatSize(entry.Size)
+                            }
+                        </td>
                     }
-                </td>
-                @if (ShowSize)
-                {
-                    <td class="align-middle fs-6 d-none d-sm-table-cell text-end">
-                        @if (entry.IsFile)
-                        {
-                            @(Formatter.FormatSize(entry.Size))
-                        }
-                        else
-                        {
-                            <span>-</span>
-                        }
-                    </td>
-                }
-                @if (ShowLastModified)
-                {
-                    <td class="align-middle fs-6 d-none d-sm-table-cell text-end">
-                        @(Formatter.FormatDate(entry.LastModifiedAt))
-                    </td>
-                }
-                @if (ShowActions)
-                {
-                    <td class="w-50 text-end">
-                        <div class="btn-group">
-                            <WButton OnClick="() => Delete(entry)" CssClasses="btn btn-icon btn-danger">
-                                <i class="text-white bx bx-sm bx-trash"></i>
-                            </WButton>
-
-                            <div class="dropdown">
-                                <button class="btn btn-icon btn-secondary rounded-start-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="text-white bx bx-sm bx-dots-horizontal-rounded"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a href="#" @onclick:preventDefault @onclick="() => Rename(entry)" class="dropdown-item">Rename</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" @onclick:preventDefault @onclick="() => Download(entry)" class="dropdown-item">Download</a>
-                                    </li>
-                                    @if (OnMoveRequested != null)
-                                    {
-                                        <li>
-                                            <a href="#" @onclick:preventDefault @onclick="() => RequestMove(entry)" class="dropdown-item">Move</a>
-                                        </li>
-                                    }
-                                </ul>
+                    @if (ShowDate)
+                    {
+                        <td class="align-middle d-none d-md-table-cell">
+                            @Formatter.FormatDate(entry.LastModifiedAt)
+                        </td>
+                    }
+                    <td class="d-table-cell d-md-none">
+                        <div class="dropstart">
+                            <button class="btn btn-icon btn-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bx bx-sm bx-dots-horizontal"></i>
+                            </button>
+                            <div class="dropdown-menu fs-6">
+                                @if (ContextMenuTemplate != null)
+                                {
+                                    @ContextMenuTemplate.Invoke(entry)
+                                }
                             </div>
                         </div>
                     </td>
-                }
-            </tr>
+                    @if (AdditionTemplate != null)
+                    {
+                        @AdditionTemplate.Invoke(entry)
+                    }
+                </ContextMenuTrigger>
+            }
+            else
+            {
+                <tr>
+                    @if (ShowSelect)
+                    {
+                        <td class="w-10px align-middle">
+                            <div class="form-check">
+                                @if (SelectionCache.ContainsKey(entry) && SelectionCache[entry])
+                                {
+                                    <input class="form-check-input" type="checkbox" value="1" checked="checked" @oninput="() => ChangeSelection(entry, false)">
+                                }
+                                else
+                                {
+                                    <input class="form-check-input" type="checkbox" value="0" @oninput="() => ChangeSelection(entry, true)">
+                                }
+                            </div>
+                        </td>
+                    }
+                    <td class="align-middle w-10px">
+                        @if (entry.IsFile)
+                        {
+                            <i class="bx bx-md bxs-file-blank text-white"></i>
+                        }
+                        else
+                        {
+                            <i class="bx bx-md bxs-folder text-primary"></i>
+                        }
+                    </td>
+                    <td class="align-middle">
+                        <a href="#" @onclick:preventDefault @onclick="() => HandleEntryClick(entry)">
+                            @entry.Name
+                        </a>
+                    </td>
+                    @if (ShowSize)
+                    {
+                        <td class="align-middle d-none d-md-table-cell">
+                            @if (entry.IsFile)
+                            {
+                                @Formatter.FormatSize(entry.Size)
+                            }
+                        </td>
+                    }
+                    @if (ShowDate)
+                    {
+                        <td class="align-middle d-none d-md-table-cell">
+                            @Formatter.FormatDate(entry.LastModifiedAt)
+                        </td>
+                    }
+                    @if (AdditionTemplate != null)
+                    {
+                        @AdditionTemplate.Invoke(entry)
+                    }
+                </tr>
+            }
         }
         </tbody>
     </table>
-</LazyLoader>
+</div>
 
+@if (EnableContextMenu && ContextMenuTemplate != null)
+{
+    <ContextMenu @ref="CurrentContextMenu" Id="@ContextMenuId" OnAppearing="OnContextMenuAppear" OnHiding="OnContextMenuHide">
+        @if (ShowContextMenu)
+        {
+            <div class="dropdown-menu show fs-6">
+                @ContextMenuTemplate.Invoke(ContextMenuItem)
+            </div>
+        }
+    </ContextMenu>
+}
 
 @code
 {
-    [Parameter] public IFileAccess FileAccess { get; set; }
+    [Parameter] public RenderFragment<FileEntry>? AdditionTemplate { get; set; }
 
-    [Parameter] public Func<FileEntry, bool>? Filter { get; set; }
     [Parameter] public bool ShowSize { get; set; } = true;
-    [Parameter] public bool ShowLastModified { get; set; } = true;
-    [Parameter] public bool ShowIcons { get; set; } = true;
-    [Parameter] public bool ShowActions { get; set; } = true;
+    [Parameter] public bool ShowDate { get; set; } = true;
     [Parameter] public bool ShowSelect { get; set; } = true;
-    [Parameter] public bool ShowGoUp { get; set; } = true;
-    [Parameter] public bool ShowHeader { get; set; } = true;
-    [Parameter] public bool DisableNavigation { get; set; } = false;
-    [Parameter] public Func<FileEntry, Task>? OnFileClicked { get; set; }
-    [Parameter] public Func<Task>? OnSelectionChanged { get; set; }
-    [Parameter] public Func<string, Task>? OnPathChanged { get; set; }
-    [Parameter] public Func<FileEntry, Task>? OnMoveRequested { get; set; }
+    [Parameter] public bool ShowNavigateUp { get; set; } = true;
 
-    public readonly List<FileEntry> SelectedEntries = new();
+    [Parameter] public RenderFragment<FileEntry>? ContextMenuTemplate { get; set; }
+    [Parameter] public bool EnableContextMenu { get; set; } = false;
+    private bool ShowContextMenu = false;
+    private FileEntry ContextMenuItem;
+    private string ContextMenuId = "fileManagerContextMenu";
+    private ContextMenu? CurrentContextMenu;
 
-    private LazyLoader LazyLoader;
-    private FileEntry[] Entries;
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
+    [Parameter] public Func<FileEntry, bool>? Filter { get; set; }
+
+    [Parameter] public Func<FileEntry, Task>? OnEntryClicked { get; set; }
+    [Parameter] public Func<FileEntry[], Task>? OnSelectionChanged { get; set; }
+
+    [Parameter] public Func<Task>? OnNavigateUpClicked { get; set; }
+
+    private bool IsLoading = false;
+    private string LoadingText = "";
+
+    private FileEntry[] Entries = Array.Empty<FileEntry>();
     private string Path = "/";
 
-    private async Task Load(LazyLoader lazyLoader)
-    {
-        await lazyLoader.SetText("Loading files and folders");
+    private Dictionary<FileEntry, bool> SelectionCache = new();
+    public FileEntry[] Selection => SelectionCache.Where(x => x.Value).Select(x => x.Key).ToArray();
+    private bool IsAllSelected => Entries.Length != 0 && SelectionCache.Count(x => x.Value) == Entries.Length;
 
-        // Load all entries
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await Refresh();
+    }
+
+    public async Task Refresh()
+    {
+        IsLoading = true;
+        LoadingText = "Loading";
+        await InvokeAsync(StateHasChanged);
+
+        // Load current directory
+        Path = await FileAccess.GetCurrentDirectory();
+
+        // Load entries
+        LoadingText = "Loading files and folders";
+        await InvokeAsync(StateHasChanged);
+
         Entries = await FileAccess.List();
 
-        await lazyLoader.SetText("Sorting files and folders");
+        // Sort entries
+        LoadingText = "Sorting files and folders";
+        await InvokeAsync(StateHasChanged);
 
-        // Perform sorting and filtering
         if (Filter != null)
         {
             Entries = Entries
@@ -255,180 +295,93 @@
             .SelectMany(x => x.OrderBy(y => y.Name))
             .ToArray();
 
-        SelectedEntries.Clear();
+        // Build selection cache
+        SelectionCache.Clear();
 
-        Path = await FileAccess.GetCurrentDirectory();
+        foreach (var entry in Entries)
+            SelectionCache.Add(entry, false);
 
-        if (OnPathChanged != null)
-            await OnPathChanged.Invoke(Path);
+        if (OnSelectionChanged != null)
+            await OnSelectionChanged.Invoke(Array.Empty<FileEntry>());
+
+        IsLoading = false;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task HandleClick(FileEntry fileEntry)
+    private async Task HandleEntryClick(FileEntry entry)
     {
-        if (fileEntry.IsDirectory && !DisableNavigation)
-        {
-            await Navigate(fileEntry.Name);
-        }
-        else
-        {
-            if (OnFileClicked != null)
-                await OnFileClicked.Invoke(fileEntry);
-        }
-    }
-
-    #region Actions
-
-    private async Task Delete(params FileEntry[] entries)
-    {
-        if (entries.Length == 0)
+        if (OnEntryClicked == null)
             return;
 
-        var fileNameDesc = entries.Length == 1 ? entries.First().Name : $"{entries.Length} files";
-        var confirm = await AlertService.YesNo($"Do you really want to delete '{fileNameDesc}'?", "Yes", "No");
-        
-        if(!confirm)
-            return;
-        
-        var toastId = "fileDelete" + GetHashCode();
-        await ToastService.CreateProgress(toastId, $"[0/{entries.Length}] Deleting items");
-
-        int i = 0;
-        foreach (var entry in entries)
-        {
-            await ToastService.ModifyProgress(toastId, $"[{i + 1}/{entries.Length}] Deleting '{entry.Name}'");
-
-            await FileAccess.Delete(entry.Name);
-
-            i++;
-        }
-
-        await ToastService.RemoveProgress(toastId);
-        await ToastService.Success($"Successfully deleted {i} item(s)");
-
-        await LazyLoader.Reload();
+        await OnEntryClicked.Invoke(entry);
     }
 
-    private async Task Rename(FileEntry fileEntry)
+    private async Task NavigateUp()
     {
-        var name = await AlertService.Text($"Rename '{fileEntry.Name}'", "", fileEntry.Name);
-
-        if (string.IsNullOrEmpty(name))
+        if (OnNavigateUpClicked == null)
             return;
 
-        await FileAccess.Move(fileEntry.Name, await FileAccess.GetCurrentDirectory() + name);
-
-        await LazyLoader.Reload();
+        await OnNavigateUpClicked.Invoke();
     }
-
-    private async Task RequestMove(FileEntry fileEntry)
-    {
-        if (OnMoveRequested == null)
-            return;
-
-        await OnMoveRequested.Invoke(fileEntry);
-    }
-
-    private async Task Download(FileEntry fileEntry)
-    {
-        try
-        {
-            await SharedFileAccessService.Register(FileAccess);
-            var token = await SharedFileAccessService.GenerateToken(FileAccess);
-            var url = $"/api/download?token={token}&name={fileEntry.Name}";
-
-            await ToastService.Info("Starting download...");
-            Navigation.NavigateTo(url, true);
-        }
-        catch (Exception e)
-        {
-            Logger.Warn("Unable to start download");
-            Logger.Warn(e);
-
-            await ToastService.Danger("Failed to start download");
-        }
-    }
-
-    #endregion
 
     #region Selection
 
-    private async Task HandleSelected(FileEntry fileEntry, ChangeEventArgs args)
+    private async Task ChangeSelection(FileEntry entry, bool selectionState)
     {
-        if (args.Value == null) // This should never be called. Still i want to handle it
-            return;
-
-        if (args.Value.ToString() == "True")
-        {
-            if (!SelectedEntries.Contains(fileEntry))
-                SelectedEntries.Add(fileEntry);
-        }
-        else
-        {
-            if (SelectedEntries.Contains(fileEntry))
-                SelectedEntries.Remove(fileEntry);
-        }
+        SelectionCache[entry] = selectionState;
+        await InvokeAsync(StateHasChanged);
 
         if (OnSelectionChanged != null)
-            await OnSelectionChanged.Invoke();
+        {
+            await OnSelectionChanged.Invoke(SelectionCache
+                .Where(x => x.Value)
+                .Select(x => x.Key)
+                .ToArray()
+            );
+        }
+    }
 
+    private async Task ChangeAllSelection(bool toggle)
+    {
+        foreach (var key in SelectionCache.Keys)
+            SelectionCache[key] = toggle;
+
+        await InvokeAsync(StateHasChanged);
+
+        if (OnSelectionChanged != null)
+        {
+            await OnSelectionChanged.Invoke(SelectionCache
+                .Where(x => x.Value)
+                .Select(x => x.Key)
+                .ToArray()
+            );
+        }
+    }
+
+    #endregion
+
+    #region Context Menu
+
+    private async Task OnContextMenuAppear(MenuAppearingEventArgs data)
+    {
+        ContextMenuItem = (data.Data as FileEntry)!;
+
+        ShowContextMenu = true;
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task ToggleAll(ChangeEventArgs args)
+    private async Task OnContextMenuHide()
     {
-        if (args.Value == null)
-            return;
+        ShowContextMenu = false;
+        await InvokeAsync(StateHasChanged);
+    }
 
-        if (args.Value.ToString() == "True")
-        {
-            foreach (var entry in Entries)
-            {
-                if (!SelectedEntries.Contains(entry))
-                    SelectedEntries.Add(entry);
-            }
-        }
-        else
-        {
-            SelectedEntries.Clear();
-        }
-
+    public async Task HideContextMenu()
+    {
+        ShowContextMenu = false;
         await InvokeAsync(StateHasChanged);
     }
 
     #endregion
 
-    #region Navigation
-
-    public async Task Navigate(string name)
-    {
-        await LazyLoader.Reload(async loader =>
-        {
-            await loader.SetText("Switching directory on target");
-            await FileAccess.ChangeDirectory(name);
-
-            if (OnPathChanged != null)
-                await OnPathChanged.Invoke(await FileAccess.GetCurrentDirectory());
-        });
-    }
-
-    public async Task NavigateToPath(string path)
-    {
-        await LazyLoader.Reload(async loader =>
-        {
-            await loader.SetText("Switching directory on target");
-            await FileAccess.SetDirectory(path);
-
-            if (OnPathChanged != null)
-                await OnPathChanged.Invoke(await FileAccess.GetCurrentDirectory());
-        });
-    }
-
-    #endregion
-
-    public async Task Refresh() => await LazyLoader.Reload();
-
-    public async void Dispose()
-    {
-        await SharedFileAccessService.Unregister(FileAccess);
-    }
 }

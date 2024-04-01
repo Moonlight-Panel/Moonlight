@@ -208,12 +208,10 @@ public class ServerService
             await Backup.Delete(serverWithBackups, backup, false);
     }
 
-    public async Task<IFileAccess> OpenFileAccess(Server s)
+    public Task<BaseFileAccess> OpenFileAccess(Server s)
     {
         using var scope = ServiceProvider.CreateScope();
 
-        var jwtService = ServiceProvider.GetRequiredService<JwtService<ServersJwtType>>();
-        var configService = ServiceProvider.GetRequiredService<ConfigService<CoreConfiguration>>();
         var serverRepo = scope.ServiceProvider.GetRequiredService<Repository<Server>>();
 
         var server = serverRepo
@@ -221,18 +219,14 @@ public class ServerService
             .Include(x => x.Node)
             .First(x => x.Id == s.Id);
 
-        var ftpLoginJwt = await jwtService.Create(data => { data.Add("ServerId", s.Id.ToString()); },
-            ServersJwtType.FtpServerLogin, TimeSpan.FromMinutes(5));
-
-        return new BaseFileAccess(
-            new ServerFtpFileActions(
-                server.Node.Fqdn,
-                server.Node.FtpPort,
-                $"moonlight.{server.Id}",
-                ftpLoginJwt,
-                configService.Get().Customisation.FileManager.OperationTimeout
-            )
+        var protocol = server.Node.Ssl ? "https" : "http";
+        var remoteUrl = $"{protocol}://{server.Node.Fqdn}:{server.Node.HttpPort}/";
+        
+        var result = new BaseFileAccess(
+            new ServerApiFileActions(remoteUrl, server.Node.Token, server.Id)
         );
+
+        return Task.FromResult(result);
     }
 
     public async Task<ServerListItem[]> GetServersList(ServerNode node, bool includeOffline = false)
