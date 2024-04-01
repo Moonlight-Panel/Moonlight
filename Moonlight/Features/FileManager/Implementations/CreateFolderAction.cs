@@ -1,7 +1,7 @@
 using MoonCoreUI.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
-using Moonlight.Features.FileManager.UI.NewFileManager;
+using Moonlight.Features.FileManager.UI.Components;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
@@ -11,7 +11,7 @@ public class CreateFolderAction : IFileManagerCreateAction
     public string Icon => "bx-folder";
     public string Color => "primary";
     
-    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, IServiceProvider provider)
     {
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();

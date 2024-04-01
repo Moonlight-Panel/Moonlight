@@ -50,7 +50,10 @@ public class BaseFileAccess : IDisposable
     {
         var finalPath = CurrentDirectory + entry.Name;
 
-        await Actions.Delete(finalPath);
+        if(entry.IsFile)
+            await Actions.DeleteFile(finalPath);
+        else
+            await Actions.DeleteDirectory(finalPath);
     }
 
     public async Task Move(FileEntry entry, string to)

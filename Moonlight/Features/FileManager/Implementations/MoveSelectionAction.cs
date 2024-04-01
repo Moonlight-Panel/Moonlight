@@ -9,7 +9,7 @@ public class MoveSelectionAction : IFileManagerSelectionAction
     public string Name => "Move";
     public string Color => "primary";
     
-    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry[] entries, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry[] entries, IServiceProvider provider)
     {
         await fileManager.OpenFolderSelect("Select the location to move the items to", async path =>
         {

@@ -1,7 +1,7 @@
 using MoonCoreUI.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
-using Moonlight.Features.FileManager.UI.NewFileManager;
+using Moonlight.Features.FileManager.UI.Components;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
@@ -12,7 +12,7 @@ public class DeleteContextAction : IFileManagerContextAction
     public string Color => "danger";
     public Func<FileEntry, bool> Filter => _ => true;
 
-    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
     {
         await access.Delete(entry);
 

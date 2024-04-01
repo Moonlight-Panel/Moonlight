@@ -11,7 +11,7 @@ public class MoveContextAction : IFileManagerContextAction
     public string Color => "info";
     public Func<FileEntry, bool> Filter => _ => true;
     
-    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider provider)
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry entry, IServiceProvider provider)
     {
         await fileManager.OpenFolderSelect("Select the location to move the item to", async path =>
         {

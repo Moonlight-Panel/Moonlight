@@ -4,7 +4,7 @@ using MoonCoreUI.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 using Moonlight.Features.FileManager.Services;
-using Moonlight.Features.FileManager.UI.NewFileManager;
+using Moonlight.Features.FileManager.UI.Components;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
@@ -15,7 +15,7 @@ public class DownloadContextAction : IFileManagerContextAction
     public string Color => "primary";
     public Func<FileEntry, bool> Filter => entry => entry.IsFile;
 
-    public async Task Execute(BaseFileAccess access, UI.NewFileManager.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
     {
         var fileAccessService = serviceProvider.GetRequiredService<SharedFileAccessService>();
         var navigation = serviceProvider.GetRequiredService<NavigationManager>();

@@ -40,15 +40,23 @@ public class HostFileActions : IFileActions
         return Task.FromResult(entries.ToArray());
     }
 
-    public Task Delete(string path)
+    public Task DeleteFile(string path)
     {
         var fullPath = GetFullPath(path);
         
         if (File.Exists(fullPath))
             File.Delete(fullPath);
-        else if (Directory.Exists(fullPath))
-            Directory.Delete(fullPath, true);
 
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteDirectory(string path)
+    {
+        var fullPath = GetFullPath(path);
+        
+        if (Directory.Exists(fullPath))
+            Directory.Delete(fullPath, true);
+        
         return Task.CompletedTask;
     }
 
@@ -65,29 +73,29 @@ public class HostFileActions : IFileActions
         return Task.CompletedTask;
     }
 
-    public Task CreateDirectory(string name)
+    public Task CreateDirectory(string path)
     {
-        var fullPath = GetFullPath(name);
+        var fullPath = GetFullPath(path);
         Directory.CreateDirectory(fullPath);
         return Task.CompletedTask;
     }
 
-    public Task CreateFile(string name)
+    public Task CreateFile(string path)
     {
-        var fullPath = GetFullPath(name);
+        var fullPath = GetFullPath(path);
         File.Create(fullPath).Close();
         return Task.CompletedTask;
     }
 
-    public Task<string> ReadFile(string name)
+    public Task<string> ReadFile(string path)
     {
-        var fullPath = GetFullPath(name);
+        var fullPath = GetFullPath(path);
         return File.ReadAllTextAsync(fullPath);
     }
 
-    public Task WriteFile(string name, string content)
+    public Task WriteFile(string path, string content)
     {
-        var fullPath = GetFullPath(name);
+        var fullPath = GetFullPath(path);
         
         EnsureDir(fullPath);
         
@@ -95,15 +103,15 @@ public class HostFileActions : IFileActions
         return Task.CompletedTask;
     }
 
-    public Task<Stream> ReadFileStream(string name)
+    public Task<Stream> ReadFileStream(string path)
     {
-        var fullPath = GetFullPath(name);
+        var fullPath = GetFullPath(path);
         return Task.FromResult<Stream>(File.OpenRead(fullPath));
     }
 
-    public Task WriteFileStream(string name, Stream dataStream)
+    public Task WriteFileStream(string path, Stream dataStream)
     {
-        var fullPath = GetFullPath(name);
+        var fullPath = GetFullPath(path);
         
         EnsureDir(fullPath);
         
