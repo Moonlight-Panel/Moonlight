@@ -25,6 +25,6 @@
     {
         var appUrl = ConfigService.Get().AppUrl;
         
-        return $"curl https://get-moonlight.app/install.sh | bash; mlcli daemon install {Channel} {appUrl} {Node.Token} {Node.HttpPort} {Node.Fqdn} {Node.Ssl.ToString().ToLower()}";
+        return $"bash <(curl https://get-moonlight.app) --use-software daemon --use-action Install --use-channel {Channel} --use-remote-url {appUrl} --use-remote-token {Node.Token} --use-http-port {Node.HttpPort} --use-ftp-port {Node.FtpPort} --use-fqdn {Node.Fqdn} --use-ssl {Node.Ssl.ToString().ToLower()} --use-email letsencrypt@moonlightpanel.xyz";
     }
 }
