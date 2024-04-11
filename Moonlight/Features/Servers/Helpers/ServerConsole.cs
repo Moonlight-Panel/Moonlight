@@ -38,6 +38,9 @@ public class ServerConsole
     public async Task Connect()
     {
         WebSocket = new();
+        
+        // Set auth header
+        WebSocket.Options.SetRequestHeader("Authorization", Server.Node.Token);
 
         string wsUrl;
 
