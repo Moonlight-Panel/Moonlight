@@ -32,6 +32,7 @@
           Load="Load"
           ValidateDelete="ValidateDelete"
           ValidateAdd="ValidateAdd"
+          CustomDelete="CustomDelete"
           @ref="Crud">
     <Actions>
         <a href="/admin/servers/images/view/@(context.Id)" class="btn btn-icon btn-info">
@@ -101,7 +102,30 @@
     {
         if (ServerRepository.Get().Any(x => x.Image.Id == serverImage.Id))
             throw new DisplayException("A server using this image exists. Please delete the servers using this image to continue");
+        
+        return Task.CompletedTask;
+    }
 
+    private Task ValidateAdd(ServerImage image)
+    {
+        // Set defaults
+
+        image.StopCommand = "^C";
+        image.StartupCommand = "echo Startup command here";
+        image.AllocationsNeeded = 1;
+        image.InstallScript = "#! /bin/bash\necho Done";
+        image.InstallShell = "/bin/bash";
+        image.InstallDockerImage = "debian:latest";
+        image.OnlineDetection = "Running";
+        image.AllowDockerImageChange = false;
+        image.DefaultDockerImage = 0;
+        image.ParseConfiguration = "[]";
+
+        return Task.CompletedTask;
+    }
+    
+    private Task CustomDelete(ServerImage serverImage)
+    {
         var image = ImageRepository
             .Get()
             .Include(x => x.Variables)
@@ -148,28 +172,11 @@
         return Task.CompletedTask;
     }
 
-    private Task ValidateAdd(ServerImage image)
-    {
-        // Set defaults
-
-        image.StopCommand = "^C";
-        image.StartupCommand = "echo Startup command here";
-        image.AllocationsNeeded = 1;
-        image.InstallScript = "#! /bin/bash\necho Done";
-        image.InstallShell = "/bin/bash";
-        image.InstallDockerImage = "debian:latest";
-        image.OnlineDetection = "Running";
-        image.AllowDockerImageChange = false;
-        image.DefaultDockerImage = 0;
-        image.ParseConfiguration = "[]";
-
-        return Task.CompletedTask;
-    }
-
     private async Task Export(ServerImage image)
     {
         var json = await ImageConversionHelper.ExportAsJson(image);
-        await FileDownloadService.DownloadString($"{image.Name}.json", json);
+        var imageName = image.Name.Replace(" ", "");
+        await FileDownloadService.DownloadString($"{imageName}.json", json);
 
         await ToastService.Success($"Successfully exported '{image.Name}'");
     }
