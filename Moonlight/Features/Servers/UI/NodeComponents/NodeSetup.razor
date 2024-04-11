@@ -1,8 +1,10 @@
 @using Moonlight.Features.Servers.Entities
 @using MoonCore.Services
 @using Moonlight.Core.Configuration
+@using Moonlight.Core.Services
 
 @inject ConfigService<CoreConfiguration> ConfigService
+@inject IdentityService IdentityService
 
 <div class="card card-body p-8 fs-5">
     In order to setup this node, make sure you have a clean linux (tested with ubuntu 22.04) server with the capabilities to run docker.
@@ -25,6 +27,15 @@
     {
         var appUrl = ConfigService.Get().AppUrl;
         
-        return $"bash <(curl https://get-moonlight.app) --use-software daemon --use-action Install --use-channel {Channel} --use-remote-url {appUrl} --use-remote-token {Node.Token} --use-http-port {Node.HttpPort} --use-ftp-port {Node.FtpPort} --use-fqdn {Node.Fqdn} --use-ssl {Node.Ssl.ToString().ToLower()} --use-email letsencrypt@moonlightpanel.xyz";
+        return $"bash <(curl https://get-moonlight.app) --use-software daemon " +
+               $"--use-action Install " +
+               $"--use-channel {Channel} " +
+               $"--use-remote-url {appUrl} " +
+               $"--use-remote-token {Node.Token} " +
+               $"--use-http-port {Node.HttpPort} " +
+               $"--use-ftp-port {Node.FtpPort} " +
+               $"--use-fqdn {Node.Fqdn} " +
+               $"--use-ssl {Node.Ssl.ToString().ToLower()} " +
+               $"--use-email {IdentityService.CurrentUser.Email}";
     }
 }
