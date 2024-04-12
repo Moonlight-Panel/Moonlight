@@ -131,6 +131,12 @@
                 We are unable to establish a connection to the server. Please refresh the page in order to retry. If this error persists please contact the support
             </IconAlert>
         }
+        else if (IsNodeNotReady)
+        {
+            <IconAlert Title="The node is still booting" Color="warning" Icon="bx-server">
+                The node this server is on is still booting. Please refresh the page in order to retry. If this error persists please contact the support
+            </IconAlert>
+        }
         else
         {
             <CascadingValue Value="Server">
@@ -186,6 +192,7 @@
     private bool IsInstalling = false;
     private bool IsConsoleDisconnected = false;
     private bool IsNodeOffline = false;
+    private bool IsNodeNotReady = false;
 
     private Timer UpdateTimer;
 
@@ -254,6 +261,13 @@
         }
         catch (WebSocketException e)
         {
+            if (e.Message.Contains("503"))
+            {
+                IsNodeNotReady = true;
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+            
             // We want to check if its an connection error, if yes we want to show the user that its an error with the connection
             // If not we proceed with the throwing for the soft error handler.
 
