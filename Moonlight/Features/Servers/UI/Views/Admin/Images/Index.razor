@@ -168,6 +168,8 @@
                 /* this should not fail the operation */
             }
         }
+        
+        ImageRepository.Delete(serverImage);
 
         return Task.CompletedTask;
     }
