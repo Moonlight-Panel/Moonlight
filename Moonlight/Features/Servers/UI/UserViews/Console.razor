@@ -18,7 +18,7 @@
             <Terminal @ref="Terminal"/>
             <div class="mt-3">
                 <div class="input-group">
-                    <input @bind="CommandInput" class="form-control form-control-transparent text-white" placeholder="Enter command"/>
+                    <input @bind="CommandInput" @bind:event="onchange" @onkeyup="OnEnterPressed" class="form-control form-control-transparent text-white" placeholder="Enter command"/>
                     <WButton CssClasses="btn btn-secondary rounded-start" Text="Execute" OnClick="SendCommand"/>
                 </div>
             </div>
@@ -117,6 +117,14 @@
         CommandInput = "";
 
         await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task OnEnterPressed(KeyboardEventArgs args)
+    {
+        if(args.Code != "Enter" || args.CtrlKey || args.ShiftKey)
+            return;
+
+        await SendCommand();
     }
 
     public void Dispose()
