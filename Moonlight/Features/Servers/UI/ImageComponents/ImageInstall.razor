@@ -13,6 +13,11 @@
                                 Model="Form"
                                 Field="@(x => x.InstallDockerImage)"/>
         </div>
+        <div class="col-md-6 col-12">
+            <SingleAutoProperty TItem="UpdateImageDetailedForm"
+                                Model="Form"
+                                Field="@(x => x.AllocationsNeeded)"/>
+        </div>
         <div class="col-12">
             <Editor InitialContent="@Form.InstallScript"
                     Mode="sh"
@@ -26,7 +31,7 @@
 @code
 {
     [Parameter] public UpdateImageDetailedForm Form { get; set; }
-    
+
     private Task OnEditorValueChanged(string content)
     {
         Form.InstallScript = content;
