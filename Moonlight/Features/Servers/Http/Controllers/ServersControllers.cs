@@ -8,7 +8,6 @@ using Moonlight.Features.Servers.Events;
 using Moonlight.Features.Servers.Extensions;
 using Moonlight.Features.Servers.Http.Requests;
 using Moonlight.Features.Servers.Models.Abstractions;
-using AdvancedWebsocketStream = Moonlight.Core.Helpers.AdvancedWebsocketStream;
 
 namespace Moonlight.Features.Servers.Http.Controllers;
 

@@ -1,4 +1,3 @@
-@using Moonlight.Features.Servers.Models.Abstractions
 @using Moonlight.Features.Servers.Services
 @using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
@@ -6,7 +5,6 @@
 @using Moonlight.Features.Servers.Api.Packets
 @using Moonlight.Features.Servers.Models.Enums
 @using MoonCore.Helpers
-@using ApexCharts
 
 @inject ServerService ServerService
 
@@ -85,7 +83,6 @@
 
 
             ServerConsole.OnNewMessage += OnMessage;
-
             ServerConsole.OnStatsChange += HandleStats;
             ServerConsole.OnStateChange += HandleState;
         }

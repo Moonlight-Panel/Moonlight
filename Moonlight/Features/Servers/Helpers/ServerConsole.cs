@@ -3,7 +3,6 @@ using MoonCore.Helpers;
 using Moonlight.Features.Servers.Api.Packets;
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Models.Enums;
-using AdvancedWebsocketStream = Moonlight.Core.Helpers.AdvancedWebsocketStream;
 
 namespace Moonlight.Features.Servers.Helpers;
 
