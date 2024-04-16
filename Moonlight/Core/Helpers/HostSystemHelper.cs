@@ -58,7 +58,7 @@ public static class HostSystemHelper
     public static Task<long> GetMemoryUsage()
     {
         var process = Process.GetCurrentProcess();
-        var bytes = process.WorkingSet64;
+        var bytes = process.PrivateMemorySize64;
         return Task.FromResult(bytes);
     }
 
