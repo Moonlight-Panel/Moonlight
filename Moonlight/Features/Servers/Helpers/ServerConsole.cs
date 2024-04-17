@@ -99,6 +99,9 @@ public class ServerConsole : IDisposable
             }
             catch (Exception e)
             {
+                if(Cancellation.IsCancellationRequested)
+                    break;
+                
                 if (e is WebSocketException)
                     Logger.Warn($"Lost connection to daemon server websocket: {e.Message}");
                 else
@@ -112,16 +115,15 @@ public class ServerConsole : IDisposable
         }
 
         await OnDisconnected.Invoke();
-        await WebsocketStream.Close();
     }
 
     public async Task Close()
     {
         if(!Cancellation.IsCancellationRequested)
             Cancellation.Cancel();
-        
-        if(WebsocketStream != null)
-            await WebsocketStream.Close();
+
+        if (WebSocket.State == WebSocketState.Open)
+            await WebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
     }
 
     private string[] GetMessageCache()
@@ -133,10 +135,16 @@ public class ServerConsole : IDisposable
     public async void Dispose()
     {
         MessageCache.Clear();
+        
+        await OnDisconnected.ClearSubscribers();
+        await OnStateChange.ClearSubscribers();
+        await OnStatsChange.ClearSubscribers();
+        await OnNewMessage.ClearSubscribers();
 
         if (WebSocket.State == WebSocketState.Open)
-            await WebsocketStream.Close();
+            await WebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
         
         WebSocket.Dispose();
+        
     }
 }
