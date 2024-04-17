@@ -77,10 +77,12 @@
             var text = "";
 
             foreach (var line in ServerConsole.Messages.TakeLast(50))
-                text += line + "\n\r";
+            {
+                var lineModified = line.Replace("\n", "\n\r");
+                text += lineModified;
+            }
 
             await Terminal.Write(text);
-
 
             ServerConsole.OnNewMessage += OnMessage;
             ServerConsole.OnStatsChange += HandleStats;
@@ -105,7 +107,7 @@
 
     private async Task OnMessage(string message)
     {
-        await Terminal.WriteLine(message);
+        await Terminal.Write(message + "\n\r");
     }
 
     private async Task SendCommand()
