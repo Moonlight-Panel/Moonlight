@@ -6,7 +6,7 @@ using Moonlight.Features.Servers.Models.Enums;
 
 namespace Moonlight.Features.Servers.Helpers;
 
-public class ServerConsole
+public class ServerConsole : IDisposable
 {
     public SmartEventHandler<ServerState> OnStateChange { get; set; } = new();
     public SmartEventHandler<ServerStats> OnStatsChange { get; set; } = new();
@@ -126,5 +126,15 @@ public class ServerConsole
     {
         lock (MessageCache)
             return MessageCache.ToArray();
+    }
+
+    public async void Dispose()
+    {
+        MessageCache.Clear();
+
+        if (WebSocket.State == WebSocketState.Open)
+            await WebsocketStream.Close();
+        
+        WebSocket.Dispose();
     }
 }

@@ -308,7 +308,10 @@
             await UpdateTimer.DisposeAsync();
 
         if (Console != null)
+        {
             await Console.Close();
+            Console.Dispose();
+        }
     }
 
     private int GetIndex()

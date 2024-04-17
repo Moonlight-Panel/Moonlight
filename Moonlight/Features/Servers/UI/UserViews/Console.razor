@@ -79,7 +79,7 @@
             foreach (var line in ServerConsole.Messages.TakeLast(50))
             {
                 var lineModified = line.Replace("\n", "\n\r");
-                text += lineModified;
+                text += lineModified + "\n\r";
             }
 
             await Terminal.Write(text);
