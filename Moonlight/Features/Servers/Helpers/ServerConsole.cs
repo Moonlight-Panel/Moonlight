@@ -2,12 +2,11 @@
 using MoonCore.Helpers;
 using Moonlight.Features.Servers.Api.Packets;
 using Moonlight.Features.Servers.Entities;
-using Moonlight.Features.Servers.Models.Abstractions;
 using Moonlight.Features.Servers.Models.Enums;
 
 namespace Moonlight.Features.Servers.Helpers;
 
-public class ServerConsole
+public class ServerConsole : IDisposable
 {
     public SmartEventHandler<ServerState> OnStateChange { get; set; } = new();
     public SmartEventHandler<ServerStats> OnStatsChange { get; set; } = new();
@@ -23,7 +22,7 @@ public class ServerConsole
     private readonly Server Server;
 
     private ClientWebSocket WebSocket;
-    private WsPacketConnection PacketConnection;
+    private AdvancedWebsocketStream WebsocketStream;
 
     private CancellationTokenSource Cancellation = new();
 
@@ -50,11 +49,11 @@ public class ServerConsole
             wsUrl = $"ws://{Server.Node.Fqdn}:{Server.Node.HttpPort}/servers/{Server.Id}/ws";
 
         await WebSocket.ConnectAsync(new Uri(wsUrl), CancellationToken.None);
-        PacketConnection = new WsPacketConnection(WebSocket);
+        WebsocketStream = new AdvancedWebsocketStream(WebSocket);
 
-        await PacketConnection.RegisterPacket<string>("output");
-        await PacketConnection.RegisterPacket<ServerState>("state");
-        await PacketConnection.RegisterPacket<ServerStats>("stats");
+        WebsocketStream.RegisterPacket<string>(1);
+        WebsocketStream.RegisterPacket<ServerState>(2);
+        WebsocketStream.RegisterPacket<ServerStats>(3);
 
         Task.Run(Worker);
     }
@@ -65,7 +64,7 @@ public class ServerConsole
         {
             try
             {
-                var packet = await PacketConnection.Receive();
+                var packet = await WebsocketStream.ReceivePacket();
 
                 if (packet == null)
                     continue;
@@ -100,9 +99,11 @@ public class ServerConsole
             }
             catch (Exception e)
             {
-                if (e is not WebSocketException)
+                if (e is WebSocketException)
+                    Logger.Warn($"Lost connection to daemon server websocket: {e.Message}");
+                else
                 {
-                    Logger.Warn("Lost connection to daemon server websocket");
+                    Logger.Warn("Server console ws disconnected because of application error:");
                     Logger.Warn(e);
                 }
                 
@@ -111,7 +112,7 @@ public class ServerConsole
         }
 
         await OnDisconnected.Invoke();
-        await PacketConnection.Close();
+        await WebsocketStream.Close();
     }
 
     public async Task Close()
@@ -119,13 +120,23 @@ public class ServerConsole
         if(!Cancellation.IsCancellationRequested)
             Cancellation.Cancel();
         
-        if(PacketConnection != null)
-            await PacketConnection.Close();
+        if(WebsocketStream != null)
+            await WebsocketStream.Close();
     }
 
     private string[] GetMessageCache()
     {
         lock (MessageCache)
             return MessageCache.ToArray();
+    }
+
+    public async void Dispose()
+    {
+        MessageCache.Clear();
+
+        if (WebSocket.State == WebSocketState.Open)
+            await WebsocketStream.Close();
+        
+        WebSocket.Dispose();
     }
 }

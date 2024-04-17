@@ -22,13 +22,16 @@ public class DiagnoseService
     {
         using var scope = ServiceProvider.CreateScope();
         
+        // Create in memory zip archive
         using var dataStream = new MemoryStream();
         var zipArchive = new ZipArchive(dataStream, ZipArchiveMode.Create, true);
 
+        // Call every plugin to perform their modifications to the file
         await PluginService.ExecuteFuncAsync<IDiagnoseAction>(
             async x => await x.GenerateReport(zipArchive, scope.ServiceProvider)
         );
 
+        // Add a timestamp
         await zipArchive.AddText("exported_at.txt", Formatter.FormatDate(DateTime.UtcNow));
         
         zipArchive.Dispose();

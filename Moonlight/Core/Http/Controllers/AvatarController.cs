@@ -55,9 +55,9 @@ public class AvatarController : Controller
         if (!IdentityService.IsLoggedIn)
             return StatusCode(403);
 
-        if (ConfigService.Get().Security.EnforceAvatarPrivacy &&
-            id != IdentityService.CurrentUser.Id &&
-            IdentityService.CurrentUser.Permissions < 1000)
+        if (ConfigService.Get().Security.EnforceAvatarPrivacy && // Do we need to enforce privacy?
+            id != IdentityService.CurrentUser.Id && // is the user not viewing his own image?
+            IdentityService.CurrentUser.Permissions < 1000) // and not an admin?
         {
             return StatusCode(403);
         }

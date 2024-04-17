@@ -113,13 +113,7 @@
     <ServerNavigation Index="@GetIndex()" ServerId="@Id"/>
 
     <div class="mt-3">
-        @if (IsInstalling)
-        {
-            <div class="card card-body bg-black p-3">
-                <Terminal @ref="InstallTerminal" EnableClipboard="false"/>
-            </div>
-        }
-        else if (IsConsoleDisconnected)
+        @if (IsConsoleDisconnected)
         {
             <IconAlert Title="Connection to server lost" Color="danger" Icon="bx-error">
                 We lost the connection to the server. Please refresh the page in order to retry. If this error persists please contact the support
@@ -136,6 +130,12 @@
             <IconAlert Title="The node is still booting" Color="warning" Icon="bx-server">
                 The node this server is on is still booting. Please refresh the page in order to retry. If this error persists please contact the support
             </IconAlert>
+        }
+        else if (IsInstalling)
+        {
+            <div class="card card-body bg-black p-3">
+                <Terminal @ref="InstallTerminal" EnableClipboard="false"/>
+            </div>
         }
         else
         {
@@ -217,37 +217,7 @@
         Console = new ServerConsole(Server);
 
         // Configure
-        Console.OnStateChange += async state =>
-        {
-            // General rerender to update the state text in the ui
-            // NOTE: Obsolete because of the update timer
-            //await InvokeAsync(StateHasChanged);
-
-            // Change from offline to installing
-            // This will trigger the initialisation of the install view
-            if (state == ServerState.Installing && !IsInstalling)
-            {
-                IsInstalling = true;
-
-                // After this call, we should have access to the install terminal reference
-                await InvokeAsync(StateHasChanged);
-
-                Console.OnNewMessage += OnInstallConsoleMessage;
-            }
-            // Change from installing to offline
-            // This will trigger the destruction of the install view
-            else if (state == ServerState.Offline && IsInstalling)
-            {
-                IsInstalling = false;
-
-                Console.OnNewMessage -= OnInstallConsoleMessage;
-
-                // After this call, the install terminal will disappear
-                await InvokeAsync(StateHasChanged);
-
-                await ToastService.Info("Server installation complete");
-            }
-        };
+        Console.OnStateChange += async state => await HandleStateChange(state);
 
         Console.OnDisconnected += async () =>
         {
@@ -267,7 +237,7 @@
                 await InvokeAsync(StateHasChanged);
                 return;
             }
-            
+
             // We want to check if its an connection error, if yes we want to show the user that its an error with the connection
             // If not we proceed with the throwing for the soft error handler.
 
@@ -288,6 +258,41 @@
         }
 
         UpdateTimer = new Timer(async _ => { await InvokeAsync(StateHasChanged); }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
+        var state = await ServerService.GetState(Server);
+        await HandleStateChange(state);
+    }
+
+    private async Task HandleStateChange(ServerState state)
+    {
+        // General rerender to update the state text in the ui
+        // NOTE: Obsolete because of the update timer
+        //await InvokeAsync(StateHasChanged);
+
+        // Change from offline to installing
+        // This will trigger the initialisation of the install view
+        if (state == ServerState.Installing && !IsInstalling)
+        {
+            IsInstalling = true;
+
+            // After this call, we should have access to the install terminal reference
+            await InvokeAsync(StateHasChanged);
+
+            Console.OnNewMessage += OnInstallConsoleMessage;
+        }
+        // Change from installing to offline
+        // This will trigger the destruction of the install view
+        else if (state == ServerState.Offline && IsInstalling)
+        {
+            IsInstalling = false;
+
+            Console.OnNewMessage -= OnInstallConsoleMessage;
+
+            // After this call, the install terminal will disappear
+            await InvokeAsync(StateHasChanged);
+
+            await ToastService.Info("Server installation complete");
+        }
     }
 
     private async Task OnInstallConsoleMessage(string message)
@@ -308,7 +313,10 @@
             await UpdateTimer.DisposeAsync();
 
         if (Console != null)
+        {
             await Console.Close();
+            Console.Dispose();
+        }
     }
 
     private int GetIndex()
@@ -331,7 +339,7 @@
 
             case "/network":
                 return 2;
-                
+
             case "/schedules":
                 return 7;
 

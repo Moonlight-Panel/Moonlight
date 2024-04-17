@@ -36,9 +36,9 @@ public class ServersControllers : Controller
         var websocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
         
         // Build connection wrapper
-        var wsPacketConnection = new WsPacketConnection(websocket);
-        await wsPacketConnection.RegisterPacket<int>("amount");
-        await wsPacketConnection.RegisterPacket<ServerConfiguration>("serverConfiguration");
+        var websocketStream = new AdvancedWebsocketStream(websocket);
+        websocketStream.RegisterPacket<int>(1);
+        websocketStream.RegisterPacket<ServerConfiguration>(2);
         
         // Read server data for the node
         var node = (HttpContext.Items["Node"] as ServerNode)!;
@@ -62,13 +62,13 @@ public class ServersControllers : Controller
             .ToArray();
         
         // Send the amount of configs the node will receive
-        await wsPacketConnection.Send(servers.Length);
+        await websocketStream.SendPacket(servers.Length);
 
         // Send the server configurations
         foreach (var serverConfiguration in serverConfigurations)
-            await wsPacketConnection.Send(serverConfiguration);
+            await websocketStream.SendPacket(serverConfiguration);
 
-        await wsPacketConnection.WaitForClose();
+        await websocketStream.WaitForClose();
 
         return Ok();
     }
