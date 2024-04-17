@@ -99,9 +99,11 @@ public class ServerConsole : IDisposable
             }
             catch (Exception e)
             {
-                if (e is not WebSocketException)
+                if (e is WebSocketException)
+                    Logger.Warn($"Lost connection to daemon server websocket: {e.Message}");
+                else
                 {
-                    Logger.Warn("Lost connection to daemon server websocket");
+                    Logger.Warn("Server console ws disconnected because of application error:");
                     Logger.Warn(e);
                 }
                 
