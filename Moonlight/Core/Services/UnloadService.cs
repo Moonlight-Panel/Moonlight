@@ -5,7 +5,7 @@ using MoonCore.Helpers;
 namespace Moonlight.Core.Services;
 
 /// <summary>
-/// This class provides a event to execute code when a user leaves the page
+/// This class provides an event to execute code when a user leaves the page
 /// </summary>
 
 [Scoped]
