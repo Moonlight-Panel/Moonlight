@@ -69,6 +69,10 @@ public class CoreConfiguration
         [JsonProperty("TokenDuration")]
         [Description("This specifies the duration the token of an user will be valid. The value specifies the days")]
         public int TokenDuration { get; set; } = 30;
+
+        [JsonProperty("DenyRegister")]
+        [Description("This disables the register function. No user will be able to sign up anymore. Its recommended to enable this for private instances")]
+        public bool DenyRegister { get; set; } = false;
     }
 
     public class SecurityData
