@@ -1,19 +1,48 @@
-﻿<div class="app-footer">
+﻿@using MoonCore.Services
+@using Moonlight.Core.Configuration
+
+@inject ConfigService<CoreConfiguration> ConfigService
+
+@{
+    var config = ConfigService.Get().Customisation.Footer;
+}
+
+<div class="app-footer">
     <div class="app-container container-fluid d-flex flex-column flex-md-row flex-center flex-md-stack py-3 ">
         <div class="text-gray-900 order-2 order-md-1">
-            <span class="text-muted fw-semibold me-1">2024©</span>
-            <a href="https://moonlightpanel.xyz" target="_blank" class="text-gray-800 text-hover-primary">Moonlight Panel</a>
+            <span class="text-muted fw-semibold me-1">© @(DateTime.UtcNow.Year)</span>
+            @if (config.CopyrightText == "Moonlight Panel" && config.CopyrightLink == "https://moonlightpanel.xyz")
+            {
+                <a href="https://moonlightpanel.xyz" target="_blank" class="text-gray-800 text-hover-primary">Moonlight Panel</a>
+            }
+            else
+            {
+                <a href="@config.CopyrightLink" target="_blank" class="text-gray-800 text-hover-primary">@config.CopyrightText</a>
+                <span class="text-muted fw-semibold mx-1">Software by</span>
+                <a href="https://moonlightpanel.xyz" target="_blank" class="text-gray-800 text-hover-primary">Moonlight Panel</a>
+            }
         </div>
         <ul class="menu menu-gray-600 menu-hover-primary fw-semibold order-1">
-            <li class="menu-item">
-                <a href="https://moonlightpanel.xyz" target="_blank" class="menu-link px-2">About</a>
-            </li>
-            <li class="menu-item">
-                <a href="https://moonlightpanel.xyz" target="_blank" class="menu-link px-2">Support</a>
-            </li>
-            <li class="menu-item">
-                <a href="https://moonlightpanel.xyz" target="_blank" class="menu-link px-2">Purchase</a>
-            </li>
+            @if (!string.IsNullOrEmpty(config.AboutLink))
+            {
+                <li class="menu-item">
+                    <a href="@config.AboutLink" target="_blank" class="menu-link px-2">About us</a>
+                </li>
+            }
+
+            @if (!string.IsNullOrEmpty(config.PrivacyLink))
+            {
+                <li class="menu-item">
+                    <a href="@config.PrivacyLink" target="_blank" class="menu-link px-2">Privacy</a>
+                </li>
+            }
+
+            @if (!string.IsNullOrEmpty(config.ImprintLink))
+            {
+                <li class="menu-item">
+                    <a href="@config.ImprintLink" target="_blank" class="menu-link px-2">Imprint</a>
+                </li>
+            }
         </ul>
     </div>
 </div>
