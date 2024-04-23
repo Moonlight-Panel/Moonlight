@@ -29,10 +29,10 @@
     {
         <div class="card card-body p-5 mt-5">
             <div class="row g-3">
-                <div class="col-md-1 col-2 d-flex align-items-center justify-content-center">
+                <div class="col-md-1 col-3 d-flex align-items-center justify-content-center">
                     <input class="form-control fs-3 text-center" type="number" @bind="SelectedUser.Permissions" @bind:event="oninput"/>
                 </div>
-                <div class="col-md-11 col-10">
+                <div class="col-md-11 col-9">
                     <label class="form-label">Permission Level</label>
                     <input @bind="SelectedUser.Permissions" @bind:event="oninput" type="range" class="form-range" min="0" max="9999"/>
                 </div>
