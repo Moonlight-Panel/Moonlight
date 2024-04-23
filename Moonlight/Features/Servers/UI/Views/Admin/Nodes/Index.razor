@@ -8,6 +8,7 @@
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Exceptions
 @using MoonCore.Helpers
+@using System.Text.RegularExpressions;
 
 @inject Repository<Server> ServerRepository
 @inject Repository<ServerNode> NodeRepository
@@ -22,6 +23,7 @@
           Title=""
           Load="Load"
           ValidateAdd="ValidateAdd"
+          ValidateUpdate="ValidateUpdate"
           ValidateDelete="ValidateDelete">
     <Actions>
         <a href="/admin/servers/nodes/view/@(context.Id)" class="btn btn-icon btn-info">
@@ -78,8 +80,30 @@
 
     private Task ValidateAdd(ServerNode node)
     {
+        if (!IsDomainOrIp(node.Fqdn))
+            throw new DisplayException("The fqdn needs to be a valid domain or an ip address");
+
         node.Token = Formatter.GenerateString(32);
-        
+
         return Task.CompletedTask;
+    }
+
+    private Task ValidateUpdate(ServerNode node)
+    {
+        if (!IsDomainOrIp(node.Fqdn))
+            throw new DisplayException("The fqdn needs to be a valid domain or an ip address");
+
+        return Task.CompletedTask;
+    }
+
+    private bool IsDomainOrIp(string input)
+    {
+        if (Regex.IsMatch(input, "^(?!-)(?:[a-zA-Z\\d-]{0,62}[a-zA-Z\\d]\\.)+(?:[a-zA-Z]{2,})$"))
+            return true;
+
+        if (Regex.IsMatch(input, "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
+            return true;
+
+        return false;
     }
 }
