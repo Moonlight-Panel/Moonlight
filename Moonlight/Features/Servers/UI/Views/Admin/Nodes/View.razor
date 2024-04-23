@@ -29,6 +29,9 @@
             <Route Path="/setup">
                 <NodeSetup Node="Node"/>
             </Route>
+            <Route Path="/logs">
+                <NodeLogs Node="Node"/>
+            </Route>
         </SmartRouter>
     }
 </LazyLoader>
@@ -65,6 +68,9 @@
 
             case "/setup":
                 return 2;
+                
+            case "/logs":
+                return 3;
 
             default:
                 return 0;

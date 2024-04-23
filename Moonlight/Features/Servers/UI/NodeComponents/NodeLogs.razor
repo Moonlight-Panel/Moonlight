@@ -1,0 +1,79 @@
+﻿@using MoonCore.Helpers
+@using Moonlight.Features.Servers.Entities
+@using MoonCore.Services
+@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
+@using Moonlight.Features.Servers.Services
+
+@inject ConfigService<CoreConfiguration> ConfigService
+@inject NodeService NodeService
+@inject ToastService ToastService
+
+<div class="card card-body mb-5 p-3">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="fs-3 fw-semibold ms-3">Latest logs of <span class="text-primary">@Node.Name</span></div>
+        <div class="text-end">
+            <div class="input-group">
+                <input @bind="LinesToFetch" type="number" class="form-control" placeholder="Lines to fetch"/>
+                <WButton OnClick="Refresh" CssClasses="btn btn-primary">
+                    <i class="bx bx-sm bx-refresh"></i> Refresh
+                </WButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+<LazyLoader Load="Load">
+    <div class="card card-body p-5 bg-black">
+        @foreach (var line in Lines)
+        {
+            @line
+            <br/>
+        }
+    </div>
+</LazyLoader>
+
+@code
+{
+    [Parameter] public ServerNode Node { get; set; }
+
+    private string[] Lines;
+    private int LinesToFetch = 25;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.SetText("Fetching current logs");
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        // Prevent too small and too big values
+        if (LinesToFetch < 0)
+            LinesToFetch = 50;
+
+        if (LinesToFetch > 500)
+            LinesToFetch = 50;
+
+        try
+        {
+            // Fetch and parse log
+            var logs = await NodeService.GetLogs(Node);
+            var logLines = logs.Split("\n");
+
+            // Save required logs
+            Lines = logLines.TakeLast(LinesToFetch).ToArray();
+
+            await ToastService.Success("Refreshed logs successfully");
+        }
+        catch (Exception e)
+        {
+            Logger.Warn($"An error occured while fetching logs from node '{Node.Name}'");
+            Logger.Warn(e);
+
+            await ToastService.Danger("An error occured while fetching logs. Please try again later");
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
