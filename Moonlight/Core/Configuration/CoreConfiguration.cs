@@ -105,6 +105,26 @@ public class CoreConfiguration
 
         [JsonProperty("FileManager")]
         public FileManagerData FileManager { get; set; } = new();
+
+        [JsonProperty("Footer")] public FooterData Footer { get; set; } = new();
+    }
+    
+    public class FooterData
+    {
+        [Description("The name of the copyright holder. If this is changed from the default value, an additional 'Software by' will be shown")]
+        public string CopyrightText { get; set; } = "Moonlight Panel";
+        
+        [Description("The link of the copyright holders website. If this is changed from the default value, an additional 'Software by' will be shown")]
+        public string CopyrightLink { get; set; } = "https://moonlightpanel.xyz";
+
+        [Description("A link to your 'about us' page. Leave it empty if you want to hide it")]
+        public string AboutLink { get; set; } = "https://moonlightpanel.xyz";
+        
+        [Description("A link to your 'privacy' page. Leave it empty if you want to hide it")]
+        public string PrivacyLink { get; set; } = "https://moonlightpanel.xyz";
+        
+        [Description("A link to your 'imprint' page. Leave it empty if you want to hide it")]
+        public string ImprintLink { get; set; } = "https://moonlightpanel.xyz";
     }
     
     public class FileManagerData
