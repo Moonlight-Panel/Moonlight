@@ -114,6 +114,7 @@
       <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\FileUploader.razor" />
       <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\FileView.razor" />
       <_ContentIncludedByDefault Remove="storage\configs\core.json" />
+      <_ContentIncludedByDefault Remove="Features\Servers\UI\Views\Admin\Servers\AdminView.razor" />
     </ItemGroup>
 
 </Project>

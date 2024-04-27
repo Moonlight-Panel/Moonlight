@@ -1,7 +1,6 @@
 @page "/admin/servers/nodes"
 
 @using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
-@using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
 @using MoonCore.Abstractions
 @using Microsoft.EntityFrameworkCore
@@ -10,6 +9,7 @@
 @using System.Text.RegularExpressions;
 @using Moonlight.Features.Servers.Api.Resources
 @using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.Components.Navigations
 
 @inject Repository<Server> ServerRepository
 @inject Repository<ServerNode> NodeRepository
