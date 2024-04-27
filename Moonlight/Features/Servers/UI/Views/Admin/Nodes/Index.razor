@@ -63,7 +63,7 @@
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
                         var cores = NodeStats[context!.Id]!.Hardware.Cores;
-                        var percent = Math.Round(cores.Average(x => x.Usage), 2);
+                        var percent = cores.Any() ?  Math.Round(cores.Average(x => x.Usage), 2) : 0;
 
                         <ColoredBar Value="percent"/>
                     }
