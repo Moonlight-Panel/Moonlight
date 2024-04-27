@@ -93,7 +93,7 @@
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
                         var disk = NodeStats[context!.Id]!.Hardware.Disk;
-                        var percent = Math.Round((float)disk.Free / disk.Total * 100, 2);
+                        var percent = Math.Round((float)disk.Free / disk.Total * 100F, 2);
 
                         <ColoredBar Value="percent"/>
                     }
