@@ -101,29 +101,29 @@
                                     <a target="_blank" href="/server/@(context.Server.Id)">@context.Server.Name</a>
                                 </Template>
                             </Column>
-                            <Column TableItem="MetaItem" Field="@(x => x.State)" Filterable="true" Sortable="true">
+                            <Column TableItem="MetaItem" Field="@(x => x.State)" Filterable="true" Sortable="true" Title="Status">
                                 <Template>
                                     <span class="text-@(ServerUtilsHelper.GetColorFromState(context.State))">
                                         @context.State
                                     </span>
                                 </Template>
                             </Column>
-                            <Column TableItem="MetaItem" Field="@(x => x.Stats.CpuUsage)" Sortable="true">
+                            <Column TableItem="MetaItem" Field="@(x => x.Stats.CpuUsage)" Sortable="true" Title="CPU">
                                 <Template>
                                     <span>@Math.Round(context.Stats.CpuUsage, 2)%</span>
                                 </Template>
                             </Column>
-                            <Column TableItem="MetaItem" Field="@(x => x.Stats.MemoryUsage)" Sortable="true">
+                            <Column TableItem="MetaItem" Field="@(x => x.Stats.MemoryUsage)" Sortable="true" Title="Memory">
                                 <Template>
                                     <span>@Formatter.FormatSize(context.Stats.MemoryUsage)</span>
                                 </Template>
                             </Column>
-                            <Column TableItem="MetaItem" Field="@(x => x.Stats.NetRead)" Sortable="true">
+                            <Column TableItem="MetaItem" Field="@(x => x.Stats.NetRead)" Sortable="true" Title="Net Read">
                                 <Template>
                                     <span>@Formatter.FormatSize(context.Stats.NetRead)</span>
                                 </Template>
                             </Column>
-                            <Column TableItem="MetaItem" Field="@(x => x.Stats.NetWrite)" Sortable="true">
+                            <Column TableItem="MetaItem" Field="@(x => x.Stats.NetWrite)" Sortable="true" Title="Net Write">
                                 <Template>
                                     <span>@Formatter.FormatSize(context.Stats.NetWrite)</span>
                                 </Template>
