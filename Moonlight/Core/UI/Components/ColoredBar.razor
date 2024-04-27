@@ -1,0 +1,26 @@
+@{
+    var color = "primary";
+
+    if (Value >= PrimaryEnd && Value < DangerStart)
+        color = "warning";
+
+    if (Value >= DangerStart)
+        color = "danger";
+
+    var percent = Math.Round(Value);
+    var percentText = Math.Round(Value, 2) + "%";
+}
+
+<div class="progress">
+    <div class="progress-bar bg-@(color) fs-4" role="progressbar" aria-valuenow="@(percent)" aria-valuemin="0" aria-valuemax="100" style="width: @(percent)%">
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public double Value { get; set; }
+
+    [Parameter] public double PrimaryEnd { get; set; } = 60;
+    [Parameter] public double DangerStart { get; set; } = 80;
+}
