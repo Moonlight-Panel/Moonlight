@@ -14,6 +14,7 @@
         <div class="fs-3 fw-semibold ms-3">Latest logs of <span class="text-primary">@Node.Name</span></div>
         <div class="text-end">
             <div class="input-group">
+                <span class="input-group-text">Lines</span>
                 <input @bind="LinesToFetch" type="number" class="form-control" placeholder="Lines to fetch"/>
                 <WButton OnClick="Refresh" CssClasses="btn btn-primary">
                     <i class="bx bx-sm bx-refresh"></i> Refresh
@@ -37,7 +38,7 @@
 {
     [Parameter] public ServerNode Node { get; set; }
 
-    private string[] Lines;
+    private string[] Lines = Array.Empty<string>();
     private int LinesToFetch = 25;
 
     private async Task Load(LazyLoader lazyLoader)
