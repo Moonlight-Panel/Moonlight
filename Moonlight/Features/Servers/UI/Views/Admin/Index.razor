@@ -58,6 +58,8 @@
             .Include(x => x.Owner)
             .Include(x => x.Image)
             .Include(x => x.Node)
+            .Include(x => x.Allocations)
+            .Include(x => x.MainAllocation)
             .ToArray();
     }
 

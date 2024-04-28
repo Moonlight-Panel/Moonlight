@@ -44,4 +44,8 @@ public class CreateServerForm
     [Selector(SelectorProp = "Name", DisplayProp = "Name", UseDropdown = true)]
     [Section("Deployment")]
     public ServerNode Node { get; set; }
+    
+    [MultiSelection(DisplayProp = "{{IpAddress}}:{{Port}}", SearchProp = "Port", ItemColor = "primary")]
+    [Section("Deployment")]
+    public List<ServerAllocation> Allocations { get; set; } = new();
 }
