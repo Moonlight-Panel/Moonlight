@@ -6,6 +6,7 @@ using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
 using Moonlight.Core.Http.Middleware;
 using Moonlight.Core.Services;
+using MySqlConnector;
 
 // Create needed storage directories
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -74,11 +75,29 @@ await featureService.Load();
 var pluginService = new PluginService();
 await pluginService.Load();
 
-// Check database migrations
-await DatabaseCheckHelper.Check(
-    new DataContext(configService),
-    false
-);
+try
+{
+    // Check database migrations
+    await DatabaseCheckHelper.Check(
+        new DataContext(configService),
+        false
+    );
+}
+catch (MySqlException e)
+{
+    if (e.InnerException is EndOfStreamException eosException)
+    {
+        if (eosException.Message.Contains("read 4 header bytes"))
+        {
+            Logger.Warn("The mysql server appears to be still booting up. Exiting...");
+            
+            Environment.Exit(1);
+            return;
+        }
+    }
+    
+    throw;
+}
 
 // Add pre constructed services
 builder.Services.AddSingleton(featureService);
