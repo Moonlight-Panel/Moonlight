@@ -64,14 +64,25 @@ public class CoreFeature : MoonlightFeature
         
         // Add external services and blazor/asp.net stuff
         builder.Services.AddRazorPages();
-        builder.Services.AddServerSideBlazor();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddControllers();
         builder.Services.AddBlazorTable();
+        
+        // Configure blazor pipeline in detail
+        builder.Services.AddServerSideBlazor().AddHubOptions(options =>
+        {
+            options.MaximumReceiveMessageSize = ByteSizeValue.FromKiloBytes(config.Http.MessageSizeLimit).Bytes;
+        });
 
         // Setup authentication if required
         if (config.Authentication.UseDefaultAuthentication)
             builder.Services.AddScoped<IAuthenticationProvider, DefaultAuthenticationProvider>();
+        
+        // Setup http upload limit
+        context.Builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.Limits.MaxRequestBodySize = ByteSizeValue.FromMegaBytes(config.Http.UploadLimit).Bytes;
+        });
         
         // Assets
         

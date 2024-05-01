@@ -39,6 +39,15 @@ public class CoreConfiguration
         [Description("Specifies the location of the key .pem file to load")]
         [JsonProperty("KeyPath")]
         public string KeyPath { get; set; } = "";
+
+        [Description("Specifies the file upload limit per http request in megabytes")]
+        [JsonProperty("UploadLimit")]
+        public int UploadLimit { get; set; } = 100;
+
+        [Description(
+            "Specifies the maximum message size moonlight can receive via the websocket connection in kilobytes")]
+        [JsonProperty("MessageSizeLimit")]
+        public int MessageSizeLimit { get; set; } = 1024;
     }
     
     public class DatabaseData
