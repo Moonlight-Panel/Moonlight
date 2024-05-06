@@ -5,6 +5,7 @@ using Moonlight.Core.Interfaces;
 using Moonlight.Core.Models.Abstractions.Feature;
 using Moonlight.Core.Services;
 using Moonlight.Features.Servers.Actions;
+using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.Servers.Http.Middleware;
 using Moonlight.Features.Servers.Implementations.Diagnose;
 using Moonlight.Features.Servers.Models.Enums;
@@ -29,6 +30,11 @@ public class ServersFeature : MoonlightFeature
         var config = new ConfigService<CoreConfiguration>(PathBuilder.File("storage", "configs", "core.json"));
         context.Builder.Services.AddSingleton(new JwtService<ServersJwtType>(config.Get().Security.Token));
         
+        //
+        var configService = new ConfigService<ServersConfiguration>(PathBuilder.File("storage", "configs", "servers.json"));
+        context.Builder.Services.AddSingleton(configService);
+        
+        // Assets
         context.AddAsset("Servers", "css/XtermBlazor.css");
         
         context.AddAsset("Servers", "css/apexcharts.css");

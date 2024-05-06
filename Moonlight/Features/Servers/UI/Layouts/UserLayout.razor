@@ -11,10 +11,15 @@
 @using Moonlight.Features.Servers.UI.UserViews
 @using System.Net.Sockets
 @using System.Net.WebSockets
+@using MoonCore.Exceptions
+@using Moonlight.Features.Servers.Configuration
+@using MoonCore.Services
 
 @inject Repository<Server> ServerRepository
 @inject ServerService ServerService
 @inject ToastService ToastService
+@inject AlertService AlertService
+@inject ConfigService<ServersConfiguration> ConfigService
 
 @implements IDisposable
 
@@ -301,11 +306,39 @@
             await InstallTerminal.WriteLine(message);
     }
 
-    private async Task Start() => await ServerService.Console.SendAction(Server, PowerAction.Start);
+    private async Task Start() => await SendSignalHandled(PowerAction.Start);
 
-    private async Task Stop() => await ServerService.Console.SendAction(Server, PowerAction.Stop);
+    private async Task Stop() => await SendSignalHandled(PowerAction.Stop);
 
-    private async Task Kill() => await ServerService.Console.SendAction(Server, PowerAction.Kill);
+    private async Task Kill()
+    {
+        if (!ConfigService.Get().DisableServerKillWarning)
+        {
+            if (!await AlertService.YesNo("Do you really want to kill the server? This can result in data loss or corrupted server files"))
+                return;
+        }
+
+        await SendSignalHandled(PowerAction.Kill);
+    }
+
+    private async Task SendSignalHandled(PowerAction action)
+    {
+        try
+        {
+            await ServerService.Console.SendAction(Server, action);
+        }
+        catch (DisplayException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            Logger.Warn($"An error occured while sending power action {action} to server {Server.Id}:");
+            Logger.Warn(e);
+
+            await ToastService.Danger("An error occured while sending power action to server. Check the console for more information");
+        }
+    }
 
     public async void Dispose()
     {
