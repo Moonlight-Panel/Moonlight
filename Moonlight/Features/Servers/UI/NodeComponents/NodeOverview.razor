@@ -18,7 +18,7 @@
         </div>
         <div class="col-md-3 col-12">
             @{
-                var memoryText = $"{Formatter.FormatSize(Status.Hardware.Memory.Total - Status.Hardware.Memory.Available - Status.Hardware.Memory.Free)} / {Formatter.FormatSize(Status.Hardware.Memory.Total)}";
+                var memoryText = $"{Formatter.FormatSize(Status.Hardware.Memory.Total - (Status.Hardware.Memory.Available + Status.Hardware.Memory.Cached))} / {Formatter.FormatSize(Status.Hardware.Memory.Total)}";
             }
 
             <StatCard Value="@memoryText" Description="Memory usage" Icon="bxs-microchip"/>

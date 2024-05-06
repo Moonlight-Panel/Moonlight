@@ -78,7 +78,11 @@
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
                         var memory = NodeStats[context!.Id]!.Hardware.Memory;
-                        var percent = Math.Round(((float)memory.Total - memory.Available - memory.Free) / memory.Total * 100, 2);
+                        
+                        var used = memory.Total - (memory.Available + memory.Cached);
+                        var percent = Math.Round((float) used / memory.Total * 100F, 2);
+                        
+                        //Logger.Debug($"Used: {used} Total: {memory.Total} => {percent}% ({Formatter.FormatSize(used)} / {Formatter.FormatSize(memory.Total)})");
 
                         <ColoredBar Value="percent"/>
                     }
