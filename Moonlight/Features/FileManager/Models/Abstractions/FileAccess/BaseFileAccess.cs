@@ -4,9 +4,9 @@ namespace Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
 public class BaseFileAccess : IDisposable
 {
-    private readonly IFileActions Actions;
+    public readonly IFileActions Actions;
 
-    private string CurrentDirectory = "/";
+    public string CurrentDirectory { get; private set; } = "/";
 
     public BaseFileAccess(IFileActions actions)
     {

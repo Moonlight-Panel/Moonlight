@@ -26,7 +26,6 @@ public class FileManagerFeature : MoonlightFeature
         var config = new ConfigService<CoreConfiguration>(PathBuilder.File("storage", "configs", "core.json"));
         context.Builder.Services.AddSingleton(new JwtService<FileManagerJwtType>(config.Get().Security.Token));
         
-        context.AddAsset("FileManager", "js/dropzone.js");
         context.AddAsset("FileManager", "js/filemanager.js");
         context.AddAsset("FileManager", "editor/ace.css");
         context.AddAsset("FileManager", "editor/ace.js");

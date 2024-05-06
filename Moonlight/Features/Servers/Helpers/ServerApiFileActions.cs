@@ -4,7 +4,7 @@ using Moonlight.Features.Servers.Exceptions;
 
 namespace Moonlight.Features.Servers.Helpers;
 
-public class ServerApiFileActions : IFileActions
+public class ServerApiFileActions : IFileActions, IArchiveFileActions
 {
     private readonly string Endpoint;
     private readonly string Token;
@@ -43,6 +43,11 @@ public class ServerApiFileActions : IFileActions
     public async Task WriteFileStream(string path, Stream dataStream) =>
         await ApiClient.PostFile($"writeFileStream?path={path}", dataStream, "upload");
 
+    public async Task Archive(string path, string[] files)
+    {
+        await ApiClient.Post($"archive?path={path}&provider=tar.gz", files);
+    }
+    
     public IFileActions Clone() => new ServerApiFileActions(Endpoint, Token, ServerId);
 
     public void Dispose() => ApiClient.Dispose();
