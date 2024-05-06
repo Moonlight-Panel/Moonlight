@@ -209,6 +209,15 @@
         }
         </tbody>
     </table>
+    
+    @if (Entries.Length == 0)
+    {
+        <div class="py-4">
+            <IconAlert Color="primary" Title="No files and folders found" Icon="bx-cloud-upload">
+                Drag and drop files and folders here to start uploading them or click on the upload button on the top
+            </IconAlert>
+        </div>
+    }
 </div>
 
 @if (EnableContextMenu && ContextMenuTemplate != null)

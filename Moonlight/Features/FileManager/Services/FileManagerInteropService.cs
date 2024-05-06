@@ -30,7 +30,11 @@ public class FileManagerInteropService
 
     public async Task UpdateUrl(string urlId, string url)
     {
-        await JsRuntime.InvokeVoidAsync("filemanager.updateUrl", urlId, url);
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("filemanager.updateUrl", urlId, url);
+        }
+        catch (TaskCanceledException) { /* ignored */ }
     }
 
     [JSInvokable]
