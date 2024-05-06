@@ -1,5 +1,4 @@
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Models.Abstractions
 @using Moonlight.Features.Servers.Models.Enums
 @using Moonlight.Features.Servers.Services
 @using Moonlight.Features.Servers.UI.Components
@@ -55,12 +54,14 @@
                                 <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
                             </span>
                         </div>
-                        <div class="col-auto">
+                    @*
+                     <div class="col-auto">
                             <span>
                                 <i class="bx bx-sm bx-globe align-middle text-info"></i>
                                 <span class="align-middle">188.75.252.37:10324</span>
                             </span>
                         </div>
+                    *@
                     </div>
                 </div>
             </div>
