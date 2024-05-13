@@ -1,0 +1,73 @@
+﻿@page "/admin"
+@using MoonCore.Abstractions
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Features.Servers.Entities
+
+@inject Repository<Server> ServerRepository
+@inject Repository<User> UserRepository
+
+@attribute [RequirePermission(999)]
+
+<LazyLoader Load="Load">
+    <div class="row">
+        <div class="col-12 col-lg-6 col-xl">
+            <a class="mt-4 card" href="/admin/servers">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                Users
+                            </h6>
+                            <span class="h2 mb-0">
+                                @UserCount
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-0">
+                                <i class="text-primary bx bxs-group bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-lg-6 col-xl">
+            <a class="mt-4 card" href="/admin/users">
+                <div class="card-body">
+                    <div class="row align-items-center gx-0">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted mb-2">
+                                Servers
+                            </h6>
+                            <span class="h2 mb-0">
+                                @ServerCount
+                            </span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="h2 text-muted mb-0">
+                                <i class="text-primary bx bx-server bx-lg"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>  
+    </div>
+</LazyLoader>
+
+@* This is just the start of this admin page, there will still be added more during the developement process *@
+
+@code {
+    private int ServerCount;
+    private int UserCount;
+
+    private async Task Load(LazyLoader arg)
+    {
+        await Task.Run(() =>
+        {
+            arg.SetText("Loading Information...");
+            ServerCount = ServerRepository.Get().Count();
+            UserCount = UserRepository.Get().Count();
+        });
+    }
+}

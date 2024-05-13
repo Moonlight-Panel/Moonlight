@@ -114,6 +114,12 @@ public class CoreFeature : MoonlightFeature
         // Define permissions
         var permissionService = app.Services.GetRequiredService<PermissionService>();
 
+        await permissionService.Register(999, new()
+        {
+            Name = "See Admin Page",
+            Description = "Allows access to the admin page and the connected stats (server and user count)"
+        });
+        
         await permissionService.Register(1000, new()
         {
             Name = "Manage users",
