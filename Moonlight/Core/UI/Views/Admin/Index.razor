@@ -18,7 +18,9 @@
                             <h6 class="text-uppercase text-muted mb-2">
                                 Users
                             </h6>
-                            <span class="h2 mb-0">@Users.Count</span>
+                            <span class="h2 mb-0">
+                                @UserCount
+                            </span>
                         </div>
                         <div class="col-auto">
                             <span class="h2 text-muted mb-0">
@@ -38,7 +40,7 @@
                                 Servers
                             </h6>
                             <span class="h2 mb-0">
-                                @Servers.Count
+                                @ServerCount
                             </span>
                         </div>
                         <div class="col-auto">
@@ -56,16 +58,16 @@
 @* This is just the start of this admin page, there will still be added more during the developement process *@
 
 @code {
-    private List<Server> Servers;
-    private List<User> Users;
+    private int ServerCount;
+    private int UserCount;
 
     private async Task Load(LazyLoader arg)
     {
         await Task.Run(() =>
         {
             arg.SetText("Loading Information...");
-            Servers = ServerRepository.Get().ToList();
-            Users = UserRepository.Get().ToList();
+            ServerCount = ServerRepository.Get().Count();
+            UserCount = UserRepository.Get().Count();
         });
     }
 }
