@@ -47,6 +47,11 @@ public class ServerApiFileActions : IFileActions, IArchiveFileActions
     {
         await ApiClient.Post($"archive?path={path}&provider=tar.gz", files);
     }
+
+    public async Task Extract(string path, string destination)
+    {
+        await ApiClient.Post($"extract?path={path}&destination={destination}&provider=tar.gz");
+    }
     
     public IFileActions Clone() => new ServerApiFileActions(Endpoint, Token, ServerId);
 

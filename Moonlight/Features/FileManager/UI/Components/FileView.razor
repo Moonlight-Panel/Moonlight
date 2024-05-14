@@ -210,7 +210,7 @@
         </tbody>
     </table>
     
-    @if (Entries.Length == 0)
+    @if (Entries.Length == 0 && ShowUploadPrompt)
     {
         <div class="py-4">
             <IconAlert Color="primary" Title="No files and folders found" Icon="bx-cloud-upload">
@@ -240,6 +240,7 @@
     [Parameter] public bool ShowDate { get; set; } = true;
     [Parameter] public bool ShowSelect { get; set; } = true;
     [Parameter] public bool ShowNavigateUp { get; set; } = true;
+    [Parameter] public bool ShowUploadPrompt { get; set; } = false;
 
     [Parameter] public RenderFragment<FileEntry>? ContextMenuTemplate { get; set; }
     [Parameter] public bool EnableContextMenu { get; set; } = false;

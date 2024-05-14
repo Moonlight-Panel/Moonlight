@@ -54,9 +54,12 @@ public class FileManagerFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IFileManagerContextAction>(new RenameContextAction());
         await pluginService.RegisterImplementation<IFileManagerContextAction>(new MoveContextAction());
         await pluginService.RegisterImplementation<IFileManagerContextAction>(new DownloadContextAction());
+        await pluginService.RegisterImplementation<IFileManagerContextAction>(new ArchiveContextAction());
+        await pluginService.RegisterImplementation<IFileManagerContextAction>(new ExtractContextAction());
         await pluginService.RegisterImplementation<IFileManagerContextAction>(new DeleteContextAction());
 
         await pluginService.RegisterImplementation<IFileManagerSelectionAction>(new MoveSelectionAction());
+        await pluginService.RegisterImplementation<IFileManagerSelectionAction>(new ArchiveSelectionAction());
         await pluginService.RegisterImplementation<IFileManagerSelectionAction>(new DeleteSelectionAction());
 
         await pluginService.RegisterImplementation<IFileManagerCreateAction>(new CreateFileAction());
