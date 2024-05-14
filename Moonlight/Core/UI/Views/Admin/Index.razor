@@ -15,6 +15,8 @@
     <div class="row mb-4">
         @foreach (var adminCard in FeatureService.UiContext.AdminPageCards.OrderBy(x => x.Index).ToArray())
         {
+            // basically renders the component if the permissions of the viewed item is lower or equal 
+            // to the users permission, -> better developer experience for feature devs
             if (IdentityService.CurrentUser.Permissions >= adminCard.RequiredPermissionLevel)
             {
                 <div class="col-12 col-lg-6 col-xl">
@@ -41,6 +43,5 @@
     private async Task Load(LazyLoader arg)
     {
         await arg.SetText("Loading Information...");
-        
     }
 }

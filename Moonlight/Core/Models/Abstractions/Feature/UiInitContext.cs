@@ -24,6 +24,7 @@ public class UiInitContext
 
     public void AddAdminComponent<T>(int index = 0, int requiredPermissionLevel = 0) where T : IComponent
     {
+        // Loads the Component into a List of AdminComponents, with lots of more information for the Admin Page to render
         AdminPageComponents.Add(
             new AdminComponent()
             {
@@ -40,6 +41,7 @@ public class UiInitContext
     
     public void AddAdminCard<T>(int index = 0, int requiredPermissionLevel = 0) where T : IComponent
     {
+        // Loads the Card into a List of AdminComponents, with lots of more information for the Admin Page to render
         AdminPageCards.Add(
             new AdminComponent()
             {

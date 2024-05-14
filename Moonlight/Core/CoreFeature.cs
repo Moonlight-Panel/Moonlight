@@ -208,7 +208,12 @@ public class CoreFeature : MoonlightFeature
         context.AddSidebarItem("Users", "bxs-group", "/admin/users", needsExactMatch: false, isAdmin: true);
         context.AddSidebarItem("System", "bxs-component", "/admin/sys", needsExactMatch: false, isAdmin: true);
         
+        // With this function, you can add an Admin Card to the Admin Page
+        // It references the Admin Card, which is a Razor component.
         context.AddAdminCard<AdminUserCard>(index: int.MinValue);
+        
+        // Same Thing could be used with the context.AddAdminComponent Function, which then renders the component
+        // under the cards, for fast informations
         
         return Task.CompletedTask;
     }
