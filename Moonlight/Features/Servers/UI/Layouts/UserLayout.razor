@@ -13,11 +13,13 @@
 @using MoonCore.Exceptions
 @using Moonlight.Features.Servers.Configuration
 @using MoonCore.Services
+@using Moonlight.Core.Services
 
 @inject Repository<Server> ServerRepository
 @inject ServerService ServerService
 @inject ToastService ToastService
 @inject AlertService AlertService
+@inject IdentityService IdentityService
 @inject ConfigService<ServersConfiguration> ConfigService
 
 @implements IDisposable
@@ -216,6 +218,12 @@
             .Include(x => x.MainAllocation)
             .Include(x => x.Owner)
             .First(x => x.Id == Id);
+
+        if (Server.Owner.Id != IdentityService.CurrentUser.Id && IdentityService.CurrentUser.Permissions < 5000)
+        {
+            Server = null!;
+            return;
+        }
 
         await lazyLoader.SetText("Establishing a connection to the server");
 
