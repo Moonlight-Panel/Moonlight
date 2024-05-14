@@ -10,6 +10,7 @@ using Moonlight.Features.Servers.Http.Middleware;
 using Moonlight.Features.Servers.Implementations.Diagnose;
 using Moonlight.Features.Servers.Models.Enums;
 using Moonlight.Features.Servers.Services;
+using Moonlight.Features.Servers.UI.Components.Cards;
 
 namespace Moonlight.Features.Servers;
 
@@ -103,6 +104,8 @@ public class ServersFeature : MoonlightFeature
         
         context.AddSidebarItem("Servers", "bx-server", "/servers", isAdmin: false, needsExactMatch: false);
         context.AddSidebarItem("Servers", "bx-server", "/admin/servers", isAdmin: true, needsExactMatch: false);
+        
+        context.AddAdminCard<AdminServersCard>();
         
         return Task.CompletedTask;
     }

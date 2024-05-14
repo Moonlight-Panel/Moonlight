@@ -15,6 +15,7 @@ using Moonlight.Core.Models.Abstractions.Feature;
 using Moonlight.Core.Models.Enums;
 using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
+using Moonlight.Core.UI.Components.Cards;
 
 namespace Moonlight.Core;
 
@@ -206,6 +207,8 @@ public class CoreFeature : MoonlightFeature
         context.AddSidebarItem("Dashboard", "bxs-dashboard", "/admin", needsExactMatch: true, isAdmin: true, index: int.MinValue);
         context.AddSidebarItem("Users", "bxs-group", "/admin/users", needsExactMatch: false, isAdmin: true);
         context.AddSidebarItem("System", "bxs-component", "/admin/sys", needsExactMatch: false, isAdmin: true);
+        
+        context.AddAdminCard<AdminUserCard>(index: int.MinValue);
         
         return Task.CompletedTask;
     }
