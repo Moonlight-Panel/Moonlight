@@ -33,7 +33,7 @@ body:
   attributes:
     label: Panel Version
     description: Version number of your Panel (latest is not a version)
-    placeholder: 1.4.0
+    placeholder: v2 EA
   validations:
     required: true
 
@@ -42,16 +42,7 @@ body:
   attributes:
     label: Daemon Version
     description: Version number of your Daemon (latest is not a version)
-    placeholder: 1.4.2
-  validations:
-    required: true
-
-- type: input
-  id: wings-version
-  attributes:
-    label: Wings Version
-    description: Version number of your Wings (latest is not a version)
-    placeholder: 1.4.2
+    placeholder: v2 EA
   validations:
     required: true
     
