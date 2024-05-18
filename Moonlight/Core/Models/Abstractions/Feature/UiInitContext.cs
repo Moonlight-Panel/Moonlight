@@ -11,8 +11,6 @@ public class UiInitContext
 {
     public List<SidebarItem> SidebarItems { get; set; } = new();
     public List<Assembly> RouteAssemblies { get; set; } = new();
-    public List<AdminComponent> AdminPageComponents { get; set; } = new();
-    public List<AdminComponent> AdminPageCards { get; set; } = new();
     
     public void EnablePages<T>()
     {
