@@ -17,6 +17,8 @@
     }
     else
     {
+        <Name>@Node.Name</Name>
+        
         <AdminNodeViewNavigation Index="@GetIndex()" NodeId="@Id"/>
 
         <SmartRouter Route="@Route">
@@ -68,7 +70,7 @@
 
             case "/setup":
                 return 2;
-                
+
             case "/logs":
                 return 3;
 
