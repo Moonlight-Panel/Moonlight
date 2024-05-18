@@ -67,4 +67,4 @@ Distributed under the CC0 1.0 Universal License. See [LICENSE](https://github.co
 ## Authors
 
 * **Masu Baumgartner** - [Masu Baumgartner](https://github.com/Masu-Baumgartner) - *Moonlights core system & frontend and basiclly any other part of moonlight*
-* **Moritz Deiaco - [Moritz Deiaco](https://github.com/Moritz-Deiaco) - *Moonlight Core and UI*
+* **Moritz Deiaco** - [Moritz Deiaco](https://github.com/Moritz-Deiaco) - *Moonlight Core and UI*
