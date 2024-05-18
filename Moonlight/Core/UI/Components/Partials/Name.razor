@@ -1,0 +1,14 @@
+﻿@using MoonCore.Services
+@using Moonlight.Core.Configuration
+@inject ConfigService<CoreConfiguration> ConfigService
+
+
+<PageTitle>@ChildContent - @ConfigService.Get().Customisation.Footer.CopyrightText</PageTitle>
+
+
+@code {
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+}
