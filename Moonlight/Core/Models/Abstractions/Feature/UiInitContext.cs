@@ -22,40 +22,6 @@ public class UiInitContext
             RouteAssemblies.Add(assembly);
     }
 
-    public void AddAdminComponent<T>(int index = 0, int requiredPermissionLevel = 0) where T : IComponent
-    {
-        // Loads the Component into a List of AdminComponents, with lots of more information for the Admin Page to render
-        AdminPageComponents.Add(
-            new AdminComponent()
-            {
-                Component = builder =>
-                {
-                    builder.OpenComponent<T>(0);
-                    builder.CloseComponent();
-                },
-                Index = index,
-                RequiredPermissionLevel = requiredPermissionLevel
-            }
-        );
-    }
-    
-    public void AddAdminCard<T>(int index = 0, int requiredPermissionLevel = 0) where T : IComponent
-    {
-        // Loads the Card into a List of AdminComponents, with lots of more information for the Admin Page to render
-        AdminPageCards.Add(
-            new AdminComponent()
-            {
-                Component = builder =>
-                {
-                    builder.OpenComponent<T>(0);
-                    builder.CloseComponent();
-                },
-                Index = index,
-                RequiredPermissionLevel = requiredPermissionLevel
-            }
-        );
-    }
-
     public void AddSidebarItem(string name, string icon, string target, bool isAdmin = false, bool needsExactMatch = false, int index = 0)
     {
         SidebarItems.Add(new SidebarItem()

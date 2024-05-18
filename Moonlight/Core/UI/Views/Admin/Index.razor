@@ -1,47 +1,54 @@
 ﻿@page "/admin"
 @using MoonCore.Abstractions
 @using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Interfaces
 @using Moonlight.Core.Services
 @using Moonlight.Features.Servers.Entities
 
-@inject Repository<Server> ServerRepository
-
-@inject FeatureService FeatureService
-@inject IdentityService IdentityService
+@inject PluginService PluginService
 
 @attribute [RequirePermission(999)]
 
 <LazyLoader Load="Load">
-    <div class="row mb-4">
-        @foreach (var adminCard in FeatureService.UiContext.AdminPageCards.OrderBy(x => x.Index).ToArray())
+    <div class="row mb-8">
+        @foreach(var column in Columns)
         {
-            // basically renders the component if the permissions of the viewed item is lower or equal 
-            // to the users permission, -> better developer experience for feature devs
-            if (IdentityService.CurrentUser.Permissions >= adminCard.RequiredPermissionLevel)
-            {
-                <div class="col-12 col-lg-6 col-xl">
-                    @adminCard.Component
-                </div>
-            }
-        }
-    </div>
-
-    @foreach (var adminComponent in FeatureService.UiContext.AdminPageComponents.OrderBy(x => x.Index).ToArray())
-    {
-        if (IdentityService.CurrentUser.Permissions >= adminComponent.RequiredPermissionLevel)
-        {
-            <div class="mb-4">
-                @adminComponent
+            <div class="col-12 col-lg-6 col-xl">
+                @column
             </div>
         }
+    </div>
+    @foreach (var component in Components)
+    {
+        <div class="mb-4">
+            @component
+        </div>
     }
 </LazyLoader>
 
 
 @code {
+
+    private List<RenderFragment> Columns = new();
+    private List<RenderFragment> Components = new();
     
     private async Task Load(LazyLoader arg)
     {
         await arg.SetText("Loading Information...");
+
+        var componentImplementations = await PluginService.GetImplementations<IAdminDashboardComponent>();
+
+        foreach (var implementation in componentImplementations)
+        {   
+            Components.Add(await implementation.Get());
+        }
+        
+        var columnImplementations = await PluginService.GetImplementations<IAdminDashboardColumn>();
+
+        foreach (var implementation in columnImplementations)
+        {   
+            Columns.Add(await implementation.Get());
+        }
+
     }
 }

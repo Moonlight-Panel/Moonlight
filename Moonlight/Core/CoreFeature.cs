@@ -7,6 +7,7 @@ using MoonCoreUI.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
 using Moonlight.Core.Database.Entities;
+using Moonlight.Core.Implementations.AdminColumns;
 using Moonlight.Core.Implementations.Diagnose;
 using Moonlight.Core.Interfaces;
 using Moonlight.Core.Models;
@@ -156,6 +157,9 @@ public class CoreFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IDiagnoseAction>(new FeatureDiagnoseAction());
         await pluginService.RegisterImplementation<IDiagnoseAction>(new LogDiagnoseAction());
         
+        //Admin Page
+        await pluginService.RegisterImplementation<IAdminDashboardColumn>(new UserCount());
+        
         // Startup job services
         var startupJobService = app.Services.GetRequiredService<StartupJobService>();
 
@@ -207,13 +211,6 @@ public class CoreFeature : MoonlightFeature
         context.AddSidebarItem("Dashboard", "bxs-dashboard", "/admin", needsExactMatch: true, isAdmin: true, index: int.MinValue);
         context.AddSidebarItem("Users", "bxs-group", "/admin/users", needsExactMatch: false, isAdmin: true);
         context.AddSidebarItem("System", "bxs-component", "/admin/sys", needsExactMatch: false, isAdmin: true);
-        
-        // With this function, you can add an Admin Card to the Admin Page
-        // It references the Admin Card, which is a Razor component.
-        context.AddAdminCard<AdminUserCard>(index: int.MinValue);
-        
-        // Same Thing could be used with the context.AddAdminComponent Function, which then renders the component
-        // under the cards, for fast informations
         
         return Task.CompletedTask;
     }

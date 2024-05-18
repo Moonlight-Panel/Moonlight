@@ -3,24 +3,8 @@
 
 @inject Repository<User> UserRepository
 
-<a class="mt-4 card" href="/admin/servers">
-    <div class="card-body">
-        <div class="row align-items-center gx-0">
-            <div class="col">
-                <h6 class="text-uppercase text-muted mb-2">
-                    Users
-                </h6>
-                <span class="h2 mb-0">
-                    @UserCount
-                </span>
-            </div>
-            <div class="col-auto">
-                <span class="h2 text-muted mb-0">
-                    <i class="text-primary bx bxs-group bx-lg"></i>
-                </span>
-            </div>
-        </div>
-    </div>
+<a href="/admin/servers">
+    <StatCard Value="@UserCount.ToString()" Description="Users" Icon="bxs-group"></StatCard>
 </a>
 
 @code {

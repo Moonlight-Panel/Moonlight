@@ -3,24 +3,8 @@
 
 @inject Repository<Server> ServerRepository
 
-<a class="mt-4 card" href="/admin/users">
-    <div class="card-body">
-        <div class="row align-items-center gx-0">
-            <div class="col">
-                <h6 class="text-uppercase text-muted mb-2">
-                    Servers
-                </h6>
-                <span class="h2 mb-0">
-                    @ServerCount
-                </span>
-            </div>
-            <div class="col-auto">
-                <span class="h2 text-muted mb-0">
-                    <i class="text-primary bx bx-server bx-lg"></i>
-                </span>
-            </div>
-        </div>
-    </div>
+<a href="/admin/servers">
+    <StatCard Value="@ServerCount.ToString()" Description="Servers" Icon="bxs-server"></StatCard>
 </a>
 
 @code {

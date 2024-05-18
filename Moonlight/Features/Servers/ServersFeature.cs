@@ -7,6 +7,7 @@ using Moonlight.Core.Services;
 using Moonlight.Features.Servers.Actions;
 using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.Servers.Http.Middleware;
+using Moonlight.Features.Servers.Implementations.AdminColumns;
 using Moonlight.Features.Servers.Implementations.Diagnose;
 using Moonlight.Features.Servers.Models.Enums;
 using Moonlight.Features.Servers.Services;
@@ -96,6 +97,8 @@ public class ServersFeature : MoonlightFeature
         var pluginService = app.Services.GetRequiredService<PluginService>();
 
         await pluginService.RegisterImplementation<IDiagnoseAction>(new NodesDiagnoseAction());
+        
+        await pluginService.RegisterImplementation<IAdminDashboardColumn>(new ServerCount());
     }
 
     public override Task OnUiInitialized(UiInitContext context)
@@ -104,8 +107,6 @@ public class ServersFeature : MoonlightFeature
         
         context.AddSidebarItem("Servers", "bx-server", "/servers", isAdmin: false, needsExactMatch: false);
         context.AddSidebarItem("Servers", "bx-server", "/admin/servers", isAdmin: true, needsExactMatch: false);
-        
-        context.AddAdminCard<AdminServersCard>();
         
         return Task.CompletedTask;
     }
