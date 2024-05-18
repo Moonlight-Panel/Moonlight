@@ -1,4 +1,9 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
+using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
+using Moonlight.Core.UI.Components.Partials;
+using IComponent = Microsoft.AspNetCore.Components.IComponent;
 
 namespace Moonlight.Core.Models.Abstractions.Feature;
 
@@ -6,7 +11,9 @@ public class UiInitContext
 {
     public List<SidebarItem> SidebarItems { get; set; } = new();
     public List<Assembly> RouteAssemblies { get; set; } = new();
-
+    public List<AdminComponent> AdminPageComponents { get; set; } = new();
+    public List<AdminComponent> AdminPageCards { get; set; } = new();
+    
     public void EnablePages<T>()
     {
         var assembly = typeof(T).Assembly;

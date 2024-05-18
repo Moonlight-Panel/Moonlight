@@ -1,43 +1,54 @@
 ﻿@page "/admin"
 @using MoonCore.Abstractions
 @using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Interfaces
+@using Moonlight.Core.Services
 @using Moonlight.Features.Servers.Entities
 
-@inject Repository<Server> ServerRepository
-@inject Repository<User> UserRepository
+@inject PluginService PluginService
 
 @attribute [RequirePermission(999)]
 
 <LazyLoader Load="Load">
-    <div class="row g-4">
-        <div class="col-12 col-lg-6 col-xl">
-            <a href="/admin/servers">
-                <StatCard Value="@UserCount.ToString()" Description="Users" Icon="bxs-group">
-                </StatCard>
-            </a>
-        </div>
-        <div class="col-12 col-lg-6 col-xl">
-            <a href="/admin/servers">
-                <StatCard Value="@ServerCount.ToString()" Description="Servers"  Icon="bxs-server">
-                </StatCard>
-            </a>
-        </div>  
+    <div class="row mb-8">
+        @foreach(var column in Columns)
+        {
+            <div class="col-12 col-lg-6 col-xl">
+                @column
+            </div>
+        }
     </div>
+    @foreach (var component in Components)
+    {
+        <div class="mb-4">
+            @component
+        </div>
+    }
 </LazyLoader>
 
-@* This is just the start of this admin page, there will still be added more during the developement process *@
 
 @code {
-    private int ServerCount;
-    private int UserCount;
 
+    private List<RenderFragment> Columns = new();
+    private List<RenderFragment> Components = new();
+    
     private async Task Load(LazyLoader arg)
     {
-        await Task.Run(() =>
-        {
-            arg.SetText("Loading Information...");
-            ServerCount = ServerRepository.Get().Count();
-            UserCount = UserRepository.Get().Count();
-        });
+        await arg.SetText("Loading statistics...");
+
+        var componentImplementations = await PluginService.GetImplementations<IAdminDashboardComponent>();
+
+        foreach (var implementation in componentImplementations)
+        {   
+            Components.Add(await implementation.Get());
+        }
+        
+        var columnImplementations = await PluginService.GetImplementations<IAdminDashboardColumn>();
+
+        foreach (var implementation in columnImplementations)
+        {   
+            Columns.Add(await implementation.Get());
+        }
+
     }
 }

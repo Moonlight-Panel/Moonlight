@@ -53,6 +53,7 @@
       <Folder Include="Core\Database\Migrations\" />
       <Folder Include="Core\Http\Requests\" />
       <Folder Include="Core\Http\Resources\" />
+      <Folder Include="Core\Implementations\AdminComponents\" />
       <Folder Include="Core\UI\Components\Forms\" />
       <Folder Include="Features\Dummy\Configuration\" />
       <Folder Include="Features\Dummy\Entities\" />
