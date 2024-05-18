@@ -6,12 +6,14 @@ using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
 namespace Moonlight.Features.FileManager.Implementations;
 
-public class ArchiveSelectionAction : IFileManagerSelectionAction
+public class ArchiveContextAction : IFileManagerContextAction
 {
     public string Name => "Archive";
-    public string Color => "primary";
+    public string Icon => "bxs-archive-in";
+    public string Color => "warning";
+    public Func<FileEntry, bool> Filter => _ => true;
 
-    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry[] entries,
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry entry,
         IServiceProvider provider)
     {
         var archiveAccess = access.Actions as IArchiveFileActions;
@@ -26,23 +28,23 @@ public class ArchiveSelectionAction : IFileManagerSelectionAction
 
         if (string.IsNullOrEmpty(fileName) || fileName.Contains("..")) // => canceled
             return;
-        
+
         var toastService = provider.GetRequiredService<ToastService>();
 
         await toastService.CreateProgress("fileManagerArchive", "Archiving... Please be patient");
-        
+
         try
         {
             await archiveAccess.Archive(
                 access.CurrentDirectory + fileName,
-                entries.Select(x => access.CurrentDirectory + x.Name).ToArray()
+                new[] { access.CurrentDirectory + entry.Name }
             );
             
             await toastService.Success("Successfully created archive");
         }
         catch (Exception e)
         {
-            Logger.Warn($"An error occured while archiving items ({entries.Length}):");
+            Logger.Warn($"An error occured while archiving item ({entry.Name}):");
             Logger.Warn(e);
 
             await toastService.Danger("An unknown error occured while creating archive");
@@ -51,5 +53,7 @@ public class ArchiveSelectionAction : IFileManagerSelectionAction
         {
             await toastService.RemoveProgress("fileManagerArchive");
         }
+
+        await fileManager.View.Refresh();
     }
 }

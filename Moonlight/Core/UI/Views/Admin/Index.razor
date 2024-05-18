@@ -34,7 +34,7 @@
     
     private async Task Load(LazyLoader arg)
     {
-        await arg.SetText("Loading Information...");
+        await arg.SetText("Loading statistics...");
 
         var componentImplementations = await PluginService.GetImplementations<IAdminDashboardComponent>();
 
