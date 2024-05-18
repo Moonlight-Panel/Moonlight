@@ -116,6 +116,7 @@ public class CoreConfiguration
         public FileManagerData FileManager { get; set; } = new();
 
         [JsonProperty("Footer")] public FooterData Footer { get; set; } = new();
+        [JsonProperty("PageTitle")] public PageTitleData PageTitle { get; set; } = new();
     }
     
     public class FooterData
@@ -134,6 +135,17 @@ public class CoreConfiguration
         
         [Description("A link to your 'imprint' page. Leave it empty if you want to hide it")]
         public string ImprintLink { get; set; } = "https://moonlightpanel.xyz";
+    }
+
+    public class PageTitleData
+    {
+        [JsonProperty("PageTitleName")]
+        [Description("This specifies the name that gets shown in the page title")]
+        public string Name { get; set; } = "Moonlight";
+        
+        [JsonProperty("PageTitleDivider")]
+        [Description("This specifies the name that gets shown in the page title")]
+        public string Divider { get; set; } = " - ";
     }
     
     public class FileManagerData

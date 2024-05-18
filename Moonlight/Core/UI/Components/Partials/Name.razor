@@ -3,7 +3,7 @@
 @inject ConfigService<CoreConfiguration> ConfigService
 
 
-<PageTitle>@ChildContent - @ConfigService.Get().Customisation.Footer.CopyrightText</PageTitle>
+<PageTitle>@(ChildContent + ConfigService.Get().Customisation.PageTitle.Divider + ConfigService.Get().Customisation.PageTitle.Name)</PageTitle>
 
 
 @code {
