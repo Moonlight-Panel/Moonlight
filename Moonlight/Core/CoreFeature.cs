@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using MoonCore.Abstractions;
 using MoonCore.Helpers;
 using MoonCore.Services;
+using MoonCoreUI.Extensions;
 using MoonCoreUI.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
@@ -57,12 +58,14 @@ public class CoreFeature : MoonlightFeature
         builder.Services.AddScoped<ClipboardService>();
         builder.Services.AddScoped<ModalService>();
         
-        // Configure interop
-        ToastService.Prefix = "moonlight.toasts";
-        ModalService.Prefix = "moonlight.modals";
-        AlertService.Prefix = "moonlight.alerts";
-        ClipboardService.Prefix = "moonlight.clipboard";
-        FileDownloadService.Prefix = "moonlight.utils";
+        builder.Services.AddMoonCoreUi(configuration =>
+        {
+            configuration.ToastJavascriptPrefix = "moonlight.toasts";
+            configuration.ModalJavascriptPrefix = "moonlight.modals";
+            configuration.AlertJavascriptPrefix = "moonlight.alerts";
+            configuration.ClipboardJavascriptPrefix = "moonlight.clipboard";
+            configuration.FileDownloadJavascriptPrefix = "moonlight.utils";
+        });
         
         // Add external services and blazor/asp.net stuff
         builder.Services.AddRazorPages();

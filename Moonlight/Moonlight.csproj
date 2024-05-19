@@ -90,31 +90,11 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MoonCore" Version="1.2.7" />
-      <PackageReference Include="MoonCoreUI" Version="1.1.6" />
+      <PackageReference Include="MoonCore" Version="1.3.3" />
+      <PackageReference Include="MoonCoreUI" Version="1.1.7" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />
       <PackageReference Include="XtermBlazor" Version="1.10.2" />
       <PackageReference Include="Z.Blazor.Diagrams" Version="3.0.2" />
     </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\boxicons.eot" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\boxicons.svg" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\boxicons.ttf" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\boxicons.woff" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\boxicons.woff2" />
-      <_ContentIncludedByDefault Remove="wwwroot\fonts\Inter.woff2" />
-      <_ContentIncludedByDefault Remove="Features\ScheduleDesigner\UI\Components\ScheduleEditor.razor" />
-      <_ContentIncludedByDefault Remove="Features\ScheduleDesigner\UI\Components\ScheduleLinkItem.razor" />
-      <_ContentIncludedByDefault Remove="Features\ScheduleDesigner\UI\Components\ScheduleNodeItem.razor" />
-      <_ContentIncludedByDefault Remove="wwwroot\svg\logo.svg" />
-      <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\Editor.razor" />
-      <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\FileEditor.razor" />
-      <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\FileManager.razor" />
-      <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\FileUploader.razor" />
-      <_ContentIncludedByDefault Remove="Features\FileManager\UI\Components\FileView.razor" />
-      <_ContentIncludedByDefault Remove="storage\configs\core.json" />
-    </ItemGroup>
-
 </Project>
