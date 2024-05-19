@@ -26,93 +26,98 @@
 
 <LazyLoader Load="Load" ShowAsCard="true">
     <div class="card card-body pb-5 pt-5">
-        <div class="d-flex justify-content-between">
-            <div class="d-flex flex-row">
-                <div class="d-flex flex-column ms-3">
-                    <span class="fw-bold text-gray-900 fs-3">
+        <div>
+            <div class="row px-2">
+                <div class="col-12 col-sm-3">
+                    <span class="fw-bold text-gray-900 fs-3 d-block">
                         @Server.Name
                     </span>
-                    <span class="text-gray-500 pt-2 fw-semibold fs-6">
+                    <span class="text-gray-500 pt-2 fw-semibold fs-6  d-block">
                         @(Server.Image.Name)
                     </span>
                 </div>
-                <div class="vr mx-4"></div>
-                <div class="d-flex flex-column">
-                    <div class="text-gray-900 fs-4">
-                        @{
-                            var color = ServerUtilsHelper.GetColorFromState(Console.State);
-                        }
+                <div class="vr p-0 mx-4 d-none d-sm-block"></div>
+                <hr class="col-sm my-4 d-block d-sm-none"/>
+                <div class="col-12 col-sm">
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-gray-900 fs-4">
+                                @{
+                                var color = ServerUtilsHelper.GetColorFromState(Console.State);
+                                }
 
-                        <i class="bx bx-sm bxs-circle text-@(color) @(Console.State != ServerState.Offline ? $"pulse pulse-{color}" : "") align-middle"></i>
-                        <span class="align-middle">
-                            @(Console.State)
-                            <span class="text-muted">(@(Formatter.FormatUptime(DateTime.UtcNow - Console.LastStateChangeTimestamp)))</span>
-                        </span>
-                    </div>
-                    <div class="text-gray-800 pt-3 fw-semibold fs-5 row">
+                                <i class="bx bx-sm bxs-circle text-@(color) @(Console.State != ServerState.Offline ? $"pulse pulse-{color}" : "") align-middle"></i>
+                                <span class="align-middle">
+                                @(Console.State)
+                                    <span class="text-muted">(@(Formatter.FormatUptime(DateTime.UtcNow - Console.LastStateChangeTimestamp)))</span>
+                            </span>
+                            </div>
+                            <div class="text-gray-800 pt-3 fw-semibold fs-5 row">
+                                <div class="col-auto">
+                                <span>
+                                    <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                    <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
+                                </span>
+                                </div>
+                                @*
+                         <div class="col-auto">
+                                <span>
+                                    <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                    <span class="align-middle">188.75.252.37:10324</span>
+                                </span>
+                            </div>
+                        *@
+                            </div>
+                        </div>
                         <div class="col-auto">
-                            <span>
-                                <i class="bx bx-sm bx-globe align-middle text-info"></i>
-                                <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
-                            </span>
+                            <div class="mt-2">
+                                @if (Console.State == ServerState.Offline)
+                                {
+                                <WButton
+                                    OnClick="Start"
+                                    CssClasses="btn btn-light-success btn-icon me-1 my-1">
+                                    <i class="bx bx-sm bx-play"></i>
+                                </WButton>
+                                }
+                                else
+                                {
+                                <button type="button" class="btn btn-light-success btn-icon me-1 my-1 disabled" disabled="">
+                                    <i class="bx bx-sm bx-play"></i>
+                                </button>
+                                }
+
+                                @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
+                                {
+                                <button class="btn btn-light-warning btn-icon me-1 my-1 disabled" disabled="">
+                                    <i class="bx bx-sm bx-power-off"></i>
+                                </button>
+                                }
+                                else
+                                {
+                                <WButton
+                                    OnClick="Stop"
+                                    CssClasses="btn btn-light-warning btn-icon me-1 my-1">
+                                    <i class="bx bx-sm bx-power-off"></i>
+                                </WButton>
+                                }
+
+                                @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
+                                {
+                                <button class="btn btn-light-danger btn-icon me-1 my-1 disabled" disabled="">
+                                    <i class="bx bx-sm bx-bomb"></i>
+                                </button>
+                                }
+                                else
+                                {
+                                <WButton
+                                    OnClick="Kill"
+                                    CssClasses="btn btn-light-danger btn-icon me-1 my-1">
+                                    <i class="bx bx-sm bx-bomb"></i>
+                                </WButton>
+                                }
+                            </div>
                         </div>
-                    @*
-                     <div class="col-auto">
-                            <span>
-                                <i class="bx bx-sm bx-globe align-middle text-info"></i>
-                                <span class="align-middle">188.75.252.37:10324</span>
-                            </span>
-                        </div>
-                    *@
                     </div>
-                </div>
-            </div>
-            <div>
-                <div class="mt-2">
-                    @if (Console.State == ServerState.Offline)
-                    {
-                        <WButton
-                            OnClick="Start"
-                            CssClasses="btn btn-light-success btn-icon me-1 my-1">
-                            <i class="bx bx-sm bx-play"></i>
-                        </WButton>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-light-success btn-icon me-1 my-1 disabled" disabled="">
-                            <i class="bx bx-sm bx-play"></i>
-                        </button>
-                    }
-
-                    @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
-                    {
-                        <button class="btn btn-light-warning btn-icon me-1 my-1 disabled" disabled="">
-                            <i class="bx bx-sm bx-power-off"></i>
-                        </button>
-                    }
-                    else
-                    {
-                        <WButton
-                            OnClick="Stop"
-                            CssClasses="btn btn-light-warning btn-icon me-1 my-1">
-                            <i class="bx bx-sm bx-power-off"></i>
-                        </WButton>
-                    }
-
-                    @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
-                    {
-                        <button class="btn btn-light-danger btn-icon me-1 my-1 disabled" disabled="">
-                            <i class="bx bx-sm bx-bomb"></i>
-                        </button>
-                    }
-                    else
-                    {
-                        <WButton
-                            OnClick="Kill"
-                            CssClasses="btn btn-light-danger btn-icon me-1 my-1">
-                            <i class="bx bx-sm bx-bomb"></i>
-                        </WButton>
-                    }
                 </div>
             </div>
         </div>
