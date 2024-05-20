@@ -1,0 +1,57 @@
+﻿@using MoonCore.Services
+@using Moonlight.Core.Configuration
+@using Moonlight.Core.Services
+
+@inject IdentityService IdentityService
+@inject ConfigService<CoreConfiguration> ConfigService
+
+<div class="card card-body p-8">
+    <div class="d-flex align-items-center">
+        <span class="fs-2 fw-semibold">
+            @{
+                var greeting = GetGreetingMessage();
+            }
+            @greeting.Item1
+            <span class="text-info">@IdentityService.CurrentUser.Username</span>
+            @greeting.Item2
+        </span>
+    </div>
+</div>
+
+@code {
+    // For explanation:
+    // The first value is the actual message
+    // end second value is for question marks and so on
+    //
+    // and yes, this "feature" is kinda useless but still i wanted to implement
+    // it. - Masu
+    private (string, string) GetGreetingMessage()
+    {
+        var config = ConfigService.Get().Customisation;
+
+        if (config.DisableTimeBasedGreetingMessages)
+            return ("Welcome back, ", "");
+
+        var time = DateTime.UtcNow.AddHours(config.GreetingTimezoneDifference);
+
+        if (time.Hour >= 23 || time.Hour < 5)
+            return ("\ud83d\ude34 Still awake, ", "?");
+
+        if (time.Hour >= 5 && time.Hour < 10)
+            return ("\ud83d\ude04 Good morning, ", "");
+
+        if (time.Hour >= 10 && time.Hour < 14)
+            return ("\u2600\ufe0f Have a nice day, ", "");
+
+        if (time.Hour >= 14 && time.Hour < 16)
+            return ("\ud83d\ude03 Good afternoon, ", "");
+
+        if (time.Hour >= 16 && time.Hour < 22)
+            return ("\ud83c\udf25\ufe0f Have a nice evening, ", "");
+
+        if (time.Hour >= 22 && time.Hour < 23)
+            return ("\ud83c\udf19 Sleep well, ", "");
+
+        return ("Welcome back ", "");
+    }
+}

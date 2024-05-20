@@ -9,8 +9,10 @@ using Moonlight.Core.Database;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Implementations.Diagnose;
 using Moonlight.Core.Implementations.UI.Admin.AdminColumns;
+using Moonlight.Core.Implementations.UI.Index;
 using Moonlight.Core.Interfaces;
 using Moonlight.Core.Interfaces.Ui.Admin;
+using Moonlight.Core.Interfaces.UI.Index;
 using Moonlight.Core.Models;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.Models.Abstractions.Feature;
@@ -158,8 +160,9 @@ public class CoreFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IDiagnoseAction>(new FeatureDiagnoseAction());
         await pluginService.RegisterImplementation<IDiagnoseAction>(new LogDiagnoseAction());
         
-        //Admin Page
+        // UI
         await pluginService.RegisterImplementation<IAdminDashboardColumn>(new UserCount());
+        await pluginService.RegisterImplementation<IIndexPageComponent>(new GreetingMessages());
         
         // Startup job services
         var startupJobService = app.Services.GetRequiredService<StartupJobService>();
