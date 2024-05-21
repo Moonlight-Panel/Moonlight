@@ -1,8 +1,8 @@
 ﻿using Moonlight.Core.Models.Abstractions;
 
-namespace Moonlight.Core.Interfaces.UI.Index;
+namespace Moonlight.Core.Interfaces.UI.User;
 
-public interface IIndexPageComponent
+public interface IUserDashboardComponent
 {
     public Task<UiComponent> Get();
 }

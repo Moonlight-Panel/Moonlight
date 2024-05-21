@@ -12,7 +12,7 @@ using Moonlight.Core.Implementations.UI.Admin.AdminColumns;
 using Moonlight.Core.Implementations.UI.Index;
 using Moonlight.Core.Interfaces;
 using Moonlight.Core.Interfaces.Ui.Admin;
-using Moonlight.Core.Interfaces.UI.Index;
+using Moonlight.Core.Interfaces.UI.User;
 using Moonlight.Core.Models;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.Models.Abstractions.Feature;
@@ -162,7 +162,7 @@ public class CoreFeature : MoonlightFeature
         
         // UI
         await pluginService.RegisterImplementation<IAdminDashboardColumn>(new UserCount());
-        await pluginService.RegisterImplementation<IIndexPageComponent>(new GreetingMessages());
+        await pluginService.RegisterImplementation<IUserDashboardComponent>(new GreetingMessages());
         
         // Startup job services
         var startupJobService = app.Services.GetRequiredService<StartupJobService>();

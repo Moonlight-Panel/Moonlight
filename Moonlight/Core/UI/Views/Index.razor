@@ -1,5 +1,5 @@
 ﻿@page "/"
-@using Moonlight.Core.Interfaces.UI.Index
+@using Moonlight.Core.Interfaces.UI.User
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Services
 
@@ -23,7 +23,7 @@
     {
         await arg.SetText("Loading...");
 
-        var implementations = await PluginService.GetImplementations<IIndexPageComponent>();
+        var implementations = await PluginService.GetImplementations<IUserDashboardComponent>();
 
         foreach (var implementation in implementations)
         {
