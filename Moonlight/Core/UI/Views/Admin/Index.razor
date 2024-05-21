@@ -2,6 +2,8 @@
 @using MoonCore.Abstractions
 @using Moonlight.Core.Database.Entities
 @using Moonlight.Core.Interfaces
+@using Moonlight.Core.Interfaces.Ui.Admin
+@using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Services
 @using Moonlight.Features.Servers.Entities
 
@@ -11,17 +13,17 @@
 
 <LazyLoader Load="Load">
     <div class="row mb-8">
-        @foreach(var column in Columns)
+        @foreach(var column in Columns.OrderBy(x => x.Index))
         {
             <div class="col-12 col-lg-6 col-xl">
-                @column
+                @column.Component
             </div>
         }
     </div>
-    @foreach (var component in Components)
+    @foreach (var component in Components.OrderBy(x => x.Index))
     {
         <div class="mb-4">
-            @component
+            @component.Component
         </div>
     }
 </LazyLoader>
@@ -29,8 +31,8 @@
 
 @code {
 
-    private List<RenderFragment> Columns = new();
-    private List<RenderFragment> Components = new();
+    private List<UiComponent> Columns = new();
+    private List<UiComponent> Components = new();
     
     private async Task Load(LazyLoader arg)
     {
