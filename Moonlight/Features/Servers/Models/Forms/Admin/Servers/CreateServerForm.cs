@@ -39,6 +39,7 @@ public class CreateServerForm
     [Description("Whether to use a virtual disk for storing server files. Dont use this if you want to overallocate as the virtual disks will fill out the space you allocate")]
     [Section("Deployment", Icon = "bx-cube")]
     [RadioButtonBool("Virtual Disk", "Simple Volume", TrueIcon = "bxs-hdd", FalseIcon = "bxs-data")]
+    [DisplayName("Storage")]
     public bool UseVirtualDisk { get; set; }
     
     [Required(ErrorMessage = "You need to specify a server node")]

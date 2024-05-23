@@ -100,7 +100,7 @@
 
     <ItemGroup>
       <Reference Include="MoonCoreUI">
-        <HintPath>..\..\..\Marcel-Baumgartner\MoonCore\MoonCore\MoonCoreUI\bin\Debug\net7.0\MoonCoreUI.dll</HintPath>
+        <HintPath>..\..\..\Masu-Baumgartner\MoonCore\MoonCore\MoonCoreUI\bin\Debug\net7.0\MoonCoreUI.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>
