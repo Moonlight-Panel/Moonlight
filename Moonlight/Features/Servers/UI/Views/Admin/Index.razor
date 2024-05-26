@@ -19,7 +19,7 @@
           TCreateForm="CreateServerForm"
           TUpdateForm="CreateServerForm"
           Title=""
-          Load="Load"
+          Loader="Load"
           CustomAdd="CustomAdd"
           ValidateUpdate="ValidateUpdate"
           CustomDelete="CustomDelete">
@@ -51,14 +51,13 @@
 
 @code
 {
-    private Server[] Load(Repository<Server> repository)
+    private IEnumerable<Server> Load(Repository<Server> repository)
     {
         return repository
             .Get()
             .Include(x => x.Owner)
             .Include(x => x.Image)
-            .Include(x => x.Node)
-            .ToArray();
+            .Include(x => x.Node);
     }
 
     private async Task CustomAdd(Server form) => await ServerService.Create(form);
