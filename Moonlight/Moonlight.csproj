@@ -91,7 +91,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MoonCore" Version="1.3.3" />
+      <PackageReference Include="MoonCore" Version="1.3.4" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />
       <PackageReference Include="XtermBlazor" Version="1.10.2" />

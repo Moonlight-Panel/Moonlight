@@ -29,11 +29,11 @@
         <CrudColumn TItem="User" Field="@(x => x.Username)" Title="Username" Filterable="true"/>
         <CrudColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at" />
     </View>
-    <Actions>
+    <UpdateActions>
         <WButton OnClick="() => ChangePassword(context)" CssClasses="btn btn-icon btn-primary">
             <i class="bx bx-sm bxs-key"></i>
         </WButton>
-    </Actions>
+    </UpdateActions>
 </AutoCrud>
 
 @code

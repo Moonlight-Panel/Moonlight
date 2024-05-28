@@ -34,11 +34,11 @@
           ValidateAdd="ValidateAdd"
           CustomDelete="CustomDelete"
           @ref="Crud">
-    <Actions>
+    <UpdateActions>
         <a href="/admin/servers/images/view/@(context.Id)" class="btn btn-icon btn-info">
             <i class="bx bx-sm bx-wrench"></i>
         </a>
-    </Actions>
+    </UpdateActions>
     <View>
         <CrudColumn TItem="ServerImage" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
         <CrudColumn TItem="ServerImage" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
@@ -73,7 +73,7 @@
             Download and import a image from our <a href="https://github.com/Moonlight-Panel/Images">repository</a> or create a new one. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
         </IconAlert>
     </NoItemsView>
-    <Toolbar>
+    <OverviewToolbar>
         <SmartCustomFileSelect @ref="EggUpload" OnFileSelected="ImportEgg">
             <a class="btn btn-info me-3">
                 Import egg
@@ -84,7 +84,7 @@
                 Import
             </a>
         </SmartCustomFileSelect>
-    </Toolbar>
+    </OverviewToolbar>
 </AutoCrud>
 
 @code

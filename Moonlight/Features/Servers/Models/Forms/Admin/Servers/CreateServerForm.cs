@@ -46,4 +46,9 @@ public class CreateServerForm
     [Selector(SelectorProp = "Name", DisplayProp = "Name", UseDropdown = true)]
     [Section("Deployment", Icon = "bx-cube")]
     public ServerNode Node { get; set; }
+
+    [Description("The allocations the server should have")]
+    [MultiSelection("Port", "Port", Icon = "bx-network-chart")]
+    [Section("Deployment", Icon = "bx-cube")]
+    public List<ServerAllocation> Allocations { get; set; } = new();
 }
