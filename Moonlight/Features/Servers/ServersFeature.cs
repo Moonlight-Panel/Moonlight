@@ -10,6 +10,7 @@ using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.Servers.Http.Middleware;
 using Moonlight.Features.Servers.Implementations.Diagnose;
 using Moonlight.Features.Servers.Implementations.UI.Admin.AdminColumns;
+using Moonlight.Features.Servers.Implementations.UI.Admin.AdminComponents;
 using Moonlight.Features.Servers.Models.Enums;
 using Moonlight.Features.Servers.Services;
 using Moonlight.Features.Servers.UI.Components.Cards;
@@ -100,6 +101,8 @@ public class ServersFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IDiagnoseAction>(new NodesDiagnoseAction());
         
         await pluginService.RegisterImplementation<IAdminDashboardColumn>(new ServerCount());
+        
+        await pluginService.RegisterImplementation<IAdminDashboardComponent>(new NodeOverview());
     }
 
     public override Task OnUiInitialized(UiInitContext context)

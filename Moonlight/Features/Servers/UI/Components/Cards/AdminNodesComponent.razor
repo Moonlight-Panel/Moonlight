@@ -1,0 +1,62 @@
+﻿@using MoonCore.Abstractions
+@using Moonlight.Features.Servers.Api.Resources
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Services
+
+@inject NodeService NodeService
+@inject Repository<ServerNode> NodeRepository
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title mb-2">Nodes Overview</h4>
+        <hr class="mb-4"/>
+        <div class="row mx-2">
+            @if (Nodes.Any())
+            {
+                foreach (var node in Nodes)
+                {
+                    <div class="col-12 col-md-6 col-3">
+                        <div class="row">
+                            <span class="col-auto d-flex align-items-center">
+                                <span class="badge text-bg-@(node.Item2 == null ? "danger" : "success") text-capitalize">@(node.Item2 == null ? "offline" : "online")</span>
+                            </span>
+                            <div class="col">
+                                <span class="fs-5 fw-bold d-block">@node.Item1.Name</span>
+                                <span class="text-muted text-lowercase fs-6 d-block">@node.Item1.Fqdn</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <span class="text-muted fs-4">You dont have any nodes.</span>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private List<Tuple<ServerNode, SystemStatus?>> Nodes = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var node in NodeRepository.Get().ToList())
+        {
+            SystemStatus? nodeStatus = null;
+            
+            try
+            {
+                nodeStatus = await NodeService.GetStatus(node);
+            }
+            catch (Exception e)
+            {
+                // Ignored
+            }
+            
+            Nodes.Add(new Tuple<ServerNode, SystemStatus?>(node, nodeStatus));
+        }
+    }
+
+}
