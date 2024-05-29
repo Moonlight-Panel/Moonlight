@@ -11,7 +11,8 @@ public class ServerCount : IAdminDashboardColumn
     {
         var res = new UiComponent()
         {
-            Component = ComponentHelper.FromType<AdminServersCard>()
+            Component = ComponentHelper.FromType<AdminServersCard>(),
+            RequiredPermissionLevel = 5000
         };
 
         return Task.FromResult(res);
