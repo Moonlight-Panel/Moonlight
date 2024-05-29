@@ -9,7 +9,7 @@
 @attribute [RequirePermission(999)]
 
 <LazyLoader Load="Load">
-    <div class="row mb-8">
+    <div class="row mb-8 gap-4">
         @foreach (var column in Columns.OrderBy(x => x.Index))
         {
             if (column.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
