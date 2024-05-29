@@ -3,6 +3,7 @@ using MoonCore.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Interfaces;
 using Moonlight.Core.Interfaces.Ui.Admin;
+using Moonlight.Core.Interfaces.UI.User;
 using Moonlight.Core.Models.Abstractions.Feature;
 using Moonlight.Core.Services;
 using Moonlight.Features.Servers.Actions;
@@ -14,6 +15,7 @@ using Moonlight.Features.Servers.Implementations.UI.Admin.AdminComponents;
 using Moonlight.Features.Servers.Models.Enums;
 using Moonlight.Features.Servers.Services;
 using Moonlight.Features.Servers.UI.Components.Cards;
+using UserDashboardServerCount = Moonlight.Features.Servers.Implementations.UI.UserDashboard.Components.UserDashboardServerCount;
 
 namespace Moonlight.Features.Servers;
 
@@ -103,6 +105,8 @@ public class ServersFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IAdminDashboardColumn>(new ServerCount());
         
         await pluginService.RegisterImplementation<IAdminDashboardComponent>(new NodeOverview());
+        
+        await pluginService.RegisterImplementation<IUserDashboardComponent>(new UserDashboardServerCount());
     }
 
     public override Task OnUiInitialized(UiInitContext context)
