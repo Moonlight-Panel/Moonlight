@@ -4,13 +4,17 @@
 @using Moonlight.Core.Services
 
 @inject PluginService PluginService
+@inject IdentityService IdentityService
 
 <LazyLoader Load="Load">
     @foreach (var component in Components.OrderBy(x => x.Index))
     {
-        <div class="mb-4">
-            @component.Component
-        </div>
+        if (component.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+        {
+            <div class="mb-4">
+                @component.Component
+            </div>
+        }
     }
 </LazyLoader>
     
