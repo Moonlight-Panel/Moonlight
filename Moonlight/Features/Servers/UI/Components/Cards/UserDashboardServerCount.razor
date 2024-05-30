@@ -30,10 +30,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        
-        ServerCount = await ServerRepository.Get().Where(x => x.Owner == IdentityService.CurrentUser).CountAsync();
-        NetworksCount = await NetworkRepository.Get().Where(x => x.User == IdentityService.CurrentUser).CountAsync();
-        
+        if (firstRender)
+        {
+            ServerCount = await ServerRepository.Get().Where(x => x.Owner == IdentityService.CurrentUser).CountAsync();
+            NetworksCount = await NetworkRepository.Get().Where(x => x.User == IdentityService.CurrentUser).CountAsync();
+        }
     }
 
 }

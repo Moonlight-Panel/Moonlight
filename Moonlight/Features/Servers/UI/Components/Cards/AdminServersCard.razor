@@ -13,7 +13,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        ServerCount = ServerRepository.Get().Count();
+        if (firstRender)
+            ServerCount = ServerRepository.Get().Count();
     }
 
 }

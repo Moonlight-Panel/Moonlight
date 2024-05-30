@@ -13,6 +13,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        UserCount = UserRepository.Get().Count();
+        if (firstRender)
+            UserCount = UserRepository.Get().Count();
     }
 }
