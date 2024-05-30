@@ -4,12 +4,16 @@
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Abstractions
 @using MoonCore.Exceptions
+@using MoonCore.Helpers
+@using MoonCoreUI.Services
 @using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Models.Enums
 @using Moonlight.Features.Servers.Models.Forms.Admin.Servers
 @using Moonlight.Features.Servers.Services
 
 @inject ServerService ServerService
 @inject Repository<Server> ServerRepository
+@inject ToastService ToastService
 
 @attribute [RequirePermission(5000)]
 
@@ -20,6 +24,7 @@
           TUpdateForm="CreateServerForm"
           Loader="Load"
           CustomAdd="CustomAdd"
+          CustomUpdate="CustomUpdate"
           ValidateUpdate="ValidateUpdate"
           CustomDelete="CustomDelete">
     <View>
@@ -42,7 +47,7 @@
         </CrudColumn>
     </View>
     <CustomLoaders>
-        <DefineCustomLoader T="ServerAllocation" Id="FreeAllocations" Func="LoadFreeAllocations" />
+        <DefineCustomLoader TItem="Server" T="ServerAllocation" Id="FreeAllocations" Func="LoadFreeAllocations"/>
     </CustomLoaders>
     <NoItemsView>
         <IconAlert Title="No servers found" Color="primary" Icon="bx-search-alt">
@@ -63,25 +68,74 @@
             .Include(x => x.Node);
     }
 
-    private IEnumerable<ServerAllocation> LoadFreeAllocations(Repository<ServerAllocation> repository)
+    private IEnumerable<ServerAllocation> LoadFreeAllocations(Repository<ServerAllocation> repository, Server currentServer)
     {
-        return repository
-            .Get()
-            .FromSqlRaw("SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL");
+        return currentServer.Allocations.Concat(
+            repository
+                .Get()
+                .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {currentServer.Node.Id}")
+                .AsEnumerable() // => executes the sql
+        );
     }
 
     private async Task CustomAdd(Server form) => await ServerService.Create(form);
 
     private async Task CustomDelete(Server s) => await ServerService.Delete(s);
 
+    private async Task CustomUpdate(Server server)
+    {
+        ServerRepository.Update(server);
+
+        try
+        {
+            // Let the daemon know we changed this server
+            await ServerService.Sync(server);
+
+            // Check if the server is running to let the user know if he needs to restart the
+            // server. This should prevent the confusion why a running server does not get the changes applied
+            // ... hopefully ;)
+            try
+            {
+                if (await ServerService.GetState(server) == ServerState.Offline)
+                    return;
+
+                await ToastService.Info("Server is currently running. It requires a restart of the server in order to apply the changes");
+            }
+            catch (Exception)
+            {
+                // ignore, sync has already happened
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error("Unable to sync server changes due to an error occuring");
+            Logger.Error(e);
+
+            await ToastService.Danger("An error occured while sending the changes to the daemon");
+        }
+    }
+
     private Task ValidateUpdate(Server server)
     {
         var oldServer = ServerRepository
             .Get()
+            .Include(x => x.Image)
             .First(x => x.Id == server.Id);
 
+        // Virtual disk check
         if (oldServer.UseVirtualDisk != server.UseVirtualDisk)
             throw new DisplayException("Unable to switch from/to virtual disks. This is not supported at the moment");
+
+        // Allocation amount check
+        if (server.Allocations.Count < oldServer.Image.AllocationsNeeded)
+            throw new DisplayException($"The server image requires at least {oldServer.Image.AllocationsNeeded} allocation(s) in order to work");
+
+        // Set the correct main allocation
+        server.MainAllocation = server.Allocations.First();
+
+        // Check for image changes
+        if (oldServer.Image.Id != server.Image.Id)
+            throw new DisplayException("Changing the server image has not been implemented yet");
 
         return Task.CompletedTask;
     }
