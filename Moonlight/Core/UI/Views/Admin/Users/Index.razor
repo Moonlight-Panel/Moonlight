@@ -17,30 +17,30 @@
 <AdminUsersNavigation Index="0"/>
 
 <AutoCrud TItem="User"
-                  TCreateForm="CreateUserForm"
-                  TUpdateForm="UpdateUserForm"
-                  Title=""
-                  Load="Load"
-                  CustomAdd="Add"
-                  ValidateUpdate="ValidateUpdate">
+          TCreateForm="CreateUserForm"
+          TUpdateForm="UpdateUserForm"
+          Loader="Load"
+          CustomAdd="Add"
+          ValidateUpdate="ValidateUpdate">
     <View>
         <CrudColumn TItem="User" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
         <CrudColumn TItem="User" Field="@(x => x.Email)" Title="Email" Filterable="true"/>
         <CrudColumn TItem="User" Field="@(x => x.Username)" Title="Username" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at" />
+        <CrudColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at"/>
     </View>
     <UpdateActions>
-        <WButton OnClick="() => ChangePassword(context)" CssClasses="btn btn-icon btn-primary">
+        <WButton OnClick="() => ChangePassword(context)" CssClasses="btn btn-info me-2">
             <i class="bx bx-sm bxs-key"></i>
+            Change password
         </WButton>
     </UpdateActions>
 </AutoCrud>
 
 @code
 {
-    private User[] Load(Repository<User> repository)
+    private IEnumerable<User> Load(Repository<User> repository)
     {
-        return repository.Get().ToArray();
+        return repository.Get();
     }
 
     private async Task ChangePassword(User user)

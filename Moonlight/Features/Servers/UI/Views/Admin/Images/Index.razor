@@ -28,43 +28,43 @@
 <AutoCrud TItem="ServerImage"
           TCreateForm="CreateImageForm"
           TUpdateForm="UpdateImageForm"
-          Title=""
-          Load="Load"
+          Loader="Load"
           ValidateDelete="ValidateDelete"
           ValidateAdd="ValidateAdd"
           CustomDelete="CustomDelete"
           @ref="Crud">
-    <UpdateActions>
-        <a href="/admin/servers/images/view/@(context.Id)" class="btn btn-icon btn-info">
-            <i class="bx bx-sm bx-wrench"></i>
-        </a>
-    </UpdateActions>
     <View>
         <CrudColumn TItem="ServerImage" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
-        <CrudColumn TItem="ServerImage" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
+        <CrudColumn TItem="ServerImage" Field="@(x => x.Name)" Title="Name" Filterable="true">
+            <Template>
+                <a href="/admin/servers/images/view/@context!.Id">@context.Name</a>
+            </Template>
+        </CrudColumn>
         <CrudColumn TItem="ServerImage" Field="@(x => x.Author)" Title="Author" Filterable="true"/>
         <CrudColumn TItem="ServerImage">
             <Template>
-                @if (!string.IsNullOrEmpty(context.UpdateUrl))
-                {
-                    <WButton CssClasses="btn btn-sm btn-info me-3">
-                        <i class="bx bx-refresh"></i>
-                        Update
-                    </WButton>
-                }
+                <div class="text-end">
+                    @if (!string.IsNullOrEmpty(context.UpdateUrl))
+                    {
+                        <a class="me-2" href="#" @onclick:preventDefault>
+                            <i class="bx bx-refresh"></i>
+                            Update
+                        </a>
+                    }
 
-                @if (!string.IsNullOrEmpty(context.DonateUrl))
-                {
-                    <a class="btn btn-sm btn-primary me-3" href="@(context.DonateUrl)" target="_blank">
-                        <i class="bx bxs-heart text-danger"></i>
-                        Donate
+                    @if (!string.IsNullOrEmpty(context.DonateUrl))
+                    {
+                        <a class="me-2" href="@(context.DonateUrl)" target="_blank">
+                            <i class="bx bxs-heart text-danger"></i>
+                            Donate
+                        </a>
+                    }
+
+                    <a href="#" class="me-2" @onclick:preventDefault @onclick="() => Export(context)">
+                        <i class="bx bx-download"></i>
+                        Export
                     </a>
-                }
-
-                <WButton OnClick="() => Export(context)" CssClasses="btn btn-sm btn-warning">
-                    <i class="bx bx-download"></i>
-                    Export
-                </WButton>
+                </div>
             </Template>
         </CrudColumn>
     </View>
@@ -93,16 +93,16 @@
     private SmartCustomFileSelect ImageUpload;
     private SmartCustomFileSelect EggUpload;
 
-    private ServerImage[] Load(Repository<ServerImage> repository)
+    private IEnumerable<ServerImage> Load(Repository<ServerImage> repository)
     {
-        return repository.Get().ToArray();
+        return repository.Get();
     }
 
     private Task ValidateDelete(ServerImage serverImage)
     {
         if (ServerRepository.Get().Any(x => x.Image.Id == serverImage.Id))
             throw new DisplayException("A server using this image exists. Please delete the servers using this image to continue");
-        
+
         return Task.CompletedTask;
     }
 
@@ -123,7 +123,7 @@
 
         return Task.CompletedTask;
     }
-    
+
     private Task CustomDelete(ServerImage serverImage)
     {
         var image = ImageRepository
@@ -168,7 +168,7 @@
                 /* this should not fail the operation */
             }
         }
-        
+
         ImageRepository.Delete(serverImage);
 
         return Task.CompletedTask;
@@ -216,11 +216,11 @@
             await ImageUpload.RemoveSelection();
         }
     }
-    
+
     private async Task ImportEgg(IBrowserFile file)
     {
-        var confirm = await AlertService.YesNo("Importing pterodactyl eggs is a experimental feature and may result in unusable images. Are you sure you want to proceed?", 
-            "Yes, i take the risk", 
+        var confirm = await AlertService.YesNo("Importing pterodactyl eggs is a experimental feature and may result in unusable images. Are you sure you want to proceed?",
+            "Yes, i take the risk",
             "Cancel");
 
         if (!confirm)

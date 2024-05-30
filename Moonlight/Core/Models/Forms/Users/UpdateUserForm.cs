@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using MoonCoreUI.Attributes;
 
 namespace Moonlight.Core.Models.Forms.Users;
 
@@ -16,5 +17,7 @@ public class UpdateUserForm
     public string Email { get; set; }
     
     [Description("This toggles the use of the two factor authentication")]
+    [RadioButtonBool("Enabled", "Disabled", TrueIcon = "bx-lock-alt", FalseIcon = "bx-lock-open-alt")]
+    [DisplayName("Two factor authentication")]
     public bool Totp { get; set; } = false;
 }
