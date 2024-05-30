@@ -94,23 +94,53 @@ public class ServerService
         var user = userRepo.Get().First(x => x.Id == form.Owner.Id);
 
         // Load and validate server allocations
-        ServerAllocation[] allocations = Array.Empty<ServerAllocation>();
+        List<ServerAllocation> allocations = new();
 
-        if (false)
+        var amountOfAutoAllocations = image.AllocationsNeeded;
+
+        if (form.Allocations.Count > 0)
         {
-            throw new DisplayException(
-                "The dedicated ip mode has not been implemented yet. Please disable the dedicated ip option in the product configuration");
-        }
-        else
-        {
-            allocations = allocationRepo
-                .Get()
-                .FromSqlRaw(
-                    $"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId={node.Id} LIMIT {image.AllocationsNeeded}")
-                .ToArray();
+            amountOfAutoAllocations -= form.Allocations.Count;
+
+            foreach (var serverAllocation in form.Allocations) // Resolve all allocations specified in the form in the current scope
+            {
+                var allocationInCurrentScope = allocationRepo.Get().First(x => x.Id == serverAllocation.Id);
+                allocations.Add(allocationInCurrentScope);
+            }
         }
 
-        if (allocations.Length < 1 || allocations.Length < image.AllocationsNeeded)
+        if (amountOfAutoAllocations > 0) // Resolve all other allocations which are required automatically
+        {
+            if (false)
+            {
+                throw new DisplayException(
+                    "The dedicated ip mode has not been implemented yet. Please disable the dedicated ip option in the product configuration");
+            }
+            else
+            {
+                var autoAllocations = allocationRepo
+                    .Get()
+                    .FromSqlRaw(
+                        $"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId={node.Id} LIMIT {image.AllocationsNeeded + form.Allocations.Count}")
+                    .ToArray();
+
+                var addedAutoAllocations = 0;
+                
+                foreach (var autoAllocation in autoAllocations)
+                {
+                    if(addedAutoAllocations >= amountOfAutoAllocations)
+                        break;
+                    
+                    if(form.Allocations.Any(x => x.Id == autoAllocation.Id))
+                        continue;
+                    
+                    allocations.Add(autoAllocation);
+                    addedAutoAllocations++;
+                }
+            }
+        }
+
+        if (allocations.Count < 1 || allocations.Count < image.AllocationsNeeded)
             throw new DisplayException($"Not enough free allocations found on node '{node.Name}'");
 
         // Build server db model

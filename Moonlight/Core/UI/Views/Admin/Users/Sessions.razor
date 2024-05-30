@@ -22,11 +22,11 @@
     </Tooltip>
 
     <div class="card mt-5">
-        <div class="card-body">
+        <div class="card-body px-6 py-4">
             <LazyLoader Load="Load">
                 <CrudTable @ref="Table"
                            TItem="Session"
-                           Items="SessionService.Sessions"
+                           ItemSource="SessionService.Sessions"
                            PageSize="50">
                     <CrudColumn TItem="Session" Title="User" Field="@(x => x.CreatedAt)">
                         <Template>
@@ -63,8 +63,8 @@
                         <Template>
                             <div class="d-flex justify-content-end">
                                 <div class="btn btn-group">
-                                    <WButton OnClick="() => Message(context)" Text="Message" CssClasses="btn btn-primary" />
-                                    <WButton OnClick="() => Redirect(context)" Text="Redirect" CssClasses="btn btn-warning" />
+                                    <WButton OnClick="() => Message(context)" Text="Message" CssClasses="btn btn-primary"/>
+                                    <WButton OnClick="() => Redirect(context)" Text="Redirect" CssClasses="btn btn-warning"/>
                                 </div>
                             </div>
                         </Template>
@@ -85,9 +85,7 @@
         UpdateTimer = new Timer(async _ =>
         {
             if (Table != null)
-                await Table.Refresh();
-
-            await InvokeAsync(StateHasChanged);
+                await Table.Refresh(isSilent: true, fullRefresh: true);
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
         return Task.CompletedTask;
@@ -96,10 +94,10 @@
     private async Task Redirect(Session session)
     {
         var url = await AlertService.Text("Enter the target url to redirect to");
-        
-        if(string.IsNullOrEmpty(url))
+
+        if (string.IsNullOrEmpty(url))
             return;
-        
+
         try
         {
             session.NavigationManager.NavigateTo(url);
@@ -111,14 +109,14 @@
             await ToastService.Danger("Unable to redirect user. The user is probably no longer connect with moonlight");
         }
     }
-    
+
     private async Task Message(Session session)
     {
         var message = await AlertService.Text("Enter the message you want to send");
-        
-        if(string.IsNullOrEmpty(message))
+
+        if (string.IsNullOrEmpty(message))
             return;
-        
+
         try
         {
             await session.AlertService.Info(message);

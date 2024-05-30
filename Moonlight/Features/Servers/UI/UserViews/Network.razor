@@ -33,7 +33,7 @@
     <div class="card card-body mb-15 py-3 px-5">
         @if (!Server.DisablePublicNetwork)
         {
-            <CrudTable TItem="ServerAllocation" Items="Server.Allocations" PageSize="25" ShowPagination="false">
+            <CrudTable TItem="ServerAllocation" ItemSource="Server.Allocations" PageSize="25" ShowPagination="false">
                 <CrudColumn TItem="ServerAllocation" Field="@(x => x.IpAddress)" Title="FQDN or dedicated IP">
                     <Template>
                         @if (context!.IpAddress == "0.0.0.0")

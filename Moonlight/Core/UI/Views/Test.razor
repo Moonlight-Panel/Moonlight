@@ -1,0 +1,160 @@
+﻿@page "/test"
+
+<div class="card card-body mb-5 p-3">
+    <div class="row">
+        <div class="col-6 col-md-3">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bx bx-sm bx-search-alt"></i>
+                </span>
+                <input placeholder="Search" class="form-control"/>
+            </div>
+        </div>
+        <div class="col-6 col-md-9">
+            <div class="text-end">
+                <div class="btn-group dropstart">
+                    <!--!-->
+                    <button class="btn btn-icon btn-secondary rounded" type="button" id="defaultDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                        <i class="bx bx-sm bx-filter-alt"></i>
+                    </button>
+                    <div class="dropdown-menu py-1 px-2 fs-5 me-2 bg-secondary" style="min-width: 15rem">
+                        <div class="my-2 text-center">
+                            <!--!-->
+                            <div class="mt-auto">
+                                <input id="Id" type="number" class="form-control ">
+                            </div>
+                        </div>
+                        <div class="my-2 text-center">
+                            <!--!-->
+                            <div class="mt-auto">
+                                <div class="w-100">
+                                    <input id="Email" type="text" class="form-control " placeholder="Email" autocomplete="off" spellcheck="false">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-2 text-center">
+                            <!--!-->
+                            <div class="mt-auto">
+                                <div class="w-100">
+                                    <input id="Username" type="text" class="form-control " placeholder="Username" autocomplete="off" spellcheck="false">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="my-2 text-center">
+                            <!--!-->
+                            <button class="btn btn btn-primary" type="button">
+                                Apply<!--!-->
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary ms-3">
+                    <span>Create User</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body pt-3 px-5 pb-4">
+        <div class="table-responsive mb-3">
+            <table class="table table-row-bordered table-row-gray-200 align-middle gs-0 gy-3 fs-6 table-rounded">
+                <!--!--><!--!--><!--!-->
+                <!--!--><!--!-->
+                <!--!--><!--!-->
+                <!--!--><!--!-->
+
+                <!--!--><!--!-->
+
+                <thead class="fw-bold text-muted">
+                <tr>
+                    <th class="w-10px align-middle">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="0">
+                        </div>
+                    </th>
+                    <th class="fw-bold">Id</th>
+                    <th class="fw-bold">Email</th>
+                    <th class="fw-bold">Username</th>
+                    <th class="fw-bold">Created at</th>
+                    <th></th>
+                </tr>
+                </thead><!--!-->
+
+                <tbody>
+
+                @for (var i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td class="w-10px align-middle">
+                            <div class="form-check my-1">
+                                <input class="form-check-input" type="checkbox" value="0">
+                            </div>
+                        </td>
+                        <td class="">@(i)</td>
+                        <td class="">admin@masuowo.xyz@(i)</td>
+                        <td class="">masuowo@(i)</td>
+                        <td class="">04/19/2024 12:48:35</td>
+                        <td class="py-1 my-0">
+                            <div class="text-end text-nowrap me-3 fw-semibold">
+                                <a href="#"><i class="bx bx-edit"></i> Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mx-2">
+            <div class="d-none d-lg-block">
+                <span class="text-gray-600 fs-5">Showing 13 of 100 results</span>
+            </div>
+            <div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Per page</span>
+                    <select class="form-select">
+                        <option selected="selected">10</option>
+                        <option>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <ul class="pagination">
+                    <li class="page-item previous disabled"><a href="#" class="page-link"><i class="previous"></i></a></li>
+                    <li class="page-item "><a href="#" class="page-link">1</a></li>
+                    <li class="page-item active"><a href="#" class="page-link">2</a></li>
+                    <li class="page-item "><a href="#" class="page-link">3</a></li>
+                    <li class="page-item next"><a href="#"  class="page-link"><i class="next"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*
+<div class="my-5"></div>
+
+<div class="input-group mb-5">
+    <input type="text" class="form-control">
+</div>
+
+<div class="input-group has-validation mb-5">
+    <input type="text" class="form-control is-invalid">
+    <div class="invalid-feedback">
+        Please choose a username.
+    </div>
+</div>*@
+
+<WButton Text="Do something" CssClasses="btn-primary" OnClick="Do"></WButton>
+
+@code
+{
+    private async Task Do()
+    {
+        await Task.Delay(5000);
+    }
+}

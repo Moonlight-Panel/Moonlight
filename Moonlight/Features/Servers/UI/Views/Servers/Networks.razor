@@ -16,7 +16,7 @@
 <AutoCrud TItem="ServerNetwork"
           TCreateForm="CreateNetworkForm"
           TUpdateForm="UpdateNetworkForm"
-          Load="Load"
+          Loader="Load"
           ValidateAdd="ValidateAdd">
     <View>
         <CrudColumn TItem="ServerNetwork" Field="@(x => x.Name)" Title="Name"/>
@@ -28,7 +28,7 @@
         <CrudColumn TItem="ServerNetwork" Title="Used by">
             <Template>
                 @{
-                    var servers = UsedByCache[context.Id];
+                    var servers = UsedByCache.ContainsKey(context.Id) ? UsedByCache[context.Id] : Array.Empty<Server>();
                 }
 
                 <span>
@@ -51,13 +51,12 @@
 {
     private readonly Dictionary<int, Server[]> UsedByCache = new();
 
-    private ServerNetwork[] Load(Repository<ServerNetwork> repository)
+    private IEnumerable<ServerNetwork> Load(Repository<ServerNetwork> repository)
     {
         var result = repository
             .Get()
             .Include(x => x.Node)
-            .Where(x => x.User.Id == IdentityService.CurrentUser.Id)
-            .ToArray();
+            .Where(x => x.User.Id == IdentityService.CurrentUser.Id);
 
         UsedByCache.Clear();
 

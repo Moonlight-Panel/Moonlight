@@ -26,8 +26,7 @@
     <AutoCrud TItem="ServerNode"
               TCreateForm="CreateNodeForm"
               TUpdateForm="UpdateNodeForm"
-              Title=""
-              Load="LoadData"
+              Loader="LoadData"
               ValidateAdd="ValidateAdd"
               ValidateUpdate="ValidateUpdate"
               ValidateDelete="ValidateDelete">
@@ -154,11 +153,10 @@
         return Task.CompletedTask;
     }
 
-    private ServerNode[] LoadData(Repository<ServerNode> repository)
+    private IEnumerable<ServerNode> LoadData(Repository<ServerNode> repository)
     {
         return repository
-            .Get()
-            .ToArray();
+            .Get();
     }
 
     private Task ValidateDelete(ServerNode node)
