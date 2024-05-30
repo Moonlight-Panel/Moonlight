@@ -28,7 +28,7 @@
     private int ServerCount = 0;
     private int NetworksCount = 0;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         
         ServerCount = await ServerRepository.Get().Where(x => x.Owner == IdentityService.CurrentUser).CountAsync();
