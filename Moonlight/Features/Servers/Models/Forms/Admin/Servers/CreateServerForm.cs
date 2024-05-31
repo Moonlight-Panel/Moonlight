@@ -51,5 +51,6 @@ public class CreateServerForm
     [MultiSelection("Port", "Port", Icon = "bx-network-chart")]
     [Section("Deployment", Icon = "bx-cube")]
     [CustomItemLoader("FreeAllocations")]
+    [CustomDisplayFunction("AllocationWithIp")]
     public List<ServerAllocation> Allocations { get; set; } = new();
 }
