@@ -68,14 +68,23 @@
             .Include(x => x.Node);
     }
 
-    private IEnumerable<ServerAllocation> LoadFreeAllocations(Repository<ServerAllocation> repository, Server currentServer)
+    private IEnumerable<ServerAllocation> LoadFreeAllocations(Repository<ServerAllocation> repository, Server? currentServer)
     {
-        return currentServer.Allocations.Concat(
-            repository
+        if (currentServer == null)
+        {
+            return repository
                 .Get()
-                .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {currentServer.Node.Id}")
-                .AsEnumerable() // => executes the sql
-        );
+                .FromSqlRaw("SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL");
+        }
+        else
+        {
+            return currentServer.Allocations.Concat(
+                repository
+                    .Get()
+                    .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {currentServer.Node.Id}")
+                    .AsEnumerable() // => executes the sql
+            );
+        }
     }
 
     private async Task CustomAdd(Server form) => await ServerService.Create(form);

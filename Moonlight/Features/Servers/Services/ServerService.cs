@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MoonCore.Abstractions;
 using MoonCore.Attributes;
 using MoonCore.Exceptions;
+using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database.Entities;
@@ -22,6 +23,8 @@ public class ServerService
     public ServerConsoleService Console => ServiceProvider.GetRequiredService<ServerConsoleService>();
     public ServerBackupService Backup => ServiceProvider.GetRequiredService<ServerBackupService>();
     public ServerScheduleService Schedule => ServiceProvider.GetRequiredService<ServerScheduleService>();
+    
+    public NodeService NodeService => ServiceProvider.GetRequiredService<NodeService>();
 
     private readonly IServiceProvider ServiceProvider;
 
@@ -74,6 +77,19 @@ public class ServerService
         // Load node
         var node = nodeRepo.Get().First(x => x.Id == form.Node.Id);
 
+        // Check if node is available
+        try
+        {
+            await NodeService.GetStatus(node);
+        }
+        catch (Exception e)
+        {
+            Logger.Warn($"Could not establish to the node with the id {node.Id}");
+            Logger.Warn(e);
+            
+            throw new DisplayException($"Could not establish connection to the node: {e.Message}");
+        }
+        
         // Load user
         var user = userRepo.Get().First(x => x.Id == form.Owner.Id);
 
