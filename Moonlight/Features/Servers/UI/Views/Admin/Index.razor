@@ -5,6 +5,7 @@
 @using MoonCore.Abstractions
 @using MoonCore.Exceptions
 @using MoonCore.Helpers
+@using MoonCoreUI.Models
 @using MoonCoreUI.Services
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Models.Enums
@@ -26,7 +27,8 @@
           CustomAdd="CustomAdd"
           CustomUpdate="CustomUpdate"
           ValidateUpdate="ValidateUpdate"
-          CustomDelete="CustomDelete">
+          CustomDelete="CustomDelete"
+          OnConfigure="OnConfigure">
     <View>
         <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
         <CrudColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
@@ -46,9 +48,6 @@
             </Template>
         </CrudColumn>
     </View>
-    <CustomLoaders>
-        <DefineCustomLoader TItem="Server" T="ServerAllocation" Id="FreeAllocations" Func="LoadFreeAllocations"/>
-    </CustomLoaders>
     <NoItemsView>
         <IconAlert Title="No servers found" Color="primary" Icon="bx-search-alt">
             Create a new server in order to manage it using this page. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
@@ -58,6 +57,14 @@
 
 @code
 {
+    private void OnConfigure(AutoCrudOptions options)
+    {
+        options.AddCustomItemLoader<Server, ServerAllocation>("FreeAllocations", LoadFreeAllocations);
+        
+        options.AddCustomDisplayFunction<ServerAllocation>("AllocationWithIp",
+            allocation => allocation.IpAddress + ":" + allocation.Port);
+    }
+
     private IEnumerable<Server> Load(Repository<Server> repository)
     {
         return repository
