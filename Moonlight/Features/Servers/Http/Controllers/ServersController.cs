@@ -14,12 +14,12 @@ namespace Moonlight.Features.Servers.Http.Controllers;
 [ApiController]
 [Route("api/servers")]
 [EnableNodeMiddleware]
-public class ServersControllers : Controller
+public class ServersController : Controller
 {
     private readonly Repository<Server> ServerRepository;
     private readonly Repository<ServerBackup> BackupRepository;
 
-    public ServersControllers(Repository<Server> serverRepository, Repository<ServerBackup> backupRepository)
+    public ServersController(Repository<Server> serverRepository, Repository<ServerBackup> backupRepository)
     {
         ServerRepository = serverRepository;
         BackupRepository = backupRepository;
@@ -56,10 +56,20 @@ public class ServersControllers : Controller
             .Where(x => x.Node.Id == node.Id)
             .ToArray();
 
-        // Convert the data to server configurations
-        var serverConfigurations = servers
-            .Select(x => x.ToServerConfiguration())
-            .ToArray();
+        var serverConfigurations = new List<ServerConfiguration>();
+
+        foreach (var server in servers)
+        {
+            try
+            {
+                serverConfigurations.Add(server.ToServerConfiguration());
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"An error occured while sending server {server.Id} (Image: {server.Image.Name}) to daemon. This may indicate a corrupt or broken image/server. Skipping this server");
+                Logger.Error(e);
+            }
+        }
         
         // Send the amount of configs the node will receive
         await websocketStream.SendPacket(servers.Length);
