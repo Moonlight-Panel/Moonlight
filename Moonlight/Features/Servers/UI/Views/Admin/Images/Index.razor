@@ -5,6 +5,7 @@
 @using MoonCore.Abstractions
 @using MoonCore.Exceptions
 @using MoonCoreUI.Services
+@using MoonCoreUI.Components.NewAutoCrud
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Helpers
 @using Moonlight.Features.Servers.Models.Forms.Admin.Images
@@ -25,13 +26,11 @@
 
 <AdminServersNavigation Index="2"/>
 
-<AutoCrud TItem="ServerImage"
-          TCreateForm="CreateImageForm"
-          TUpdateForm="UpdateImageForm"
-          Loader="Load"
-          ValidateDelete="ValidateDelete"
-          ValidateAdd="ValidateAdd"
-          CustomDelete="CustomDelete"
+<AutoCrud2 TItem="ServerImage"
+          CreateForm="typeof(CreateImageForm)"
+          EditForm="typeof(UpdateImageForm)"
+          DataSource="Load"
+          OnConfigure="OnConfigure"
           @ref="Crud">
     <View>
         <CrudColumn TItem="ServerImage" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
@@ -73,7 +72,7 @@
             Download and import a image from our <a href="https://github.com/Moonlight-Panel/Images">repository</a> or create a new one. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
         </IconAlert>
     </NoItemsView>
-    <OverviewToolbar>
+    <ViewToolbar>
         <SmartCustomFileSelect @ref="EggUpload" OnFileSelected="ImportEgg">
             <a class="btn btn-info me-3">
                 Import egg
@@ -84,12 +83,12 @@
                 Import
             </a>
         </SmartCustomFileSelect>
-    </OverviewToolbar>
-</AutoCrud>
+    </ViewToolbar>
+</AutoCrud2>
 
 @code
 {
-    private AutoCrud<ServerImage, CreateImageForm, UpdateImageForm> Crud;
+    private AutoCrud2<ServerImage> Crud;
     private SmartCustomFileSelect ImageUpload;
     private SmartCustomFileSelect EggUpload;
 
@@ -259,5 +258,12 @@
         {
             await EggUpload.RemoveSelection();
         }
+    }
+
+    private void OnConfigure(AutoCrudOptions2<ServerImage> options)
+    {
+        options.CustomDelete = CustomDelete;
+        options.ValidateCreate = ValidateAdd;
+        options.ValidateDelete = ValidateDelete;
     }
 }

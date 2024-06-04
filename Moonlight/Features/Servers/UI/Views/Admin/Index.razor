@@ -6,6 +6,7 @@
 @using MoonCore.Exceptions
 @using MoonCore.Helpers
 @using MoonCoreUI.Models
+@using MoonCoreUI.Components.NewAutoCrud
 @using MoonCoreUI.Services
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Models.Enums
@@ -20,15 +21,11 @@
 
 <AdminServersNavigation Index="0"/>
 
-<AutoCrud TItem="Server"
-          TCreateForm="CreateServerForm"
-          TUpdateForm="CreateServerForm"
-          Loader="Load"
-          CustomAdd="CustomAdd"
-          CustomUpdate="CustomUpdate"
-          ValidateUpdate="ValidateUpdate"
-          CustomDelete="CustomDelete"
-          OnConfigure="OnConfigure">
+<AutoCrud2 TItem="Server"
+           DataSource="Load"
+           CreateForm="typeof(CreateServerForm)"
+           EditForm="typeof(CreateServerForm)"
+           OnConfigure="OnConfigure">
     <View>
         <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
         <CrudColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
@@ -53,18 +50,10 @@
             Create a new server in order to manage it using this page. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
         </IconAlert>
     </NoItemsView>
-</AutoCrud>
+</AutoCrud2>
 
 @code
 {
-    private void OnConfigure(AutoCrudOptions options)
-    {
-        options.AddCustomItemLoader<Server, ServerAllocation>("FreeAllocations", LoadFreeAllocations);
-        
-        options.AddCustomDisplayFunction<ServerAllocation>("AllocationWithIp",
-            allocation => allocation.IpAddress + ":" + allocation.Port);
-    }
-
     private IEnumerable<Server> Load(Repository<Server> repository)
     {
         return repository
@@ -154,5 +143,18 @@
             throw new DisplayException("Changing the server image has not been implemented yet");
 
         return Task.CompletedTask;
+    }
+
+    private void OnConfigure(AutoCrudOptions2<Server> options)
+    {
+        options.AddCustomItemLoader<ServerAllocation>("FreeAllocations", LoadFreeAllocations);
+        
+        options.AddCustomDisplayFunction<ServerAllocation>("AllocationWithIp",
+            allocation => allocation.IpAddress + ":" + allocation.Port);
+
+        options.ValidateEdit = ValidateUpdate;
+        options.CustomDelete = CustomDelete;
+        options.CustomCreate = CustomAdd;
+        options.CustomEdit = CustomUpdate;
     }
 }
