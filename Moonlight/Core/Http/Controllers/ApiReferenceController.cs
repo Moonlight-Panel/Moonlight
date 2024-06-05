@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using MoonCore.Services;
 using Moonlight.Core.Attributes;
 using Moonlight.Core.Configuration;
@@ -20,7 +21,7 @@ public class ApiReferenceController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> Get([FromQuery] string document)
+    public async Task<ActionResult> Get([FromQuery][RegularExpression("^[a-z0-9_\\-]+$")] string document)
     {
         if (!ConfigService.Get().Development.EnableApiReference)
             return BadRequest("Api reference is disabled");
@@ -34,6 +35,7 @@ public class ApiReferenceController : Controller
                    "<title>Moonlight Api Reference</title>\n" +
                    "<meta charset=\"utf-8\" />\n" +
                    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n" +
+                   "<link rel=\"stylesheet\" type=\"text/css\" href=\"/api/core/asset/Core/css/scalar.css\" />\n"+
                    "</head>\n" +
                    "<body>\n" +
                    $"<script id=\"api-reference\" data-url=\"/api/core/reference/openapi/{document}\"></script>\n" +

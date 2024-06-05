@@ -251,11 +251,9 @@ public class CoreFeature : MoonlightFeature
 
         // Api
         if (config.Development.EnableApiReference)
-        {
             app.MapSwagger("/api/core/reference/openapi/{documentName}");
-
-            await pluginService.RegisterImplementation<IApiDefinition>(new InternalApiDefinition());
-        }
+        
+        await pluginService.RegisterImplementation<IApiDefinition>(new InternalApiDefinition());
     }
 
     public override Task OnUiInitialized(UiInitContext context)
@@ -269,6 +267,7 @@ public class CoreFeature : MoonlightFeature
         context.AddSidebarItem("Dashboard", "bxs-dashboard", "/admin", needsExactMatch: true, isAdmin: true,
             index: int.MinValue);
         context.AddSidebarItem("Users", "bxs-group", "/admin/users", needsExactMatch: false, isAdmin: true);
+        context.AddSidebarItem("API", "bx-code-curly", "/admin/api", needsExactMatch: false, isAdmin: true);
         context.AddSidebarItem("System", "bxs-component", "/admin/sys", needsExactMatch: false, isAdmin: true);
 
         return Task.CompletedTask;

@@ -87,6 +87,10 @@
       <PackageReference Include="Blazor.ContextMenu" Version="1.17.0" />
       <PackageReference Include="BlazorTable" Version="1.17.0" />
       <PackageReference Include="JWT" Version="10.1.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="MimeTypes" Version="2.4.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

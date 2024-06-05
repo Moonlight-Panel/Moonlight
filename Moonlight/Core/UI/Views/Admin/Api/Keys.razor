@@ -1,0 +1,68 @@
+﻿@page "/admin/api/keys"
+
+@using MoonCore.Abstractions
+@using MoonCore.Helpers
+@using MoonCoreUI.Services
+@using Moonlight.Core.Database.Entities
+@using Moonlight.Core.Models.Forms.ApiKeys
+@using Moonlight.Core.UI.Components.Navigations
+
+@inject ClipboardService ClipboardService
+@inject ToastService ToastService
+
+@attribute [RequirePermission(9998)]
+
+<AdminApiNavigation Index="1" />
+
+<div class="mt-5">
+    <AutoCrud TItem="ApiKey"
+              TCreateForm="CreateApiKeyForm"
+              TUpdateForm="UpdateApiKeyForm"
+              Loader="ApiKeysLoader"
+              ValidateAdd="ValidateAdd">
+        <View>
+            <CrudColumn TItem="ApiKey" Field="@(x => x.Key)" Title="Key">
+                <Template>
+                    @{
+                        var apiKeyHalf = Formatter.CutInHalf(context!.Key);
+                        var bogusHalf = Formatter.IntToStringWithLeadingZeros(69, apiKeyHalf.Length);
+                    }
+                    
+                    <div>
+                        <span class="blur-unless-hover">@apiKeyHalf</span>
+                        <span class="blur d-none d-lg-inline">@bogusHalf</span>
+                    </div>
+                </Template>
+            </CrudColumn>
+            <CrudColumn TItem="ApiKey" Field="@(x => x.Description)" Title="Description"/>
+            <CrudColumn TItem="ApiKey" Field="@(x => x.CreatedAt)" Title="Created at">
+                <Template>
+                    @Formatter.FormatDate(context!.CreatedAt)
+                </Template>
+            </CrudColumn>
+            <CrudColumn TItem="ApiKey" Field="@(x => x.ExpiresAt)" Title="Expires at">
+                <Template>
+                    @Formatter.FormatDate(context!.ExpiresAt)
+                </Template>
+            </CrudColumn>
+            <CrudColumn TItem="ApiKey" Field="@(x => x.PermissionJson)" Title="Permissions" />
+        </View>
+    </AutoCrud>
+</div>
+
+@code
+{
+    private IEnumerable<ApiKey> ApiKeysLoader(Repository<ApiKey> repository)
+    {
+        return repository.Get();
+    }
+    
+    private async Task ValidateAdd(ApiKey apiKey)
+    {
+        var key = Formatter.GenerateString(32);
+        apiKey.Key = key;
+
+        await ClipboardService.Copy(key);
+        await ToastService.Info("Copied api key into your clipboard");
+    }
+}
