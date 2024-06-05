@@ -22,6 +22,7 @@ using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
 using Microsoft.OpenApi.Models;
 using Moonlight.Core.Attributes;
+using Moonlight.Core.Http.Middleware;
 using Moonlight.Core.Implementations.ApiDefinition;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -252,6 +253,8 @@ public class CoreFeature : MoonlightFeature
         // Api
         if (config.Development.EnableApiReference)
             app.MapSwagger("/api/core/reference/openapi/{documentName}");
+
+        app.UseMiddleware<ApiPermissionMiddleware>();
         
         await pluginService.RegisterImplementation<IApiDefinition>(new InternalApiDefinition());
     }
