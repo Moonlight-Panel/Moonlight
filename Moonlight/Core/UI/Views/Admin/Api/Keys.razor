@@ -12,7 +12,7 @@
 
 @attribute [RequirePermission(9998)]
 
-<AdminApiNavigation Index="1" />
+<AdminApiNavigation Index="1"/>
 
 <div class="mt-5">
     <AutoCrud TItem="ApiKey"
@@ -27,10 +27,12 @@
                         var apiKeyHalf = Formatter.CutInHalf(context!.Key);
                         var bogusHalf = Formatter.IntToStringWithLeadingZeros(69, apiKeyHalf.Length);
                     }
-                    
+
                     <div>
-                        <span class="blur-unless-hover">@apiKeyHalf</span>
-                        <span class="blur d-none d-lg-inline">@bogusHalf</span>
+                        <span class="blur-unless-hover">
+                            @apiKeyHalf
+                            [...]
+                        </span>
                     </div>
                 </Template>
             </CrudColumn>
@@ -45,7 +47,7 @@
                     @Formatter.FormatDate(context!.ExpiresAt)
                 </Template>
             </CrudColumn>
-            <CrudColumn TItem="ApiKey" Field="@(x => x.PermissionJson)" Title="Permissions" />
+            <CrudColumn TItem="ApiKey" Field="@(x => x.PermissionJson)" Title="Permissions"/>
         </View>
     </AutoCrud>
 </div>
@@ -56,7 +58,7 @@
     {
         return repository.Get();
     }
-    
+
     private async Task ValidateAdd(ApiKey apiKey)
     {
         var key = Formatter.GenerateString(32);
