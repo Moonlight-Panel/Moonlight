@@ -108,14 +108,7 @@
     private Task ValidateAdd(ServerImage image)
     {
         // Set defaults
-
-        image.StopCommand = "^C";
-        image.StartupCommand = "echo Startup command here";
-        image.AllocationsNeeded = 1;
-        image.InstallScript = "#! /bin/bash\necho Done";
-        image.InstallShell = "/bin/bash";
-        image.InstallDockerImage = "debian:latest";
-        image.OnlineDetection = "Running";
+        
         image.AllowDockerImageChange = false;
         image.DefaultDockerImage = 0;
         image.ParseConfiguration = "[]";
