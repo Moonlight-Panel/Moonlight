@@ -357,7 +357,8 @@ public class ImageConversionHelper
         // Installation
         var installation = egg["scripts"]?["installation"] ?? JObject.Parse("{}");
 
-        result.InstallShell = "/bin/" + installation.Value<string>("entrypoint") ?? "Install shell was missing";
+        var entrypoint = installation.Value<string>("entrypoint") ?? "Install shell was missing";
+        result.InstallShell = entrypoint.StartsWith("/bin/") ? entrypoint : "/bin/" + entrypoint;
         result.InstallScript = installation.Value<string>("script") ?? "Install script was missing";
         result.InstallDockerImage = installation.Value<string>("container") ?? "Install container was missing";
 
