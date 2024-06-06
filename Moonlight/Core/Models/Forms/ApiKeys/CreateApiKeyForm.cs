@@ -14,5 +14,6 @@ public class CreateApiKeyForm
     public DateTime ExpiresAt { get; set; } = DateTime.UtcNow;
 
     [Required(ErrorMessage = "You need to specify what permissions the api key should have")]
-    public string Permissions { get; set; } = "[]";
+    [DisplayName("Permissions")]
+    public string PermissionJson { get; set; } = "[]";
 }
