@@ -36,6 +36,8 @@ public class ServersFeature : MoonlightFeature
         //
         var configService = new ConfigService<ServersConfiguration>(PathBuilder.File("storage", "configs", "servers.json"));
         context.Builder.Services.AddSingleton(configService);
+
+        context.Builder.Services.AddScoped<HttpClient>();
         
         // Assets
         context.AddAsset("Servers", "css/XtermBlazor.css");

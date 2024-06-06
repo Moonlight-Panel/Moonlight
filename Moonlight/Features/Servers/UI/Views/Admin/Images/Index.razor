@@ -1,5 +1,6 @@
 @page "/admin/servers/images"
 
+@using Mappy.Net
 @using Moonlight.Features.Servers.UI.Components
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Abstractions
@@ -20,6 +21,8 @@
 @inject FileDownloadService FileDownloadService
 @inject ToastService ToastService
 @inject AlertService AlertService
+
+@inject HttpClient HttpClient
 
 @attribute [RequirePermission(5002)]
 
@@ -46,7 +49,7 @@
                 <div class="text-end">
                     @if (!string.IsNullOrEmpty(context.UpdateUrl))
                     {
-                        <a class="me-2" href="#" @onclick:preventDefault>
+                        <a class="me-2" href="#" @onclick:preventDefault @onclick="() => UpdateImage(context)">
                             <i class="bx bx-refresh"></i>
                             Update
                         </a>
@@ -259,5 +262,50 @@
         {
             await EggUpload.RemoveSelection();
         }
+    }
+    
+    private async Task UpdateImage(ServerImage image)
+    {
+        if (string.IsNullOrEmpty(image.UpdateUrl))
+            return;
+        
+        string? httpResult = null;
+
+        try
+        {
+            // pull from update url
+            httpResult = await HttpClient.GetStringAsync(image.UpdateUrl);
+        }
+        catch (Exception e)
+        {
+            throw new DisplayException("An error occured while updating your image: " + e.Message);
+        }
+
+        var newImage = await ImageConversionHelper.ImportFromJson(httpResult);
+        
+        // Update main information
+        image.Name = newImage.Name;
+        image.Author = newImage.Author;
+        image.AllocationsNeeded = newImage.AllocationsNeeded;
+        image.DonateUrl = newImage.DonateUrl;
+        image.InstallScript = newImage.InstallScript;
+        image.InstallShell = newImage.InstallShell;
+        image.OnlineDetection = newImage.OnlineDetection;
+        image.ParseConfiguration = newImage.ParseConfiguration;
+        image.StartupCommand = newImage.StartupCommand;
+        image.StopCommand = newImage.StopCommand;
+        image.UpdateUrl = newImage.UpdateUrl;
+        image.DefaultDockerImage = newImage.DefaultDockerImage;
+        image.InstallDockerImage = newImage.InstallDockerImage;
+        image.AllowDockerImageChange = newImage.AllowDockerImageChange;
+        
+        // Todo: Update Docker Images
+        // - Check if image already exists
+        // - If so, update the DisplayName, Description and Autopull
+        
+        ImageRepository.Update(image);
+
+        await Crud.Reload();
+        await AlertService.Success("Sucessfully updated image \"" + image.Name + "\"!");
     }
 }
