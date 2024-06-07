@@ -298,14 +298,79 @@
         image.DefaultDockerImage = newImage.DefaultDockerImage;
         image.InstallDockerImage = newImage.InstallDockerImage;
         image.AllowDockerImageChange = newImage.AllowDockerImageChange;
+
+        foreach (var imageVariable in newImage.Variables)
+        {
+            if (image.Variables.Any(x => x.Key == imageVariable.Key))
+            {
+                int index;
+
+                try
+                {
+                    index = image.Variables.FindIndex(x => x.Key == imageVariable.Key);
+                }
+                catch
+                {
+                    return;
+                }
+                
+                // List.FindIndex returns -1 if the item was not found
+                if (index == -1)
+                    return;
+
+                image.Variables[index].DefaultValue = imageVariable.DefaultValue;
+                image.Variables[index].DisplayName = imageVariable.DisplayName;
+                image.Variables[index].Description = imageVariable.Description;
+                image.Variables[index].AllowView = imageVariable.AllowView;
+                image.Variables[index].AllowEdit = imageVariable.AllowEdit;
+                image.Variables[index].Filter = imageVariable.Filter;
+            }
+            else
+            {
+                image.Variables.Add(imageVariable);
+            }
+        }
         
-        // Todo: Update Docker Images
-        // - Check if image already exists
-        // - If so, update the DisplayName, Description and Autopull
+        // Remove unused Variables: (hashset for faster lookup)
+        HashSet<string> newKeys = new(newImage.Variables.Select(x => x.Key));
+        image.Variables.RemoveAll(x => !newKeys.Contains(x.Key));
+        
+        foreach (var dockerImage in newImage.DockerImages)
+        {
+            if (image.DockerImages.Any(x => x.Name == dockerImage.Name))
+            {
+                int index;
+
+                try
+                {
+                    index = image.DockerImages.FindIndex(x => x.Name == dockerImage.Name);
+                }
+                catch
+                {
+                    return;
+                }
+                
+                // List.FindIndex returns -1 if the item was not found
+                if (index == -1)
+                    return;
+
+                image.DockerImages[index].DisplayName = dockerImage.DisplayName;
+                image.DockerImages[index].AutoPull = dockerImage.AutoPull;
+                
+            }
+            else
+            {
+                image.DockerImages.Add(dockerImage);
+            }
+        }
+        
+        // Remove unused DockerImages: (hashset for faster lookup)
+        HashSet<string> newDockerImageNames = new(newImage.DockerImages.Select(x => x.Name));
+        image.DockerImages.RemoveAll(x => !newDockerImageNames.Contains(x.Name));
         
         ImageRepository.Update(image);
 
         await Crud.Reload();
-        await AlertService.Success("Sucessfully updated image \"" + image.Name + "\"!");
+        await ToastService.Success("Successfully updated image \"" + image.Name + "\"!");
     }
 }
