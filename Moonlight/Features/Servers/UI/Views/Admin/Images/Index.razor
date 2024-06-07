@@ -21,8 +21,6 @@
 @inject ToastService ToastService
 @inject AlertService AlertService
 
-@inject HttpClient HttpClient
-
 @attribute [RequirePermission(5002)]
 
 <AdminServersNavigation Index="2"/>
@@ -272,8 +270,11 @@
 
         try
         {
-            // pull from update url
-            httpResult = await HttpClient.GetStringAsync(image.UpdateUrl);
+            using (HttpClient httpClient = new HttpClient())
+            {
+                // pull from update url
+                httpResult = await httpClient.GetStringAsync(image.UpdateUrl);
+            }
         }
         catch (Exception e)
         {
