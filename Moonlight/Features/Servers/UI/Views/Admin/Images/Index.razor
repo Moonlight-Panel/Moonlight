@@ -268,6 +268,9 @@
         
         string? httpResult = null;
 
+        if (!await AlertService.YesNo("Are you sure you want to update this image? The process could cause it to break."))
+            return;
+        
         try
         {
             using (HttpClient httpClient = new HttpClient())
