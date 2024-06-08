@@ -12,17 +12,17 @@
 {
     <div class="mb-12 mx-8 d-flex justify-content-end fixed-bottom no-pointer-events" style="pointer-events: none;">
         <div style="pointer-events: all; max-width: var(--bs-breakpoint-sm)" class="w-100">
-            <div class="card">
+            <div class="card shadow-lg">
                 <div class="card-body">
                     <h3 class="mb-4">@ConfigService.Get().Customisation.CookieConsentBanner.BannerTitle</h3>
                     <p class="text-muted fs-6">
                         @ConfigService.Get().Customisation.CookieConsentBanner.BannerText
                     </p>
                     <span class="d-flex gap-5">
-                        <a @onclick:preventDefault @onclick="Consent" class="cursor-pointer text-primary">
+                        <a @onclick:preventDefault @onclick="Consent" class="btn btn-primary btn-sm cursor-pointer">
                             <i class="bx bx-check"></i> @ConfigService.Get().Customisation.CookieConsentBanner.ConsentText
                         </a>
-                        <a @onclick:preventDefault @onclick="Decline" class="cursor-pointer text-primary">
+                        <a @onclick:preventDefault @onclick="Decline" class="btn btn-secondary btn-sm cursor-pointer">
                             <i class="bx bx-x"></i> @ConfigService.Get().Customisation.CookieConsentBanner.DeclineText
                         </a>
                     </span>
