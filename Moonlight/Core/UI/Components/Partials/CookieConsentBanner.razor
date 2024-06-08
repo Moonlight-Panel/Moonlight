@@ -1,0 +1,60 @@
+﻿@using ApexCharts
+@using MoonCore.Services
+@using Moonlight.Core.Configuration
+@using Moonlight.Core.Services
+
+@inject ConfigService<CoreConfiguration> ConfigService
+@inject IdentityService IdentityService
+
+@ChildContent
+
+@if (ConfigService.Get().Customisation.CookieConsentBanner.ShowBanner && !IdentityService.HasFlag("CookieAsked").Result)
+{
+    <div class="mb-12 mx-8 d-flex justify-content-end fixed-bottom no-pointer-events" style="pointer-events: none;">
+        <div style="pointer-events: all; max-width: var(--bs-breakpoint-sm)" class="w-100">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="mb-4">@ConfigService.Get().Customisation.CookieConsentBanner.BannerTitle</h3>
+                    <p class="text-muted fs-6">
+                        @ConfigService.Get().Customisation.CookieConsentBanner.BannerText
+                    </p>
+                    <span class="d-flex gap-5">
+                        <a @onclick:preventDefault @onclick="Consent" class="cursor-pointer text-primary">
+                            <i class="bx bx-check"></i> @ConfigService.Get().Customisation.CookieConsentBanner.ConsentText
+                        </a>
+                        <a @onclick:preventDefault @onclick="Decline" class="cursor-pointer text-primary">
+                            <i class="bx bx-x"></i> @ConfigService.Get().Customisation.CookieConsentBanner.DeclineText
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private async Task Consent()
+    {
+        if (!IdentityService.IsLoggedIn)
+            return;
+        
+        await IdentityService.SetFlag("CookieAsked", true);
+        await IdentityService.SetFlag("CookieConsent", true);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Decline()
+    {
+        if (!IdentityService.IsLoggedIn)
+            return;
+
+        await IdentityService.SetFlag("CookieAsked", true);
+        
+        await InvokeAsync(StateHasChanged);
+    }
+
+}
