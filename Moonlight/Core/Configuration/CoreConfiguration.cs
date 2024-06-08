@@ -157,18 +157,18 @@ public class CoreConfiguration
 
         [JsonProperty("BannerTitle")]
         [Description("The title for the cookie consent banner.")]
-        public string BannerTitle = "\ud83c\udf6a Cookies";
+        public string BannerTitle { get; set; } = "\ud83c\udf6a Cookies";
         
         [JsonProperty("BannerText")]
         [Description("The description for the cookie consent banner.")]
-        public string BannerText = "Moonlight is using cookies \ud83c\udf6a, to personalize your experience.";
+        public string BannerText { get; set; } = "Moonlight is using cookies \ud83c\udf6a, to personalize your experience.";
         
         [JsonProperty("ConsentText")]
         [Description("The text for the consent option.")]
-        public string ConsentText = "Consent";
+        public string ConsentText { get; set; } = "Consent";
         
         [JsonProperty("DeclineText")]
         [Description("The text for the decline option.")]
-        public string DeclineText = "Decline";
+        public string DeclineText { get; set; } = "Decline";
     }
 }
