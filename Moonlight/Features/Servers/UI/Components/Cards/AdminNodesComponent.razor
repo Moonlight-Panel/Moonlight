@@ -1,0 +1,70 @@
+﻿@using MoonCore.Abstractions
+@using Moonlight.Features.Servers.Api.Resources
+@using Moonlight.Features.Servers.Entities
+@using Moonlight.Features.Servers.Services
+
+@inject NodeService NodeService
+@inject Repository<ServerNode> NodeRepository
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title mb-4 d-flex align-items-center gap-3">
+            <i class="bx bx-md bx-microchip text-primary"></i>
+            <span>Nodes Overview</span>
+        </h4>
+        <div class="row mx-2">
+            <LazyLoader Load="Load">
+                @if (Nodes.Any())
+                {
+                    foreach (var node in Nodes)
+                    {
+                        <div class="col-12 col-md-6 col-3">
+                            <a href="/admin/servers/nodes/view/@node.Item1.Id">
+                                <div class="row">
+                                    <span class="col-auto d-flex align-items-center">
+                                        <span class="badge text-bg-@(node.Item2 == null ? "danger" : "success") text-capitalize">@(node.Item2 == null ? "offline" : "online")</span>
+                                    </span>
+                                    <div class="col">
+                                        <span class="fs-5 fw-bold d-block text-white">@node.Item1.Name</span>
+                                        <span class="text-muted text-lowercase fs-6 d-block">@node.Item1.Fqdn</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted fs-4">You dont have any nodes.</span>
+                }
+            </LazyLoader>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private List<Tuple<ServerNode, SystemStatus?>> Nodes = new();
+
+    private async Task Load(LazyLoader arg)
+    {
+        foreach (var node in NodeRepository.Get().ToList())
+        {
+            SystemStatus? nodeStatus = null;
+            
+            await arg.SetText("Fetching Nodes...");
+            
+            try
+            {
+                nodeStatus = await NodeService.GetStatus(node);
+            }
+            catch
+            {
+                // Ignored
+            }
+            
+            Nodes.Add(new Tuple<ServerNode, SystemStatus?>(node, nodeStatus));
+        }
+    }
+
+}

@@ -11,9 +11,10 @@
     
     private int ServerCount;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        ServerCount = ServerRepository.Get().Count();
+        if (firstRender)
+            ServerCount = ServerRepository.Get().Count();
     }
 
 }
