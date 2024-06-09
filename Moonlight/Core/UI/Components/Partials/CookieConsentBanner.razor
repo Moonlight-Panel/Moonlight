@@ -6,9 +6,7 @@
 @inject ConfigService<CoreConfiguration> ConfigService
 @inject IdentityService IdentityService
 
-@ChildContent
-
-@if (ConfigService.Get().Customisation.CookieConsentBanner.ShowBanner && !IdentityService.HasFlag("CookieAsked").Result)
+@if (ShowBanner)
 {
     <div class="mb-12 mx-8 d-flex justify-content-end fixed-bottom no-pointer-events" style="pointer-events: none;">
         <div style="pointer-events: all; max-width: var(--bs-breakpoint-sm)" class="w-100">
@@ -31,10 +29,23 @@
         </div>
     </div>
 }
+
 @code {
 
-    [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    private bool ShowBanner;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var userWasAsked = await IdentityService.HasFlag("CookieAsked");
+            
+            if (ConfigService.Get().Customisation.CookieConsentBanner.Enabled && !userWasAsked)
+                ShowBanner = true;
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
 
     private async Task Consent()
     {

@@ -151,9 +151,9 @@ public class CoreConfiguration
     
     public class CookieData
     {
-        [JsonProperty("ShowCookieConsentBanner")]
+        [JsonProperty("Enabled")]
         [Description("This specifies if the cookie consent banner is shown to users.")]
-        public bool ShowBanner { get; set; } = true;
+        public bool Enabled { get; set; } = true;
 
         [JsonProperty("BannerTitle")]
         [Description("The title for the cookie consent banner.")]

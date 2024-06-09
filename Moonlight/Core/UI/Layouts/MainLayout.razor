@@ -55,9 +55,8 @@
                                                 if (IdentityService.IsLoggedIn)
                                                 {
                                                     <PermissionChecker>
-                                                        <CookieConsentBanner>
-                                                            @Body
-                                                        </CookieConsentBanner>
+                                                        @Body
+                                                        <CookieConsentBanner/>
                                                     </PermissionChecker>
                                                 }
                                                 else
