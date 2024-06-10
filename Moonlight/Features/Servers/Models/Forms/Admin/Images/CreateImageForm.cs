@@ -52,6 +52,7 @@ public class CreateImageForm
     
     [Required(ErrorMessage = "You need to provide a install script")]
     [Page("Installation")]
+    [CustomFormComponent("InstallScriptEditor")]
     public string InstallScript { get; set; } = "#! /bin/bash\necho Done";
 
     [Range(1, 100, ErrorMessage = "You need to specify a valid amount of allocations")]

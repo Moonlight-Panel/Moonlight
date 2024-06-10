@@ -11,6 +11,7 @@
 @using Moonlight.Features.Servers.Models.Forms.Admin.Images
 @using Microsoft.AspNetCore.Components.Forms
 @using MoonCore.Helpers
+@using Moonlight.Features.FileManager.UI.Components
 
 @inject Repository<Server> ServerRepository
 @inject Repository<ServerImageVariable> VariableRepository
@@ -84,6 +85,29 @@
             </a>
         </SmartCustomFileSelect>
     </ViewToolbar>
+    <CustomComponents>
+        <CustomFormComponent TItem="ServerImage"
+                             TForm="CreateImageForm"
+                             Id="InstallScriptEditor">
+            <div class="col-12">
+                <Editor InitialContent="@context.InstallScript"
+                        Mode="sh"
+                        Lines="25"
+                        EnableAutoInit="true"
+                        OnChanged="OnChanged"/>
+            </div>
+            @{
+                Task OnChanged(string arg)
+                {
+                    context.InstallScript = arg;
+                    
+                    return Task.CompletedTask;
+                }
+            }
+
+        </CustomFormComponent>
+    </CustomComponents>
+    
 </AutoCrud2>
 
 @code
