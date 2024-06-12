@@ -183,8 +183,7 @@
 
     private Task ValidateAdd(ServerNode node)
     {
-        if (!IsDomainOrIp(node.Fqdn))
-            throw new DisplayException("The fqdn needs to be a valid domain or an ip address");
+        ValidateFqdn(node);
 
         node.Token = Formatter.GenerateString(32);
 
@@ -193,21 +192,33 @@
 
     private Task ValidateUpdate(ServerNode node)
     {
-        if (!IsDomainOrIp(node.Fqdn))
-            throw new DisplayException("The fqdn needs to be a valid domain or an ip address");
+        ValidateFqdn(node);
 
         return Task.CompletedTask;
     }
 
-    private bool IsDomainOrIp(string input)
+    private void ValidateFqdn(ServerNode node)
     {
-        if (Regex.IsMatch(input, "^(?!-)(?:[a-zA-Z\\d-]{0,62}[a-zA-Z\\d]\\.)+(?:[a-zA-Z]{2,})$"))
-            return true;
+        if (node.Ssl)
+        {
+            // Is it a valid domain?
+            if (Regex.IsMatch(node.Fqdn, "^(?!-)(?:[a-zA-Z\\d-]{0,62}[a-zA-Z\\d]\\.)+(?:[a-zA-Z]{2,})$"))
+                return;
 
-        if (Regex.IsMatch(input, "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
-            return true;
+            throw new DisplayException("The fqdn needs to be a valid domain. If you want to use an ip address as the fqdn, disable ssl for this node");
+        }
+        else
+        {
+            // Is it a valid domain?
+            if (Regex.IsMatch(node.Fqdn, "^(?!-)(?:[a-zA-Z\\d-]{0,62}[a-zA-Z\\d]\\.)+(?:[a-zA-Z]{2,})$"))
+                return;
+            
+            // Is it a valid ip?
+            if (Regex.IsMatch(node.Fqdn, "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
+                return;
 
-        return false;
+            throw new DisplayException("The fqdn needs to be either a domain or an ip");
+        }
     }
 
     public void Dispose()
