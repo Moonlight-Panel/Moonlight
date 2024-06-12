@@ -11,6 +11,11 @@ public static class ServerExtensions
 {
     public static ServerConfiguration ToServerConfiguration(this Server server)
     {
+        // Enforce id based docker image index
+        server.Image.DockerImages = server.Image.DockerImages
+            .OrderBy(x => x.Id)
+            .ToList();
+        
         var serverConfiguration = new ServerConfiguration();
 
         // Set general information
@@ -33,9 +38,15 @@ public static class ServerExtensions
         ServerDockerImage dockerImage;
 
         if (server.DockerImageIndex >= server.Image.DockerImages.Count || server.DockerImageIndex == -1)
-            dockerImage = server.Image.DockerImages.Last();
+        {
+            dockerImage = server.Image.DockerImages
+                .Last();
+        }
         else
-            dockerImage = server.Image.DockerImages[server.DockerImageIndex];
+        {
+            dockerImage = server.Image.DockerImages
+                .ElementAt(server.DockerImageIndex);
+        }
 
         serverConfiguration.Image.DockerImage = dockerImage.Name;
         serverConfiguration.Image.PullDockerImage = dockerImage.AutoPull;
