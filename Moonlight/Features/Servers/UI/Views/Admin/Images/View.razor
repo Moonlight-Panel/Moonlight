@@ -81,6 +81,11 @@
         if (Image == null)
             return;
 
+        // Enforce id based docker image index
+        Image.DockerImages = Image.DockerImages
+            .OrderBy(x => x.Id)
+            .ToList();
+
         Form = Mapper.Map<UpdateImageDetailedForm>(Image);
         ParseConfigJson = Image.ParseConfiguration;
     }

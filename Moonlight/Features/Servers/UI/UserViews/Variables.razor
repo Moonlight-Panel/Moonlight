@@ -85,6 +85,11 @@
             .Include(x => x.Variables)
             .Include(x => x.DockerImages)
             .First(x => x.Id == Server.Image.Id);
+        
+        // Enforce id based docker image index
+        Image.DockerImages = Image.DockerImages
+            .OrderBy(x => x.Id)
+            .ToList();
 
         if (Server.DockerImageIndex >= Image.DockerImages.Count || Server.DockerImageIndex == -1)
             SelectedDockerImage = Image.DockerImages.Last();
