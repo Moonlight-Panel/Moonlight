@@ -153,7 +153,7 @@ public class CoreConfiguration
     {
         [JsonProperty("Enabled")]
         [Description("This specifies if the cookie consent banner is shown to users.")]
-        public bool Enabled { get; set; } = true;
+        public bool Enabled { get; set; } = false;
 
         [JsonProperty("BannerTitle")]
         [Description("The title for the cookie consent banner.")]
