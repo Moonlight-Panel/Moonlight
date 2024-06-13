@@ -116,6 +116,7 @@ public class CoreConfiguration
         public FileManagerData FileManager { get; set; } = new();
 
         [JsonProperty("Footer")] public FooterData Footer { get; set; } = new();
+        [JsonProperty("CookieConsentBanner")] public CookieData CookieConsentBanner{ get; set; } = new();
     }
     
     public class FooterData
@@ -146,5 +147,28 @@ public class CoreConfiguration
         [JsonProperty("OperationTimeout")]
         [Description("This specifies the general timeout for file manager operations. This can but has not to be used by file accesses")]
         public int OperationTimeout { get; set; } = 5;
+    }
+    
+    public class CookieData
+    {
+        [JsonProperty("Enabled")]
+        [Description("This specifies if the cookie consent banner is shown to users.")]
+        public bool Enabled { get; set; } = false;
+
+        [JsonProperty("BannerTitle")]
+        [Description("The title for the cookie consent banner.")]
+        public string BannerTitle { get; set; } = "\ud83c\udf6a Cookies";
+        
+        [JsonProperty("BannerText")]
+        [Description("The description for the cookie consent banner.")]
+        public string BannerText { get; set; } = "Moonlight is using cookies \ud83c\udf6a, to personalize your experience.";
+        
+        [JsonProperty("ConsentText")]
+        [Description("The text for the consent option.")]
+        public string ConsentText { get; set; } = "Consent";
+        
+        [JsonProperty("DeclineText")]
+        [Description("The text for the decline option.")]
+        public string DeclineText { get; set; } = "Decline";
     }
 }

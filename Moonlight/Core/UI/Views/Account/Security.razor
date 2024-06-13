@@ -28,7 +28,7 @@
     <div class="row g-5">
         <div class="col-md-6 col-12">
             <div class="card">
-                <SmartForm Model="PasswordForm" OnValidSubmit="OnValidSubmit">
+                <SmartForm Model="PasswordForm" OnValidSubmit="OnValidSubmitPassword">
                     <div class="card-body">
                         <div class="row">
                             <AutoForm Model="PasswordForm" Columns="12" />
@@ -47,19 +47,37 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6 col-12">
+            <div class="card h-100">
+                <SmartForm Model="CookiesForm" OnValidSubmit="OnValidSubmitCookie">
+                <div class="card-body">
+                    <h3>Cookies</h3>
+                    <div>
+                        
+                            <AutoForm Model="CookiesForm"/>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">Save changes</button>
+                </div>
+                </SmartForm>
+            </div>
+        </div>
     </div>
 </LazyLoader>
 
 @code
 {
     private readonly ChangePasswordForm PasswordForm = new();
+    
+    private ChangeCookiesForm CookiesForm = new();
 
-    private Task Load(LazyLoader lazyLoader)
+    private async Task Load(LazyLoader lazyLoader)
     {
-        return Task.CompletedTask;
+        CookiesForm.UseOptionalCookies = await IdentityService.HasFlag("CookieConsent");
     }
 
-    private async Task OnValidSubmit()
+    private async Task OnValidSubmitPassword()
     {
         if (PasswordForm.Password != PasswordForm.RepeatedPassword)
             throw new DisplayException("The passwords do not match");
@@ -68,5 +86,12 @@
         
         await ToastService.Success("Successfully changed password");
         await IdentityService.Authenticate(true);
+    }
+
+    private async Task OnValidSubmitCookie()
+    {
+        await IdentityService.SetFlag("CookieConsent", CookiesForm.UseOptionalCookies);
+
+        await InvokeAsync(StateHasChanged);
     }
 }
