@@ -14,8 +14,34 @@ public class DeleteSelectionAction : IFileManagerSelectionAction
     {
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();
+
+        var folderEmoji = "\ud83d\udcc1";
+        var fileEmoji = "\ud83d\udcc4";
+
+        var showFolderCount = 3;
+        var showFileCount = 6;
         
-        if(!await alertService.YesNo($"Do you really want to delete {entries.Length} item(s)?"))
+        // Construct file list
+        var fileList = "";
+
+        foreach (var folder in entries.Where(x => x.IsDirectory).Take(showFolderCount))
+        {
+            fileList += folderEmoji + "  " + folder.Name + "\n";
+        }
+
+        if (entries.Where(x => x.IsDirectory).ToArray().Length > showFolderCount)
+            fileList += "And " + (entries.Where(x => x.IsDirectory).ToArray().Length - showFolderCount) + " more folders... \n\n";
+        
+        foreach (var file in entries.Where(x => x.IsFile).Take(showFileCount))
+        {
+            fileList += fileEmoji + "  " + file.Name + "\n";    
+        }
+
+        if (entries.Where(x => x.IsFile).ToArray().Length > showFileCount)
+            fileList += "And " + (entries.Where(x => x.IsFile).ToArray().Length - showFileCount) + " more files...";
+        
+        
+        if(!await alertService.YesNo($"Do you really want to delete {entries.Length} item(s)? \n\n" + fileList))
             return;
 
         await toastService.CreateProgress("fileManagerSelectionDelete", "Deleting items");
