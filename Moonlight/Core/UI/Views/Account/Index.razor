@@ -10,6 +10,7 @@
 @inject IdentityService IdentityService
 @inject ToastService ToastService
 @inject IAuthenticationProvider AuthenticationProvider
+@inject AlertService AlertService
 
 <div class="card card-body bg-primary mb-8">
     <div class="d-flex align-items-center">
@@ -25,33 +26,60 @@
 
 <LazyLoader Load="Load" ShowAsCard="true">
 
-    <div class="row g-5">
-        <div class="col-md-3 col-12">
-            <div class="card card-body h-100">
-                <div class="d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-center">
-                        <div class="symbol symbol-100px symbol-lg-160px symbol-fixed">
-                            <img src="/api/core/avatar" alt="image">
-                        </div>
-                    </div>
-                    <div class="fs-4 mt-5 text-center">
-                        To change your profile picture go to <a href="https://gravatar.com/">Gravatar</a> and
-                        register with the same email address you are using here
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-9 col-12">
+    <div class="d-flex justify-content-center">
+        <div class="w-100" style="max-width: calc(var(--bs-breakpoint-sm)*1.4)">
             <div class="card">
-                <SmartForm Model="Form" OnValidSubmit="Update">
-                    <div class="card-body">
-                        <AutoForm TForm="UpdateAccountForm" Columns="12" Model="Form"/>
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </SmartForm>
-            </div>
+                <div class="card-body">
+                    @if (!ChangeDetails)
+                    {
+                        <div>
+                            <div class="d-flex justify-content-center">
+                                <div class="symbol symbol-125px symbol-lg-175px symbol-fixed position-relative">
+                                    <span class="position-absolute w-30px translate-middle badge rounded-pill cursor-pointer bg-info-active d-flex justify-content-center align-items-center" style="bottom: 0.5%; right:0.5%; aspect-ratio: 1" @onclick="ShowGravatarInfo">
+                                        <h4 class="m-0">
+                                            ?
+                                        </h4>
+                                    </span>
+                                    <img src="/api/core/avatar" alt="User Profile" class="rounded rounded-circle">
+                                </div>
+                            </div>
+                            <div class="text-center mt-8">
+                                <h2>@IdentityService.CurrentUser.Username</h2>
+                                <h5 class="text-muted fw-normal">
+                                    @IdentityService.CurrentUser.Email
+                                </h5>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <SmartForm Model="Form" OnValidSubmit="Update">
+                            <h3>Update User Information</h3>
+                            <AdvancedAutoForm TForm="UpdateAccountForm" Model="Form"/>
+                            <div class="d-flex justify-content-end mt-2">
+                                <button class="btn btn-primary" type="submit"><i class="bx bx-check"></i> Save changes</button>
+                            </div>
+                        </SmartForm>
+                    }
+                    <button class="btn btn-@(!ChangeDetails ? "secondary" : "warning") btn-sm mb-3" @onclick="() => { ChangeDetails = !ChangeDetails; StateHasChanged(); }">
+                        @if (!ChangeDetails)
+                        {
+                            <span>
+                                <i class="bx bx-pencil"></i>
+                                Edit Details
+                            </span>
+                            
+                        }
+                        else
+                        {
+                            <span>
+                                <i class="bx bx-undo"></i>
+                                Go Back
+                            </span>
+                        }
+                    </button>
+                </div>
+            </div> 
         </div>
     </div>
 </LazyLoader>
@@ -59,6 +87,8 @@
 @code
 {
     private UpdateAccountForm Form = new();
+
+    private bool ChangeDetails = false;
 
     private Task Load(LazyLoader _)
     {
@@ -72,7 +102,16 @@
         await AuthenticationProvider.ChangeDetails(IdentityService.CurrentUser, Form.Email, Form.Username);
         await ToastService.Success("Successfully updated details");
 
+        // Change back to the account view card
+        ChangeDetails = !ChangeDetails;
+        await InvokeAsync(StateHasChanged);
+        
         // This will trigger a re-render as well as an update of the model
         await IdentityService.Authenticate(true);
+    }
+
+    private async Task ShowGravatarInfo()
+    {
+        await AlertService.Info("To change your profile picture go to https://gravatar.com/ and register with the same email address you are using here");
     }
 }
