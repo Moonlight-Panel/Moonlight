@@ -11,6 +11,7 @@
 @inject IdentityService IdentityService
 @inject ToastService ToastService
 @inject IAuthenticationProvider AuthenticationProvider
+@inject AlertService AlertService
 
 <div class="card card-body bg-primary mb-8">
     <div class="d-flex align-items-center">
@@ -30,6 +31,7 @@
             <div class="card">
                 <SmartForm Model="PasswordForm" OnValidSubmit="OnValidSubmitPassword">
                     <div class="card-body">
+                        <h3>Change Password</h3>
                         <div class="row">
                             <AutoForm Model="PasswordForm" Columns="12" />
                         </div>
@@ -84,10 +86,13 @@
 
     private async Task OnValidSubmitPassword()
     {
-        if (PasswordForm.Password != PasswordForm.RepeatedPassword)
+        if (!await AlertService.YesNo("Do you really want to change your password? This cannot be undone."))
+            return;
+            
+        if (PasswordForm.NewPassword != PasswordForm.RepeatNewPassword)
             throw new DisplayException("The passwords do not match");
         
-        await AuthenticationProvider.ChangePassword(IdentityService.CurrentUser, PasswordForm.Password);
+        await AuthenticationProvider.ChangePassword(IdentityService.CurrentUser, PasswordForm.NewPassword);
         
         await ToastService.Success("Successfully changed password");
         await IdentityService.Authenticate(true);
