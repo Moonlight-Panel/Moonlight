@@ -54,7 +54,12 @@
                     <h3>Cookies</h3>
                     <div>
                         
-                            <AutoForm Model="CookiesForm"/>
+                    <label class="form-label">Use Optional Cookies</label>
+                    <div class="form-check form-check  ">
+                        <input id="UseOptionalCookies" type="checkbox" class="form-check-input valid" @bind="CookiesForm.UseOptionalCookies">
+                    </div>
+                    <div class="form-text fs-6 text-gray-600">This specifies if you would like to personalize your experience with optional cookies.</div>
+                
                     </div>
                 </div>
                 <div class="card-footer d-flex justify-content-end">
