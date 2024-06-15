@@ -1,0 +1,38 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using MoonCore.Abstractions
+@using Moonlight.Core.Services
+@using Moonlight.Features.Servers.Entities
+
+@inject Repository<Server> ServerRepository
+@inject Repository<ServerNetwork> NetworkRepository
+@inject IdentityService IdentityService
+
+<div class="row">
+    <div class="col d-flex justify-content-center">
+        <div class="text-center d-block">
+            <h4>@ServerCount</h4>
+            <h6 class="fw-normal text-muted">Servers</h6>
+        </div>
+    </div>
+    <div class="col d-flex justify-content-center">
+        <div class="text-center d-block">
+            <h4>@NetworksCount</h4>
+            <h6 class="fw-normal text-muted">Networks</h6>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int ServerCount = 0;
+    private int NetworksCount = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ServerCount = await ServerRepository.Get().Where(x => x.Owner == IdentityService.CurrentUser).CountAsync();
+            NetworksCount = await NetworkRepository.Get().Where(x => x.User == IdentityService.CurrentUser).CountAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

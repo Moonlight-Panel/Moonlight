@@ -2,6 +2,7 @@ using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Interfaces;
+using Moonlight.Core.Interfaces.UI.Account;
 using Moonlight.Core.Interfaces.Ui.Admin;
 using Moonlight.Core.Interfaces.UI.User;
 using Moonlight.Core.Models.Abstractions.Feature;
@@ -10,6 +11,7 @@ using Moonlight.Features.Servers.Actions;
 using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.Servers.Http.Middleware;
 using Moonlight.Features.Servers.Implementations.Diagnose;
+using Moonlight.Features.Servers.Implementations.UI.Account;
 using Moonlight.Features.Servers.Implementations.UI.Admin.AdminColumns;
 using Moonlight.Features.Servers.Implementations.UI.Admin.AdminComponents;
 using Moonlight.Features.Servers.Models.Enums;
@@ -107,6 +109,8 @@ public class ServersFeature : MoonlightFeature
         await pluginService.RegisterImplementation<IAdminDashboardComponent>(new NodeOverview());
         
         await pluginService.RegisterImplementation<IUserDashboardComponent>(new UserDashboardServerCount());
+        
+        await pluginService.RegisterImplementation<IAccountOverviewComponent>(new AccountServerStats());
     }
 
     public override Task OnUiInitialized(UiInitContext context)
