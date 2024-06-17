@@ -2,16 +2,12 @@
 
 @using Moonlight.Core.Services
 @using Moonlight.Core.UI.Components.Navigations
-@using Moonlight.Core.Models.Forms
-@using MoonCoreUI.Services
 @using Moonlight.Core.Models.Abstractions
-@using MoonCore.Exceptions
-@using Moonlight.Core.UI.Components.Auth
+@using Moonlight.Core.Interfaces.UI.Account
 
 @inject IdentityService IdentityService
-@inject ToastService ToastService
-@inject IAuthenticationProvider AuthenticationProvider
-@inject AlertService AlertService
+@inject PluginService PluginService
+
 
 <div class="card card-body bg-primary mb-8">
     <div class="d-flex align-items-center">
@@ -27,81 +23,34 @@
 
 <LazyLoader Load="Load">
     <div class="row g-5">
-        <div class="col-md-6 col-12">
-            <div class="card">
-                <SmartForm Model="PasswordForm" OnValidSubmit="OnValidSubmitPassword">
-                    <div class="card-body">
-                        <h3>Change Password</h3>
-                        <div class="row">
-                            <AutoForm Model="PasswordForm" Columns="12" />
-                        </div>
-                        <div class="d-flex justify-content-end mt-6">
-                            <button class="btn btn-primary" type="submit"><i class="bx bx-check"></i> Save changes</button>
-                        </div>
-                    </div>
-                </SmartForm>
-            </div>
-        </div>
-        <div class="col-md-6 col-12">
-            <div class="card h-100">
-                <div class="card-body">
-                    <TwoFactorWizard />
+        @foreach(var component in Components.OrderBy(x => x.Index))
+        {
+            if (component.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+            {
+                <div class="col-md-6 col-12">
+                    @component.Component
                 </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-12">
-            <div class="card h-100">
-                <SmartForm Model="CookiesForm" OnValidSubmit="OnValidSubmitCookie">
-                    <div class="card-body">
-                        <h3>Cookies</h3>
-                        <div>
-                            
-                            <label class="form-label">Use Optional Cookies</label>
-                            <div class="form-check form-check  ">
-                                <input id="UseOptionalCookies" type="checkbox" class="form-check-input valid" @bind="CookiesForm.UseOptionalCookies">
-                            </div>
-                            <div class="form-text fs-6 text-gray-600">This specifies if you would like to personalize your experience with optional cookies.</div>
-                    
-                        </div>
-                        <div class="d-flex justify-content-end mt-6">
-                            <button class="btn btn-primary" type="submit"><i class="bx bx-check"></i> Save changes</button>
-                        </div>
-                    </div>
-                </SmartForm>
-            </div>
-        </div>
+            }
+        }
+
     </div>
 </LazyLoader>
 
 @code
 {
-    private readonly ChangePasswordForm PasswordForm = new();
-    
-    private ChangeCookiesForm CookiesForm = new();
 
-    private async Task Load(LazyLoader lazyLoader)
+    private List<UiComponent> Components = new();
+
+
+    private async Task Load(LazyLoader arg)
     {
-        CookiesForm.UseOptionalCookies = await IdentityService.HasFlag("CookieConsent");
-    }
+        await arg.SetText("Loading...");
 
-    private async Task OnValidSubmitPassword()
-    {
-        if (!await AlertService.YesNo("Do you really want to change your password? This cannot be undone."))
-            return;
-            
-        if (PasswordForm.NewPassword != PasswordForm.RepeatNewPassword)
-            throw new DisplayException("The passwords do not match");
-        
-        await AuthenticationProvider.ChangePassword(IdentityService.CurrentUser, PasswordForm.NewPassword);
-        
-        await ToastService.Success("Successfully changed password");
-        await IdentityService.Authenticate(true);
-    }
+        var implementations = await PluginService.GetImplementations<IAccountSettingsColumn>();
 
-    private async Task OnValidSubmitCookie()
-    {
-        await IdentityService.SetFlag("CookieConsent", CookiesForm.UseOptionalCookies);
-
-        await InvokeAsync(StateHasChanged);
+        foreach (var implementation in implementations)
+        {
+            Components.Add(await implementation.Get());
+        }
     }
 }

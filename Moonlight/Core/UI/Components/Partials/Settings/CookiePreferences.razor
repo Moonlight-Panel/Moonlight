@@ -1,0 +1,41 @@
+@using Moonlight.Core.Models.Forms
+@using Moonlight.Core.Services
+
+@inject IdentityService IdentityService
+
+<div class="card h-100">
+    <SmartForm Model="CookiesForm" OnValidSubmit="OnValidSubmitCookie">
+        <div class="card-body">
+            <h3>Cookies</h3>
+            <div>
+
+                <label class="form-label">Use Optional Cookies</label>
+                <div class="form-check form-check  ">
+                    <input id="UseOptionalCookies" type="checkbox" class="form-check-input valid" @bind="CookiesForm.UseOptionalCookies">
+                </div>
+                <div class="form-text fs-6 text-gray-600">This specifies if you would like to personalize your experience with optional cookies.</div>
+
+            </div>
+            <div class="d-flex justify-content-end mt-6">
+                <button class="btn btn-primary" type="submit"><i class="bx bx-check"></i> Save changes</button>
+            </div>
+        </div>
+    </SmartForm>
+</div>
+
+@code {
+
+    private ChangeCookiesForm CookiesForm = new();
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        CookiesForm.UseOptionalCookies = await IdentityService.HasFlag("CookieConsent");
+    }
+
+    private async Task OnValidSubmitCookie()
+    {
+        await IdentityService.SetFlag("CookieConsent", CookiesForm.UseOptionalCookies);
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
