@@ -6,6 +6,7 @@ using Moonlight.Features.Servers.Attributes;
 using Moonlight.Features.Servers.Entities;
 using Moonlight.Features.Servers.Events;
 using Moonlight.Features.Servers.Extensions;
+using Moonlight.Features.Servers.Helpers;
 using Moonlight.Features.Servers.Http.Requests;
 using Moonlight.Features.Servers.Models.Abstractions;
 
@@ -102,6 +103,9 @@ public class ServersController : Controller
         if (server == null)
             return NotFound();
 
+        // This will update the server variables if the image got updated
+        await ServerUtilsHelper.FixVariables(server, ServerRepository);
+        
         var configuration = server.ToServerConfiguration();
 
         return Ok(configuration);
