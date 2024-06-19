@@ -1,0 +1,56 @@
+@page "/account/settings"
+
+@using Moonlight.Core.Services
+@using Moonlight.Core.UI.Components.Navigations
+@using Moonlight.Core.Models.Abstractions
+@using Moonlight.Core.Interfaces.UI.Account
+
+@inject IdentityService IdentityService
+@inject PluginService PluginService
+
+
+<div class="card card-body bg-primary mb-8">
+    <div class="d-flex align-items-center">
+        <span class="fs-2 fw-semibold">
+            @* the @@@ looks weird, ik that, it will result in @username *@
+
+            @@@IdentityService.CurrentUser.Username
+        </span>
+    </div>
+</div>
+
+<AccountNavigation Index="1"/>
+
+<LazyLoader Load="Load">
+    <div class="row g-5">
+        @foreach(var component in Components.OrderBy(x => x.Index))
+        {
+            if (component.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+            {
+                <div class="col-md-6 col-12">
+                    @component.Component
+                </div>
+            }
+        }
+
+    </div>
+</LazyLoader>
+
+@code
+{
+
+    private List<UiComponent> Components = new();
+
+
+    private async Task Load(LazyLoader arg)
+    {
+        await arg.SetText("Loading...");
+
+        var implementations = await PluginService.GetImplementations<IAccountSettingsColumn>();
+
+        foreach (var implementation in implementations)
+        {
+            Components.Add(await implementation.Get());
+        }
+    }
+}

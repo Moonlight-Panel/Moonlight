@@ -4,12 +4,12 @@
 @using Moonlight.Core.Models.Forms
 @using Mappy.Net
 @using MoonCoreUI.Services
+@using Moonlight.Core.Interfaces.UI.Account
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.UI.Components.Navigations
 
+@inject PluginService PluginService
 @inject IdentityService IdentityService
-@inject ToastService ToastService
-@inject IAuthenticationProvider AuthenticationProvider
 
 <div class="card card-body bg-primary mb-8">
     <div class="d-flex align-items-center">
@@ -24,55 +24,36 @@
 <AccountNavigation Index="0"/>
 
 <LazyLoader Load="Load" ShowAsCard="true">
-
-    <div class="row g-5">
-        <div class="col-md-3 col-12">
-            <div class="card card-body h-100">
-                <div class="d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-center">
-                        <div class="symbol symbol-100px symbol-lg-160px symbol-fixed">
-                            <img src="/api/core/avatar" alt="image">
-                        </div>
+    <div class="card">
+        <div class="card-body">
+            @foreach (var component in Components.OrderBy(x => x.Index))
+            {
+                if (component.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+                {
+                    <div class="mb-4">
+                        @component.Component
                     </div>
-                    <div class="fs-4 mt-5 text-center">
-                        To change your profile picture go to <a href="https://gravatar.com/">Gravatar</a> and
-                        register with the same email address you are using here
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-9 col-12">
-            <div class="card">
-                <SmartForm Model="Form" OnValidSubmit="Update">
-                    <div class="card-body">
-                        <AutoForm TForm="UpdateAccountForm" Columns="12" Model="Form"/>
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </SmartForm>
-            </div>
+                }
+            }
         </div>
     </div>
 </LazyLoader>
 
 @code
 {
-    private UpdateAccountForm Form = new();
+    
+    private List<UiComponent> Components = new();
 
-    private Task Load(LazyLoader _)
+
+    private async Task Load(LazyLoader arg)
     {
-        Form = Mapper.Map<UpdateAccountForm>(IdentityService.CurrentUser);
+        await arg.SetText("Loading...");
 
-        return Task.CompletedTask;
-    }
+        var implementations = await PluginService.GetImplementations<IAccountOverviewComponent>();
 
-    private async Task Update()
-    {
-        await AuthenticationProvider.ChangeDetails(IdentityService.CurrentUser, Form.Email, Form.Username);
-        await ToastService.Success("Successfully updated details");
-
-        // This will trigger a re-render as well as an update of the model
-        await IdentityService.Authenticate(true);
+        foreach (var implementation in implementations)
+        {
+            Components.Add(await implementation.Get());
+        }
     }
 }

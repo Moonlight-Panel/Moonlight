@@ -9,9 +9,11 @@ using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Implementations.Diagnose;
+using Moonlight.Core.Implementations.UI.Account.Settings;
 using Moonlight.Core.Implementations.UI.Admin.AdminColumns;
 using Moonlight.Core.Implementations.UI.Index;
 using Moonlight.Core.Interfaces;
+using Moonlight.Core.Interfaces.UI.Account;
 using Moonlight.Core.Interfaces.Ui.Admin;
 using Moonlight.Core.Interfaces.UI.User;
 using Moonlight.Core.Models;
@@ -20,7 +22,7 @@ using Moonlight.Core.Models.Abstractions.Feature;
 using Moonlight.Core.Models.Enums;
 using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
-using Moonlight.Core.UI.Components.Cards;
+using AccountProfileOverview = Moonlight.Core.Implementations.UI.Account.Overview.AccountProfileOverview;
 
 namespace Moonlight.Core;
 
@@ -166,6 +168,12 @@ public class CoreFeature : MoonlightFeature
         // UI
         await pluginService.RegisterImplementation<IAdminDashboardColumn>(new UserCount());
         await pluginService.RegisterImplementation<IUserDashboardComponent>(new GreetingMessages());
+        await pluginService.RegisterImplementation<IAccountOverviewComponent>(new AccountProfileOverview());
+        
+        // Account Settings
+        await pluginService.RegisterImplementation<IAccountSettingsColumn>(new ChangePasswordSetting());
+        await pluginService.RegisterImplementation<IAccountSettingsColumn>(new TwoFactorAuthSetting());
+        await pluginService.RegisterImplementation<IAccountSettingsColumn>(new CookiePreferenceSetting());
         
         // Startup job services
         var startupJobService = app.Services.GetRequiredService<StartupJobService>();
