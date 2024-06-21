@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Helpers;
+using Moonlight.Core.Attributes;
 
 namespace Moonlight.Core.Http.Controllers;
 
 [ApiController]
+[ApiDocument("internal")]
 [Route("api/core/asset")]
 public class AssetController : Controller
 {
