@@ -17,6 +17,14 @@ public class CoreConfiguration
     [JsonProperty("Customisation")] public CustomisationData Customisation { get; set; } = new();
 
     [JsonProperty("Security")] public SecurityData Security { get; set; } = new();
+    [JsonProperty("Development")] public DevelopmentData Development { get; set; } = new();
+    
+    public class DevelopmentData
+    {
+        [JsonProperty("EnableApiReference")]
+        [Description("This enables the api reference at your-moonlight.domain/admin/api/reference. Changing this requires a restart")]
+        public bool EnableApiReference { get; set; } = false;
+    }
 
     public class HttpData
     {

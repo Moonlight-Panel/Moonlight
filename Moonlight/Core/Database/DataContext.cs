@@ -12,6 +12,7 @@ public class DataContext : DbContext
     
     // Core
     public DbSet<User> Users { get; set; }
+    public DbSet<ApiKey> ApiKeys { get; set; }
     
     // Servers
     public DbSet<Server> Servers { get; set; }

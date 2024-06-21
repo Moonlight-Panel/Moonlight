@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MoonCore.Abstractions;
 using MoonCore.Helpers;
 using MoonCore.Services;
+using Moonlight.Core.Attributes;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Services;
@@ -11,6 +12,7 @@ using Moonlight.Core.Services;
 namespace Moonlight.Core.Http.Controllers;
 
 [ApiController]
+[ApiDocument("internal")]
 [Route("api/core/avatar")]
 public class AvatarController : Controller
 {

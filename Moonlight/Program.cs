@@ -105,7 +105,7 @@ builder.Services.AddSingleton(configService);
 builder.Services.AddSingleton(pluginService);
 
 // Feature hook
-await featureService.PreInit(builder);
+await featureService.PreInit(builder, pluginService);
 
 // Plugin hook
 await pluginService.PreInitialize(builder);

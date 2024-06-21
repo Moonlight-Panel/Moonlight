@@ -55,11 +55,12 @@ public class FeatureService
         return Task.CompletedTask;
     }
 
-    public async Task PreInit(WebApplicationBuilder builder)
+    public async Task PreInit(WebApplicationBuilder builder, PluginService pluginService)
     {
         Logger.Info("Pre-initializing features");
 
         PreInitContext.Builder = builder;
+        PreInitContext.Plugins = pluginService;
 
         foreach (var feature in Features)
         {
