@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Logging;
 using MoonCore.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
@@ -19,25 +20,41 @@ var configService = new ConfigService<CoreConfiguration>(
     PathBuilder.File("storage", "configs", "core.json")
 );
 
+// Build pre run logger
+var loggerProviders = LoggerBuildHelper.BuildFromConfiguration(new()
+{
+    Console = new()
+    {
+        Enable = true,
+        EnableAnsiMode = true
+    },
+    FileLogging = new()
+    {
+        Enable = true,
+        Path = PathBuilder.File("storage", "logs", "moonlight.log"),
+        EnableLogRotation = true,
+        RotateLogNameTemplate = PathBuilder.File("storage", "logs", "moonlight.{0}.log")
+    }
+});
+
+var preRunLoggerFactory = new LoggerFactory();
+preRunLoggerFactory.AddProviders(loggerProviders);
+var preRunLogger = preRunLoggerFactory.CreateLogger<Program>();
+
+preRunLogger.LogInformation("Initializing moonlight");
+
+// Initialisation
 var builder = WebApplication.CreateBuilder(args);
 
-// Setup logging
-Logger.Setup(
-    logInConsole: true,
-    logInFile: true,
-    logPath: PathBuilder.File("storage", "logs", "moonlight.log"),
-    isDebug: builder.Environment.IsDevelopment(),
-    enableFileLogRotate: true,
-    rotateLogNameTemplate: PathBuilder.File("storage", "logs", "moonlight.{0}.log")
-);
-
-builder.Logging.MigrateToMoonCore();
+builder.Logging.ClearProviders();
+builder.Logging.AddProviders(loggerProviders);
 builder.Logging.AddConfiguration("{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\"}}");
 
 // Configure http
 if (builder.Environment.IsDevelopment())
-    Logger.Info(
-        "Disabling http pipeline configuration as the environment is set to development. All http endpoint config options in the core.json will be ignored");
+{
+    preRunLogger.LogInformation("Disabling http pipeline configuration as the environment is set to development. All http endpoint config options in the core.json will be ignored");
+}
 else
 {
     var httpConfig = configService.Get().Http;
@@ -49,16 +66,15 @@ else
         try
         {
             certificate = X509Certificate2.CreateFromPemFile(httpConfig.CertPath, httpConfig.KeyPath);
-            
-            Logger.Info($"Successfully loaded certificate '{certificate.FriendlyName}'");
+
+            preRunLogger.LogInformation("Successfully loaded certificate {name}", certificate.Subject);
         }
         catch (Exception e)
         {
-            Logger.Fatal("An error occured while loading certificate");
-            Logger.Fatal(e);
+            preRunLogger.LogCritical("An error occured while loading certificate: {e}", e);
         }
     }
-    
+
     builder.WebHost.ConfigureMoonCoreHttp(
         httpConfig.HttpPort,
         httpConfig.EnableSsl,
@@ -68,19 +84,26 @@ else
 }
 
 // Build feature service and perform load
-var featureService = new FeatureService(configService);
+var featureService = new FeatureService(
+    configService,
+    preRunLoggerFactory.CreateLogger<FeatureService>()
+);
+
 await featureService.Load();
 
 // Build plugin service and perform load
-var pluginService = new PluginService();
+var pluginService = new PluginService(
+    preRunLoggerFactory.CreateLogger<PluginService>()
+);
+
 await pluginService.Load();
 
 try
 {
     // Check database migrations
     await DatabaseCheckHelper.Check(
-        new DataContext(configService),
-        false
+        preRunLoggerFactory.CreateLogger<DataContext>(),
+        new DataContext(configService)
     );
 }
 catch (MySqlException e)
@@ -89,13 +112,13 @@ catch (MySqlException e)
     {
         if (eosException.Message.Contains("read 4 header bytes"))
         {
-            Logger.Warn("The mysql server appears to be still booting up. Exiting...");
-            
+            preRunLogger.LogWarning("The mysql server appears to be still booting up. Exiting...");
+
             Environment.Exit(1);
             return;
         }
     }
-    
+
     throw;
 }
 
@@ -105,7 +128,7 @@ builder.Services.AddSingleton(configService);
 builder.Services.AddSingleton(pluginService);
 
 // Feature hook
-await featureService.PreInit(builder, pluginService);
+await featureService.PreInit(builder, pluginService, preRunLoggerFactory);
 
 // Plugin hook
 await pluginService.PreInitialize(builder);

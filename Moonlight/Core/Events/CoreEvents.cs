@@ -1,8 +1,15 @@
-﻿using MoonCore.Helpers;
+﻿using MoonCore.Attributes;
+using MoonCore.Helpers;
 
 namespace Moonlight.Core.Events;
 
+[Singleton]
 public class CoreEvents
 {
-    public static SmartEventHandler OnMoonlightRestart { get; set; } = new();
+    public CoreEvents(ILogger<SmartEventHandler> logger)
+    {
+        OnMoonlightRestart = new(logger);
+    }
+
+    public SmartEventHandler OnMoonlightRestart { get; set; }
 }

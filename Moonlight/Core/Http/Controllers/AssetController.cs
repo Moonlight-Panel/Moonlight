@@ -9,13 +9,20 @@ namespace Moonlight.Core.Http.Controllers;
 [Route("api/core/asset")]
 public class AssetController : Controller
 {
+    private readonly ILogger<AssetController> Logger;
+
+    public AssetController(ILogger<AssetController> logger)
+    {
+        Logger = logger;
+    }
+
     [HttpGet("{name}/{*path}")]
     public async Task<ActionResult> Get(string name, string path)
     {
         // Check for path transversal attacks
         if (path.Contains("..") || name.Contains(".."))
         {
-            Logger.Warn($"{HttpContext.Connection.RemoteIpAddress} tried to use path transversal attack: {name}/{path}");
+            Logger.LogWarning("{remoteIp} tried to use path transversal attack: {name}/{path}", HttpContext.Connection.RemoteIpAddress, name, path);
             return NotFound();
         }
         

@@ -15,7 +15,7 @@ public class IdentityService : IDisposable
     public User? CurrentUserNullable { get; private set; }
     public User CurrentUser => CurrentUserNullable!;
     public bool IsLoggedIn => CurrentUserNullable != null;
-    public SmartEventHandler OnAuthenticationStateChanged { get; set; } = new();
+    public SmartEventHandler OnAuthenticationStateChanged { get; set; }
 
     private string Token = "";
 
@@ -26,11 +26,14 @@ public class IdentityService : IDisposable
     public IdentityService(
         JwtService<CoreJwtType> jwtService,
         ConfigService<CoreConfiguration> configService,
-        Repository<User> userRepository)
+        Repository<User> userRepository,
+        ILogger<SmartEventHandler> eventHandlerLogger)
     {
         JwtService = jwtService;
         ConfigService = configService;
         UserRepository = userRepository;
+
+        OnAuthenticationStateChanged = new(eventHandlerLogger);
     }
 
     public async Task<string> Authenticate(User user)

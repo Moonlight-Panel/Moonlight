@@ -1,8 +1,8 @@
 ﻿@page "/admin/api/keys"
 
 @using MoonCore.Abstractions
+@using MoonCore.Blazor.Models.Forms
 @using MoonCore.Helpers
-@using MoonCoreUI.Services
 @using Moonlight.Core.Database.Entities
 @using Moonlight.Core.Models.Forms.ApiKeys
 @using Moonlight.Core.UI.Components.Navigations
@@ -19,9 +19,9 @@
               TCreateForm="CreateApiKeyForm"
               TUpdateForm="UpdateApiKeyForm"
               Loader="ApiKeysLoader"
-              ValidateAdd="ValidateAdd">
+              OnConfigure="OnConfigure">
         <View>
-            <CrudColumn TItem="ApiKey" Field="@(x => x.Key)" Title="Key">
+            <MCBColumn TItem="ApiKey" Field="@(x => x.Key)" Title="Key">
                 <Template>
                     @{
                         var apiKeyHalf = Formatter.CutInHalf(context!.Key);
@@ -35,19 +35,19 @@
                         </span>
                     </div>
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ApiKey" Field="@(x => x.Description)" Title="Description"/>
-            <CrudColumn TItem="ApiKey" Field="@(x => x.CreatedAt)" Title="Created at">
+            </MCBColumn>
+            <MCBColumn TItem="ApiKey" Field="@(x => x.Description)" Title="Description"/>
+            <MCBColumn TItem="ApiKey" Field="@(x => x.CreatedAt)" Title="Created at">
                 <Template>
                     @Formatter.FormatDate(context!.CreatedAt)
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ApiKey" Field="@(x => x.ExpiresAt)" Title="Expires at">
+            </MCBColumn>
+            <MCBColumn TItem="ApiKey" Field="@(x => x.ExpiresAt)" Title="Expires at">
                 <Template>
                     @Formatter.FormatDate(context!.ExpiresAt)
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ApiKey" Field="@(x => x.PermissionJson)" Title="Permissions"/>
+            </MCBColumn>
+            <MCBColumn TItem="ApiKey" Field="@(x => x.PermissionJson)" Title="Permissions"/>
         </View>
     </AutoCrud>
 </div>
@@ -59,12 +59,15 @@
         return repository.Get();
     }
 
-    private async Task ValidateAdd(ApiKey apiKey)
+    private void OnConfigure(AutoCrudConfiguration<ApiKey> configuration)
     {
-        var key = Formatter.GenerateString(32);
-        apiKey.Key = key;
+        configuration.ValidateAdd = async apiKey =>
+        {
+            var key = Formatter.GenerateString(32);
+            apiKey.Key = key;
 
-        await ClipboardService.Copy(key);
-        await ToastService.Info("Copied api key into your clipboard");
+            await ClipboardService.Copy(key);
+            await ToastService.Info("Copied api key into your clipboard");
+        };
     }
 }

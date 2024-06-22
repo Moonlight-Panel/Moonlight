@@ -7,8 +7,8 @@
 @using Moonlight.Core.Services
 @using MoonCore.Exceptions
 @using MoonCore.Services
-@using MoonCoreUI.Services
 @using Moonlight.Core.Configuration
+@using IdentityService = Moonlight.Core.Services.IdentityService
 
 @inject IAuthenticationProvider AuthenticationProvider
 @inject IdentityService IdentityService
@@ -99,7 +99,7 @@
         var token = await IdentityService.Authenticate(user);
 
         // Save token for later use
-        await CookieService.SetValue("token", token);
+        await CookieService.SetValue("token", token, 30); // TODO: config
         
         // Forward the user if not on the specific page
         if(new Uri(Navigation.Uri).LocalPath.StartsWith("/register"))

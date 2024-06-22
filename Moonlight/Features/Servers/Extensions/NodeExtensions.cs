@@ -16,8 +16,13 @@ public static class NodeExtensions
         return new HttpApiClient<NodeException>(remoteUrl, node.Token);
     }
 
-    public static JwtService<ServersJwtType> CreateJwtService(this ServerNode node)
+    public static JwtService<ServersJwtType> CreateJwtService(this ServerNode node, ILoggerFactory factory)
     {
-        return new JwtService<ServersJwtType>(node.Token);
+        return node.CreateJwtService(factory.CreateLogger<JwtService<ServersJwtType>>());
+    }
+    
+    public static JwtService<ServersJwtType> CreateJwtService(this ServerNode node, ILogger<JwtService<ServersJwtType>> logger)
+    {
+        return new JwtService<ServersJwtType>(node.Token, logger);
     }
 }

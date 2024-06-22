@@ -15,6 +15,7 @@
 @inject Repository<ServerNode> NodeRepository
 @inject NodeService NodeService
 @inject IServiceProvider ServiceProvider
+@inject ILogger<Index> Logger
 
 @implements IDisposable
 
@@ -31,14 +32,14 @@
               ValidateUpdate="ValidateUpdate"
               ValidateDelete="ValidateDelete">
         <View>
-            <CrudColumn TItem="ServerNode" Field="@(x => x.Id)" Title="Id"/>
-            <CrudColumn TItem="ServerNode" Field="@(x => x.Name)" Title="Name">
+            <MCBColumn TItem="ServerNode" Field="@(x => x.Id)" Title="Id"/>
+            <MCBColumn TItem="ServerNode" Field="@(x => x.Name)" Title="Name">
                 <Template>
                     <a href="/admin/servers/nodes/view/@(context!.Id)">@context!.Name</a>
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ServerNode" Field="@(x => x.Fqdn)" Title="Fqdn"/>
-            <CrudColumn TItem="ServerNode" Title="Status">
+            </MCBColumn>
+            <MCBColumn TItem="ServerNode" Field="@(x => x.Fqdn)" Title="Fqdn"/>
+            <MCBColumn TItem="ServerNode" Title="Status">
                 <Template>
                     @if (NodeStats.ContainsKey(context!.Id))
                     {
@@ -56,8 +57,8 @@
                         <span class="text-muted">N/A</span>
                     }
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ServerNode" Title="CPU">
+            </MCBColumn>
+            <MCBColumn TItem="ServerNode" Title="CPU">
                 <Template>
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
@@ -71,8 +72,8 @@
                         <span class="text-muted">N/A</span>
                     }
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ServerNode" Title="Memory">
+            </MCBColumn>
+            <MCBColumn TItem="ServerNode" Title="Memory">
                 <Template>
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
@@ -90,8 +91,8 @@
                         <span class="text-muted">N/A</span>
                     }
                 </Template>
-            </CrudColumn>
-            <CrudColumn TItem="ServerNode" Title="Disk">
+            </MCBColumn>
+            <MCBColumn TItem="ServerNode" Title="Disk">
                 <Template>
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
@@ -105,13 +106,14 @@
                         <span class="text-muted">N/A</span>
                     }
                 </Template>
-            </CrudColumn>
+            </MCBColumn>
         </View>
+        @*
         <NoItemsView>
             <IconAlert Title="No nodes found" Color="primary" Icon="bx-search-alt">
                 Add a new node in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
             </IconAlert>
-        </NoItemsView>
+        </NoItemsView>*@
     </AutoCrud>
 </LazyLoader>
 
@@ -140,8 +142,7 @@
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn($"Unable to fetch system status for node '{node.Name}'");
-                    Logger.Warn(e);
+                    Logger.LogWarning("Unable to fetch system status for node '{name}': {e}", node.Name, e);
 
                     NodeStats[node.Id] = null;
                 }

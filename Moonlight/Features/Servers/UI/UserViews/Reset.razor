@@ -3,7 +3,7 @@
 @using Moonlight.Features.Servers.Models.Abstractions
 @using Moonlight.Features.Servers.Models.Enums
 @using Moonlight.Features.Servers.Services
-@using MoonCoreUI.Services
+
 
 @implements IDisposable
 
@@ -20,7 +20,7 @@
             </p>
             @if (Console.State == ServerState.Offline)
             {
-                <WButton OnClick="Reinstall" CssClasses="btn btn-primary mt-auto" Text="Reinstall"/>
+                <WButton OnClick="Reinstall" CssClasses="btn btn-primary mt-auto">Reinstall</WButton>
             }
             else
             {
@@ -35,7 +35,7 @@
             </p>
             @if (Console.State == ServerState.Offline)
             {
-                <WButton OnClick="ResetServer" CssClasses="btn btn-warning mt-auto" Text="Reset"/>
+                <WButton OnClick="ResetServer" CssClasses="btn btn-warning mt-auto">Reset</WButton>
             }
             else
             {
@@ -43,14 +43,15 @@
             }
         </div>
     </div>
-    <div class="col-md-6 col-12"> @* TODO: Make deleting configurable to show or not *@
+    <div class="col-md-6 col-12">
+        @* TODO: Make deleting configurable to show or not *@
         <div class="card card-body p-8 h-100">
             <p class="fs-6">
                 This deletes your server. The deleted data is not recoverable. Please make sure you have a backup of the data before deleting the server
             </p>
             @if (Console.State == ServerState.Offline)
             {
-                <WButton OnClick="Delete" CssClasses="btn btn-danger mt-auto" Text="Delete"/>
+                <WButton OnClick="Delete" CssClasses="btn btn-danger mt-auto">Delete</WButton>
             }
             else
             {
@@ -78,50 +79,48 @@
 
     private async Task Reinstall()
     {
-        if (!await AlertService.YesNo("Do you want to reinstall this server? This may replace/delete some files"))
-            return;
-
-        await ServerService.Console.SendAction(Server, PowerAction.Install);
+        await AlertService.Confirm("Confirm reinstall", "Do you want to reinstall this server? This may replace/delete some files", async () => { await ServerService.Console.SendAction(Server, PowerAction.Install); });
     }
 
     private async Task ResetServer()
     {
-        if (!await AlertService.YesNo("Do you want to reset this server? This will delete all files and run the install script"))
-            return;
-
-        await ToastService.CreateProgress("serverReset", "Reset: Deleting files");
-
-        using var fileAccess = await ServerService.OpenFileAccess(Server);
-
-        var files = await fileAccess.List();
-        int i = 0;
-
-        foreach (var fileEntry in files)
+        await AlertService.Confirm("Confirm server reset", "Do you want to reset this server? This will delete all files and run the install script", async () =>
         {
-            i++;
+            await ToastService.CreateProgress("serverReset", "Reset: Deleting files");
 
-            await ToastService.ModifyProgress("serverReset", $"Reset: Deleting files [{i} / {files.Length}]");
-            await fileAccess.Delete(fileEntry);
-        }
+            using var fileAccess = await ServerService.OpenFileAccess(Server);
 
-        await ToastService.ModifyProgress("serverReset", "Reset: Starting install script");
+            var files = await fileAccess.List();
+            int i = 0;
 
-        await ServerService.Console.SendAction(Server, PowerAction.Install);
+            foreach (var fileEntry in files)
+            {
+                i++;
 
-        await ToastService.RemoveProgress("serverReset");
+                await ToastService.UpdateProgress("serverReset", $"Reset: Deleting files [{i} / {files.Length}]");
+                await fileAccess.Delete(fileEntry);
+            }
+
+            await ToastService.UpdateProgress("serverReset", "Reset: Starting install script");
+
+            await ServerService.Console.SendAction(Server, PowerAction.Install);
+
+            await ToastService.DeleteProgress("serverReset");
+        });
     }
 
     private async Task Delete()
     {
-        var input = await AlertService.Text($"Please type '{Server.Name}' to confirm deleting this server");
-        
-        if(input != Server.Name)
-            return;
+        await AlertService.Text("Server deletion", $"Please type '{Server.Name}' to confirm deleting this server", async input =>
+        {
+            if (input != Server.Name)
+                return;
 
-        await ServerService.Delete(Server);
+            await ServerService.Delete(Server);
 
-        await ToastService.Success("Successfully deleted server");
-        Navigation.NavigateTo("/servers");
+            await ToastService.Success("Successfully deleted server");
+            Navigation.NavigateTo("/servers");
+        });
     }
 
     private async Task OnStateChanged(ServerState _) => await InvokeAsync(StateHasChanged);

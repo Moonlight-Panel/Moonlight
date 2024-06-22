@@ -9,10 +9,12 @@ public class StartupJobService : BackgroundService
 {
     private readonly List<StartupJob> Jobs = new();
     private readonly IServiceProvider ServiceProvider;
+    private readonly ILogger<StartupJobService> Logger;
 
-    public StartupJobService(IServiceProvider serviceProvider)
+    public StartupJobService(IServiceProvider serviceProvider, ILogger<StartupJobService> logger)
     {
         ServiceProvider = serviceProvider;
+        Logger = logger;
     }
 
     public Task AddJob(string name, TimeSpan delay, Func<IServiceProvider, Task> action)
@@ -29,7 +31,7 @@ public class StartupJobService : BackgroundService
     
     public override Task Run()
     {
-        Logger.Info("Running startup jobs");
+        Logger.LogInformation("Running startup jobs");
         
         foreach (var job in Jobs)
         {
@@ -42,8 +44,7 @@ public class StartupJobService : BackgroundService
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn($"The startup job '{job.Name}' failed:");
-                    Logger.Warn(e);
+                    Logger.LogWarning("The startup job '{name}' failed: {e}", job.Name, e);
                 }
             });
         }

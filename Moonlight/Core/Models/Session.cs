@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using MoonCoreUI.Services;
+using MoonCore.Blazor.Services;
 using Moonlight.Core.Services;
 
 namespace Moonlight.Core.Models;

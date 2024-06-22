@@ -14,6 +14,7 @@
 @inject Repository<Server> ServerRepository
 @inject IdentityService IdentityService
 @inject ServerService ServerService
+@inject ILogger<Index> Logger
 
 <ServersNavigation Index="0"/>
 
@@ -163,8 +164,7 @@
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn($"Unable to get server state for server {server.Id}");
-                    Logger.Warn(e);
+                    Logger.LogWarning("Unable to get server state for server {serverId}: {e}", server.Id, e);
                 }
             }
         });
@@ -187,8 +187,7 @@
                 }
                 catch (Exception e)
                 {
-                    Logger.Warn($"Unable to get server stats for server {server.Id}");
-                    Logger.Warn(e);
+                    Logger.LogWarning("Unable to get server stats for server {serverId}: {e}", server.Id, e);
                 }
             }
         });

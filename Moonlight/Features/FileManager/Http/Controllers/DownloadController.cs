@@ -13,11 +13,13 @@ public class DownloadController : Controller
 {
     private readonly JwtService<FileManagerJwtType> JwtService;
     private readonly SharedFileAccessService SharedFileAccessService;
+    private readonly ILogger<DownloadController> Logger;
 
-    public DownloadController(JwtService<FileManagerJwtType> jwtService, SharedFileAccessService sharedFileAccessService)
+    public DownloadController(JwtService<FileManagerJwtType> jwtService, SharedFileAccessService sharedFileAccessService, ILogger<DownloadController> logger)
     {
         JwtService = jwtService;
         SharedFileAccessService = sharedFileAccessService;
+        Logger = logger;
     }
     
     [HttpGet]
@@ -25,7 +27,7 @@ public class DownloadController : Controller
     {
         if (name.Contains(".."))
         {
-            Logger.Warn($"A user tried to access a file via path transversal. Name: {name}");
+            Logger.LogWarning("A user tried to access a file via path transversal. Name: {name}", name);
             return NotFound();
         }
         

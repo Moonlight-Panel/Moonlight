@@ -21,11 +21,11 @@
 <div class="mt-5">
     <div class="card card-body py-3 px-5">
         <LazyLoader Load="LoadApis">
-            <CrudTable TItem="ApiModel" ItemSource="Apis" PageSize="100" ShowPagination="false">
-                <CrudColumn TItem="ApiModel" Field="@(x => x.Id)" Title="Id" />
-                <CrudColumn TItem="ApiModel" Field="@(x => x.Name)" Title="Name" />
-                <CrudColumn TItem="ApiModel" Field="@(x => x.Version)" Title="Version" />
-                <CrudColumn TItem="ApiModel">
+            <MCBTable TItem="ApiModel" ItemSource="Apis" PageSize="100" ShowPagination="false">
+                <MCBColumn TItem="ApiModel" Field="@(x => x.Id)" Title="Id" />
+                <MCBColumn TItem="ApiModel" Field="@(x => x.Name)" Title="Name" />
+                <MCBColumn TItem="ApiModel" Field="@(x => x.Version)" Title="Version" />
+                <MCBColumn TItem="ApiModel">
                     <Template>
                         <div class="text-end">
                             @if (ConfigService.Get().Development.EnableApiReference)
@@ -44,8 +44,8 @@
                             }
                         </div>
                     </Template>
-                </CrudColumn>
-            </CrudTable>
+                </MCBColumn>
+            </MCBTable>
         </LazyLoader>
     </div>
 </div>

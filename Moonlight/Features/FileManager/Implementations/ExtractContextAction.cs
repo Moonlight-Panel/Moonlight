@@ -1,6 +1,7 @@
+using MoonCore.Blazor.Services;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
-using MoonCoreUI.Services;
+
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
@@ -36,14 +37,14 @@ public class ExtractContextAction : IFileManagerContextAction
             }
             catch (Exception e)
             {
-                Logger.Warn($"An error occured while extracting archive ({entry.Name}):");
-                Logger.Warn(e);
+                var logger = provider.GetRequiredService<ILogger<ExtractContextAction>>();
+                logger.LogWarning("An error occured while extracting archive ({name}): {e}", entry.Name, e);
 
                 await toastService.Danger("An unknown error occured while extracting archive");
             }
             finally
             {
-                await toastService.RemoveProgress("fileManagerExtract");
+                await toastService.DeleteProgress("fileManagerExtract");
             }
 
             await fileManager.View.Refresh();

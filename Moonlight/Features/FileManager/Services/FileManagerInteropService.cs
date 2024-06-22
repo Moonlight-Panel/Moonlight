@@ -1,5 +1,6 @@
 using Microsoft.JSInterop;
 using MoonCore.Attributes;
+using MoonCore.Blazor.Extensions;
 using MoonCore.Helpers;
 
 namespace Moonlight.Features.FileManager.Services;
@@ -9,32 +10,30 @@ public class FileManagerInteropService
 {
     private readonly IJSRuntime JsRuntime;
 
-    public SmartEventHandler OnUploadStateChanged { get; set; } = new();
+    public SmartEventHandler OnUploadStateChanged { get; set; }
 
-    public FileManagerInteropService(IJSRuntime jsRuntime)
+    public FileManagerInteropService(IJSRuntime jsRuntime, ILogger<SmartEventHandler> eventHandlerLogger)
     {
         JsRuntime = jsRuntime;
+
+        OnUploadStateChanged = new(eventHandlerLogger);
     }
 
     public async Task InitDropzone(string id, string urlId)
     {
         var reference = DotNetObjectReference.Create(this);
-        await JsRuntime.InvokeVoidAsync("filemanager.dropzone.init", id, urlId, reference);
+        await JsRuntime.InvokeVoidAsyncHandled("filemanager.dropzone.init", id, urlId, reference);
     }
     
     public async Task InitFileSelect(string id, string urlId)
     {
         var reference = DotNetObjectReference.Create(this);
-        await JsRuntime.InvokeVoidAsync("filemanager.fileselect.init", id, urlId, reference);
+        await JsRuntime.InvokeVoidAsyncHandled("filemanager.fileselect.init", id, urlId, reference);
     }
 
     public async Task UpdateUrl(string urlId, string url)
     {
-        try
-        {
-            await JsRuntime.InvokeVoidAsync("filemanager.updateUrl", urlId, url);
-        }
-        catch (TaskCanceledException) { /* ignored */ }
+        await JsRuntime.InvokeVoidAsyncHandled("filemanager.updateUrl", urlId, url);
     }
 
     [JSInvokable]

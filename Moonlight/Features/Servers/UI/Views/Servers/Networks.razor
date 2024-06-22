@@ -19,13 +19,13 @@
           Loader="Load"
           ValidateAdd="ValidateAdd">
     <View>
-        <CrudColumn TItem="ServerNetwork" Field="@(x => x.Name)" Title="Name"/>
-        <CrudColumn TItem="ServerNetwork" Title="Node">
+        <MCBColumn TItem="ServerNetwork" Field="@(x => x.Name)" Title="Name"/>
+        <MCBColumn TItem="ServerNetwork" Title="Node">
             <Template>
                 <span>@(context!.Node.Name)</span>
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="ServerNetwork" Title="Used by">
+        </MCBColumn>
+        <MCBColumn TItem="ServerNetwork" Title="Used by">
             <Template>
                 @{
                     var servers = UsedByCache.ContainsKey(context.Id) ? UsedByCache[context.Id] : Array.Empty<Server>();
@@ -38,13 +38,13 @@
                     }
                 </span>
             </Template>
-        </CrudColumn>
-    </View>
+        </MCBColumn>
+    </View>@*
     <NoItemsView>
         <IconAlert Icon="bx-search-alt" Color="primary" Title="No private network found">
             Create a new private network in order to connect multiple servers on the same node
         </IconAlert>
-    </NoItemsView>
+    </NoItemsView>*@
 </AutoCrud>
 
 @code

@@ -1,5 +1,4 @@
 ﻿@using Moonlight.Core.Services
-@using MoonCoreUI.Services
 
 @inject IdentityService IdentityService
 @inject CookieService CookieService
@@ -94,7 +93,7 @@
     private async Task Logout()
     {
         // Reset token
-        await CookieService.SetValue("token", "");
+        await CookieService.SetValue("token", "", 30);
 
         // Reset token in identity service
         await IdentityService.Authenticate("");

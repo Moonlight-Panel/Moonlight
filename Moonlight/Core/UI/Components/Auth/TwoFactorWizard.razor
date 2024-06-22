@@ -139,7 +139,7 @@ else
     private string Key = "";
     private TwoFactorCodeForm CodeForm = new();
 
-    private async Task Disable()
+    private async Task Disable(ConfirmButton _)
     {
         await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, "");
         await IdentityService.Authenticate(true);

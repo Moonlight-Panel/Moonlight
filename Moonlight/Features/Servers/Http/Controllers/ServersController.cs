@@ -18,11 +18,17 @@ public class ServersController : Controller
 {
     private readonly Repository<Server> ServerRepository;
     private readonly Repository<ServerBackup> BackupRepository;
+    private readonly ILogger<ServersController> Logger;
+    private readonly ILogger<AdvancedWebsocketStream> WebSocketLogger;
+    private readonly ServerEvents ServerEvents;
 
-    public ServersController(Repository<Server> serverRepository, Repository<ServerBackup> backupRepository)
+    public ServersController(Repository<Server> serverRepository, Repository<ServerBackup> backupRepository, ILogger<ServersController> logger, ILogger<AdvancedWebsocketStream> webSocketLogger, ServerEvents serverEvents)
     {
         ServerRepository = serverRepository;
         BackupRepository = backupRepository;
+        Logger = logger;
+        WebSocketLogger = webSocketLogger;
+        ServerEvents = serverEvents;
     }
 
     [HttpGet("ws")]
@@ -36,7 +42,7 @@ public class ServersController : Controller
         var websocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
         
         // Build connection wrapper
-        var websocketStream = new AdvancedWebsocketStream(websocket);
+        var websocketStream = new AdvancedWebsocketStream(WebSocketLogger, websocket);
         websocketStream.RegisterPacket<int>(1);
         websocketStream.RegisterPacket<ServerConfiguration>(2);
         
@@ -66,8 +72,7 @@ public class ServersController : Controller
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while sending server {server.Id} (Image: {server.Image.Name}) to daemon. This may indicate a corrupt or broken image/server. Skipping this server");
-                Logger.Error(e);
+                Logger.LogError("An error occured while sending server {serverId} (Image: {name}) to daemon. This may indicate a corrupt or broken image/server. Skipping this server. Error: {e}", server.Id, server.Image.Name, e);
             }
         }
         
@@ -146,7 +151,7 @@ public class ServersController : Controller
             return NotFound();
         
         if(!status.Successful)
-            Logger.Warn($"A node reported an error for a backup for the server {server.Id}");
+            Logger.LogWarning("A node reported an error for a backup for the server {serverId}", server.Id);
 
         backup.Successful = status.Successful;
         backup.Completed = true;

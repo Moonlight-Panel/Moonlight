@@ -4,9 +4,7 @@
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Abstractions
 @using MoonCore.Exceptions
-@using MoonCore.Helpers
-@using MoonCoreUI.Models
-@using MoonCoreUI.Services
+
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Models.Enums
 @using Moonlight.Features.Servers.Models.Forms.Admin.Servers
@@ -15,11 +13,12 @@
 @inject ServerService ServerService
 @inject Repository<Server> ServerRepository
 @inject ToastService ToastService
+@inject ILogger<Index> Logger
 
 @attribute [RequirePermission(5000)]
 
 <AdminServersNavigation Index="0"/>
-
+@*
 <AutoCrud TItem="Server"
           TCreateForm="CreateServerForm"
           TUpdateForm="CreateServerForm"
@@ -30,40 +29,41 @@
           CustomDelete="CustomDelete"
           OnConfigure="OnConfigure">
     <View>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
-        <CrudColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Image">
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
+        <MCBColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="Image">
             <Template>
                 <span>@(context.Image.Name)</span>
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Node">
+        </MCBColumn>
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="Node">
             <Template>
                 <span>@(context.Node.Name)</span>
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="User">
+        </MCBColumn>
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="User">
             <Template>
                 <span>@(context.Owner.Username)</span>
             </Template>
-        </CrudColumn>
+        </MCBColumn>
     </View>
     <NoItemsView>
         <IconAlert Title="No servers found" Color="primary" Icon="bx-search-alt">
             Create a new server in order to manage it using this page. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
         </IconAlert>
     </NoItemsView>
-</AutoCrud>
+</AutoCrud>*@
 
 @code
 {
+    /*
     private void OnConfigure(AutoCrudOptions options)
     {
         options.AddCustomItemLoader<Server, ServerAllocation>("FreeAllocations", LoadFreeAllocations);
         
         options.AddCustomDisplayFunction<ServerAllocation>("AllocationWithIp",
             allocation => allocation.IpAddress + ":" + allocation.Port);
-    }
+    }*/
 
     private IEnumerable<Server> Load(Repository<Server> repository)
     {
@@ -124,8 +124,7 @@
         }
         catch (Exception e)
         {
-            Logger.Error("Unable to sync server changes due to an error occuring");
-            Logger.Error(e);
+            Logger.LogError("Unable to sync server changes due to an error occuring: {e}", e);
 
             await ToastService.Danger("An error occured while sending the changes to the daemon");
         }

@@ -9,8 +9,12 @@ public class PluginService
     private readonly Dictionary<Type, List<object>> ImplementationCache = new();
     private readonly List<MoonlightPlugin> Plugins = new();
 
-    public PluginService()
+    private readonly ILogger<PluginService> Logger;
+
+    public PluginService(ILogger<PluginService> logger)
     {
+        Logger = logger;
+        
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
     }
 
@@ -136,7 +140,7 @@ public class PluginService
 
                 if (pluginTypes.Length == 0)
                 {
-                    Logger.Info($"Loaded assembly as library. {dllFile}");
+                    Logger.LogInformation("Loaded assembly as library: {dllFile}", dllFile);
                     continue;
                 }
 
@@ -146,19 +150,17 @@ public class PluginService
                     {
                         var plugin = await LoadFromType(pluginType);
                         
-                        Logger.Info($"Loaded plugin '{plugin.Name}'. Created by '{plugin.Author}'");
+                        Logger.LogInformation("Loaded plugin '{name}'. Created by '{author}'", plugin.Name, plugin.Author);
                     }
                     catch (Exception e)
                     {
-                        Logger.Fatal($"An error occured while loading plugin '{pluginType.FullName}'");
-                        Logger.Fatal(e);
+                        Logger.LogError("An error occured while loading plugin '{name}': {e}", pluginType.FullName, e);
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.Fatal($"An error occured while loading assembly '{dllFile}'");
-                Logger.Fatal(e);
+                Logger.LogError("An error occured while loading assembly '{dllFile}': {e}", dllFile, e);
             }
         }
     }

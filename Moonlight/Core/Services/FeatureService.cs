@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
+using MoonCore.Blazor.Components;
 using MoonCore.Extensions;
-using MoonCore.Helpers;
 using MoonCore.Services;
-using MoonCoreUI.Components;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Models.Abstractions.Feature;
 
@@ -15,15 +14,18 @@ public class FeatureService
     
     private readonly List<MoonlightFeature> Features = new();
     private readonly ConfigService<CoreConfiguration> ConfigService;
+
+    private readonly ILogger<FeatureService> Logger;
     
-    public FeatureService(ConfigService<CoreConfiguration> configService)
+    public FeatureService(ConfigService<CoreConfiguration> configService, ILogger<FeatureService> logger)
     {
         ConfigService = configService;
+        Logger = logger;
     }
 
     public Task Load()
     {
-        Logger.Info("Loading features");
+        Logger.LogInformation("Loading features");
         
         // TODO: Add dll loading here as well
 
@@ -43,24 +45,25 @@ public class FeatureService
 
             if (feature == null)
             {
-                Logger.Warn($"Unable to construct {featureType.FullName} feature");
+                Logger.LogWarning("Unable to construct '{name}' feature", featureType.FullName);
                 continue;
             }
             
             Features.Add(feature);
             
-            Logger.Info($"Loaded feature '{feature.Name}' by '{feature.Author}'");
+            Logger.LogInformation("Loaded feature '{name}' by '{author}'", feature.Name, feature.Author);
         }
         
         return Task.CompletedTask;
     }
 
-    public async Task PreInit(WebApplicationBuilder builder, PluginService pluginService)
+    public async Task PreInit(WebApplicationBuilder builder, PluginService pluginService, ILoggerFactory preRunLoggerFactory)
     {
-        Logger.Info("Pre-initializing features");
+        Logger.LogInformation("Pre-initializing features");
 
         PreInitContext.Builder = builder;
         PreInitContext.Plugins = pluginService;
+        PreInitContext.LoggerFactory = preRunLoggerFactory;
 
         foreach (var feature in Features)
         {
@@ -70,8 +73,7 @@ public class FeatureService
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while performing pre init for feature '{feature.Name}'");
-                Logger.Error(e);
+                Logger.LogError("An error occured while performing pre init for feature '{name}': {e}", feature.Name, e);
             }
         }
 
@@ -82,7 +84,7 @@ public class FeatureService
     
     public async Task Init(WebApplication application)
     {
-        Logger.Info("Initializing features");
+        Logger.LogInformation("Initializing features");
 
         var initContext = new InitContext()
         {
@@ -97,15 +99,14 @@ public class FeatureService
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while performing init for feature '{feature.Name}'");
-                Logger.Error(e);
+                Logger.LogError("An error occured while performing init for feature '{name}': {e}", feature.Name, e);
             }
         }
     }
 
     public async Task UiInit()
     {
-        Logger.Info("Initializing feature uis");
+        Logger.LogInformation("Initializing feature uis");
 
         foreach (var feature in Features)
         {
@@ -115,8 +116,7 @@ public class FeatureService
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while performing ui init for feature '{feature.Name}'");
-                Logger.Error(e);
+                Logger.LogError("An error occured while performing ui init for feature '{name}': {e}", feature.Name, e);
             }
         }
     }
@@ -138,8 +138,7 @@ public class FeatureService
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while performing session init for feature '{feature.Name}'");
-                Logger.Error(e);
+                Logger.LogError("An error occured while performing session init for feature '{name}': {e}", feature.Name, e);
             }
         }
     }
@@ -159,8 +158,7 @@ public class FeatureService
             }
             catch (Exception e)
             {
-                Logger.Error($"An error occured while performing session dispose for feature '{feature.Name}'");
-                Logger.Error(e);
+                Logger.LogError("An error occured while performing session dispose for feature '{name}': {e}", feature.Name, e);
             }
         }
     }

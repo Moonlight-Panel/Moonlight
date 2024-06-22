@@ -11,11 +11,13 @@ public class HotKeyService
     private readonly IJSRuntime JsRuntime;
     private readonly List<HotKeyModel> HotKeys = new(); 
 
-    public SmartEventHandler<string> HotKeyPressed { get; set; } = new();
+    public SmartEventHandler<string> HotKeyPressed { get; set; }
 
-    public HotKeyService(IJSRuntime jsRuntime)
+    public HotKeyService(IJSRuntime jsRuntime, ILogger<SmartEventHandler> eventHandlerLogger)
     {
         JsRuntime = jsRuntime;
+
+        HotKeyPressed = new(eventHandlerLogger);
     }
 
     public async Task RegisterHotkey(string key, string modifier, string action)

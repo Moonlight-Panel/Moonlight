@@ -8,7 +8,7 @@
         <div class="row g-8">
             <div class="col-md-6 col-12">
                 <label class="form-label">Default docker image</label>
-                <SmartSelect TField="ServerDockerImage"
+                <MCBSelect TField="ServerDockerImage"
                              @bind-Value="SelectedDockerImage"
                              Items="Image.DockerImages"
                              DisplayField="@(x => x.Name)"
@@ -23,7 +23,7 @@
         </div>
     </div>
 </div>
-
+@*
 <AutoListCrud TItem="ServerDockerImage"
               TRootItem="ServerImage"
               TCreateForm="CreateDockerImage"
@@ -53,7 +53,7 @@
         </IconAlert>
     </NoItemsView>
 </AutoListCrud>
-
+*@
 @code
 {
     [Parameter] public ServerImage Image { get; set; }

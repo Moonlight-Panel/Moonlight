@@ -1,4 +1,3 @@
-@using MoonCoreUI.Services
 @using Moonlight.Core.Services
 @using MoonCore.Helpers
 @using Moonlight.Core.Helpers
@@ -7,6 +6,7 @@
 
 @inject ToastService ToastService
 @inject HotKeyService HotKeyService
+@inject ILogger<FileEditor> Logger
 
 @implements IDisposable
 
@@ -76,8 +76,7 @@
         }
         catch (Exception e)
         {
-            Logger.Warn($"An unhandled error has occured while saving a file using access type {FileAccess.GetType().FullName}");
-            Logger.Warn(e);
+            Logger.LogWarning("An unhandled error has occured while saving a file using access type {name}: {e}", FileAccess.GetType().FullName, e);
 
             await ToastService.Danger("An unknown error has occured while saving the file. Please try again later");
             return;

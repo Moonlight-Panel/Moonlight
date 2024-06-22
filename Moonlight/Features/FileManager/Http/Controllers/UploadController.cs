@@ -13,13 +13,15 @@ public class UploadController : Controller
 {
     private readonly JwtService<FileManagerJwtType> JwtService;
     private readonly SharedFileAccessService SharedFileAccessService;
+    private readonly ILogger<UploadController> Logger;
     
     public UploadController(
         JwtService<FileManagerJwtType> jwtService,
-        SharedFileAccessService sharedFileAccessService)
+        SharedFileAccessService sharedFileAccessService, ILogger<UploadController> logger)
     {
         JwtService = jwtService;
         SharedFileAccessService = sharedFileAccessService;
+        Logger = logger;
     }
     
     // The following method/api endpoint needs some explanation:
@@ -57,7 +59,7 @@ public class UploadController : Controller
         
         if (path.Contains(".."))
         {
-            Logger.Warn("A path transversal attack has been detected while processing upload path", "security");
+            Logger.LogWarning("A path transversal attack has been detected while processing upload path: {path}", path);
             return BadRequest("Invalid path. This attempt has been logged ;)");
         }
 

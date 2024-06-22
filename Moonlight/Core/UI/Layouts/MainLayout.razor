@@ -3,6 +3,7 @@
 @using MoonCore.Services
 @using Moonlight.Core.Configuration
 @using Moonlight.Core.Events
+@using IdentityService = Moonlight.Core.Services.IdentityService
 
 @inherits LayoutComponentBase
 
@@ -13,6 +14,7 @@
 @inject UnloadService UnloadService
 @inject ConfigService<CoreConfiguration> ConfigService
 @inject ScopedStorageService ScopedStorageService
+@inject CoreEvents CoreEvents
 
 @implements IDisposable
 
@@ -98,6 +100,9 @@
         </div>
     </div>
 </div>
+
+<ModalLaunchPoint />
+<ToastLaunchPoint />
 
 @code
 {

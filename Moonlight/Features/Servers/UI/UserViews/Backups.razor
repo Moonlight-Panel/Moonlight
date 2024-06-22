@@ -2,7 +2,7 @@
 @using MoonCore.Abstractions
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Helpers
-@using MoonCoreUI.Services
+
 @using Moonlight.Features.Servers.Events
 @using Moonlight.Features.Servers.Helpers
 @using Moonlight.Features.Servers.Models.Enums
@@ -13,13 +13,14 @@
 @inject ToastService ToastService
 @inject AlertService AlertService
 @inject NavigationManager Navigation
+@inject ServerEvents ServerEvents
 
 @implements IDisposable
 
 <LazyLoader @ref="LazyLoader" Load="Load">
     <div class="card card-body px-5 py-3 mb-5">
         <div class="d-flex justify-content-end">
-            <WButton OnClick="Create" CssClasses="btn btn-primary" Text="Create backup"/>
+            <WButton OnClick="Create" CssClasses="btn btn-primary">Create backup</WButton>
         </div>
     </div>
 
@@ -171,23 +172,23 @@
     
     public async Task Restore(ServerBackup backup)
     {
-        if(!await AlertService.YesNo("Do you really want to restore this backup? All files on the server will be deleted and replaced by the backup"))
-            return;
-        
-        await ServerService.Backup.Restore(Server, backup);
+        await AlertService.Confirm("Confirm backup restore", "Do you really want to restore this backup? All files on the server will be deleted and replaced by the backup", async () =>
+        {
+            await ServerService.Backup.Restore(Server, backup);
 
-        await ToastService.Success("Successfully restored backup");
+            await ToastService.Success("Successfully restored backup");
+        });
     }
 
     public async Task Delete(ServerBackup backup, bool safeDelete = true)
     {
-        if(!await AlertService.YesNo("Do you really want to delete this backup? Deleted backups cannot be restored"))
-            return;
-        
-        await ServerService.Backup.Delete(Server, backup, safeDelete);
+        await AlertService.Confirm("Confirm backup deletion", "Do you really want to delete this backup? Deleted backups cannot be restored", async () =>
+        {
+            await ServerService.Backup.Delete(Server, backup, safeDelete);
 
-        await ToastService.Success("Successfully deleted backup");
-        await LazyLoader.Reload();
+            await ToastService.Success("Successfully deleted backup");
+            await LazyLoader.Reload();
+        });
     }
 
     private async Task Download(ServerBackup backup)

@@ -3,7 +3,7 @@
 @using BlazorTable
 @using MoonCore.Abstractions
 @using MoonCore.Exceptions
-@using MoonCoreUI.Services
+
 
 @inject Repository<ServerNode> NodeRepository
 @inject Repository<ServerAllocation> AllocationRepository
@@ -32,7 +32,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-8 col-12">
+    <div class="col-md-8 col-12">@*
         <AutoListCrud TRootItem="ServerNode"
                       TItem="ServerAllocation"
                       TCreateForm="CreateAllocationForm"
@@ -58,7 +58,7 @@
                     In order for a server to be deployed on this node allocations need to be created here
                 </IconAlert>
             </NoItemsView>
-        </AutoListCrud>
+        </AutoListCrud>*@
     </div>
 </div>
 
@@ -67,7 +67,7 @@
     [Parameter] public ServerNode Node { get; set; }
 
     // A bit long, lol
-    private AutoListCrud<ServerAllocation, ServerNode, CreateAllocationForm, UpdateAllocationForm> Crud;
+    //private AutoListCrud<ServerAllocation, ServerNode, CreateAllocationForm, UpdateAllocationForm> Crud;
     
     // Quick add values
     private string IpAddress = "0.0.0.0";
@@ -101,31 +101,31 @@
         NodeRepository.Update(Node!);
 
         await ToastService.Success($"Added {added} allocations and skipped {skipped} ports due to existing allocations");
-        await Crud.Reload();
+        //await Crud.Reload();
     }
 
     private async Task DeleteAllAllocations()
     {
-        if (!await AlertService.YesNo("Do you really want to delete all allocations?", "Yes", "No"))
-            return;
-
-        foreach (var allocation in Node!.Allocations.ToArray()) // To array in order to prevent collection modified exception
+        await AlertService.Confirm("Confirm mass deletion", "Do you really want to delete all allocations?", async () =>
         {
-            // Check if a server is using this allocation before deleting
-
-            if (ServerRepository
-                .Get()
-                .Any(x => x.Allocations.Any(y => y.Id == allocation.Id)))
+            foreach (var allocation in Node!.Allocations.ToArray()) // To array in order to prevent collection modified exception
             {
-                await ToastService.Danger($"Unable to delete allocation with port {allocation.Port} due to a server using this allocation");
-                continue;
+                // Check if a server is using this allocation before deleting
+
+                if (ServerRepository
+                    .Get()
+                    .Any(x => x.Allocations.Any(y => y.Id == allocation.Id)))
+                {
+                    await ToastService.Danger($"Unable to delete allocation with port {allocation.Port} due to a server using this allocation");
+                    continue;
+                }
+
+                AllocationRepository.Delete(allocation);
             }
 
-            AllocationRepository.Delete(allocation);
-        }
-
-        await ToastService.Success("Successfully deleted allocations");
-        await Crud.Reload();
+            await ToastService.Success("Successfully deleted allocations");
+            //await Crud.Reload();
+        });
     }
 
     private Task ValidateDelete(ServerAllocation allocation)

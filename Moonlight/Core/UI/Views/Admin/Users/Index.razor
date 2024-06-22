@@ -3,9 +3,7 @@
 @using Moonlight.Core.UI.Components.Navigations
 @using MoonCore.Abstractions
 @using Moonlight.Core.Database.Entities
-@using BlazorTable
 @using MoonCore.Exceptions
-@using MoonCoreUI.Services
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Models.Forms.Users
 
@@ -23,17 +21,17 @@
           CustomAdd="Add"
           ValidateUpdate="ValidateUpdate">
     <View>
-        <CrudColumn TItem="User" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.Email)" Title="Email" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.Username)" Title="Username" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at"/>
-    </View>
+        <MCBColumn TItem="User" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
+        <MCBColumn TItem="User" Field="@(x => x.Email)" Title="Email" Filterable="true"/>
+        <MCBColumn TItem="User" Field="@(x => x.Username)" Title="Username" Filterable="true"/>
+        <MCBColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at"/>
+    </View>@*
     <UpdateActions>
         <WButton OnClick="() => ChangePassword(context)" CssClasses="btn btn-info me-2">
             <i class="bx bx-sm bxs-key"></i>
             Change password
         </WButton>
-    </UpdateActions>
+    </UpdateActions>*@
 </AutoCrud>
 
 @code
@@ -45,13 +43,14 @@
 
     private async Task ChangePassword(User user)
     {
-        var newPassword = await AlertService.Text($"Enter a new password for {user.Username}", "");
+        await AlertService.Text("", "Enter a new password for {user.Username}", async newPassword =>
+        {
+            // This handles empty and canceled input
+            if (string.IsNullOrEmpty(newPassword))
+                return;
 
-        // This handles empty and canceled input
-        if (string.IsNullOrEmpty(newPassword))
-            return;
-
-        await AuthenticationProvider.ChangePassword(user, newPassword);
+            await AuthenticationProvider.ChangePassword(user, newPassword);
+        });
     }
 
     private async Task Add(User user)

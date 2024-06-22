@@ -1,4 +1,5 @@
-using MoonCoreUI.Services;
+
+using MoonCore.Blazor.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 using Moonlight.Features.FileManager.UI.Components;
@@ -42,23 +43,24 @@ public class DeleteSelectionAction : IFileManagerSelectionAction
 
         if (fileCount > showFileCount)
             fileList += "And " + (fileCount - showFileCount) + " more files...";
-        
-        
-        if(!await alertService.YesNo($"Do you really want to delete {folderCount + fileCount} item(s)? \n\n" + fileList))
-            return;
 
-        await toastService.CreateProgress("fileManagerSelectionDelete", "Deleting items");
 
-        foreach (var entry in entries)
-        {
-            await toastService.ModifyProgress("fileManagerSelectionDelete", $"Deleting '{entry.Name}'");
+        await alertService.Confirm("Confirm file deletion",
+            $"Do you really want to delete {folderCount + fileCount} item(s)? \n\n" + fileList, async () =>
+            {
+                await toastService.CreateProgress("fileManagerSelectionDelete", "Deleting items");
 
-            await access.Delete(entry);
-        }
+                foreach (var entry in entries)
+                {
+                    await toastService.UpdateProgress("fileManagerSelectionDelete", $"Deleting '{entry.Name}'");
 
-        await toastService.RemoveProgress("fileManagerSelectionDelete");
+                    await access.Delete(entry);
+                }
 
-        await toastService.Success("Successfully deleted selection");
-        await fileManager.View.Refresh();
+                await toastService.DeleteProgress("fileManagerSelectionDelete");
+
+                await toastService.Success("Successfully deleted selection");
+                await fileManager.View.Refresh();
+            });
     }
 }

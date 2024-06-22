@@ -5,7 +5,6 @@
 @using Moonlight.Core.Models.Forms
 @using Moonlight.Core.Services
 @using MoonCore.Exceptions
-@using MoonCoreUI.Services
 
 @inject IAuthenticationProvider AuthenticationProvider
 @inject IdentityService IdentityService
@@ -93,7 +92,7 @@
         var token = await IdentityService.Authenticate(user);
 
         // Save token for later use
-        await CookieService.SetValue("token", token);
+        await CookieService.SetValue("token", token, 30); //TODO: Add days to config option
         
         // Forward the user if not on the specific page
         if(new Uri(Navigation.Uri).LocalPath.StartsWith("/login"))

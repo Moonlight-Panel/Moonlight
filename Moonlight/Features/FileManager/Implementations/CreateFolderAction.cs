@@ -1,4 +1,4 @@
-using MoonCoreUI.Services;
+using MoonCore.Blazor.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 using Moonlight.Features.FileManager.UI.Components;
@@ -16,14 +16,15 @@ public class CreateFolderAction : IFileManagerCreateAction
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();
         
-        var name = await alertService.Text("Enter a name for the new directory");
+        await alertService.Text("Create a new folder", "Enter a name for the new directory", async name =>
+        {
+            if (string.IsNullOrEmpty(name) || name.Contains(".."))
+                return;
 
-        if (string.IsNullOrEmpty(name) || name.Contains(".."))
-            return;
+            await access.CreateDirectory(name);
 
-        await access.CreateDirectory(name);
-
-        await toastService.Success("Successfully created directory");
-        await fileManager.View.Refresh();
+            await toastService.Success("Successfully created directory");
+            await fileManager.View.Refresh();
+        });
     }
 }

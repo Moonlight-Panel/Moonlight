@@ -11,10 +11,12 @@ namespace Moonlight.Features.Servers.Services;
 public class NodeService
 {
     private readonly IServiceProvider ServiceProvider;
+    private readonly ILogger<NodeService> Logger;
 
-    public NodeService(IServiceProvider serviceProvider)
+    public NodeService(IServiceProvider serviceProvider, ILogger<NodeService> logger)
     {
         ServiceProvider = serviceProvider;
+        Logger = logger;
     }
 
     public async Task Boot(ServerNode node)
@@ -42,8 +44,7 @@ public class NodeService
                 {
                     //TODO: Add http exception check to reduce error logs
                     
-                    Logger.Warn($"An error occured while booting node '{node.Name}'");
-                    Logger.Warn(e);
+                    Logger.LogWarning("An error occured while booting node '{name}': {e}", node.Name, e);
                 }
             });
         }

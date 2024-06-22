@@ -1,4 +1,5 @@
-using MoonCoreUI.Services;
+
+using MoonCore.Blazor.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 using Moonlight.Features.FileManager.UI.Components;
@@ -17,14 +18,15 @@ public class RenameContextAction : IFileManagerContextAction
         var alertService = provider.GetRequiredService<AlertService>();
         var toastService = provider.GetRequiredService<ToastService>();
         
-        var newName = await alertService.Text($"Enter a new name for '{entry.Name}'", "", entry.Name);
+        await alertService.Text("Rename file" , $"Enter a new name for '{entry.Name}'", async newName =>
+        {
+            if (string.IsNullOrEmpty(newName))
+                return;
 
-        if (string.IsNullOrEmpty(newName))
-            return;
+            await access.Rename(entry.Name, newName);
 
-        await access.Rename(entry.Name, newName);
-
-        await fileManager.View.Refresh();
-        await toastService.Success("Successfully renamed file");
+            await fileManager.View.Refresh();
+            await toastService.Success("Successfully renamed file");
+        }, entry.Name);
     }
 }

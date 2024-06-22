@@ -116,7 +116,8 @@ public class ServerBackupService
         var remoteUrl = $"{protocol}://{node.Fqdn}:{node.HttpPort}/";
         
         // Build jwt
-        var jwtService = node.CreateJwtService();
+        var loggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
+        var jwtService = node.CreateJwtService(loggerFactory);
 
         var jwt = await jwtService.Create(data =>
         {

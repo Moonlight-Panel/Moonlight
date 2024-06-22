@@ -4,6 +4,7 @@
 @using Moonlight.Core.Services
 
 @inject IdentityService IdentityService
+@inject ILogger<SoftErrorHandler> Logger
 
 @inherits ErrorBoundaryBase
 
@@ -75,8 +76,7 @@ else
             Crashed = true;
 
             var username = IdentityService.IsLoggedIn ? IdentityService.CurrentUser.Username : "Guest";
-            Logger.Warn($"A crash occured in the view of '{username}'");
-            Logger.Warn(exception);
+            Logger.LogWarning("A crash occured in the view of '{username}': {exception}", username, exception);
         }
         
         Recover();

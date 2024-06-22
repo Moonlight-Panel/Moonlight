@@ -3,8 +3,6 @@
 @using Moonlight.Core.UI.Components.Navigations
 @using System.Reflection
 @using MoonCore.Services
-@using MoonCoreUI.Services
-@using MoonCoreUI.Helpers
 @using Moonlight.Core.Configuration
 
 @inject ConfigService<CoreConfiguration> ConfigService
@@ -85,6 +83,8 @@ else
             <div class="card card-body">
                 <div class="row g-5">
                     <LazyLoader @ref="LazyLoader" Load="Load">
+                        <AutoFormGenerator Model="ModelToShow" />
+                        @*
                         @foreach (var prop in Properties)
                         {
                             <div class="col-md-6 col-12">
@@ -96,10 +96,10 @@ else
                                         parameters.Add("Property", prop);
                                     });
                                 }
-                                
+
                                 @rf
                             </div>
-                        }
+                        }*@
                     </LazyLoader>
                 </div>
             </div>

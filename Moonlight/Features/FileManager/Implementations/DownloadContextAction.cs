@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
+using MoonCore.Blazor.Services;
 using MoonCore.Helpers;
-using MoonCoreUI.Services;
+
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 using Moonlight.Features.FileManager.Services;
@@ -15,11 +16,11 @@ public class DownloadContextAction : IFileManagerContextAction
     public string Color => "primary";
     public Func<FileEntry, bool> Filter => entry => entry.IsFile;
 
-    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry entry, IServiceProvider serviceProvider)
+    public async Task Execute(BaseFileAccess access, UI.Components.FileManager fileManager, FileEntry entry, IServiceProvider provider)
     {
-        var fileAccessService = serviceProvider.GetRequiredService<SharedFileAccessService>();
-        var navigation = serviceProvider.GetRequiredService<NavigationManager>();
-        var toastService = serviceProvider.GetRequiredService<ToastService>();
+        var fileAccessService = provider.GetRequiredService<SharedFileAccessService>();
+        var navigation = provider.GetRequiredService<NavigationManager>();
+        var toastService = provider.GetRequiredService<ToastService>();
         
         try
         {
@@ -31,8 +32,8 @@ public class DownloadContextAction : IFileManagerContextAction
         }
         catch (Exception e)
         {
-            Logger.Warn("Unable to start download");
-            Logger.Warn(e);
+            var logger = provider.GetRequiredService<ILogger<DownloadContextAction>>();
+            logger.LogWarning("Unable to start download: {e}", e); ;
 
             await toastService.Danger("Failed to start download");
         }
