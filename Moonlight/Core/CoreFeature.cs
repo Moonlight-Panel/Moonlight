@@ -25,6 +25,7 @@ using Moonlight.Core.Attributes;
 using Moonlight.Core.Http.Middleware;
 using Moonlight.Core.Implementations.ApiDefinition;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Moonlight.Core;
 
@@ -94,6 +95,12 @@ public class CoreFeature : MoonlightFeature
         context.Builder.WebHost.ConfigureKestrel(options =>
         {
             options.Limits.MaxRequestBodySize = ByteSizeValue.FromMegaBytes(config.Http.UploadLimit).Bytes;
+        });
+
+        // Setup http upload limit in forms
+        context.Builder.Services.Configure<FormOptions>(x =>
+        {
+            x.MultipartBodyLengthLimit = ByteSizeValue.FromMegaBytes(config.Http.UploadLimit).Bytes;
         });
 
         // Assets
