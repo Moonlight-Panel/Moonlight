@@ -108,18 +108,31 @@ try
 }
 catch (MySqlException e)
 {
-    if (e.InnerException is EndOfStreamException eosException)
+    bool IsBootException(MySqlException e)
     {
-        if (eosException.Message.Contains("read 4 header bytes"))
+        if (e.InnerException is EndOfStreamException eosException)
         {
-            preRunLogger.LogWarning("The mysql server appears to be still booting up. Exiting...");
-
-            Environment.Exit(1);
-            return;
+            if (!eosException.Message.Contains("read 4 header bytes"))
+                return false;
         }
+        else if (e.InnerException is MySqlEndOfStreamException endOfStreamException)
+        {
+            if (!endOfStreamException.Message.Contains("An incomplete response was received from the server"))
+                return false;
+        }
+        else
+            return false;
+
+        return true;
     }
 
-    throw;
+    if (IsBootException(e))
+    {
+        preRunLogger.LogWarning("The mysql server appears to be still booting up. Exiting...");
+
+        Environment.Exit(1);
+        return;
+    }
 }
 
 // Add pre constructed services
