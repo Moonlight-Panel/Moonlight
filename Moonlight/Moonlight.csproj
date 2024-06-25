@@ -93,8 +93,8 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="MoonCore" Version="1.3.8" />
-      <PackageReference Include="MoonCore.Blazor" Version="1.0.3" />
+      <PackageReference Include="MoonCore" Version="1.4.0" />
+      <PackageReference Include="MoonCore.Blazor" Version="1.0.8" />
       <PackageReference Include="Otp.NET" Version="1.3.0" />
       <PackageReference Include="QRCoder" Version="1.4.3" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2" />
