@@ -74,7 +74,7 @@
 
     private void OnConfigure(FastCrudConfiguration<ServerNetwork> configuration)
     {
-        configuration.ValidateCreate += network =>
+        configuration.ValidateCreate = network =>
         {
             if (!ServerRepository
                     .Get()

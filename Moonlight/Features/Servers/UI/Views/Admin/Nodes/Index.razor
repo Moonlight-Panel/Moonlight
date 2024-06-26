@@ -1,5 +1,6 @@
 @page "/admin/servers/nodes"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
 @using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
@@ -8,8 +9,11 @@
 @using MoonCore.Exceptions
 @using MoonCore.Helpers
 @using System.Text.RegularExpressions;
+@using MoonCore.Blazor.Forms.Fast.Components
+@using MoonCore.Blazor.Models.Fast
 @using Moonlight.Features.Servers.Api.Resources
 @using Moonlight.Features.Servers.Services
+@using Moonlight.Features.Servers.UI.NodeComponents
 
 @inject Repository<Server> ServerRepository
 @inject Repository<ServerNode> NodeRepository
@@ -24,18 +28,18 @@
 <AdminServersNavigation Index="1"/>
 
 <LazyLoader Load="Load">
-    <AutoCrud TItem="ServerNode"
-              TCreateForm="CreateNodeForm"
-              TUpdateForm="UpdateNodeForm"
-              Loader="LoadData"
-              ValidateAdd="ValidateAdd"
-              ValidateUpdate="ValidateUpdate"
-              ValidateDelete="ValidateDelete">
+    <FastCrud TItem="ServerNode"
+              Loader="Loader"
+              OnConfigure="OnConfigure"
+              OnConfigureCreate="OnConfigureCreate"
+              OnConfigureEdit="OnConfigureEdit">
         <View>
             <MCBColumn TItem="ServerNode" Field="@(x => x.Id)" Title="Id"/>
             <MCBColumn TItem="ServerNode" Field="@(x => x.Name)" Title="Name">
                 <Template>
-                    <a href="/admin/servers/nodes/view/@(context!.Id)">@context!.Name</a>
+                    @*<a href="/admin/servers/nodes/view/@(context!.Id)"></a> TODO: Make this work again*@
+
+                    @context!.Name
                 </Template>
             </MCBColumn>
             <MCBColumn TItem="ServerNode" Field="@(x => x.Fqdn)" Title="Fqdn"/>
@@ -63,7 +67,7 @@
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
                         var cores = NodeStats[context!.Id]!.Hardware.Cores;
-                        var percent = cores.Any() ?  Math.Round(cores.Average(x => x.Usage), 2) : 0;
+                        var percent = cores.Any() ? Math.Round(cores.Average(x => x.Usage), 2) : 0;
 
                         <ColoredBar Value="percent"/>
                     }
@@ -78,10 +82,10 @@
                     @if (NodeStats.ContainsKey(context!.Id) && NodeStats[context.Id] != null)
                     {
                         var memory = NodeStats[context!.Id]!.Hardware.Memory;
-                        
+
                         var used = memory.Total - (memory.Available + memory.Cached);
-                        var percent = Math.Round((float) used / memory.Total * 100F, 2);
-                        
+                        var percent = Math.Round((float)used / memory.Total * 100F, 2);
+
                         //Logger.Debug($"Used: {used} Total: {memory.Total} => {percent}% ({Formatter.FormatSize(used)} / {Formatter.FormatSize(memory.Total)})");
 
                         <ColoredBar Value="percent"/>
@@ -108,13 +112,7 @@
                 </Template>
             </MCBColumn>
         </View>
-        @*
-        <NoItemsView>
-            <IconAlert Title="No nodes found" Color="primary" Icon="bx-search-alt">
-                Add a new node in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
-            </IconAlert>
-        </NoItemsView>*@
-    </AutoCrud>
+    </FastCrud>
 </LazyLoader>
 
 @code
@@ -126,78 +124,162 @@
     {
         UpdateTimer = new(async _ =>
         {
-            NodeStats.Clear();
-
-            using var scope = ServiceProvider.CreateScope();
-            var nodeRepo = scope.ServiceProvider.GetRequiredService<Repository<ServerNode>>();
-            var nodes = nodeRepo.Get().ToArray();
-
-            foreach (var node in nodes)
+            try
             {
-                try
+                NodeStats.Clear();
+
+                using var scope = ServiceProvider.CreateScope();
+                var nodeRepo = scope.ServiceProvider.GetRequiredService<Repository<ServerNode>>();
+                var nodes = nodeRepo.Get().ToArray();
+
+                foreach (var node in nodes)
                 {
-                    var status = await NodeService.GetStatus(node);
+                    try
+                    {
+                        var status = await NodeService.GetStatus(node);
 
-                    NodeStats[node.Id] = status;
+                        NodeStats[node.Id] = status;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogWarning("Unable to fetch system status for node '{name}': {e}", node.Name, e);
+
+                        NodeStats[node.Id] = null;
+                    }
+
+                    await InvokeAsync(StateHasChanged);
                 }
-                catch (Exception e)
-                {
-                    Logger.LogWarning("Unable to fetch system status for node '{name}': {e}", node.Name, e);
-
-                    NodeStats[node.Id] = null;
-                }
-
-                await InvokeAsync(StateHasChanged);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Unable to update node stats due to an unhandled error: {e}", e);
             }
         }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
         return Task.CompletedTask;
     }
-
-    private IEnumerable<ServerNode> LoadData(Repository<ServerNode> repository)
+    
+    private IEnumerable<ServerNode> Loader(Repository<ServerNode> repository)
     {
         return repository
-            .Get();
-    }
-
-    private Task ValidateDelete(ServerNode node)
-    {
-        if (ServerRepository
             .Get()
-            .Any(x => x.Node.Id == node.Id))
-        {
-            throw new DisplayException("There are still servers on this node. Delete the servers in order to delete the node");
-        }
-
-        if (NodeRepository
-            .Get()
-            .Include(x => x.Allocations)
-            .First(x => x.Id == node.Id)
-            .Allocations
-            .Any())
-        {
-            throw new DisplayException("There are still allocations on this node. Delete the allocations in order to delete the node");
-        }
-
-        return Task.CompletedTask;
+            .Include(x => x.Allocations);
     }
 
-    private Task ValidateAdd(ServerNode node)
+    private void OnConfigure(FastCrudConfiguration<ServerNode> configuration)
     {
-        ValidateFqdn(node);
+        configuration.ValidateDelete = node =>
+        {
+            if (ServerRepository
+                .Get()
+                .Any(x => x.Node.Id == node.Id))
+            {
+                throw new DisplayException("There are still servers on this node. Delete the servers in order to delete the node");
+            }
 
-        node.Token = Formatter.GenerateString(32);
+            if (NodeRepository
+                .Get()
+                .Include(x => x.Allocations)
+                .First(x => x.Id == node.Id)
+                .Allocations
+                .Any())
+            {
+                throw new DisplayException("There are still allocations on this node. Delete the allocations in order to delete the node");
+            }
 
-        return Task.CompletedTask;
+            return Task.CompletedTask;
+        };
+
+        configuration.ValidateCreate = node =>
+        {
+            ValidateFqdn(node);
+            
+            node.Token = Formatter.GenerateString(32);
+            
+            return Task.CompletedTask;
+        };
+
+        configuration.ValidateEdit = node =>
+        {
+            ValidateFqdn(node);
+
+            return Task.CompletedTask;
+        };
     }
 
-    private Task ValidateUpdate(ServerNode node)
+    private void OnConfigureCreate(FastConfiguration<ServerNode> configuration)
     {
-        ValidateFqdn(node);
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required);
 
-        return Task.CompletedTask;
+        configuration.AddProperty(x => x.Fqdn)
+            .WithDefaultComponent()
+            .WithDescription("This needs to be the ip or domain of the node depending on the ssl settings")
+            .WithValidation(FastValidators.Required);
+
+        configuration.AddProperty(x => x.Ssl)
+            .WithComponent<bool, SwitchComponent>()
+            .WithDescription("This enables ssl for the http connections to the node. Only enable this if you have the cert installed on the node");
+
+        configuration.AddProperty(x => x.HttpPort)
+            .WithDefaultComponent()
+            .WithDescription("This is the http(s) port used by the node to allow communication to the node from the panel");
+
+        configuration.AddProperty(x => x.FtpPort)
+            .WithDefaultComponent()
+            .WithDescription("This is the ftp port users can use to access their servers filesystem via their ftp client");
     }
 
+    private void OnConfigureEdit(FastConfiguration<ServerNode> configuration, ServerNode node)
+    {
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithPage("Settings")
+            .WithValidation(FastValidators.Required);
+
+        configuration.AddProperty(x => x.Fqdn)
+            .WithDefaultComponent()
+            .WithPage("Settings")
+            .WithDescription("This needs to be the ip or domain of the node depending on the ssl settings")
+            .WithValidation(FastValidators.Required);
+
+        configuration.AddProperty(x => x.Ssl)
+            .WithComponent<bool, SwitchComponent>()
+            .WithPage("Settings")
+            .WithDescription("This enables ssl for the http connections to the node. Only enable this if you have the cert installed on the node");
+
+        configuration.AddProperty(x => x.HttpPort)
+            .WithDefaultComponent()
+            .WithPage("Settings")
+            .WithDescription("This is the http(s) port used by the node to allow communication to the node from the panel");
+
+        configuration.AddProperty(x => x.FtpPort)
+            .WithDefaultComponent()
+            .WithPage("Settings")
+            .WithDescription("This is the ftp port users can use to access their servers filesystem via their ftp client");
+
+        configuration.AddCustomPage("Overview", ComponentHelper.FromType<NodeOverview>(parameters =>
+        {
+            parameters.Add("Node", node);
+        }));
+        
+        configuration.AddCustomPage("Allocations", ComponentHelper.FromType<NodeAllocations>(parameters =>
+        {
+            parameters.Add("Node", node);
+        }));
+
+        configuration.AddCustomPage("Setup", ComponentHelper.FromType<NodeSetup>(parameters =>
+        {
+            parameters.Add("Node", node);
+        }));
+        
+        configuration.AddCustomPage("Logs", ComponentHelper.FromType<NodeLogs>(parameters =>
+        {
+            parameters.Add("Node", node);
+        }));
+    }
+    
     private void ValidateFqdn(ServerNode node)
     {
         if (node.Ssl)
@@ -213,7 +295,7 @@
             // Is it a valid domain?
             if (Regex.IsMatch(node.Fqdn, "^(?!-)(?:[a-zA-Z\\d-]{0,62}[a-zA-Z\\d]\\.)+(?:[a-zA-Z]{2,})$"))
                 return;
-            
+
             // Is it a valid ip?
             if (Regex.IsMatch(node.Fqdn, "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
                 return;
@@ -221,7 +303,7 @@
             throw new DisplayException("The fqdn needs to be either a domain or an ip");
         }
     }
-
+    
     public void Dispose()
     {
         UpdateTimer?.Dispose();

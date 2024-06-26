@@ -53,7 +53,7 @@
     
     private void OnConfigure(FastCrudConfiguration<User> configuration)
     {
-        configuration.CustomCreate += async user =>
+        configuration.CustomCreate = async user =>
         {
             var result = await AuthenticationProvider.Register(user.Username, user.Email, user.Password);
 
@@ -61,7 +61,7 @@
                 throw new DisplayException("An unknown error occured while creating user");
         };
 
-        configuration.ValidateEdit += async user =>
+        configuration.ValidateEdit = async user =>
         {
             await AuthenticationProvider.ChangeDetails(user, user.Email, user.Username);
         };

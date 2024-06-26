@@ -169,8 +169,6 @@ else
 
             if (TryGetAttribute(customAttributes, out DisplayNameAttribute nameAttribute))
                 propConfig.WithName(nameAttribute.DisplayName);
-            else
-                propConfig.WithName(Formatter.ConvertCamelCaseToSpaces(property.Name));
 
             if (TryGetAttribute(customAttributes, out DescriptionAttribute descriptionAttribute))
                 propConfig.WithDescription(descriptionAttribute.Description);

@@ -8,7 +8,7 @@
 @implements IDisposable
 
 <LazyLoader Load="Load">
-    <div class="row g-5 mt-5">
+    <div class="row g-5">
         <div class="col-md-3 col-12">
             @{
                 var cpuName = Status.Hardware.Cores.Any() ? Status.Hardware.Cores.First().Name : "N/A";
