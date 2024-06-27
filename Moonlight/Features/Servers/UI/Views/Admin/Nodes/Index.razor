@@ -207,7 +207,7 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<ServerNode> configuration)
+    private void OnConfigureCreate(FastConfiguration<ServerNode> configuration, ServerNode _)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()

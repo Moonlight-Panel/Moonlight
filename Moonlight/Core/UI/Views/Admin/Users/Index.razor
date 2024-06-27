@@ -67,7 +67,7 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<User> configuration)
+    private void OnConfigureCreate(FastConfiguration<User> configuration, User _)
     {
         configuration.AddProperty(x => x.Username)
             .WithDefaultComponent()

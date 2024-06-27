@@ -1,0 +1,41 @@
+@using MoonCore.Blazor.Forms.Fast.Components
+@using Moonlight.Features.FileManager.UI.Components
+
+@inherits BaseFastFormComponent<string>
+
+<div class="col-12">
+    <label class="form-label">
+        @Name
+    </label>
+    
+    <Editor InitialContent="@Binder.Value"
+            Mode="@Mode"
+            Lines="@Lines"
+            EnableAutoInit="true"
+            OnChanged="OnValueChanged"/>
+</div>
+
+@code 
+{
+    private int Lines;
+    private string Mode;
+
+    protected override void OnInitialized()
+    {
+        if (AdditionalOptions == null)
+        {
+            Lines = 25;
+            Mode = "sh";
+            return;
+        }
+
+        Lines = AdditionalOptions.GetNullable<int?>("Lines") ?? 25;
+        Mode = AdditionalOptions.GetNullable<string?>("Mode") ?? "sh";
+    }
+
+    private Task OnValueChanged(string val)
+    {
+        Binder.Value = val;
+        return Task.CompletedTask;
+    }
+}

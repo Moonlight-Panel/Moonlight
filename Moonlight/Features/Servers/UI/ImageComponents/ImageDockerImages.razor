@@ -1,18 +1,24 @@
-@using Moonlight.Features.Servers.Models.Forms.Admin.Images.DockerImages
-@using Microsoft.AspNetCore.Components.Forms
+@using MoonCore.Abstractions
+@using MoonCore.Blazor.Forms.Fast.Components
+@using MoonCore.Blazor.Models.Fast
+@using MoonCore.Blazor.Models.Fast.Validators
+@using MoonCore.Exceptions
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Models.Forms.Admin.Images
 
+@inject Repository<ServerImage> ImageRepository
+@inject Repository<ServerDockerImage> DockerImageRepository
+
+@*
 <div class="card mb-10">
     <div class="card-body">
         <div class="row g-8">
             <div class="col-md-6 col-12">
                 <label class="form-label">Default docker image</label>
                 <MCBSelect TField="ServerDockerImage"
-                             @bind-Value="SelectedDockerImage"
-                             Items="Image.DockerImages"
-                             DisplayField="@(x => x.Name)"
-                             CanBeNull="true"/>
+                           @bind-Value="SelectedDockerImage"
+                           Items="Image.DockerImages"
+                           DisplayField="@(x => x.Name)"
+                           CanBeNull="true"/>
             </div>
             <div class="col-md-6 col-12">
                 <label class="form-label">Allow user to change the docker image</label>
@@ -22,64 +28,100 @@
             </div>
         </div>
     </div>
-</div>
-@*
-<AutoListCrud TItem="ServerDockerImage"
-              TRootItem="ServerImage"
-              TCreateForm="CreateDockerImage"
-              TUpdateForm="UpdateDockerImage"
-              RootItem="Image"
-              Field="@(x => x.DockerImages)">
+</div>*@
+
+<FastCrud TItem="ServerDockerImage"
+          Loader="Loader"
+          OnConfigure="OnConfigure"
+          OnConfigureCreate="OnConfigureForm"
+          OnConfigureEdit="OnConfigureForm">
     <View>
-        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.Id)" Title="Id"/>
-        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.DisplayName)" Title="Display name"/>
-        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.Name)" Title="Name"/>
-        <CrudColumn TItem="ServerDockerImage" Field="@(x => x.AutoPull)" Title="Auto pull">
+        <MCBColumn TItem="ServerDockerImage" Field="@(x => x.Id)" Title="Id"/>
+        <MCBColumn TItem="ServerDockerImage" Field="@(x => x.DisplayName)" Title="Display name"/>
+        <MCBColumn TItem="ServerDockerImage" Field="@(x => x.Name)" Title="Name"/>
+        <MCBColumn TItem="ServerDockerImage" Field="@(x => x.AutoPull)" Title="Auto pull">
             <Template>
                 @if (context.AutoPull)
                 {
-                    <i class="bx bx-sm bx-check text-success"></i>
+                <i class="bx bx-sm bx-check text-success"></i>
                 }
                 else
                 {
-                    <i class="bx bx-sm bx-x text-danger"></i>
+                <i class="bx bx-sm bx-x text-danger"></i>
                 }
             </Template>
-        </CrudColumn>
+        </MCBColumn>
     </View>
-    <NoItemsView>
-        <IconAlert Title="No docker images found" Color="primary" Icon="bx-search-alt">
-            Add a new docker image in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
-        </IconAlert>
-    </NoItemsView>
-</AutoListCrud>
-*@
+</FastCrud>
+
 @code
 {
     [Parameter] public ServerImage Image { get; set; }
-    [Parameter] public UpdateImageDetailedForm Form { get; set; }
-    
-    private ServerDockerImage? SelectedDockerImage
+
+    private IEnumerable<ServerDockerImage> Loader(Repository<ServerDockerImage> repository)
     {
-        get
-        {
-            if (Form.DefaultDockerImage >= Image.DockerImages.Count)
-                return null;
+        return Image.DockerImages;
+    }
 
-            if (Form.DefaultDockerImage == -1)
-                return null;
-
-            return Image.DockerImages[Form.DefaultDockerImage];
-        }
-        set
+    private void OnConfigure(FastCrudConfiguration<ServerDockerImage> configuration)
+    {
+        configuration.CustomCreate = dockerImage =>
         {
-            if (value == null)
+            Image.DockerImages.Add(dockerImage);
+            ImageRepository.Update(Image);
+            
+            return Task.CompletedTask;
+        };
+
+        configuration.CustomDelete = dockerImage =>
+        {
+            Image.DockerImages.Remove(dockerImage);
+            ImageRepository.Update(Image);
+
+            try
             {
-                Form.DefaultDockerImage = -1;
-                return;
+                DockerImageRepository.Delete(dockerImage);
             }
+            catch (Exception)
+            {
+                /* Dont fail here */
+            }
+            
+            return Task.CompletedTask;
+        };
 
-            Form.DefaultDockerImage = Image.DockerImages.IndexOf(value);
-        }
+        configuration.ValidateCreate = dockerImage =>
+        {
+            if (Image.DockerImages.Any(x => x.Name == dockerImage.Name))
+                throw new DisplayException("A docker image with this name does already exist");
+            
+            return Task.CompletedTask;
+        };
+        
+        configuration.ValidateEdit = dockerImage =>
+        {
+            if (Image.DockerImages.Any(x => x.Name == dockerImage.Name && x.Id != dockerImage.Id))
+                throw new DisplayException("A docker image with this name does already exist");
+            
+            return Task.CompletedTask;
+        };
+    }
+
+    private void OnConfigureForm(FastConfiguration<ServerDockerImage> configuration, ServerDockerImage _)
+    {
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithValidation(RegexValidator.Create("^(?:[a-zA-Z0-9\\-\\.]+\\/)?[a-zA-Z0-9\\-]+(?:\\/[a-zA-Z0-9\\-]+)*(?::[a-zA-Z0-9_\\.-]+)?$", "You need to provide a valid docker image name"))
+            .WithDescription("This is the name of the docker image. E.g. moonlightpanel/moonlight:canary");
+
+        configuration.AddProperty(x => x.DisplayName)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithDescription("This will be shown if the user is able to change the docker image as the image name");
+
+        configuration.AddProperty(x => x.AutoPull)
+            .WithComponent<bool, SwitchComponent>()
+            .WithDescription("Specifies if the docker image should be pulled/updated when creating a server instance. Disable this for only local existing docker images");
     }
 }

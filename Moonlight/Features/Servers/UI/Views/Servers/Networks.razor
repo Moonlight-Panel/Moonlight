@@ -92,7 +92,7 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<ServerNetwork> configuration)
+    private void OnConfigureCreate(FastConfiguration<ServerNetwork> configuration, ServerNetwork _)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()

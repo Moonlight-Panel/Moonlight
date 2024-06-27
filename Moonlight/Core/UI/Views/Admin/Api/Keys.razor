@@ -15,8 +15,8 @@
 <div class="mt-5">
     <FastCrud TItem="ApiKey"
               OnConfigure="OnConfigure"
-              OnConfigureCreate="OnConfigureCreate"
-              OnConfigureEdit="OnConfigureEdit">
+              OnConfigureCreate="OnConfigureFrom"
+              OnConfigureEdit="OnConfigureFrom">
         <View>
             <MCBColumn TItem="ApiKey" Field="@(x => x.Key)" Title="Key">
                 <Template>
@@ -66,7 +66,7 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<ApiKey> configuration)
+    private void OnConfigureFrom(FastConfiguration<ApiKey> configuration, ApiKey _)
     {
         configuration.AddProperty(x => x.Description)
             .WithDefaultComponent()
@@ -81,6 +81,4 @@
             .WithDefaultComponent()
             .WithName("Permissions");
     }
-
-    private void OnConfigureEdit(FastConfiguration<ApiKey> configuration, ApiKey _) => OnConfigureCreate(configuration);
 }

@@ -1,5 +1,6 @@
 @page "/admin/servers/images"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.UI.Components
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Abstractions
@@ -7,9 +8,11 @@
 
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Helpers
-@using Moonlight.Features.Servers.Models.Forms.Admin.Images
 @using Microsoft.AspNetCore.Components.Forms
-@using MoonCore.Helpers
+@using MoonCore.Blazor.Forms.Fast.Components
+@using MoonCore.Blazor.Models.Fast
+@using MoonCore.Blazor.Models.Fast.Validators
+@using Moonlight.Features.Servers.UI.ImageComponents
 
 @inject Repository<Server> ServerRepository
 @inject Repository<ServerImageVariable> VariableRepository
@@ -26,14 +29,11 @@
 
 <AdminServersNavigation Index="2"/>
 
-<AutoCrud TItem="ServerImage"
-          TCreateForm="CreateImageForm"
-          TUpdateForm="UpdateImageForm"
-          Loader="Load"
-          ValidateDelete="ValidateDelete"
-          ValidateAdd="ValidateAdd"
-          CustomDelete="CustomDelete"
-          @ref="Crud">
+<FastCrud TItem="ServerImage"
+          Loader="Loader"
+          OnConfigure="OnConfigure"
+          OnConfigureCreate="OnConfigureForm"
+          OnConfigureEdit="OnConfigureForm">
     <View>
         <MCBColumn TItem="ServerImage" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
         <MCBColumn TItem="ServerImage" Field="@(x => x.Name)" Title="Name" Filterable="true">
@@ -68,61 +68,139 @@
                 </div>
             </Template>
         </MCBColumn>
-    </View>@*
-    <NoItemsView>
-        <IconAlert Title="No images found" Color="primary" Icon="bx-search-alt">
-            Download and import a image from our <a href="https://github.com/Moonlight-Panel/Images">repository</a> or create a new one. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
-        </IconAlert>
-    </NoItemsView>
-    <OverviewToolbar>
-        <SmartCustomFileSelect @ref="EggUpload" OnFileSelected="ImportEgg">
-            <a class="btn btn-info me-3">
+    </View>
+    <ViewToolbar>
+        <MCBCustomFileSelect @ref="EggUpload" OnFileSelected="ImportEgg">
+            <a class="btn btn-info me-2">
                 Import egg
             </a>
-        </SmartCustomFileSelect>
-        <SmartCustomFileSelect @ref="ImageUpload" OnFileSelected="Import">
+        </MCBCustomFileSelect>
+        <MCBCustomFileSelect @ref="ImageUpload" OnFileSelected="Import">
             <a class="btn btn-info me-3">
                 Import
             </a>
-        </SmartCustomFileSelect>
-    </OverviewToolbar>*@
-</AutoCrud>
+        </MCBCustomFileSelect>
+    </ViewToolbar>
+</FastCrud>
 
 @code
 {
-    private AutoCrud<ServerImage, CreateImageForm, UpdateImageForm> Crud;
+    private FastCrud<ServerImage> Crud;
+
     private MCBCustomFileSelect ImageUpload;
     private MCBCustomFileSelect EggUpload;
 
-    private IEnumerable<ServerImage> Load(Repository<ServerImage> repository)
+    private IEnumerable<ServerImage> Loader(Repository<ServerImage> repository)
     {
-        return repository.Get();
+        return repository
+            .Get()
+            .Include(x => x.DockerImages)
+            .Include(x => x.Variables);
     }
 
-    private Task ValidateDelete(ServerImage serverImage)
+    private void OnConfigure(FastCrudConfiguration<ServerImage> configuration)
     {
-        if (ServerRepository.Get().Any(x => x.Image.Id == serverImage.Id))
-            throw new DisplayException("A server using this image exists. Please delete the servers using this image to continue");
+        configuration.ValidateDelete = image =>
+        {
+            if (ServerRepository.Get().Any(x => x.Image.Id == image.Id))
+                throw new DisplayException("A server using this image exists. Please delete the servers using this image to continue");
 
-        return Task.CompletedTask;
+            return Task.CompletedTask;
+        };
+
+        configuration.CustomDelete = CustomDelete;
     }
 
-    private Task ValidateAdd(ServerImage image)
+    private void OnConfigureForm(FastConfiguration<ServerImage> configuration, ServerImage image)
     {
-        // Set defaults
+        // General
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithPage("General")
+            .WithValidation(FastValidators.Required);
 
-        image.StopCommand = "^C";
-        image.StartupCommand = "echo Startup command here";
-        image.AllocationsNeeded = 1;
-        image.InstallScript = "#! /bin/bash\necho Done";
-        image.InstallShell = "/bin/bash";
-        image.InstallDockerImage = "debian:latest";
-        image.OnlineDetection = "Running";
-        image.AllowDockerImageChange = false;
-        image.DefaultDockerImage = 0;
-        image.ParseConfiguration = "[]";
+        configuration.AddProperty(x => x.Author)
+            .WithDefaultComponent()
+            .WithPage("General")
+            .WithValidation(FastValidators.Required);
 
-        return Task.CompletedTask;
+        configuration.AddProperty(x => x.DonateUrl)
+            .WithDefaultComponent()
+            .WithPage("General")
+            .WithDescription("Provide a url here in order to give people the ability to donate for your work");
+
+        configuration.AddProperty(x => x.UpdateUrl)
+            .WithDefaultComponent()
+            .WithPage("General")
+            .WithDescription("A http(s) url directly to a json file which will serve as an update for the image. When a update is fetched, it will just get this url and try to load it");
+
+        // Power
+        configuration.AddProperty(x => x.StartupCommand)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithPage("Start, Stop & Status")
+            .WithDescription("This command will be executed at the start of a server. You can use environment variables in a {} here");
+
+        configuration.AddProperty(x => x.OnlineDetection)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithPage("Start, Stop & Status")
+            .WithDescription("A regex string specifying that a server is online when the daemon finds a match in the console output matching this expression");
+
+        configuration.AddProperty(x => x.StopCommand)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithPage("Start, Stop & Status")
+            .WithDescription("A command which will be sent to the servers stdin when it should get stopped. Power signals can be achived by using ^. E.g. ^C");
+        
+        // Parsing
+        configuration.AddProperty(x => x.ParseConfiguration)
+            .WithComponent<string, ImageParseConfigEditor>()
+            .WithPage("Parsing");
+
+        configuration.AddCustomPage("Variables", ComponentHelper.FromType<ImageVariables>(parameters =>
+        {
+            parameters.Add("Image", image);
+        }));
+
+        configuration.AddCustomPage("Docker Images", ComponentHelper.FromType<ImageDockerImages>(parameters =>
+        {
+            parameters.Add("Image", image);
+        }));
+
+        configuration.AddProperty(x => x.AllowDockerImageChange)
+            .WithComponent<bool, SwitchComponent>()
+            .WithPage("Miscellaneous")
+            .WithDescription("This toggle specifies if a user is allowed to change the docker image from the list of docker images associated to the image");
+        
+        configuration.AddProperty(x => x.DefaultDockerImage)
+            .WithComponent<int, DefaultDockerImage>()
+            .WithAdditionalOption("Image", image)
+            .WithPage("Miscellaneous");
+
+        configuration.AddProperty(x => x.AllocationsNeeded)
+            .WithDefaultComponent()
+            .WithPage("Miscellaneous")
+            .WithValidation<int>(x => x > 1 ? ValidationResult.Success : new ValidationResult("This specifies the amount of allocations needed for this image in order to create a server"));
+
+        configuration.AddProperty(x => x.InstallDockerImage)
+            .WithDefaultComponent()
+            .WithPage("Installation")
+            .WithName("Docker Image")
+            .WithValidation(FastValidators.Required)
+            .WithValidation(RegexValidator.Create("^(?:[a-zA-Z0-9\\-\\.]+\\/)?[a-zA-Z0-9\\-]+(?:\\/[a-zA-Z0-9\\-]+)*(?::[a-zA-Z0-9_\\.-]+)?$", "You need to provide a valid docker image name"));
+
+        configuration.AddProperty(x => x.InstallShell)
+            .WithDefaultComponent()
+            .WithPage("Installation")
+            .WithName("Shell")
+            .WithValidation(FastValidators.Required);
+
+        configuration.AddProperty(x => x.InstallScript)
+            .WithComponent<string, EditorComponent>()
+            .WithPage("Installation")
+            .WithName("Script")
+            .WithValidation(FastValidators.Required);
     }
 
     private Task CustomDelete(ServerImage serverImage)

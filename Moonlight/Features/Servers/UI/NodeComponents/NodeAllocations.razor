@@ -1,7 +1,5 @@
 @using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
-@using BlazorTable
 @using MoonCore.Abstractions
 @using MoonCore.Blazor.Models.Fast
 @using MoonCore.Blazor.Models.Fast.Validators
@@ -41,8 +39,8 @@
         <FastCrud TItem="ServerAllocation"
                   Loader="Loader"
                   OnConfigure="OnConfigure"
-                  OnConfigureCreate="OnConfigureCreate"
-                  OnConfigureEdit="OnConfigureEdit"
+                  OnConfigureCreate="OnConfigureForm"
+                  OnConfigureEdit="OnConfigureForm"
                   @ref="Crud">
             <View>
                 <MCBColumn TItem="ServerAllocation" Field="@(x => x.Id)" Title="Id"/>
@@ -169,11 +167,12 @@
             return Task.CompletedTask;
         };
 
+        /*
         configuration.CustomEdit = allocation =>
         {
             AllocationRepository.Update(allocation);
             return Task.CompletedTask;
-        };
+        };*/
 
         configuration.CustomDelete = allocation =>
         {
@@ -193,7 +192,7 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<ServerAllocation> configuration)
+    private void OnConfigureForm(FastConfiguration<ServerAllocation> configuration, ServerAllocation _)
     {
         configuration.AddProperty(x => x.IpAddress)
             .WithDefaultComponent()
@@ -204,6 +203,4 @@
             .WithDefaultComponent()
             .WithValidation<int>(x => x >= 1 && x <= 65535 ? ValidationResult.Success : new ValidationResult("You need to provide a valid port"));
     }
-
-    private void OnConfigureEdit(FastConfiguration<ServerAllocation> configuration, ServerAllocation _) => OnConfigureCreate(configuration);
 }

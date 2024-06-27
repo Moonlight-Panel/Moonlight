@@ -1,52 +1,139 @@
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Models.Forms.Admin.Images.Variables
-@using BlazorTable
-@*
-<AutoListCrud TItem="ServerImageVariable"
-              TRootItem="ServerImage"
-              TCreateForm="CreateImageVariable"
-              TUpdateForm="UpdateImageVariable"
-              RootItem="Image"
-              Field="@(x => x.Variables)">
+@using MoonCore.Abstractions
+@using MoonCore.Blazor.Forms.Fast.Components
+@using MoonCore.Blazor.Models.Fast
+@using MoonCore.Exceptions
+@using Moonlight.Features.Servers.Entities.Enums
+
+@inject Repository<ServerImage> ImageRepository
+@inject Repository<ServerImageVariable> VariableRepository
+
+<FastCrud TItem="ServerImageVariable"
+          Loader="Loader"
+          OnConfigure="OnConfigure"
+          OnConfigureCreate="OnConfigureForm"
+          OnConfigureEdit="OnConfigureForm">
     <View>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.Id)" Title="Id"/>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.DisplayName)" Title="Display name"/>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.Key)" Title="Key"/>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.DefaultValue)" Title="Default value"/>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.Filter)" Title="Filter"/>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.AllowView)" Title="View">
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.Id)" Title="Id"/>
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.DisplayName)" Title="Display name"/>
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.Key)" Title="Key"/>
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.DefaultValue)" Title="Default value"/>
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.Filter)" Title="Filter"/>
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.AllowView)" Title="View">
             <Template>
                 @if (context.AllowView)
                 {
-                    <i class="bx bx-sm bx-check text-success"></i>
+                <i class="bx bx-sm bx-check text-success"></i>
                 }
                 else
                 {
-                    <i class="bx bx-sm bx-x text-danger"></i>
+                <i class="bx bx-sm bx-x text-danger"></i>
                 }
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="ServerImageVariable" Field="@(x => x.AllowEdit)" Title="Edit">
+        </MCBColumn>
+        <MCBColumn TItem="ServerImageVariable" Field="@(x => x.AllowEdit)" Title="Edit">
             <Template>
                 @if (context.AllowEdit)
                 {
-                    <i class="bx bx-sm bx-check text-success"></i>
+                <i class="bx bx-sm bx-check text-success"></i>
                 }
                 else
                 {
-                    <i class="bx bx-sm bx-x text-danger"></i>
+                <i class="bx bx-sm bx-x text-danger"></i>
                 }
             </Template>
-        </CrudColumn>
+        </MCBColumn>
     </View>
-    <NoItemsView>
-        <IconAlert Title="No variables found" Color="primary" Icon="bx-search-alt">
-            Add a new variable in order to get started. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
-        </IconAlert>
-    </NoItemsView>
-</AutoListCrud>
-*@
+</FastCrud>
+
 @code
 {
     [Parameter] public ServerImage Image { get; set; }
+
+    private IEnumerable<ServerImageVariable> Loader(Repository<ServerImageVariable> _)
+    {
+        return Image.Variables;
+    }
+
+    private void OnConfigure(FastCrudConfiguration<ServerImageVariable> configuration)
+    {
+        configuration.CustomCreate = variable =>
+        {
+            Image.Variables.Add(variable);
+            ImageRepository.Update(Image);
+            
+            return Task.CompletedTask;
+        };
+
+        configuration.CustomDelete = variable =>
+        {
+            Image.Variables.Remove(variable);
+            ImageRepository.Update(Image);
+
+            try
+            {
+                VariableRepository.Delete(variable);
+            }
+            catch (Exception)
+            {
+                /* dont fail here */
+            }
+            
+            return Task.CompletedTask;
+        };
+
+        configuration.ValidateCreate = variable =>
+        {
+            if (Image.Variables.Any(x => x.Key == variable.Key))
+                throw new DisplayException("A variable with this key already exists");
+
+            return Task.CompletedTask;
+        };
+
+        configuration.ValidateEdit = variable =>
+        {
+            if (Image.Variables.Any(x => x.Key == variable.Key && x.Id != variable.Id))
+                throw new DisplayException("A variable with this key already exists");
+
+            return Task.CompletedTask;
+        };
+    }
+
+    private void OnConfigureForm(FastConfiguration<ServerImageVariable> configuration, ServerImageVariable _)
+    {
+        configuration.AddProperty(x => x.Key)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithDescription("This is the environment variable name");
+
+        configuration.AddProperty(x => x.DefaultValue)
+            .WithDefaultComponent()
+            .WithDescription("This is the default value which will be set when a server is created");
+
+        configuration.AddProperty(x => x.DisplayName)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithDescription("This is the display name of the variable which will be shown to the user if enabled to edit/view the variable");
+
+        configuration.AddProperty(x => x.Description)
+            .WithDefaultComponent()
+            .WithValidation(FastValidators.Required)
+            .WithDescription("This text should describe what the variable does for the user if allowed to view and/or change");
+
+        configuration.AddProperty(x => x.AllowView)
+            .WithComponent<bool, SwitchComponent>()
+            .WithDescription("Allow the user to view the variable but not edit it unless specified otherwise");
+
+        configuration.AddProperty(x => x.AllowEdit)
+            .WithComponent<bool, SwitchComponent>()
+            .WithDescription("Allow the user to edit the variable. Wont work if view is disabled");
+
+        configuration.AddProperty(x => x.Type)
+            .WithComponent<ServerImageVariableType, EnumSelectComponent<ServerImageVariableType>>()
+            .WithDescription("Specifies the type of the variable. This specifies what ui the user will see for the variable. You can also specify the options which are available using the filter field");
+
+        configuration.AddProperty(x => x.Filter)
+            .WithDefaultComponent()
+            .WithDescription("(Optional)\nText: A regex filter which will check if the user input mathes a correct variable value\nSelect: Specify the available values seperated by a semicolon");
+    }
 }

@@ -1,0 +1,53 @@
+@using Moonlight.Features.Servers.Entities
+@using MoonCore.Blazor.Forms.Fast.Components
+
+@inherits BaseFastFormComponent<int>
+
+<div class="col-md-6 col-12">
+    <label class="form-label">@Name</label>
+    
+    <MCBSelect TField="ServerDockerImage"
+               @bind-Value="SelectedDockerImage"
+               Items="SortedImages"
+               DisplayField="@(x => x.Name)"/>
+</div>
+
+@code
+{
+    private ServerDockerImage? SelectedDockerImage
+    {
+        get
+        {
+            if (Binder.Value >= SortedImages.Count)
+                return null;
+
+            if (Binder.Value == -1)
+                return null;
+
+            return SortedImages[Binder.Value];
+        }
+        set
+        {
+            if (value == null)
+            {
+                Binder.Value = -1;
+                return;
+            }
+
+            Binder.Value = SortedImages.IndexOf(value);
+        }
+    }
+
+    private List<ServerDockerImage> SortedImages;
+
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(AdditionalOptions);
+
+        var image = AdditionalOptions.Get<ServerImage>("Image");
+
+        SortedImages = image.DockerImages
+            .OrderBy(x => x.Id)
+            .ToList();
+    }
+}
