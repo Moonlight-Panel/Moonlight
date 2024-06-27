@@ -277,7 +277,7 @@
             await ToastService.Success($"Successfully imported '{image.Name}'");
 
             await ImageUpload.RemoveSelection();
-            //await Crud.Reload();
+            await Crud.Refresh();
         }
         catch (DisplayException)
         {
@@ -313,7 +313,7 @@
                     await ToastService.Success($"Successfully imported '{image.Name}'");
 
                     await EggUpload.RemoveSelection();
-                    //await Crud.Reload();
+                    await Crud.Refresh();
                 }
                 catch (DisplayException)
                 {
