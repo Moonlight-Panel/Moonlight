@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
       - name: Login into docker hub
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PW }}
       - name: Build and Push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Moonlight/Dockerfile
@@ -30,4 +30,3 @@ jobs:
             "BUILD_COMMIT_HASH=${git rev-parse --short '$GITHUB_SHA'}"
             "BUILD_NAME=devbuild ${date}"
             "BUILD_VERSION=${git rev-parse --short '$GITHUB_SHA'}"
-            
