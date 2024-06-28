@@ -1,0 +1,30 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login into docker hub
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PW }}
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Moonlight/Dockerfile
+          push: true
+          tags: moonlightpanel/moonlight:latest
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            "BUILD_CHANNEL=${GITHUB_REF#refs/heads/}"
+            "BUILD_COMMIT_HASH=${git rev-parse --short '$GITHUB_SHA'}"
+            "BUILD_NAME=${{ github.event.release.name }}"
+            "BUILD_VERSION=${git rev-parse --short '$GITHUB_SHA'}"
