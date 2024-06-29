@@ -28,6 +28,7 @@ public class MoonlightService
             BuildName = "N/A";
             BuildVersion = "N/A";
             IsDockerRun = false;
+            return;
         }
 
         var line = File.ReadAllText("version");
