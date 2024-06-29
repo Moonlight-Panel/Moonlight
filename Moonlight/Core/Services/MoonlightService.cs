@@ -19,35 +19,31 @@ public class MoonlightService
 
     public MoonlightService()
     {
-       //TODO: Maybe extract to a method 
-        
-        if (!File.Exists("version"))
-        {
-            BuildChannel = "N/A";
-            BuildCommitHash = "N/A";
-            BuildName = "N/A";
-            BuildVersion = "N/A";
-            IsDockerRun = false;
-            return;
-        }
+       //TODO: Maybe extract to a method to make this a bit cleaner
 
-        var line = File.ReadAllText("version");
-        var parts = line.Split(";");
+       if (File.Exists("version"))
+       {
+           var line = File.ReadAllText("version");
+           line = line.Trim();
+           
+           var parts = line.Split(";");
 
-        if (parts.Length < 5)
-        {
-            BuildChannel = "N/A";
-            BuildCommitHash = "N/A";
-            BuildName = "N/A";
-            BuildVersion = "N/A";
-            IsDockerRun = false;
-        }
-
-        BuildChannel = parts[0];
-        BuildCommitHash = parts[1];
-        BuildName = parts[2];
-        BuildVersion = parts[3];
-        IsDockerRun = parts[4] == "docker";
+           if (parts.Length >= 5)
+           {
+               BuildChannel = parts[0];
+               BuildCommitHash = parts[1];
+               BuildName = parts[2];
+               BuildVersion = parts[3];
+               IsDockerRun = parts[4] == "docker";
+               return;
+           }
+       }
+       
+       BuildChannel = "N/A";
+       BuildCommitHash = "N/A";
+       BuildName = "N/A";
+       BuildVersion = "N/A";
+       IsDockerRun = false;
         
         //TODO: Add log call
     }
