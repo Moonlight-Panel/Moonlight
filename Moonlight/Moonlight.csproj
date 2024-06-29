@@ -77,7 +77,6 @@
         <Folder Include="Features\Servers\Http\Resources\"/>
         <Folder Include="storage\"/>
         <Folder Include="Styles\"/>
-        <Folder Include="wwwroot\css\"/>
     </ItemGroup>
 
     <ItemGroup>

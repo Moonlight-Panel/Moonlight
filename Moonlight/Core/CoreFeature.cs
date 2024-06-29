@@ -114,6 +114,7 @@ public class CoreFeature : MoonlightFeature
         context.AddAsset("Core", "js/alerter.js");
 
         // - Css
+        context.AddAsset("Core", "css/theme.css");
         context.AddAsset("Core", "css/blazor.css");
         context.AddAsset("Core", "css/boxicons.css");
         context.AddAsset("Core", "css/sweetalert2dark.css");
