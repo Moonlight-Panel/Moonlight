@@ -2,8 +2,13 @@ name: Release Build
 
 on:
   workflow_dispatch:
-  release:
-    types: [ published ]
+    inputs:
+      codeName:
+        description: 'Code Name'
+        required: true
+      versionName:
+        description: 'Version Name'
+        required: true
 
 jobs:
   build:
@@ -24,7 +29,7 @@ jobs:
           tags: moonlightpanel/moonlight:latest
           platforms: linux/amd64,linux/arm64
           build-args: |
-            "BUILD_CHANNEL=${GITHUB_REF#refs/heads/}"
-            "BUILD_COMMIT_HASH=${git rev-parse --short '$GITHUB_SHA'}"
-            "BUILD_NAME=${{ github.event.release.name }}"
-            "BUILD_VERSION=${git rev-parse --short '$GITHUB_SHA'}"
+            "BUILD_CHANNEL=${{github.ref_name}}"
+            "BUILD_COMMIT_HASH=${{github.sha}}
+            "BUILD_NAME=${{github.event.inputs.codeName}}"
+            "BUILD_VERSION=${{github.event.inputs.versionName}}"
