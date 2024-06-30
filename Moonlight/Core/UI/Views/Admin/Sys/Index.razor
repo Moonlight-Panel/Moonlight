@@ -48,7 +48,7 @@
         </div>
         <div class="col-md-3 col-12">
             @{
-                var commitText = $"{MoonlightService.BuildCommitHash.Substring(0, 6)}"; // TODO: Add update check (possible during startup, with error handling etc)
+                var commitText = $"{MoonlightService.BuildCommitHash.Substring(0, 7)}"; // TODO: Add update check (possible during startup, with error handling etc)
             }
             
             <StatCard Value="@commitText" Description="Commit" Icon="bxl-git"/>
