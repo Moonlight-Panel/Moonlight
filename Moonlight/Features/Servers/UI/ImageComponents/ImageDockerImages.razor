@@ -1,34 +1,9 @@
 @using MoonCore.Abstractions
-@using MoonCore.Blazor.Forms.Fast.Components
-@using MoonCore.Blazor.Models.Fast
-@using MoonCore.Blazor.Models.Fast.Validators
 @using MoonCore.Exceptions
 @using Moonlight.Features.Servers.Entities
 
 @inject Repository<ServerImage> ImageRepository
 @inject Repository<ServerDockerImage> DockerImageRepository
-
-@*
-<div class="card mb-10">
-    <div class="card-body">
-        <div class="row g-8">
-            <div class="col-md-6 col-12">
-                <label class="form-label">Default docker image</label>
-                <MCBSelect TField="ServerDockerImage"
-                           @bind-Value="SelectedDockerImage"
-                           Items="Image.DockerImages"
-                           DisplayField="@(x => x.Name)"
-                           CanBeNull="true"/>
-            </div>
-            <div class="col-md-6 col-12">
-                <label class="form-label">Allow user to change the docker image</label>
-                <div class="form-check">
-                    <InputCheckbox @bind-Value="Form.AllowDockerImageChange" class="form-check-input"/>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>*@
 
 <FastCrud TItem="ServerDockerImage"
           Loader="Loader"
@@ -107,21 +82,21 @@
         };
     }
 
-    private void OnConfigureForm(FastConfiguration<ServerDockerImage> configuration, ServerDockerImage _)
+    private void OnConfigureForm(FastFormConfiguration<ServerDockerImage> configuration, ServerDockerImage _)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithValidation(RegexValidator.Create("^(?:[a-zA-Z0-9\\-\\.]+\\/)?[a-zA-Z0-9\\-]+(?:\\/[a-zA-Z0-9\\-]+)*(?::[a-zA-Z0-9_\\.-]+)?$", "You need to provide a valid docker image name"))
             .WithDescription("This is the name of the docker image. E.g. moonlightpanel/moonlight:canary");
 
         configuration.AddProperty(x => x.DisplayName)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithDescription("This will be shown if the user is able to change the docker image as the image name");
 
         configuration.AddProperty(x => x.AutoPull)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithDescription("Specifies if the docker image should be pulled/updated when creating a server instance. Disable this for only local existing docker images");
     }
 }

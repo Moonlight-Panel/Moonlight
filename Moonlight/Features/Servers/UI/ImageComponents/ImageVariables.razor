@@ -1,7 +1,5 @@
 @using Moonlight.Features.Servers.Entities
 @using MoonCore.Abstractions
-@using MoonCore.Blazor.Forms.Fast.Components
-@using MoonCore.Blazor.Models.Fast
 @using MoonCore.Exceptions
 @using Moonlight.Features.Servers.Entities.Enums
 
@@ -99,11 +97,11 @@
         };
     }
 
-    private void OnConfigureForm(FastConfiguration<ServerImageVariable> configuration, ServerImageVariable _)
+    private void OnConfigureForm(FastFormConfiguration<ServerImageVariable> configuration, ServerImageVariable _)
     {
         configuration.AddProperty(x => x.Key)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithDescription("This is the environment variable name");
 
         configuration.AddProperty(x => x.DefaultValue)
@@ -112,24 +110,24 @@
 
         configuration.AddProperty(x => x.DisplayName)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithDescription("This is the display name of the variable which will be shown to the user if enabled to edit/view the variable");
 
         configuration.AddProperty(x => x.Description)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithDescription("This text should describe what the variable does for the user if allowed to view and/or change");
 
         configuration.AddProperty(x => x.AllowView)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithDescription("Allow the user to view the variable but not edit it unless specified otherwise");
 
         configuration.AddProperty(x => x.AllowEdit)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithDescription("Allow the user to edit the variable. Wont work if view is disabled");
 
         configuration.AddProperty(x => x.Type)
-            .WithComponent<ServerImageVariableType, EnumSelectComponent<ServerImageVariableType>>()
+            .WithComponent<EnumSelectComponent<ServerImageVariableType>>()
             .WithDescription("Specifies the type of the variable. This specifies what ui the user will see for the variable. You can also specify the options which are available using the filter field");
 
         configuration.AddProperty(x => x.Filter)

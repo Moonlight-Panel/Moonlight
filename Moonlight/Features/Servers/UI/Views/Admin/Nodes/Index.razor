@@ -1,7 +1,4 @@
 @page "/admin/servers/nodes"
-
-@using System.ComponentModel.DataAnnotations
-@using Moonlight.Features.Servers.Models.Forms.Admin.Nodes
 @using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
 @using MoonCore.Abstractions
@@ -9,8 +6,6 @@
 @using MoonCore.Exceptions
 @using MoonCore.Helpers
 @using System.Text.RegularExpressions;
-@using MoonCore.Blazor.Forms.Fast.Components
-@using MoonCore.Blazor.Models.Fast
 @using Moonlight.Features.Servers.Api.Resources
 @using Moonlight.Features.Servers.Services
 @using Moonlight.Features.Servers.UI.NodeComponents
@@ -207,19 +202,19 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<ServerNode> configuration, ServerNode _)
+    private void OnConfigureCreate(FastFormConfiguration<ServerNode> configuration, ServerNode _)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Fqdn)
             .WithDefaultComponent()
             .WithDescription("This needs to be the ip or domain of the node depending on the ssl settings")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Ssl)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithDescription("This enables ssl for the http connections to the node. Only enable this if you have the cert installed on the node");
 
         configuration.AddProperty(x => x.HttpPort)
@@ -231,21 +226,21 @@
             .WithDescription("This is the ftp port users can use to access their servers filesystem via their ftp client");
     }
 
-    private void OnConfigureEdit(FastConfiguration<ServerNode> configuration, ServerNode node)
+    private void OnConfigureEdit(FastFormConfiguration<ServerNode> configuration, ServerNode node)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
             .WithPage("Settings")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Fqdn)
             .WithDefaultComponent()
             .WithPage("Settings")
             .WithDescription("This needs to be the ip or domain of the node depending on the ssl settings")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Ssl)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithPage("Settings")
             .WithDescription("This enables ssl for the http connections to the node. Only enable this if you have the cert installed on the node");
 

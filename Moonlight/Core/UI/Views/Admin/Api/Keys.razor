@@ -1,6 +1,6 @@
 ﻿@page "/admin/api/keys"
 
-@using MoonCore.Blazor.Models.Fast
+@using MoonCore.Blazor.Models.FastForms
 @using MoonCore.Helpers
 @using Moonlight.Core.Database.Entities
 @using Moonlight.Core.UI.Components.Navigations
@@ -66,12 +66,12 @@
         };
     }
 
-    private void OnConfigureFrom(FastConfiguration<ApiKey> configuration, ApiKey _)
+    private void OnConfigureFrom(FastFormConfiguration<ApiKey> configuration, ApiKey _)
     {
         configuration.AddProperty(x => x.Description)
             .WithDefaultComponent()
             .WithDescription("Write a note here for which application the api key is used for")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.ExpiresAt)
             .WithDefaultComponent()

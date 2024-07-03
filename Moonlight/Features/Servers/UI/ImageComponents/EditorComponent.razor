@@ -1,7 +1,6 @@
-@using MoonCore.Blazor.Forms.Fast.Components
 @using Moonlight.Features.FileManager.UI.Components
 
-@inherits BaseFastFormComponent<string>
+@inherits FastFormBaseComponent<string>
 
 <div class="col-12">
     <label class="form-label">
@@ -17,21 +16,9 @@
 
 @code 
 {
-    private int Lines;
-    private string Mode;
+    [Parameter] public string Mode { get; set; } = "sh";
 
-    protected override void OnInitialized()
-    {
-        if (AdditionalOptions == null)
-        {
-            Lines = 25;
-            Mode = "sh";
-            return;
-        }
-
-        Lines = AdditionalOptions.GetNullable<int?>("Lines") ?? 25;
-        Mode = AdditionalOptions.GetNullable<string?>("Mode") ?? "sh";
-    }
+    [Parameter] public int Lines { get; set; } = 25;
 
     private Task OnValueChanged(string val)
     {

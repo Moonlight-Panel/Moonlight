@@ -1,8 +1,6 @@
 @using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.Entities
 @using MoonCore.Abstractions
-@using MoonCore.Blazor.Models.Fast
-@using MoonCore.Blazor.Models.Fast.Validators
 @using MoonCore.Exceptions
 
 
@@ -192,15 +190,15 @@
         };
     }
 
-    private void OnConfigureForm(FastConfiguration<ServerAllocation> configuration, ServerAllocation _)
+    private void OnConfigureForm(FastFormConfiguration<ServerAllocation> configuration, ServerAllocation _)
     {
         configuration.AddProperty(x => x.IpAddress)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithValidation(RegexValidator.Create("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", "You need to provide a valid ipv4 address"));
 
         configuration.AddProperty(x => x.Port)
             .WithDefaultComponent()
-            .WithValidation<int>(x => x >= 1 && x <= 65535 ? ValidationResult.Success : new ValidationResult("You need to provide a valid port"));
+            .WithValidation(x => x >= 1 && x <= 65535 ? ValidationResult.Success : new ValidationResult("You need to provide a valid port"));
     }
 }

@@ -4,8 +4,6 @@
 @using System.Linq.Expressions
 @using Moonlight.Core.UI.Components.Navigations
 @using System.Reflection
-@using MoonCore.Blazor.Models.Fast
-@using MoonCore.Helpers
 @using MoonCore.Services
 @using Moonlight.Core.Configuration
 
@@ -140,7 +138,7 @@ else
             Properties = props
                 .Where(x =>
                         !x.PropertyType.Namespace.StartsWith("Moonlight") &&
-                        DefaultComponentSelector.GetDefault(x.PropertyType) != null // Check if a component has been registered for that type
+                        DefaultComponentRegistry.Get(x.PropertyType) != null // Check if a component has been registered for that type
                 )
                 .ToArray();
         }
@@ -151,7 +149,7 @@ else
             await LazyLoader.Reload();
     }
     
-    private void OnFormConfigure(FastConfiguration<object> configuration)
+    private void OnFormConfigure(FastFormConfiguration<object> configuration)
     {
         if(CurrentModel == null) // This will technically never be true because of the ui logic
             return;

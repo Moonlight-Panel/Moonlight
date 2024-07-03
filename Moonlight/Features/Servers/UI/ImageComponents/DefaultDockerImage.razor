@@ -1,7 +1,7 @@
+@using Microsoft.CSharp.RuntimeBinder
 @using Moonlight.Features.Servers.Entities
-@using MoonCore.Blazor.Forms.Fast.Components
 
-@inherits BaseFastFormComponent<int>
+@inherits FastFormBaseComponent<int>
 
 <div class="col-md-6 col-12">
     <label class="form-label">@Name</label>
@@ -14,6 +14,8 @@
 
 @code
 {
+    [Parameter] public ServerImage Image { get; set; }
+    
     private ServerDockerImage? SelectedDockerImage
     {
         get
@@ -42,11 +44,7 @@
 
     protected override void OnInitialized()
     {
-        ArgumentNullException.ThrowIfNull(AdditionalOptions);
-
-        var image = AdditionalOptions.Get<ServerImage>("Image");
-
-        SortedImages = image.DockerImages
+        SortedImages = Image.DockerImages
             .OrderBy(x => x.Id)
             .ToList();
     }

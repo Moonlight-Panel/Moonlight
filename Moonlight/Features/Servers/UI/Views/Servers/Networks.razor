@@ -3,12 +3,9 @@
 @using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Models.Forms.Users.Networks
 @using MoonCore.Abstractions
 @using Moonlight.Core.Services
 @using Microsoft.EntityFrameworkCore
-@using MoonCore.Blazor.Forms.Fast.Components
-@using MoonCore.Blazor.Models.Fast
 @using MoonCore.Exceptions
 
 @inject IdentityService IdentityService
@@ -92,24 +89,24 @@
         };
     }
 
-    private void OnConfigureCreate(FastConfiguration<ServerNetwork> configuration, ServerNetwork _)
+    private void OnConfigureCreate(FastFormConfiguration<ServerNetwork> configuration, ServerNetwork _)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required);
-
-        Func<ServerNode, string> nodeDisplayField = x => x.Name;
+            .WithValidation(FastFormValidators.Required);
         
         configuration.AddProperty(x => x.Node)
-            .WithComponent<ServerNode, SelectComponent<ServerNode>>()
-            .WithAdditionalOption("DisplayField", nodeDisplayField)
-            .WithValidation<ServerNode>(x => x != null ? ValidationResult.Success : new ValidationResult("You need to specify a node"));
+            .WithComponent<SelectComponent<ServerNode>>(component =>
+            {
+                component.DisplayField = x => x.Name;
+            })
+            .WithValidation(x => x != null ? ValidationResult.Success : new ValidationResult("You need to specify a node"));
     }
 
-    private void OnConfigureEdit(FastConfiguration<ServerNetwork> configuration, ServerNetwork _)
+    private void OnConfigureEdit(FastFormConfiguration<ServerNetwork> configuration, ServerNetwork _)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
     }
 }

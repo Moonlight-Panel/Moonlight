@@ -4,9 +4,6 @@
 @using Moonlight.Features.Servers.UI.Components
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Abstractions
-@using MoonCore.Blazor.Extensions
-@using MoonCore.Blazor.Forms.Fast.Components
-@using MoonCore.Blazor.Models.Fast
 @using MoonCore.Exceptions
 @using Moonlight.Core.Database.Entities
 
@@ -154,102 +151,104 @@
     }
 
     // Shared form
-    private void OnConfigureBase(FastConfiguration<Server> configuration, Server server)
+    private void OnConfigureBase(FastFormConfiguration<Server> configuration, Server server)
     {
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required);
-
-        Func<User, string> usernameFunc = x => x.Username;
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Owner)
-            .WithComponent<User, DropdownComponent<User>>()
-            .WithAdditionalOption("SearchFunc", usernameFunc)
-            .WithAdditionalOption("DisplayFunc", usernameFunc)
-            .WithValidation(FastValidators.Required);
-
-        Func<ServerImage, string> imageNameFunc = x => x.Name;
+            .WithComponent<DropdownComponent<User>>(component =>
+            {
+                component.SearchFunc = x => x.Username;
+                component.DisplayFunc = x => x.Username;
+            })
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Image)
-            .WithComponent<ServerImage, DropdownComponent<ServerImage>>()
-            .WithAdditionalOption("SearchFunc", imageNameFunc)
-            .WithAdditionalOption("DisplayFunc", imageNameFunc)
-            .WithValidation(FastValidators.Required);
+            .WithComponent<DropdownComponent<ServerImage>>(component =>
+            {
+                component.SearchFunc = x => x.Name;
+                component.DisplayFunc = x => x.Name;
+            })
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Cpu)
             .WithDefaultComponent()
-            .WithValidation<int>(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
+            .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
             .WithSection("Resources", "bxs-chip")
             .WithDescription("The cores the server will be able to use. 100 = 1 Core");
 
         configuration.AddProperty(x => x.Memory)
-            .WithComponent<int, ByteSizeComponent>()
-            .WithAdditionalOption("MinimumUnit", "MB")
-            .WithAdditionalOption("DefaultUnit", "GB")
-            .WithValidation<int>(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
+            .WithComponent<ByteSizeComponent>(component =>
+            {
+                component.MinimumUnit = "MB";
+                component.DefaultUnit = "GB";
+            })
+            .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
             .WithSection("Resources")
             .WithDescription("The amount of memory this server will be able to use");
 
         configuration.AddProperty(x => x.Disk)
-            .WithComponent<int, ByteSizeComponent>()
-            .WithAdditionalOption("MinimumUnit", "MB")
-            .WithAdditionalOption("DefaultUnit", "GB")
-            .WithValidation<int>(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
+            .WithComponent<ByteSizeComponent>(component =>
+            {
+                component.MinimumUnit = "MB";
+                component.DefaultUnit = "GB";
+            })
+            .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
             .WithSection("Resources")
             .WithDescription("The amount of disk space this server will be able to use");
 
-        Func<ServerNode, string> nodeNameFunc = x => x.Name;
-
-        configuration.AddProperty(x => x.Node)
-            .WithComponent<ServerNode, DropdownComponent<ServerNode>>()
-            .WithAdditionalOption("SearchFunc", nodeNameFunc)
-            .WithAdditionalOption("DisplayFunc", nodeNameFunc)
-            .WithValidation(FastValidators.Required);
-
         configuration.AddProperty(x => x.UseVirtualDisk)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithPage("Advanced options")
             .WithDescription("Whether to use a virtual disk for storing server files. Dont use this if you want to overallocate as the virtual disks will fill out the space you allocate");
         
         configuration.AddProperty(x => x.DisablePublicNetwork)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithPage("Network")
             .WithDescription("Whether to block all incoming connections to this server from the internet");
+        
+        configuration.AddProperty(x => x.Allocations)
+            .WithComponent<MultiSelectComponent<ServerAllocation>>(component =>
+            {
+                component.SearchFunc = x => $"{x.IpAddress}:{x.Port}";
+                component.DisplayFunc = x => $"{x.IpAddress}:{x.Port}";
+                component.ItemsCallback = () =>GetAllocation(server);
+            })
+            .WithPage("Network");
     }
     
     // Specific form
-    private void OnConfigureCreate(FastConfiguration<Server> configuration, Server server)
+    private void OnConfigureCreate(FastFormConfiguration<Server> configuration, Server server)
     {
         OnConfigureBase(configuration, server);
 
-        // Allocations
-        var items = AllocRepository
-            .Get()
-            .FromSqlRaw("SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL")
-            .AsEnumerable();
-        
-        Func<ServerAllocation, string> buildDisplay = x => $"{x.IpAddress}:{x.Port}";
-        
-        configuration.AddProperty(x => x.Allocations)
-            .WithMultiSelect(buildDisplay, buildDisplay, items)
-            .WithPage("Network");
+        configuration.AddProperty(x => x.Node)
+            .WithComponent<DropdownComponent<ServerNode>>(component =>
+            {
+                component.SearchFunc = x => x.Name;
+                component.DisplayFunc = x => x.Name;
+            })
+            .WithValidation(FastFormValidators.Required);
     }
     
-    private void OnConfigureEdit(FastConfiguration<Server> configuration, Server server)
+    private void OnConfigureEdit(FastFormConfiguration<Server> configuration, Server server)
     {
         OnConfigureBase(configuration, server);
+    }
 
-        // Allocations
-        var items = server.Allocations.Concat(
+    private IEnumerable<ServerAllocation> GetAllocation(Server server)
+    {
+        if (server == null)
+            return Array.Empty<ServerAllocation>();
+
+        if (server.Node == null)
+            return Array.Empty<ServerAllocation>();
+            
+        return server.Allocations.Concat(
             AllocRepository
                 .Get()
-                .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {server.Node.Id}")
-                .AsEnumerable());
-        
-        Func<ServerAllocation, string> buildDisplay = x => $"{x.IpAddress}:{x.Port}";
-        
-        configuration.AddProperty(x => x.Allocations)
-            .WithMultiSelect(buildDisplay, buildDisplay, items)
-            .WithPage("Network");
+                .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {server.Node.Id}"));
     }
 }

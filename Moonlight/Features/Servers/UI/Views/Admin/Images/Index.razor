@@ -9,9 +9,6 @@
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Helpers
 @using Microsoft.AspNetCore.Components.Forms
-@using MoonCore.Blazor.Forms.Fast.Components
-@using MoonCore.Blazor.Models.Fast
-@using MoonCore.Blazor.Models.Fast.Validators
 @using Moonlight.Features.Servers.UI.ImageComponents
 
 @inject Repository<Server> ServerRepository
@@ -111,18 +108,18 @@
         configuration.CustomDelete = CustomDelete;
     }
 
-    private void OnConfigureForm(FastConfiguration<ServerImage> configuration, ServerImage image)
+    private void OnConfigureForm(FastFormConfiguration<ServerImage> configuration, ServerImage image)
     {
         // General
         configuration.AddProperty(x => x.Name)
             .WithDefaultComponent()
             .WithPage("General")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.Author)
             .WithDefaultComponent()
             .WithPage("General")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.DonateUrl)
             .WithDefaultComponent()
@@ -137,25 +134,25 @@
         // Power
         configuration.AddProperty(x => x.StartupCommand)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithPage("Start, Stop & Status")
             .WithDescription("This command will be executed at the start of a server. You can use environment variables in a {} here");
 
         configuration.AddProperty(x => x.OnlineDetection)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithPage("Start, Stop & Status")
             .WithDescription("A regex string specifying that a server is online when the daemon finds a match in the console output matching this expression");
 
         configuration.AddProperty(x => x.StopCommand)
             .WithDefaultComponent()
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithPage("Start, Stop & Status")
             .WithDescription("A command which will be sent to the servers stdin when it should get stopped. Power signals can be achived by using ^. E.g. ^C");
         
         // Parsing
         configuration.AddProperty(x => x.ParseConfiguration)
-            .WithComponent<string, ImageParseConfigEditor>()
+            .WithComponent<ImageParseConfigEditor>()
             .WithPage("Parsing");
 
         configuration.AddCustomPage("Variables", ComponentHelper.FromType<ImageVariables>(parameters =>
@@ -169,38 +166,40 @@
         }));
 
         configuration.AddProperty(x => x.AllowDockerImageChange)
-            .WithComponent<bool, SwitchComponent>()
+            .WithComponent<SwitchComponent>()
             .WithPage("Miscellaneous")
             .WithDescription("This toggle specifies if a user is allowed to change the docker image from the list of docker images associated to the image");
         
         configuration.AddProperty(x => x.DefaultDockerImage)
-            .WithComponent<int, DefaultDockerImage>()
-            .WithAdditionalOption("Image", image)
+            .WithComponent<DefaultDockerImage>(dockerImage =>
+            {
+                dockerImage.Image = image;
+            })
             .WithPage("Miscellaneous");
 
         configuration.AddProperty(x => x.AllocationsNeeded)
             .WithDefaultComponent()
             .WithPage("Miscellaneous")
-            .WithValidation<int>(x => x > 1 ? ValidationResult.Success : new ValidationResult("This specifies the amount of allocations needed for this image in order to create a server"));
+            .WithValidation(x => x > 1 ? ValidationResult.Success : new ValidationResult("This specifies the amount of allocations needed for this image in order to create a server"));
 
         configuration.AddProperty(x => x.InstallDockerImage)
             .WithDefaultComponent()
             .WithPage("Installation")
             .WithName("Docker Image")
-            .WithValidation(FastValidators.Required)
+            .WithValidation(FastFormValidators.Required)
             .WithValidation(RegexValidator.Create("^(?:[a-zA-Z0-9\\-\\.]+\\/)?[a-zA-Z0-9\\-]+(?:\\/[a-zA-Z0-9\\-]+)*(?::[a-zA-Z0-9_\\.-]+)?$", "You need to provide a valid docker image name"));
 
         configuration.AddProperty(x => x.InstallShell)
             .WithDefaultComponent()
             .WithPage("Installation")
             .WithName("Shell")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
 
         configuration.AddProperty(x => x.InstallScript)
-            .WithComponent<string, EditorComponent>()
+            .WithComponent<EditorComponent>()
             .WithPage("Installation")
             .WithName("Script")
-            .WithValidation(FastValidators.Required);
+            .WithValidation(FastFormValidators.Required);
     }
 
     private Task CustomDelete(ServerImage serverImage)
