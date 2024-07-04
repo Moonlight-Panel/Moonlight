@@ -184,6 +184,7 @@
             {
                 component.MinimumUnit = "MB";
                 component.DefaultUnit = "GB";
+                component.Converter = 1;
             })
             .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
             .WithSection("Resources")
@@ -194,6 +195,7 @@
             {
                 component.MinimumUnit = "MB";
                 component.DefaultUnit = "GB";
+                component.Converter = 1;
             })
             .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
             .WithSection("Resources")
