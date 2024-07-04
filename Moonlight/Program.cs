@@ -121,7 +121,7 @@ catch (MySqlException e)
                 return false;
         }
         else
-            return false;
+            throw e;
 
         return true;
     }
