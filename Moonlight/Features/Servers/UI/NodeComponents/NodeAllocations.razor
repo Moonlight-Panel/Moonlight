@@ -92,7 +92,7 @@
         NodeRepository.Update(Node!);
 
         await ToastService.Success($"Added {added} allocations and skipped {skipped} ports due to existing allocations");
-        await Crud.Refresh();
+        await Crud.Refresh(fullRefresh: true);
     }
 
     private async Task DeleteAllAllocations()
@@ -115,7 +115,7 @@
             }
 
             await ToastService.Success("Successfully deleted allocations");
-            await Crud.Refresh();
+            await Crud.Refresh(fullRefresh: true);
         });
     }
 
