@@ -1,8 +1,10 @@
 @page "/account"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Core.Services
 @using Moonlight.Core.Models.Forms
 @using Mappy.Net
+@using Moonlight.Core.Database.Entities
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.UI.Components.Navigations
 
@@ -22,53 +24,73 @@
 
 <AccountNavigation Index="0"/>
 
-<LazyLoader Load="Load">
-
-    <div class="row g-5">
-        <div class="col-md-3 col-12">
-            <div class="card card-body h-100">
-                <div class="d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-center">
-                        <div class="symbol symbol-100px symbol-lg-160px symbol-fixed">
-                            <img src="/api/core/avatar" alt="image">
-                        </div>
+<div class="row g-5">
+    <div class="col-md-3 col-12">
+        <div class="card card-body h-100">
+            <div class="d-flex flex-column justify-content-center">
+                <div class="d-flex justify-content-center">
+                    <div class="symbol symbol-100px symbol-lg-160px symbol-fixed">
+                        <img src="/api/core/avatar" alt="image">
                     </div>
-                    <div class="fs-4 mt-5 text-center">
-                        To change your profile picture go to <a href="https://gravatar.com/">Gravatar</a> and
-                        register with the same email address you are using here
-                    </div>
+                </div>
+                <div class="fs-4 mt-5 text-center">
+                    To change your profile picture go to <a href="https://gravatar.com/">Gravatar</a> and
+                    register with the same email address you are using here
                 </div>
             </div>
         </div>
-        <div class="col-md-9 col-12">
-            <div class="card">
-                <SmartForm Model="Form" OnValidSubmit="Update">
-                    <div class="card-body">
-                        <AutoForm TForm="UpdateAccountForm" Columns="12" Model="Form"/>
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </SmartForm>
+    </div>
+    <div class="col-md-9 col-12">
+        <div class="card">
+            <div class="card-body">
+                <FastForm @ref="Form" Model="User" OnConfigure="OnConfigure" />
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <WButton OnClick="SaveChanges" CssClasses="btn btn-primary">Save changes</WButton>
             </div>
         </div>
     </div>
-</LazyLoader>
+</div>
 
 @code
 {
-    private UpdateAccountForm Form = new();
+    private User User;
+    private FastForm<User> Form;
 
-    private Task Load(LazyLoader _)
+    protected override void OnInitialized()
     {
-        Form = Mapper.Map<UpdateAccountForm>(IdentityService.CurrentUser);
-
-        return Task.CompletedTask;
+        // Create a copy of the user
+        User = Mapper.Map<User>(IdentityService.CurrentUser);
     }
 
-    private async Task Update()
+    private void OnConfigure(FastFormConfiguration<User> configuration)
     {
-        await AuthenticationProvider.ChangeDetails(IdentityService.CurrentUser, Form.Email, Form.Username);
+        configuration.AddProperty(x => x.Username)
+            .WithComponent<StringComponent>(component =>
+            {
+                component.ColumnsMd = 12;
+            })
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(RegexValidator.Create("^[a-z][a-z0-9]*$", "Usernames can only contain lowercase characters and numbers and should not start with a number"))
+            .WithValidation(x => x.Length >= 6 ? ValidationResult.Success : new("The username is too short"))
+            .WithValidation(x => x.Length <= 20 ? ValidationResult.Success : new("The username cannot be longer than 20 characters"));
+
+        configuration.AddProperty(x => x.Email)
+            .WithComponent<StringComponent>(component =>
+            {
+                component.ColumnsMd = 12;
+                component.Type = "email";
+            })
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(RegexValidator.Create("^.+@.+$", "You need to provide a valid email address"));
+    }
+
+    private async Task SaveChanges()
+    {
+        if(!await Form.Submit())
+            return;
+        
+        await AuthenticationProvider.ChangeDetails(IdentityService.CurrentUser, User.Email, User.Username);
         await ToastService.Success("Successfully updated details");
 
         // This will trigger a re-render as well as an update of the model

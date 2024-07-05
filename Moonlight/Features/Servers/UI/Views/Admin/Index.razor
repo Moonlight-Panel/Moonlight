@@ -217,6 +217,7 @@
                 component.SearchFunc = x => $"{x.IpAddress}:{x.Port}";
                 component.DisplayFunc = x => $"{x.IpAddress}:{x.Port}";
                 component.ItemsCallback = () =>GetAllocation(server);
+                component.ColumnsMd = 6;
             })
             .WithPage("Network");
     }

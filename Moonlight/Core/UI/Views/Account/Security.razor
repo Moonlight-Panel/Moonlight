@@ -1,5 +1,6 @@
 @page "/account/security"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Core.Services
 @using Moonlight.Core.UI.Components.Navigations
 @using Moonlight.Core.Models.Forms
@@ -23,74 +24,97 @@
 
 <AccountNavigation Index="1"/>
 
-<LazyLoader Load="Load">
-    <div class="row g-5">
-        <div class="col-md-6 col-12">
-            <div class="card">
-                <SmartForm Model="PasswordForm" OnValidSubmit="OnValidSubmitPassword">
-                    <div class="card-body">
-                        <div class="row">
-                            <AutoForm Model="PasswordForm" Columns="12" />
-                        </div>
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <button class="btn btn-primary" type="submit">Save changes</button>
-                    </div>
-                </SmartForm>
+<div class="row g-5">
+    <div class="col-md-6 col-12">
+        <div class="card">
+            <div class="card-body">
+                <FastForm @ref="PasswordForm" Model="PasswordModel" OnConfigure="OnConfigurePasswordForm" />
             </div>
-        </div>
-        <div class="col-md-6 col-12">
-            <div class="card h-100">
-                <div class="card-body">
-                    <TwoFactorWizard />
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-12">
-            <div class="card h-100">
-                <SmartForm Model="CookiesForm" OnValidSubmit="OnValidSubmitCookie">
-                <div class="card-body">
-                    <h3>Cookies</h3>
-                    <div>
-                        
-                            <AutoForm Model="CookiesForm"/>
-                    </div>
-                </div>
-                <div class="card-footer d-flex justify-content-end">
-                    <button class="btn btn-primary" type="submit">Save changes</button>
-                </div>
-                </SmartForm>
+            <div class="card-footer d-flex justify-content-end">
+                <WButton OnClick="ChangePassword" CssClasses="btn btn-primary">Save changes</WButton>
             </div>
         </div>
     </div>
-</LazyLoader>
+    <div class="col-md-6 col-12">
+        <div class="card h-100">
+            <div class="card-body">
+                <TwoFactorWizard />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-12">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3>Cookies</h3>
+                <p class="my-2 text-muted fs-5">
+                    This specifies if you would like to personalize your experience with optional cookies.
+                </p>
+                <div class="form-check form-switch">
+                    @if (CookieConsent)
+                    {
+                    <input @onclick="() => SetCookieConsent(false)" class="form-check-input" type="checkbox" role="switch" checked="checked">
+                    }
+                    else
+                    {
+                    <input @onclick="() => SetCookieConsent(true)" class="form-check-input" type="checkbox" role="switch">
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code
 {
-    private readonly ChangePasswordForm PasswordForm = new();
-    
-    private ChangeCookiesForm CookiesForm = new();
+    private ChangePasswordForm PasswordModel = new();
+    private FastForm<ChangePasswordForm> PasswordForm;
 
-    private async Task Load(LazyLoader lazyLoader)
+    private bool CookieConsent;
+
+    protected override async Task OnInitializedAsync()
     {
-        CookiesForm.UseOptionalCookies = await IdentityService.HasFlag("CookieConsent");
+        CookieConsent = await IdentityService.HasFlag("CookieConsent");
     }
 
-    private async Task OnValidSubmitPassword()
+    private async Task SetCookieConsent(bool flag)
     {
-        if (PasswordForm.Password != PasswordForm.RepeatedPassword)
+        await IdentityService.SetFlag("CookieConsent", flag);
+        
+        await ToastService.Success("Successfully changed cookie preferences");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnConfigurePasswordForm(FastFormConfiguration<ChangePasswordForm> configuration)
+    {
+        configuration.AddProperty(x => x.Password)
+            .WithComponent<StringComponent>(component =>
+            {
+                component.ColumnsMd = 6;
+                component.Type = "password";
+            })
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(x => x.Length >= 8 ? ValidationResult.Success : new("The password must be at least 8 characters long"))
+            .WithValidation(x => x.Length <= 256 ? ValidationResult.Success : new("The password must not be longer than 256 characters"));
+
+        configuration.AddProperty(x => x.RepeatedPassword)
+            .WithComponent<StringComponent>(component =>
+            {
+                component.ColumnsMd = 6;
+                component.Type = "password";
+            });
+    }
+
+    private async Task ChangePassword()
+    {
+        if(!await PasswordForm.Submit())
+            return;
+        
+        if (PasswordModel.Password != PasswordModel.RepeatedPassword)
             throw new DisplayException("The passwords do not match");
         
-        await AuthenticationProvider.ChangePassword(IdentityService.CurrentUser, PasswordForm.Password);
+        await AuthenticationProvider.ChangePassword(IdentityService.CurrentUser, PasswordModel.Password);
         
         await ToastService.Success("Successfully changed password");
         await IdentityService.Authenticate(true);
-    }
-
-    private async Task OnValidSubmitCookie()
-    {
-        await IdentityService.SetFlag("CookieConsent", CookiesForm.UseOptionalCookies);
-
-        await InvokeAsync(StateHasChanged);
     }
 }
