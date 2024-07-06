@@ -20,7 +20,16 @@ ARG BUILD_CONFIGURATION=Release
 # Install sass and compile styles
 RUN apt-get update
 RUN apt-get install wget -y
-RUN wget -O /tmp/sass.tar.gz https://github.com/sass/dart-sass/releases/download/1.77.5/dart-sass-1.77.5-linux-x64.tar.gz
+
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        wget -O /tmp/sass.tar.gz https://github.com/sass/dart-sass/releases/download/1.77.5/dart-sass-1.77.5-linux-x64.tar.gz; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        wget -O /tmp/sass.tar.gz https://github.com/sass/dart-sass/releases/download/1.77.5/dart-sass-1.77.5-linux-arm64.tar.gz; \
+    else \
+        echo "Unsupported architecture: $ARCH"; exit 1; \
+    fi
+
 RUN tar -xf /tmp/sass.tar.gz -C /tmp
 RUN chmod +x /tmp/dart-sass/sass
 RUN /tmp/dart-sass/sass /src/Moonlight/Styles/style.scss /app/publish/theme.css
