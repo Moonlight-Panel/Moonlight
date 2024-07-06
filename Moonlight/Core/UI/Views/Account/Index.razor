@@ -17,7 +17,7 @@
         <span class="fs-2 fw-semibold">
             @* the @@@ looks weird, ik that, it will result in @username *@
 
-            @@@IdentityService.CurrentUser.Username
+            @@@IdentityService.GetUser().Username
         </span>
     </div>
 </div>
@@ -43,7 +43,7 @@
     <div class="col-md-9 col-12">
         <div class="card">
             <div class="card-body">
-                <FastForm @ref="Form" Model="User" OnConfigure="OnConfigure" />
+                <FastForm @ref="Form" Model="Model" OnConfigure="OnConfigure" />
             </div>
             <div class="card-footer d-flex justify-content-end">
                 <WButton OnClick="SaveChanges" CssClasses="btn btn-primary">Save changes</WButton>
@@ -54,16 +54,16 @@
 
 @code
 {
-    private User User;
-    private FastForm<User> Form;
+    private UpdateAccountForm Model;
+    private FastForm<UpdateAccountForm> Form;
 
     protected override void OnInitialized()
     {
         // Create a copy of the user
-        User = Mapper.Map<User>(IdentityService.CurrentUser);
+        Model = Mapper.Map<UpdateAccountForm>(IdentityService.GetUser());
     }
 
-    private void OnConfigure(FastFormConfiguration<User> configuration)
+    private void OnConfigure(FastFormConfiguration<UpdateAccountForm> configuration)
     {
         configuration.AddProperty(x => x.Username)
             .WithComponent<StringComponent>(component =>
@@ -90,10 +90,10 @@
         if(!await Form.Submit())
             return;
         
-        await AuthenticationProvider.ChangeDetails(IdentityService.CurrentUser, User.Email, User.Username);
+        await AuthenticationProvider.ChangeDetails(IdentityService.GetUser(), Model.Email, Model.Username);
         await ToastService.Success("Successfully updated details");
 
         // This will trigger a re-render as well as an update of the model
-        await IdentityService.Authenticate(true);
+        await IdentityService.Authenticate();
     }
 }

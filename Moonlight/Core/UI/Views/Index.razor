@@ -9,7 +9,7 @@
 <LazyLoader Load="Load">
     @foreach (var component in Components.OrderBy(x => x.Index))
     {
-        if (component.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+        if (component.RequiredPermissionLevel <= IdentityService.GetUser().Permissions)
         {
             <div class="mb-4">
                 @component.Component

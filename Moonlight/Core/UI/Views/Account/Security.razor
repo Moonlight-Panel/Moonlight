@@ -17,7 +17,7 @@
         <span class="fs-2 fw-semibold">
             @* the @@@ looks weird, ik that, it will result in @username *@
 
-            @@@IdentityService.CurrentUser.Username
+            @@@IdentityService.GetUser().Username
         </span>
     </div>
 </div>
@@ -112,9 +112,9 @@
         if (PasswordModel.Password != PasswordModel.RepeatedPassword)
             throw new DisplayException("The passwords do not match");
         
-        await AuthenticationProvider.ChangePassword(IdentityService.CurrentUser, PasswordModel.Password);
+        await AuthenticationProvider.ChangePassword(IdentityService.GetUser(), PasswordModel.Password);
         
         await ToastService.Success("Successfully changed password");
-        await IdentityService.Authenticate(true);
+        await IdentityService.Authenticate();
     }
 }

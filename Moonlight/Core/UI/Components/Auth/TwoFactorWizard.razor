@@ -9,7 +9,7 @@
 @inject AlertService AlertService
 @inject IAuthenticationProvider AuthenticationProvider
 
-@if (IdentityService.CurrentUser.Totp)
+@if (IdentityService.GetUser().Totp)
 {
     <div class="d-flex justify-content-center flex-column text-center">
         <div class="d-flex justify-content-center">
@@ -43,7 +43,7 @@ else
 
                             var qrCodeData = qrGenerator.CreateQrCode
                             (
-                                $"otpauth://totp/{Uri.EscapeDataString(IdentityService.CurrentUser.Email)}?secret={Key}&issuer={Uri.EscapeDataString("Moonlight")}",
+                                $"otpauth://totp/{Uri.EscapeDataString(IdentityService.GetUser().Email)}?secret={Key}&issuer={Uri.EscapeDataString("Moonlight")}",
                                 QRCodeGenerator.ECCLevel.Q
                             );
 
@@ -142,8 +142,8 @@ else
 
     private async Task Disable(ConfirmButton _)
     {
-        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, "");
-        await IdentityService.Authenticate(true);
+        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.GetUser(), "");
+        await IdentityService.Authenticate();
 
         HasStarted = false;
         HasCompletedAppLinks = false;
@@ -177,8 +177,8 @@ else
         }
         
         // Enable two factor auth for user
-        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, Key);
-        await IdentityService.Authenticate(true);
+        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.GetUser(), Key);
+        await IdentityService.Authenticate();
 
         HasStarted = false;
         HasCompletedAppLinks = false;

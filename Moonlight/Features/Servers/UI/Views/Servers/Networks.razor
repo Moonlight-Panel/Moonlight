@@ -51,7 +51,7 @@
         var result = repository
             .Get()
             .Include(x => x.Node)
-            .Where(x => x.User.Id == IdentityService.CurrentUser.Id);
+            .Where(x => x.User.Id == IdentityService.GetUser().Id);
 
         UsedByCache.Clear();
 
@@ -60,7 +60,7 @@
             var serversUsingThisNetwork = ServerRepository
                 .Get()
                 .Where(x => x.Network.Id == network.Id)
-                .Where(x => x.Owner.Id == IdentityService.CurrentUser.Id)
+                .Where(x => x.Owner.Id == IdentityService.GetUser().Id)
                 .ToArray();
 
             UsedByCache.Add(network.Id, serversUsingThisNetwork);
@@ -75,7 +75,7 @@
         {
             if (!ServerRepository
                     .Get()
-                    .Any(x => x.Node.Id == network.Node.Id && x.Owner.Id == IdentityService.CurrentUser.Id))
+                    .Any(x => x.Node.Id == network.Node.Id && x.Owner.Id == IdentityService.GetUser().Id))
             {
                 throw new DisplayException("You need a server on the selected node in order to create a network on the node");
             }
@@ -83,7 +83,7 @@
             //TODO: Add config to check the amount of networks created
 
             // Set user as the crud is not allowed to set it (user crud and so on)
-            network.User = IdentityService.CurrentUser;
+            network.User = IdentityService.GetUser();
 
             return Task.CompletedTask;
         };

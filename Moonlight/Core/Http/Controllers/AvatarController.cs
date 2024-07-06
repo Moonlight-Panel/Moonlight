@@ -2,13 +2,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Abstractions;
-using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Core.Attributes;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Services;
-using IdentityService = Moonlight.Core.Services.IdentityService;
+using Moonlight.Core.Extensions;
 
 namespace Moonlight.Core.Http.Controllers;
 
@@ -42,10 +40,10 @@ public class AvatarController : Controller
         var token = Request.Cookies["token"];
         await IdentityService.Authenticate(token!);
 
-        if (!IdentityService.IsLoggedIn)
+        if (!IdentityService.IsAuthenticated)
             return StatusCode(403);
         
-        return File(await GetAvatar(IdentityService.CurrentUser), "image/jpeg");
+        return File(await GetAvatar(IdentityService.GetUser()), "image/jpeg");
     }
 
     [HttpGet("{id:int}")]
@@ -57,12 +55,12 @@ public class AvatarController : Controller
         var token = Request.Cookies["token"];
         await IdentityService.Authenticate(token!);
 
-        if (!IdentityService.IsLoggedIn)
+        if (!IdentityService.IsAuthenticated)
             return StatusCode(403);
 
         if (ConfigService.Get().Security.EnforceAvatarPrivacy && // Do we need to enforce privacy?
-            id != IdentityService.CurrentUser.Id && // is the user not viewing his own image?
-            IdentityService.CurrentUser.Permissions < 1000) // and not an admin?
+            id != IdentityService.GetUser().Id && // is the user not viewing his own image?
+            IdentityService.GetUser().Permissions < 1000) // and not an admin?
         {
             return StatusCode(403);
         }

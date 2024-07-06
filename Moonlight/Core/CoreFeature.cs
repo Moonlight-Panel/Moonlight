@@ -26,7 +26,7 @@ using Moonlight.Core.Implementations.AdminDashboard;
 using Moonlight.Core.Implementations.ApiDefinition;
 using Moonlight.Core.Implementations.UserDashboard;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using IdentityService = Moonlight.Core.Services.IdentityService;
+using AuthenticationStateProvider = Moonlight.Core.Helpers.AuthenticationStateProvider;
 
 namespace Moonlight.Core;
 
@@ -68,6 +68,9 @@ public class CoreFeature : MoonlightFeature
         builder.Services.AddMoonCore(configuration =>
         {
             configuration.Identity.Token = config.Security.Token;
+            configuration.Identity.PeriodicReAuthDelay = TimeSpan.FromMinutes(config.Authentication.PeriodicReAuthDelay);
+            configuration.Identity.EnablePeriodicReAuth = config.Authentication.EnablePeriodicReAuth;
+            configuration.Identity.Provider = new AuthenticationStateProvider();
         });
         
         builder.Services.AddMoonCoreBlazor();

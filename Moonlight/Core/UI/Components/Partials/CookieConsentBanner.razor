@@ -1,8 +1,4 @@
-﻿@using ApexCharts
-@using MoonCore.Services
-@using Moonlight.Core.Configuration
-@using Moonlight.Core.Services
-@using IdentityService = Moonlight.Core.Services.IdentityService
+﻿@using Moonlight.Core.Configuration
 
 @inject ConfigService<CoreConfiguration> ConfigService
 @inject IdentityService IdentityService
@@ -13,17 +9,17 @@
         <div style="pointer-events: all; max-width: var(--bs-breakpoint-sm)" class="w-100">
             <div class="card shadow-lg">
                 <div class="card-body">
-                    <h3 class="mb-4">@ConfigService.Get().Customisation.CookieConsentBanner.BannerTitle</h3>
+                    <h3 class="mb-4">@BannerTitle</h3>
                     <p class="text-muted fs-6">
-                        @ConfigService.Get().Customisation.CookieConsentBanner.BannerText
+                        @BannerText
                     </p>
                     <span class="d-flex gap-5">
-                        <a @onclick:preventDefault @onclick="Consent" class="btn btn-primary btn-sm cursor-pointer">
-                            <i class="bx bx-check"></i> @ConfigService.Get().Customisation.CookieConsentBanner.ConsentText
-                        </a>
-                        <a @onclick:preventDefault @onclick="Decline" class="btn btn-secondary btn-sm cursor-pointer">
-                            <i class="bx bx-x"></i> @ConfigService.Get().Customisation.CookieConsentBanner.DeclineText
-                        </a>
+                        <WButton OnClick="() => SetAnswer(true)" CssClasses="btn btn-primary btn-smr">
+                            <i class="bx bx-check"></i> @ConsentText
+                        </WButton>
+                        <WButton OnClick="() => SetAnswer(false)" CssClasses="btn btn-secondary btn-sm cursor-pointer">
+                            <i class="bx bx-x"></i> @DeclineText
+                        </WButton>
                     </span>
                 </div>
             </div>
@@ -31,16 +27,31 @@
     </div>
 }
 
-@code {
-
+@code
+{
     private bool ShowBanner;
+
+    private string BannerTitle;
+    private string BannerText;
+    private string ConsentText;
+    private string DeclineText;
+
+    protected override void OnInitialized()
+    {
+        var config = ConfigService.Get().Customisation.CookieConsentBanner;
+
+        BannerTitle = config.BannerTitle;
+        BannerText = config.BannerText;
+        ConsentText = config.ConsentText;
+        DeclineText = config.DeclineText;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var userWasAsked = await IdentityService.HasFlag("CookieAsked");
-            
+
             if (ConfigService.Get().Customisation.CookieConsentBanner.Enabled && !userWasAsked)
                 ShowBanner = true;
 
@@ -48,25 +59,16 @@
         }
     }
 
-    private async Task Consent()
+    private async Task SetAnswer(bool answer)
     {
-        if (!IdentityService.IsLoggedIn)
-            return;
-        
-        await IdentityService.SetFlag("CookieAsked", true);
-        await IdentityService.SetFlag("CookieConsent", true);
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task Decline()
-    {
-        if (!IdentityService.IsLoggedIn)
+        if (!IdentityService.IsAuthenticated)
             return;
 
         await IdentityService.SetFlag("CookieAsked", true);
-        
+
+        if (answer)
+            await IdentityService.SetFlag("CookieConsent", true);
+
         await InvokeAsync(StateHasChanged);
     }
-
 }

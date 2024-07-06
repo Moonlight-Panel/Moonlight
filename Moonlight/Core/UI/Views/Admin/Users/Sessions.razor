@@ -29,10 +29,12 @@
                           PageSize="50">
                     <MCBColumn TItem="Session" Title="User" Field="@(x => x.CreatedAt)">
                         <Template>
-                            @if (context.IdentityService.IsLoggedIn)
+                            @if (context.IdentityService.IsAuthenticated)
                             {
-                                <a target="_blank" href="/admin/users/view/@(context.IdentityService.CurrentUser.Id)">
-                                    @(context.IdentityService.CurrentUser.Email)
+                                var user = context.IdentityService.GetUser();
+                                
+                                <a target="_blank" href="/admin/users/view/@(user.Id)">
+                                    @(user.Email)
                                 </a>
                             }
                             else

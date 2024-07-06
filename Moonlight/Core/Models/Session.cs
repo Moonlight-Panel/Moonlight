@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MoonCore.Blazor.Services;
-using Moonlight.Core.Services;
+using MoonCore.Services;
 
 namespace Moonlight.Core.Models;
 

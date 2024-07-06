@@ -3,7 +3,6 @@
 @using Moonlight.Features.Servers.Services
 @using Moonlight.Features.Servers.UI.Components
 @using MoonCore.Abstractions
-@using MoonCore.Helpers
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.Features.Servers.Helpers
 @using Moonlight.Features.Servers.UI.UserViews
@@ -11,8 +10,6 @@
 @using System.Net.WebSockets
 @using MoonCore.Exceptions
 @using Moonlight.Features.Servers.Configuration
-@using MoonCore.Services
-@using IdentityService = Moonlight.Core.Services.IdentityService
 @using MoonCore.Blazor.Forms.Router
 
 @inject Repository<Server> ServerRepository
@@ -226,7 +223,7 @@
             .Include(x => x.Owner)
             .First(x => x.Id == Id);
 
-        if (Server.Owner.Id != IdentityService.CurrentUser.Id && IdentityService.CurrentUser.Permissions < 5000)
+        if (Server.Owner.Id != IdentityService.GetUser().Id && IdentityService.GetUser().Permissions < 5000)
         {
             Server = null!;
             return;

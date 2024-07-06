@@ -4,11 +4,8 @@
 
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Models.Forms
-@using Moonlight.Core.Services
 @using MoonCore.Exceptions
-@using MoonCore.Services
 @using Moonlight.Core.Configuration
-@using IdentityService = Moonlight.Core.Services.IdentityService
 
 @inject IAuthenticationProvider AuthenticationProvider
 @inject IdentityService IdentityService
@@ -96,7 +93,10 @@
             throw new DisplayException("Unable to create account");
 
         // Generate token and authenticate
-        var token = await IdentityService.Authenticate(user);
+        var token = await IdentityService.Login(
+            user.Id.ToString(), 
+            TimeSpan.FromHours(ConfigService.Get().Authentication.TokenDuration)
+        );
 
         // Save token for later use
         await CookieService.SetValue("token", token, 30); // TODO: config

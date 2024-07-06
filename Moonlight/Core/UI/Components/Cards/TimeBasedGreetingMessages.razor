@@ -1,7 +1,6 @@
 ﻿@using MoonCore.Services
 @using Moonlight.Core.Configuration
-@using Moonlight.Core.Services
-@using IdentityService = Moonlight.Core.Services.IdentityService
+@using Moonlight.Core.Database.Entities
 
 @inject IdentityService IdentityService
 @inject ConfigService<CoreConfiguration> ConfigService
@@ -13,7 +12,7 @@
                 var greeting = GetGreetingMessage();
             }
             @greeting.Item1
-            <span class="text-info">@IdentityService.CurrentUser.Username</span>
+            <span class="text-info">@IdentityService.GetUser().Username</span>
             @greeting.Item2
         </span>
     </div>

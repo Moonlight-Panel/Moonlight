@@ -12,7 +12,7 @@
     <div class="row mb-8 gap-4">
         @foreach (var column in Columns.OrderBy(x => x.Index))
         {
-            if (column.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+            if (column.RequiredPermissionLevel <= IdentityService.GetUser().Permissions)
             {
                 <div class="col-12 col-lg-6 col-xl">
                     @column.Component
@@ -22,7 +22,7 @@
     </div>
     @foreach (var component in Components.OrderBy(x => x.Index))
     {
-        if (component.RequiredPermissionLevel <= IdentityService.CurrentUser.Permissions)
+        if (component.RequiredPermissionLevel <= IdentityService.GetUser().Permissions)
         {
             <div class="mb-4">
                 @component.Component
