@@ -49,10 +49,14 @@
         </div>
         <div class="col-md-3 col-12">
             @{
-                var commitText = $"{MoonlightService.BuildCommitHash.Substring(0, 7)}"; // TODO: Add update check (possible during startup, with error handling etc)
+                var commitHashShorted = string.IsNullOrEmpty(MoonlightService.BuildCommitHash) || MoonlightService.BuildCommitHash.Length < 7
+                    ? ""
+                    : MoonlightService.BuildCommitHash.Substring(0, 7); 
+                
+                // TODO: Add update check (possible during startup, with error handling etc)
             }
             
-            <StatCard Value="@commitText" Description="Commit" Icon="bxl-git"/>
+            <StatCard Value="@commitHashShorted" Description="Commit" Icon="bxl-git"/>
         </div>
         <div class="col-md-3 col-12">
             <StatCard Value="@MoonlightService.BuildChannel" Description="Channel" Icon="bx-git-branch"/>
