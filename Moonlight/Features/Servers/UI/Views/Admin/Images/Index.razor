@@ -35,7 +35,7 @@
         <MCBColumn TItem="ServerImage" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
         <MCBColumn TItem="ServerImage" Field="@(x => x.Name)" Title="Name" Filterable="true">
             <Template>
-                <a href="/admin/servers/images/view/@context!.Id">@context.Name</a>
+                <span>@context.Name</span>
             </Template>
         </MCBColumn>
         <MCBColumn TItem="ServerImage" Field="@(x => x.Author)" Title="Author" Filterable="true"/>
