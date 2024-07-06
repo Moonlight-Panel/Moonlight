@@ -14,14 +14,14 @@ public class Server
 
     public string? OverrideStartupCommand { get; set; }
 
-    public int Cpu { get; set; }
+    public int Cpu { get; set; } = 100;
     public int Memory { get; set; }
     public int Disk { get; set; }
-    public bool UseVirtualDisk { get; set; }
+    public bool UseVirtualDisk { get; set; } = false;
 
     public ServerNode Node { get; set; }
     public ServerNetwork? Network { get; set; }
-    public bool DisablePublicNetwork { get; set; }
+    public bool DisablePublicNetwork { get; set; } = false;
 
     public ServerAllocation MainAllocation { get; set; }
     public List<ServerAllocation> Allocations { get; set; } = new();

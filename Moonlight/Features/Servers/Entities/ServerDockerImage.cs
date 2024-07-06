@@ -7,5 +7,5 @@ public class ServerDockerImage
     public string DisplayName { get; set; } = "";
     public string Name { get; set; } = "";
 
-    public bool AutoPull { get; set; }
+    public bool AutoPull { get; set; } = true;
 }

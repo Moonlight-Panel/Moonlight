@@ -2,7 +2,6 @@
 
 @using Moonlight.Core.UI.Components.Navigations
 @using MoonCore.Abstractions
-@using MoonCoreUI.Services
 @using Moonlight.Core.Database.Entities
 @using Moonlight.Core.Services
 
@@ -17,7 +16,7 @@
 <LazyLoader Load="Load">
     <div class="card card-body p-5">
         <div class="input-group">
-            <SmartDropdown @bind-Value="SelectedUser"
+            <MCBDropdown @bind-Value="SelectedUser"
                            Items="Users"
                            Placeholder="Select a user"
                            DisplayFunc="@(x => x.Username)"
@@ -58,14 +57,7 @@
         </div>
 
         <div class="card card-body p-5 d-flex justify-content-center mt-5">
-            @if (SelectedUser == null)
-            {
-                <button class="btn btn-primary disabled" disabled="">Apply</button>
-            }
-            else
-            {
-                <WButton OnClick="SavePermissions" CssClasses="btn btn-primary" Text="Apply"/>
-            }
+            <WButton OnClick="SavePermissions" CssClasses="btn btn-primary">Apply</WButton>
         </div>
     }
 </LazyLoader>

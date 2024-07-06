@@ -17,7 +17,7 @@
             <div class="mt-3">
                 <div class="input-group">
                     <input @bind="CommandInput" @bind:event="onchange" @onkeyup="OnEnterPressed" class="form-control form-control-transparent text-white" placeholder="Enter command"/>
-                    <WButton CssClasses="btn btn-secondary rounded-start" Text="Execute" OnClick="SendCommand"/>
+                    <WButton CssClasses="btn btn-secondary rounded-start" OnClick="SendCommand">Execute</WButton>
                 </div>
             </div>
         </div>

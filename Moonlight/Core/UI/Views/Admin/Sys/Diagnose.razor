@@ -1,10 +1,9 @@
 ﻿@page "/admin/sys/diagnose"
 
 @using Moonlight.Core.UI.Components.Navigations
-@using MoonCoreUI.Services
 @using Moonlight.Core.Services
 
-@inject FileDownloadService DownloadService
+@inject DownloadService DownloadService
 @inject DiagnoseService DiagnoseService
 
 @attribute [RequirePermission(9999)]
@@ -31,7 +30,7 @@
     </div>
     <div class="col-md-6 col-12">
         <div class="card card-body p-5">
-            <WButton OnClick="DownloadReport" Text="Download diagnose report" CssClasses="btn btn-primary"/>
+            <WButton OnClick="DownloadReport" CssClasses="btn btn-primary">Download diagnose report</WButton>
         </div>
     </div>
 </div>

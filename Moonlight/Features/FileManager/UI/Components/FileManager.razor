@@ -1,6 +1,5 @@
 @using MoonCore.Helpers
 @using MoonCore.Services
-@using MoonCoreUI.Services
 @using Moonlight.Core.Configuration
 @using Moonlight.Core.Services
 @using Moonlight.Features.FileManager.Interfaces
@@ -9,6 +8,7 @@
 
 @inject AlertService AlertService
 @inject ToastService ToastService
+@inject ModalService ModalService
 @inject FileManagerInteropService FileManagerInteropService
 @inject SharedFileAccessService FileAccessService
 @inject ConfigService<CoreConfiguration> ConfigService
@@ -111,28 +111,6 @@ else
             </ContextMenuTemplate>
         </FileView>
     </div>
-
-    <SmartModal @ref="FolderSelectModal" CssClasses="modal-lg modal-dialog-centered">
-        <div class="modal-header">
-            <h5 class="modal-title">@FolderSelectTitle</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="HideFolderSelect"></button>
-        </div>
-        <div class="modal-body">
-            <FileView @ref="FolderSelectView"
-                      FileAccess="FolderSelectFileAccess"
-                      Filter="FolderSelectFilter"
-                      ShowDate="false"
-                      ShowSelect="false"
-                      ShowSize="false"
-                      OnEntryClicked="EntryClickFolderSelect"
-                      OnNavigateUpClicked="NavigateUpFolderSelect"
-                      EnableContextMenu="false"/>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="HideFolderSelect">Cancel</button>
-            <button type="button" class="btn btn-primary" @onclick="SubmitFolderSelect">Submit</button>
-        </div>
-    </SmartModal>
 }
 
 @code
@@ -151,15 +129,6 @@ else
     private FileEntry FileToEdit;
     private bool ShowEditor = false;
 
-    // Folder select dialog
-    private bool FolderSelectIsOpen = false;
-    private SmartModal FolderSelectModal;
-    private BaseFileAccess FolderSelectFileAccess;
-    private string FolderSelectTitle;
-    private Func<string, Task> FolderSelectResult;
-    private FileView FolderSelectView;
-    private Func<FileEntry, bool> FolderSelectFilter => entry => entry.IsDirectory;
-
     private Timer? UploadTokenTimer;
 
     protected override async Task OnInitializedAsync()
@@ -174,8 +143,7 @@ else
     {
         if (!firstRender)
             return;
-
-
+        
         // Setup upload url update timer
         UploadTokenTimer = new(async _ =>
         {
@@ -307,53 +275,17 @@ else
     }
 
     #endregion
-
-    #region Selects
-
+    
     public async Task OpenFolderSelect(string title, Func<string, Task> onResult)
     {
-        if (FolderSelectIsOpen)
-            await HideFolderSelect();
-
-        FolderSelectResult = onResult;
-        FolderSelectTitle = title;
-
-        FolderSelectFileAccess = FileAccess.Clone();
-        await FolderSelectFileAccess.SetDirectory("/");
-
-        await FolderSelectModal.Show();
+        await ModalService.Launch<FolderSelectModal>(cssClasses: "modal-lg modal-dialog-centered", buildAttributes: parameters =>
+        {
+            parameters.Add("Title", title);
+            parameters.Add("OnResult", onResult);
+            parameters.Add("FileAccess", FileAccess.Clone());
+        });
     }
-
-    public async Task HideFolderSelect()
-    {
-        await FolderSelectModal.Hide();
-        FolderSelectIsOpen = false;
-        FolderSelectFileAccess.Dispose();
-    }
-
-    private async Task SubmitFolderSelect()
-    {
-        var path = await FolderSelectFileAccess.GetCurrentDirectory();
-
-        await HideFolderSelect();
-
-        await FolderSelectResult.Invoke(path);
-    }
-
-    private async Task NavigateUpFolderSelect()
-    {
-        await FolderSelectFileAccess.ChangeDirectory("..");
-        await FolderSelectView.Refresh();
-    }
-
-    private async Task EntryClickFolderSelect(FileEntry entry)
-    {
-        await FolderSelectFileAccess.ChangeDirectory(entry.Name);
-        await FolderSelectView.Refresh();
-    }
-
-    #endregion
-
+    
     public async void Dispose()
     {
         if (UploadTokenTimer != null)

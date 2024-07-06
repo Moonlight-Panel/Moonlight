@@ -1,7 +1,4 @@
-﻿@using Moonlight.Core.Services
-@using MoonCoreUI.Services
-
-@inject IdentityService IdentityService
+﻿@inject IdentityService IdentityService
 @inject CookieService CookieService
 
 <div class="app-header d-flex flex-column flex-stack">
@@ -25,13 +22,13 @@
                 <ConnectionIndicator/>
             </div>
 
-            @if (IdentityService.IsLoggedIn)
+            @if (IdentityService.IsAuthenticated)
             {
                 <div class="app-navbar-item ms-2 ms-lg-6 me-8">
                     <div class="btn btn-active-light d-flex align-items-center bg-hover-light py-2 px-2 px-md-3" id="dropdownMenuLink" data-bs-toggle="dropdown">
                         <div class="d-none d-md-flex flex-column align-items-end justify-content-center me-5">
                             <span class="text-muted fs-7 fw-semibold lh-1 mb-2">Welcome,</span>
-                            <span class="text-gray-900 fs-base fw-bold lh-1">@@@IdentityService.CurrentUser.Username</span>
+                            <span class="text-gray-900 fs-base fw-bold lh-1">@@@IdentityService.GetUser().Username</span>
                         </div>
 
                         <div class="symbol symbol-30px symbol-md-40px">
@@ -47,10 +44,10 @@
                                 </div>
                                 <div class="d-flex flex-column">
                                     <div class="fw-bold d-flex align-items-center fs-5">
-                                        @IdentityService.CurrentUser.Username
+                                        @IdentityService.GetUser().Username
                                     </div>
                                     <span class="fw-semibold text-muted fs-7">
-                                        @IdentityService.CurrentUser.Email
+                                        @IdentityService.GetUser().Email
                                     </span>
                                 </div>
                             </div>
@@ -81,7 +78,7 @@
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            IdentityService.OnAuthenticationStateChanged += OnAuthenticationStateChanged;
+            IdentityService.OnStateChanged += OnAuthenticationStateChanged;
 
         return Task.CompletedTask;
     }
@@ -94,9 +91,9 @@
     private async Task Logout()
     {
         // Reset token
-        await CookieService.SetValue("token", "");
+        await CookieService.SetValue("token", "", 30);
 
         // Reset token in identity service
-        await IdentityService.Authenticate("");
+        await IdentityService.Logout();
     }
 }

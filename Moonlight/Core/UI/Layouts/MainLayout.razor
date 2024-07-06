@@ -1,6 +1,5 @@
 ﻿@using Moonlight.Core.Services
 @using Moonlight.Core.UI.Components.Auth
-@using MoonCore.Services
 @using Moonlight.Core.Configuration
 @using Moonlight.Core.Events
 
@@ -13,6 +12,7 @@
 @inject UnloadService UnloadService
 @inject ConfigService<CoreConfiguration> ConfigService
 @inject ScopedStorageService ScopedStorageService
+@inject CoreEvents CoreEvents
 
 @implements IDisposable
 
@@ -25,7 +25,7 @@
         <AppHeader/>
 
         <div class="app-wrapper flex-column flex-row-fluid">
-            @if (IdentityService.IsLoggedIn)
+            @if (IdentityService.IsAuthenticated)
             {
                 <AppSidebar/>
             }
@@ -52,7 +52,7 @@
                                         {
                                             if (IsInitialized)
                                             {
-                                                if (IdentityService.IsLoggedIn)
+                                                if (IdentityService.IsAuthenticated)
                                                 {
                                                     <PermissionChecker>
                                                         @Body
@@ -76,9 +76,9 @@
                                                 <div class="d-flex justify-content-center">
                                                     <div class="d-flex align-items-center">
                                                         <div class="card card-body m-15 p-15">
-                                                            <LazyLoader Load="Load">
-                                                                <span></span>
-                                                            </LazyLoader>
+                                                            <LazyLoader Load="Load"
+                                                                        UseDefaultValues="false"
+                                                                        TimeUntilSpinnerIsShown="TimeSpan.Zero" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -99,6 +99,9 @@
     </div>
 </div>
 
+<ModalLaunchPoint />
+<ToastLaunchPoint />
+
 @code
 {
     private bool IsInitialized = false;
@@ -110,7 +113,7 @@
         // Base init
         await lazyLoader.SetText("Initializing");
         
-        IdentityService.OnAuthenticationStateChanged += OnAuthenticationStateChanged;
+        IdentityService.OnStateChanged += OnAuthenticationStateChanged;
         
         CoreEvents.OnMoonlightRestart += async () =>
         {

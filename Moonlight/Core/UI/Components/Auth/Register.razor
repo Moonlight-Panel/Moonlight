@@ -4,10 +4,7 @@
 
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Models.Forms
-@using Moonlight.Core.Services
 @using MoonCore.Exceptions
-@using MoonCore.Services
-@using MoonCoreUI.Services
 @using Moonlight.Core.Configuration
 
 @inject IAuthenticationProvider AuthenticationProvider
@@ -96,10 +93,13 @@
             throw new DisplayException("Unable to create account");
 
         // Generate token and authenticate
-        var token = await IdentityService.Authenticate(user);
+        var token = await IdentityService.Login(
+            user.Id.ToString(), 
+            TimeSpan.FromHours(ConfigService.Get().Authentication.TokenDuration)
+        );
 
         // Save token for later use
-        await CookieService.SetValue("token", token);
+        await CookieService.SetValue("token", token, 30); // TODO: config
         
         // Forward the user if not on the specific page
         if(new Uri(Navigation.Uri).LocalPath.StartsWith("/register"))

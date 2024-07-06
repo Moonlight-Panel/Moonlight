@@ -1,13 +1,10 @@
 ﻿@page "/admin/users"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Core.UI.Components.Navigations
-@using MoonCore.Abstractions
 @using Moonlight.Core.Database.Entities
-@using BlazorTable
 @using MoonCore.Exceptions
-@using MoonCoreUI.Services
 @using Moonlight.Core.Models.Abstractions
-@using Moonlight.Core.Models.Forms.Users
 
 @inject AlertService AlertService
 @inject IAuthenticationProvider AuthenticationProvider
@@ -16,55 +13,98 @@
 
 <AdminUsersNavigation Index="0"/>
 
-<AutoCrud TItem="User"
-          TCreateForm="CreateUserForm"
-          TUpdateForm="UpdateUserForm"
-          Loader="Load"
-          CustomAdd="Add"
-          ValidateUpdate="ValidateUpdate">
+<FastCrud TItem="User"
+          Search="Search"
+          OnConfigure="OnConfigure"
+          OnConfigureCreate="OnConfigureCreate"
+          OnConfigureEdit="OnConfigureEdit">
     <View>
-        <CrudColumn TItem="User" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.Email)" Title="Email" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.Username)" Title="Username" Filterable="true"/>
-        <CrudColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at"/>
+        <MCBColumn TItem="User" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
+        <MCBColumn TItem="User" Field="@(x => x.Email)" Title="Email" Filterable="true"/>
+        <MCBColumn TItem="User" Field="@(x => x.Username)" Title="Username" Filterable="true"/>
+        <MCBColumn TItem="User" Field="@(x => x.CreatedAt)" Title="Created at"/>
     </View>
-    <UpdateActions>
+    <EditToolbar>
         <WButton OnClick="() => ChangePassword(context)" CssClasses="btn btn-info me-2">
             <i class="bx bx-sm bxs-key"></i>
             Change password
         </WButton>
-    </UpdateActions>
-</AutoCrud>
+    </EditToolbar>
+</FastCrud>
 
 @code
 {
-    private IEnumerable<User> Load(Repository<User> repository)
-    {
-        return repository.Get();
-    }
-
     private async Task ChangePassword(User user)
     {
-        var newPassword = await AlertService.Text($"Enter a new password for {user.Username}", "");
+        await AlertService.Text($"Change password for '{user.Username}'", "Enter a new password for {user.Username}", async newPassword =>
+        {
+            // This handles empty and canceled input
+            if (string.IsNullOrEmpty(newPassword))
+                return;
 
-        // This handles empty and canceled input
-        if (string.IsNullOrEmpty(newPassword))
-            return;
+            await AuthenticationProvider.ChangePassword(user, newPassword);
+        });
+    }
+    
+    private void OnConfigure(FastCrudConfiguration<User> configuration)
+    {
+        configuration.CustomCreate = async user =>
+        {
+            var result = await AuthenticationProvider.Register(user.Username, user.Email, user.Password);
 
-        await AuthenticationProvider.ChangePassword(user, newPassword);
+            if (result == null)
+                throw new DisplayException("An unknown error occured while creating user");
+        };
+
+        configuration.ValidateEdit = async user =>
+        {
+            await AuthenticationProvider.ChangeDetails(user, user.Email, user.Username);
+        };
     }
 
-    private async Task Add(User user)
+    private void OnConfigureCreate(FastFormConfiguration<User> configuration, User _)
     {
-        var result = await AuthenticationProvider.Register(user.Username, user.Email, user.Password);
+        configuration.AddProperty(x => x.Username)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(RegexValidator.Create("^[a-z][a-z0-9]*$", "Usernames can only contain lowercase characters and numbers and should not start with a number"))
+            .WithValidation(x => x.Length >= 6 ? ValidationResult.Success : new ValidationResult("The username is too short"))
+            .WithValidation(x => x.Length <= 20 ? ValidationResult.Success : new ValidationResult("The username cannot be longer than 20 characters"));
 
-        if (result == null)
-            throw new DisplayException("An unknown error occured while creating user");
+        configuration.AddProperty(x => x.Email)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(RegexValidator.Create("^.+@.+$", "You need to enter a valid email address"));
+
+        configuration.AddProperty(x => x.Password)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(x => x.Length >= 8 ? ValidationResult.Success : new ValidationResult("The password must be at least 8 characters long"))
+            .WithValidation(x => x.Length <= 256 ? ValidationResult.Success : new ValidationResult("The password must not be longer than 256 characters"));
     }
 
-    // To notify the authentication provider before we update the data in the database, we call it here
-    private async Task ValidateUpdate(User user)
+    private void OnConfigureEdit(FastFormConfiguration<User> configuration, User currentUser)
     {
-        await AuthenticationProvider.ChangeDetails(user, user.Email, user.Username);
+        configuration.AddProperty(x => x.Username)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(RegexValidator.Create("^[a-z][a-z0-9]*$", "Usernames can only contain lowercase characters and numbers and should not start with a number"))
+            .WithValidation(x => x.Length >= 6 ? ValidationResult.Success : new ValidationResult("The username is too short"))
+            .WithValidation(x => x.Length <= 20 ? ValidationResult.Success : new ValidationResult("The username cannot be longer than 20 characters"));
+
+        configuration.AddProperty(x => x.Email)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required)
+            .WithValidation(RegexValidator.Create("^.+@.+$", "You need to enter a valid email address"));
+
+        configuration.AddProperty(x => x.Totp)
+            .WithComponent<SwitchComponent>()
+            .WithName("Two factor authentication")
+            .WithDescription("This toggles the use of the two factor authentication");
+    }
+
+    private IEnumerable<User> Search(IEnumerable<User> source, string term)
+    {
+        return source.Where(x => x.Username.Contains(term) || x.Email.Contains(term));
     }
 }

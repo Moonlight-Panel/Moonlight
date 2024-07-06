@@ -1,0 +1,51 @@
+@using Microsoft.CSharp.RuntimeBinder
+@using Moonlight.Features.Servers.Entities
+
+@inherits FastFormBaseComponent<int>
+
+<div class="col-md-6 col-12">
+    <label class="form-label">@Name</label>
+    
+    <MCBSelect TField="ServerDockerImage"
+               @bind-Value="SelectedDockerImage"
+               Items="SortedImages"
+               DisplayField="@(x => x.Name)"/>
+</div>
+
+@code
+{
+    [Parameter] public ServerImage Image { get; set; }
+    
+    private ServerDockerImage? SelectedDockerImage
+    {
+        get
+        {
+            if (Binder.Value >= SortedImages.Count)
+                return null;
+
+            if (Binder.Value == -1)
+                return null;
+
+            return SortedImages[Binder.Value];
+        }
+        set
+        {
+            if (value == null)
+            {
+                Binder.Value = -1;
+                return;
+            }
+
+            Binder.Value = SortedImages.IndexOf(value);
+        }
+    }
+
+    private List<ServerDockerImage> SortedImages;
+
+    protected override void OnInitialized()
+    {
+        SortedImages = Image.DockerImages
+            .OrderBy(x => x.Id)
+            .ToList();
+    }
+}

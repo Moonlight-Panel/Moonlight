@@ -3,14 +3,14 @@
 
 @using Moonlight.Core.Models.Abstractions
 @using Moonlight.Core.Models.Forms
-@using Moonlight.Core.Services
 @using MoonCore.Exceptions
-@using MoonCoreUI.Services
+@using Moonlight.Core.Configuration
 
 @inject IAuthenticationProvider AuthenticationProvider
 @inject IdentityService IdentityService
 @inject CookieService CookieService
 @inject NavigationManager Navigation
+@inject ConfigService<CoreConfiguration> ConfigService
 
 <div class="d-flex justify-content-center">
     <div class="d-flex align-items-center">
@@ -24,7 +24,7 @@
                 </div>
             </div>
 
-            <SmartForm Model="Form" OnValidSubmit="OnValidSubmit">
+            <MCBForm Model="Form" OnValidSubmit="OnValidSubmit">
                 @if (RequiresTwoFactor)
                 {
                     <div class="fv-row mb-7">
@@ -58,7 +58,7 @@
                         @* OAuth2 Providers here *@
                     </div>
                 </div>
-            </SmartForm>
+            </MCBForm>
         </div>
     </div>
 </div>
@@ -90,10 +90,13 @@
             throw new DisplayException("A user with these credential combination was not found");
 
         // Generate token and authenticate
-        var token = await IdentityService.Authenticate(user);
+        var token = await IdentityService.Login(
+            user.Id.ToString(), 
+            TimeSpan.FromHours(ConfigService.Get().Authentication.TokenDuration)
+        );
 
         // Save token for later use
-        await CookieService.SetValue("token", token);
+        await CookieService.SetValue("token", token, 30); //TODO: Add days to config option
         
         // Forward the user if not on the specific page
         if(new Uri(Navigation.Uri).LocalPath.StartsWith("/login"))

@@ -1,4 +1,4 @@
-﻿using MoonCoreUI.Components;
+﻿using MoonCore.Blazor.Components;
 
 namespace Moonlight.Core.Models.Abstractions.Feature;
 

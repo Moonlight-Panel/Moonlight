@@ -1,13 +1,14 @@
 ﻿@using MoonCore.Helpers
 @using Moonlight.Features.Servers.Entities
 @using MoonCore.Services
-@using MoonCoreUI.Services
+
 @using Moonlight.Core.Configuration
 @using Moonlight.Features.Servers.Services
 
 @inject ConfigService<CoreConfiguration> ConfigService
 @inject NodeService NodeService
 @inject ToastService ToastService
+@inject ILogger<NodeLogs> Logger
 
 <div class="card card-body mb-5 p-3">
     <div class="d-flex justify-content-between align-items-center">
@@ -69,8 +70,7 @@
         }
         catch (Exception e)
         {
-            Logger.Warn($"An error occured while fetching logs from node '{Node.Name}'");
-            Logger.Warn(e);
+            Logger.LogWarning("An error occured while fetching logs from node '{name}': {e}", Node.Name, e);
 
             await ToastService.Danger("An error occured while fetching logs. Please try again later");
         }

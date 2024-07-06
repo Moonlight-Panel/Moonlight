@@ -3,7 +3,6 @@
 @using Moonlight.Core.UI.Components.Navigations
 @using Moonlight.Core.Services
 @using MoonCore.Helpers
-@using MoonCoreUI.Services
 @using Moonlight.Core.Models
 
 @inject SessionService SessionService
@@ -24,16 +23,18 @@
     <div class="card mt-5">
         <div class="card-body px-6 py-4">
             <LazyLoader Load="Load">
-                <CrudTable @ref="Table"
-                           TItem="Session"
-                           ItemSource="SessionService.Sessions"
-                           PageSize="50">
-                    <CrudColumn TItem="Session" Title="User" Field="@(x => x.CreatedAt)">
+                <MCBTable @ref="Table"
+                          TItem="Session"
+                          ItemSource="SessionService.Sessions"
+                          PageSize="50">
+                    <MCBColumn TItem="Session" Title="User" Field="@(x => x.CreatedAt)">
                         <Template>
-                            @if (context.IdentityService.IsLoggedIn)
+                            @if (context.IdentityService.IsAuthenticated)
                             {
-                                <a target="_blank" href="/admin/users/view/@(context.IdentityService.CurrentUser.Id)">
-                                    @(context.IdentityService.CurrentUser.Email)
+                                var user = context.IdentityService.GetUser();
+                                
+                                <a target="_blank" href="/admin/users/view/@(user.Id)">
+                                    @(user.Email)
                                 </a>
                             }
                             else
@@ -41,35 +42,35 @@
                                 <span>Guest</span>
                             }
                         </Template>
-                    </CrudColumn>
-                    <CrudColumn TItem="Session" Title="URL" Field="@(x => x.CreatedAt)">
+                    </MCBColumn>
+                    <MCBColumn TItem="Session" Title="URL" Field="@(x => x.CreatedAt)">
                         <Template>
                             <a target="_blank" href="@(context.NavigationManager.Uri)">
                                 @(context.NavigationManager.Uri)
                             </a>
                         </Template>
-                    </CrudColumn>
-                    <CrudColumn TItem="Session" Title="Last activity" Field="@(x => x.UpdatedAt)" Filterable="true">
+                    </MCBColumn>
+                    <MCBColumn TItem="Session" Title="Last activity" Field="@(x => x.UpdatedAt)" Filterable="true">
                         <Template>
                             <span>@(Formatter.FormatUptime(DateTime.UtcNow - context.UpdatedAt))</span>
                         </Template>
-                    </CrudColumn>
-                    <CrudColumn TItem="Session" Title="Connected since" Field="@(x => x.CreatedAt)" Filterable="true">
+                    </MCBColumn>
+                    <MCBColumn TItem="Session" Title="Connected since" Field="@(x => x.CreatedAt)" Filterable="true">
                         <Template>
                             <span>@(Formatter.FormatUptime(DateTime.UtcNow - context.CreatedAt))</span>
                         </Template>
-                    </CrudColumn>
-                    <CrudColumn TItem="Session" Title="Actions">
+                    </MCBColumn>
+                    <MCBColumn TItem="Session" Title="Actions">
                         <Template>
                             <div class="d-flex justify-content-end">
                                 <div class="btn btn-group">
-                                    <WButton OnClick="() => Message(context)" Text="Message" CssClasses="btn btn-primary"/>
-                                    <WButton OnClick="() => Redirect(context)" Text="Redirect" CssClasses="btn btn-warning"/>
+                                    <WButton OnClick="() => Message(context)" CssClasses="btn btn-primary">Message</WButton>
+                                    <WButton OnClick="() => Redirect(context)" CssClasses="btn btn-warning">Redirect</WButton>
                                 </div>
                             </div>
                         </Template>
-                    </CrudColumn>
-                </CrudTable>
+                    </MCBColumn>
+                </MCBTable>
             </LazyLoader>
         </div>
     </div>
@@ -77,7 +78,7 @@
 
 @code
 {
-    private CrudTable<Session>? Table;
+    private MCBTable<Session>? Table;
     private Timer? UpdateTimer;
 
     private Task Load(LazyLoader _)
@@ -93,40 +94,42 @@
 
     private async Task Redirect(Session session)
     {
-        var url = await AlertService.Text("Enter the target url to redirect to");
-
-        if (string.IsNullOrEmpty(url))
-            return;
-
-        try
+        await AlertService.Text("Redirect to", "Enter the target url to redirect to", async url =>
         {
-            session.NavigationManager.NavigateTo(url);
+            if (string.IsNullOrEmpty(url))
+                return;
 
-            await ToastService.Success("Successfully redirected user session");
-        }
-        catch (Exception)
-        {
-            await ToastService.Danger("Unable to redirect user. The user is probably no longer connect with moonlight");
-        }
+            try
+            {
+                session.NavigationManager.NavigateTo(url);
+
+                await ToastService.Success("Successfully redirected user session");
+            }
+            catch (Exception)
+            {
+                await ToastService.Danger("Unable to redirect user. The user is probably no longer connect with moonlight");
+            }
+        });
     }
 
     private async Task Message(Session session)
     {
-        var message = await AlertService.Text("Enter the message you want to send");
-
-        if (string.IsNullOrEmpty(message))
-            return;
-
-        try
+        await AlertService.Text("Send message", "Enter the message you want to send", async message =>
         {
-            await session.AlertService.Info(message);
+            if (string.IsNullOrEmpty(message))
+                return;
 
-            await ToastService.Success("Successfully sent message to user session");
-        }
-        catch (Exception)
-        {
-            await ToastService.Danger("Unable to send message. The user is probably no longer connect with moonlight");
-        }
+            try
+            {
+                await session.AlertService.Info(message);
+
+                await ToastService.Success("Successfully sent message to user session");
+            }
+            catch (Exception)
+            {
+                await ToastService.Danger("Unable to send message. The user is probably no longer connect with moonlight");
+            }
+        });
     }
 
     public void Dispose()

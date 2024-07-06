@@ -2,7 +2,7 @@
 @using MoonCore.Abstractions
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Helpers
-@using MoonCoreUI.Services
+
 @using Moonlight.Features.Servers.Models.Forms.Users.Schedules
 @using Moonlight.Features.Servers.Services
 @using Newtonsoft.Json
@@ -19,11 +19,13 @@
         <div class="col-md-3 col-12">
             <div class="card card-body p-5">
                 <div class="d-flex flex-column">
-                    <WButton OnClick="CreateSchedule" CssClasses="btn btn-primary my-3 mb-5" Text="Create new schedule"/>
+                    <WButton OnClick="CreateSchedule" CssClasses="btn btn-primary my-3 mb-5">Create new schedule</WButton>
 
                     @foreach (var schedule in ServerWithSchedules.Schedules)
                     {
-                        <WButton OnClick="() => SelectSchedule(schedule)" CssClasses="btn btn-secondary my-3" Text="@schedule.Name"/>
+                        <WButton OnClick="() => SelectSchedule(schedule)" CssClasses="btn btn-secondary my-3">
+                            @schedule.Name
+                        </WButton>
                     }
                 </div>
             </div>
@@ -158,15 +160,12 @@
     </div>
 </LazyLoader>
 
-<FormModalLauncher @ref="Launcher"/>
-
 @code
 {
     [CascadingParameter] public Server Server { get; set; }
 
     private Server ServerWithSchedules;
     private LazyLoader LazyLoader;
-    private FormModalLauncher Launcher;
 
     private ServerSchedule? SelectedSchedule;
     private List<ServerScheduleItem> SortedItems = new();
@@ -208,11 +207,11 @@
 
     private async Task CreateSchedule()
     {
-        await Launcher.Show<CreateScheduleForm>("Create a new schedule", async form =>
+        await AlertService.Text("New schedule", "Create a new schedule", async name =>
         {
             ServerWithSchedules.Schedules.Add(new()
             {
-                Name = form.Name
+                Name = name
             });
 
             ServerRepository.Update(ServerWithSchedules);
@@ -243,7 +242,8 @@
             return;
         }
 
-        await Launcher.Show("Configure action", async formData => { await AddScheduleAction(NewItemActionType, SelectedSchedule.Items.Count, formData); }, action.FormType);
+        // TODO: Redo everything here
+        //await Launcher.Show("Configure action", async formData => { await AddScheduleAction(NewItemActionType, SelectedSchedule.Items.Count, formData); }, action.FormType);
     }
 
     private async Task AddScheduleAction(string type, int priority, object data)
@@ -276,7 +276,7 @@
         var action = ScheduleService.Actions.First(x => x.Key == item.Action).Value;
 
         var formModel = JsonConvert.DeserializeObject(item.DataJson, action.FormType)!;
-
+/*
         await Launcher.Show("Configure action", async formData =>
         {
             item.DataJson = JsonConvert.SerializeObject(formData);
@@ -284,7 +284,7 @@
             ScheduleItemRepository.Update(item);
 
             await ToastService.Success("Successfully updated action");
-        }, action.FormType, formModel: formModel);
+        }, action.FormType, formModel: formModel);*/
     }
 
     private async Task MoveItem(ServerScheduleItem item, int move)
@@ -312,18 +312,18 @@
         if (SelectedSchedule == null)
             return;
 
-        if (!await AlertService.YesNo("Do you really want to delete this action? This cannot be undone"))
-            return;
+        await AlertService.Confirm("Confirm schedule item deletion", "Do you really want to delete this action? This cannot be undone", async () =>
+        {
+            SortedItems.Remove(item);
+            SelectedSchedule.Items.Remove(item);
 
-        SortedItems.Remove(item);
-        SelectedSchedule.Items.Remove(item);
+            ScheduleRepository.Update(SelectedSchedule);
 
-        ScheduleRepository.Update(SelectedSchedule);
+            await FixPriorities();
 
-        await FixPriorities();
-
-        await ToastService.Success("Successfully deleted action");
-        await LazyLoader.Reload();
+            await ToastService.Success("Successfully deleted action");
+            await LazyLoader.Reload();
+        });
     }
 
     private Task FixPriorities()
@@ -346,27 +346,27 @@
         if (SelectedSchedule == null)
             return;
 
-        if (!await AlertService.YesNo($"Do you really want to delete the schedule '{SelectedSchedule.Name}'? This cannot be undone"))
-            return;
-
-        foreach (var item in SelectedSchedule.Items.ToArray())
+        await AlertService.Confirm("Confirm schedule deletion", $"Do you really want to delete the schedule '{SelectedSchedule.Name}'? This cannot be undone", async () =>
         {
-            try
+            foreach (var item in SelectedSchedule.Items.ToArray())
             {
-                ScheduleItemRepository.Delete(item);
+                try
+                {
+                    ScheduleItemRepository.Delete(item);
+                }
+                catch (Exception)
+                {
+                    /* this should not fail the operation */
+                }
             }
-            catch (Exception)
-            {
-                /* this should not fail the operation */
-            }
-        }
 
-        ScheduleRepository.Delete(SelectedSchedule);
+            ScheduleRepository.Delete(SelectedSchedule);
 
-        SelectedSchedule = null;
+            SelectedSchedule = null;
 
-        await ToastService.Success("Successfully deleted schedule");
-        await LazyLoader.Reload();
+            await ToastService.Success("Successfully deleted schedule");
+            await LazyLoader.Reload();
+        });
     }
 
     private async Task RunSelectedSchedule()
@@ -378,7 +378,7 @@
         
         var result = await ScheduleService.Run(Server, SelectedSchedule);
 
-        await ToastService.RemoveProgress("scheduleRun");
+        await ToastService.DeleteProgress("scheduleRun");
 
         if (result.Failed)
             await ToastService.Danger($"Schedule run failed ({result.ExecutionSeconds}s)");

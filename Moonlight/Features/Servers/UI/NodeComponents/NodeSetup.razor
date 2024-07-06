@@ -1,7 +1,5 @@
 @using Moonlight.Features.Servers.Entities
-@using MoonCore.Services
 @using Moonlight.Core.Configuration
-@using Moonlight.Core.Services
 
 @inject ConfigService<CoreConfiguration> ConfigService
 @inject IdentityService IdentityService
@@ -36,6 +34,6 @@
                $"--use-ftp-port {Node.FtpPort} " +
                $"--use-fqdn {Node.Fqdn} " +
                $"--use-ssl {Node.Ssl.ToString().ToLower()} " +
-               $"--use-email {IdentityService.CurrentUser.Email}";
+               $"--use-email {IdentityService.GetUser().Email}";
     }
 }

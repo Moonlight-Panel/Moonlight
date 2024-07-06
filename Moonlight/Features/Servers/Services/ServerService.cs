@@ -27,10 +27,12 @@ public class ServerService
     public NodeService NodeService => ServiceProvider.GetRequiredService<NodeService>();
 
     private readonly IServiceProvider ServiceProvider;
+    private readonly ILogger<ServerService> Logger;
 
-    public ServerService(IServiceProvider serviceProvider)
+    public ServerService(IServiceProvider serviceProvider, ILogger<ServerService> logger)
     {
         ServiceProvider = serviceProvider;
+        Logger = logger;
     }
 
     public async Task Sync(Server server)
@@ -84,8 +86,7 @@ public class ServerService
         }
         catch (Exception e)
         {
-            Logger.Warn($"Could not establish to the node with the id {node.Id}");
-            Logger.Warn(e);
+            Logger.LogWarning("Could not establish to the node with the id {nodeId}: {e}", node.Id, e);
             
             throw new DisplayException($"Could not establish connection to the node: {e.Message}");
         }

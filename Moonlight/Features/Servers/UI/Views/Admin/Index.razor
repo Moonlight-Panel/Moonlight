@@ -1,102 +1,63 @@
 @page "/admin/servers"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.UI.Components
 @using Microsoft.EntityFrameworkCore
 @using MoonCore.Abstractions
 @using MoonCore.Exceptions
-@using MoonCore.Helpers
-@using MoonCoreUI.Models
-@using MoonCoreUI.Services
+@using Moonlight.Core.Database.Entities
+
 @using Moonlight.Features.Servers.Entities
 @using Moonlight.Features.Servers.Models.Enums
-@using Moonlight.Features.Servers.Models.Forms.Admin.Servers
 @using Moonlight.Features.Servers.Services
 
 @inject ServerService ServerService
 @inject Repository<Server> ServerRepository
+@inject Repository<ServerAllocation> AllocRepository
 @inject ToastService ToastService
+@inject AlertService AlertService
+@inject ILogger<Index> Logger
 
 @attribute [RequirePermission(5000)]
 
 <AdminServersNavigation Index="0"/>
 
-<AutoCrud TItem="Server"
-          TCreateForm="CreateServerForm"
-          TUpdateForm="CreateServerForm"
-          Loader="Load"
-          CustomAdd="CustomAdd"
-          CustomUpdate="CustomUpdate"
-          ValidateUpdate="ValidateUpdate"
-          CustomDelete="CustomDelete"
-          OnConfigure="OnConfigure">
+<FastCrud TItem="Server"
+          Loader="Loader"
+          OnConfigure="OnConfigure"
+          OnConfigureCreate="OnConfigureCreate"
+          OnConfigureEdit="OnConfigureEdit"
+          @ref="Crud">
     <View>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
-        <CrudColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Image">
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="Id" Filterable="true"/>
+        <MCBColumn TItem="Server" Field="@(x => x.Name)" Title="Name" Filterable="true"/>
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="Image">
             <Template>
                 <span>@(context.Image.Name)</span>
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="Node">
+        </MCBColumn>
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="Node">
             <Template>
                 <span>@(context.Node.Name)</span>
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="Server" Field="@(x => x.Id)" Title="User">
+        </MCBColumn>
+        <MCBColumn TItem="Server" Field="@(x => x.Id)" Title="User">
             <Template>
                 <span>@(context.Owner.Username)</span>
             </Template>
-        </CrudColumn>
+        </MCBColumn>
     </View>
-    <NoItemsView>
-        <IconAlert Title="No servers found" Color="primary" Icon="bx-search-alt">
-            Create a new server in order to manage it using this page. Need help? Check out our <a href="https://docs.moonlightpanel.xyz">documentation</a>
-        </IconAlert>
-    </NoItemsView>
-</AutoCrud>
+    <EditToolbar>
+        <WButton CssClasses="btn btn-danger me-2" OnClick="() => StartForceDelete(context)">
+            <i class="bx bx-sm bx-bomb"></i>
+            Force delete
+        </WButton>
+    </EditToolbar>
+</FastCrud>
 
 @code
 {
-    private void OnConfigure(AutoCrudOptions options)
-    {
-        options.AddCustomItemLoader<Server, ServerAllocation>("FreeAllocations", LoadFreeAllocations);
-        
-        options.AddCustomDisplayFunction<ServerAllocation>("AllocationWithIp",
-            allocation => allocation.IpAddress + ":" + allocation.Port);
-    }
-
-    private IEnumerable<Server> Load(Repository<Server> repository)
-    {
-        return repository
-            .Get()
-            .Include(x => x.Owner)
-            .Include(x => x.Image)
-            .Include(x => x.Allocations)
-            .Include(x => x.Node);
-    }
-
-    private IEnumerable<ServerAllocation> LoadFreeAllocations(Repository<ServerAllocation> repository, Server? currentServer)
-    {
-        if (currentServer == null)
-        {
-            return repository
-                .Get()
-                .FromSqlRaw("SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL");
-        }
-        else
-        {
-            return currentServer.Allocations.Concat(
-                repository
-                    .Get()
-                    .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {currentServer.Node.Id}")
-                    .AsEnumerable() // => executes the sql
-            );
-        }
-    }
-
-    private async Task CustomAdd(Server form) => await ServerService.Create(form);
-
-    private async Task CustomDelete(Server s) => await ServerService.Delete(s);
+    private FastCrud<Server> Crud;
 
     private async Task CustomUpdate(Server server)
     {
@@ -124,8 +85,7 @@
         }
         catch (Exception e)
         {
-            Logger.Error("Unable to sync server changes due to an error occuring");
-            Logger.Error(e);
+            Logger.LogError("Unable to sync server changes due to an error occuring: {e}", e);
 
             await ToastService.Danger("An error occured while sending the changes to the daemon");
         }
@@ -154,5 +114,144 @@
             throw new DisplayException("Changing the server image has not been implemented yet");
 
         return Task.CompletedTask;
+    }
+
+    private async Task StartForceDelete(Server server)
+    {
+        await AlertService.Confirm(
+            "Confirm forcefully server deletion",
+            "Do you really want to delete this server forcefully?",
+            async () =>
+            {
+                await ServerService.Delete(server, safeDelete: false);
+                await ToastService.Success("Successfully deleted server");
+
+                await Crud.SetState(FastCrudState.View);
+            }
+        );
+    }
+
+    private IEnumerable<Server> Loader(Repository<Server> repository)
+    {
+        return repository
+            .Get()
+            .Include(x => x.Image)
+            .Include(x => x.Node)
+            .Include(x => x.Owner)
+            .Include(x => x.Allocations);
+    }
+
+    private void OnConfigure(FastCrudConfiguration<Server> configuration)
+    {
+        configuration.CustomCreate = ServerService.Create;
+        configuration.CustomDelete = server => ServerService.Delete(server);
+        configuration.CustomEdit = CustomUpdate;
+
+        configuration.ValidateEdit = ValidateUpdate;
+    }
+
+    // Shared form
+    private void OnConfigureBase(FastFormConfiguration<Server> configuration, Server server)
+    {
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required);
+
+        configuration.AddProperty(x => x.Owner)
+            .WithComponent<DropdownComponent<User>>(component =>
+            {
+                component.SearchFunc = x => x.Username;
+                component.DisplayFunc = x => x.Username;
+            })
+            .WithValidation(FastFormValidators.Required);
+
+        configuration.AddProperty(x => x.Image)
+            .WithComponent<DropdownComponent<ServerImage>>(component =>
+            {
+                component.SearchFunc = x => x.Name;
+                component.DisplayFunc = x => x.Name;
+            })
+            .WithValidation(FastFormValidators.Required);
+
+        configuration.AddProperty(x => x.Cpu)
+            .WithDefaultComponent()
+            .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
+            .WithSection("Resources", "bxs-chip")
+            .WithDescription("The cores the server will be able to use. 100 = 1 Core");
+
+        configuration.AddProperty(x => x.Memory)
+            .WithComponent<ByteSizeComponent>(component =>
+            {
+                component.MinimumUnit = "MB";
+                component.DefaultUnit = "GB";
+                component.Converter = 1;
+            })
+            .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
+            .WithSection("Resources")
+            .WithDescription("The amount of memory this server will be able to use");
+
+        configuration.AddProperty(x => x.Disk)
+            .WithComponent<ByteSizeComponent>(component =>
+            {
+                component.MinimumUnit = "MB";
+                component.DefaultUnit = "GB";
+                component.Converter = 1;
+            })
+            .WithValidation(x => x > 0 ? ValidationResult.Success : new("You need to provide a valid value"))
+            .WithSection("Resources")
+            .WithDescription("The amount of disk space this server will be able to use");
+
+        configuration.AddProperty(x => x.UseVirtualDisk)
+            .WithComponent<SwitchComponent>()
+            .WithPage("Advanced options")
+            .WithDescription("Whether to use a virtual disk for storing server files. Dont use this if you want to overallocate as the virtual disks will fill out the space you allocate");
+        
+        configuration.AddProperty(x => x.DisablePublicNetwork)
+            .WithComponent<SwitchComponent>()
+            .WithPage("Network")
+            .WithDescription("Whether to block all incoming connections to this server from the internet");
+        
+        configuration.AddProperty(x => x.Allocations)
+            .WithComponent<MultiSelectComponent<ServerAllocation>>(component =>
+            {
+                component.SearchFunc = x => $"{x.IpAddress}:{x.Port}";
+                component.DisplayFunc = x => $"{x.IpAddress}:{x.Port}";
+                component.ItemsCallback = () =>GetAllocation(server);
+                component.ColumnsMd = 6;
+            })
+            .WithPage("Network");
+    }
+    
+    // Specific form
+    private void OnConfigureCreate(FastFormConfiguration<Server> configuration, Server server)
+    {
+        OnConfigureBase(configuration, server);
+
+        configuration.AddProperty(x => x.Node)
+            .WithComponent<DropdownComponent<ServerNode>>(component =>
+            {
+                component.SearchFunc = x => x.Name;
+                component.DisplayFunc = x => x.Name;
+            })
+            .WithValidation(FastFormValidators.Required);
+    }
+    
+    private void OnConfigureEdit(FastFormConfiguration<Server> configuration, Server server)
+    {
+        OnConfigureBase(configuration, server);
+    }
+
+    private IEnumerable<ServerAllocation> GetAllocation(Server server)
+    {
+        if (server == null)
+            return Array.Empty<ServerAllocation>();
+
+        if (server.Node == null)
+            return Array.Empty<ServerAllocation>();
+            
+        return server.Allocations.Concat(
+            AllocRepository
+                .Get()
+                .FromSqlRaw($"SELECT * FROM `ServerAllocations` WHERE ServerId IS NULL AND ServerNodeId = {server.Node.Id}"));
     }
 }

@@ -8,10 +8,10 @@ namespace Moonlight.Features.Servers.Helpers;
 
 public class ServerConsole : IDisposable
 {
-    public SmartEventHandler<ServerState> OnStateChange { get; set; } = new();
-    public SmartEventHandler<ServerStats> OnStatsChange { get; set; } = new();
-    public SmartEventHandler<string> OnNewMessage { get; set; } = new();
-    public SmartEventHandler OnDisconnected { get; set; } = new();
+    public SmartEventHandler<ServerState> OnStateChange { get; set; }
+    public SmartEventHandler<ServerStats> OnStatsChange { get; set; }
+    public SmartEventHandler<string> OnNewMessage { get; set; }
+    public SmartEventHandler OnDisconnected { get; set; }
 
     public ServerState State { get; private set; } = ServerState.Offline;
     public ServerStats Stats { get; private set; } = new();
@@ -20,18 +20,29 @@ public class ServerConsole : IDisposable
 
     private readonly List<string> MessageCache = new();
     private readonly Server Server;
+    private readonly ILogger<ServerConsole> Logger;
+    private readonly ILogger<AdvancedWebsocketStream> AwsLogger;
 
     private ClientWebSocket WebSocket;
     private AdvancedWebsocketStream WebsocketStream;
 
     private CancellationTokenSource Cancellation = new();
 
-    public ServerConsole(Server server)
+    public ServerConsole(Server server, ILoggerFactory loggerFactory)
     {
         if (server.Node == null)
             throw new ArgumentNullException(nameof(server.Node));
 
         Server = server;
+        
+        Logger = loggerFactory.CreateLogger<ServerConsole>();
+        AwsLogger = loggerFactory.CreateLogger<AdvancedWebsocketStream>();
+
+        var eventHandlerLogger = loggerFactory.CreateLogger<SmartEventHandler>();
+        OnStateChange = new(eventHandlerLogger);
+        OnStatsChange = new(eventHandlerLogger);
+        OnDisconnected = new(eventHandlerLogger);
+        OnNewMessage = new(eventHandlerLogger);
     }
 
     public async Task Connect()
@@ -49,7 +60,7 @@ public class ServerConsole : IDisposable
             wsUrl = $"ws://{Server.Node.Fqdn}:{Server.Node.HttpPort}/servers/{Server.Id}/ws";
 
         await WebSocket.ConnectAsync(new Uri(wsUrl), CancellationToken.None);
-        WebsocketStream = new AdvancedWebsocketStream(WebSocket);
+        WebsocketStream = new AdvancedWebsocketStream(AwsLogger, WebSocket);
 
         WebsocketStream.RegisterPacket<string>(1);
         WebsocketStream.RegisterPacket<ServerState>(2);
@@ -103,11 +114,10 @@ public class ServerConsole : IDisposable
                     break;
                 
                 if (e is WebSocketException)
-                    Logger.Warn($"Lost connection to daemon server websocket: {e.Message}");
+                    Logger.LogWarning("Lost connection to daemon server websocket: {message}", e.Message);
                 else
                 {
-                    Logger.Warn("Server console ws disconnected because of application error:");
-                    Logger.Warn(e);
+                    Logger.LogWarning("Server console ws disconnected because of application error: {e}", e);
                 }
                 
                 break;

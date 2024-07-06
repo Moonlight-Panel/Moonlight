@@ -1,8 +1,8 @@
 ﻿@page "/servers/networks"
 
+@using System.ComponentModel.DataAnnotations
 @using Moonlight.Features.Servers.UI.Components
 @using Moonlight.Features.Servers.Entities
-@using Moonlight.Features.Servers.Models.Forms.Users.Networks
 @using MoonCore.Abstractions
 @using Moonlight.Core.Services
 @using Microsoft.EntityFrameworkCore
@@ -13,50 +13,45 @@
 
 <ServersNavigation Index="1"/>
 
-<AutoCrud TItem="ServerNetwork"
-          TCreateForm="CreateNetworkForm"
-          TUpdateForm="UpdateNetworkForm"
-          Loader="Load"
-          ValidateAdd="ValidateAdd">
+<FastCrud TItem="ServerNetwork"
+          Loader="Loader"
+          OnConfigure="OnConfigure"
+          OnConfigureCreate="OnConfigureCreate"
+          OnConfigureEdit="OnConfigureEdit">
     <View>
-        <CrudColumn TItem="ServerNetwork" Field="@(x => x.Name)" Title="Name"/>
-        <CrudColumn TItem="ServerNetwork" Title="Node">
+        <MCBColumn TItem="ServerNetwork" Field="@(x => x.Name)" Title="Name"/>
+        <MCBColumn TItem="ServerNetwork" Title="Node">
             <Template>
                 <span>@(context!.Node.Name)</span>
             </Template>
-        </CrudColumn>
-        <CrudColumn TItem="ServerNetwork" Title="Used by">
+        </MCBColumn>
+        <MCBColumn TItem="ServerNetwork" Title="Used by">
             <Template>
                 @{
-                    var servers = UsedByCache.ContainsKey(context.Id) ? UsedByCache[context.Id] : Array.Empty<Server>();
+                var servers = UsedByCache.ContainsKey(context.Id) ? UsedByCache[context.Id] : Array.Empty<Server>();
                 }
 
                 <span>
                     @foreach (var server in servers)
                     {
-                        <span><a href="/server/@(server.Id)">@(server.Name)</a> @(server != servers.Last() ? "," : "")</span>
+                    <span><a href="/server/@(server.Id)">@(server.Name)</a> @(server != servers.Last() ? "," : "")</span>
                     }
                 </span>
             </Template>
-        </CrudColumn>
+        </MCBColumn>
     </View>
-    <NoItemsView>
-        <IconAlert Icon="bx-search-alt" Color="primary" Title="No private network found">
-            Create a new private network in order to connect multiple servers on the same node
-        </IconAlert>
-    </NoItemsView>
-</AutoCrud>
+</FastCrud>
 
 @code
 {
     private readonly Dictionary<int, Server[]> UsedByCache = new();
 
-    private IEnumerable<ServerNetwork> Load(Repository<ServerNetwork> repository)
+    private IEnumerable<ServerNetwork> Loader(Repository<ServerNetwork> repository)
     {
         var result = repository
             .Get()
             .Include(x => x.Node)
-            .Where(x => x.User.Id == IdentityService.CurrentUser.Id);
+            .Where(x => x.User.Id == IdentityService.GetUser().Id);
 
         UsedByCache.Clear();
 
@@ -65,7 +60,7 @@
             var serversUsingThisNetwork = ServerRepository
                 .Get()
                 .Where(x => x.Network.Id == network.Id)
-                .Where(x => x.Owner.Id == IdentityService.CurrentUser.Id)
+                .Where(x => x.Owner.Id == IdentityService.GetUser().Id)
                 .ToArray();
 
             UsedByCache.Add(network.Id, serversUsingThisNetwork);
@@ -74,20 +69,44 @@
         return result;
     }
 
-    private Task ValidateAdd(ServerNetwork network)
+    private void OnConfigure(FastCrudConfiguration<ServerNetwork> configuration)
     {
-        if (!ServerRepository
-                .Get()
-                .Any(x => x.Node.Id == network.Node.Id && x.Owner.Id == IdentityService.CurrentUser.Id))
+        configuration.ValidateCreate = network =>
         {
-            throw new DisplayException("You need a server on the selected node in order to create a network on the node");
-        }
+            if (!ServerRepository
+                    .Get()
+                    .Any(x => x.Node.Id == network.Node.Id && x.Owner.Id == IdentityService.GetUser().Id))
+            {
+                throw new DisplayException("You need a server on the selected node in order to create a network on the node");
+            }
 
-        //TODO: Add config to check the amount of networks created
+            //TODO: Add config to check the amount of networks created
 
-        // Set user as the crud is not allowed to set it (user crud and so on)
-        network.User = IdentityService.CurrentUser;
+            // Set user as the crud is not allowed to set it (user crud and so on)
+            network.User = IdentityService.GetUser();
+
+            return Task.CompletedTask;
+        };
+    }
+
+    private void OnConfigureCreate(FastFormConfiguration<ServerNetwork> configuration, ServerNetwork _)
+    {
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required);
         
-        return Task.CompletedTask;
+        configuration.AddProperty(x => x.Node)
+            .WithComponent<SelectComponent<ServerNode>>(component =>
+            {
+                component.DisplayField = x => x.Name;
+            })
+            .WithValidation(x => x != null ? ValidationResult.Success : new ValidationResult("You need to specify a node"));
+    }
+
+    private void OnConfigureEdit(FastFormConfiguration<ServerNetwork> configuration, ServerNetwork _)
+    {
+        configuration.AddProperty(x => x.Name)
+            .WithDefaultComponent()
+            .WithValidation(FastFormValidators.Required);
     }
 }

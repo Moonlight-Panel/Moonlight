@@ -1,4 +1,4 @@
-using MoonCoreUI.Services;
+using MoonCore.Blazor.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
@@ -14,21 +14,22 @@ public class CreateFileAction : IFileManagerCreateAction
     {
         var alertService = provider.GetRequiredService<AlertService>();
         
-        var name = await alertService.Text("Enter a name for the new file");
-
-        if (string.IsNullOrEmpty(name) || name.Contains(".."))
-            return;
-
-        await access.CreateFile(name);
-        
-        // We build a virtual entry here so we dont need to fetch one
-        await fileManager.OpenEditor(new()
+        await alertService.Text("Create a new file","Enter a name for the new file", async name =>
         {
-            Name = name,
-            Size = 0,
-            IsFile = true,
-            IsDirectory = false,
-            LastModifiedAt = DateTime.UtcNow
+            if (string.IsNullOrEmpty(name) || name.Contains(".."))
+                return;
+
+            await access.CreateFile(name);
+        
+            // We build a virtual entry here so we dont need to fetch one
+            await fileManager.OpenEditor(new()
+            {
+                Name = name,
+                Size = 0,
+                IsFile = true,
+                IsDirectory = false,
+                LastModifiedAt = DateTime.UtcNow
+            });
         });
     }
 }

@@ -3,8 +3,6 @@
 @using Moonlight.Features.Servers.Services
 @using Moonlight.Features.Servers.UI.Components
 @using MoonCore.Abstractions
-@using MoonCore.Helpers
-@using MoonCoreUI.Services
 @using Microsoft.EntityFrameworkCore
 @using Moonlight.Features.Servers.Helpers
 @using Moonlight.Features.Servers.UI.UserViews
@@ -12,8 +10,7 @@
 @using System.Net.WebSockets
 @using MoonCore.Exceptions
 @using Moonlight.Features.Servers.Configuration
-@using MoonCore.Services
-@using Moonlight.Core.Services
+@using MoonCore.Blazor.Forms.Router
 
 @inject Repository<Server> ServerRepository
 @inject ServerService ServerService
@@ -21,10 +18,12 @@
 @inject AlertService AlertService
 @inject IdentityService IdentityService
 @inject ConfigService<ServersConfiguration> ConfigService
+@inject ILogger<UserLayout> Logger
+@inject ILoggerFactory LoggerFactory
 
 @implements IDisposable
 
-<LazyLoader Load="Load" ShowAsCard="true">
+<LazyLoader Load="Load">
     <div class="card card-body pb-5 pt-5">
         <div>
             <div class="row px-2">
@@ -43,21 +42,21 @@
                         <div class="col">
                             <div class="text-gray-900 fs-4">
                                 @{
-                                var color = ServerUtilsHelper.GetColorFromState(Console.State);
+                                    var color = ServerUtilsHelper.GetColorFromState(Console.State);
                                 }
 
                                 <i class="bx bx-sm bxs-circle text-@(color) @(Console.State != ServerState.Offline ? $"pulse pulse-{color}" : "") align-middle"></i>
                                 <span class="align-middle">
-                                @(Console.State)
+                                    @(Console.State)
                                     <span class="text-muted">(@(Formatter.FormatUptime(DateTime.UtcNow - Console.LastStateChangeTimestamp)))</span>
-                            </span>
+                                </span>
                             </div>
                             <div class="text-gray-800 pt-3 fw-semibold fs-5 row">
                                 <div class="col-auto">
-                                <span>
-                                    <i class="bx bx-sm bx-globe align-middle text-info"></i>
-                                    <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
-                                </span>
+                                    <span>
+                                        <i class="bx bx-sm bx-globe align-middle text-info"></i>
+                                        <span class="align-middle">@(Server.Node.Fqdn):@(Server.MainAllocation.Port)</span>
+                                    </span>
                                 </div>
                                 @*
                          <div class="col-auto">
@@ -73,47 +72,47 @@
                             <div class="mt-2">
                                 @if (Console.State == ServerState.Offline)
                                 {
-                                <WButton
-                                    OnClick="Start"
-                                    CssClasses="btn btn-light-success btn-icon me-1 my-1">
-                                    <i class="bx bx-sm bx-play"></i>
-                                </WButton>
+                                    <WButton
+                                        OnClick="Start"
+                                        CssClasses="btn btn-light-success btn-icon me-1 my-1">
+                                        <i class="bx bx-sm bx-play"></i>
+                                    </WButton>
                                 }
                                 else
                                 {
-                                <button type="button" class="btn btn-light-success btn-icon me-1 my-1 disabled" disabled="">
-                                    <i class="bx bx-sm bx-play"></i>
-                                </button>
+                                    <button type="button" class="btn btn-light-success btn-icon me-1 my-1 disabled" disabled="">
+                                        <i class="bx bx-sm bx-play"></i>
+                                    </button>
                                 }
 
                                 @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
                                 {
-                                <button class="btn btn-light-warning btn-icon me-1 my-1 disabled" disabled="">
-                                    <i class="bx bx-sm bx-power-off"></i>
-                                </button>
+                                    <button class="btn btn-light-warning btn-icon me-1 my-1 disabled" disabled="">
+                                        <i class="bx bx-sm bx-power-off"></i>
+                                    </button>
                                 }
                                 else
                                 {
-                                <WButton
-                                    OnClick="Stop"
-                                    CssClasses="btn btn-light-warning btn-icon me-1 my-1">
-                                    <i class="bx bx-sm bx-power-off"></i>
-                                </WButton>
+                                    <WButton
+                                        OnClick="Stop"
+                                        CssClasses="btn btn-light-warning btn-icon me-1 my-1">
+                                        <i class="bx bx-sm bx-power-off"></i>
+                                    </WButton>
                                 }
 
                                 @if (Console.State == ServerState.Offline || Console.State == ServerState.Installing)
                                 {
-                                <button class="btn btn-light-danger btn-icon me-1 my-1 disabled" disabled="">
-                                    <i class="bx bx-sm bx-bomb"></i>
-                                </button>
+                                    <button class="btn btn-light-danger btn-icon me-1 my-1 disabled" disabled="">
+                                        <i class="bx bx-sm bx-bomb"></i>
+                                    </button>
                                 }
                                 else
                                 {
-                                <WButton
-                                    OnClick="Kill"
-                                    CssClasses="btn btn-light-danger btn-icon me-1 my-1">
-                                    <i class="bx bx-sm bx-bomb"></i>
-                                </WButton>
+                                    <WButton
+                                        OnClick="Kill"
+                                        CssClasses="btn btn-light-danger btn-icon me-1 my-1">
+                                        <i class="bx bx-sm bx-bomb"></i>
+                                    </WButton>
                                 }
                             </div>
                         </div>
@@ -154,7 +153,7 @@
         {
             <CascadingValue Value="Server">
                 <CascadingValue Value="Console">
-                    <SmartRouter Route="@Route">
+                    <MCBRouter Route="@Route">
                         <Route Path="/">
                             <Console/>
                         </Route>
@@ -186,7 +185,7 @@
                         <Route Path="/reset">
                             <Reset/>
                         </Route>
-                    </SmartRouter>
+                    </MCBRouter>
                 </CascadingValue>
             </CascadingValue>
         }
@@ -224,7 +223,7 @@
             .Include(x => x.Owner)
             .First(x => x.Id == Id);
 
-        if (Server.Owner.Id != IdentityService.CurrentUser.Id && IdentityService.CurrentUser.Permissions < 5000)
+        if (Server.Owner.Id != IdentityService.GetUser().Id && IdentityService.GetUser().Permissions < 5000)
         {
             Server = null!;
             return;
@@ -233,7 +232,7 @@
         await lazyLoader.SetText("Establishing a connection to the server");
 
         // Create console wrapper
-        Console = new ServerConsole(Server);
+        Console = new ServerConsole(Server, LoggerFactory);
 
         // Configure
         Console.OnStateChange += async state => await HandleStateChange(state);
@@ -266,7 +265,7 @@
             if (httpRequestException.InnerException is not SocketException socketException)
                 throw;
 
-            Logger.Warn($"Unable to access the node's websocket endpoint: {socketException.Message}");
+            Logger.LogWarning("Unable to access the node's websocket endpoint: {socketException}", socketException);
 
             // Change the ui and...
             IsNodeOffline = true;
@@ -328,8 +327,13 @@
     {
         if (!ConfigService.Get().DisableServerKillWarning)
         {
-            if (!await AlertService.YesNo("Do you really want to kill the server? This can result in data loss or corrupted server files"))
-                return;
+            await AlertService.Confirm(
+                "Server kill confirmation",
+                "Do you really want to kill the server? This can result in data loss or corrupted server files",
+                async () => await SendSignalHandled(PowerAction.Kill)
+            );
+
+            return;
         }
 
         await SendSignalHandled(PowerAction.Kill);
@@ -347,8 +351,7 @@
         }
         catch (Exception e)
         {
-            Logger.Warn($"An error occured while sending power action {action} to server {Server.Id}:");
-            Logger.Warn(e);
+            Logger.LogWarning("An error occured while sending power action {action} to server {serverId}: {e}", action, Server.Id, e);
 
             await ToastService.Danger("An error occured while sending power action to server. Check the console for more information");
         }

@@ -1,9 +1,9 @@
-﻿using MoonCoreUI.Helpers;
+﻿using MoonCore.Blazor.Helpers;
 using Moonlight.Core.Interfaces.Ui.Admin;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Features.Servers.UI.Components.Cards;
 
-namespace Moonlight.Features.Servers.Implementations.UI.Admin.AdminComponents;
+namespace Moonlight.Features.Servers.Implementations.AdminDashboard.Components;
 
 public class NodeOverview : IAdminDashboardComponent
 {

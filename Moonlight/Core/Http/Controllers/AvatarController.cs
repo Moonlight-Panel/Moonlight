@@ -2,12 +2,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Abstractions;
-using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Core.Attributes;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database.Entities;
-using Moonlight.Core.Services;
+using Moonlight.Core.Extensions;
 
 namespace Moonlight.Core.Http.Controllers;
 
@@ -19,15 +18,17 @@ public class AvatarController : Controller
     private readonly Repository<User> UserRepository;
     private readonly ConfigService<CoreConfiguration> ConfigService;
     private readonly IdentityService IdentityService;
+    private readonly ILogger<AvatarController> Logger;
 
     public AvatarController(
         Repository<User> userRepository,
         IdentityService identityService,
-        ConfigService<CoreConfiguration> configService)
+        ConfigService<CoreConfiguration> configService, ILogger<AvatarController> logger)
     {
         UserRepository = userRepository;
         IdentityService = identityService;
         ConfigService = configService;
+        Logger = logger;
     }
     
     [HttpGet]
@@ -39,10 +40,10 @@ public class AvatarController : Controller
         var token = Request.Cookies["token"];
         await IdentityService.Authenticate(token!);
 
-        if (!IdentityService.IsLoggedIn)
+        if (!IdentityService.IsAuthenticated)
             return StatusCode(403);
         
-        return File(await GetAvatar(IdentityService.CurrentUser), "image/jpeg");
+        return File(await GetAvatar(IdentityService.GetUser()), "image/jpeg");
     }
 
     [HttpGet("{id:int}")]
@@ -54,12 +55,12 @@ public class AvatarController : Controller
         var token = Request.Cookies["token"];
         await IdentityService.Authenticate(token!);
 
-        if (!IdentityService.IsLoggedIn)
+        if (!IdentityService.IsAuthenticated)
             return StatusCode(403);
 
         if (ConfigService.Get().Security.EnforceAvatarPrivacy && // Do we need to enforce privacy?
-            id != IdentityService.CurrentUser.Id && // is the user not viewing his own image?
-            IdentityService.CurrentUser.Permissions < 1000) // and not an admin?
+            id != IdentityService.GetUser().Id && // is the user not viewing his own image?
+            IdentityService.GetUser().Permissions < 1000) // and not an admin?
         {
             return StatusCode(403);
         }
@@ -88,11 +89,10 @@ public class AvatarController : Controller
         catch (Exception e)
         {
             if(e is HttpRequestException requestException && requestException.InnerException is IOException ioException)
-                Logger.Warn($"Unable to fetch gravatar for user {user.Id}. Is moonlight inside a proxy requiring network?: {ioException.Message}");
+                Logger.LogWarning("Unable to fetch gravatar for user {userId}. Is moonlight inside a proxy requiring network?: {message}", user.Id, ioException.Message);
             else
             {
-                Logger.Warn($"Unable to fetch gravatar for user {user.Id}");
-                Logger.Warn(e);
+                Logger.LogWarning("Unable to fetch gravatar for user {userId}: {e}", user.Id, e);
             }
 
             return new MemoryStream();

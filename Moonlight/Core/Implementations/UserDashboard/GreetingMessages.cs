@@ -1,9 +1,9 @@
-﻿using MoonCoreUI.Helpers;
+﻿using MoonCore.Blazor.Helpers;
 using Moonlight.Core.Interfaces.UI.User;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.UI.Components.Cards;
 
-namespace Moonlight.Core.Implementations.UI.Index;
+namespace Moonlight.Core.Implementations.UserDashboard;
 
 public class GreetingMessages : IUserDashboardComponent
 {

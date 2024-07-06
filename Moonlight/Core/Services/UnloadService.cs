@@ -11,13 +11,17 @@ namespace Moonlight.Core.Services;
 [Scoped]
 public class UnloadService
 {
-    public SmartEventHandler OnUnloaded { get; set; } = new();
+    public SmartEventHandler OnUnloaded { get; set; }
     
     private readonly IJSRuntime JsRuntime;
+    private readonly ILogger<UnloadService> Logger;
 
-    public UnloadService(IJSRuntime jsRuntime)
+    public UnloadService(IJSRuntime jsRuntime, ILogger<SmartEventHandler> eventHandlerLogger, ILogger<UnloadService> logger)
     {
         JsRuntime = jsRuntime;
+        Logger = logger;
+
+        OnUnloaded = new(eventHandlerLogger);
     }
 
     public async Task Initialize()
@@ -28,8 +32,7 @@ public class UnloadService
         }
         catch (Exception e)
         {
-            Logger.Error("An error occured while registering unload event handler");
-            Logger.Error(e);
+            Logger.LogError("An error occured while registering unload event handler: {e}", e);
         }
     }
 

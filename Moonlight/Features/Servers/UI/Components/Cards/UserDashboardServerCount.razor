@@ -32,8 +32,8 @@
     {
         if (firstRender)
         {
-            ServerCount = await ServerRepository.Get().Where(x => x.Owner == IdentityService.CurrentUser).CountAsync();
-            NetworksCount = await NetworkRepository.Get().Where(x => x.User == IdentityService.CurrentUser).CountAsync();
+            ServerCount = await ServerRepository.Get().Where(x => x.Owner == IdentityService.GetUser()).CountAsync();
+            NetworksCount = await NetworkRepository.Get().Where(x => x.User == IdentityService.GetUser()).CountAsync();
             await InvokeAsync(StateHasChanged);
         }
     }

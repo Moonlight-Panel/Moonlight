@@ -9,13 +9,13 @@ using Moonlight.Core.Services;
 using Moonlight.Features.Servers.Actions;
 using Moonlight.Features.Servers.Configuration;
 using Moonlight.Features.Servers.Http.Middleware;
+using Moonlight.Features.Servers.Implementations.AdminDashboard.Columns;
+using Moonlight.Features.Servers.Implementations.AdminDashboard.Components;
 using Moonlight.Features.Servers.Implementations.Diagnose;
-using Moonlight.Features.Servers.Implementations.UI.Admin.AdminColumns;
-using Moonlight.Features.Servers.Implementations.UI.Admin.AdminComponents;
 using Moonlight.Features.Servers.Models.Enums;
 using Moonlight.Features.Servers.Services;
 using Moonlight.Features.Servers.UI.Components.Cards;
-using UserDashboardServerCount = Moonlight.Features.Servers.Implementations.UI.UserDashboard.Components.UserDashboardServerCount;
+using UserDashboardServerCount = Moonlight.Features.Servers.Implementations.UserDashboard.Components.UserDashboardServerCount;
 
 namespace Moonlight.Features.Servers;
 
@@ -34,7 +34,7 @@ public class ServersFeature : MoonlightFeature
         
         //
         var config = new ConfigService<CoreConfiguration>(PathBuilder.File("storage", "configs", "core.json"));
-        context.Builder.Services.AddSingleton(new JwtService<ServersJwtType>(config.Get().Security.Token));
+        context.Builder.Services.AddSingleton(new JwtService<ServersJwtType>(config.Get().Security.Token, context.LoggerFactory.CreateLogger<JwtService<ServersJwtType>>()));
         
         //
         var configService = new ConfigService<ServersConfiguration>(PathBuilder.File("storage", "configs", "servers.json"));

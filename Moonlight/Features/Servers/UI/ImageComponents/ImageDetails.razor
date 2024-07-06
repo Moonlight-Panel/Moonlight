@@ -1,8 +1,9 @@
 @using Moonlight.Features.Servers.Models.Forms.Admin.Images
 
 <div class="mt-5 card card-body p-8">
-    <div class="row g-5">
+    <div class="row g-5">@*
         <div class="col-md-6 col-12">
+            <input class="form-control"/>
             <SingleAutoProperty TItem="UpdateImageDetailedForm"
                                 Model="Form"
                                 Field="@(x => x.Name)"/>
@@ -21,7 +22,7 @@
             <SingleAutoProperty TItem="UpdateImageDetailedForm"
                                 Model="Form"
                                 Field="@(x => x.UpdateUrl)"/>
-        </div>
+        </div>*@
     </div>
 </div>
 

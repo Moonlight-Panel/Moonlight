@@ -9,6 +9,7 @@ public class PreInitContext
     public List<Assembly> DiAssemblies { get; set; } = new();
     public Dictionary<string, List<string>> Assets { get; set; } = new();
     public PluginService Plugins { get; set; }
+    public ILoggerFactory LoggerFactory { get; set; }
     
     public void EnableDependencyInjection<T>()
     {

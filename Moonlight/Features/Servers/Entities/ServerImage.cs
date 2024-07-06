@@ -10,13 +10,13 @@ public class ServerImage
     public string? UpdateUrl { get; set; }
     public string? DonateUrl { get; set; }
 
-    public string StartupCommand { get; set; } = "";
-    public string OnlineDetection { get; set; } = "";
-    public string StopCommand { get; set; } = "";
+    public string StartupCommand { get; set; } = "echo Startup command here";
+    public string OnlineDetection { get; set; } = "Running";
+    public string StopCommand { get; set; } = "^C";
 
-    public string InstallShell { get; set; } = "";
-    public string InstallDockerImage { get; set; } = "";
-    public string InstallScript { get; set; } = "";
+    public string InstallShell { get; set; } = "/bin/bash";
+    public string InstallDockerImage { get; set; } = "debian:latest";
+    public string InstallScript { get; set; } = "#! /bin/bash\necho Done";
 
     public string ParseConfiguration { get; set; } = "[]";
     public int AllocationsNeeded { get; set; } = 1;

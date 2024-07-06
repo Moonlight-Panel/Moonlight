@@ -3,14 +3,10 @@ using Microsoft.AspNetCore.Components;
 using MoonCore.Abstractions;
 using MoonCore.Helpers;
 using MoonCore.Services;
-using MoonCoreUI.Extensions;
-using MoonCoreUI.Services;
 using Moonlight.Core.Configuration;
 using Moonlight.Core.Database;
 using Moonlight.Core.Database.Entities;
 using Moonlight.Core.Implementations.Diagnose;
-using Moonlight.Core.Implementations.UI.Admin.AdminColumns;
-using Moonlight.Core.Implementations.UI.Index;
 using Moonlight.Core.Interfaces;
 using Moonlight.Core.Interfaces.Ui.Admin;
 using Moonlight.Core.Interfaces.UI.User;
@@ -21,10 +17,16 @@ using Moonlight.Core.Models.Enums;
 using Moonlight.Core.Repositories;
 using Moonlight.Core.Services;
 using Microsoft.OpenApi.Models;
+using MoonCore.Blazor.Extensions;
+using MoonCore.Blazor.Services;
+using MoonCore.Extensions;
 using Moonlight.Core.Attributes;
 using Moonlight.Core.Http.Middleware;
+using Moonlight.Core.Implementations.AdminDashboard;
 using Moonlight.Core.Implementations.ApiDefinition;
+using Moonlight.Core.Implementations.UserDashboard;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using AuthenticationStateProvider = Moonlight.Core.Helpers.AuthenticationStateProvider;
 using Microsoft.AspNetCore.Http.Features;
 
 namespace Moonlight.Core;
@@ -55,25 +57,24 @@ public class CoreFeature : MoonlightFeature
         builder.Services.AddDbContext<DataContext>();
 
         // 
-        builder.Services.AddSingleton(new JwtService<CoreJwtType>(config.Security.Token));
+        builder.Services.AddSingleton(new JwtService<CoreJwtType>(
+                config.Security.Token,
+                context.LoggerFactory.CreateLogger<JwtService<CoreJwtType>>()
+            )
+        );
 
         // Mooncore services
         builder.Services.AddScoped(typeof(Repository<>), typeof(GenericRepository<>));
-        builder.Services.AddScoped<CookieService>();
-        builder.Services.AddScoped<FileDownloadService>();
-        builder.Services.AddScoped<AlertService>();
-        builder.Services.AddScoped<ToastService>();
-        builder.Services.AddScoped<ClipboardService>();
-        builder.Services.AddScoped<ModalService>();
-
-        builder.Services.AddMoonCoreUi(configuration =>
+        
+        builder.Services.AddMoonCore(configuration =>
         {
-            configuration.ToastJavascriptPrefix = "moonlight.toasts";
-            configuration.ModalJavascriptPrefix = "moonlight.modals";
-            configuration.AlertJavascriptPrefix = "moonlight.alerts";
-            configuration.ClipboardJavascriptPrefix = "moonlight.clipboard";
-            configuration.FileDownloadJavascriptPrefix = "moonlight.utils";
+            configuration.Identity.Token = config.Security.Token;
+            configuration.Identity.PeriodicReAuthDelay = TimeSpan.FromMinutes(config.Authentication.PeriodicReAuthDelay);
+            configuration.Identity.EnablePeriodicReAuth = config.Authentication.EnablePeriodicReAuth;
+            configuration.Identity.Provider = new AuthenticationStateProvider();
         });
+        
+        builder.Services.AddMoonCoreBlazor();
 
         // Add external services and blazor/asp.net stuff
         builder.Services.AddRazorPages();
@@ -191,7 +192,7 @@ public class CoreFeature : MoonlightFeature
             Name = "Manage admin api access",
             Description = "Allows access to manage api keys and their permissions"
         });
-        
+
         await permissionService.Register(9999, new()
         {
             Name = "Manage system",
@@ -226,9 +227,9 @@ public class CoreFeature : MoonlightFeature
         {
             using var scope = provider.CreateScope();
 
-            var configService = scope.ServiceProvider.GetRequiredService<ConfigService<CoreConfiguration>>();
             var userRepo = scope.ServiceProvider.GetRequiredService<Repository<User>>();
             var authenticationProvider = scope.ServiceProvider.GetRequiredService<IAuthenticationProvider>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<CoreFeature>>();
 
             if (!configService.Get().Authentication.UseDefaultAuthentication)
                 return;
@@ -246,7 +247,7 @@ public class CoreFeature : MoonlightFeature
 
             if (registeredUser == null)
             {
-                Logger.Warn("Unable to create default user. Register function returned null");
+                logger.LogWarning("Unable to create default user. Register function returned null");
                 return;
             }
 
@@ -255,7 +256,7 @@ public class CoreFeature : MoonlightFeature
             user.Permissions = 9999;
             userRepo.Update(user);
 
-            Logger.Info($"Default login: Email: '{email}' Password: '{password}'");
+            logger.LogInformation("Default login: Email: '{email}' Password: '{password}'", email, password);
         });
 
         // Api
@@ -263,7 +264,7 @@ public class CoreFeature : MoonlightFeature
             app.MapSwagger("/api/core/reference/openapi/{documentName}");
 
         app.UseMiddleware<ApiPermissionMiddleware>();
-        
+
         await pluginService.RegisterImplementation<IApiDefinition>(new InternalApiDefinition());
     }
 

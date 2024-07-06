@@ -52,7 +52,7 @@ else
             if(permissionRequired == null)
                 continue;
 
-            if (IdentityService.CurrentUser.Permissions >= permissionRequired.Level)
+            if (IdentityService.GetUser().Permissions >= permissionRequired.Level)
                 Allowed = true;
         }
 

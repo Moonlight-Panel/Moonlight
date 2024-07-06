@@ -6,6 +6,7 @@
 @using MoonCore.Helpers
 
 @inject MoonlightService MoonlightService
+@inject HostSystemHelper HostSystemHelper
 
 @attribute [RequirePermission(9999)]
 
@@ -75,7 +76,7 @@
                     <i class="bx bx-lg text-white align-middle bx-refresh"></i>
                 </div>
                 <div class="col-9 d-flex align-items-center">
-                    <ConfirmButton OnClick="MoonlightService.Restart" Text="Restart" CssClasses="btn btn-lg btn-danger w-100"/>
+                    <ConfirmButton OnClick="_ => MoonlightService.Restart()" CssClasses="btn btn-lg btn-danger w-100">Restart</ConfirmButton>
                 </div>
             </div>
         </div>

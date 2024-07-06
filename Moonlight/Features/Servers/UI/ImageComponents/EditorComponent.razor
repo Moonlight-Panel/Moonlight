@@ -1,0 +1,28 @@
+@using Moonlight.Features.FileManager.UI.Components
+
+@inherits FastFormBaseComponent<string>
+
+<div class="col-12">
+    <label class="form-label">
+        @Name
+    </label>
+    
+    <Editor InitialContent="@Binder.Value"
+            Mode="@Mode"
+            Lines="@Lines"
+            EnableAutoInit="true"
+            OnChanged="OnValueChanged"/>
+</div>
+
+@code 
+{
+    [Parameter] public string Mode { get; set; } = "sh";
+
+    [Parameter] public int Lines { get; set; } = 25;
+
+    private Task OnValueChanged(string val)
+    {
+        Binder.Value = val;
+        return Task.CompletedTask;
+    }
+}

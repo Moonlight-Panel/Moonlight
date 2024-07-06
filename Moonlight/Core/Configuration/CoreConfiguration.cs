@@ -90,6 +90,16 @@ public class CoreConfiguration
         [JsonProperty("DenyRegister")]
         [Description("This disables the register function. No user will be able to sign up anymore. Its recommended to enable this for private instances")]
         public bool DenyRegister { get; set; } = false;
+
+        [JsonProperty("EnablePeriodicReAuth")]
+        [Description(
+            "If this option is enabled, every session will reauthenticate perdiodicly to track state changes in real time without the user refreshing the page")]
+        public bool EnablePeriodicReAuth { get; set; } = true;
+
+        [JsonProperty("PeriodicReAuthDelay")]
+        [Description(
+            "This option specifies how long the intervals are between reauthentications. The value is specified in minutes")]
+        public int PeriodicReAuthDelay { get; set; } = 5;
     }
 
     public class SecurityData

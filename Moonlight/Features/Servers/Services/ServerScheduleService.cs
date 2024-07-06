@@ -14,10 +14,12 @@ public class ServerScheduleService
 {
     private readonly IServiceProvider ServiceProvider;
     public readonly Dictionary<string, ScheduleAction> Actions = new();
+    private readonly ILogger<ServerScheduleService> Logger;
 
-    public ServerScheduleService(IServiceProvider serviceProvider)
+    public ServerScheduleService(IServiceProvider serviceProvider, ILogger<ServerScheduleService> logger)
     {
         ServiceProvider = serviceProvider;
+        Logger = logger;
     }
 
     public Task RegisterAction<T>(string id) where T : ScheduleAction
@@ -50,7 +52,7 @@ public class ServerScheduleService
         {
             if (!Actions.ContainsKey(scheduleItem.Action))
             {
-                Logger.Warn($"The server {server.Id} has a invalid action type '{scheduleItem.Action}'");
+                Logger.LogWarning("The server {serverId} has a invalid action type '{action}'", server.Id, scheduleItem.Action);
                 continue;
             }
 
@@ -69,8 +71,7 @@ public class ServerScheduleService
             }
             catch (Exception e)
             {
-                Logger.Warn($"An unhandled error occured while running schedule {schedule.Name} for server {server.Id}");
-                Logger.Warn(e);
+                Logger.LogWarning("An unhandled error occured while running schedule {name} for server {serverId}: {e}", schedule.Name, server.Id, e);
                 
                 sw.Stop();
 

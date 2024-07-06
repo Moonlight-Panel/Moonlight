@@ -6,9 +6,10 @@
 @using MoonCore.Exceptions
 
 @inject IdentityService IdentityService
+@inject AlertService AlertService
 @inject IAuthenticationProvider AuthenticationProvider
 
-@if (IdentityService.CurrentUser.Totp)
+@if (IdentityService.GetUser().Totp)
 {
     <div class="d-flex justify-content-center flex-column text-center">
         <div class="d-flex justify-content-center">
@@ -42,7 +43,7 @@ else
 
                             var qrCodeData = qrGenerator.CreateQrCode
                             (
-                                $"otpauth://totp/{Uri.EscapeDataString(IdentityService.CurrentUser.Email)}?secret={Key}&issuer={Uri.EscapeDataString("Moonlight")}",
+                                $"otpauth://totp/{Uri.EscapeDataString(IdentityService.GetUser().Email)}?secret={Key}&issuer={Uri.EscapeDataString("Moonlight")}",
                                 QRCodeGenerator.ECCLevel.Q
                             );
 
@@ -61,15 +62,15 @@ else
                         </div>
                     </div>
                 </div>
-                <SmartForm Model="CodeForm" OnValidSubmit="VerifyAndEnable">
+                <div>
                     <input @bind="CodeForm.Code" type="number" class="form-control form-control-lg form-control-solid text-center my-8" placeholder="Enter authentication code" name="code">
                     <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-primary">
+                        <WButton OnClick="VerifyAndEnable" CssClasses="btn btn-primary">
                             Continue
                             <i class="bx bx-sm bx-right-arrow-alt"></i>
-                        </button>
+                        </WButton>
                     </div>
-                </SmartForm>
+                </div>
             </div>
         }
         else
@@ -139,10 +140,10 @@ else
     private string Key = "";
     private TwoFactorCodeForm CodeForm = new();
 
-    private async Task Disable()
+    private async Task Disable(ConfirmButton _)
     {
-        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, "");
-        await IdentityService.Authenticate(true);
+        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.GetUser(), "");
+        await IdentityService.Authenticate();
 
         HasStarted = false;
         HasCompletedAppLinks = false;
@@ -170,11 +171,14 @@ else
         var correctCode = totp.ComputeTotp();
 
         if (CodeForm.Code != correctCode)
-            throw new DisplayException("Invalid code entered. Please try again");
+        {
+            await AlertService.Danger("Invalid code entered. Please try again");
+            return;
+        }
         
         // Enable two factor auth for user
-        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.CurrentUser, Key);
-        await IdentityService.Authenticate(true);
+        await AuthenticationProvider.SetTwoFactorSecret(IdentityService.GetUser(), Key);
+        await IdentityService.Authenticate();
 
         HasStarted = false;
         HasCompletedAppLinks = false;

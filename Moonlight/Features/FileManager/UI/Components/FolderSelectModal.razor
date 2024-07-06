@@ -1,0 +1,61 @@
+@using Moonlight.Features.FileManager.Models.Abstractions.FileAccess
+
+@implements IDisposable
+
+<div class="modal-header">
+    <h5 class="modal-title">@Title</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <FileView @ref="View"
+              FileAccess="FileAccess"
+              Filter="Filter"
+              ShowDate="false"
+              ShowSelect="false"
+              ShowSize="false"
+              OnEntryClicked="EntryClickFolderSelect"
+              OnNavigateUpClicked="NavigateUpFolderSelect"
+              EnableContextMenu="false"/>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-primary" @onclick="SubmitFolderSelect">Submit</button>
+</div>
+
+@code
+{
+    [Parameter] public BaseFileAccess FileAccess { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public Func<string, Task> OnResult { get; set; }
+    
+    private FileView View;
+    private Func<FileEntry, bool> Filter => entry => entry.IsDirectory;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FileAccess.SetDirectory("/");
+    }
+
+    private async Task SubmitFolderSelect()
+    {
+        var path = await FileAccess.GetCurrentDirectory();
+        await OnResult.Invoke(path);
+    }
+
+    private async Task NavigateUpFolderSelect()
+    {
+        await FileAccess.ChangeDirectory("..");
+        await View.Refresh();
+    }
+
+    private async Task EntryClickFolderSelect(FileEntry entry)
+    {
+        await FileAccess.ChangeDirectory(entry.Name);
+        await View.Refresh();
+    }
+
+    public void Dispose()
+    {
+        FileAccess.Dispose();
+    }
+}

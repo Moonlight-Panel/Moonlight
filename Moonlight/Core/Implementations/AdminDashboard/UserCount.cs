@@ -1,9 +1,9 @@
-﻿using MoonCoreUI.Helpers;
+﻿using MoonCore.Blazor.Helpers;
 using Moonlight.Core.Interfaces.Ui.Admin;
 using Moonlight.Core.Models.Abstractions;
 using Moonlight.Core.UI.Components.Cards;
 
-namespace Moonlight.Core.Implementations.UI.Admin.AdminColumns;
+namespace Moonlight.Core.Implementations.AdminDashboard;
 
 public class UserCount : IAdminDashboardColumn
 {

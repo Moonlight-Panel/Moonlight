@@ -1,12 +1,21 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using MoonCore.Attributes;
 using MoonCore.Helpers;
 
 namespace Moonlight.Core.Helpers;
 
-public static class HostSystemHelper
+[Singleton]
+public class HostSystemHelper
 {
-    public static Task<string> GetOsName()
+    private readonly ILogger<HostSystemHelper> Logger;
+
+    public HostSystemHelper(ILogger<HostSystemHelper> logger)
+    {
+        Logger = logger;
+    }
+
+    public Task<string> GetOsName()
     {
         try
         {
@@ -48,21 +57,20 @@ public static class HostSystemHelper
         }
         catch (Exception e)
         {
-            Logger.Warn("Error retrieving os information");
-            Logger.Warn(e);
+            Logger.LogWarning("Error retrieving os information: {e}", e);
 
             return Task.FromResult("N/A");
         }
     }
 
-    public static Task<long> GetMemoryUsage()
+    public Task<long> GetMemoryUsage()
     {
         var process = Process.GetCurrentProcess();
         var bytes = process.PrivateMemorySize64;
         return Task.FromResult(bytes);
     }
 
-    public static Task<int> GetCpuUsage()
+    public Task<int> GetCpuUsage()
     {
         var process = Process.GetCurrentProcess();
         var cpuTime = process.TotalProcessorTime;

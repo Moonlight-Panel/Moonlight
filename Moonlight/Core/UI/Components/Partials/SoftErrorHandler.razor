@@ -4,12 +4,13 @@
 @using Moonlight.Core.Services
 
 @inject IdentityService IdentityService
+@inject ILogger<SoftErrorHandler> Logger
 
 @inherits ErrorBoundaryBase
 
 @if (Crashed || Exception != null)
 {
-    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" || (IdentityService.IsLoggedIn && IdentityService.CurrentUser.Permissions >= 9000))
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" || (IdentityService.IsAuthenticated && IdentityService.GetUser().Permissions >= 9000))
     {
         if (Exception != null)
         {
@@ -74,9 +75,8 @@ else
             Exception = exception;
             Crashed = true;
 
-            var username = IdentityService.IsLoggedIn ? IdentityService.CurrentUser.Username : "Guest";
-            Logger.Warn($"A crash occured in the view of '{username}'");
-            Logger.Warn(exception);
+            var username = IdentityService.IsAuthenticated ? IdentityService.GetUser().Username : "Guest";
+            Logger.LogWarning("A crash occured in the view of '{username}': {exception}", username, exception);
         }
         
         Recover();

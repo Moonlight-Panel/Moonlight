@@ -2,7 +2,7 @@
 @using Moonlight.Features.Servers.UI.Components.VariableViews
 @using MoonCore.Abstractions
 @using Microsoft.EntityFrameworkCore
-@using MoonCoreUI.Services
+
 @using Moonlight.Features.Servers.Entities.Enums
 
 @inject Repository<Server> ServerRepository
@@ -10,14 +10,14 @@
 @inject Repository<ServerVariable> ServerVariableRepository
 @inject ToastService ToastService
 
-<LazyLoader @ref="LazyLoader" Load="Load" ShowAsCard="true">
+<LazyLoader @ref="LazyLoader" Load="Load">
     <div class="row mt-1 g-5">
         <div class="col-md-6 col-12">
             <div class="card card-body p-5 h-100">
                 <label class="form-label fs-5">Docker image</label>
                 @if (Image.AllowDockerImageChange)
                 {
-                    <SmartSelect @bind-Value="SelectedDockerImage"
+                    <MCBSelect @bind-Value="SelectedDockerImage"
                                  Items="Image.DockerImages"
                                  DisplayField="@(x => x.DisplayName)"
                                  OnChange="OnDockerImageChanged"/>

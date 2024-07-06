@@ -1,4 +1,5 @@
-using MoonCoreUI.Services;
+
+using MoonCore.Blazor.Services;
 using Moonlight.Features.FileManager.Interfaces;
 using Moonlight.Features.FileManager.Models.Abstractions.FileAccess;
 
@@ -19,12 +20,12 @@ public class MoveSelectionAction : IFileManagerSelectionAction
 
             foreach (var entry in entries)
             {
-                await toastService.ModifyProgress("fileManagerSelectionMove", $"Moving '{entry.Name}'");
+                await toastService.UpdateProgress("fileManagerSelectionMove", $"Moving '{entry.Name}'");
 
                 await access.Move(entry, path + entry.Name);
             }
 
-            await toastService.RemoveProgress("fileManagerSelectionMove");
+            await toastService.DeleteProgress("fileManagerSelectionMove");
 
             await toastService.Success("Successfully moved selection");
             await fileManager.View.Refresh();
