@@ -27,6 +27,7 @@ using Moonlight.Core.Implementations.ApiDefinition;
 using Moonlight.Core.Implementations.UserDashboard;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using AuthenticationStateProvider = Moonlight.Core.Helpers.AuthenticationStateProvider;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Moonlight.Core;
 
@@ -97,6 +98,12 @@ public class CoreFeature : MoonlightFeature
             options.Limits.MaxRequestBodySize = ByteSizeValue.FromMegaBytes(config.Http.UploadLimit).Bytes;
         });
 
+        // Setup http upload limit in forms
+        context.Builder.Services.Configure<FormOptions>(x =>
+        {
+            x.MultipartBodyLengthLimit = ByteSizeValue.FromMegaBytes(config.Http.UploadLimit).Bytes;
+        });
+
         // Assets
 
         // - Javascript
@@ -108,6 +115,7 @@ public class CoreFeature : MoonlightFeature
         context.AddAsset("Core", "js/alerter.js");
 
         // - Css
+        context.AddAsset("Core", "css/theme.css");
         context.AddAsset("Core", "css/blazor.css");
         context.AddAsset("Core", "css/boxicons.css");
         context.AddAsset("Core", "css/sweetalert2dark.css");

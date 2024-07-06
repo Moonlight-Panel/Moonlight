@@ -1,2 +1,2 @@
 @echo off
-sass style.scss ../wwwroot/css/theme.css
+sass style.scss ../Assets/Core/css/theme.css

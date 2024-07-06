@@ -274,7 +274,17 @@ public class ImageConversionHelper
         // Node Regex: As the online detection uses regex, we want to escape any special chars from egg imports
         // as eggs dont use regex and as such may contain characters which regex uses as meta characters.
         // Without this escaping, many startup detection strings wont work
-        result.OnlineDetection = Regex.Escape(startup["done"]?.Value<string>() ?? "Online detection was missing");
+        
+        // As pelican/pterodactyl changed their image format AGAIN, there needs to be the check below
+        var val = startup["done"]!;
+        string rawDone;
+
+        if (val is JArray array)
+            rawDone = array.First().Value<string>() ?? "Online detection was missing";
+        else
+            rawDone = val.Value<string>() ?? "Online detection was missing";
+        
+        result.OnlineDetection = Regex.Escape(rawDone);
 
         // Docker images
 

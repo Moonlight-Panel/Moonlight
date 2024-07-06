@@ -5,78 +5,78 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RuntimeIdentifiers>linux-arm64;linux-x64;win-x64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-      <Content Update="Assets\Features\Core\js\moonlight.js">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\js\sweetalert2.js">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\js\toaster.js">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\js\bootstrap.js">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\css\blazor.css">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\css\boxicons.css">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\css\sweetalert2dark.css">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\Features\Core\css\utils.css">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Assets\FileManager\js\dropzone.js">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
+        <Content Update="Assets\Features\Core\js\moonlight.js">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\js\sweetalert2.js">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\js\toaster.js">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\js\bootstrap.js">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\css\blazor.css">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\css\boxicons.css">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\css\sweetalert2dark.css">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\Features\Core\css\utils.css">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="Assets\FileManager\js\dropzone.js">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Core\Database\Migrations\" />
-      <Folder Include="Core\Http\Requests\" />
-      <Folder Include="Core\Http\Resources\" />
-      <Folder Include="Core\UI\Components\Forms\" />
-      <Folder Include="Features\Dummy\Configuration\" />
-      <Folder Include="Features\Dummy\Entities\" />
-      <Folder Include="Features\Dummy\Helpers\" />
-      <Folder Include="Features\Dummy\Http\Controllers\" />
-      <Folder Include="Features\Dummy\Http\Middleware\" />
-      <Folder Include="Features\Dummy\Http\Requests\" />
-      <Folder Include="Features\Dummy\Http\Resources\" />
-      <Folder Include="Features\Dummy\Models\Abstractions\" />
-      <Folder Include="Features\Dummy\Models\Enums\" />
-      <Folder Include="Features\Dummy\Models\Forms\" />
-      <Folder Include="Features\Dummy\Services\" />
-      <Folder Include="Features\Dummy\UI\Components\" />
-      <Folder Include="Features\Dummy\UI\Layouts\" />
-      <Folder Include="Features\Dummy\UI\Views\" />
-      <Folder Include="Features\FileManager\Configuration\" />
-      <Folder Include="Features\FileManager\Entities\" />
-      <Folder Include="Features\FileManager\Http\Middleware\" />
-      <Folder Include="Features\FileManager\Http\Requests\" />
-      <Folder Include="Features\FileManager\Http\Resources\" />
-      <Folder Include="Features\Servers\Http\Resources\" />
-      <Folder Include="storage\" />
-      <Folder Include="Styles\" />
-      <Folder Include="wwwroot\css\" />
+        <Folder Include="Core\Database\Migrations\"/>
+        <Folder Include="Core\Http\Requests\"/>
+        <Folder Include="Core\Http\Resources\"/>
+        <Folder Include="Core\UI\Components\Forms\"/>
+        <Folder Include="Features\Dummy\Configuration\"/>
+        <Folder Include="Features\Dummy\Entities\"/>
+        <Folder Include="Features\Dummy\Helpers\"/>
+        <Folder Include="Features\Dummy\Http\Controllers\"/>
+        <Folder Include="Features\Dummy\Http\Middleware\"/>
+        <Folder Include="Features\Dummy\Http\Requests\"/>
+        <Folder Include="Features\Dummy\Http\Resources\"/>
+        <Folder Include="Features\Dummy\Models\Abstractions\"/>
+        <Folder Include="Features\Dummy\Models\Enums\"/>
+        <Folder Include="Features\Dummy\Models\Forms\"/>
+        <Folder Include="Features\Dummy\Services\"/>
+        <Folder Include="Features\Dummy\UI\Components\"/>
+        <Folder Include="Features\Dummy\UI\Layouts\"/>
+        <Folder Include="Features\Dummy\UI\Views\"/>
+        <Folder Include="Features\FileManager\Configuration\"/>
+        <Folder Include="Features\FileManager\Entities\"/>
+        <Folder Include="Features\FileManager\Http\Middleware\"/>
+        <Folder Include="Features\FileManager\Http\Requests\"/>
+        <Folder Include="Features\FileManager\Http\Resources\"/>
+        <Folder Include="Features\Servers\Http\Resources\"/>
+        <Folder Include="storage\"/>
+        <Folder Include="Styles\"/>
     </ItemGroup>
 
     <ItemGroup>

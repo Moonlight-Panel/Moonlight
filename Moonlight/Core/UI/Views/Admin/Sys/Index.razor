@@ -31,9 +31,6 @@
             <StatCard Value="@memoryUsageText" Description="Memory usage" Icon="bxs-microchip"/>
         </div>
         <div class="col-md-3 col-12">
-            <StatCard Value="bf6641c (up-to-date)" Description="Version" Icon="bxs-purchase-tag"/>
-        </div>
-        <div class="col-md-3 col-12">
             @{
                 var uptimeText = Formatter.FormatUptime(Uptime);
             }
@@ -41,7 +38,30 @@
             <StatCard Value="@uptimeText" Description="Uptime" Icon="bxs-time-five"/>
         </div>
         <div class="col-md-3 col-12">
-            <StatCard Value="@OsName" Description="Operating system" Icon="bx-fingerprint"/>
+            @if (MoonlightService.IsDockerRun)
+            {
+                <StatCard Value="Running in docker" Description="Operating system" Icon="bxl-docker"/>
+            }
+            else
+            {
+                <StatCard Value="@OsName" Description="Operating system" Icon="bx-fingerprint"/>
+            }
+        </div>
+        <div class="col-md-3 col-12">
+            @{
+                var commitText = $"{MoonlightService.BuildCommitHash.Substring(0, 7)}"; // TODO: Add update check (possible during startup, with error handling etc)
+            }
+            
+            <StatCard Value="@commitText" Description="Commit" Icon="bxl-git"/>
+        </div>
+        <div class="col-md-3 col-12">
+            <StatCard Value="@MoonlightService.BuildChannel" Description="Channel" Icon="bx-git-branch"/>
+        </div>
+        <div class="col-md-3 col-12">
+            <StatCard Value="@MoonlightService.BuildName" Description="Name" Icon="bxs-bookmark"/>
+        </div>
+        <div class="col-md-3 col-12">
+            <StatCard Value="@MoonlightService.BuildVersion" Description="Version" Icon="bxs-purchase-tag"/>
         </div>
     </LazyLoader>
 </div>
@@ -75,7 +95,9 @@
     {
         await lazyLoader.SetText("Loading system statistics");
 
-        OsName = await HostSystemHelper.GetOsName();
+        if(!MoonlightService.IsDockerRun)
+            OsName = await HostSystemHelper.GetOsName();
+        
         CpuUsage = await HostSystemHelper.GetCpuUsage();
         MemoryUsage = await HostSystemHelper.GetMemoryUsage();
         Uptime = await MoonlightService.GetUptime();
