@@ -18,17 +18,13 @@ public class MoonlightService
     private readonly DateTime StartTimestamp = DateTime.UtcNow;
     private readonly CoreEvents CoreEvents;
     private readonly ILogger<MoonlightService> Logger;
-    
+
     public MoonlightService(CoreEvents coreEvents, ILogger<MoonlightService> logger)
     {
         CoreEvents = coreEvents;
         Logger = logger;
-    }
-
-    public MoonlightService()
-    {
+        
        //TODO: Maybe extract to a method to make this a bit cleaner
-
        if (File.Exists("version"))
        {
            var line = File.ReadAllText("version");

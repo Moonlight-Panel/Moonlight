@@ -50,7 +50,7 @@
         <div class="col-md-3 col-12">
             @{
                 var commitHashShorted = string.IsNullOrEmpty(MoonlightService.BuildCommitHash) || MoonlightService.BuildCommitHash.Length < 7
-                    ? ""
+                    ? "N/A"
                     : MoonlightService.BuildCommitHash.Substring(0, 7); 
                 
                 // TODO: Add update check (possible during startup, with error handling etc)
