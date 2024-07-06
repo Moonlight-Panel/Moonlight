@@ -94,7 +94,7 @@ public class CoreConfiguration
         [JsonProperty("EnablePeriodicReAuth")]
         [Description(
             "If this option is enabled, every session will reauthenticate perdiodicly to track state changes in real time without the user refreshing the page")]
-        public bool EnablePeriodicReAuth { get; set; } = true;
+        public bool EnablePeriodicReAuth { get; set; } = false;
 
         [JsonProperty("PeriodicReAuthDelay")]
         [Description(
