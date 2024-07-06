@@ -180,7 +180,7 @@
         configuration.AddProperty(x => x.AllocationsNeeded)
             .WithDefaultComponent()
             .WithPage("Miscellaneous")
-            .WithValidation(x => x > 1 ? ValidationResult.Success : new ValidationResult("This specifies the amount of allocations needed for this image in order to create a server"));
+            .WithValidation(x => x >= 1 ? ValidationResult.Success : new ValidationResult("This specifies the amount of allocations needed for this image in order to create a server"));
 
         configuration.AddProperty(x => x.InstallDockerImage)
             .WithDefaultComponent()

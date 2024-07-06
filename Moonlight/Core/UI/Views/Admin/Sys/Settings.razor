@@ -1,6 +1,4 @@
-﻿@page "/admin/sys/settings"
-
-@using System.ComponentModel
+﻿@using System.ComponentModel
 @using System.Linq.Expressions
 @using Moonlight.Core.UI.Components.Navigations
 @using System.Reflection
@@ -89,7 +87,7 @@ else
         </div>
         <div class="col-md-9 col-12">
             <LazyLoader @ref="LazyLoader" Load="Load" UseDefaultValues="false" TimeUntilSpinnerIsShown="TimeSpan.Zero">
-                <FastForm Model="CurrentModel" OnConfigure="OnFormConfigure"/>
+                @Content
             </LazyLoader>
         </div>
     </div>
@@ -102,9 +100,9 @@ else
     private object? CurrentModel;
     private string[] SidebarItems = [];
     private string[] Path = [];
-    private PropertyInfo[] Properties = [];
 
     private LazyLoader? LazyLoader;
+    private RenderFragment Content;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -118,7 +116,6 @@ else
         if (CurrentModel == null)
         {
             SidebarItems = [];
-            Properties = [];
         }
         else
         {
@@ -134,43 +131,12 @@ else
                 )
                 .Select(x => x.Name)
                 .ToArray();
-
-            Properties = props
-                .Where(x =>
-                        !x.PropertyType.Namespace.StartsWith("Moonlight") &&
-                        DefaultComponentRegistry.Get(x.PropertyType) != null // Check if a component has been registered for that type
-                )
-                .ToArray();
         }
 
         await InvokeAsync(StateHasChanged);
 
         if (LazyLoader != null)
             await LazyLoader.Reload();
-    }
-    
-    private void OnFormConfigure(FastFormConfiguration<object> configuration)
-    {
-        if(CurrentModel == null) // This will technically never be true because of the ui logic
-            return;
-
-        foreach (var property in Properties)
-        {
-            var propConfig = configuration
-                .AddProperty(CreatePropertyAccessExpression(property))
-                .WithDefaultComponent();
-
-            var customAttributes = property.GetCustomAttributes(false);
-            
-            if(customAttributes.Length == 0)
-                continue;
-
-            if (TryGetAttribute(customAttributes, out DisplayNameAttribute nameAttribute))
-                propConfig.WithName(nameAttribute.DisplayName);
-
-            if (TryGetAttribute(customAttributes, out DescriptionAttribute descriptionAttribute))
-                propConfig.WithDescription(descriptionAttribute.Description);
-        }
     }
 
     private string GetBackPath()
@@ -201,7 +167,15 @@ else
         return Resolve(prop.GetValue(model)!, path, index + 1);
     }
 
-    private Task Load(LazyLoader _) => Task.CompletedTask; // Seems useless, it more or less is, but it shows a nice loading ui while the form changes
+    private Task Load(LazyLoader _)
+    {
+        Content = ComponentHelper.FromType(typeof(DynamicFormBuilder<>).MakeGenericType(CurrentModel.GetType()), parameters =>
+        {
+            parameters.Add("Model", CurrentModel);
+        });
+
+        return Task.CompletedTask;
+    }
 
     private async Task Save() // Saves all changes to disk, all changes are live updated as the config service reference will be edited directly
     {
@@ -213,48 +187,5 @@ else
     {
         ConfigService.Reload();
         await ToastService.Info("Reloaded configuration from disk");
-    }
-    
-    // Building lambda expressions at runtime using reflection is nice ;3
-    public static Expression<Func<object, object?>> CreatePropertyAccessExpression(PropertyInfo property)
-    {
-        // Get the type that declares the property
-        Type declaringType = property.DeclaringType!;
-        
-        // Create a parameter expression for the input object
-        ParameterExpression param = Expression.Parameter(typeof(object), "obj");
-
-        // Create an expression to cast the input object to the declaring type
-        UnaryExpression cast = Expression.Convert(param, declaringType);
-
-        // Create an expression to access the property
-        MemberExpression propertyAccess = Expression.Property(cast, property);
-
-        // Create an expression to cast the property value to object
-        UnaryExpression castResult = Expression.Convert(propertyAccess, typeof(object));
-
-        // Create the final lambda expression
-        Expression<Func<object, object?>> lambda = Expression.Lambda<Func<object, object?>>(
-            castResult, param);
-
-        return lambda;
-    }
-    
-    // From MoonCore. TODO: Maybe provide this and the above function as mooncore helper
-    private bool TryGetAttribute<T>(object[] attributes, out T result) where T : Attribute
-    {
-        var searchType = typeof(T);
-
-        var attr = attributes
-            .FirstOrDefault(x => x.GetType() == searchType);
-
-        if (attr == null)
-        {
-            result = default!;
-            return false;
-        }
-
-        result = (attr as T)!;
-        return true;
     }
 }

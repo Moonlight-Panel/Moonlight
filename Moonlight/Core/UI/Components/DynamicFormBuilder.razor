@@ -1,0 +1,78 @@
+@using System.ComponentModel
+@using System.Linq.Expressions
+@using System.Reflection
+@typeparam T
+
+<FastForm TModel="T" Model="(T)Model" OnConfigure="OnFormConfigure"/>
+
+@code
+{
+    [Parameter] public object Model { get; set; }
+
+    private PropertyInfo[] Properties;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Properties = Model.GetType().GetProperties()
+            .Where(x =>
+                    !x.PropertyType.Namespace.StartsWith("Moonlight") &&
+                    DefaultComponentRegistry.Get(x.PropertyType) != null // Check if a component has been registered for that type
+            )
+            .ToArray();
+    }
+
+    private void OnFormConfigure(FastFormConfiguration<T> configuration)
+    {
+        if (Model == null) // This will technically never be true because of the ui logic
+            return;
+
+        foreach (var property in Properties)
+        {
+            var propertyFunc = GetType().GetMethod("CreatePropertyAccessExpression")!.MakeGenericMethod(property.PropertyType).Invoke(this, [property]);
+            var config = configuration.GetType().GetMethod("AddProperty")!.MakeGenericMethod(property.PropertyType).Invoke(configuration, [propertyFunc])!;
+
+            config.GetType().GetMethod("WithDefaultComponent")!.Invoke(config, []);
+
+            var attributes = property.GetCustomAttributes(true);
+
+            if (TryGetAttribute(attributes, out DisplayNameAttribute nameAttribute))
+                config.GetType().GetMethod("WithName")!.Invoke(config, [nameAttribute.DisplayName]);
+
+            if (TryGetAttribute(attributes, out DescriptionAttribute descriptionAttribute))
+                config.GetType().GetMethod("WithDescription")!.Invoke(config, [descriptionAttribute.Description]);
+        }
+    }
+
+    // Building lambda expressions at runtime using reflection is nice ;3
+    public static Expression<Func<T, TResult?>> CreatePropertyAccessExpression<TResult>(PropertyInfo property)
+    {
+        // Create a parameter expression for TData
+        var parameter = Expression.Parameter(typeof(T), "data");
+
+        // Access the property
+        var member = Expression.MakeMemberAccess(parameter, property);
+
+        // Create the lambda expression
+        var lambda = Expression.Lambda<Func<T, TResult?>>(member, parameter);
+
+        return lambda;
+    }
+
+    // From MoonCore. TODO: Maybe provide this and the above function as mooncore helper
+    private static bool TryGetAttribute<T>(object[] attributes, out T result) where T : Attribute
+    {
+        var searchType = typeof(T);
+
+        var attr = attributes
+            .FirstOrDefault(x => x.GetType() == searchType);
+
+        if (attr == null)
+        {
+            result = default!;
+            return false;
+        }
+
+        result = (attr as T)!;
+        return true;
+    }
+}
