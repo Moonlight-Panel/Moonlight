@@ -50,7 +50,8 @@
                 {
                     var cssClass = $"btn btn-{action.Color} mx-2";
 
-                    <WButton Text="@action.Name" CssClasses="@cssClass" OnClick="() => InvokeSelectionAction(action)"/>
+                    <WButton CssClasses="@cssClass" OnClick="() => InvokeSelectionAction(action)">
+                    @action.Name</WButton>
                 }
             }
             else
