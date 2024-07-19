@@ -58,7 +58,7 @@ This project is currently in beta
 
 * [Bootstrap 5](https://getbootstrap.com/)
 * [Blazor Server Side](https://learn.microsoft.com/de-de/aspnet/core/blazor/hosting-models?view=aspnetcore-7.0)
-* [.NET 7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+* [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ## License
 
