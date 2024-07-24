@@ -397,8 +397,31 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-storage/
-.idea/.idea.Moonlight/.idea/dataSources.xml
-Moonlight/Assets/Core/css/theme.css
-Moonlight/Assets/Core/css/theme.css.map
-.idea/.idea.Moonlight/.idea/discord.xml
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Gradle
+.idea/**/gradle.xml
+.idea/**/libraries
+
+# Moonlight
+
+node_modules/
+Moonlight/ApiServer/storage/**
+Moonlight/Client/wwwroot/css/style.css
