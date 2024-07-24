@@ -1,7 +1,0 @@
-//
-// Layout Transition Mixin
-//
-
-@mixin app-layout-transition($properties: all) {
-    transition: $properties $app-general-transition-duration $app-general-transition-timing !important;    
-}

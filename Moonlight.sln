@@ -1,6 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight", "Moonlight\Moonlight.csproj", "{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.ApiServer", "Moonlight\ApiServer\Moonlight.ApiServer.csproj", "{15332DDF-405C-4963-8823-C4D31247B03F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Client", "Moonlight\Client\Moonlight.Client.csproj", "{A964E7AE-C7E1-4A36-A461-1876E4BE2B1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Shared", "Moonlight\Shared\Moonlight.Shared.csproj", "{0CB29971-EAF4-4B39-A646-08C15540DFB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,11 +12,17 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
+		{15332DDF-405C-4963-8823-C4D31247B03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15332DDF-405C-4963-8823-C4D31247B03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15332DDF-405C-4963-8823-C4D31247B03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15332DDF-405C-4963-8823-C4D31247B03F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A964E7AE-C7E1-4A36-A461-1876E4BE2B1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A964E7AE-C7E1-4A36-A461-1876E4BE2B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A964E7AE-C7E1-4A36-A461-1876E4BE2B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A964E7AE-C7E1-4A36-A461-1876E4BE2B1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CB29971-EAF4-4B39-A646-08C15540DFB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CB29971-EAF4-4B39-A646-08C15540DFB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CB29971-EAF4-4B39-A646-08C15540DFB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CB29971-EAF4-4B39-A646-08C15540DFB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
