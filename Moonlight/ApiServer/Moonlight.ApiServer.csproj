@@ -8,6 +8,10 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="MoonCore" Version="1.4.3" />
         <PackageReference Include="MoonCore.Extended" Version="1.0.1" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
@@ -19,15 +23,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App\Database\Entities\" />
       <Folder Include="App\Database\Migrations\" />
       <Folder Include="App\Http\Controllers\" />
       <Folder Include="App\Http\Middleware\" />
-      <Folder Include="App\Interfaces\" />
       <Folder Include="App\Models\" />
       <Folder Include="App\PluginApi\" />
-      <Folder Include="App\Repositories\" />
-      <Folder Include="App\Services\" />
       <Folder Include="storage\" />
     </ItemGroup>
 

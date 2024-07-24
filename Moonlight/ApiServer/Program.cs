@@ -8,6 +8,8 @@ using Moonlight.ApiServer.App.Database;
 
 // Moonlight initialisation
 
+Console.WriteLine(string.Join(" ", args));
+
 // Prepare file system
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
@@ -73,7 +75,11 @@ builder.Logging.AddConfiguration(await File.ReadAllTextAsync(logConfigPath));
 
 // Mooncore di
 builder.Services.AutoAddServices<Program>();
+builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AddSingleton(configService);
+
+// TODO: Make configurable, reconsider location
+
 
 // Database
 logger.LogInformation("Preparing database connection");
