@@ -10,17 +10,17 @@ namespace Moonlight.ApiServer.App.Http.Controllers;
 [Route("auth")]
 public class AuthController : Controller
 {
-    private readonly UserService UserService;
+    private readonly AuthService AuthService;
 
-    public AuthController(UserService userService)
+    public AuthController(AuthService authService)
     {
-        UserService = userService;
+        AuthService = authService;
     }
 
     [HttpPost("register")]
     public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
     {
-        var token = await UserService.Register(request.Username, request.Email, request.Password);
+        var token = await AuthService.Register(request.Username, request.Email, request.Password);
 
         return Ok(new RegisterResponse()
         {
@@ -31,7 +31,7 @@ public class AuthController : Controller
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
     {
-        var token = await UserService.Login(request.Identifier, request.Password, request.TwoFactorCode);
+        var token = await AuthService.Login(request.Identifier, request.Password, request.TwoFactorCode);
 
         return Ok(new RegisterResponse()
         {

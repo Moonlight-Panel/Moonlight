@@ -10,7 +10,7 @@ using Moonlight.ApiServer.App.Interfaces;
 namespace Moonlight.ApiServer.App.Services;
 
 [Scoped]
-public class UserService
+public class AuthService
 {
     private readonly IAuthenticationProvider Provider;
     private readonly IServiceProvider ServiceProvider;
@@ -18,7 +18,7 @@ public class UserService
     private readonly ConfigService<AppConfiguration> ConfigService;
     private readonly JwtHelper JwtHelper;
 
-    public UserService(
+    public AuthService(
         IAuthenticationProvider provider,
         IServiceProvider serviceProvider,
         ConfigService<AppConfiguration> configService,

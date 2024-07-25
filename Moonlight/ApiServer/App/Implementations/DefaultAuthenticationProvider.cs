@@ -59,14 +59,13 @@ public class DefaultAuthenticationProvider : IAuthenticationProvider
             throw new ApiException("A user with that email address already exists", statusCode: 400);
         
         if (userRepo.Get().Any(x => x.Username == username))
-            throw new ApiException("A user with that email address already exists", statusCode: 400);
+            throw new ApiException("A user with that username already exists", statusCode: 400);
 
         var user = new User()
         {
             Email = email,
             Username = username,
-            Password = HashHelper.Hash(password),
-            TokenValidTime = DateTime.UtcNow.AddMinutes(-1)
+            Password = HashHelper.Hash(password)
         };
 
         var finalUser = userRepo.Add(user);

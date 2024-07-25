@@ -425,3 +425,4 @@ FodyWeavers.xsd
 node_modules/
 Moonlight/ApiServer/storage/**
 Moonlight/Client/wwwroot/css/style.css
+/.idea/.idea.Moonlight/.idea
