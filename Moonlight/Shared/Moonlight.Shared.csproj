@@ -9,9 +9,4 @@
     <ItemGroup>
         <SupportedPlatform Include="browser"/>
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Http\Requests\" />
-      <Folder Include="Http\Resources\" />
-    </ItemGroup>
 </Project>

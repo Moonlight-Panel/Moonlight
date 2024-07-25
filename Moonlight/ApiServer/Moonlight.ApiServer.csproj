@@ -24,8 +24,6 @@
 
     <ItemGroup>
       <Folder Include="App\Database\Migrations\" />
-      <Folder Include="App\Http\Controllers\" />
-      <Folder Include="App\Http\Middleware\" />
       <Folder Include="App\Models\" />
       <Folder Include="App\PluginApi\" />
       <Folder Include="storage\" />

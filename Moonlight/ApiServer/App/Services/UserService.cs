@@ -34,28 +34,28 @@ public class UserService
 
     public async Task<string> Register(string username, string email, string password)
     {
-        var userId = await Provider.Register(ServiceProvider, username, email, password);
+        var userId = await Provider.Register(ServiceProvider, email, username, password);
 
         var user = UserRepository
             .Get()
             .FirstOrDefault(x => x.Id == userId);
 
         if(user == null)
-            throw new ApiException("Register failed. Authentication provider did not register the user");
+            throw new ApiException("Register failed. Authentication provider did not register the user", statusCode: 503);
 
         return await GenerateToken(user);
     }
     
-    public async Task<string> Login(string identifier, string password)
+    public async Task<string> Login(string identifier, string password, string? twoFactorCode)
     {
-        var userId = await Provider.Login(ServiceProvider, identifier, password);
+        var userId = await Provider.Login(ServiceProvider, identifier, password, twoFactorCode);
 
         var user = UserRepository
             .Get()
             .FirstOrDefault(x => x.Id == userId);
 
         if(user == null)
-            throw new ApiException("Register failed. Authentication provider did not authenticate the user");
+            throw new ApiException("Register failed. Authentication provider did not authenticate the user", statusCode: 503);
 
         return await GenerateToken(user);
     }

@@ -5,6 +5,9 @@ using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Database;
+using Moonlight.ApiServer.App.Http.Middleware;
+using Moonlight.ApiServer.App.Implementations;
+using Moonlight.ApiServer.App.Interfaces;
 
 // Moonlight initialisation
 
@@ -79,7 +82,7 @@ builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AddSingleton(configService);
 
 // TODO: Make configurable, reconsider location
-
+builder.Services.AddSingleton<IAuthenticationProvider, DefaultAuthenticationProvider>();
 
 // Database
 logger.LogInformation("Preparing database connection");
@@ -112,6 +115,8 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<ApiErrorMiddleware>();
 
 app.MapRazorPages();
 app.MapControllers();

@@ -2,7 +2,7 @@
 
 public interface IAuthenticationProvider
 {
-    public Task<int> Login(IServiceProvider serviceProvider, string identifier, string password);
+    public Task<int> Login(IServiceProvider serviceProvider, string identifier, string password, string? twoFactorCode = null);
     public Task<int> Register(IServiceProvider serviceProvider, string email, string username, string password);
     public Task<DateTime> GetTokenValidTimestamp(IServiceProvider serviceProvider, int userId);
 }
