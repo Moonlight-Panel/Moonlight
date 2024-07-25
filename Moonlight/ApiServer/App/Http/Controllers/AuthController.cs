@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Moonlight.ApiServer.App.Attributes;
 using Moonlight.ApiServer.App.Services;
 using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Resources.Auth;
@@ -37,4 +38,8 @@ public class AuthController : Controller
             Token = token
         });
     }
+
+    [HttpGet("check")]
+    [RequirePermission("meta.authenticated")]
+    public Task<ActionResult> Check() => Task.FromResult<ActionResult>(Ok());
 }

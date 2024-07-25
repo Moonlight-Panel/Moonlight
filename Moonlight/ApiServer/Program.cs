@@ -117,6 +117,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseMiddleware<ApiErrorMiddleware>();
+app.UseMiddleware<PermissionLoadMiddleware>();
+app.UseMiddleware<PermissionCheckMiddleware>();
 
 app.MapRazorPages();
 app.MapControllers();

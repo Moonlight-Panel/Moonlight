@@ -67,7 +67,7 @@ public class UserService
         var jwt = await JwtHelper.Create(config.Security.Token, data =>
         {
             data.Add("UserId", user.Id.ToString());
-        }, "UserLogin", TimeSpan.FromDays(config.Authentication.TokenDuration));
+        }, "userLogin", TimeSpan.FromDays(config.Authentication.TokenDuration));
 
         return jwt;
     }
