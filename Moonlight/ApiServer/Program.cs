@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
@@ -100,6 +101,16 @@ builder.Services.AddScoped(typeof(DatabaseRepository<>));
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 
+// API Docs
+if (appConfiguration.Development.EnableApiDocs)
+{
+    // Configure swagger api specification generator and set the document title for the api docs to use
+    builder.Services.AddSwaggerGen(options => options.SwaggerDoc("main", new OpenApiInfo()
+    {
+        Title = "Moonlight API"
+    }));
+}
+
 var app = builder.Build();
 
 // Continue with database
@@ -123,5 +134,9 @@ app.UseMiddleware<PermissionCheckMiddleware>();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+// API Docs
+if (appConfiguration.Development.EnableApiDocs)
+    app.MapSwagger("/apidocs/swagger/{documentName}");
 
 app.Run();

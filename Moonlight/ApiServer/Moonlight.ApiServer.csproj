@@ -15,6 +15,7 @@
         <PackageReference Include="MoonCore" Version="1.4.4" />
         <PackageReference Include="MoonCore.Extended" Version="1.0.2" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,7 +25,6 @@
 
     <ItemGroup>
       <Folder Include="App\Database\Migrations\" />
-      <Folder Include="App\Models\" />
       <Folder Include="App\PluginApi\" />
       <Folder Include="storage\" />
     </ItemGroup>

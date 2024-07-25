@@ -14,30 +14,40 @@ namespace Moonlight.ApiServer.App.Http.Controllers.Admin.Users;
 [ApiController]
 public class UsersController : BaseCrudController<User, DetailUserResponse, CreateUserRequest, DetailUserResponse, UpdateUserRequest, DetailUserResponse>
 {
-    private readonly DatabaseRepository<User> DatabaseRepository;
+    private readonly DatabaseRepository<User> UserRepository;
     
     public UsersController(DatabaseRepository<User> itemRepository) : base(itemRepository)
     {
-        DatabaseRepository = itemRepository;
+        UserRepository = itemRepository;
     }
 
-    protected override Task<DetailUserResponse?> CreateItem(CreateUserRequest request)
+    [HttpPost]
+    public override async Task<ActionResult<DetailUserResponse>> Create(CreateUserRequest request)
     {
         request.Email = request.Email.ToLower();
         
-        if (DatabaseRepository.Get().Any(x => x.Email == request.Email))
+        if (UserRepository.Get().Any(x => x.Email == request.Email))
             throw new ApiException("A user with that email address already exists", statusCode: 400);
         
-        if (DatabaseRepository.Get().Any(x => x.Username == request.Username))
+        if (UserRepository.Get().Any(x => x.Username == request.Username))
             throw new ApiException("A user with that username already exists", statusCode: 400);
 
         request.Password = HashHelper.Hash(request.Password);
         
-        return base.CreateItem(request);
+        var item = Mapper.Map<User>(request!);
+
+        var finalItem = UserRepository.Add(item);
+
+        var response = Mapper.Map<DetailUserResponse>(finalItem);
+
+        return Ok(response);
     }
 
-    protected override async Task<DetailUserResponse?> UpdateItem(User item, UpdateUserRequest request)
+    [HttpPatch("{id}")]
+    public override async Task<ActionResult<DetailUserResponse>> Update([FromRoute] int id, UpdateUserRequest request)
     {
+        var item = LoadItemById(id);
+        
         var oldPassword = (string)item.Password.Clone();
         
         var mappedItem = Mapper.Map(item, request!);
@@ -45,7 +55,7 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
         if (string.IsNullOrEmpty(request.Password))
             mappedItem.Password = oldPassword;
         
-        DatabaseRepository.Update(mappedItem);
+        UserRepository.Update(mappedItem);
 
         return Mapper.Map<DetailUserResponse>(mappedItem);
     }

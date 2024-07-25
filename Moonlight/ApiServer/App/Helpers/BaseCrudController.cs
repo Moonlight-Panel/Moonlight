@@ -17,7 +17,7 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<TDetailResponse>>> GetAll([FromQuery] int pageSize = 50, [FromQuery] int page = 0)
+    public virtual async Task<ActionResult<PagedResponse<TDetailResponse>>> GetAll([FromQuery] int pageSize = 50, [FromQuery] int page = 0)
     {
         if (pageSize > 100)
             throw new ApiException("The page size cannot be greater than 100", statusCode: 400);
@@ -43,64 +43,45 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     }
     
     [HttpGet("{id}")]
-    public async Task<ActionResult<TDetailResponse>> Get([FromRoute] int id)
+    public virtual async Task<ActionResult<TDetailResponse>> GetById([FromRoute] int id)
     {
-        var itemSource = IncludeRelations(ItemRepository.Get());
-        
-        var item = itemSource.FirstOrDefault(
-            GetIdExpression(id)
-        );
-
-        if (item == null)
-            throw new ApiException($"The item with the id {id} does not exist", statusCode: 404);
+        var item = LoadItemById(id);
 
         return Ok(Mapper.Map<TDetailResponse>(item));
     }
 
     [HttpPost]
-    public async Task<ActionResult<TCreateResponse>> Post([FromBody] TCreateRequest request)
+    public virtual async Task<ActionResult<TCreateResponse>> Create([FromBody] TCreateRequest request)
     {
-        var response = await CreateItem(request);
+        var item = Mapper.Map<TItem>(request!);
 
-        if (response == null)
-            return NoContent();
+        var finalItem = ItemRepository.Add(item);
 
-        return Ok();
+        var response = Mapper.Map<TCreateResponse>(finalItem);
+
+        return Ok(response);
     }
     
     [HttpPatch("{id}")]
-    public async Task<ActionResult<TUpdateResponse>> Patch([FromRoute] int id, [FromBody] TUpdateRequest request)
+    public virtual async Task<ActionResult<TUpdateResponse>> Update([FromRoute] int id, [FromBody] TUpdateRequest request)
     {
-        var itemSource = IncludeRelations(ItemRepository.Get());
+        var item = LoadItemById(id);
         
-        var item = itemSource.FirstOrDefault(
-            GetIdExpression(id)
-        );
+        var mappedItem = Mapper.Map(item, request!);
 
-        if (item == null)
-            throw new ApiException($"The item with the id {id} does not exist", statusCode: 404);
-        
-        var response = await UpdateItem(item, request);
+        ItemRepository.Update(mappedItem);
 
-        if (response == null)
-            return NoContent();
+        var response = Mapper.Map<TUpdateResponse>(mappedItem);
 
-        return Ok();
+        return Ok(response);
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete([FromRoute] int id)
+    public virtual async Task<ActionResult> Delete([FromRoute] int id)
     {
-        var itemSource = IncludeRelations(ItemRepository.Get());
-        
-        var item = itemSource.FirstOrDefault(
-            GetIdExpression(id)
-        );
+        var item = LoadItemById(id);
 
-        if (item == null)
-            throw new ApiException($"The item with the id {id} does not exist", statusCode: 404);
-
-        await DeleteItem(item);
+        ItemRepository.Delete(item);
 
         return NoContent();
     }
@@ -109,27 +90,18 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     
     protected virtual IEnumerable<TItem> IncludeRelations(IQueryable<TItem> items) => items;
 
-    protected virtual async Task<TCreateResponse?> CreateItem(TCreateRequest request)
+    protected TItem LoadItemById(int id)
     {
-        var item = Mapper.Map<TItem>(request!);
+        var itemSource = IncludeRelations(ItemRepository.Get());
+        
+        var item = itemSource.FirstOrDefault(
+            GetIdExpression(id)
+        );
 
-        var finalItem = ItemRepository.Add(item);
+        if (item == null)
+            throw new ApiException($"The item with the id {id} does not exist", statusCode: 404);
 
-        return Mapper.Map<TCreateResponse>(finalItem);
-    }
-    
-    protected virtual async Task<TUpdateResponse?> UpdateItem(TItem item, TUpdateRequest request)
-    {
-        var mappedItem = Mapper.Map(item, request!);
-
-        ItemRepository.Update(mappedItem);
-
-        return Mapper.Map<TUpdateResponse>(mappedItem);
-    }
-    
-    protected virtual async Task DeleteItem(TItem item)
-    {
-        ItemRepository.Delete(item);
+        return item;
     }
 
     private static Func<TItem, bool> GetIdExpression(int id)

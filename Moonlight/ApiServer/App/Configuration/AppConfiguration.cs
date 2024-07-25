@@ -5,6 +5,7 @@ public class AppConfiguration
     public DatabaseConfig Database { get; set; } = new();
     public SecurityConfig Security { get; set; } = new();
     public AuthenticationConfig Authentication { get; set; } = new();
+    public DevelopmentConfig Development { get; set; } = new();
     
     public class DatabaseConfig
     {
@@ -28,5 +29,10 @@ public class AppConfiguration
             .NewGuid()
             .ToString()
             .Replace("-", "");
+    }
+    
+    public class DevelopmentConfig
+    {
+        public bool EnableApiDocs { get; set; } = false;
     }
 }
