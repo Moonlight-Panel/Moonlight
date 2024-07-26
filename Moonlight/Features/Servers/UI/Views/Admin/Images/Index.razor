@@ -44,7 +44,7 @@
                 <div class="text-end">
                     @if (!string.IsNullOrEmpty(context.UpdateUrl))
                     {
-                        <a class="me-2" href="#" @onclick:preventDefault>
+                        <a class="me-2" href="#" @onclick:preventDefault @onclick="() => UpdateImage(context)">
                             <i class="bx bx-refresh"></i>
                             Update
                         </a>
@@ -330,5 +330,121 @@
                 }
             },
             "Yes, i take the risk");
+    }
+    
+    private async Task UpdateImage(ServerImage image)
+    {
+        if (string.IsNullOrEmpty(image.UpdateUrl))
+            return;
+        
+        string? httpResult = null;
+
+        if (!await AlertService.YesNo("Are you sure you want to update this image? The process could cause it to break."))
+            return;
+        
+        try
+        {
+            using (HttpClient httpClient = new HttpClient())
+            {
+                // pull from update url
+                httpResult = await httpClient.GetStringAsync(image.UpdateUrl);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new DisplayException("An error occured while updating your image: " + e.Message);
+        }
+
+        var newImage = await ImageConversionHelper.ImportFromJson(httpResult);
+        
+        // Update main information
+        image.Name = newImage.Name;
+        image.Author = newImage.Author;
+        image.AllocationsNeeded = newImage.AllocationsNeeded;
+        image.DonateUrl = newImage.DonateUrl;
+        image.InstallScript = newImage.InstallScript;
+        image.InstallShell = newImage.InstallShell;
+        image.OnlineDetection = newImage.OnlineDetection;
+        image.ParseConfiguration = newImage.ParseConfiguration;
+        image.StartupCommand = newImage.StartupCommand;
+        image.StopCommand = newImage.StopCommand;
+        image.UpdateUrl = newImage.UpdateUrl;
+        image.DefaultDockerImage = newImage.DefaultDockerImage;
+        image.InstallDockerImage = newImage.InstallDockerImage;
+        image.AllowDockerImageChange = newImage.AllowDockerImageChange;
+
+        foreach (var imageVariable in newImage.Variables)
+        {
+            if (image.Variables.Any(x => x.Key == imageVariable.Key))
+            {
+                int index;
+
+                try
+                {
+                    index = image.Variables.FindIndex(x => x.Key == imageVariable.Key);
+                }
+                catch
+                {
+                    return;
+                }
+                
+                // List.FindIndex returns -1 if the item was not found
+                if (index == -1)
+                    return;
+
+                image.Variables[index].DefaultValue = imageVariable.DefaultValue;
+                image.Variables[index].DisplayName = imageVariable.DisplayName;
+                image.Variables[index].Description = imageVariable.Description;
+                image.Variables[index].AllowView = imageVariable.AllowView;
+                image.Variables[index].AllowEdit = imageVariable.AllowEdit;
+                image.Variables[index].Filter = imageVariable.Filter;
+            }
+            else
+            {
+                image.Variables.Add(imageVariable);
+            }
+        }
+        
+        // Remove unused Variables: (hashset for faster lookup)
+        HashSet<string> newKeys = new(newImage.Variables.Select(x => x.Key));
+        image.Variables.RemoveAll(x => !newKeys.Contains(x.Key));
+        
+        foreach (var dockerImage in newImage.DockerImages)
+        {
+            if (image.DockerImages.Any(x => x.Name == dockerImage.Name))
+            {
+                int index;
+
+                try
+                {
+                    index = image.DockerImages.FindIndex(x => x.Name == dockerImage.Name);
+                }
+                catch
+                {
+                    return;
+                }
+                
+                // List.FindIndex returns -1 if the item was not found
+                if (index == -1)
+                    return;
+
+                image.DockerImages[index].DisplayName = dockerImage.DisplayName;
+                image.DockerImages[index].AutoPull = dockerImage.AutoPull;
+                
+            }
+            else
+            {
+                image.DockerImages.Add(dockerImage);
+            }
+        }
+        
+        // Remove unused DockerImages: (hashset for faster lookup)
+        HashSet<string> newDockerImageNames = new(newImage.DockerImages.Select(x => x.Name));
+        image.DockerImages.RemoveAll(x => !newDockerImageNames.Contains(x.Name));
+        
+        ImageRepository.Update(image);
+
+        await Crud.Reload();
+        await ToastService.Success("Successfully updated image \"" + image.Name + "\"!");
     }
 }
