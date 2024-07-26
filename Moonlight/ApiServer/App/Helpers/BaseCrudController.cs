@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.App.Exceptions;
+using Moonlight.ApiServer.App.Extensions;
 using Moonlight.ApiServer.App.Http.Responses;
 
 namespace Moonlight.ApiServer.App.Helpers;
@@ -10,6 +11,7 @@ namespace Moonlight.ApiServer.App.Helpers;
 public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest, TCreateResponse, TUpdateRequest, TUpdateResponse> : Controller where TItem : class
 {
     private readonly DatabaseRepository<TItem> ItemRepository;
+    public string PermissionPrefix { get; set; } = "";
 
     protected BaseCrudController(DatabaseRepository<TItem> itemRepository)
     {
@@ -19,6 +21,9 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     [HttpGet]
     public virtual async Task<ActionResult<PagedResponse<TDetailResponse>>> GetAll([FromQuery] int pageSize = 50, [FromQuery] int page = 0)
     {
+        if (!string.IsNullOrEmpty(PermissionPrefix) && !HttpContext.HasPermission(PermissionPrefix + ".get"))
+            throw new MissingPermissionException([PermissionPrefix + ".get"]);
+        
         if (pageSize > 100)
             throw new ApiException("The page size cannot be greater than 100", statusCode: 400);
 
@@ -45,6 +50,9 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     [HttpGet("{id}")]
     public virtual async Task<ActionResult<TDetailResponse>> GetById([FromRoute] int id)
     {
+        if (!string.IsNullOrEmpty(PermissionPrefix) && !HttpContext.HasPermission(PermissionPrefix + ".get"))
+            throw new MissingPermissionException([PermissionPrefix + ".get"]);
+        
         var item = LoadItemById(id);
 
         return Ok(Mapper.Map<TDetailResponse>(item));
@@ -53,6 +61,9 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     [HttpPost]
     public virtual async Task<ActionResult<TCreateResponse>> Create([FromBody] TCreateRequest request)
     {
+        if (!string.IsNullOrEmpty(PermissionPrefix) && !HttpContext.HasPermission(PermissionPrefix + ".create"))
+            throw new MissingPermissionException([PermissionPrefix + ".create"]);
+        
         var item = Mapper.Map<TItem>(request!);
 
         var finalItem = ItemRepository.Add(item);
@@ -65,6 +76,9 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     [HttpPatch("{id}")]
     public virtual async Task<ActionResult<TUpdateResponse>> Update([FromRoute] int id, [FromBody] TUpdateRequest request)
     {
+        if (!string.IsNullOrEmpty(PermissionPrefix) && !HttpContext.HasPermission(PermissionPrefix + ".update"))
+            throw new MissingPermissionException([PermissionPrefix + ".update"]);
+        
         var item = LoadItemById(id);
         
         var mappedItem = Mapper.Map(item, request!);
@@ -79,6 +93,9 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
     [HttpDelete("{id}")]
     public virtual async Task<ActionResult> Delete([FromRoute] int id)
     {
+        if (!string.IsNullOrEmpty(PermissionPrefix) && !HttpContext.HasPermission(PermissionPrefix + ".delete"))
+            throw new MissingPermissionException([PermissionPrefix + ".delete"]);
+        
         var item = LoadItemById(id);
 
         ItemRepository.Delete(item);

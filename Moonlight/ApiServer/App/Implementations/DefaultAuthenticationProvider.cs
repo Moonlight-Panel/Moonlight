@@ -50,8 +50,8 @@ public class DefaultAuthenticationProvider : IAuthenticationProvider
         if (string.IsNullOrEmpty(password))
             throw new ApiException("You need to provide a password", statusCode: 400);
 
-        if (password.Length < 8 || password.Length > 256)
-            throw new ApiException("The password needs to be longer than 8 characters and shorter than 256 characters");
+        if (password.Length < 7 || password.Length > 256)
+            throw new ApiException("The password needs to be longer than 7 characters and shorter than 256 characters", statusCode: 400);
         
         var userRepo = serviceProvider.GetRequiredService<DatabaseRepository<User>>();
 
