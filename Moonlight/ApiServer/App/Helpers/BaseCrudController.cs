@@ -81,7 +81,7 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
         
         var item = LoadItemById(id);
         
-        var mappedItem = Mapper.Map(item, request!);
+        var mappedItem = Mapper.Map(item, request!, ignoreNullValues: true);
 
         ItemRepository.Update(mappedItem);
 

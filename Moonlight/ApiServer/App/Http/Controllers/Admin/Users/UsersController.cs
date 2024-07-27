@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
@@ -52,27 +54,52 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
     public override async Task<ActionResult<DetailUserResponse>> Update([FromRoute] int id, UpdateUserRequest request)
     {
         var item = LoadItemById(id);
-        
-        if (UserRepository.Get().Any(x => x.Email == request.Email && x.Id != item.Id))
-            throw new ApiException("A user with that email address already exists", statusCode: 400);
-        
-        if (UserRepository.Get().Any(x => x.Username == request.Username && x.Id != item.Id))
-            throw new ApiException("A user with that username already exists", statusCode: 400);
-        
-        var oldPassword = (string)item.Password.Clone();
-        
-        var mappedItem = Mapper.Map(item, request!);
 
-        if (string.IsNullOrEmpty(request.Password))
-            mappedItem.Password = oldPassword;
-        else
+        if (!string.IsNullOrEmpty(request.Email))
+        {
+            if (!Regex.IsMatch(request.Email, "^.+@.+$"))
+                throw new ApiException("You need to provide a valid email address", statusCode: 400);
+            
+            if (UserRepository.Get().Any(x => x.Email == request.Email && x.Id != item.Id))
+                throw new ApiException("A user with that email address already exists", statusCode: 400);
+        }
+
+        if (!string.IsNullOrEmpty(request.Username))
+        {
+            if (!Regex.IsMatch(request.Username, "^[a-z][a-z0-9]*$"))
+                throw new ApiException(
+                    "Usernames can only contain lowercase characters and numbers and should not start with a number",
+                    statusCode: 400);
+            
+            if (UserRepository.Get().Any(x => x.Username == request.Username && x.Id != item.Id))
+                throw new ApiException("A user with that username already exists", statusCode: 400);
+        }
+
+        if (!string.IsNullOrEmpty(request.Password))
         {
             if (request.Password.Length < 7 || request.Password.Length > 256)
                 throw new ApiException("The password needs to be longer than 7 characters and shorter than 256 characters", statusCode: 400);
-            
-            mappedItem.Password = HashHelper.Hash(request.Password);
-            mappedItem.TokenValidTime = DateTime.UtcNow;
+
+            request.Password = HashHelper.Hash(request.Password);
         }
+
+        if (!string.IsNullOrEmpty(request.PermissionsJson))
+        {
+            try
+            {
+                var perms = JsonSerializer.Deserialize<string[]>(request.PermissionsJson);
+                ArgumentNullException.ThrowIfNull(perms);
+            }
+            catch (Exception)
+            {
+                throw new ApiException("The permissions need to be provided as a valid json string array", statusCode: 400);
+            }
+        }
+        
+        var mappedItem = Mapper.Map(item, request!, ignoreNullValues: true);
+
+        if(!string.IsNullOrEmpty(request.Password))
+            mappedItem.TokenValidTime = DateTime.UtcNow;
         
         UserRepository.Update(mappedItem);
 
