@@ -25,7 +25,6 @@
 
     <ItemGroup>
       <Folder Include="App\Database\Migrations\" />
-      <Folder Include="App\PluginApi\" />
       <Folder Include="storage\" />
     </ItemGroup>
 

@@ -9,10 +9,12 @@ using Moonlight.ApiServer.App.Database;
 using Moonlight.ApiServer.App.Http.Middleware;
 using Moonlight.ApiServer.App.Implementations;
 using Moonlight.ApiServer.App.Interfaces;
+using Moonlight.ApiServer.App.PluginApi;
 
 // Moonlight initialisation
 
-Console.WriteLine(string.Join(" ", args));
+if(args.Length > 0)
+    Console.WriteLine("Starting with args: " + string.Join(" ", args));
 
 // Prepare file system
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -85,6 +87,9 @@ builder.Services.AddSingleton(configService);
 // TODO: Make configurable, reconsider location
 builder.Services.AddSingleton<IAuthenticationProvider, DefaultAuthenticationProvider>();
 
+var pluginService = new PluginService(preLoggerFactory.CreateLogger<PluginService>(), preLoggerFactory);
+await pluginService.Load();
+
 // Database
 logger.LogInformation("Preparing database connection");
 var databaseHelper = new DatabaseHelper(preLoggerFactory.CreateLogger<DatabaseHelper>());
@@ -93,6 +98,8 @@ builder.Services.AddSingleton(databaseHelper);
 // Add db contexts here
 builder.Services.AddDbContext<CoreDataContext>();
 databaseHelper.AddDbContext<CoreDataContext>();
+
+await pluginService.CallPlugins(x => x.OnAppBuilding(builder, databaseHelper));
 
 // Continue with database
 databaseHelper.GenerateMappings();
@@ -138,5 +145,7 @@ app.MapFallbackToFile("index.html");
 // API Docs
 if (appConfiguration.Development.EnableApiDocs)
     app.MapSwagger("/apidocs/swagger/{documentName}");
+
+await pluginService.CallPlugins(x => x.OnAppConfiguring(app));
 
 app.Run();
