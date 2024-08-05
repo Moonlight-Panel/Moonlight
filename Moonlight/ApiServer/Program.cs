@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.OpenApi.Models;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
@@ -105,8 +106,10 @@ await pluginService.CallPlugins(x => x.OnAppBuilding(builder, databaseHelper));
 databaseHelper.GenerateMappings();
 builder.Services.AddScoped(typeof(DatabaseRepository<>));
 
-builder.Services.AddControllers();
-builder.Services.AddRazorPages();
+var controllerBuilder = builder.Services.AddControllers();
+
+foreach (var assembly in pluginService.PluginAssemblies)
+    controllerBuilder.AddApplicationPart(assembly);
 
 // API Docs
 if (appConfiguration.Development.EnableApiDocs)
@@ -138,7 +141,6 @@ app.UseMiddleware<ApiErrorMiddleware>();
 app.UseMiddleware<PermissionLoadMiddleware>();
 app.UseMiddleware<PermissionCheckMiddleware>();
 
-app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
 

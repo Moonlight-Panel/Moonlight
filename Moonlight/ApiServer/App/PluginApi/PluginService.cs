@@ -8,8 +8,9 @@ public class PluginService
     private readonly ILogger<PluginService> Logger;
     private readonly LoggerFactory LoggerFactory;
 
-    private readonly List<Assembly> LoadedAssemblies = new();
-    private readonly List<MoonlightPlugin> LoadedPlugins = new();
+    public readonly List<Assembly> PluginAssemblies = new();
+    public readonly List<Assembly> LibraryAssemblies = new();
+    public readonly List<MoonlightPlugin> LoadedPlugins = new();
 
     public PluginService(ILogger<PluginService> logger, LoggerFactory loggerFactory)
     {
@@ -44,11 +45,15 @@ public class PluginService
                     .ToArray();
 
                 if (plugins.Length == 0)
+                {
                     Logger.LogInformation("Loaded '{file}' as library", dllFile);
+                    LibraryAssemblies.Add(assembly);
+                }
                 else
+                {
                     pluginTypes.AddRange(plugins);
-
-                LoadedAssemblies.Add(assembly);
+                    PluginAssemblies.Add(assembly);
+                }
             }
             catch (Exception e)
             {
