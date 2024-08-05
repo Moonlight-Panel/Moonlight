@@ -37,7 +37,7 @@ public class ApiDocsController : Controller
                    "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://github.com/Moonlight-Panel/Moonlight/blob/2bb3b0fd48d4bd9ed8888f4b542819bd76fa0504/Moonlight/Assets/Core/css/scalar.css\" />\n"+
                    "</head>\n" +
                    "<body>\n" +
-                   $"<script id=\"api-reference\" data-url=\"/apidocs/swagger/main\"></script>\n" +
+                   "<script id=\"api-reference\" data-url=\"/apidocs/swagger/main\"></script>\n" +
                    "<script>\n" +
                    "var configuration =\n" +
                    $"{optionsJson}\n" +

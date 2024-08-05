@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Moonlight.ApiServer.App.Attributes;
+using Moonlight.ApiServer.App.Exceptions;
 using Moonlight.ApiServer.App.Extensions;
 
 namespace Moonlight.ApiServer.App.Http.Middleware;
@@ -16,7 +17,32 @@ public class PermissionCheckMiddleware
     public async Task Invoke(HttpContext context)
     {
         if (await Check(context))
-            await Next(context);
+        {
+            try
+            {
+                await Next(context);
+            }
+            catch (MissingPermissionException e)
+            {
+                var requiredPermissions = e.RequiredPermissions;
+            
+                if (requiredPermissions.Length == 1 && requiredPermissions[0] == "meta.authenticated")
+                {
+                    await Results.Problem(
+                        title: "You need to be logged in in order to use this endpoint",
+                        statusCode: 401
+                    ).ExecuteAsync(context);
+
+                    return;
+                }
+
+                await Results.Problem(
+                    title: "You dont have the required permission",
+                    detail: string.Join(";", requiredPermissions),
+                    statusCode: 403
+                ).ExecuteAsync(context);
+            }
+        }
     }
 
     private async Task<bool> Check(HttpContext context)
