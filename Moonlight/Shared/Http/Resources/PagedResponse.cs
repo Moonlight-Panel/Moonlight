@@ -1,4 +1,4 @@
-namespace Moonlight.ApiServer.App.Http.Responses;
+namespace Moonlight.Shared.Http.Resources;
 
 public class PagedResponse<TItem>
 {

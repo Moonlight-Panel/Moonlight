@@ -4,7 +4,7 @@ using MoonCore.Extended.Abstractions;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.App.Exceptions;
 using Moonlight.ApiServer.App.Extensions;
-using Moonlight.ApiServer.App.Http.Responses;
+using Moonlight.Shared.Http.Resources;
 
 namespace Moonlight.ApiServer.App.Helpers;
 
