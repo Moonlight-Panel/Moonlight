@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.OpenApi.Models;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;

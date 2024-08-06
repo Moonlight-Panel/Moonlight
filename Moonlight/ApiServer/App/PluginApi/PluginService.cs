@@ -66,19 +66,11 @@ public class PluginService
         {
             try
             {
-                var ctrors = type.GetConstructors();
-                
-                var pl = ctrors.First().Invoke([
-                    LoggerFactory.CreateLogger(type),
-                    this
-                ]) as MoonlightPlugin;
-                
-                /*
                 var pl = Activator.CreateInstance(type, [
                         LoggerFactory.CreateLogger(type),
                         this
                     ]
-                ) as MoonlightPlugin;*/
+                ) as MoonlightPlugin;
 
                 LoadedPlugins.Add(pl!);
 

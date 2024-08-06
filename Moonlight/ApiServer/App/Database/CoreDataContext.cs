@@ -11,6 +11,11 @@ public class CoreDataContext : DatabaseContext
     public override string Prefix => "Core";
 
     public DbSet<User> Users { get; set; }
+
+    public CoreDataContext()
+    {
+        SetupAsMigrationInstance();
+    }
     
     public CoreDataContext(ConfigService<AppConfiguration> configService) : base(configService)
     {
