@@ -421,8 +421,6 @@ FodyWeavers.xsd
 .idea/**/libraries
 
 # Moonlight
-
-node_modules/
 Moonlight/ApiServer/storage/**
 Moonlight/Client/wwwroot/css/style.css
 /.idea/.idea.Moonlight/.idea

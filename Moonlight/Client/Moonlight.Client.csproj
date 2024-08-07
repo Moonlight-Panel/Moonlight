@@ -17,10 +17,4 @@
         <ProjectReference Include="..\Shared\Moonlight.Shared.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="App\UI\Components\" />
-      <Folder Include="Styles\" />
-      <Folder Include="wwwroot\css\" />
-    </ItemGroup>
-
 </Project>

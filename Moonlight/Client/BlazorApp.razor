@@ -1,4 +1,8 @@
-﻿<Router AppAssembly="@typeof(BlazorApp).Assembly">
+﻿@using Moonlight.Client.App.PluginApi
+
+@inject PluginService PluginService
+
+<Router AppAssembly="@typeof(BlazorApp).Assembly" AdditionalAssemblies="PluginService.PluginAssemblies">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
     </Found>

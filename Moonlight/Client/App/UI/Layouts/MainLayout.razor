@@ -1,5 +1,15 @@
-﻿@inherits LayoutComponentBase
+﻿@using Moonlight.Client.App.UI.Components.Partials
 
-<main>
-    @Body
-</main>
+@inherits LayoutComponentBase
+
+<div>
+    <AppSidebar />
+    
+    <div class="xl:pl-72">
+        <AppSearch />
+        
+        <main class="px-5 pt-5 text-white">
+            @Body
+        </main>
+    </div>
+</div>
