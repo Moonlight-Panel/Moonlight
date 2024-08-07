@@ -47,6 +47,13 @@ builder.Logging.AddProviders(providers);
 
 pluginService.RegisterImplementation<ISidebarItemProvider, DefaultSidebarItemProvider>();
 
+pluginService.RegisterImplementation<IAppLoader, AuthenticationStateLoader>();
+pluginService.RegisterImplementation<IAppScreen, AuthenticationScreen>();
+
+await pluginService.CallPlugins(x => x.OnAppBuilding(builder));
+
 var app = builder.Build();
+
+await pluginService.CallPlugins(x => x.OnAppConfiguring(app));
 
 await app.RunAsync();

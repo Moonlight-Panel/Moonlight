@@ -1,0 +1,66 @@
+@page "/login"
+
+@using System.Text.Json
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Http.Requests.Auth
+@using Moonlight.Shared.Http.Resources.Auth
+
+@inject IdentityService IdentityService
+@inject CookieService CookieService
+@inject EventService Events
+
+<div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+    <div class="w-full  rounded-lg shadow border md:mt-0 sm:max-w-md xl:p-0 bg-slate-800 border-slate-700">
+        <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+            <h1 class="text-xl font-semibold leading-tight tracking-tight text-center md:text-2xl text-white">
+                Sign in to your account
+            </h1>
+            <div class="space-y-4 md:space-y-6">
+                <div>
+                    <label for="email" class="block mb-2 text-sm font-medium  text-white">Email address</label>
+                    <input @bind="Email" type="email" name="email" id="email" class="border   rounded-lg   block w-full p-2.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white  " placeholder="moonlight@example.com" required="">
+                </div>
+                <div>
+                    <label for="password" class="block mb-2 text-sm font-medium  text-white">Password</label>
+                    <input @bind="Password" type="password" name="password" id="password" placeholder="••••••••" class="border   rounded-lg   block w-full p-2.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white  " required="">
+                </div>
+                <button @onclick="Login" type="button" class="w-full     focus:outline-none  font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700">Sign in</button>
+                <p class="text-sm font-light  text-slate-400">
+                    Don’t have an account yet? <a href="#" class="font-medium  hover:underline text-blue-500">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private string Email { get; set; } = "";
+    private string Password { get; set; } = "";
+
+    private async Task Login()
+    {
+        var request = new LoginRequest()
+        {
+            Identifier = Email,
+            Password = Password
+        };
+
+        var httpResponse = await IdentityService.Http.PostAsJsonAsync("auth/login", request);
+        var jsonText = await httpResponse.Content.ReadAsStringAsync();
+        var response = JsonSerializer.Deserialize<LoginResponse>(jsonText, new JsonSerializerOptions()
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        
+        if(response == null)
+            return;
+        
+        IdentityService.SetToken(response.Token);
+        IdentityService.SetLoginState(true);
+
+        await CookieService.SetValue("ml-token", response.Token, 10);
+
+        await Events.Invoke("RequestProcessScreens");
+    }
+}
