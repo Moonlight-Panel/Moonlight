@@ -3,13 +3,24 @@
 @inherits LayoutComponentBase
 
 <div>
-    <AppSidebar />
+    <AppSidebar MainLayout="this" />
     
     <div class="xl:pl-72">
-        <AppSearch />
+        <AppSearch MainLayout="this" />
         
         <main class="px-5 pt-5 text-white">
             @Body
         </main>
     </div>
 </div>
+
+@code
+{
+    public bool MobileSidebarToggle { get; set; } = false;
+
+    public async Task ToggleMobileSidebar()
+    {
+        MobileSidebarToggle = !MobileSidebarToggle;
+        await InvokeAsync(StateHasChanged);
+    }
+}
