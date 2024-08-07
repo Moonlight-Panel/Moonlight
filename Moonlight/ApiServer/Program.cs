@@ -19,6 +19,7 @@ if(args.Length > 0)
 // Prepare file system
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
+Directory.CreateDirectory(PathBuilder.Dir("storage", "clientPlugins"));
 Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 
 // App configuration

@@ -7,7 +7,7 @@ public abstract class MoonlightPlugin
     public ILogger Logger { get; set; }
     public PluginService PluginService { get; set; }
     
-    protected MoonlightPlugin(ILogger logger, PluginService pluginService)
+    public MoonlightPlugin(ILogger logger, PluginService pluginService)
     {
         Logger = logger;
         PluginService = pluginService;

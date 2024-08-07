@@ -6,13 +6,13 @@ namespace Moonlight.ApiServer.App.PluginApi;
 public class PluginService
 {
     private readonly ILogger<PluginService> Logger;
-    private readonly LoggerFactory LoggerFactory;
+    private readonly ILoggerFactory LoggerFactory;
 
     public readonly List<Assembly> PluginAssemblies = new();
     public readonly List<Assembly> LibraryAssemblies = new();
     public readonly List<MoonlightPlugin> LoadedPlugins = new();
 
-    public PluginService(ILogger<PluginService> logger, LoggerFactory loggerFactory)
+    public PluginService(ILogger<PluginService> logger, ILoggerFactory loggerFactory)
     {
         Logger = logger;
         LoggerFactory = loggerFactory;

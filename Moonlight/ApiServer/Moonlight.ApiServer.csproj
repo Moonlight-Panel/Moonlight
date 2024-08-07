@@ -25,9 +25,7 @@
 
     <ItemGroup>
       <Folder Include="App\Database\Migrations\" />
-      <Folder Include="storage\" />
       <Folder Include="storage\logs\" />
-      <Folder Include="storage\plugins\" />
     </ItemGroup>
 
 </Project>
