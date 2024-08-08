@@ -120,10 +120,10 @@
         else if (TotalItemsCount == 0)
         {
             <div class="flex justify-center py-8">
-                <IconAlert Icon="bxs-shapes"
+                <IconAlert Icon="bi bi-boxes"
                            Color="text-violet-500"
                            Title="No items found"
-                           Text="We were unable to find any items. Try changing filter options if you set any."/>
+                           Description="We were unable to find any items. Try changing filter options if you set any."/>
             </div>
         }
     </div>
@@ -270,6 +270,8 @@
         else
             TotalPages = (TotalItemsCount - pagesMod) / PageSize;
 
+        await Task.Delay(5000);
+        
         IsLoading = false;
         await InvokeAsync(StateHasChanged);
     }
