@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Services;
 using Moonlight.Client;
 using Moonlight.Client.App.Implementations;
 using Moonlight.Client.App.Interfaces;
@@ -41,6 +42,7 @@ builder.Services.AddHttpClient("Moonlight.ServerAPI",
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Moonlight.ServerAPI"));
 
 builder.Services.AutoAddServices<Program>();
+builder.Services.AddSingleton<EventService>();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddProviders(providers);
