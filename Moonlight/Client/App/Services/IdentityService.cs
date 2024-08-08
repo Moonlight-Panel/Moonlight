@@ -7,6 +7,8 @@ public class IdentityService
 {
     public bool IsLoggedIn { get; private set; }
     public string Token { get; private set; } = "";
+    public string Username { get; set; }
+    public string Email { get; set; }
 
     public readonly HttpClient Http;
     

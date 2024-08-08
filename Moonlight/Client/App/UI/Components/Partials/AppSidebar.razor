@@ -1,9 +1,11 @@
 @using Moonlight.Client.App.Interfaces
 @using Moonlight.Client.App.Models
 @using Moonlight.Client.App.PluginApi
+@using Moonlight.Client.App.Services
 
 @inject PluginService PluginService
 @inject NavigationManager Navigation
+@inject IdentityService IdentityService
 
 @{
     var uri = new Uri(Navigation.Uri);
@@ -22,7 +24,6 @@
                 </button>
             </div>
 
-            <!-- Sidebar component, swap this element with another sidebar if you like -->
             <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 ring-1 ring-white/10">
                 <div class="flex h-16 shrink-0 items-center">
                     <img class="h-8 w-auto" src="https://gamecp.masuowo.xyz/api/core/asset/Core/svg/logo.svg" alt="Moonlight">
@@ -57,7 +58,7 @@
                             <a href="#" class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800">
                                 <img class="h-8 w-8 rounded-full bg-gray-800" src="https://cdn.discordapp.com/avatars/223109865197928448/e889ef9433f126009c01a0f20e3b7759.webp?size=128" alt="">
                                 <span class="sr-only">Your profile</span>
-                                <span aria-hidden="true">@@masuowo</span>
+                                <span aria-hidden="true">@("@" + IdentityService.Username)</span>
                             </a>
                         </li>
                     </ul>
@@ -102,7 +103,7 @@
                     <a href="#" class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800">
                         <img class="h-8 w-8 rounded-full bg-gray-800" src="https://cdn.discordapp.com/avatars/223109865197928448/e889ef9433f126009c01a0f20e3b7759.webp?size=128" alt="">
                         <span class="sr-only">Your profile</span>
-                        <span aria-hidden="true">@@masuowo</span>
+                        <span aria-hidden="true">@("@" + IdentityService.Username)</span>
                     </a>
                 </li>
             </ul>

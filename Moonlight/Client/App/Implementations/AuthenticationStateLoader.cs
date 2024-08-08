@@ -1,5 +1,7 @@
+using MoonCore.Extensions;
 using Moonlight.Client.App.Interfaces;
 using Moonlight.Client.App.Services;
+using Moonlight.Shared.Http.Resources.Auth;
 
 namespace Moonlight.Client.App.Implementations;
 
@@ -17,7 +19,15 @@ public class AuthenticationStateLoader : IAppLoader
 
         try
         {
-            await identityService.Http.GetStringAsync("auth/check");
+            var response = await identityService.Http.GetAsync("auth/check");
+
+            await response.HandlePossibleApiError();
+
+            var checkResponse = await response.ParseAsJson<CheckResponse>();
+
+            identityService.Email = checkResponse.Email;
+            identityService.Username = checkResponse.Username;
+            
             identityService.SetLoginState(true);
         }
         catch (Exception)
