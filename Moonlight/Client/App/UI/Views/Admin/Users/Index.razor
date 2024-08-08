@@ -1,0 +1,39 @@
+@page "/admin/users"
+@using MoonCore.Extensions
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Http.Resources
+@using Moonlight.Shared.Http.Resources.Admin.Users
+@using Moonlight.Client.App.UI.Components
+
+@inject IdentityService IdentityService
+
+@if (IsLoaded)
+{
+    <SmartTable TItem="DetailUserResponse" Items="Users">
+        <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Id)" Title="Id" />
+        <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Username)" Title="Username" />
+        <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Email)" Title="Email" />
+    </SmartTable>
+}
+
+@code
+{
+    private DetailUserResponse[] Users = [];
+    private bool IsLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var response = await IdentityService.Http.GetAsync("admin/users");
+
+            await response.HandlePossibleApiError();
+
+            var pagedResponse = await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
+            Users = pagedResponse.Items;
+
+            IsLoaded = true;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}
