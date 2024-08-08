@@ -1,0 +1,75 @@
+@using System.Diagnostics
+@using MoonCore.Exceptions
+@using Moonlight.Client.App.Exceptions
+
+@inject ILogger<SoftErrorHandler> Logger
+
+@inherits ErrorBoundaryBase
+
+@if (Exception != null)
+{
+    <IconAlert Icon="bi bi-exclamation-triangle-fill"
+               Color="text-red-400"
+               Title="@(Exception.Message)"
+               Description="@(Exception.ToStringDemystified())" />
+}
+else
+{
+    if (ErrorMessages.Any())
+    {
+        <div class="p-4 mb-5 text-center rounded-lg bg-red-500 text-white" role="alert">
+            @foreach (var message in ErrorMessages)
+            {
+                @message
+                <br/>
+            }
+        </div>
+    }
+    
+    @ChildContent
+}
+
+@code 
+{
+    private List<string> ErrorMessages = new();
+    private Exception? Exception;
+
+    protected override async Task OnErrorAsync(Exception exception)
+    {
+        if (exception is DisplayException displayException)
+        {
+            await AddMessage(displayException.Message);
+        }
+        else if (exception is HttpApiException apiException)
+        {
+            await AddMessage(apiException.Title);
+            
+            if(!string.IsNullOrEmpty(apiException.Detail))
+                await AddMessage(apiException.Detail);
+        }
+        else
+            Exception = exception;
+        
+        Recover();
+
+        // Note:
+        // This fixes a weird behavior when a error in a component render call happens, e.g. missing parameter
+        // Without this, it would not show the error, just nothing
+        Task.Run(async () =>
+        {
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task AddMessage(string content)
+    {
+        ErrorMessages.Add(content);
+
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            ErrorMessages.Remove(content);
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+}

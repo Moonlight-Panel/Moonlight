@@ -1,3 +1,14 @@
 ﻿@page "/"
+@using Moonlight.Client.App.Exceptions
 
-<h1>Hello, world!</h1>
+<button @onclick="Test" type="button" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 bg-blue-600 hover:bg-blue-700 focus:outline-none">
+    Default
+</button>
+
+@code
+{
+    private async Task Test()
+    {
+        throw new IOException("A looooooooooooooooooooooooooooooooooooooooooooooooooooooooong error message which is unhandled");
+    }
+}

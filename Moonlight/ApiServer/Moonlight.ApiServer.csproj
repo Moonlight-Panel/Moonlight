@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <Folder Include="App\Database\Migrations\" />
+      <Folder Include="storage\clientPlugins\" />
       <Folder Include="storage\logs\" />
     </ItemGroup>
 

@@ -1,0 +1,13 @@
+<div class="text-center">
+    <i class="@(Icon) text-4xl @(Color)"></i>
+    <h3 class="mt-2 font-semibold text-white text-lg">@(Title)</h3>
+    <p class="mt-1 text-gray-300">@(Description)</p>
+</div>
+
+@code
+{
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public string Color { get; set; } = "";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Description { get; set; } = "";
+}

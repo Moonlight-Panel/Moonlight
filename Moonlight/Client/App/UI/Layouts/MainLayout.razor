@@ -2,6 +2,7 @@
 @using Moonlight.Client.App.PluginApi
 @using Moonlight.Client.App.Services
 @using Moonlight.Client.App.UI.Components.Partials
+@using Moonlight.Client.App.UI.Components
 
 @inherits LayoutComponentBase
 
@@ -47,7 +48,9 @@ else
             <AppSearch MainLayout="this" />
         
             <main class="px-5 pt-5">
-                @Body
+                <SoftErrorHandler>
+                    @Body
+                </SoftErrorHandler>
             </main>
         </div>
     </div>
