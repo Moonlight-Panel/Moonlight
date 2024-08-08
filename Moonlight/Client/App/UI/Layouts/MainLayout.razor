@@ -8,6 +8,7 @@
 @inject PluginService PluginService
 @inject IServiceProvider ServiceProvider
 @inject EventService Events
+@inject NavigationManager Navigation
 
 @if (IsLoading)
 {
@@ -45,7 +46,7 @@ else
         <div class="xl:pl-72">
             <AppSearch MainLayout="this" />
         
-            <main class="px-5 pt-5 text-white">
+            <main class="px-5 pt-5">
                 @Body
             </main>
         </div>
@@ -79,6 +80,11 @@ else
         await ProcessScreens();
 
         Events.On("RequestProcessScreens", ProcessScreens);
+
+        Navigation.LocationChanged += async (_, _) =>
+        {
+            await ProcessScreens();
+        };
         
         IsLoading = false;
         await InvokeAsync(StateHasChanged);

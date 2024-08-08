@@ -1,6 +1,5 @@
-@page "/login"
+@page "/register"
 
-@using System.Text.Json
 @using MoonCore.Extensions
 @using Moonlight.Client.App.Services
 @using Moonlight.Shared.Http.Requests.Auth
@@ -15,13 +14,17 @@
     <div class="w-full  rounded-lg shadow border md:mt-0 sm:max-w-md xl:p-0 bg-slate-800 border-slate-700">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 class="text-xl font-semibold leading-tight tracking-tight text-center md:text-2xl text-white">
-                Sign in to your account
+                Create an account
             </h1>
-            <SmartForm Model="Request" OnSubmit="Login">
+            <SmartForm Model="Request" OnSubmit="Register">
                 <div class="space-y-4 md:space-y-6">
                     <div>
                         <label class="block mb-2 text-sm font-medium text-white">Email address</label>
-                        <input @bind="Request.Identifier" type="email" class="border rounded-lg block w-full p-2.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white" placeholder="moonlight@example.com">
+                        <input @bind="Request.Email" type="email" class="border rounded-lg block w-full p-2.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white" placeholder="moonlight@example.com">
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-white">Username</label>
+                        <input @bind="Request.Username" type="text" class="border rounded-lg block w-full p-2.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white" placeholder="mycoolusername">
                     </div>
                     <div>
                         <label class="block mb-2 text-sm font-medium text-white">Password</label>
@@ -29,7 +32,7 @@
                     </div>
                     <button type="submit" class="w-full focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-blue-600 hover:bg-blue-700">Sign in</button>
                     <p class="text-sm font-light text-slate-400">
-                        Don’t have an account yet? <a href="/register" class="font-medium hover:underline text-blue-500">Sign up</a>
+                        Already have an account? <a href="/" class="font-medium hover:underline text-blue-500">Sign in</a>
                     </p>
                 </div>
             </SmartForm>
@@ -39,11 +42,11 @@
 
 @code
 {
-    private LoginRequest Request = new();
+    private RegisterRequest Request = new();
 
-    private async Task Login()
+    private async Task Register()
     {
-        var response = await IdentityService.Http.PostAsJsonReceiveJson<LoginResponse>("auth/login", Request);
+        var response = await IdentityService.Http.PostAsJsonReceiveJson<RegisterResponse>("auth/register", Request);
         
         IdentityService.SetToken(response.Token);
         IdentityService.SetLoginState(true);
@@ -51,10 +54,7 @@
         await CookieService.SetValue("ml-token", response.Token, 10);
 
         await Events.Invoke("RequestProcessScreens");
-
-        var uri = new Uri(Navigation.Uri);
         
-        if(uri.LocalPath == "/login")
-            Navigation.NavigateTo("/");
+        Navigation.NavigateTo("/");
     }
 }

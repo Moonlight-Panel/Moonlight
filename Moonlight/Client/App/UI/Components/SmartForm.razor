@@ -1,0 +1,60 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using MoonCore.Exceptions
+@using MoonCore.Helpers
+
+@if (ErrorMessages.Count > 0)
+{
+    <div class="p-4 mb-5 text-center rounded-lg bg-slate-800 text-red-400" role="alert">
+        @foreach (var message in ErrorMessages)
+        {
+            @message
+            <br/>
+        }
+    </div>
+}
+
+<EditForm Model="Model" OnSubmit="Submit">
+    @ChildContent    
+</EditForm>
+
+@code
+{
+    [Parameter] public object Model { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public Func<Task> OnSubmit { get; set; }
+
+    private List<string> ErrorMessages = new();
+    
+    private async Task Submit()
+    {
+        ErrorMessages.Clear();
+
+        // Validate model
+        if (!ValidatorHelper.Validate(Model, out var errorMessage))
+        {
+            ErrorMessages.Add(errorMessage!);
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        try
+        {
+            await OnSubmit.Invoke();
+        }
+        catch (HttpApiException e)
+        {
+            ErrorMessages.Add(e.Title);
+
+            if (e.Errors.Count > 0)
+            {
+                foreach (var error in e.Errors)
+                {
+                    foreach (var errorMsg in error.Value)
+                        ErrorMessages.Add($"{error.Key}: {errorMsg}");
+                }
+            }
+        }
+        
+        await InvokeAsync(StateHasChanged);
+    }
+}

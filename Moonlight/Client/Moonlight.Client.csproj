@@ -10,11 +10,16 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0"/>
-        <PackageReference Include="MoonCore" Version="1.4.5" />
+        <PackageReference Include="MoonCore" Version="1.4.6" />
+        <PackageReference Include="MoonCore.Blazor" Version="1.2.1" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Shared\Moonlight.Shared.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="App\Helpers\" />
     </ItemGroup>
 
 </Project>

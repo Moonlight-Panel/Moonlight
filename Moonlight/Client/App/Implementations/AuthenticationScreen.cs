@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using Moonlight.Client.App.Helpers;
+using MoonCore.Blazor.Helpers;
 using Moonlight.Client.App.Interfaces;
 using Moonlight.Client.App.Services;
 using Moonlight.Client.App.UI.Components.Auth;
@@ -10,20 +10,29 @@ public class AuthenticationScreen : IAppScreen
 {
     public int Priority => 0;
 
+    private bool ShowLogin = false;
+
     public bool ShouldBeShown(IServiceProvider serviceProvider)
     {
         var identityService = serviceProvider.GetRequiredService<IdentityService>();
-
-        var x = !identityService.IsLoggedIn;
-
-        var logger = serviceProvider.GetRequiredService<ILogger<AuthenticationScreen>>();
-        logger.LogWarning("ShouldBeShown: {value}", x);
         
-        return x;
+        if (identityService.IsLoggedIn)
+            return false;
+
+        var navigation = serviceProvider.GetRequiredService<NavigationManager>();
+
+        var uri = new Uri(navigation.Uri);
+
+        ShowLogin = uri.LocalPath != "/register";
+
+        return true;
     }
 
     public RenderFragment Render()
     {
-        return ComponentHelper.FromType<LoginScreen>();
+        if(ShowLogin)
+            return ComponentHelper.FromType<LoginScreen>();
+        else
+            return ComponentHelper.FromType<RegisterScreen>();
     }
 }
