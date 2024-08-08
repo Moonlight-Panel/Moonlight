@@ -36,14 +36,16 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
             .Select(x => Mapper.Map<TDetailResponse>(x))
             .ToArray();
 
-        var totalPages = ItemRepository.Get().Count() / pageSize;
+        var totalCount = ItemRepository.Get().Count();
+        var totalPages = totalCount / pageSize;
 
         return Ok(new PagedResponse<TDetailResponse>()
         {
             Items = items,
             CurrentPage = page,
             PageSize = pageSize,
-            TotalPages = totalPages
+            TotalPages = totalPages,
+            TotalItems = totalCount
         });
     }
     

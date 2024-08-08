@@ -5,7 +5,7 @@
 
 @code
 {
-    [CascadingParameter] public SmartTable<TItem> Table { get; set; }
+    [CascadingParameter] public SmartTable2<TItem> Table { get; set; }
     
     [Parameter] public string Title { get; set; }
     [Parameter] public Expression<Func<TItem, object>> Field { get; set; }

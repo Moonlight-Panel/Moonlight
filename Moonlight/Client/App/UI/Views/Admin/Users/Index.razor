@@ -9,11 +9,11 @@
 
 @if (IsLoaded)
 {
-    <SmartTable TItem="DetailUserResponse" Items="Users">
+    <SmartTable2 TItem="DetailUserResponse" ItemsCallback="ItemsCallback">
         <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Id)" Title="Id" />
         <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Username)" Title="Username" />
         <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Email)" Title="Email" />
-    </SmartTable>
+    </SmartTable2>
 }
 
 @code
@@ -25,15 +25,17 @@
     {
         if (firstRender)
         {
-            var response = await IdentityService.Http.GetAsync("admin/users");
-
-            await response.HandlePossibleApiError();
-
-            var pagedResponse = await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
-            Users = pagedResponse.Items;
-
             IsLoaded = true;
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private async Task<PagedResponse<DetailUserResponse>> ItemsCallback(int page, int pageSize)
+    {
+        var response = await IdentityService.Http.GetAsync($"admin/users?page={page}&pageSize={pageSize}");
+
+        await response.HandlePossibleApiError();
+
+        return await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
     }
 }
