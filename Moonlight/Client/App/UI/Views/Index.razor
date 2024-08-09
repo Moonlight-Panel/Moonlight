@@ -1,14 +1,48 @@
 ﻿@page "/"
 @using Moonlight.Client.App.Exceptions
+@using Moonlight.Client.App.Models
+@using Moonlight.Client.App.UI.Components
+@using Moonlight.Shared.Http.Requests.Auth
 
-<button @onclick="Test" type="button" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 bg-blue-600 hover:bg-blue-700 focus:outline-none">
-    Default
-</button>
+<div class="flex flex-row gap-5">
+    <WButton OnClick="OnClick">
+        Testy
+    </WButton>
+    <WButton OnClick="Test1">
+        Test 1
+    </WButton>
+    <WIconButton OnClick="Test" CssClasses="bg-violet-600 hover:bg-violet-700">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-amd" viewBox="0 0 16 16">
+            <path d="m.334 0 4.358 4.359h7.15v7.15l4.358 4.358V0zM.2 9.72l4.487-4.488v6.281h6.28L6.48 16H.2z"/>
+        </svg>
+    </WIconButton>
+</div>
 
 @code
 {
+    private void OnConfigure()
+    {
+        var loginFormOptions = new SmartFormOption<LoginRequest>();
+        
+        
+    }
+    
     private async Task Test()
     {
-        throw new IOException("A looooooooooooooooooooooooooooooooooooooooooooooooooooooooong error message which is unhandled");
+        await Task.Delay(5000);
+    }
+    
+    private async Task Test1(WButton button)
+    {
+        throw new DisplayException("Owo ara uwu");
+    }
+
+    private async Task OnClick(WButton button)
+    {
+        await Task.Delay(5000);
+
+        await button.UpdateLoadingText("Doing something else");
+        
+        await Task.Delay(5000);
     }
 }

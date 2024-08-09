@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <Folder Include="App\Helpers\" />
+      <Folder Include="App\UI\Components\Forms\" />
     </ItemGroup>
 
 </Project>
