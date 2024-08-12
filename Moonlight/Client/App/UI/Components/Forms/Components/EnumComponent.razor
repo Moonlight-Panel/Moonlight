@@ -1,0 +1,17 @@
+@typeparam TEnum where TEnum : Enum
+
+@inherits BaseSmartFormComponent<TEnum>
+
+<select @bind="Binder.Value" class="border text-sm rounded-lg block w-full py-1.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white focus:ring-indigo-500 focus:border-indigo-500">
+    @foreach (var status in (TEnum[])Enum.GetValues(typeof(TEnum)))
+    {
+        if (Binder.Value.ToString() == status.ToString())
+        {
+            <option value="@(status)" selected="">@(status)</option>
+        }
+        else
+        {
+            <option value="@(status)">@(status)</option>
+        }
+    }
+</select>

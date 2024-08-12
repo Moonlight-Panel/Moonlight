@@ -1,0 +1,151 @@
+@using MoonCore.Blazor.Helpers
+@using MoonCore.Helpers
+@using Moonlight.Client.App.Models.Forms
+
+@typeparam TForm
+
+@inject IServiceProvider ServiceProvider
+
+@if (ShowNavigation)
+{
+    <div class="text-sm font-medium text-center  border-b  text-slate-400 border-slate-700">
+        <ul class="flex flex-wrap -mb-px">
+            @foreach (var page in Options.Pages)
+            {
+                if (CurrentPage == page)
+                {
+                    <li class="me-2">
+                        <a @onclick:preventDefault href="#" class="inline-block p-4 border-b-2 rounded-t-lg active text-blue-500 border-blue-500" aria-current="page">
+                            @(string.IsNullOrEmpty(page.Name) ? "General" : page.Name)
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="me-2">
+                        <a @onclick="() => NavigatePage(page)" @onclick:preventDefault href="#" class="inline-block p-4 border-transparent rounded-t-lg hover:text-slate-300">
+                            @(string.IsNullOrEmpty(page.Name) ? "General" : page.Name)
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+@if (CurrentPage != null)
+{
+    foreach (var section in CurrentPage.Sections)
+    {
+        <div class="@(section != CurrentPage.Sections.Last() ? "border-b border-slate-100/10 pb-12" : "") mt-5">
+            @if (!string.IsNullOrEmpty(section.Title))
+            {
+                <h2 class="text-base font-semibold leading-7 text-slate-100">@(section.Title)</h2>
+            }
+            @if (!string.IsNullOrEmpty(section.Description))
+            {
+                <p class="mt-1 text-sm leading-6 text-slate-400">@(section.Description)</p>
+            }
+
+            <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                @foreach (var property in section.Properties)
+                {
+                    var componentInstance = ComponentsCache[property];
+                    
+                    <div class="sm:col-span-@(property.Columns ?? 3)">
+                        <label class="block text-sm font-medium leading-6 text-white">
+                            @(property.Name ?? Formatter.ConvertCamelCaseToSpaces(property.PropertyInfo.Name))
+                        </label>
+                        <div class="mt-2">
+                            <InstanceView Instance="componentInstance" />
+                        </div>
+                        @if (!string.IsNullOrEmpty(property.Description))
+                        {
+                            <p class="mt-1 text-sm leading-6 text-slate-400">@(property.Description)</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code
+{
+    [Parameter] public Action<SmartFormOption<TForm>>? OnConfigure { get; set; }
+    [Parameter] public TForm Model { get; set; }
+
+    private SmartFormOption<TForm> Options = new();
+
+    private bool ShowNavigation = false;
+    private SmartFormPageConfiguration<TForm>? CurrentPage = null;
+
+    private Dictionary<ISmartFormPropertyOption, ComponentBase> ComponentsCache = new();
+
+    protected override void OnInitialized()
+    {
+        OnConfigure?.Invoke(Options);
+
+        ShowNavigation = Options.Pages.Count > 1;
+
+        CurrentPage = Options.Pages
+                          .FirstOrDefault(x => x.Name == "")
+                      ?? Options.Pages.FirstOrDefault();
+
+        InitComponents();
+    }
+
+    private void InitComponents()
+    {
+        var properties = Options
+            .Pages.SelectMany(x => x.Sections)
+            .SelectMany(x => x.Properties)
+            .ToArray();
+
+        foreach (var property in properties)
+        {
+            // Binder type
+            var propBinderType = typeof(PropRefBinder<>).MakeGenericType(property.PropertyInfo.PropertyType);
+            
+            // Binder instance
+            var propBinder = Activator.CreateInstance(propBinderType, [
+                Model,
+                property.PropertyInfo
+            ])!;
+
+            // Find component type
+            var componentType = property.ComponentType ?? SmartFormComponentTypeMap.Get(property.PropertyInfo.PropertyType);
+
+            if (componentType == null)
+                throw new ArgumentException($"Unable to construct component for property '{property.PropertyInfo.Name}' as no component type has been set and no default type for '{property.PropertyInfo.PropertyType.FullName}' has been registered");
+            
+            // Create component instance
+            var componentInstance = (ComponentBase)Activator.CreateInstance(componentType)!;
+            
+            // Set properties
+            componentType.GetProperty("Binder")!.SetValue(componentInstance, propBinder);
+            
+            // We need to pass the service provider here, as injected services wont work in the instance view component :c
+            // this only affects the single component in the instance view, not all components below TODO: Docs for this
+            componentType.GetProperty("ServiceProvider")!.SetValue(componentInstance, ServiceProvider);
+            
+            // Call manual configure if required
+            if (property.OnConfigureFunc != null)
+            {
+                property.OnConfigureFunc
+                    .GetType()
+                    .GetMethod("Invoke")!
+                    .Invoke(property.OnConfigureFunc, [componentInstance]);
+            }
+            
+            // Add component to cache
+            ComponentsCache.Add(property, componentInstance);
+        }
+    }
+
+    private async Task NavigatePage(SmartFormPageConfiguration<TForm> page)
+    {
+        CurrentPage = page;
+        await InvokeAsync(StateHasChanged);
+    }
+}

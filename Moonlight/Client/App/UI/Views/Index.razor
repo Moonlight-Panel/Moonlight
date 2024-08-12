@@ -1,8 +1,12 @@
 ﻿@page "/"
+
 @using Moonlight.Client.App.Exceptions
 @using Moonlight.Client.App.Models
+@using Moonlight.Client.App.Models.Forms
 @using Moonlight.Client.App.UI.Components
 @using Moonlight.Shared.Http.Requests.Auth
+@using Moonlight.Client.App.UI.Components.Forms
+@using Moonlight.Client.App.UI.Components.Forms.Components
 
 <div class="flex flex-row gap-5">
     <WButton OnClick="OnClick">
@@ -18,20 +22,50 @@
     </WIconButton>
 </div>
 
+<div class="mt-5 p-5">
+    <SmartForm Model="Form" OnSubmit="OnSubmit">
+        <SmartGeneratedForm Model="Form" OnConfigure="OnConfigure" />
+        
+        <div class="mt-5">
+            <button type="submit" class="rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm bg-blue-600 hover:bg-blue-700">Submit</button>
+        </div>
+    </SmartForm>
+</div>
+
 @code
 {
-    private void OnConfigure()
-    {
-        var loginFormOptions = new SmartFormOption<LoginRequest>();
-        
-        
-    }
+    private FormModel Form = new();
     
+    private void OnConfigure(SmartFormOption<FormModel> options)
+    {
+        options
+            .DefaultPage
+            .DefaultSection
+            .AddProperty(x => x.SomeNiceText);
+
+        options
+            .DefaultPage
+            .DefaultSection
+            .AddProperty(x => x.SomeNiceInt);
+        
+        options
+            .DefaultPage
+            .DefaultSection
+            .AddProperty(x => x.SomeNiceBool)
+            .WithDescription("OwO ara ara uwu uwu");
+
+        options
+            .DefaultPage
+            .DefaultSection
+            .AddProperty(x => x.MyCoolEnum)
+            .WithComponent<EnumComponent<MyCoolEnum>>();
+    }
+
     private async Task Test()
     {
         await Task.Delay(5000);
     }
-    
+
     private async Task Test1(WButton button)
     {
         throw new DisplayException("Owo ara uwu");
@@ -42,7 +76,12 @@
         await Task.Delay(5000);
 
         await button.UpdateLoadingText("Doing something else");
-        
+
+        await Task.Delay(5000);
+    }
+
+    private async Task OnSubmit()
+    {
         await Task.Delay(5000);
     }
 }

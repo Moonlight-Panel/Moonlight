@@ -1,0 +1,9 @@
+@using MoonCore.Blazor.Helpers
+
+@typeparam T
+
+@code
+{
+    [Parameter] public PropRefBinder<T> Binder { get; set; }
+    [Parameter] public IServiceProvider ServiceProvider { get; set; }
+}

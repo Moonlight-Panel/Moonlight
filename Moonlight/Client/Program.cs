@@ -6,7 +6,9 @@ using MoonCore.Services;
 using Moonlight.Client;
 using Moonlight.Client.App.Implementations;
 using Moonlight.Client.App.Interfaces;
+using Moonlight.Client.App.Models.Forms;
 using Moonlight.Client.App.PluginApi;
+using Moonlight.Client.App.UI.Components.Forms.Components;
 
 // Build pre run logger
 var providers = LoggerBuildHelper.BuildFromConfiguration(new()
@@ -27,6 +29,12 @@ var logger = preLoggerFactory.CreateLogger("Startup");
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+// Default form components
+SmartFormComponentTypeMap.Set<string, StringComponent>();
+SmartFormComponentTypeMap.Set<int, IntComponent>();
+SmartFormComponentTypeMap.Set<bool, SwitchComponent>();
+
+// Plugins
 var pluginService = new PluginService(preLoggerFactory.CreateLogger<PluginService>(), preLoggerFactory);
 await pluginService.Load(builder.HostEnvironment.BaseAddress);
 
