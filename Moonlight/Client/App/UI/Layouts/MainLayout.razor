@@ -3,6 +3,8 @@
 @using Moonlight.Client.App.PluginApi
 @using Moonlight.Client.App.UI.Components.Partials
 @using Moonlight.Client.App.UI.Components
+@using Moonlight.Client.App.UI.Components.Modals
+@using Moonlight.Client.App.UI.Components.Toasts
 
 @inherits LayoutComponentBase
 
@@ -55,6 +57,9 @@ else
         </div>
     </div>
 }
+
+<ModalLaunchPoint />
+<ToastLaunchPoint />
 
 @code
 {

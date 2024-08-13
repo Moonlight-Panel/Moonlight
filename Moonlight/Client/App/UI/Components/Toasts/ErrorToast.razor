@@ -1,0 +1,9 @@
+@inherits BaseToast
+
+<i class="bi bi-exclamation-triangle-fill text-xl inline-block text-red-400 mr-3"></i>
+<div class="text-sm font-normal">@(Text)</div>
+
+@code
+{
+    [Parameter] public string Text { get; set; } = "Unset";
+}

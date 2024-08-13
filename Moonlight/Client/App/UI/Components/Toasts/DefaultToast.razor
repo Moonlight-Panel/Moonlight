@@ -1,0 +1,10 @@
+@inherits BaseToast
+
+<div class="text-sm font-normal">
+    @Text
+</div>
+
+@code
+{
+    [Parameter] public string Text { get; set; } = "Unset";
+}

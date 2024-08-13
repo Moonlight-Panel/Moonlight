@@ -1,0 +1,14 @@
+@using Moonlight.Client.App.Models.Toasts
+@using Moonlight.Client.App.Services
+
+@inject ToastService ToastService
+
+@code
+{
+    [Parameter] public ToastLaunchItem Self { get; set; }
+
+    public async Task Hide()
+    {
+        await ToastService.Hide(Self);
+    }
+}
