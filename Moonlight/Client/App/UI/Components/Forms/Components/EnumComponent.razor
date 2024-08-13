@@ -2,7 +2,7 @@
 
 @inherits BaseSmartFormComponent<TEnum>
 
-<select @bind="Binder.Value" class="border text-sm rounded-lg block w-full py-1.5 bg-slate-700 border-slate-600 placeholder-slate-400 text-white focus:ring-indigo-500 focus:border-indigo-500">
+<select @bind="Binder.Value" class="border-0 text-sm rounded-lg block w-full py-1.5 bg-slate-800 ring-1 ring-inset ring-white/10 border-slate-600 placeholder-slate-400 text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
     @foreach (var status in (TEnum[])Enum.GetValues(typeof(TEnum)))
     {
         if (Binder.Value.ToString() == status.ToString())

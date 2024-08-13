@@ -1,0 +1,92 @@
+@typeparam T
+
+@inherits BaseSmartFormComponent<T>
+
+<div class="relative mt-2">
+    <button @onclick="ToggleSelection" type="button" class="relative w-full cursor-default rounded-md bg-slate-800 py-1.5 pl-3 pr-10 text-left text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6">
+        @if (Binder.Value == null)
+        {
+            <span class="truncate">
+                ---
+            </span>
+        }
+        else
+        {
+            <span class="truncate">
+                @(DisplayField == null ? Binder.Value.ToString() : DisplayField.Invoke(Binder.Value))
+            </span>
+        }
+
+        <span class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
+            <i class="bi bi-chevron-expand text-xl text-white"></i>
+        </span>
+    </button>
+
+    @if (ShowSelection)
+    {
+        <ul class="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-slate-800 py-1 text-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" tabindex="-1" role="listbox">
+            @if (AllowNull)
+            {
+                <li @onclick="() => Select(default)" class="relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-indigo-600" id="listbox-option-0" role="option">
+                    <span class="truncate font-normal">
+                        ----
+                    </span>
+
+                    @if (Binder.Value == null)
+                    {
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                            <i class="bi bi-check-lg text-xl text-white"></i>
+                        </span>
+                    }
+                </li>
+            }
+
+            @foreach (var item in Items)
+            {
+                if (Binder.Value != null && Binder.Value.GetHashCode() == item!.GetHashCode())
+                {
+                    <li class="relative cursor-default select-none py-2 pl-3 pr-9" role="option">
+                        <span class="truncate font-normal">
+                            @(DisplayField == null ? item.ToString() : DisplayField.Invoke(item))
+                        </span>
+
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                            <i class="bi bi-check-lg text-xl text-white"></i>
+                        </span>
+                    </li>
+                }
+                else
+                {
+                    <li @onclick="() => Select(item)" class="relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-indigo-600" id="listbox-option-0" role="option">
+                        <span class="truncate font-normal">
+                            @(DisplayField == null ? item!.ToString() : DisplayField.Invoke(item))
+                        </span>
+                    </li>
+                }
+            }
+        </ul>
+    }
+</div>
+
+@code
+{
+    [Parameter] public T[] Items { get; set; }
+    [Parameter] public Func<T, string>? DisplayField { get; set; }
+    [Parameter] public bool AllowNull { get; set; } = false;
+
+    private bool ShowSelection = false;
+
+    private async Task ToggleSelection()
+    {
+        ShowSelection = !ShowSelection;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Select(T? item)
+    {
+        Binder.ValueNullable = item;
+        ShowSelection = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

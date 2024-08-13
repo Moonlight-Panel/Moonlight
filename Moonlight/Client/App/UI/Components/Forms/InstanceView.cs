@@ -9,6 +9,8 @@ public class InstanceView : IComponent
     public ComponentBase Instance { get; set; }
     
     private RenderHandle Handle;
+
+    private bool HasBeenInitialized = false;
     
     public void Attach(RenderHandle renderHandle)
     {
@@ -27,6 +29,9 @@ public class InstanceView : IComponent
         
         Handle.Render(rf);
 
+        if(HasBeenInitialized)
+            return;
+        
         // Call initialize methods
         var type = Instance.GetType();
             
@@ -36,6 +41,8 @@ public class InstanceView : IComponent
         // Call OnInitializedAsync
         var resTask = type.GetMethod("OnInitializedAsync", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(Instance, []);
         await (Task)resTask!;
+
+        HasBeenInitialized = true;
     }
     
     private static FieldInfo GetPrivateField(Type t, string name)

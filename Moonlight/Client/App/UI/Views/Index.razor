@@ -41,12 +41,25 @@
         options
             .DefaultPage
             .DefaultSection
-            .AddProperty(x => x.SomeNiceText);
+            .AddProperty(x => x.SomeNiceText)
+            .WithComponent<DropdownComponent<string>>(component =>
+            {
+                component.Items =
+                [
+                    "Item 1",
+                    "Item 2",
+                    "Item 3",
+                    "Item 4"
+                ];
+
+                component.AllowNull = true;
+            });
 
         options
             .DefaultPage
             .DefaultSection
-            .AddProperty(x => x.SomeNiceInt);
+            .AddProperty(x => x.SomeNiceInt)
+            .WithComponent<ByteSizeComponent>();
         
         options
             .DefaultPage
