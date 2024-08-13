@@ -1,0 +1,14 @@
+@using Moonlight.Client.App.Models.Modals
+@using Moonlight.Client.App.Services
+
+@inject ModalService ModalService
+
+@code
+{
+    [Parameter] public ModalLaunchItem Self { get; set; }
+
+    public async Task Hide()
+    {
+        await ModalService.Hide(Self);
+    }
+}

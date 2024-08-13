@@ -1,0 +1,67 @@
+@using MoonCore.Blazor.Helpers
+@using Moonlight.Client.App.Models.Modals
+@using Moonlight.Client.App.Services
+@inject ModalService ModalService
+
+@if (Items.Count > 0)
+{
+    <div class="fixed top-0 left-0 h-full w-full min-h-[100dvh] flex items-center justify-center bg-black opacity-50 z-50"></div>
+}
+
+@foreach (var modal in Items)
+{
+    <div id="@(modal.Id)" tabindex="0" class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6" role="dialog" aria-modal="true">
+        <div class="bg-slate-800 rounded-lg shadow-lg overflow-auto max-w-lg w-full max-h-full">
+            @modal.Render
+        </div>
+    </div>
+}
+
+@code
+{
+    private readonly List<ModalLaunchItem> Items = new();
+    private int Counter = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ModalService.SetLaunchPoint(this);
+    }
+
+    public async Task Launch<T>(string? id = null, Action<Dictionary<string, object>>? buildAttributes = null) where T : BaseModal
+    {
+        var item = new ModalLaunchItem()
+        {
+            Id = id ?? "modal" + Counter
+        };
+
+        item.Render = ComponentHelper.FromType<T>(parameters =>
+        {
+            parameters.Add("Self", item);
+
+            buildAttributes?.Invoke(parameters);
+        });
+
+        Items.Add(item);
+        Counter++;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task Hide(string id)
+    {
+        var itemToHide = Items.FirstOrDefault(x => x.Id == id);
+
+        if (itemToHide == null)
+            return;
+
+        await Hide(itemToHide);
+    }
+
+    public async Task Hide(ModalLaunchItem item)
+    {
+        if (Items.Contains(item))
+            Items.Remove(item);
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
