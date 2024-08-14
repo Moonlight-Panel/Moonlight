@@ -8,10 +8,14 @@
     [CascadingParameter] public SmartTable2<TItem> Table { get; set; }
     
     [Parameter] public string Title { get; set; }
-    [Parameter] public Expression<Func<TItem, object>> Field { get; set; }
+    [Parameter] public Expression<Func<TItem, object>>? Field { get; set; }
     [Parameter] public bool Sortable { get; set; } = false;
     [Parameter] public bool Filterable { get; set; } = false;
     [Parameter] public RenderFragment<TItem>? Template { get; set; }
+    [Parameter] public RenderFragment? HeadTemplate { get; set; }
+    
+    [Parameter] public string? HeadCssClasses { get; set; }
+    [Parameter] public string? CssClasses { get; set; }
 
     public Func<TItem, object> CompiledField;
 
@@ -22,7 +26,8 @@
     
     protected override void OnInitialized()
     {
-        CompiledField = Field.Compile();
+        if(Field != null)
+            CompiledField = Field.Compile();
         
         Table.AddColumn(this);
     }

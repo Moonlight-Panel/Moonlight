@@ -1,41 +1,74 @@
 @page "/admin/users"
 @using MoonCore.Extensions
+@using Moonlight.Client.App.Models.Crud
 @using Moonlight.Client.App.Services
 @using Moonlight.Shared.Http.Resources
 @using Moonlight.Shared.Http.Resources.Admin.Users
 @using Moonlight.Client.App.UI.Components
+@using Moonlight.Client.App.UI.Components.Forms.Components
+@using Moonlight.Shared.Http.Requests.Admin.Users
 
 @inject IdentityService IdentityService
+@inject ToastService ToastService
 
-@if (IsLoaded)
-{
-    <SmartTable2 TItem="DetailUserResponse" ItemsCallback="ItemsCallback">
+<SmartCrud TItem="DetailUserResponse"
+           TCreateForm="CreateUserRequest"
+           TUpdateForm="UpdateUserRequest"
+           OnConfigure="OnConfigure">
+    <View>
         <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Id)" Title="Id" />
         <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Username)" Title="Username" />
         <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Email)" Title="Email" />
-    </SmartTable2>
-}
+    </View>
+</SmartCrud>
 
 @code
 {
-    private DetailUserResponse[] Users = [];
-    private bool IsLoaded = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void OnConfigure(CrudOptions<DetailUserResponse, CreateUserRequest, UpdateUserRequest> options)
     {
-        if (firstRender)
+        options.Loader = async (page, pageSize) =>
         {
-            IsLoaded = true;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
+            var response = await IdentityService.Http.GetAsync($"admin/users?page={page}&pageSize={pageSize}");
 
-    private async Task<PagedResponse<DetailUserResponse>> ItemsCallback(int page, int pageSize)
-    {
-        var response = await IdentityService.Http.GetAsync($"admin/users?page={page}&pageSize={pageSize}");
+            await response.HandlePossibleApiError();
 
-        await response.HandlePossibleApiError();
+            return await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
+        };
 
-        return await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
+        options.OnConfigureCreate = option =>
+        {
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Username)
+                .WithColumns(6);
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Email)
+                .WithColumns(6)
+                .WithComponent<StringComponent>(component =>
+                {
+                    component.Type = "email";
+                });
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Password)
+                .WithColumns(6)
+                .WithComponent<StringComponent>(component =>
+                {
+                    component.Type = "password";
+                });
+        };
+        
+        options.CreateFunction = async request =>
+        {
+            var response = await IdentityService.Http.PostAsJsonAsync("admin/users", request);
+
+            await response.HandlePossibleApiError();
+        };
     }
 }
