@@ -88,7 +88,7 @@
                 <tr class="bg-slate-800 @(i != CurrentItems.Length ? "border-b border-slate-700" : "")">
                     @foreach (var column in Columns)
                     {
-                        <th scope="row" class="@(column.CssClasses ?? "px-6 py-3 whitespace-nowrap font-normal")">
+                        <th scope="row" class="@(column.CssClasses ?? "px-6 py-2 whitespace-nowrap font-normal")">
                             @if (column.Template == null)
                             {
                                 @column.CompiledField.Invoke(item)

@@ -63,10 +63,54 @@
                     component.Type = "password";
                 });
         };
+
+        options.OnConfigureUpdate = option =>
+        {
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Username)
+                .WithColumns(6);
+
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Email)
+                .WithColumns(6)
+                .WithComponent<StringComponent>(component =>
+                {
+                    component.Type = "email";
+                });
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Password)
+                .WithColumns(6)
+                .WithComponent<StringComponent>(component =>
+                {
+                    component.Type = "password";
+                })
+                .WithDescription("Optional");
+        };
         
         options.CreateFunction = async request =>
         {
             var response = await IdentityService.Http.PostAsJsonAsync("admin/users", request);
+
+            await response.HandlePossibleApiError();
+        };
+
+        options.UpdateFunction = async (request, item) =>
+        {
+            var response = await IdentityService.Http.PatchAsJsonAsync($"admin/users/{item.Id}", request);
+
+            await response.HandlePossibleApiError();
+        };
+
+        options.DeleteFunction = async item =>
+        {
+            var response = await IdentityService.Http.DeleteAsync($"admin/users/{item.Id}");
 
             await response.HandlePossibleApiError();
         };

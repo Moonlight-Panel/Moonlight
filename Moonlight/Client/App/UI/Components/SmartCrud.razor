@@ -1,3 +1,4 @@
+@using MoonCore.Helpers
 @using Moonlight.Client.App.Models.Crud
 @using Moonlight.Client.App.Services
 @using Moonlight.Client.App.UI.Components.Modals
@@ -8,6 +9,7 @@
 
 @inject ModalService ModalService
 @inject ToastService ToastService
+@inject AlertService AlertService
 
 <div class="bg-slate-800 rounded-lg">
     <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-2.5">
@@ -66,8 +68,20 @@
             </Template>
         </SmartColumn>
         @View
+
+        <SmartColumn TItem="TItem">
+            <Template>
+                <div class="flex justify-end items-center">
+                    <a @onclick:preventDefault @onclick="() => LaunchUpdate(context)" href="#" class="text-blue-500 hover:underline mr-5">Edit</a>
+                    <a @onclick:preventDefault @onclick="() => LaunchDelete(context)" href="#">
+                        <i class="bi bi-trash3-fill text-xl text-red-500"></i>
+                    </a>
+                </div>
+            </Template>
+        </SmartColumn>
     </SmartTable2>
 </div>
+
 @code
 {
     [Parameter] public RenderFragment View { get; set; }
@@ -79,10 +93,22 @@
 
     private List<TItem> SelectedItems = new();
 
+    private TItem ItemToUpdate;
+
     protected override void OnInitialized()
     {
         OnConfigure.Invoke(Options);
     }
+
+    private async Task RefreshView()
+    {
+        SelectedItems.Clear();
+        await Table.Refresh();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #region Create
 
     private async Task LaunchCreate()
     {
@@ -98,24 +124,65 @@
     private async Task RunCreate(TCreateForm form)
     {
         await Options.CreateFunction.Invoke(form);
-        
+
         await ToastService.Success("Successfully added item");
         await RefreshView();
     }
 
-    private async Task RefreshView()
-    {
-        SelectedItems.Clear();
-        await Table.Refresh();
+    #endregion
 
-        await InvokeAsync(StateHasChanged);
+    #region Delete
+
+    private async Task LaunchDelete(TItem item)
+    {
+        await AlertService.DangerConfirm("Do you really want to delete this item?",
+            () => RunDelete(item),
+            "bi bi-trash3-fill"
+        );
     }
+
+    private async Task RunDelete(TItem item)
+    {
+        await Options.DeleteFunction.Invoke(item);
+        
+        await ToastService.Success("Successfully deleted item");
+        await RefreshView();
+    }
+
+    #endregion
+
+    #region Update
+
+    private async Task LaunchUpdate(TItem item)
+    {
+        ItemToUpdate = item;
+        
+        await ModalService.Launch<FormModal<TUpdateForm>>(buildAttributes: parameters =>
+        {
+            parameters.Add("Title", "Update");
+            parameters.Add("Form", Mapper.Map<TUpdateForm>(item!)!);
+            parameters.Add("OnConfigure", Options.OnConfigureUpdate);
+            parameters.Add("OnSubmit", (Func<TUpdateForm, Task>)RunUpdate);
+        });
+    }
+
+    private async Task RunUpdate(TUpdateForm form)
+    {
+        await Options.UpdateFunction.Invoke(form, ItemToUpdate);
+
+        await ToastService.Success("Successfully updated item");
+        await RefreshView();
+    }
+
+    #endregion
+
+    #region Selection
 
     private Task ChangeSelection(TItem item, bool isSelected)
     {
         if (isSelected)
         {
-            if(!SelectedItems.Contains(item))
+            if (!SelectedItems.Contains(item))
                 SelectedItems.Add(item);
         }
         else
@@ -123,17 +190,20 @@
             if (SelectedItems.Contains(item))
                 SelectedItems.Remove(item);
         }
-        
+
         return Task.CompletedTask;
     }
 
     private Task ChangeAllSelection(bool isSelected)
     {
         SelectedItems.Clear();
-        
+
         if (isSelected)
             SelectedItems.AddRange(Table.CurrentItems);
-        
+
         return Task.CompletedTask;
     }
+
+    #endregion
+
 }
