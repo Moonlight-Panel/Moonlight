@@ -36,10 +36,20 @@
                 Create
             </button>
 
+            @if (Actions != null)
+            {
+                @Actions
+            }
+
             <DropdownButton Text="Actions">
-                <a @onclick:preventDefault href="#" class="block px-4 py-2 text-sm text-white" role="menuitem">
+                <a @onclick="StartDeleteSection" @onclick:preventDefault href="#" class="block px-4 py-2 text-sm text-white" role="menuitem">
                     Delete selection
                 </a>
+
+                @if (SelectionActions != null)
+                {
+                    @SelectionActions.Invoke(SelectedItems.ToArray())
+                }
             </DropdownButton>
         </div>
     </div>
@@ -67,6 +77,7 @@
                 }
             </Template>
         </SmartColumn>
+
         @View
 
         <SmartColumn TItem="TItem">
@@ -87,12 +98,14 @@
     [Parameter] public RenderFragment View { get; set; }
     [Parameter] public Action<CrudOptions<TItem, TCreateForm, TUpdateForm>> OnConfigure { get; set; }
 
+    [Parameter] public RenderFragment<TItem[]>? SelectionActions { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+
     private CrudOptions<TItem, TCreateForm, TUpdateForm> Options = new();
 
     private SmartTable2<TItem> Table;
 
     private List<TItem> SelectedItems = new();
-
     private TItem ItemToUpdate;
 
     protected override void OnInitialized()
@@ -144,8 +157,30 @@
     private async Task RunDelete(TItem item)
     {
         await Options.DeleteFunction.Invoke(item);
-        
+
         await ToastService.Success("Successfully deleted item");
+        await RefreshView();
+    }
+
+    private async Task StartDeleteSection()
+    {
+        if (SelectedItems.Count == 0)
+            return;
+
+        await AlertService.DangerConfirm($"Do you really want to delete {SelectedItems.Count} item(s)?",
+            RunDeleteSelection,
+            "bi bi-trash3-fill"
+        );
+    }
+
+    private async Task RunDeleteSelection()
+    {
+        var count = SelectedItems.Count;
+
+        foreach (var item in SelectedItems)
+            await Options.DeleteFunction.Invoke(item);
+
+        await ToastService.Success($"Successfully deleted {count} item(s)");
         await RefreshView();
     }
 
@@ -156,7 +191,7 @@
     private async Task LaunchUpdate(TItem item)
     {
         ItemToUpdate = item;
-        
+
         await ModalService.Launch<FormModal<TUpdateForm>>(buildAttributes: parameters =>
         {
             parameters.Add("Title", "Update");

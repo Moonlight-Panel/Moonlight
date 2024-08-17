@@ -16,20 +16,6 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Target = "/",
                 RequiresExactMatch = true
             },
-            new()
-            {
-                Icon = "bi bi-hdd-rack",
-                Name = "Servers",
-                Priority = 1,
-                Target = "/servers"
-            },
-            new()
-            {
-                Icon = "bi bi-ethernet",
-                Name = "Networks",
-                Priority = 2,
-                Target = "/networks"
-            },
             
             
             
@@ -41,14 +27,6 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Group = "Admin",
                 Target = "/admin",
                 RequiresExactMatch = true
-            },
-            new()
-            {
-                Icon = "bi bi-hdd-rack",
-                Name = "Servers",
-                Priority = 1,
-                Group = "Admin",
-                Target = "/admin/servers"
             },
             new()
             {
