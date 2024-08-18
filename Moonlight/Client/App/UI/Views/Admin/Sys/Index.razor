@@ -1,0 +1,34 @@
+@page "/admin/system"
+
+@using MoonCore.Extensions
+@using MoonCore.Helpers
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Http.Resources.Admin.Sys
+
+@inject IdentityService IdentityService
+
+<Breadcrumb Names="@(["Admin", "System"])" Links="@(["/admin"])" />
+<ViewTitle Text="System information" />
+
+<LazyLoader Load="Load">
+    <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard Title="CPU Usage" Text="@(SystemInfo.CpuUsage + "%")" Icon="bi bi-cpu" />
+        <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(SystemInfo.MemoryUsage))" Icon="bi bi-memory" />
+        <StatCard Title="Host OS" Text="@(SystemInfo.OsName)" Icon="bi bi-motherboard" />
+        <StatCard Title="Uptime" Text="@(Formatter.FormatUptime(SystemInfo.Uptime))" Icon="bi bi-clock-history" />
+    </div>
+</LazyLoader>
+
+@code
+{
+    private SystemInfoResponse SystemInfo;
+    
+    private async Task Load(LazyLoader arg)
+    {
+        var response = await IdentityService.Http.GetAsync("admin/system/info");
+
+        await response.HandlePossibleApiError();
+
+        SystemInfo = await response.ParseAsJson<SystemInfoResponse>();
+    }
+}
