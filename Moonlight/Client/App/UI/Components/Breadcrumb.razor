@@ -1,0 +1,51 @@
+<nav class="flex" aria-label="Breadcrumb">
+    <ol role="list" class="flex items-center space-x-4">
+        @for (var i = 0; i < Names.Length; i++)
+        {
+            <li>
+                <div class="flex items-center">
+                    @if (i != 0)
+                    {
+                        <svg class="h-5 w-5 flex-shrink-0 text-gray-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd"></path>
+                        </svg>
+                    }
+                    
+                    @if (Links.Length - 1 >= i)
+                    {
+                        <a href="@(Links[i])" class="@(i == 0 ? "" : "ml-4") text-sm font-medium text-gray-400 hover:text-white">
+                            @(Names[i])
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="@(i == 0 ? "" : "ml-4") text-sm font-medium text-gray-400">
+                            @(Names[i])
+                        </div>
+                    }
+                </div>
+            </li>
+        }
+    </ol>
+</nav>
+
+@{
+    var title = "";
+
+    foreach (var name in Names.Reverse())
+    {
+        if (name == Names.First())
+            title += name + " - Moonlight";
+        else
+            title += name + " - ";
+
+    }
+}
+
+<PageTitle>@(title)</PageTitle>
+
+@code
+{
+    [Parameter] public string[] Names { get; set; }
+    [Parameter] public string[] Links { get; set; }
+}

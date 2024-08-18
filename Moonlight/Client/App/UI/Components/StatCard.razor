@@ -1,0 +1,25 @@
+<div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+    <div>
+        @if (!string.IsNullOrEmpty(Icon))
+        {
+            <div class="absolute rounded-md p-3 @(IconColor)">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="@(Icon) text-2xl text-white"></i>
+                </div>
+            </div>
+        }
+        <p class="@(string.IsNullOrEmpty(Icon) ? "ml-2" : "ml-16") truncate text-sm font-medium text-slate-500">@(Title)</p>
+    </div>
+    
+    <div class="@(string.IsNullOrEmpty(Icon) ? "ml-2" : "ml-16") flex items-baseline">
+        <p class="text-2xl font-semibold text-white">@(Text)</p>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public string IconColor { get; set; } = "bg-indigo-500";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Text { get; set; } = "";
+}
