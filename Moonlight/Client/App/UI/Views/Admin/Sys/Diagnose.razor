@@ -1,0 +1,32 @@
+@page "/admin/system/diagnose"
+
+<Breadcrumb Names="@(["Admin", "System", "Diagnose"])" Links="@(["/admin", "/admin/system"])" />
+
+<div class="mt-3">
+    <NavTabs Index="1" TextSize="text-base" Names="@(["System information", "Diagnose"])" Links="@(["/admin/system", "/admin/system/diagnose"])" />
+</div>
+
+<div class="mt-5 gap-5 grid grid-cols-1 sm:grid-cols-2">
+    <div class="p-6 rounded-lg shadow bg-slate-800">
+        <p class="font-normal text-white">
+            If you encounter a problem with moonlight, find a bug or need help with the configuration, you can use the diagnose report to let the moonlight developers know, what you have configured, what errors occured, what version of moonlight you are using and many more. These diagnose reports automatically censor sensitive data.
+        </p>
+        <p class="mt-3 text-red-500 font-bold">
+            Note: Only share these reports with the moonlight developers. Even though we do our best to censor sensitive data it may still contain information you dont want a random person on the internet to know
+        </p>
+    </div>
+
+    <div class="p-6 rounded-lg shadow bg-slate-800">
+        <WButton CssClasses="bg-indigo-600 hover:bg-indigo-700 w-full" OnClick="GenerateDiagnoseReport">
+            <span class="text-center">Generate diagnose report</span>
+        </WButton>
+    </div>
+</div>
+
+@code
+{
+    private async Task GenerateDiagnoseReport(WButton button)
+    {
+        
+    }
+}

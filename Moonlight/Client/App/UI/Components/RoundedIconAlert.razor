@@ -1,0 +1,15 @@
+<div class="text-center">
+    <div class="rounded-full p-5 h-20 w-20 @(Color)">
+        <i class="@(Icon) text-4xl text-white"></i>
+    </div>
+    <h3 class="mt-2 font-semibold text-white text-lg">@(Title)</h3>
+    <p class="mt-1 text-gray-300">@(Description)</p>
+</div>
+
+@code
+{
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public string Color { get; set; } = "";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Description { get; set; } = "";
+}

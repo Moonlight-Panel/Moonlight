@@ -1,0 +1,31 @@
+<div class="@(TextSize) font-medium text-center border-b text-slate-300 border-slate-700">
+    <ul class="flex flex-wrap -mb-px">
+
+        @for (var i = 0; i < Names.Length; i++)
+        {
+            <li class="me-2">
+
+                @if (i == Index)
+                {
+                    <a href="@(Links[i])" class="inline-block p-4 border-b-2 rounded-t-lg active text-indigo-500 border-indigo-500" aria-current="page">
+                        @(Names[i])
+                    </a>
+                }
+                else
+                {
+                    <a href="@(Links[i])" class="inline-block p-4 border-transparent rounded-t-lg hover:text-white">
+                        @(Names[i])
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+</div>
+
+@code
+{
+    [Parameter] public string[] Names { get; set; } = [];
+    [Parameter] public string[] Links { get; set; } = [];
+    [Parameter] public int Index { get; set; }
+    [Parameter] public string TextSize { get; set; } = "text-sm";
+}

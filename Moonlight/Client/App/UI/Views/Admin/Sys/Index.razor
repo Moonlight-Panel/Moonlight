@@ -8,10 +8,13 @@
 @inject IdentityService IdentityService
 
 <Breadcrumb Names="@(["Admin", "System"])" Links="@(["/admin"])" />
-<ViewTitle Text="System information" />
+
+<div class="mt-3">
+    <NavTabs Index="0" TextSize="text-base" Names="@(["System information", "Diagnose"])" Links="@(["/admin/system", "/admin/system/diagnose"])" />
+</div>
 
 <LazyLoader Load="Load">
-    <div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-5 gap-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard Title="CPU Usage" Text="@(SystemInfo.CpuUsage + "%")" Icon="bi bi-cpu" />
         <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(SystemInfo.MemoryUsage))" Icon="bi bi-memory" />
         <StatCard Title="Host OS" Text="@(SystemInfo.OsName)" Icon="bi bi-motherboard" />
