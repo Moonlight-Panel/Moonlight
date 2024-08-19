@@ -7,25 +7,39 @@
 
 @inject IdentityService IdentityService
 
-<Breadcrumb Names="@(["Admin", "System"])" Links="@(["/admin"])" />
+<Breadcrumb Names="@( ["Admin", "System"])" Links="@( ["/admin"])"/>
 
 <div class="mt-3">
-    <NavTabs Index="0" TextSize="text-base" Names="@(["System information", "Diagnose"])" Links="@(["/admin/system", "/admin/system/diagnose"])" />
+    <NavTabs Index="0" TextSize="text-base" Names="@( ["System information", "Diagnose", "Configuration"])" Links="@( ["/admin/system", "/admin/system/diagnose", "/admin/system/config"])"/>
 </div>
 
 <LazyLoader Load="Load">
     <div class="mt-5 gap-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard Title="CPU Usage" Text="@(SystemInfo.CpuUsage + "%")" Icon="bi bi-cpu" />
-        <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(SystemInfo.MemoryUsage))" Icon="bi bi-memory" />
-        <StatCard Title="Host OS" Text="@(SystemInfo.OsName)" Icon="bi bi-motherboard" />
-        <StatCard Title="Uptime" Text="@(Formatter.FormatUptime(SystemInfo.Uptime))" Icon="bi bi-clock-history" />
+        <StatCard Title="CPU Usage" Text="@(SystemInfo.CpuUsage + "%")" Icon="bi bi-cpu"/>
+        <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(SystemInfo.MemoryUsage))" Icon="bi bi-memory"/>
+        <StatCard Title="Host OS" Text="@(SystemInfo.OsName)" Icon="bi bi-motherboard"/>
+        <StatCard Title="Uptime" Text="@(Formatter.FormatUptime(SystemInfo.Uptime))" Icon="bi bi-clock-history"/>
+        
+        <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-6 pt-5 shadow">
+            <div>
+                <div class="absolute rounded-md p-3 bg-red-500">
+                    <div class="h-6 w-6 flex justify-center items-center">
+                        <i class="bi bi-arrow-repeat text-2xl text-white"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ml-16 flex items-center">
+                <WButton CssClasses="bg-red-500 hover:bg-red-600 w-full">Restart</WButton>
+            </div>
+        </div>
     </div>
 </LazyLoader>
 
 @code
 {
     private SystemInfoResponse SystemInfo;
-    
+
     private async Task Load(LazyLoader arg)
     {
         var response = await IdentityService.Http.GetAsync("admin/system/info");
