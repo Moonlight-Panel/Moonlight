@@ -15,7 +15,7 @@
                 if (CurrentPage == page)
                 {
                     <li class="me-2">
-                        <a @onclick:preventDefault href="#" class="inline-block p-4 border-b-2 rounded-t-lg active text-blue-500 border-blue-500" aria-current="page">
+                        <a @onclick:preventDefault href="#" class="inline-block p-4 border-b-2 rounded-t-lg active text-indigo-500 border-indigo-500" aria-current="page">
                             @(string.IsNullOrEmpty(page.Name) ? "General" : page.Name)
                         </a>
                     </li>
@@ -37,15 +37,17 @@
 {
     foreach (var section in CurrentPage.Sections)
     {
-        <div class="@(section != CurrentPage.Sections.Last() ? "border-b border-slate-100/10 pb-12" : "") mt-5">
-            @if (!string.IsNullOrEmpty(section.Title))
-            {
+        <div class="@(section != CurrentPage.Sections.Last() ? "border-b border-slate-100/10 pb-12 mb-5" : "")">
+            <div class="@(section != CurrentPage.DefaultSection ? "mb-8" : "")">
+                @if (!string.IsNullOrEmpty(section.Title))
+                {
                 <h2 class="text-base font-semibold leading-7 text-slate-100">@(section.Title)</h2>
-            }
-            @if (!string.IsNullOrEmpty(section.Description))
-            {
+                }
+                @if (!string.IsNullOrEmpty(section.Description))
+                {
                 <p class="mt-1 text-sm leading-6 text-slate-400">@(section.Description)</p>
-            }
+                }
+            </div>
 
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 @foreach (var property in section.Properties)

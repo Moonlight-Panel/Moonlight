@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Database.Entities;
 using Moonlight.ApiServer.App.Helpers.Database;
+using Moonlight.Shared.Models;
 
 namespace Moonlight.ApiServer.App.Database;
 

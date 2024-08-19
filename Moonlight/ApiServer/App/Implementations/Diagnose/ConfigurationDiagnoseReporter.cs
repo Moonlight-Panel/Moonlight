@@ -1,9 +1,9 @@
 using System.IO.Compression;
 using System.Text.Json;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Extensions;
 using Moonlight.ApiServer.App.Interfaces;
+using Moonlight.Shared.Models;
 
 namespace Moonlight.ApiServer.App.Implementations.Diagnose;
 

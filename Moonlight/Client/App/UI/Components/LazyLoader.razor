@@ -56,6 +56,11 @@ else
         if (!firstRender)
             return;
 
+        await DoLoad();
+    }
+
+    private async Task DoLoad()
+    {
         try
         {
             await Load.Invoke(this);
@@ -83,5 +88,14 @@ else
     {
         LoadingText = text;
         await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task Reload()
+    {
+        IsFailed = false;
+        IsLoading = true;
+        await InvokeAsync(StateHasChanged);
+
+        await DoLoad();
     }
 }

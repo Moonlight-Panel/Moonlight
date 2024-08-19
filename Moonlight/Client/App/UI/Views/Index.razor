@@ -33,7 +33,7 @@
             <SmartGeneratedForm Model="Form" OnConfigure="OnConfigure" />
 
             <div class="mt-5">
-                <button type="submit" class="rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Submit</button>
+                <button type="submit" class="rounded-md px-3 py-2 text-sm text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Submit</button>
             </div>
         </div>
     </SmartForm>
@@ -64,13 +64,13 @@
 
         options
             .DefaultPage
-            .DefaultSection
+            .WithSection("aqaqa", "aqqaqaqa", "aqaqaqaqa")
             .AddProperty(x => x.SomeNiceInt)
             .WithComponent<ByteSizeComponent>();
         
         options
             .DefaultPage
-            .DefaultSection
+            .WithSection("Testy", "hsjdhjasjdsjad", "hskhdsdhjsd")
             .AddProperty(x => x.SomeNiceBool)
             .WithDescription("OwO ara ara uwu uwu");
 

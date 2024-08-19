@@ -1,4 +1,4 @@
-﻿namespace Moonlight.ApiServer.App.Configuration;
+﻿namespace Moonlight.Shared.Models;
 
 public class AppConfiguration
 {

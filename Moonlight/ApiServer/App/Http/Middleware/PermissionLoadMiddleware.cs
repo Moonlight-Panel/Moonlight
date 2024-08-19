@@ -2,9 +2,9 @@ using System.Text.Json;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Database.Entities;
 using Moonlight.ApiServer.App.Extensions;
+using Moonlight.Shared.Models;
 
 namespace Moonlight.ApiServer.App.Http.Middleware;
 

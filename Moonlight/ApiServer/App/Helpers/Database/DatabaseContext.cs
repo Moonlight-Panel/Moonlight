@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MoonCore.Helpers;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
+using Moonlight.Shared.Models;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace Moonlight.ApiServer.App.Helpers.Database;

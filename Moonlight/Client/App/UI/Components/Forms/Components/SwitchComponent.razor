@@ -1,6 +1,6 @@
 @inherits BaseSmartFormComponent<bool>
 
 <label class="inline-flex items-center cursor-pointer">
-    <input type="checkbox" value="" class="sr-only peer">
+    <input @bind="Binder.Value" type="checkbox" class="sr-only peer">
     <div class="relative w-11 h-6 peer-focus:outline-none peer-focus:ring-0 rounded-full peer bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all border-slate-600 peer-checked:bg-indigo-600"></div>
 </label>

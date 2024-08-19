@@ -4,13 +4,13 @@ using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Database;
 using Moonlight.ApiServer.App.Http.Middleware;
 using Moonlight.ApiServer.App.Implementations;
 using Moonlight.ApiServer.App.Implementations.Diagnose;
 using Moonlight.ApiServer.App.Interfaces;
 using Moonlight.ApiServer.App.PluginApi;
+using Moonlight.Shared.Models;
 
 // Moonlight initialisation
 
@@ -72,8 +72,10 @@ var logConfigPath = PathBuilder.File("storage", "logConfig.json");
 
 // Ensure logging config, add a default one is missing
 if (!File.Exists(logConfigPath))
+{
     await File.WriteAllTextAsync(logConfigPath,
         "{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\"}}");
+}
 
 builder.Logging.AddConfiguration(await File.ReadAllTextAsync(logConfigPath));
 

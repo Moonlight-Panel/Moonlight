@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Models;
+using Moonlight.Shared.Models;
 
 namespace Moonlight.ApiServer.App.Http.Controllers;
 

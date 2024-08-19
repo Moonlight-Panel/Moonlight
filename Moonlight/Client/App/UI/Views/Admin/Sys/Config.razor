@@ -1,0 +1,202 @@
+@page "/admin/system/config"
+
+@using System.ComponentModel
+@using System.Reflection
+@using MoonCore.Extensions
+@using Moonlight.Client.App.Models.Forms
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Models
+@using Moonlight.Client.App.UI.Components.Forms
+
+@inject IdentityService IdentityService
+@inject ToastService ToastService
+@inject ILogger<Config> Logger
+
+<Breadcrumb Names="@( ["Admin", "System", "Configuration"])" Links="@( ["/admin", "/admin/system"])"/>
+
+<div class="mt-3">
+    <NavTabs Index="2" TextSize="text-base" Names="@( ["System information", "Diagnose", "Configuration"])" Links="@( ["/admin/system", "/admin/system/diagnose", "/admin/system/config"])"/>
+</div>
+
+<div class="mt-5">
+    <LazyLoader @ref="ConfigLoader" Load="LoadConfiguration">
+        @if (CurrentModel != null)
+        {
+            <SmartForm Model="CurrentModel" OnSubmit="OnSubmit">
+                <div class="grid gap-5 grid-cols-1 sm:grid-cols-4">
+                    <LazyLoader @ref="FormLoader" Load="LoadForm">
+                        <div class="p-6 rounded-lg shadow bg-slate-800 col-span-1">
+                            <div class="flex flex-col">
+                                @if (!string.IsNullOrEmpty(Section))
+                                {
+                                    var parts = Section.Split("/").Where(x => !string.IsNullOrEmpty(x)).SkipLast(1).ToArray();
+                                    var url = "/admin/system/config?section=" + string.Join("/", parts);
+
+                                    <a href="@(url)" class="text-blue-500 mb-3">Back</a>
+                                }
+
+                                @foreach (var subItem in SubItems)
+                                {
+                                    <a href="/admin/system/config?section=@(Section + "/" + subItem.Name)" class="text-blue-500">@subItem.Name</a>
+                                }
+                            </div>
+
+                            <div class="mt-5 flex justify-end">
+                                <button type="submit" class="rounded-md px-3 py-2 text-sm text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Save changes</button>
+                            </div>
+                        </div>
+
+                        <div class="p-6 rounded-lg shadow bg-slate-800 col-span-3">
+                            <div class="w-full">
+                                <SmartGeneratedForm Model="CurrentModel" OnConfigure="OnConfigure"/>
+                            </div>
+                        </div>
+                    </LazyLoader>
+                </div>
+            </SmartForm>
+        }
+        else
+        {
+            <IconAlert Color="text-white"
+                       Icon="bi bi-x-circle"
+                       Title="Unknown section"
+                       Description="We were unable to find the requested section of the configuration model"/>
+        }
+    </LazyLoader>
+</div>
+
+@code
+{
+    [SupplyParameterFromQuery] public string? Section { get; set; } = "";
+
+    private AppConfiguration? Model;
+    private object? CurrentModel;
+
+    private PropertyInfo[] SubItems = [];
+
+    private LazyLoader? ConfigLoader;
+    private LazyLoader? FormLoader;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Model == null)
+            return;
+
+        ResolveSection();
+
+        if (FormLoader != null)
+            await FormLoader.Reload();
+    }
+
+    private void ResolveSection()
+    {
+        if (Section == null)
+        {
+            CurrentModel = Model;
+            return;
+        }
+
+        var parts = Section
+            .Split("/")
+            .Where(x => !string.IsNullOrEmpty(x))
+            .ToArray();
+
+        object lastSection = Model!;
+
+        foreach (var part in parts)
+        {
+            var props = lastSection.GetType().GetProperties();
+            var prop = props.FirstOrDefault(x => x.Name == part);
+
+            if (prop == null)
+            {
+                CurrentModel = null;
+                return;
+            }
+
+            lastSection = prop.GetValue(lastSection)!;
+        }
+
+        CurrentModel = lastSection;
+    }
+
+    private async Task LoadConfiguration(LazyLoader lazyLoader)
+    {
+        var response = await IdentityService.Http.GetAsync("admin/system/config");
+
+        await response.HandlePossibleApiError();
+
+        Model = await response.ParseAsJson<AppConfiguration>();
+
+        CurrentModel = Model;
+    }
+
+    private Task LoadForm(LazyLoader lazyLoader)
+    {
+        if(CurrentModel == null)
+            return Task.CompletedTask;
+        
+        SubItems = CurrentModel
+            .GetType()
+            .GetProperties()
+            .Where(x => x.PropertyType.FullName?.StartsWith("Moonlight") ?? false)
+            .ToArray();
+        
+        return Task.CompletedTask;
+    }
+
+    private void OnConfigure(SmartFormOption<object> options)
+    {
+        if(CurrentModel == null)
+            return;
+        
+        var properties = CurrentModel
+            .GetType()
+            .GetProperties()
+            .Where(x => !x.PropertyType.FullName!.StartsWith("Moonlight"))
+            .ToArray();
+
+        foreach (var property in properties)
+        {
+            // Unable to display this type => skip property
+            if (SmartFormComponentTypeMap.Get(property.PropertyType) == null)
+            {
+                Logger.LogWarning("Unable to show config property '{name}' because the type {type} is not registered in the auto component registry", property.Name, property.PropertyType.FullName);
+                continue;
+            }
+
+            var propertyOption = options.DefaultPage.DefaultSection.AddProperty(property);
+
+            var attributes = property.GetCustomAttributes().ToArray();
+
+            if (TryGetAttribute(attributes, out DescriptionAttribute descriptionAttribute))
+                propertyOption.Description = descriptionAttribute.Description;
+
+            if (TryGetAttribute(attributes, out DisplayNameAttribute displayName))
+                propertyOption.Name = displayName.DisplayName;
+        }
+    }
+
+    private static bool TryGetAttribute<T>(IEnumerable<Attribute> attributes, out T attribute) where T : Attribute
+    {
+        var targetType = typeof(T);
+
+        foreach (var attr in attributes)
+        {
+            if (attr.GetType() == targetType)
+            {
+                attribute = (T)attr;
+                return true;
+            }
+        }
+
+        attribute = default!;
+        return false;
+    }
+    
+    private async Task OnSubmit()
+    {
+        await IdentityService.Http.PostAsJsonAsync("admin/system/config", Model);
+        await ToastService.Success("Successfully saved configuration and applied changes");
+    }
+}

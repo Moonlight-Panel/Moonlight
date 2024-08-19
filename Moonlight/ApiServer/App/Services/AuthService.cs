@@ -2,10 +2,10 @@
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Services;
-using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Database.Entities;
 using Moonlight.ApiServer.App.Exceptions;
 using Moonlight.ApiServer.App.Interfaces;
+using Moonlight.Shared.Models;
 
 namespace Moonlight.ApiServer.App.Services;
 
