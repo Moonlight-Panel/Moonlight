@@ -8,12 +8,13 @@ using Moonlight.ApiServer.App.Configuration;
 using Moonlight.ApiServer.App.Database;
 using Moonlight.ApiServer.App.Http.Middleware;
 using Moonlight.ApiServer.App.Implementations;
+using Moonlight.ApiServer.App.Implementations.Diagnose;
 using Moonlight.ApiServer.App.Interfaces;
 using Moonlight.ApiServer.App.PluginApi;
 
 // Moonlight initialisation
 
-if(args.Length > 0)
+if (args.Length > 0)
     Console.WriteLine("Starting with args: " + string.Join(" ", args));
 
 // Prepare file system
@@ -30,23 +31,18 @@ var configService = new ConfigService<AppConfiguration>(
 var appConfiguration = configService.Get();
 
 // Build pre run logger
-var providers = LoggerBuildHelper.BuildFromConfiguration(new()
+var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
 {
-    Console = new()
-    {
-        Enable = true,
-        EnableAnsiMode = true
-    },
-    FileLogging = new()
-    {
-        Enable = true,
-        Path = PathBuilder.File("storage", "logs", "moonlight.log"),
-        EnableLogRotation = true,
-        RotateLogNameTemplate = PathBuilder.File("storage", "logs", "moonlight.log.{0}")
-    }
+    configuration.Console.Enable = true;
+    configuration.Console.EnableAnsiMode = true;
+
+    configuration.FileLogging.Enable = true;
+    configuration.FileLogging.Path = PathBuilder.File("storage", "logs", "moonlight.log");
+    configuration.FileLogging.EnableLogRotation = true;
+    configuration.FileLogging.RotateLogNameTemplate = PathBuilder.File("storage", "logs", "moonlight.log.{0}");
 });
 
-var preLoggerFactory = new LoggerFactory(providers);
+using var preLoggerFactory = new LoggerFactory(providers);
 var logger = preLoggerFactory.CreateLogger("Startup");
 
 // Fancy start console output... yes very fancy :>
@@ -76,7 +72,8 @@ var logConfigPath = PathBuilder.File("storage", "logConfig.json");
 
 // Ensure logging config, add a default one is missing
 if (!File.Exists(logConfigPath))
-    await File.WriteAllTextAsync(logConfigPath, "{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\"}}");
+    await File.WriteAllTextAsync(logConfigPath,
+        "{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\"}}");
 
 builder.Logging.AddConfiguration(await File.ReadAllTextAsync(logConfigPath));
 
@@ -89,7 +86,14 @@ builder.Services.AddSingleton(configService);
 builder.Services.AddSingleton<IAuthenticationProvider, DefaultAuthenticationProvider>();
 
 var pluginService = new PluginService(preLoggerFactory.CreateLogger<PluginService>(), preLoggerFactory);
+builder.Services.AddSingleton(pluginService);
 await pluginService.Load();
+
+// Integrated implementations
+pluginService.RegisterImplementation<IDiagnoseReporter, LogDiagnoseReporter>();
+pluginService.RegisterImplementation<IDiagnoseReporter, HostDiagnoseReporter>();
+pluginService.RegisterImplementation<IDiagnoseReporter, ConfigurationDiagnoseReporter>();
+pluginService.RegisterImplementation<IDiagnoseReporter, PluginDiagnoseReporter>();
 
 // Database
 logger.LogInformation("Preparing database connection");

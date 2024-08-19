@@ -11,17 +11,12 @@ using Moonlight.Client.App.PluginApi;
 using Moonlight.Client.App.UI.Components.Forms.Components;
 
 // Build pre run logger
-var providers = LoggerBuildHelper.BuildFromConfiguration(new()
+var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
 {
-    Console = new()
-    {
-        Enable = true,
-        EnableAnsiMode = true
-    },
-    FileLogging = new()
-    {
-        Enable = false
-    }
+    configuration.Console.Enable = true;
+    configuration.Console.EnableAnsiMode = true;
+
+    configuration.FileLogging.Enable = false;
 });
 
 var preLoggerFactory = new LoggerFactory(providers);

@@ -1,4 +1,8 @@
 @page "/admin/system/diagnose"
+@using Moonlight.Client.App.Services
+
+@inject IdentityService IdentityService
+@inject DownloadService DownloadService
 
 <Breadcrumb Names="@(["Admin", "System", "Diagnose"])" Links="@(["/admin", "/admin/system"])" />
 
@@ -27,6 +31,7 @@
 {
     private async Task GenerateDiagnoseReport(WButton button)
     {
-        
+        var file = await IdentityService.Http.GetStreamAsync("admin/system/diagnose");
+        await DownloadService.DownloadStream("diagnose.zip", file);
     }
 }
