@@ -10,6 +10,7 @@ using Moonlight.ApiServer.App.Implementations;
 using Moonlight.ApiServer.App.Implementations.Diagnose;
 using Moonlight.ApiServer.App.Interfaces;
 using Moonlight.ApiServer.App.PluginApi;
+using Moonlight.ApiServer.App.Services;
 using Moonlight.Shared.Models;
 
 // Moonlight initialisation
@@ -127,7 +128,12 @@ if (appConfiguration.Development.EnableApiDocs)
     }));
 }
 
+var applicationService = new ApplicationService(preLoggerFactory.CreateLogger<ApplicationService>());
+builder.Services.AddSingleton(applicationService);
+
 var app = builder.Build();
+
+applicationService.SetApplication(app);
 
 // Continue with database
 using (var scope = app.Services.CreateScope())

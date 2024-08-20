@@ -6,6 +6,7 @@
 @using Moonlight.Shared.Http.Resources.Admin.Sys
 
 @inject IdentityService IdentityService
+@inject ToastService ToastService
 
 <Breadcrumb Names="@( ["Admin", "System"])" Links="@( ["/admin"])"/>
 
@@ -30,7 +31,7 @@
             </div>
 
             <div class="ml-16 flex items-center">
-                <WButton CssClasses="bg-red-500 hover:bg-red-600 w-full">Restart</WButton>
+                <WButton OnClick="Restart" CssClasses="bg-red-500 hover:bg-red-600 w-full">Restart</WButton>
             </div>
         </div>
     </div>
@@ -47,5 +48,13 @@
         await response.HandlePossibleApiError();
 
         SystemInfo = await response.ParseAsJson<SystemInfoResponse>();
+    }
+
+    private async Task Restart(WButton _)
+    {
+        var response = await IdentityService.Http.PostAsync("admin/system/restart", null);
+        await response.HandlePossibleApiError();
+
+        await ToastService.Warning("Restart of api server requested. This will take a few seconds. Please be patient");
     }
 }
