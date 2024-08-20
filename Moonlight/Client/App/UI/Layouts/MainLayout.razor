@@ -51,7 +51,9 @@ else
         
             <main class="px-5 pt-5">
                 <SoftErrorHandler>
-                    @Body
+                    <PermissionHandler>
+                        @Body
+                    </PermissionHandler>
 
                     <ModalLaunchPoint />
                     <ToastLaunchPoint />

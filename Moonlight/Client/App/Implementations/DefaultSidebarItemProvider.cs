@@ -26,7 +26,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Priority = 0,
                 Group = "Admin",
                 Target = "/admin",
-                RequiresExactMatch = true
+                RequiresExactMatch = true,
+                Permission = "admin"
             },
             new()
             {
@@ -34,7 +35,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Name = "Users",
                 Priority = 2,
                 Group = "Admin",
-                Target = "/admin/users"
+                Target = "/admin/users",
+                Permission = "admin.users.get"
             },
             new()
             {
@@ -42,7 +44,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Name = "System",
                 Priority = 3,
                 Group = "Admin",
-                Target = "/admin/system"
+                Target = "/admin/system",
+                Permission = "admin.system.info"
             }
         ];
     }

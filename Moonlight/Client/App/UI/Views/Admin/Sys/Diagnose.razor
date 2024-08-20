@@ -5,6 +5,8 @@
 @inject IdentityService IdentityService
 @inject DownloadService DownloadService
 
+@attribute [RequirePermission("admin.system.diagnose")]
+
 <Breadcrumb Names="@(["Admin", "System", "Diagnose"])" Links="@(["/admin", "/admin/system"])" />
 
 <div class="mt-3">

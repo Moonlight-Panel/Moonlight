@@ -12,6 +12,8 @@
 @inject ToastService ToastService
 @inject ILogger<Config> Logger
 
+@attribute [RequirePermission("admin.system.config.load")]
+
 <Breadcrumb Names="@( ["Admin", "System", "Configuration"])" Links="@( ["/admin", "/admin/system"])"/>
 
 <div class="mt-3">
@@ -196,7 +198,10 @@
     
     private async Task OnSubmit()
     {
-        await IdentityService.Http.PostAsJsonAsync("admin/system/config", Model);
+        var response = await IdentityService.Http.PostAsJsonAsync("admin/system/config", Model);
+
+        await response.HandlePossibleApiError();
+        
         await ToastService.Success("Successfully saved configuration and applied changes");
     }
 }

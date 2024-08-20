@@ -8,6 +8,8 @@
 @inject IdentityService IdentityService
 @inject ToastService ToastService
 
+@attribute [RequirePermission("admin.system.info")]
+
 <Breadcrumb Names="@( ["Admin", "System"])" Links="@( ["/admin"])"/>
 
 <div class="mt-3">

@@ -49,7 +49,8 @@ public class AuthController : Controller
         return Ok(new CheckResponse()
         {
             Username = user.Username,
-            Email = user.Email
+            Email = user.Email,
+            Permissions = HttpContext.GetPermissions()
         });
     }
 }

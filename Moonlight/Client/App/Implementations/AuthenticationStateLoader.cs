@@ -27,6 +27,7 @@ public class AuthenticationStateLoader : IAppLoader
 
             identityService.Email = checkResponse.Email;
             identityService.Username = checkResponse.Username;
+            identityService.Permissions = checkResponse.Permissions;
             
             identityService.SetLoginState(true);
         }

@@ -4,12 +4,14 @@
 
 <Router AppAssembly="@typeof(BlazorApp).Assembly" AdditionalAssemblies="PluginService.PluginAssemblies">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        <CascadingValue Name="TargetPageType" Value="routeData.PageType">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        </CascadingValue>
     </Found>
     <NotFound>
         <PageTitle>Not found</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <RoundedIconAlert Color="bg-indigo-500" Icon="bi bi-window-x" Title="Page not found" Description="The page you requested could not be found" />
         </LayoutView>
     </NotFound>
 </Router>

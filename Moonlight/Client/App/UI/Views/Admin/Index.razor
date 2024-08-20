@@ -1,4 +1,7 @@
 @page "/admin"
+@using Moonlight.Client.App.Attributes
+
+@attribute [RequirePermission("admin")]
 
 <Breadcrumb Names="@(["Admin", "Overview"])" />
 <ViewTitle Text="Overview" />

@@ -121,6 +121,7 @@
     {
         Items = PluginService.GetImplementations<ISidebarItemProvider>()
             .SelectMany(x => x.GetItems())
+            .Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
             .GroupBy(x => x.Group)
             .OrderByDescending(x => string.IsNullOrEmpty(x.Key))
             .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Priority).ToArray());
