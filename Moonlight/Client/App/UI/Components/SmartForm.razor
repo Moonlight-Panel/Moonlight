@@ -65,7 +65,15 @@
         }
         catch (HttpApiException e)
         {
-            ErrorMessages.Add(e.Title);
+            // If we are no longer logged in, we want to redirect this exception to the SoftErrorHandler
+            if (e.Status == 401)
+                throw;
+            
+            // Every other api error will be handled here
+            if(string.IsNullOrEmpty(e.Detail))
+                ErrorMessages.Add(e.Title);
+            else
+                ErrorMessages.Add($"{e.Title}: {e.Detail}");
 
             if (e.Errors.Count > 0)
             {

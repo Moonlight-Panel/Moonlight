@@ -26,7 +26,7 @@ public class PermissionCheckMiddleware
             {
                 var requiredPermissions = e.RequiredPermissions;
             
-                if (requiredPermissions.Length == 1 && requiredPermissions[0] == "meta.authenticated")
+                if (requiredPermissions.Length == 1 && requiredPermissions[0] == "meta.authenticated" || context.GetCurrentUserNullable() == null)
                 {
                     await Results.Problem(
                         title: "You need to be logged in in order to use this endpoint",

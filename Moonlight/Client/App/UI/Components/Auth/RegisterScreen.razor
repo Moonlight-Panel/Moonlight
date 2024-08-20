@@ -76,7 +76,7 @@
 
         await CookieService.SetValue("ml-token", response.Token, 10);
 
-        await Events.Invoke("RequestProcessScreens");
+        await Events.Invoke("RequestLayoutRefresh");
         
         Navigation.NavigateTo("/");
     }

@@ -78,7 +78,7 @@
         </tr>
         </thead>
 
-        @if (TotalItemsCount != 0)
+        @if (!isSpecialBody && TotalItemsCount != 0)
         {
             var i = 1;
 
@@ -107,6 +107,7 @@
         }
     </table>
 </div>
+
 @if (isSpecialBody)
 {
     <div class="bg-slate-800 rounded-b-lg">
@@ -196,7 +197,7 @@
 @code
 {
     [Parameter] public RenderFragment ChildContent { get; set; }
-    
+
     [Parameter] public Func<int, int, Task<PagedResponse<TItem>>> ItemsCallback { get; set; }
 
     [Parameter] public RenderFragment? NoItemView { get; set; }
@@ -234,7 +235,7 @@
         TotalPages = response.TotalPages;
         TotalItemsCount = response.TotalItems;
         CurrentItems = response.Items;
-        
+
         IsLoading = false;
         await InvokeAsync(StateHasChanged);
     }

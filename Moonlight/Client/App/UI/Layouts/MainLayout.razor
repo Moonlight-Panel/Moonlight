@@ -80,14 +80,14 @@ else
         if(!firstRender)
             return;
 
-        var loaders = PluginService.GetImplementations<IAppLoader>();
-
-        foreach (var loader in loaders)
-            await loader.Load(ServiceProvider);
-
+        await ProcessLoaders();
         await ProcessScreens();
 
-        Events.On("RequestProcessScreens", ProcessScreens);
+        Events.On("RequestLayoutRefresh", async () =>
+        {
+            await ProcessLoaders();
+            await ProcessScreens();
+        });
 
         Navigation.LocationChanged += async (_, _) =>
         {
@@ -96,6 +96,14 @@ else
         
         IsLoading = false;
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ProcessLoaders()
+    {
+        var loaders = PluginService.GetImplementations<IAppLoader>();
+
+        foreach (var loader in loaders)
+            await loader.Load(ServiceProvider);
     }
 
     private async Task ProcessScreens()

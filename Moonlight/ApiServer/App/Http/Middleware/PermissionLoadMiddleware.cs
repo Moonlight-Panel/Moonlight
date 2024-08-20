@@ -4,6 +4,7 @@ using MoonCore.Extended.Helpers;
 using MoonCore.Services;
 using Moonlight.ApiServer.App.Database.Entities;
 using Moonlight.ApiServer.App.Extensions;
+using Moonlight.ApiServer.App.Interfaces;
 using Moonlight.Shared.Models;
 
 namespace Moonlight.ApiServer.App.Http.Middleware;
@@ -42,16 +43,34 @@ public class PermissionLoadMiddleware
 
         var jwtData = await jwtHelper.Decode(secret, headerValue);
         
+        // UserId
         if(!jwtData.TryGetValue("UserId", out var userIdText))
             return;
         
         if(!int.TryParse(userIdText, out var userId))
             return;
+        
+        // Issued At
+        if(!jwtData.TryGetValue("iat", out var issuedAtText))
+            return;
+        
+        if(!int.TryParse(issuedAtText, out var issuedAtTimestamp))
+            return;
 
+        // Load user data
         var userRepo = context.RequestServices.GetRequiredService<DatabaseRepository<User>>();
         var user = userRepo.Get().FirstOrDefault(x => x.Id == userId);
         
         if(user == null)
+            return;
+        
+        // Token valid timestamp
+        var provider = context.RequestServices.GetRequiredService<IAuthenticationProvider>();
+        var tokenValidTime = await provider.GetTokenValidTimestamp(context.RequestServices, user.Id);
+        var issuedAt = DateTimeOffset.FromUnixTimeSeconds(issuedAtTimestamp).DateTime;
+        
+        // Check if the token is in the past compared to the timestamp after which all tokens become valid
+        if(tokenValidTime > issuedAt)
             return;
         
         context.SetCurrentUser(user);

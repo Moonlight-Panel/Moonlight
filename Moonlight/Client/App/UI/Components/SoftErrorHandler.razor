@@ -1,8 +1,10 @@
 @using System.Diagnostics
 @using MoonCore.Exceptions
+@using MoonCore.Services
 @using Moonlight.Client.App.Exceptions
 
 @inject ILogger<SoftErrorHandler> Logger
+@inject EventService EventService
 
 @inherits ErrorBoundaryBase
 
@@ -42,6 +44,13 @@ else
         }
         else if (exception is HttpApiException apiException)
         {
+            if (apiException.Status == 401) // Handle logout / expired token
+            {
+                Recover();
+                await EventService.Invoke("RequestLayoutRefresh");
+                return;
+            }
+            
             await AddMessage(apiException.Title);
             
             if(!string.IsNullOrEmpty(apiException.Detail))
