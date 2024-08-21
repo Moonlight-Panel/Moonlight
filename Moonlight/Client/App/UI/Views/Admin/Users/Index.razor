@@ -12,16 +12,21 @@
 
 @attribute [RequirePermission("admin.users.get")]
 
-<SmartCrud TItem="DetailUserResponse"
-           TCreateForm="CreateUserRequest"
-           TUpdateForm="UpdateUserRequest"
-           OnConfigure="OnConfigure">
-    <View>
-        <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Id)" Title="Id" />
-        <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Username)" Title="Username" />
-        <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Email)" Title="Email" />
-    </View>
-</SmartCrud>
+<Breadcrumb Names="@(["Admin", "Users"])" Links="@(["/admin"])" />
+<ViewTitle Text="Users" />
+
+<div class="mt-5">
+    <SmartCrud TItem="DetailUserResponse"
+               TCreateForm="CreateUserRequest"
+               TUpdateForm="UpdateUserRequest"
+               OnConfigure="OnConfigure">
+        <View>
+            <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Id)" Title="Id" />
+            <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Username)" Title="Username" />
+            <SmartColumn TItem="DetailUserResponse" Field="@(x => x.Email)" Title="Email" />
+        </View>
+    </SmartCrud>
+</div>
 
 @code
 {

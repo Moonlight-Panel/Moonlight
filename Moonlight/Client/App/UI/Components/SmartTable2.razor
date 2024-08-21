@@ -27,7 +27,7 @@
 
 <div class="overflow-x-auto @(tableRounding)">
     <table class="w-full text-sm text-left rtl:text-right text-slate-100">
-        <thead class="text-xs uppercase bg-slate-700 text-slate-400">
+        <thead class="bg-slate-700 text-slate-400">
         <tr>
             @if (IsLoading)
             {
@@ -38,25 +38,25 @@
                 foreach (var column in Columns)
                 {
                     <th scope="col" class="@(column.HeadCssClasses ?? "px-6 py-2")">
-                        <div class="flex items-center">
-                            @if (column.HeadTemplate == null)
-                            {
+                        @if (column.HeadTemplate == null)
+                        {
+                            <div class="flex items-center">
                                 @column.Title
 
-                                if (column.Sortable)
+                                @if (column.Sortable)
                                 {
                                     <a @onclick:preventDefault @onclick="() => TriggerSorting(column)" href="#" class="pl-1">
                                         <i class="bx bx-sort-alt-2 text-base align-middle @(column.SortingEnabled ? "text-slate-900 text-white" : "")"></i>
                                     </a>
                                 }
 
-                                if (column.Filterable)
+                                @if (column.Filterable)
                                 {
                                     <a @onclick:preventDefault @onclick="() => ToggleShowFilter(column)" href="#" class="pl-1">
                                         <i class="bx bx-search-alt text-base align-middle @(string.IsNullOrEmpty(column.Filter) ? "" : "text-slate-900 text-white")"></i>
                                     </a>
 
-                                    if (column.ShowFilter)
+                                    @if (column.ShowFilter)
                                     {
                                         <div class="translate-y-20 normal-case font-normal absolute z-10 w-48 p-3  rounded-lg shadow bg-slate-700 block">
                                             <h6 class="mb-3 text-sm font-medium  text-white">Set filter</h6>
@@ -66,12 +66,12 @@
                                         </div>
                                     }
                                 }
-                            }
-                            else
-                            {
-                                @column.HeadTemplate
-                            }
-                        </div>
+                            </div>
+                        }
+                        else
+                        {
+                            @column.HeadTemplate
+                        }
                     </th>
                 }
             }
