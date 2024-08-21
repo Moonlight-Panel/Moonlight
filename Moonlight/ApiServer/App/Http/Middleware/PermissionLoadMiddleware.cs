@@ -110,7 +110,7 @@ public class PermissionLoadMiddleware
             return Task.CompletedTask;
 
         if (apiKey.ExpireDate < DateTime.UtcNow)
-            throw new ApiException($"This api key is expired at {Formatter.FormatDate(apiKey.ExpireDate)}", statusCode: 401);
+            throw new ApiException($"This api key expired at {Formatter.FormatDate(apiKey.ExpireDate)}", statusCode: 401);
         
         // Load permissions
         var permissionsJson = string.IsNullOrEmpty(apiKey.PermissionsJson) ? "[]" : apiKey.PermissionsJson;
