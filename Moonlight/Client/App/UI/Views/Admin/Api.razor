@@ -11,7 +11,7 @@
 @inject IdentityService IdentityService
 @inject AlertService AlertService
 
-@attribute [RequirePermission("admin.api")]
+@attribute [RequirePermission("admin.apikeys.get")]
 
 <Breadcrumb Names="@(["Admin", "API"])" Links="@(["/admin"])" />
 <ViewTitle Text="API" />

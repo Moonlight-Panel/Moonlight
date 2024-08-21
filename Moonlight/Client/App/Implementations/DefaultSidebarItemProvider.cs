@@ -45,7 +45,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Priority = 3,
                 Group = "Admin",
                 Target = "/admin/api",
-                Permission = "admin.api"
+                Permission = "admin.apikeys.get"
             },
             new()
             {
