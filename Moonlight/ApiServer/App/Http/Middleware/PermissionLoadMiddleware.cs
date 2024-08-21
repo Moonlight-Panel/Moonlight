@@ -1,8 +1,10 @@
 using System.Text.Json;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
+using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.ApiServer.App.Database.Entities;
+using Moonlight.ApiServer.App.Exceptions;
 using Moonlight.ApiServer.App.Extensions;
 using Moonlight.ApiServer.App.Interfaces;
 using Moonlight.Shared.Models;
@@ -34,14 +36,22 @@ public class PermissionLoadMiddleware
         if(string.IsNullOrEmpty(headerValue))
             return;
 
+        if (headerValue.StartsWith("api_"))
+            await HandleApiKey(headerValue, context);
+        else
+            await HandleUser(headerValue, context);
+    }
+
+    private async Task HandleUser(string authHeaderValue, HttpContext context)
+    {
         var jwtHelper = context.RequestServices.GetRequiredService<JwtHelper>();
         var configService = context.RequestServices.GetRequiredService<ConfigService<AppConfiguration>>();
         var secret = configService.Get().Security.Token;
         
-        if(!await jwtHelper.Validate(secret, headerValue, "userLogin"))
+        if(!await jwtHelper.Validate(secret, authHeaderValue, "userLogin"))
             return;
 
-        var jwtData = await jwtHelper.Decode(secret, headerValue);
+        var jwtData = await jwtHelper.Decode(secret, authHeaderValue);
         
         // UserId
         if(!jwtData.TryGetValue("UserId", out var userIdText))
@@ -82,8 +92,31 @@ public class PermissionLoadMiddleware
         // Add meta permissions
         var finalPermissions = usersPermissions.Concat(
             ["meta.authenticated"]
-        ).ToArray();
+        ).ToArray(); //TODO: Find a better way to do that. This looks kinda inefficient
         
         context.SetPermissions(finalPermissions);
+    }
+    
+    private Task HandleApiKey(string authHeaderValue, HttpContext context)
+    {
+        // This check prevents unfiltered database searches for a specific api key which could led to a DOS attack vector
+        if (authHeaderValue.Length > 40)
+            return Task.CompletedTask; // throw new ApiException("API Key cannot be longer than 32 characters", statusCode: 413);
+        
+        var apiKeyRepo = context.RequestServices.GetRequiredService<DatabaseRepository<ApiKey>>();
+        var apiKey = apiKeyRepo.Get().FirstOrDefault(x => x.Key == authHeaderValue);
+        
+        if(apiKey == null)
+            return Task.CompletedTask;
+
+        if (apiKey.ExpireDate < DateTime.UtcNow)
+            throw new ApiException($"This api key is expired at {Formatter.FormatDate(apiKey.ExpireDate)}", statusCode: 401);
+        
+        // Load permissions
+        var permissionsJson = string.IsNullOrEmpty(apiKey.PermissionsJson) ? "[]" : apiKey.PermissionsJson;
+        var permissions = JsonSerializer.Deserialize<string[]>(permissionsJson) ?? [];
+        
+        context.SetPermissions(permissions);
+        return Task.CompletedTask;
     }
 }
