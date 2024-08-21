@@ -40,7 +40,7 @@ public class PluginService
 
         if (dllFiles.Length == 0)
         {
-            Logger.LogInformation("No plugins found in the plugins file");
+            Logger.LogInformation("No plugins found in the plugins manifest");
             return;
         }
 
