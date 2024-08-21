@@ -11,6 +11,7 @@ public class CoreDataContext : DatabaseContext
     public override string Prefix => "Core";
 
     public DbSet<User> Users { get; set; }
+    public DbSet<ApiKey> ApiKeys { get; set; }
 
     public CoreDataContext()
     {

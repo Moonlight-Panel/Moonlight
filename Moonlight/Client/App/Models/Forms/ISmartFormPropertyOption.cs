@@ -13,4 +13,5 @@ public interface ISmartFormPropertyOption
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int? Columns { get; set; }
+    public object? DefaultValue { get; set; }
 }

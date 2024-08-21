@@ -6,4 +6,5 @@ public class ModalLaunchItem
 {
     public string Id { get; set; }
     public RenderFragment Render { get; set; }
+    public string Size { get; set; }
 }

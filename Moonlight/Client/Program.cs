@@ -28,6 +28,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 SmartFormComponentTypeMap.Set<string, StringComponent>();
 SmartFormComponentTypeMap.Set<int, IntComponent>();
 SmartFormComponentTypeMap.Set<bool, SwitchComponent>();
+SmartFormComponentTypeMap.Set<DateTime, DateComponent>();
 
 // Plugins
 var pluginService = new PluginService(preLoggerFactory.CreateLogger<PluginService>(), preLoggerFactory);

@@ -1,6 +1,161 @@
 @page "/admin/api"
+@using MoonCore.Extensions
+@using MoonCore.Helpers
+@using Moonlight.Client.App.Models.Crud
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Http.Requests.Admin.ApiKeys
+@using Moonlight.Shared.Http.Resources
+@using Moonlight.Shared.Http.Resources.Admin.ApiKeys
+
+@inject IdentityService IdentityService
+@inject AlertService AlertService
 
 @attribute [RequirePermission("admin.api")]
 
 <Breadcrumb Names="@(["Admin", "API"])" Links="@(["/admin"])" />
 <ViewTitle Text="API" />
+
+<div class="mt-5 gap-5 grid grid-cols-1 lg:grid-cols-3">
+    <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+        <div>
+            <p class="ml-2 truncate text-sm font-medium text-slate-500">Lookup all available endpoints and models</p>
+        </div>
+
+        <div class="ml-2 flex items-baseline">
+            <p class="text-2xl font-semibold text-white">
+                <a href="/apidocs" target="_blank" class="text-blue-500">Api reference<i class="bi bi-box-arrow-up-right ml-1 inline-block"></i></a>
+            </p>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+        <div>
+            <p class="ml-2 truncate text-sm font-medium text-slate-500">Find out how to use this api</p>
+        </div>
+
+        <div class="ml-2 flex items-baseline">
+            <p class="text-2xl font-semibold text-white">
+                <a href="https://docs.moonlightpanel.xyz" target="_blank" class="text-blue-500">Documentation<i class="bi bi-box-arrow-up-right ml-1 inline-block"></i></a>
+            </p>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+        <div>
+            <p class="ml-2 truncate text-sm font-medium text-slate-500">Generate api clients using this specification</p>
+        </div>
+
+        <div class="ml-2 flex items-baseline">
+            <p class="text-2xl font-semibold text-white">
+                <a href="/apidocs/swagger/main" target="_blank" class="text-blue-500">Open API Specification<i class="bi bi-box-arrow-up-right ml-1 inline-block"></i></a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <SmartCrud TItem="DetailApiKeyResponse"
+               TCreateForm="CreateApiKeyRequest"
+               TUpdateForm="UpdateApiKeyRequest"
+               OnConfigure="OnConfigure">
+        <View>
+            <SmartColumn TItem="DetailApiKeyResponse" Field="@(x => x.Name)" Title="Name" />
+            <SmartColumn TItem="DetailApiKeyResponse" Field="@(x => x.Description)" Title="Description" />
+            <SmartColumn TItem="DetailApiKeyResponse" Field="@(x => x.ExpireDate)" Title="Expire date">
+                <Template>
+                    @(Formatter.FormatDate(context.ExpireDate))
+                </Template>
+            </SmartColumn>
+        </View>
+    </SmartCrud>
+</div>
+
+@code
+{
+    private void OnConfigure(CrudOptions<DetailApiKeyResponse, CreateApiKeyRequest, UpdateApiKeyRequest> options)
+    {
+        options.Loader = async (page, pageSize) =>
+        {
+            var response = await IdentityService.Http.GetAsync($"admin/apikeys?page={page}&pageSize={pageSize}");
+
+            await response.HandlePossibleApiError();
+
+            return await response.ParseAsJson<PagedResponse<DetailApiKeyResponse>>();
+        };
+
+        options.CreateFunction = async request =>
+        {
+            var response = await IdentityService.Http.PostAsJsonAsync("admin/apikeys", request);
+
+            await response.HandlePossibleApiError();
+
+            var result = await response.ParseAsJson<CreateApiKeyResponse>();
+
+            await AlertService.Success("API Key successfully created", $"The api key is: \"{result.Key}\". This key wont be shown again");
+        };
+
+        options.UpdateFunction = async (request, item) =>
+        {
+            var response = await IdentityService.Http.PatchAsJsonAsync($"admin/apikeys/{item.Id}", request);
+
+            await response.HandlePossibleApiError();
+        };
+
+        options.DeleteFunction = async item =>
+        {
+            var response = await IdentityService.Http.DeleteAsync($"admin/apikeys/{item.Id}");
+
+            await response.HandlePossibleApiError();
+        };
+
+        options.OnConfigureCreate = option =>
+        {
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Name);
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Description);
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.PermissionsJson)
+                .WithDefaultValue("[]");
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.ExpireDate)
+                .WithDefaultValue(DateTime.UtcNow.AddMonths(1));
+        };
+
+        options.OnConfigureUpdate = option =>
+        {
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Name);
+
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.Description);
+
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.PermissionsJson)
+                .WithDefaultValue("[]");
+
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.ExpireDate)
+                .WithDefaultValue(DateTime.UtcNow.AddMonths(1));
+        };
+    }
+}

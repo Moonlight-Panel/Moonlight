@@ -15,7 +15,7 @@
     <SmartTable2 @ref="Table" TItem="TItem" ItemsCallback="Options.Loader">
         <SmartColumn TItem="TItem" HeadCssClasses="pl-2 w-5" CssClasses="pl-2 w-5">
             <HeadTemplate>
-                @if (SelectedItems.Count == Table.CurrentItems.Length)
+                @if (SelectedItems.Count == Table.CurrentItems.Length && Table.CurrentItems.Length != 0)
                 {
                     <input @onclick="() => ChangeAllSelection(false)" checked="checked" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
                 }
@@ -115,7 +115,7 @@
             parameters.Add("Form", Activator.CreateInstance<TCreateForm>()!);
             parameters.Add("OnConfigure", Options.OnConfigureCreate);
             parameters.Add("OnSubmit", (Func<TCreateForm, Task>)RunCreate);
-        });
+        }, size: "2xl");
     }
 
     private async Task RunCreate(TCreateForm form)
@@ -182,7 +182,7 @@
             parameters.Add("Form", Mapper.Map<TUpdateForm>(item!)!);
             parameters.Add("OnConfigure", Options.OnConfigureUpdate);
             parameters.Add("OnSubmit", (Func<TUpdateForm, Task>)RunUpdate);
-        });
+        }, size: "2xl");
     }
 
     private async Task RunUpdate(TUpdateForm form)

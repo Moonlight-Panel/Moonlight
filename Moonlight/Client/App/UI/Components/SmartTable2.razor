@@ -91,7 +91,7 @@
                         <th scope="row" class="@(column.CssClasses ?? "px-6 py-2 whitespace-nowrap font-normal")">
                             @if (column.Template == null)
                             {
-                                @column.CompiledField.Invoke(item)
+                                @(column.CompiledField.Invoke(item) ?? "-")
                             }
                             else
                             {

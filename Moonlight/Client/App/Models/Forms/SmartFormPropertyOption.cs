@@ -11,6 +11,7 @@ public class SmartFormPropertyOption<TForm, TProperty> : ISmartFormPropertyOptio
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int? Columns { get; set; }
+    public object? DefaultValue { get; set; }
 
     public SmartFormPropertyOption<TForm, TProperty> WithName(string name)
     {
@@ -35,6 +36,12 @@ public class SmartFormPropertyOption<TForm, TProperty> : ISmartFormPropertyOptio
         ComponentType = typeof(TComponent);
         OnConfigureFunc = onConfigure;
 
+        return this;
+    }
+
+    public SmartFormPropertyOption<TForm, TProperty> WithDefaultValue(object value)
+    {
+        DefaultValue = value;
         return this;
     }
 }

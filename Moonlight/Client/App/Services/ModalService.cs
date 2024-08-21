@@ -37,7 +37,7 @@ public class ModalService
         return Task.CompletedTask;
     }
 
-    public async Task Launch<T>(string? id = null, Action<Dictionary<string, object>>? buildAttributes = null) where T : BaseModal
+    public async Task Launch<T>(string? id = null, Action<Dictionary<string, object>>? buildAttributes = null, string size = "lg") where T : BaseModal
     {
         if (LaunchPoint == null)
         {
@@ -45,6 +45,6 @@ public class ModalService
                 "You need to have a launch point initialized before using this function");
         }
 
-        await LaunchPoint.Launch<T>(id, buildAttributes);
+        await LaunchPoint.Launch<T>(id, buildAttributes, size);
     }
 }

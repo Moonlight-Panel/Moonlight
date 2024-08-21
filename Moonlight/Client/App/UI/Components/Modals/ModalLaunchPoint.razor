@@ -11,11 +11,16 @@
 @foreach (var modal in Items)
 {
     <div id="@(modal.Id)" tabindex="0" class="fixed inset-0 z-50 overflow-hidden flex items-center my-4 justify-center px-4 sm:px-6" role="dialog" aria-modal="true">
-        <div class="bg-slate-800 rounded-lg shadow-lg overflow-auto max-w-lg w-full max-h-full">
+        <div class="bg-slate-800 rounded-lg shadow-lg overflow-auto max-w-@(modal.Size) w-full max-h-full">
             @modal.Render
         </div>
     </div>
 }
+
+@*
+Mappings:
+class="max-w-lg max-w-xs max-w-xl max-w-2xl max-w-3xl max-w-4xl max-w-sm"
+*@
 
 @code
 {
@@ -27,11 +32,12 @@
         await ModalService.SetLaunchPoint(this);
     }
 
-    public async Task Launch<T>(string? id = null, Action<Dictionary<string, object>>? buildAttributes = null) where T : BaseModal
+    public async Task Launch<T>(string? id = null, Action<Dictionary<string, object>>? buildAttributes = null, string size = "lg") where T : BaseModal
     {
         var item = new ModalLaunchItem()
         {
-            Id = id ?? "modal" + Counter
+            Id = id ?? "modal" + Counter,
+            Size = size
         };
 
         item.Render = ComponentHelper.FromType<T>(parameters =>
