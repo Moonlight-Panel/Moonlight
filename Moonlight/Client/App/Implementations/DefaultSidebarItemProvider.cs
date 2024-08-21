@@ -40,6 +40,15 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
             },
             new()
             {
+                Icon = "bi bi-key",
+                Name = "API",
+                Priority = 3,
+                Group = "Admin",
+                Target = "/admin/api",
+                Permission = "admin.api"
+            },
+            new()
+            {
                 Icon = "bi bi-gear",
                 Name = "System",
                 Priority = 3,

@@ -1,0 +1,6 @@
+@page "/admin/api"
+
+@attribute [RequirePermission("admin.api")]
+
+<Breadcrumb Names="@(["Admin", "API"])" Links="@(["/admin"])" />
+<ViewTitle Text="API" />
