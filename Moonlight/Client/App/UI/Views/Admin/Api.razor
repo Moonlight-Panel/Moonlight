@@ -3,6 +3,7 @@
 @using MoonCore.Helpers
 @using Moonlight.Client.App.Models.Crud
 @using Moonlight.Client.App.Services
+@using Moonlight.Client.App.UI.Components.Forms.Components
 @using Moonlight.Shared.Http.Requests.Admin.ApiKeys
 @using Moonlight.Shared.Http.Resources
 @using Moonlight.Shared.Http.Resources.Admin.ApiKeys
@@ -124,6 +125,9 @@
                 .DefaultPage
                 .DefaultSection
                 .AddProperty(x => x.PermissionsJson)
+                .WithComponent<TagComponent>()
+                .WithName("Permissions")
+                .WithColumns(6)
                 .WithDefaultValue("[]");
             
             option
@@ -149,13 +153,14 @@
                 .DefaultPage
                 .DefaultSection
                 .AddProperty(x => x.PermissionsJson)
-                .WithDefaultValue("[]");
+                .WithComponent<TagComponent>()
+                .WithName("Permissions")
+                .WithColumns(6);
 
             option
                 .DefaultPage
                 .DefaultSection
-                .AddProperty(x => x.ExpireDate)
-                .WithDefaultValue(DateTime.UtcNow.AddMonths(1));
+                .AddProperty(x => x.ExpireDate);
         };
     }
 }

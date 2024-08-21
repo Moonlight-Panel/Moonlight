@@ -1,0 +1,74 @@
+@using System.Text.Json
+
+@inherits BaseSmartFormComponent<string>
+
+<div class="border-0 bg-slate-800 rounded py-1 w-full text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 inline-block">
+    <div class="@(Tags.Count > 0 ? "p-1" : "")">
+        @if (Tags.Count > 0)
+        {
+            <span class="mx-1">
+                @foreach (var tag in Tags)
+                {
+                    <span class="rounded-lg px-2 py-1 text-sm bg-indigo-500 mr-1 ml-1 mb-1">
+                        <span>@(tag)</span>
+                        <span @onclick="() => Remove(tag)" class="font-semibold cursor-pointer">
+                            <i class="bi bi-x"></i>
+                        </span>
+                    </span>
+                }
+            </span>
+        }
+
+        <input @bind:event="oninput" @bind="CurrentInput" @onkeydown="KeyboardCallback" type="text" rows="3" class="@(Tags.Count == 0 ? "ml-1" : "px-0") py-1 border-transparent focus:border-transparent focus:ring-0 bg-transparent text-white text-sm placeholder-white" placeholder="Enter value...">
+    </div>
+</div>
+
+@code
+{
+    private List<string> Tags = new();
+
+    private string CurrentInput = "";
+
+    protected override void OnInitialized()
+    {
+        Tags = JsonSerializer.Deserialize<List<string>>(Binder.Value) ?? new();
+    }
+
+    private async Task Add()
+    {
+        CurrentInput = CurrentInput.Trim();
+
+        if (string.IsNullOrEmpty(CurrentInput))
+            return;
+
+        Tags.Add(CurrentInput);
+        Sync();
+
+        CurrentInput = "";
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Remove(string toRemove)
+    {
+        if (!Tags.Contains(toRemove))
+            return;
+
+        Tags.Remove(toRemove);
+        Sync();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void Sync()
+    {
+        Binder.Value = JsonSerializer.Serialize(Tags);
+    }
+
+    private async Task KeyboardCallback(KeyboardEventArgs keyboardEvent)
+    {
+        if (keyboardEvent.Code != "Space")
+            return;
+
+        await Add();
+    }
+}
