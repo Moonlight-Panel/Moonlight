@@ -68,6 +68,14 @@
                 {
                     component.Type = "password";
                 });
+
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.PermissionsJson)
+                .WithColumns(6)
+                .WithName("Permissions")
+                .WithComponent<TagComponent>();
         };
 
         options.OnConfigureUpdate = option =>
@@ -98,6 +106,14 @@
                     component.Type = "password";
                 })
                 .WithDescription("Optional");
+            
+            option
+                .DefaultPage
+                .DefaultSection
+                .AddProperty(x => x.PermissionsJson)
+                .WithColumns(6)
+                .WithName("Permissions")
+                .WithComponent<TagComponent>();
         };
         
         options.CreateFunction = async request =>

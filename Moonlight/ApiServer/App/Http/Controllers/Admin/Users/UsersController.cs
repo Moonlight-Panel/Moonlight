@@ -55,25 +55,11 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
     {
         var item = LoadItemById(id);
 
-        if (!string.IsNullOrEmpty(request.Email))
-        {
-            if (!Regex.IsMatch(request.Email, "^.+@.+$"))
-                throw new ApiException("You need to provide a valid email address", statusCode: 400);
-            
-            if (UserRepository.Get().Any(x => x.Email == request.Email && x.Id != item.Id))
-                throw new ApiException("A user with that email address already exists", statusCode: 400);
-        }
+        if (UserRepository.Get().Any(x => x.Email == request.Email && x.Id != item.Id))
+            throw new ApiException("A user with that email address already exists", statusCode: 400);
 
-        if (!string.IsNullOrEmpty(request.Username))
-        {
-            if (!Regex.IsMatch(request.Username, "^[a-z][a-z0-9]*$"))
-                throw new ApiException(
-                    "Usernames can only contain lowercase characters and numbers and should not start with a number",
-                    statusCode: 400);
-            
-            if (UserRepository.Get().Any(x => x.Username == request.Username && x.Id != item.Id))
-                throw new ApiException("A user with that username already exists", statusCode: 400);
-        }
+        if (UserRepository.Get().Any(x => x.Username == request.Username && x.Id != item.Id))
+            throw new ApiException("A user with that username already exists", statusCode: 400);
 
         if (!string.IsNullOrEmpty(request.Password))
         {
@@ -83,17 +69,14 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
             request.Password = HashHelper.Hash(request.Password);
         }
 
-        if (!string.IsNullOrEmpty(request.PermissionsJson))
+        try
         {
-            try
-            {
-                var perms = JsonSerializer.Deserialize<string[]>(request.PermissionsJson);
-                ArgumentNullException.ThrowIfNull(perms);
-            }
-            catch (Exception)
-            {
-                throw new ApiException("The permissions need to be provided as a valid json string array", statusCode: 400);
-            }
+            var perms = JsonSerializer.Deserialize<string[]>(request.PermissionsJson);
+            ArgumentNullException.ThrowIfNull(perms);
+        }
+        catch (Exception)
+        {
+            throw new ApiException("The permissions need to be provided as a valid json string array", statusCode: 400);
         }
         
         var mappedItem = Mapper.Map(item, request!, ignoreNullValues: true);

@@ -17,7 +17,6 @@ public class CreateUserRequest
     [MaxLength(256, ErrorMessage = "Your password should not exceed the length of 256 characters")]
     public string Password { get; set; }
     
+    [Required(ErrorMessage = "You need to provide the permissions of the user")]
     public string PermissionsJson { get; set; } = "[]";
-
-    public DateTime TokenValidTime { get; set; } = DateTime.UtcNow;
 }

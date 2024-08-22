@@ -1,0 +1,129 @@
+@page "/account"
+
+@using MoonCore.Services
+@using Moonlight.Client.App.Models.Forms
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Http.Requests.Account
+@using Moonlight.Client.App.UI.Components.Forms
+
+@inject CookieService CookieService
+@inject EventService EventService
+@inject IdentityService IdentityService
+@inject ToastService ToastService
+@inject AlertService AlertService
+
+<NavTabs Index="0" TextSize="text-base" Names="@( ["General", "Security"])" Links="@( ["/account", "/account/security"])"/>
+
+<div class="mt-5 gap-5 grid grid-cols-1 lg:grid-cols-3">
+    <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+        <div>
+            <div class="absolute rounded-md p-3 bg-indigo-500">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="bi bi-door-closed text-2xl text-white"></i>
+                </div>
+            </div>
+            <p class="ml-16 truncate text-sm font-medium text-slate-500">Logout of your session</p>
+        </div>
+
+        <div class="ml-16 flex items-baseline">
+            <p class="text-2xl">
+                <a @onclick:preventDefault @onclick="Logout" href="#" class="text-blue-500">Logout</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+        <div>
+            <div class="absolute rounded-md p-3 bg-yellow-400">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="bi bi-shield text-2xl text-white"></i>
+                </div>
+            </div>
+            <p class="ml-16 truncate text-sm font-medium text-slate-500">Improve your account security</p>
+        </div>
+
+        <div class="ml-16 flex items-baseline">
+            <p class="text-2xl">
+                <a href="/account/security" class="text-blue-500">Change password</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+        <div>
+            <div class="absolute rounded-md p-3 bg-red-500">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="bi bi-trash text-2xl text-white"></i>
+                </div>
+            </div>
+            <p class="ml-16 truncate text-sm font-medium text-slate-500">Delete all your data and services</p>
+        </div>
+
+        <div class="ml-16 flex items-baseline">
+            <p class="text-2xl">
+                <a @onclick:preventDefault @onclick="DeleteAccount" href="#" class="text-blue-500">Delete account</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-10">
+    <div class="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        <div class="col-span-1">
+            <div class="p-6 rounded-lg shadow bg-slate-800 flex justify-center align-middle">
+                <div class="rounded-lg bg-slate-900 p-3">
+                    <img src="https://masuowo.xyz/assets/images/avatar.png" alt="Avatar" class="object-fill"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-span-1 md:col-span-2">
+            <div class="p-6 rounded-lg shadow bg-slate-800">
+                <div class="mb-5 text-xl">Update account details</div>
+                
+                <SmartForm Model="UpdateDetailsRequest" OnSubmit="UpdateDetails">
+                    <SmartGeneratedForm Model="UpdateDetailsRequest" OnConfigure="OnConfigure"/>
+                    <div class="mt-5 flex justify-end">
+                        <button type="submit" class="rounded-md px-3 py-2 text-sm text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Submit</button>
+                    </div>
+                </SmartForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private UpdateDetailsRequest UpdateDetailsRequest = new();
+
+    private async Task Logout()
+    {
+        IdentityService.Reset();
+        await CookieService.SetValue("ml-token", "", 10);
+        await ToastService.Information("Logged you out of your account");
+        await EventService.Invoke("RequestLayoutRefresh");
+    }
+
+    private async Task DeleteAccount()
+    {
+        await AlertService.DangerConfirm("Do you really want to delete your account? This step is irreversible", () => { return Task.CompletedTask; });
+    }
+
+    private async Task UpdateDetails()
+    {
+    }
+
+    private void OnConfigure(SmartFormOption<UpdateDetailsRequest> option)
+    {
+        option
+            .DefaultPage
+            .DefaultSection
+            .AddProperty(x => x.Username)
+            .WithColumns(6);
+
+        option
+            .DefaultPage
+            .DefaultSection
+            .AddProperty(x => x.Email)
+            .WithColumns(6);
+    }
+}

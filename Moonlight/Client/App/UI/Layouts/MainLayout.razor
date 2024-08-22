@@ -87,8 +87,14 @@ else
 
         Events.On("RequestLayoutRefresh", async () =>
         {
+            IsLoading = true;
+            await InvokeAsync(StateHasChanged);
+            
             await ProcessLoaders();
             await ProcessScreens();
+            
+            IsLoading = false;
+            await InvokeAsync(StateHasChanged);
         });
 
         Navigation.LocationChanged += async (_, _) =>
@@ -123,7 +129,5 @@ else
             CurrentScreen = screen;
             break;
         }
-
-        await InvokeAsync(StateHasChanged);
     }
 }

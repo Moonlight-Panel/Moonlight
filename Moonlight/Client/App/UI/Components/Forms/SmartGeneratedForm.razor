@@ -35,7 +35,7 @@
 
 @if (CurrentPage != null)
 {
-    foreach (var section in CurrentPage.Sections)
+    foreach (var section in CurrentPage.Sections.ToArray())
     {
         <div class="@(section != CurrentPage.Sections.Last() ? "border-b border-slate-100/10 pb-12 mb-5" : "")">
             <div class="@(section != CurrentPage.DefaultSection ? "mb-8" : "")">

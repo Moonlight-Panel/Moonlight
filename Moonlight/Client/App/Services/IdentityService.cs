@@ -74,4 +74,16 @@ public class IdentityService
         // No matching permission found
         return false;
     }
+
+    public void Reset()
+    {
+        if (Http.DefaultRequestHeaders.Contains("Authorization"))
+            Http.DefaultRequestHeaders.Remove("Authorization");
+
+        Username = "";
+        Email = "";
+        Token = "";
+        IsLoggedIn = false;
+        Permissions = [];
+    }
 }
