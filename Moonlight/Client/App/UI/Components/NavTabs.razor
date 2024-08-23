@@ -1,19 +1,19 @@
-<div class="@(TextSize) font-medium text-center border-b text-slate-300 border-slate-700">
+<div class="@(TextSize) font-medium text-center text-slate-300">
     <ul class="flex flex-wrap -mb-px">
 
         @for (var i = 0; i < Names.Length; i++)
         {
-            <li class="me-2">
+            <li class="me-4">
 
                 @if (i == Index)
                 {
-                    <a href="@(Links[i])" class="inline-block p-4 border-b-2 rounded-t-lg active text-indigo-500 border-indigo-500" aria-current="page">
+                    <a href="@(Links[i])" class="inline-block mt-3 me-3 px-1 pb-3 border-b-2 rounded-t-lg active text-white border-indigo-500" aria-current="page">
                         @(Names[i])
                     </a>
                 }
                 else
                 {
-                    <a href="@(Links[i])" class="inline-block p-4 border-transparent rounded-t-lg hover:text-white">
+                    <a href="@(Links[i])" class="inline-block mt-3 me-3 px-1 pb-3 border-transparent rounded-t-lg hover:text-white hover:border-b-2 hover:border-indigo-500">
                         @(Names[i])
                     </a>
                 }
