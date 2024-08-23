@@ -35,6 +35,8 @@
     private (string, string, string) GetTimeBasedWelcomeMessage()
     {
         var hour = DateTime.Now.Hour;
+        
+        //TODO: Add welcome messages based on special days in the year, e.g. christmas
 
         if (hour >= 5 && hour < 11)
             return ("🌅", "Good morning,", "");

@@ -5,6 +5,7 @@
 
 @inject ILogger<SoftErrorHandler> Logger
 @inject EventService EventService
+@inject NavigationManager Navigation
 
 @inherits ErrorBoundaryBase
 
@@ -15,12 +16,21 @@
                Title="@(Exception.Message)"
                Description="@(Exception.ToStringDemystified())" />
 }
+else if (ShowPermissionError)
+{
+    <NoPermissionAlert RequiredPermission="@RequiredPermission" />
+}
 else
 {
-    if (ErrorMessages.Any())
+    string[] errorMessages;
+
+    lock (ErrorMessages)
+        errorMessages = ErrorMessages.ToArray();
+    
+    if (errorMessages.Any())
     {
         <div class="p-4 mb-5 text-center rounded-lg bg-red-500 text-white" role="alert">
-            @foreach (var message in ErrorMessages)
+            @foreach (var message in errorMessages)
             {
                 @message
                 <br/>
@@ -35,6 +45,28 @@ else
 {
     private List<string> ErrorMessages = new();
     private Exception? Exception;
+    
+    // Permission error handling
+    private bool WasLastPermissionError;
+    private string? RequiredPermission;
+    private bool ShowPermissionError;
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += async (_, _) =>
+        {
+            // Reset error state
+            ShowPermissionError = false;
+            WasLastPermissionError = false;
+            RequiredPermission = null;
+            Exception = null;
+
+            lock (ErrorMessages)
+                ErrorMessages.Clear();
+            
+            await InvokeAsync(StateHasChanged);
+        };
+    }
 
     protected override async Task OnErrorAsync(Exception exception)
     {
@@ -44,11 +76,35 @@ else
         }
         else if (exception is HttpApiException apiException)
         {
-            if (apiException.Status == 401) // Handle logout / expired token
+            // Handle logout / expired token
+            if (apiException.Status == 401)
             {
                 Recover();
                 await EventService.Invoke("RequestLayoutRefresh");
                 return;
+            }
+
+            // Handle multiple permission error for the same missing permissions, so a page cannot get stuck
+            // at spamming that a permission is required. After two times asking for the same permission, it will
+            // show a NoPermissionAlert
+            
+            // Check if it's a permission error which actually defines the missing permission
+            if (apiException.Status == 403 && !string.IsNullOrEmpty(apiException.Detail))
+            {
+                // Check if the last error was a permission error and the required permission is the same as
+                // in the current error
+                if (WasLastPermissionError && apiException.Detail == RequiredPermission)
+                {
+                    ShowPermissionError = true;
+                    
+                    Recover();
+                    return;
+                }
+                
+                // If we reach this point, no permission error happened twice yet, but
+                // we save the current permission error for the next check
+                WasLastPermissionError = true;
+                RequiredPermission = apiException.Detail;
             }
             
             await AddMessage(apiException.Title);
@@ -58,6 +114,19 @@ else
         }
         else
             Exception = exception;
+        
+        // Reset for permission error check
+        if (exception is HttpApiException httpApiException)
+        {
+            // Reset everytime a non permission error api exception has been received
+            // or when the permission error does not specify a missing permission
+            if(httpApiException.Status != 403 || httpApiException.Status == 403 && string.IsNullOrEmpty(httpApiException.Detail))
+                WasLastPermissionError = false;
+        }
+        else // Also reset if a non api exception has been received
+            WasLastPermissionError = false;
+        
+        // Continue error handling
         
         Recover();
 
@@ -70,15 +139,24 @@ else
         });
     }
 
-    private async Task AddMessage(string content)
+    private Task AddMessage(string content)
     {
-        ErrorMessages.Add(content);
+        lock (ErrorMessages)
+            ErrorMessages.Add(content);
 
         Task.Run(async () =>
         {
             await Task.Delay(TimeSpan.FromSeconds(5));
-            ErrorMessages.Remove(content);
+
+            lock (ErrorMessages)
+            {
+                if(ErrorMessages.Contains(content))
+                    ErrorMessages.Remove(content);
+            }
+            
             await InvokeAsync(StateHasChanged);
         });
+        
+        return Task.CompletedTask;
     }
 }

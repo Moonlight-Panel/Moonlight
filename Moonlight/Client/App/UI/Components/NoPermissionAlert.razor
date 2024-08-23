@@ -1,1 +1,15 @@
-<RoundedIconAlert Color="bg-red-500" Icon="bi bi-shield-fill" Title="Permission denied" Description="You dont have the required permission to access this endpoint" />
+@{
+    string text;
+
+    if (string.IsNullOrEmpty(RequiredPermission))
+        text = "You dont have the required permission to access this endpoint";
+    else
+        text = "You dont have the required permission to access this endpoint. Required permission: " + RequiredPermission;
+}
+
+<RoundedIconAlert Color="bg-red-500" Icon="bi bi-shield-fill" Title="Permission denied" Description="@text" />
+
+@code
+{
+    [Parameter] public string? RequiredPermission { get; set; }
+}
