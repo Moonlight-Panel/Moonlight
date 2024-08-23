@@ -1,117 +1,55 @@
 ﻿@page "/"
-
-@using Moonlight.Client.App.Exceptions
-@using Moonlight.Client.App.Models
-@using Moonlight.Client.App.Models.Forms
 @using Moonlight.Client.App.Services
-@using Moonlight.Client.App.UI.Components
-@using Moonlight.Client.App.UI.Components.Alerts
-@using Moonlight.Client.App.UI.Components.Forms
-@using Moonlight.Client.App.UI.Components.Forms.Components
-@using Moonlight.Client.App.UI.Components.Toasts
 
-@inject ModalService ModalService
-@inject AlertService AlertService
-@inject ToastService ToastService
+@inject IdentityService IdentityService
 
-<div class="flex flex-row gap-5">
-    <WButton OnClick="OnClick">
-        Testy
-    </WButton>
-    <WButton OnClick="Test1">
-        Test 1
-    </WButton>
-    <WIconButton OnClick="Test" CssClasses="bg-violet-600 hover:bg-violet-700">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-amd" viewBox="0 0 16 16">
-            <path d="m.334 0 4.358 4.359h7.15v7.15l4.358 4.358V0zM.2 9.72l4.487-4.488v6.281h6.28L6.48 16H.2z"/>
-        </svg>
-    </WIconButton>
-</div>
-<div class="mt-5">
-    <SmartForm Model="Form" OnSubmit="OnSubmit">
-        <div class="p-5">
-            <SmartGeneratedForm Model="Form" OnConfigure="OnConfigure" />
+<div class="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-6">
+    <div class="col-span-1 sm:col-span-2">
+        <div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+            @{
+                var welcomeMessage = GetTimeBasedWelcomeMessage();
+            }
 
-            <div class="mt-5">
-                <button type="submit" class="rounded-md px-3 py-2 text-sm text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Submit</button>
+            <div>
+                <div class="absolute rounded-md p-3 bg-indigo-500">
+                    <div class="h-6 w-6 flex justify-center items-center">
+                        <span class="text-2xl text-white">
+                            @welcomeMessage.Item1
+                        </span>
+                    </div>
+                </div>
+                <p class="ml-16 truncate text-sm font-medium text-slate-500">Welcome back</p>
+            </div>
+
+            <div class="ml-16 flex items-baseline">
+                <p class="text-2xl">
+                    @(welcomeMessage.Item2) <span class="text-indigo-500">@(IdentityService.Username)</span>@(welcomeMessage.Item3)
+                </p>
             </div>
         </div>
-    </SmartForm>
+    </div>
 </div>
 
 @code
 {
-    private FormModel Form = new();
-    
-    private void OnConfigure(SmartFormOption<FormModel> options)
+    private (string, string, string) GetTimeBasedWelcomeMessage()
     {
-        options
-            .DefaultPage
-            .DefaultSection
-            .AddProperty(x => x.SomeNiceText)
-            .WithComponent<DropdownComponent<string>>(component =>
-            {
-                component.Items =
-                [
-                    "Item 1",
-                    "Item 2",
-                    "Item 3",
-                    "Item 4"
-                ];
+        var hour = DateTime.Now.Hour;
 
-                //component.AllowNull = true;
-            });
+        if (hour >= 5 && hour < 11)
+            return ("🌅", "Good morning,", "");
+        else if (hour >= 11 && hour < 13)
+            return ("😃", "Have a nice day,", "");
+        else if (hour >= 13 && hour < 16)
+            return ("🌄", "Good afternoon,", "");
+        else if (hour >= 16 && hour < 22)
+            return ("✨", "Have a nice evening,", "");
+        else if (hour >= 22 && hour < 23)
+            return ("💤", "Sleep well,", "");
+        else if (hour >= 23 || hour < 5)
+            return ("🌙", "Still awake,", "?");
+            
 
-        options
-            .DefaultPage
-            .WithSection("aqaqa", "aqqaqaqa", "aqaqaqaqa")
-            .AddProperty(x => x.SomeNiceInt)
-            .WithComponent<ByteSizeComponent>();
-        
-        options
-            .DefaultPage
-            .WithSection("Testy", "hsjdhjasjdsjad", "hskhdsdhjsd")
-            .AddProperty(x => x.SomeNiceBool)
-            .WithDescription("OwO ara ara uwu uwu");
-
-        options
-            .DefaultPage
-            .DefaultSection
-            .AddProperty(x => x.MyCoolEnum)
-            .WithComponent<EnumComponent<MyCoolEnum>>();
-    }
-
-    private async Task Test()
-    {
-        await ModalService.Launch<ErrorAlert>(buildAttributes: parameters =>
-        {
-            parameters.Add("Title", "Form result");
-            parameters.Add("Text", "Task failed successfully");
-        });
-    }
-
-    private async Task Test1(WButton button)
-    {
-        throw new DisplayException("Owo ara uwu");
-    }
-
-    private async Task OnClick(WButton button)
-    {
-        await Task.Delay(2000);
-
-        await ToastService.Information("Doing something else");
-        await ToastService.Success("Doing something else");
-        await ToastService.Warning("Doing something else");
-        await ToastService.Error("Doing something else");
-        
-        await button.UpdateLoadingText("Doing something else");
-
-        await Task.Delay(3000);
-    }
-
-    private async Task OnSubmit()
-    {
-        await Task.Delay(2000);
-        await AlertService.Success("Operation", "Successfully executed operation");
+        return ("👋", "Good day,", "");
     }
 }
