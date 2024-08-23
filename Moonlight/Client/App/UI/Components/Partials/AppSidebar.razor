@@ -1,3 +1,4 @@
+@using MoonCore.Services
 @using Moonlight.Client.App.Interfaces
 @using Moonlight.Client.App.Models
 @using Moonlight.Client.App.PluginApi
@@ -6,6 +7,7 @@
 @inject PluginService PluginService
 @inject NavigationManager Navigation
 @inject IdentityService IdentityService
+@inject EventService EventService
 
 @{
     var uri = new Uri(Navigation.Uri);
@@ -133,5 +135,7 @@
             return;
 
         Navigation.LocationChanged += async (_, _) => await InvokeAsync(StateHasChanged);
+
+        EventService.On("RequestSidebarRefresh", () => InvokeAsync(StateHasChanged));
     }
 }

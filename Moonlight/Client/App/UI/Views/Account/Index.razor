@@ -1,10 +1,12 @@
 @page "/account"
 
+@using MoonCore.Extensions
 @using MoonCore.Services
 @using Moonlight.Client.App.Models.Forms
 @using Moonlight.Client.App.Services
 @using Moonlight.Shared.Http.Requests.Account
 @using Moonlight.Client.App.UI.Components.Forms
+@using Moonlight.Shared.Http.Resources.Account
 
 @inject CookieService CookieService
 @inject EventService EventService
@@ -77,15 +79,19 @@
             </div>
         </div>
         <div class="col-span-1 md:col-span-2">
-            <div class="p-6 rounded-lg shadow bg-slate-800">
-                <div class="mb-5 text-xl">Update account details</div>
-                
-                <SmartForm Model="UpdateDetailsRequest" OnSubmit="UpdateDetails">
-                    <SmartGeneratedForm Model="UpdateDetailsRequest" OnConfigure="OnConfigure"/>
-                    <div class="mt-5 flex justify-end">
-                        <button type="submit" class="rounded-md px-3 py-2 text-sm text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Submit</button>
-                    </div>
-                </SmartForm>
+            <div class="rounded-lg bg-slate-800 shadow">
+                <div class="py-4 px-6 mb-3 border-gray-500 bg-slate-700 rounded-t-lg">
+                    <div class="text-lg">Update account details</div>
+                </div>
+
+                <div class="px-6 pb-5 mt-5">
+                    <SmartForm Model="UpdateDetailsRequest" OnSubmit="UpdateDetails">
+                        <SmartGeneratedForm Model="UpdateDetailsRequest" OnConfigure="OnConfigure"/>
+                        <div class="mt-5 flex justify-end">
+                            <button type="submit" class="rounded-md px-3 py-2 text-sm text-white shadow-sm bg-indigo-600 hover:bg-indigo-700">Submit</button>
+                        </div>
+                    </SmartForm>
+                </div>
             </div>
         </div>
     </div>
@@ -110,6 +116,17 @@
 
     private async Task UpdateDetails()
     {
+        var response = await IdentityService.Http.PatchAsJsonAsync("account/details", UpdateDetailsRequest);
+
+        await response.HandlePossibleApiError();
+
+        var result = await response.ParseAsJson<UpdateDetailsResponse>();
+
+        IdentityService.Email = result.Email;
+        IdentityService.Username = result.Username;
+
+        await EventService.Invoke("RequestSidebarRefresh");
+        await ToastService.Success("Successfully updated details");
     }
 
     private void OnConfigure(SmartFormOption<UpdateDetailsRequest> option)
@@ -118,12 +135,14 @@
             .DefaultPage
             .DefaultSection
             .AddProperty(x => x.Username)
-            .WithColumns(6);
+            .WithColumns(6)
+            .WithDefaultValue(IdentityService.Username);
 
         option
             .DefaultPage
             .DefaultSection
             .AddProperty(x => x.Email)
-            .WithColumns(6);
+            .WithColumns(6)
+            .WithDefaultValue(IdentityService.Email);
     }
 }
