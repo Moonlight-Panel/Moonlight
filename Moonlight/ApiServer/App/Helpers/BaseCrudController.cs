@@ -37,7 +37,7 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
             .ToArray();
 
         var totalCount = ItemRepository.Get().Count();
-        var totalPages = totalCount / pageSize;
+        var totalPages = pageSize == 0 ? pageSize : totalCount / pageSize;
 
         return Ok(new PagedResponse<TDetailResponse>()
         {
