@@ -1,0 +1,43 @@
+@using MoonCore.Extensions
+@using Moonlight.Client.App.Services
+@using Moonlight.Shared.Http.Resources
+@using Moonlight.Shared.Http.Resources.Admin.Users
+
+@inject IdentityService IdentityService
+
+<div class="rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow @(IsLoaded ? "" : "relative overflow-hidden")">
+    <LazyLoader Load="Load">
+        <div>
+            <div class="absolute rounded-md p-3 bg-indigo-600">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="bi bi-people text-2xl text-white"></i>
+                </div>
+            </div>
+            <p class="ml-16 truncate text-sm font-medium text-slate-500">Users</p>
+        </div>
+
+        <div class="ml-16 flex items-baseline">
+            <p class="text-2xl text-white">
+                @Count
+            </p>
+        </div>
+    </LazyLoader>
+</div>
+
+@code
+{
+    private bool IsLoaded = false;
+
+    private int Count;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        var response = await IdentityService.Http.GetAsync("admin/users?page=0&pageSize=0");
+        await response.HandlePossibleApiError();
+        var result = await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
+
+        Count = result.TotalItems;
+
+        IsLoaded = true;
+    }
+}

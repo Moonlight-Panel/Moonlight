@@ -3,7 +3,7 @@
 
 @if (IsLoading)
 {
-    <div class="text-center mt-5">
+    <div class="text-center @(EnableDefaultSpacing ? "mt-5" : "")">
         <div class="mb-3">
             <div role="status">
                 <svg aria-hidden="true"
@@ -24,7 +24,7 @@ else
 {
     if (IsFailed)
     {
-        <div class="px-5 pt-4 pb-1 flex flex-col justify-center text-center mt-5">
+        <div class="px-5 pt-4 pb-1 flex flex-col justify-center text-center @(EnableDefaultSpacing ? "mt-5" : "")">
             <div class="mb-3">
                 <i class="bi bi-x-circle text-4xl text-slate-400"></i>
             </div>
@@ -44,6 +44,7 @@ else
 {
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public Func<LazyLoader, Task> Load { get; set; }
+    [Parameter] public bool EnableDefaultSpacing { get; set; } = true;
 
     private bool IsLoading = true;
     private bool IsFailed = false;
@@ -67,6 +68,11 @@ else
         }
         catch (HttpApiException apiException)
         {
+            // Redirect unauthenticated status errors directly to the next layer
+            if (apiException.Status == 401)
+                throw;
+            
+            //
             IsFailed = true;
 
             ErrorMessage = apiException.Title;

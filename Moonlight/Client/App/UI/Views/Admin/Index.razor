@@ -1,11 +1,50 @@
 @page "/admin"
-@using Moonlight.Client.App.Attributes
+
+@using Moonlight.Client.App.Interfaces
+@using Moonlight.Client.App.PluginApi
+@using Moonlight.Client.App.Services
+
+@inject IdentityService IdentityService
+@inject PluginService PluginService
 
 @attribute [RequirePermission("admin")]
 
 <Breadcrumb Names="@(["Admin", "Overview"])" />
 <ViewTitle Text="Overview" />
 
-<div class="mt-10">
-    <NotImplementedAlert />
+<div class="mt-5">
+    <LazyLoader Load="Load">
+        <div class="grid gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            @foreach (var card in Cards)
+            {
+                <div class="col-span-@(card.Value)">
+                    @card.Key
+                </div>
+            }
+        </div>
+    </LazyLoader>
 </div>
+
+@*
+Mappings:
+class="col-span-1 col-span-2 col-span-3 col-span-4"
+*@
+
+@code
+{
+    private Dictionary<RenderFragment, int> Cards = new();
+    
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        var implementations = PluginService.GetImplementations<IAdminDashboardCard>();
+
+        foreach (var card in implementations)
+        {
+            if(!IdentityService.HasPermission(card.RequiredPermission))
+                continue;
+            
+            var render = await card.Render();
+            Cards.Add(render, card.Columns);
+        }
+    }
+}

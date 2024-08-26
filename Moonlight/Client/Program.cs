@@ -5,6 +5,7 @@ using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.Client;
 using Moonlight.Client.App.Implementations;
+using Moonlight.Client.App.Implementations.AdminDashboardCards;
 using Moonlight.Client.App.Interfaces;
 using Moonlight.Client.App.Models.Forms;
 using Moonlight.Client.App.PluginApi;
@@ -51,10 +52,13 @@ builder.Services.AddSingleton<EventService>();
 builder.Logging.ClearProviders();
 builder.Logging.AddProviders(providers);
 
+// Own implementations
 pluginService.RegisterImplementation<ISidebarItemProvider, DefaultSidebarItemProvider>();
 
 pluginService.RegisterImplementation<IAppLoader, AuthenticationStateLoader>();
 pluginService.RegisterImplementation<IAppScreen, AuthenticationScreen>();
+
+pluginService.RegisterImplementation<IAdminDashboardCard, UserCounterCard>();
 
 await pluginService.CallPlugins(x => x.OnAppBuilding(builder));
 
