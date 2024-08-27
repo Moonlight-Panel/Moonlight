@@ -8,7 +8,7 @@
 @using Moonlight.Client.App.UI.Components.Forms.Components
 @using Moonlight.Shared.Http.Requests.Admin.Users
 
-@inject IdentityService IdentityService
+@inject HttpApiClient HttpApiClient
 
 @attribute [RequirePermission("admin.users.get")]
 
@@ -32,14 +32,8 @@
 {
     private void OnConfigure(CrudOptions<DetailUserResponse, CreateUserRequest, UpdateUserRequest> options)
     {
-        options.Loader = async (page, pageSize) =>
-        {
-            var response = await IdentityService.Http.GetAsync($"admin/users?page={page}&pageSize={pageSize}");
-
-            await response.HandlePossibleApiError();
-
-            return await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
-        };
+        options.Loader = async (page, pageSize) => 
+            await HttpApiClient.GetJson<PagedResponse<DetailUserResponse>>($"admin/users?page={page}&pageSize={pageSize}");
 
         options.OnConfigureCreate = option =>
         {
@@ -118,23 +112,17 @@
         
         options.CreateFunction = async request =>
         {
-            var response = await IdentityService.Http.PostAsJsonAsync("admin/users", request);
-
-            await response.HandlePossibleApiError();
+            await HttpApiClient.Post("admin/users", request);
         };
 
         options.UpdateFunction = async (request, item) =>
         {
-            var response = await IdentityService.Http.PatchAsJsonAsync($"admin/users/{item.Id}", request);
-
-            await response.HandlePossibleApiError();
+            await HttpApiClient.Patch($"admin/users/{item.Id}", request);
         };
 
         options.DeleteFunction = async item =>
         {
-            var response = await IdentityService.Http.DeleteAsync($"admin/users/{item.Id}");
-
-            await response.HandlePossibleApiError();
+            await HttpApiClient.Delete($"admin/users/{item.Id}");
         };
     }
 }

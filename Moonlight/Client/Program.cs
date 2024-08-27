@@ -9,6 +9,7 @@ using Moonlight.Client.App.Implementations.AdminDashboardCards;
 using Moonlight.Client.App.Interfaces;
 using Moonlight.Client.App.Models.Forms;
 using Moonlight.Client.App.PluginApi;
+using Moonlight.Client.App.Services;
 using Moonlight.Client.App.UI.Components.Forms.Components;
 
 // Build pre run logger
@@ -40,11 +41,26 @@ builder.Services.AddSingleton(pluginService);
 builder.RootComponents.Add<BlazorApp>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddHttpClient("Moonlight.ServerAPI",
-    client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
+builder.Services.AddHttpClient("Moonlight.ServerAPI", client =>client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
 // Supply HttpClient instances that include access tokens when making requests to the server project
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Moonlight.ServerAPI"));
+
+builder.Services.AddScoped(provider =>
+{
+    var identityService = provider.GetRequiredService<IdentityService>();
+    var httpClient = provider.GetRequiredService<HttpClient>();
+
+    var httpApiClient = new HttpApiClient(httpClient);
+
+    httpApiClient.OnConfigureRequest = message =>
+    {
+        if(!string.IsNullOrEmpty(identityService.Token))
+            message.Headers.Add("Authorization", identityService.Token);
+    };
+
+    return httpApiClient;
+});
 
 builder.Services.AutoAddServices<Program>();
 builder.Services.AddSingleton<EventService>();

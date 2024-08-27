@@ -3,7 +3,7 @@
 @using Moonlight.Shared.Http.Resources
 @using Moonlight.Shared.Http.Resources.Admin.Users
 
-@inject IdentityService IdentityService
+@inject HttpApiClient HttpApiClient
 
 <div class="rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow @(IsLoaded ? "" : "relative overflow-hidden")">
     <LazyLoader Load="Load">
@@ -32,12 +32,9 @@
 
     private async Task Load(LazyLoader lazyLoader)
     {
-        var response = await IdentityService.Http.GetAsync("admin/users?page=0&pageSize=0");
-        await response.HandlePossibleApiError();
-        var result = await response.ParseAsJson<PagedResponse<DetailUserResponse>>();
+        var result = await HttpApiClient.GetJson<PagedResponse<DetailUserResponse>>("admin/users?page=0&pageSize=0");
 
         Count = result.TotalItems;
-
         IsLoaded = true;
     }
 }

@@ -7,6 +7,7 @@
 @using Moonlight.Shared.Http.Resources.Auth
 
 @inject IdentityService IdentityService
+@inject HttpApiClient HttpApiClient
 @inject CookieService CookieService
 @inject EventService Events
 @inject NavigationManager Navigation
@@ -64,7 +65,7 @@
 
     private async Task Login()
     {
-        var response = await IdentityService.Http.PostAsJsonReceiveJson<LoginResponse>("auth/login", Request);
+        var response = await HttpApiClient.PostJson<LoginResponse>("auth/login", Request);
 
         IdentityService.SetToken(response.Token);
         IdentityService.SetLoginState(true);

@@ -8,7 +8,7 @@
 @using Moonlight.Shared.Http.Resources
 @using Moonlight.Shared.Http.Resources.Admin.ApiKeys
 
-@inject IdentityService IdentityService
+@inject HttpApiClient HttpApiClient
 @inject AlertService AlertService
 
 @attribute [RequirePermission("admin.apikeys.get")]
@@ -75,38 +75,24 @@
 {
     private void OnConfigure(CrudOptions<DetailApiKeyResponse, CreateApiKeyRequest, UpdateApiKeyRequest> options)
     {
-        options.Loader = async (page, pageSize) =>
-        {
-            var response = await IdentityService.Http.GetAsync($"admin/apikeys?page={page}&pageSize={pageSize}");
-
-            await response.HandlePossibleApiError();
-
-            return await response.ParseAsJson<PagedResponse<DetailApiKeyResponse>>();
-        };
+        options.Loader = async (page, pageSize) => 
+            await HttpApiClient.GetJson<PagedResponse<DetailApiKeyResponse>>($"admin/apikeys?page={page}&pageSize={pageSize}");
 
         options.CreateFunction = async request =>
         {
-            var response = await IdentityService.Http.PostAsJsonAsync("admin/apikeys", request);
-
-            await response.HandlePossibleApiError();
-
-            var result = await response.ParseAsJson<CreateApiKeyResponse>();
+            var result = await HttpApiClient.PostJson<CreateApiKeyResponse>("admin/apikeys", request);
 
             await AlertService.Success("API Key successfully created", $"The api key is: \"{result.Key}\". This key wont be shown again");
         };
 
         options.UpdateFunction = async (request, item) =>
         {
-            var response = await IdentityService.Http.PatchAsJsonAsync($"admin/apikeys/{item.Id}", request);
-
-            await response.HandlePossibleApiError();
+            await HttpApiClient.Patch($"admin/apikeys/{item.Id}", request);
         };
 
         options.DeleteFunction = async item =>
         {
-            var response = await IdentityService.Http.DeleteAsync($"admin/apikeys/{item.Id}");
-
-            await response.HandlePossibleApiError();
+            await HttpApiClient.Delete($"admin/apikeys/{item.Id}");
         };
 
         options.OnConfigureCreate = option =>

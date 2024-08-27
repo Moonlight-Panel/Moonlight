@@ -8,7 +8,7 @@
 @using Moonlight.Shared.Models
 @using Moonlight.Client.App.UI.Components.Forms
 
-@inject IdentityService IdentityService
+@inject HttpApiClient HttpApiClient
 @inject ToastService ToastService
 @inject ILogger<Config> Logger
 
@@ -124,11 +124,7 @@
 
     private async Task LoadConfiguration(LazyLoader lazyLoader)
     {
-        var response = await IdentityService.Http.GetAsync("admin/system/config");
-
-        await response.HandlePossibleApiError();
-
-        Model = await response.ParseAsJson<AppConfiguration>();
+        Model = await HttpApiClient.GetJson<AppConfiguration>("admin/system/config");
 
         CurrentModel = Model;
     }
@@ -198,10 +194,7 @@
     
     private async Task OnSubmit()
     {
-        var response = await IdentityService.Http.PostAsJsonAsync("admin/system/config", Model);
-
-        await response.HandlePossibleApiError();
-        
+        await HttpApiClient.Post("admin/system/config", Model);
         await ToastService.Success("Successfully saved configuration and applied changes");
     }
 }

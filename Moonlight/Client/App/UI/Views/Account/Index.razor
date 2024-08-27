@@ -13,6 +13,7 @@
 @inject IdentityService IdentityService
 @inject ToastService ToastService
 @inject AlertService AlertService
+@inject HttpApiClient HttpApiClient
 
 <NavTabs Index="0" TextSize="text-base" Names="@( ["General", "Security"])" Links="@( ["/account", "/account/security"])"/>
 
@@ -116,11 +117,7 @@
 
     private async Task UpdateDetails()
     {
-        var response = await IdentityService.Http.PatchAsJsonAsync("account/details", UpdateDetailsRequest);
-
-        await response.HandlePossibleApiError();
-
-        var result = await response.ParseAsJson<UpdateDetailsResponse>();
+        var result = await HttpApiClient.PostJson<UpdateDetailsResponse>("account/details", UpdateDetailsRequest);
 
         IdentityService.Email = result.Email;
         IdentityService.Username = result.Username;
