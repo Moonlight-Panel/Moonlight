@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Loader;
 using MoonCore.Helpers;
 
 namespace Moonlight.ApiServer.App.PluginApi;
@@ -33,33 +34,42 @@ public class PluginService
 
         var pluginTypes = new List<Type>();
         var pluginType = typeof(MoonlightPlugin);
+        
+        var context = new AssemblyLoadContext(null);
 
+        // Load all plugins into one context so the plugins are able to load their dependencies
         foreach (var dllFile in dllFilesInFolder)
         {
             try
             {
-                var assembly = Assembly.LoadFrom(
-                    Path.GetFullPath(dllFile)
-                );
-
-                var plugins = assembly.ExportedTypes
-                    .Where(x => x.IsSubclassOf(pluginType))
-                    .ToArray();
-
-                if (plugins.Length == 0)
-                {
-                    Logger.LogInformation("Loaded '{file}' as library", dllFile);
-                    LibraryAssemblies.Add(assembly);
-                }
-                else
-                {
-                    pluginTypes.AddRange(plugins);
-                    PluginAssemblies.Add(assembly);
-                }
+                var fs = File.OpenRead(dllFile);
+                context.LoadFromStream(fs);
+                fs.Close();
             }
             catch (Exception e)
             {
                 Logger.LogError("Unable to load the dll file '{file}' because an error occured: {e}", dllFile, e);
+            }
+        }
+
+        // After all dll files are loaded, we can finally check the assemblies for plugins.
+        // If we did it while loading, we would get resolve errors when a plugin dll requires another
+        // dll as a library
+        foreach (var assembly in context.Assemblies)
+        {
+            var plugins = assembly.ExportedTypes
+                .Where(x => x.IsSubclassOf(pluginType))
+                .ToArray();
+
+            if (plugins.Length == 0)
+            {
+                Logger.LogInformation("Loaded '{file}' as library", assembly.Location);
+                LibraryAssemblies.Add(assembly);
+            }
+            else
+            {
+                pluginTypes.AddRange(plugins);
+                PluginAssemblies.Add(assembly);
             }
         }
 

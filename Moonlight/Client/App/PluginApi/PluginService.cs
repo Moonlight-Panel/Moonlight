@@ -1,5 +1,7 @@
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text.Json;
+using Microsoft.AspNetCore.Components.WebAssembly.Services;
 using MoonCore.Helpers;
 
 namespace Moonlight.Client.App.PluginApi;
@@ -47,42 +49,43 @@ public class PluginService
         var pluginTypes = new List<Type>();
         var pluginType = typeof(MoonlightClientPlugin);
 
-        async Task LoadDll(string dllFile)
+        var context = new AssemblyLoadContext(null);
+        
+        // Load all plugins into one context so the plugins are able to load their dependencies
+        foreach (var dllFile in dllFiles)
         {
             try
             {
-                var assemblyDownload = await httpClient.GetByteArrayAsync($"clientPlugins/stream?name={dllFile}");
-                
-                var assembly = Assembly.Load(
-                    assemblyDownload
-                );
-
-                var plugins = assembly.ExportedTypes
-                    .Where(x => x.IsSubclassOf(pluginType))
-                    .ToArray();
-
-                if (plugins.Length == 0)
-                {
-                    Logger.LogInformation("Loaded '{file}' as library", dllFile);
-                    LibraryAssemblies.Add(assembly);
-                }
-                else
-                {
-                    pluginTypes.AddRange(plugins);
-                    PluginAssemblies.Add(assembly);
-                }
+                //TODO: Cache plugins in cache
+                var assemblyStream = await httpClient.GetStreamAsync($"clientPlugins/stream?name={dllFile}");
+                context.LoadFromStream(assemblyStream);
             }
             catch (Exception e)
             {
                 Logger.LogError("Unable to load the dll file '{file}' because an error occured: {e}", dllFile, e);
             }
         }
-        
-        foreach (var dllFile in dllFiles.Where(x => x.Contains("Shared")))
-            await LoadDll(dllFile);
-        
-        foreach (var dllFile in dllFiles.Where(x => !x.Contains("Shared")))
-            await LoadDll(dllFile);
+
+        // After all dll files are loaded, we can finally check the assemblies for plugins.
+        // If we did it while loading, we would get resolve errors when a plugin dll requires another
+        // dll as a library
+        foreach (var assembly in context.Assemblies)
+        {
+            var plugins = assembly.ExportedTypes
+                .Where(x => x.IsSubclassOf(pluginType))
+                .ToArray();
+
+            if (plugins.Length == 0)
+            {
+                Logger.LogInformation("Loaded '{file}' as library", assembly.Location);
+                LibraryAssemblies.Add(assembly);
+            }
+            else
+            {
+                pluginTypes.AddRange(plugins);
+                PluginAssemblies.Add(assembly);
+            }
+        }
 
         Logger.LogInformation("Initializing plugins");
         foreach (var type in pluginTypes)
