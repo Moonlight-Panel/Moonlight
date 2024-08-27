@@ -38,7 +38,7 @@ public class PluginService
         {
             try
             {
-                var assembly = Assembly.LoadFile(
+                var assembly = Assembly.LoadFrom(
                     Path.GetFullPath(dllFile)
                 );
 

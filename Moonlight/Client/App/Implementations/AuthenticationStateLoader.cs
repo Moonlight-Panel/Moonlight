@@ -23,8 +23,6 @@ public class AuthenticationStateLoader : IAppLoader
         try
         {
             var response = await httpApiClient.GetJson<CheckResponse>("auth/check");
-            
-            Console.WriteLine(JsonSerializer.Serialize(response));
 
             identityService.Email = response.Email;
             identityService.Username = response.Username;

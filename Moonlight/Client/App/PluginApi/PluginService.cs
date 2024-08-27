@@ -47,7 +47,7 @@ public class PluginService
         var pluginTypes = new List<Type>();
         var pluginType = typeof(MoonlightClientPlugin);
 
-        foreach (var dllFile in dllFiles)
+        async Task LoadDll(string dllFile)
         {
             try
             {
@@ -77,6 +77,12 @@ public class PluginService
                 Logger.LogError("Unable to load the dll file '{file}' because an error occured: {e}", dllFile, e);
             }
         }
+        
+        foreach (var dllFile in dllFiles.Where(x => x.Contains("Shared")))
+            await LoadDll(dllFile);
+        
+        foreach (var dllFile in dllFiles.Where(x => !x.Contains("Shared")))
+            await LoadDll(dllFile);
 
         Logger.LogInformation("Initializing plugins");
         foreach (var type in pluginTypes)
