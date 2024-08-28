@@ -108,7 +108,8 @@ else
 
     private async Task ProcessLoaders()
     {
-        var loaders = PluginService.GetImplementations<IAppLoader>();
+        var loaders = PluginService.GetImplementations<IAppLoader>()
+            .OrderByDescending(x => x.Priority);
 
         foreach (var loader in loaders)
             await loader.Load(ServiceProvider);
@@ -117,8 +118,7 @@ else
     private async Task ProcessScreens()
     {
         var screens = PluginService.GetImplementations<IAppScreen>()
-            .OrderByDescending(x => x.Priority)
-            .ToArray();
+            .OrderByDescending(x => x.Priority);
 
         CurrentScreen = null;
         foreach (var screen in screens)

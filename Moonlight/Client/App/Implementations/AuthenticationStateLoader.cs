@@ -9,6 +9,8 @@ namespace Moonlight.Client.App.Implementations;
 
 public class AuthenticationStateLoader : IAppLoader
 {
+    public int Priority => int.MaxValue;
+
     public async Task Load(IServiceProvider serviceProvider)
     {
         var identityService = serviceProvider.GetRequiredService<IdentityService>();
