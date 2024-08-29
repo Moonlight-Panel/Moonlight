@@ -10,8 +10,6 @@ public class AuthenticationScreen : IAppScreen
 {
     public int Priority => 0;
 
-    private bool ShowLogin = false;
-
     public bool ShouldBeShown(IServiceProvider serviceProvider)
     {
         var identityService = serviceProvider.GetRequiredService<IdentityService>();
@@ -19,20 +17,8 @@ public class AuthenticationScreen : IAppScreen
         if (identityService.IsLoggedIn)
             return false;
 
-        var navigation = serviceProvider.GetRequiredService<NavigationManager>();
-
-        var uri = new Uri(navigation.Uri);
-
-        ShowLogin = uri.LocalPath != "/register";
-
         return true;
     }
 
-    public RenderFragment Render()
-    {
-        if(ShowLogin)
-            return ComponentHelper.FromType<LoginScreen>();
-        else
-            return ComponentHelper.FromType<RegisterScreen>();
-    }
+    public RenderFragment Render() => ComponentHelper.FromType<AuthScreen>();
 }
