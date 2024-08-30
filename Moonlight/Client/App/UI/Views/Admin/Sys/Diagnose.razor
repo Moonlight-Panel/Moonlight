@@ -8,11 +8,7 @@
 
 @attribute [RequirePermission("admin.system.diagnose")]
 
-<Breadcrumb Names="@(["Admin", "System"])" Links="@(["/admin"])" />
-
-<div class="mt-3">
-    <NavTabs Index="1" TextSize="text-base" Names="@(["System information", "Diagnose", "Configuration"])" Links="@(["/admin/system", "/admin/system/diagnose", "/admin/system/config"])" />
-</div>
+<NavTabs Index="1" TextSize="text-base" Names="@(["System information", "Diagnose", "Configuration"])" Links="@(["/admin/system", "/admin/system/diagnose", "/admin/system/config"])" />
 
 <div class="mt-5 gap-5 grid grid-cols-1 sm:grid-cols-2">
     <div class="p-6 rounded-lg shadow bg-slate-800">

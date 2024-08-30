@@ -13,7 +13,6 @@
 
 @attribute [RequirePermission("admin.apikeys.get")]
 
-<Breadcrumb Names="@(["Admin", "API"])" Links="@(["/admin"])" />
 <ViewTitle Text="API & API Keys" />
 
 <div class="mt-5 gap-5 grid grid-cols-1 lg:grid-cols-3">
@@ -123,7 +122,7 @@
                 .WithDefaultValue(DateTime.UtcNow.AddMonths(1));
         };
 
-        options.OnConfigureUpdate = option =>
+        options.OnConfigureUpdate = (option, _) =>
         {
             option
                 .DefaultPage

@@ -117,7 +117,7 @@
 
     private async Task UpdateDetails()
     {
-        var result = await HttpApiClient.PostJson<UpdateDetailsResponse>("account/details", UpdateDetailsRequest);
+        var result = await HttpApiClient.PatchJson<UpdateDetailsResponse>("account/details", UpdateDetailsRequest);
 
         IdentityService.Email = result.Email;
         IdentityService.Username = result.Username;

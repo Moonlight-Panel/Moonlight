@@ -12,5 +12,8 @@ public class CrudOptions<TItem, TCreateForm, TUpdateForm>
     public Func<TItem, Task> DeleteFunction { get; set; }
 
     public Action<SmartFormOption<TCreateForm>> OnConfigureCreate { get; set; }
-    public Action<SmartFormOption<TUpdateForm>> OnConfigureUpdate { get; set; }
+    public Action<SmartFormOption<TUpdateForm>, TItem> OnConfigureUpdate { get; set; }
+
+    public bool ShowCreateAsModal { get; set; } = true;
+    public bool ShowUpdateAsModal { get; set; } = true;
 }

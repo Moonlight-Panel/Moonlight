@@ -1,7 +1,9 @@
 @using MoonCore.Helpers
 @using Moonlight.Client.App.Models.Crud
+@using Moonlight.Client.App.Models.Forms
 @using Moonlight.Client.App.Services
 @using Moonlight.Client.App.UI.Components.Modals
+@using Moonlight.Client.App.UI.Components.Forms
 
 @typeparam TItem
 @typeparam TCreateForm
@@ -11,71 +13,110 @@
 @inject ToastService ToastService
 @inject AlertService AlertService
 
-<div class="bg-slate-800 rounded-lg">
-    <SmartTable2 @ref="Table" TItem="TItem" ItemsCallback="Options.Loader">
-        <SmartColumn TItem="TItem" HeadCssClasses="pl-2 w-5" CssClasses="pl-2 w-5">
-            <HeadTemplate>
-                @if (SelectedItems.Count == Table.CurrentItems.Length && Table.CurrentItems.Length != 0)
-                {
-                    <input @onclick="() => ChangeAllSelection(false)" checked="checked" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
-                }
-                else
-                {
-                    <input @onclick="() => ChangeAllSelection(true)" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
-                }
-            </HeadTemplate>
-            <Template>
-                @if (SelectedItems.Contains(context))
-                {
-                    <input @onclick="() => ChangeSelection(context, false)" checked="checked" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
-                }
-                else
-                {
-                    <input @onclick="() => ChangeSelection(context, true)" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
-                }
-            </Template>
-        </SmartColumn>
+@if (ShowCreatePage)
+{
+    <h2 class="mb-5 text-2xl font-normal leading-7 text-white sm:truncate sm:tracking-tight">
+        Create
+    </h2>
 
-        @View
+    <SmartForm Model="CreateForm" OnSubmit="() => RunCreate(CreateForm)">
+        <SmartGeneratedForm Model="CreateForm" OnConfigure="CreateFormConfigure"/>
 
-        <SmartColumn TItem="TItem" HeadCssClasses="">
-            <HeadTemplate>
-                <div class="flex items-center justify-end space-x-2 py-1 font-normal mr-2">
-                    <button @onclick="LaunchCreate" type="button" class="flex items-center justify-center text-white font-medium rounded-lg text-sm px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
-                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
-                        </svg>
-                        Create
-                    </button>
+        <div class="mt-3 flex justify-end">
+            <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+                Create
+            </button>
 
-                    @if (Actions != null)
+            <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+        </div>
+    </SmartForm>
+}
+else if (ShowUpdatePage)
+{
+    <h2 class="mb-5 text-2xl font-normal leading-7 text-white sm:truncate sm:tracking-tight">
+        Update
+    </h2>
+
+    <SmartForm Model="UpdateForm" OnSubmit="() => RunUpdate(UpdateForm)">
+        <SmartGeneratedForm Model="UpdateForm" OnConfigure="UpdateFormConfigure"/>
+
+        <div class="mt-3 flex justify-end">
+            <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+                Update
+            </button>
+
+            <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+        </div>
+    </SmartForm>
+}
+else
+{
+    <div class="bg-slate-800 rounded-lg">
+        <SmartTable2 @ref="Table" TItem="TItem" ItemsCallback="Options.Loader">
+            <SmartColumn TItem="TItem" HeadCssClasses="pl-2 w-5" CssClasses="pl-2 w-5">
+                <HeadTemplate>
+                    @if (SelectedItems.Count == Table.CurrentItems.Length && Table.CurrentItems.Length != 0)
                     {
-                        @Actions
+                        <input @onclick="() => ChangeAllSelection(false)" checked="checked" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
                     }
+                    else
+                    {
+                        <input @onclick="() => ChangeAllSelection(true)" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
+                    }
+                </HeadTemplate>
+                <Template>
+                    @if (SelectedItems.Contains(context))
+                    {
+                        <input @onclick="() => ChangeSelection(context, false)" checked="checked" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
+                    }
+                    else
+                    {
+                        <input @onclick="() => ChangeSelection(context, true)" type="checkbox" class="h-4 w-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-600">
+                    }
+                </Template>
+            </SmartColumn>
 
-                    <DropdownButton Text="Actions" Small="true">
-                        <a @onclick="StartDeleteSection" @onclick:preventDefault href="#" class="block px-4 py-2 text-sm text-white" role="menuitem">
-                            Delete selection
-                        </a>
+            @View
 
-                        @if (SelectionActions != null)
+            <SmartColumn TItem="TItem" HeadCssClasses="">
+                <HeadTemplate>
+                    <div class="flex items-center justify-end space-x-2 py-1 font-normal mr-2">
+                        <button @onclick="LaunchCreate" type="button" class="flex items-center justify-center text-white font-medium rounded-lg text-sm px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                            <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path clip-rule="evenodd" fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+                            </svg>
+                            Create
+                        </button>
+
+                        @if (Actions != null)
                         {
-                            @SelectionActions.Invoke(SelectedItems.ToArray())
+                            @Actions
                         }
-                    </DropdownButton>
-                </div>
-            </HeadTemplate>
-            <Template>
-                <div class="flex justify-end items-center">
-                    <a @onclick:preventDefault @onclick="() => LaunchUpdate(context)" href="#" class="text-blue-500 hover:underline mr-5">Edit</a>
-                    <a @onclick:preventDefault @onclick="() => LaunchDelete(context)" href="#">
-                        <i class="bi bi-trash3-fill text-xl text-red-500"></i>
-                    </a>
-                </div>
-            </Template>
-        </SmartColumn>
-    </SmartTable2>
-</div>
+
+                        <DropdownButton Text="Actions" Small="true">
+                            <a @onclick="StartDeleteSection" @onclick:preventDefault href="#" class="block px-4 py-2 text-sm text-white" role="menuitem">
+                                Delete selection
+                            </a>
+
+                            @if (SelectionActions != null)
+                            {
+                                @SelectionActions.Invoke(SelectedItems.ToArray())
+                            }
+                        </DropdownButton>
+                    </div>
+                </HeadTemplate>
+                <Template>
+                    <div class="flex justify-end items-center">
+                        <a @onclick:preventDefault @onclick="() => LaunchUpdate(context)" href="#" class="text-blue-500 hover:underline mr-5">Edit</a>
+                        <a @onclick:preventDefault @onclick="() => LaunchDelete(context)" href="#">
+                            <i class="bi bi-trash3-fill text-xl text-red-500"></i>
+                        </a>
+                    </div>
+                </Template>
+            </SmartColumn>
+        </SmartTable2>
+    </div>
+}
 
 @code
 {
@@ -92,6 +133,15 @@
     private List<TItem> SelectedItems = new();
     private TItem ItemToUpdate;
 
+    private bool ShowCreatePage = false;
+    private bool ShowUpdatePage = false;
+
+    private TCreateForm CreateForm;
+    private TUpdateForm UpdateForm;
+
+    private Action<SmartFormOption<TCreateForm>> CreateFormConfigure;
+    private Action<SmartFormOption<TUpdateForm>> UpdateFormConfigure;
+
     protected override void OnInitialized()
     {
         OnConfigure.Invoke(Options);
@@ -105,22 +155,46 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    private async Task GoToView()
+    {
+        ShowCreatePage = false;
+        ShowUpdatePage = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
     #region Create
 
     private async Task LaunchCreate()
     {
-        await ModalService.Launch<FormModal<TCreateForm>>(buildAttributes: parameters =>
+        CreateForm = Activator.CreateInstance<TCreateForm>()!;
+        CreateFormConfigure = Options.OnConfigureCreate;
+
+        if (Options.ShowCreateAsModal)
         {
-            parameters.Add("Title", "Create");
-            parameters.Add("Form", Activator.CreateInstance<TCreateForm>()!);
-            parameters.Add("OnConfigure", Options.OnConfigureCreate);
-            parameters.Add("OnSubmit", (Func<TCreateForm, Task>)RunCreate);
-        }, size: "2xl");
+            await ModalService.Launch<FormModal<TCreateForm>>(buildAttributes: parameters =>
+            {
+                parameters.Add("Title", "Create");
+                parameters.Add("Form", CreateForm);
+                parameters.Add("OnConfigure", CreateFormConfigure);
+                parameters.Add("OnSubmit", (Func<TCreateForm, Task>)RunCreate);
+            }, size: "2xl");
+        }
+        else
+        {
+            ShowCreatePage = true;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
-    private async Task RunCreate(TCreateForm form)
+    private async Task RunCreate(TCreateForm _)
     {
-        await Options.CreateFunction.Invoke(form);
+        if (!Options.ShowCreateAsModal)
+        {
+            ShowCreatePage = false;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        await Options.CreateFunction.Invoke(CreateForm);
 
         await ToastService.Success("Successfully added item");
         await RefreshView();
@@ -175,19 +249,35 @@
     private async Task LaunchUpdate(TItem item)
     {
         ItemToUpdate = item;
+        UpdateForm = Mapper.Map<TUpdateForm>(ItemToUpdate!)!;
+        UpdateFormConfigure = option => Options.OnConfigureUpdate.Invoke(option, ItemToUpdate);
 
-        await ModalService.Launch<FormModal<TUpdateForm>>(buildAttributes: parameters =>
+        if (Options.ShowUpdateAsModal)
         {
-            parameters.Add("Title", "Update");
-            parameters.Add("Form", Mapper.Map<TUpdateForm>(item!)!);
-            parameters.Add("OnConfigure", Options.OnConfigureUpdate);
-            parameters.Add("OnSubmit", (Func<TUpdateForm, Task>)RunUpdate);
-        }, size: "2xl");
+            await ModalService.Launch<FormModal<TUpdateForm>>(buildAttributes: parameters =>
+            {
+                parameters.Add("Title", "Update");
+                parameters.Add("Form", UpdateForm);
+                parameters.Add("OnConfigure", UpdateFormConfigure);
+                parameters.Add("OnSubmit", (Func<TUpdateForm, Task>)RunUpdate);
+            }, size: "2xl");
+        }
+        else
+        {
+            ShowUpdatePage = true;
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
-    private async Task RunUpdate(TUpdateForm form)
+    private async Task RunUpdate(TUpdateForm _)
     {
-        await Options.UpdateFunction.Invoke(form, ItemToUpdate);
+        if (!Options.ShowUpdateAsModal)
+        {
+            ShowUpdatePage = false;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        await Options.UpdateFunction.Invoke(UpdateForm, ItemToUpdate);
 
         await ToastService.Success("Successfully updated item");
         await RefreshView();

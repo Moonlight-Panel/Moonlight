@@ -5,6 +5,7 @@ using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.ApiServer.App.Database;
+using Moonlight.ApiServer.App.Helpers;
 using Moonlight.ApiServer.App.Http.Middleware;
 using Moonlight.ApiServer.App.Implementations;
 using Moonlight.ApiServer.App.Implementations.Diagnose;
@@ -16,7 +17,14 @@ using Moonlight.Shared.Models;
 // Moonlight initialisation
 
 if (args.Length > 0)
+{
     Console.WriteLine("Starting with args: " + string.Join(" ", args));
+    
+    // Not a real "ef detection" but good enough for now
+    // TODO: Detect startup args for ef
+
+    ExecutionMetadata.IsRunningEf = true;
+}
 
 // Prepare file system
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -28,6 +36,8 @@ Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 var configService = new ConfigService<AppConfiguration>(
     PathBuilder.File("storage", "config.json")
 );
+
+ExecutionMetadata.ConfigService = configService;
 
 var appConfiguration = configService.Get();
 

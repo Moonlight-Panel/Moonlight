@@ -11,8 +11,16 @@ public abstract class DatabaseContext : DbContext
     private ConfigService<AppConfiguration> ConfigService;
     public abstract string Prefix { get; }
 
-    public DatabaseContext()
+    public DatabaseContext() // TODO: This
     {
+        if (!ExecutionMetadata.IsRunningEf)
+        {
+            //Console.WriteLine("The Di constructed the database context via the migration constructor. This is a bug in the Di and will be fixed soon");
+            
+            ConfigService = ExecutionMetadata.ConfigService;
+            return;
+        }
+        
         SetupAsMigrationInstance();
     }
 
