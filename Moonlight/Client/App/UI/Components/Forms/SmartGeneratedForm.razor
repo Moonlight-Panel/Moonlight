@@ -41,31 +41,40 @@
             <div class="@(section != CurrentPage.DefaultSection ? "mb-8" : "")">
                 @if (!string.IsNullOrEmpty(section.Title))
                 {
-                <h2 class="text-base font-semibold leading-7 text-slate-100">@(section.Title)</h2>
+                    <h2 class="text-base font-semibold leading-7 text-slate-100">@(section.Title)</h2>
                 }
                 @if (!string.IsNullOrEmpty(section.Description))
                 {
-                <p class="mt-1 text-sm leading-6 text-slate-400">@(section.Description)</p>
+                    <p class="mt-1 text-sm leading-6 text-slate-400">@(section.Description)</p>
                 }
             </div>
 
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                @foreach (var property in section.Properties)
+                @foreach (var item in section.Items)
                 {
-                    var componentInstance = ComponentsCache[property];
-                    
-                    <div class="sm:col-span-@(property.Columns ?? 3)">
-                        <label class="block text-sm font-medium leading-6 text-white">
-                            @(property.Name ?? Formatter.ConvertCamelCaseToSpaces(property.PropertyInfo.Name))
-                        </label>
-                        <div class="mt-2">
-                            <InstanceView Instance="componentInstance" />
+                    if (item is SmartFormComponent component)
+                    {
+                        <div class="sm:col-span-@(component.Columns)">
+                            @component.Render
                         </div>
-                        @if (!string.IsNullOrEmpty(property.Description))
-                        {
-                            <p class="mt-1 text-sm leading-6 text-slate-400">@(property.Description)</p>
-                        }
-                    </div>
+                    }
+                    else if (item is ISmartFormPropertyOption property)
+                    {
+                        var componentInstance = ComponentsCache[property];
+
+                        <div class="sm:col-span-@(property.Columns ?? 3)">
+                            <label class="block text-sm font-medium leading-6 text-white">
+                                @(property.Name ?? Formatter.ConvertCamelCaseToSpaces(property.PropertyInfo.Name))
+                            </label>
+                            <div class="mt-2">
+                                <InstanceView Instance="componentInstance"/>
+                            </div>
+                            @if (!string.IsNullOrEmpty(property.Description))
+                            {
+                                <p class="mt-1 text-sm leading-6 text-slate-400">@(property.Description)</p>
+                            }
+                        </div>
+                    }
                 }
             </div>
         </div>
@@ -87,7 +96,7 @@ class="sm:col-span-1 sm:col-span-2 sm:col-span-3 sm:col-span-4 sm:col-span-5 sm:
     private bool ShowNavigation = false;
     private SmartFormPageConfiguration<TForm>? CurrentPage = null;
 
-    private Dictionary<ISmartFormPropertyOption, ComponentBase> ComponentsCache = new();
+    private Dictionary<ISmartFormItem, ComponentBase> ComponentsCache = new();
 
     protected override void OnInitialized()
     {
@@ -104,16 +113,21 @@ class="sm:col-span-1 sm:col-span-2 sm:col-span-3 sm:col-span-4 sm:col-span-5 sm:
 
     private void InitComponents()
     {
-        var properties = Options
+        var items = Options
             .Pages.SelectMany(x => x.Sections)
-            .SelectMany(x => x.Properties)
+            .SelectMany(x => x.Items)
             .ToArray();
 
-        foreach (var property in properties)
+        foreach (var item in items)
         {
+            // We don't need to initialize other components besides the form components
+            // so we skip them here
+            if (item is not ISmartFormPropertyOption property)
+                return;
+
             // Binder type
             var propBinderType = typeof(PropRefBinder<>).MakeGenericType(property.PropertyInfo.PropertyType);
-            
+
             // Binder instance
             var propBinder = Activator.CreateInstance(propBinderType, [
                 Model,
@@ -125,17 +139,17 @@ class="sm:col-span-1 sm:col-span-2 sm:col-span-3 sm:col-span-4 sm:col-span-5 sm:
 
             if (componentType == null)
                 throw new ArgumentException($"Unable to construct component for property '{property.PropertyInfo.Name}' as no component type has been set and no default type for '{property.PropertyInfo.PropertyType.FullName}' has been registered");
-            
+
             // Create component instance
             var componentInstance = (ComponentBase)Activator.CreateInstance(componentType)!;
-            
+
             // Set properties
             componentType.GetProperty("Binder")!.SetValue(componentInstance, propBinder);
-            
+
             // We need to pass the service provider here, as injected services wont work in the instance view component :c
             // this only affects the single component in the instance view, not all components below TODO: Docs for this
             componentType.GetProperty("ServiceProvider")!.SetValue(componentInstance, ServiceProvider);
-            
+
             // Call manual configure if required
             if (property.OnConfigureFunc != null)
             {
@@ -144,11 +158,11 @@ class="sm:col-span-1 sm:col-span-2 sm:col-span-3 sm:col-span-4 sm:col-span-5 sm:
                     .GetMethod("Invoke")!
                     .Invoke(property.OnConfigureFunc, [componentInstance]);
             }
-            
+
             // Set default value if specified
-            if(property.DefaultValue != null)
+            if (property.DefaultValue != null)
                 property.PropertyInfo.SetValue(Model, property.DefaultValue);
-            
+
             // Add component to cache
             ComponentsCache.Add(property, componentInstance);
         }

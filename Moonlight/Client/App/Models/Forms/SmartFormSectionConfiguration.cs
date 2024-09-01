@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.AspNetCore.Components;
 using MoonCore.Blazor.Helpers;
 
 namespace Moonlight.Client.App.Models.Forms;
@@ -10,7 +11,7 @@ public class SmartFormSectionConfiguration<TForm>
     public string? Title { get; set; }
     public string? Description { get; set; }
 
-    public readonly List<ISmartFormPropertyOption> Properties = new();
+    public readonly List<ISmartFormItem> Items = new();
     
     public SmartFormPropertyOption<TForm, TProperty> AddProperty<TProperty>(Expression<Func<TForm, TProperty>> func)
     {
@@ -18,7 +19,7 @@ public class SmartFormSectionConfiguration<TForm>
 
         option.PropertyInfo = FormHelper.GetPropertyInfo(func);
         
-        Properties.Add(option);
+        Items.Add(option);
         
         return option;
     }
@@ -30,8 +31,17 @@ public class SmartFormSectionConfiguration<TForm>
 
         option.PropertyInfo = propertyInfo;
         
-        Properties.Add(option);
+        Items.Add(option);
         
         return option;
+    }
+
+    public void AddComponent<T>(int columns = 6) where T : ComponentBase
+    {
+        Items.Add(new SmartFormComponent()
+        {
+            Render = ComponentHelper.FromType<T>(),
+            Columns = 6
+        });
     }
 }

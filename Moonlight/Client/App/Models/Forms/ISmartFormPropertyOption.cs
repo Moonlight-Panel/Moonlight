@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace Moonlight.Client.App.Models.Forms;
 
-public interface ISmartFormPropertyOption
+public interface ISmartFormPropertyOption : ISmartFormItem
 {
     //public List<IFastFormValidator> Validators { get; set; }
     //public FastFormPageConfiguration? PageConfiguration { get; set; }
