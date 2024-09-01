@@ -15,39 +15,49 @@
 
 @if (ShowCreatePage)
 {
-    <h2 class="mb-5 text-2xl font-normal leading-7 text-white sm:truncate sm:tracking-tight">
-        Create
-    </h2>
-
-    <SmartForm Model="CreateForm" OnSubmit="() => RunCreate(CreateForm)">
-        <SmartGeneratedForm Model="CreateForm" OnConfigure="CreateFormConfigure"/>
-
-        <div class="mt-3 flex justify-end">
-            <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+    <div class="pb-3 bg-slate-800 rounded-lg">
+        <div class="bg-slate-700 py-3 rounded-t-lg">
+            <div class="font-normal text-white text-lg ml-5">
                 Create
-            </button>
-
-            <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+            </div>
         </div>
-    </SmartForm>
+        <div class="py-3 px-5">
+            <SmartForm Model="CreateForm" OnSubmit="() => RunCreate(CreateForm)">
+                <SmartGeneratedForm Model="CreateForm" OnConfigure="CreateFormConfigure"/>
+
+                <div class="mt-3 flex justify-end">
+                    <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+                        Create
+                    </button>
+
+                    <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+                </div>
+            </SmartForm>
+        </div>
+    </div>
 }
 else if (ShowUpdatePage)
 {
-    <h2 class="mb-5 text-2xl font-normal leading-7 text-white sm:truncate sm:tracking-tight">
-        Update
-    </h2>
-
-    <SmartForm Model="UpdateForm" OnSubmit="() => RunUpdate(UpdateForm)">
-        <SmartGeneratedForm Model="UpdateForm" OnConfigure="UpdateFormConfigure"/>
-
-        <div class="mt-3 flex justify-end">
-            <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+    <div class="pb-3 bg-slate-800 rounded-lg">
+        <div class="bg-slate-700 py-3 rounded-t-lg">
+            <div class="font-normal text-white text-lg ml-5">
                 Update
-            </button>
-
-            <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+            </div>
         </div>
-    </SmartForm>
+        <div class="py-3 px-5">
+            <SmartForm Model="UpdateForm" OnSubmit="() => RunUpdate(UpdateForm)">
+                <SmartGeneratedForm Model="UpdateForm" OnConfigure="UpdateFormConfigure"/>
+
+                <div class="mt-3 flex justify-end">
+                    <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+                        Update
+                    </button>
+
+                    <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+                </div>
+            </SmartForm>
+        </div>
+    </div>
 }
 else
 {
@@ -188,15 +198,16 @@ else
 
     private async Task RunCreate(TCreateForm _)
     {
+        await Options.CreateFunction.Invoke(CreateForm);
+
+        await ToastService.Success("Successfully added item");
+        
         if (!Options.ShowCreateAsModal)
         {
             ShowCreatePage = false;
             await InvokeAsync(StateHasChanged);
         }
-
-        await Options.CreateFunction.Invoke(CreateForm);
-
-        await ToastService.Success("Successfully added item");
+        
         await RefreshView();
     }
 
@@ -271,14 +282,14 @@ else
 
     private async Task RunUpdate(TUpdateForm _)
     {
+        await Options.UpdateFunction.Invoke(UpdateForm, ItemToUpdate);
+
         if (!Options.ShowUpdateAsModal)
         {
             ShowUpdatePage = false;
             await InvokeAsync(StateHasChanged);
         }
-
-        await Options.UpdateFunction.Invoke(UpdateForm, ItemToUpdate);
-
+        
         await ToastService.Success("Successfully updated item");
         await RefreshView();
     }
