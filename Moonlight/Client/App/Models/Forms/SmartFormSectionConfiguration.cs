@@ -36,11 +36,11 @@ public class SmartFormSectionConfiguration<TForm>
         return option;
     }
 
-    public void AddComponent<T>(int columns = 6) where T : ComponentBase
+    public void AddComponent<T>(int columns = 6, Action<Dictionary<string, object>>? parameters = null) where T : ComponentBase
     {
         Items.Add(new SmartFormComponent()
         {
-            Render = ComponentHelper.FromType<T>(),
+            Render = ComponentHelper.FromType<T>(buildAttributes: parameters),
             Columns = 6
         });
     }
