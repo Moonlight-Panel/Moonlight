@@ -1,0 +1,89 @@
+<CascadingValue TValue="SmartTabs" Value="@this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+@if (NavStyle)
+{
+    <div class="text-base font-medium text-center text-slate-300">
+        <ul class="flex flex-wrap -mb-px">
+            @foreach (var tab in Tabs)
+            {
+                if (CurrentTab == tab)
+                {
+                    <a href="#" @onclick:preventDefault class="inline-block mt-3 me-3 px-1 pb-3 border-b-2 rounded-t-lg active text-white border-indigo-500" aria-current="page">
+                        @tab.Name
+                    </a>
+                }
+                else
+                {
+                    <a href="#" @onclick:preventDefault @onclick="() => SwitchTab(tab)" class="inline-block mt-3 me-3 px-1 pb-3 border-transparent rounded-t-lg hover:text-white hover:border-b-2 hover:border-indigo-500">
+                        @tab.Name
+                    </a>
+                }
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <div class="text-sm font-medium text-center border-b text-slate-400 border-slate-700 mb-5">
+        <ul class="flex flex-wrap -mb-px">
+            @foreach (var tab in Tabs)
+            {
+                if (CurrentTab == tab)
+                {
+                    <li class="me-2">
+                        <a @onclick:preventDefault href="#" class="inline-block p-4 border-b-2 rounded-t-lg active text-indigo-500 border-indigo-500" aria-current="page">
+                            @tab.Name
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="me-2">
+                        <a @onclick="() => SwitchTab(tab)" @onclick:preventDefault href="#" class="inline-block p-4 border-transparent rounded-t-lg hover:text-slate-300">
+                            @tab.Name
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}
+
+@if (CurrentTab != null)
+{
+    <div class="mt-5">
+        @CurrentTab.ChildContent
+    </div>
+}
+
+@code
+{
+    [Parameter] public bool NavStyle { get; set; } = false;
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    private readonly List<SmartTab> Tabs = new();
+    private SmartTab? CurrentTab = null;
+
+    public void AddTab(SmartTab tab)
+    {
+        if(!Tabs.Contains(tab))
+            Tabs.Add(tab);
+    }
+
+    public async Task SwitchTab(SmartTab tab)
+    {
+        CurrentTab = tab;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        CurrentTab = Tabs.FirstOrDefault();
+        await InvokeAsync(StateHasChanged);
+    }
+}

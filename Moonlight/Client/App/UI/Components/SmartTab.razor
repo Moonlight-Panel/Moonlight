@@ -1,0 +1,9 @@
+@code
+{
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Icon { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [CascadingParameter] public SmartTabs Tabs { get; set; }
+
+    protected override void OnParametersSet() => Tabs.AddTab(this);
+}

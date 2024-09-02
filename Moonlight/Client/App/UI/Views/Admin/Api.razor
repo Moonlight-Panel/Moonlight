@@ -58,7 +58,7 @@
                TCreateForm="CreateApiKeyRequest"
                TUpdateForm="UpdateApiKeyRequest"
                OnConfigure="OnConfigure">
-        <View>
+        <View Context="ViewContext">
             <SmartColumn TItem="DetailApiKeyResponse" Field="@(x => x.Name)" Title="Name" />
             <SmartColumn TItem="DetailApiKeyResponse" Field="@(x => x.Description)" Title="Description" />
             <SmartColumn TItem="DetailApiKeyResponse" Field="@(x => x.ExpireDate)" Title="Expire date">

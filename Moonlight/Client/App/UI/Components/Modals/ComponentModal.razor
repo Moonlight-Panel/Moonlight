@@ -1,0 +1,29 @@
+@inherits BaseModal
+
+<div class="px-5 py-3 border-b border-slate-700/60">
+    <div class="flex justify-between items-center">
+        <div class="font-semibold text-slate-100">@Title</div>
+        <button @onclick="Hide" class="text-slate-400 hover:text-slate-400">
+            <div class="sr-only">Close</div>
+            <svg class="fill-current" width="16" height="16" viewBox="0 0 16 16">
+                <path d="M7.95 6.536l4.242-4.243a1 1 0 111.415 1.414L9.364 7.95l4.243 4.242a1 1 0 11-1.415 1.415L7.95 9.364l-4.243 4.243a1 1 0 01-1.414-1.415L6.536 7.95 2.293 3.707a1 1 0 011.414-1.414L7.95 6.536z"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<div class="px-5 pt-4 pb-1">
+    @Component
+</div>
+
+<div class="px-5 py-4">
+    <div class="flex flex-wrap justify-end space-x-2">
+        <button @onclick="Hide" type="button" class="rounded-md bg-slate-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700">Close</button>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public string Title { get; set; } = "N/A";
+    [Parameter] public RenderFragment Component { get; set; }
+}

@@ -17,7 +17,7 @@ public abstract class BaseSubCrudController<TRootItem, TItem, TDetailResponse, T
     private readonly TRootItem RootItem;
     
     public string PermissionPrefix { get; set; } = "";
-    public abstract Func<TRootItem, List<TItem>> Property { get; set; }
+    public abstract Func<TRootItem, List<TItem>> Property { get; }
 
 
     protected BaseSubCrudController(
@@ -44,9 +44,9 @@ public abstract class BaseSubCrudController<TRootItem, TItem, TDetailResponse, T
                 statusCode: 500);
         }
 
-        if (rootItemRouteValue is not int rootItemId)
+        if (!int.TryParse(rootItemRouteValue.ToString() ?? "", out var rootItemId))
         {
-            throw new ApiException("'rootItem' route data was an invalid type (expected: int). Is your controller route correct?",
+            throw new ApiException("Unable to parse root item id. Is your controller route correct?",
                 statusCode: 500);
         }
         
