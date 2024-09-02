@@ -12,13 +12,4 @@ public class CoreDataContext : DatabaseContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<ApiKey> ApiKeys { get; set; }
-
-    public CoreDataContext()
-    {
-        SetupAsMigrationInstance();
-    }
-    
-    public CoreDataContext(ConfigService<AppConfiguration> configService) : base(configService)
-    {
-    }
 }

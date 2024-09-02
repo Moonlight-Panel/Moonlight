@@ -8,28 +8,21 @@ namespace Moonlight.ApiServer.App.Helpers.Database;
 
 public abstract class DatabaseContext : DbContext
 {
-    private ConfigService<AppConfiguration> ConfigService;
+    private readonly ConfigService<AppConfiguration> ConfigService;
     public abstract string Prefix { get; }
 
-    public DatabaseContext() // TODO: This
+    // Because we need to handle ef migrations without di
+    // we cannot use di to inject the config service
+    public DatabaseContext()
     {
-        if (!ExecutionMetadata.IsRunningEf)
+        if (ApplicationContext.IsRunningEfMigration)
         {
-            //Console.WriteLine("The Di constructed the database context via the migration constructor. This is a bug in the Di and will be fixed soon");
-            
-            ConfigService = ExecutionMetadata.ConfigService;
-            return;
+            ConfigService = new ConfigService<AppConfiguration>(
+                PathBuilder.File("storage", "config.json")
+            );
         }
-        
-        SetupAsMigrationInstance();
-    }
-
-    // This tells the activator utility the di uses to use this constructor
-    // https://stackoverflow.com/questions/32931716/dependency-injection-with-multiple-constructors
-    [ActivatorUtilitiesConstructor]
-    public DatabaseContext(ConfigService<AppConfiguration> configService)
-    {
-        ConfigService = configService;
+        else
+            ConfigService = ApplicationContext.ConfigService;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -62,15 +55,5 @@ public abstract class DatabaseContext : DbContext
         modelBuilder.Model.SetDefaultSchema(Prefix);
 
         base.OnModelCreating(modelBuilder);
-    }
-
-    protected void SetupAsMigrationInstance()
-    {
-        // I didnt trust the di to use the marked constructors so meh ¯\_(ツ)_/¯ 
-        //Console.WriteLine("Constructed via empty constructor");
-        
-        ConfigService = new ConfigService<AppConfiguration>(
-            PathBuilder.File("storage", "config.json")
-        );
     }
 }

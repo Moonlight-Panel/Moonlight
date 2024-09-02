@@ -23,7 +23,7 @@ if (args.Length > 0)
     // Not a real "ef detection" but good enough for now
     // TODO: Detect startup args for ef
 
-    ExecutionMetadata.IsRunningEf = true;
+    ApplicationContext.IsRunningEfMigration = true;
 }
 
 // Prepare file system
@@ -37,7 +37,7 @@ var configService = new ConfigService<AppConfiguration>(
     PathBuilder.File("storage", "config.json")
 );
 
-ExecutionMetadata.ConfigService = configService;
+ApplicationContext.ConfigService = configService;
 
 var appConfiguration = configService.Get();
 
@@ -53,8 +53,8 @@ var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
     configuration.FileLogging.RotateLogNameTemplate = PathBuilder.File("storage", "logs", "moonlight.log.{0}");
 });
 
-using var preLoggerFactory = new LoggerFactory(providers);
-var logger = preLoggerFactory.CreateLogger("Startup");
+using var loggerFactory = new LoggerFactory(providers);
+var logger = loggerFactory.CreateLogger("Startup");
 
 // Fancy start console output... yes very fancy :>
 var rainbow = new Crayon.Rainbow(0.5);
@@ -98,7 +98,7 @@ builder.Services.AddSingleton(configService);
 // TODO: Make configurable, reconsider location
 builder.Services.AddSingleton<IAuthenticationProvider, DefaultAuthenticationProvider>();
 
-var pluginService = new PluginService(preLoggerFactory.CreateLogger<PluginService>(), preLoggerFactory);
+var pluginService = new PluginService(loggerFactory.CreateLogger<PluginService>(), loggerFactory);
 builder.Services.AddSingleton(pluginService);
 await pluginService.Load();
 
@@ -110,7 +110,7 @@ pluginService.RegisterImplementation<IDiagnoseReporter, PluginDiagnoseReporter>(
 
 // Database
 logger.LogInformation("Preparing database connection");
-var databaseHelper = new DatabaseHelper(preLoggerFactory.CreateLogger<DatabaseHelper>());
+var databaseHelper = new DatabaseHelper(loggerFactory.CreateLogger<DatabaseHelper>());
 builder.Services.AddSingleton(databaseHelper);
 
 // Add db contexts here
@@ -138,7 +138,7 @@ if (appConfiguration.Development.EnableApiDocs)
     }));
 }
 
-var applicationService = new ApplicationService(preLoggerFactory.CreateLogger<ApplicationService>());
+var applicationService = new ApplicationService(loggerFactory.CreateLogger<ApplicationService>());
 builder.Services.AddSingleton(applicationService);
 
 var app = builder.Build();

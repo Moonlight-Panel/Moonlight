@@ -63,7 +63,7 @@ public class PluginService
 
             if (plugins.Length == 0)
             {
-                Logger.LogInformation("Loaded '{file}' as library", assembly.Location);
+                Logger.LogInformation("Loaded '{file}' as library", assembly.FullName);
                 LibraryAssemblies.Add(assembly);
             }
             else
