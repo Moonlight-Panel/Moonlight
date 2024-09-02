@@ -123,6 +123,7 @@ await pluginService.CallPlugins(x => x.OnAppBuilding(builder, databaseHelper));
 databaseHelper.GenerateMappings();
 builder.Services.AddScoped(typeof(DatabaseRepository<>));
 
+builder.Services.AddHttpContextAccessor();
 var controllerBuilder = builder.Services.AddControllers();
 
 foreach (var assembly in pluginService.PluginAssemblies)

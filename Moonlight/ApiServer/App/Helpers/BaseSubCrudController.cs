@@ -8,14 +8,49 @@ using Moonlight.Shared.Http.Resources;
 
 namespace Moonlight.ApiServer.App.Helpers;
 
-public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest, TCreateResponse, TUpdateRequest, TUpdateResponse> : Controller where TItem : class
+public abstract class BaseSubCrudController<TRootItem, TItem, TDetailResponse, TCreateRequest, TCreateResponse, TUpdateRequest, TUpdateResponse> : Controller 
+    where TItem : class 
+    where TRootItem : class
 {
     private readonly DatabaseRepository<TItem> ItemRepository;
+    private readonly DatabaseRepository<TRootItem> RootItemRepository;
+    private readonly TRootItem RootItem;
+    
     public string PermissionPrefix { get; set; } = "";
+    public abstract Func<TRootItem, List<TItem>> Property { get; set; }
 
-    protected BaseCrudController(DatabaseRepository<TItem> itemRepository)
+
+    protected BaseSubCrudController(
+        DatabaseRepository<TItem> itemRepository,
+        DatabaseRepository<TRootItem> rootItemRepository,
+        IHttpContextAccessor contextAccessor)
     {
         ItemRepository = itemRepository;
+        RootItemRepository = rootItemRepository;
+
+        var routeValues = contextAccessor.HttpContext!.Request.RouteValues;
+
+        if (!routeValues.ContainsKey("rootItem"))
+        {
+            throw new ApiException("'rootItem' route data was missing. Is your controller route correct?",
+                statusCode: 500);
+        }
+
+        var rootItemRouteValue = routeValues["rootItem"];
+
+        if (rootItemRouteValue == null)
+        {
+            throw new ApiException("'rootItem' route data was missing. Is your controller route correct?",
+                statusCode: 500);
+        }
+
+        if (rootItemRouteValue is not int rootItemId)
+        {
+            throw new ApiException("'rootItem' route data was an invalid type (expected: int). Is your controller route correct?",
+                statusCode: 500);
+        }
+        
+        RootItem = LoadRootItemById(rootItemId);
     }
 
     [HttpGet]
@@ -27,7 +62,7 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
         if (pageSize > 100)
             throw new ApiException("The page size cannot be greater than 100", statusCode: 400);
 
-        var itemSource = IncludeRelations(ItemRepository.Get());
+        var itemSource = Property.Invoke(RootItem);
         
         var items = itemSource
             .Skip(page * pageSize)
@@ -68,9 +103,10 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
         
         var item = Mapper.Map<TItem>(request!);
 
-        var finalItem = ItemRepository.Add(item);
+        Property.Invoke(RootItem).Add(item);
+        RootItemRepository.Update(RootItem);
 
-        var response = Mapper.Map<TCreateResponse>(finalItem);
+        var response = Mapper.Map<TCreateResponse>(item);
 
         return Ok(response);
     }
@@ -99,20 +135,33 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
             throw new MissingPermissionException([PermissionPrefix + ".delete"]);
         
         var item = LoadItemById(id);
-
-        ItemRepository.Delete(item);
+        
+        Property.Invoke(RootItem).Remove(item);
+        RootItemRepository.Update(RootItem);
 
         return NoContent();
     }
     
-    protected virtual IEnumerable<TItem> IncludeRelations(IQueryable<TItem> items) => items;
+    protected virtual IEnumerable<TRootItem> IncludeRelations(IQueryable<TRootItem> items) => items;
 
-    protected TItem LoadItemById(int id)
+    protected TRootItem LoadRootItemById(int id)
     {
-        var itemSource = IncludeRelations(ItemRepository.Get());
+        var itemSource = IncludeRelations(RootItemRepository.Get());
         
         var item = itemSource.FirstOrDefault(
-            GetIdExpression(id)
+            GetIdExpression<TRootItem>(id)
+        );
+
+        if (item == null)
+            throw new ApiException($"The root item with the id {id} does not exist", statusCode: 404);
+
+        return item;
+    }
+    
+    protected TItem LoadItemById(int id)
+    {
+        var item = ItemRepository.Get().FirstOrDefault(
+            GetIdExpression<TItem>(id)
         );
 
         if (item == null)
@@ -121,12 +170,12 @@ public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest,
         return item;
     }
 
-    private static Func<TItem, bool> GetIdExpression(int id)
+    private static Func<T, bool> GetIdExpression<T>(int id)
     {
-        var parameter = Expression.Parameter(typeof(TItem), "x");
+        var parameter = Expression.Parameter(typeof(T), "x");
         var property = Expression.Property(parameter, "Id");
         var constant = Expression.Constant(id);
         var equalityExpression = Expression.Equal(property, constant);
-        return Expression.Lambda<Func<TItem, bool>>(equalityExpression, parameter).Compile();
+        return Expression.Lambda<Func<T, bool>>(equalityExpression, parameter).Compile();
     }
 }
