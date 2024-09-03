@@ -15,7 +15,7 @@
 
 @if (ShowCreatePage)
 {
-    <div class="bg-slate-700 py-3 rounded-t-lg">
+    <div class="bg-slate-700 py-3 rounded-lg">
         <div class="font-normal text-white text-lg ml-3">
             <div class="flex items-center">
                 <i class="bi bi-chevron-left text-slate-300"></i>
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <div class="px-5 mt-5 bg-slate-800 rounded-lg">
+    <div class="px-5 py-3 mt-5 bg-slate-800 rounded-lg">
         <SmartForm Model="CreateForm" OnSubmit="() => RunCreate(CreateForm)">
             <SmartGeneratedForm Model="CreateForm" OnConfigure="CreateFormConfigure"/>
 
@@ -49,7 +49,7 @@ else if (ShowUpdatePage)
         </div>
     </div>
 
-    <div class="px-5 mt-3 bg-slate-800 rounded-lg">
+    <div class="px-5 py-3 mt-3 bg-slate-800 rounded-lg">
         <SmartForm Model="UpdateForm" OnSubmit="() => RunUpdate(UpdateForm)">
             <SmartGeneratedForm Model="UpdateForm" OnConfigure="UpdateFormConfigure"/>
 
