@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
+        scp: ['Source Code Pro', 'mono'],
       }
     },
   },

@@ -9,10 +9,13 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- TODO: We need to figure out a way to extract all css classes from a plugin--->
     <link href="/css/style.css" rel="stylesheet"/>
 </head>
 
-<body class="text-white">
+<body class="text-white font-scp">
 <div id="app">
 
     <!-- Loader --->
@@ -43,7 +46,8 @@
 <div id="blazor-error-ui">
     <div class="z-50 absolute top-0 w-full">
         <div class="p-4 text-sm bg-slate-800 text-red-400" role="alert">
-            <span class="font-medium">Moonlight client crashed!</span> An unhandled error has occurred. Reload the page to restart
+            <span class="font-medium">Moonlight client crashed!</span> An unhandled error has occurred. Reload the page
+            to restart
         </div>
     </div>
 </div>
