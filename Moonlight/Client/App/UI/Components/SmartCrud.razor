@@ -15,54 +15,52 @@
 
 @if (ShowCreatePage)
 {
-    <div class="pb-3 bg-slate-800 rounded-lg">
-        <div class="bg-slate-700 py-3 rounded-t-lg">
-            <div class="font-normal text-white text-lg ml-3">
-                <div class="flex items-center">
-                    <i class="bi bi-chevron-left text-slate-300"></i>
-                    <span class="ml-2">Create</span>
-                </div>
+    <div class="bg-slate-700 py-3 rounded-t-lg">
+        <div class="font-normal text-white text-lg ml-3">
+            <div class="flex items-center">
+                <i class="bi bi-chevron-left text-slate-300"></i>
+                <span class="ml-2">Create</span>
             </div>
         </div>
-        <div class="py-3 px-5">
-            <SmartForm Model="CreateForm" OnSubmit="() => RunCreate(CreateForm)">
-                <SmartGeneratedForm Model="CreateForm" OnConfigure="CreateFormConfigure"/>
+    </div>
 
-                <div class="mt-3 flex justify-end">
-                    <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
-                        Create
-                    </button>
+    <div class="px-5 mt-5 bg-slate-800 rounded-lg">
+        <SmartForm Model="CreateForm" OnSubmit="() => RunCreate(CreateForm)">
+            <SmartGeneratedForm Model="CreateForm" OnConfigure="CreateFormConfigure"/>
 
-                    <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
-                </div>
-            </SmartForm>
-        </div>
+            <div class="mt-3 flex justify-end">
+                <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+                    Create
+                </button>
+
+                <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+            </div>
+        </SmartForm>
     </div>
 }
 else if (ShowUpdatePage)
 {
-    <div class="pb-3 bg-slate-800 rounded-lg">
-        <div class="bg-slate-700 py-3 rounded-t-lg">
-            <div class="font-normal text-white text-lg ml-3">
-                <div class="flex items-center">
-                    <i class="bi bi-chevron-left text-slate-300"></i>
-                    <span class="ml-2">Update</span>
-                </div>
+    <div class="bg-slate-700 py-3 rounded-lg">
+        <div class="font-normal text-white text-lg ml-3">
+            <div class="flex items-center">
+                <i class="bi bi-chevron-left text-slate-300"></i>
+                <span class="ml-2">Update</span>
             </div>
         </div>
-        <div class="py-3 px-5">
-            <SmartForm Model="UpdateForm" OnSubmit="() => RunUpdate(UpdateForm)">
-                <SmartGeneratedForm Model="UpdateForm" OnConfigure="UpdateFormConfigure"/>
+    </div>
 
-                <div class="mt-3 flex justify-end">
-                    <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
-                        Update
-                    </button>
+    <div class="px-5 mt-3 bg-slate-800 rounded-lg">
+        <SmartForm Model="UpdateForm" OnSubmit="() => RunUpdate(UpdateForm)">
+            <SmartGeneratedForm Model="UpdateForm" OnConfigure="UpdateFormConfigure"/>
 
-                    <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
-                </div>
-            </SmartForm>
-        </div>
+            <div class="mt-3 flex justify-end">
+                <button type="submit" class="text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 me-2">
+                    Update
+                </button>
+
+                <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Cancel</WButton>
+            </div>
+        </SmartForm>
     </div>
 }
 else if (ShowDetailsPage)
@@ -75,7 +73,7 @@ else if (ShowDetailsPage)
             </div>
         </div>
     </div>
-    
+
     <div class="px-5 mt-3">
         @DetailView.Invoke(ItemToShowDetails)
 
