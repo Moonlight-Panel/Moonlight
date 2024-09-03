@@ -15,12 +15,8 @@ namespace Moonlight.ApiServer.App.Http.Controllers.Admin;
 [Route("admin/apikeys")]
 public class ApiKeysController : BaseCrudController<ApiKey, DetailApiKeyResponse, CreateApiKeyRequest, CreateApiKeyResponse, UpdateApiKeyRequest, DetailApiKeyResponse>
 {
-    private DatabaseRepository<ApiKey> ApiKeyRepository;
-    
     public ApiKeysController(DatabaseRepository<ApiKey> itemRepository) : base(itemRepository)
     {
-        ApiKeyRepository = itemRepository;
-        
         PermissionPrefix = "admin.apikeys";
     }
 
@@ -54,7 +50,7 @@ public class ApiKeysController : BaseCrudController<ApiKey, DetailApiKeyResponse
             .ToString()
             .Replace("-", "");
 
-        var finalApiKey = ApiKeyRepository.Add(apiKey);
+        var finalApiKey = ItemRepository.Add(apiKey);
 
         var result = Mapper.Map<CreateApiKeyResponse>(finalApiKey);
         return Ok(result);

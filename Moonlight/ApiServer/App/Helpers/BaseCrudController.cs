@@ -10,7 +10,7 @@ namespace Moonlight.ApiServer.App.Helpers;
 
 public abstract class BaseCrudController<TItem, TDetailResponse, TCreateRequest, TCreateResponse, TUpdateRequest, TUpdateResponse> : Controller where TItem : class
 {
-    private readonly DatabaseRepository<TItem> ItemRepository;
+    protected readonly DatabaseRepository<TItem> ItemRepository;
     public string PermissionPrefix { get; set; } = "";
 
     protected BaseCrudController(DatabaseRepository<TItem> itemRepository)

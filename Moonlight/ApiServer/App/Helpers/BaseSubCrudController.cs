@@ -12,9 +12,9 @@ public abstract class BaseSubCrudController<TRootItem, TItem, TDetailResponse, T
     where TItem : class 
     where TRootItem : class
 {
-    private readonly DatabaseRepository<TItem> ItemRepository;
-    private readonly DatabaseRepository<TRootItem> RootItemRepository;
-    private readonly TRootItem RootItem;
+    protected readonly DatabaseRepository<TItem> ItemRepository;
+    protected readonly DatabaseRepository<TRootItem> RootItemRepository;
+    protected readonly TRootItem RootItem;
     
     public string PermissionPrefix { get; set; } = "";
     public abstract Func<TRootItem, List<TItem>> Property { get; }

@@ -17,12 +17,8 @@ namespace Moonlight.ApiServer.App.Http.Controllers.Admin.Users;
 [Route("admin/users")]
 public class UsersController : BaseCrudController<User, DetailUserResponse, CreateUserRequest, DetailUserResponse, UpdateUserRequest, DetailUserResponse>
 {
-    private readonly DatabaseRepository<User> UserRepository;
-    
     public UsersController(DatabaseRepository<User> itemRepository) : base(itemRepository)
     {
-        UserRepository = itemRepository;
-        
         PermissionPrefix = "admin.users";
     }
 
@@ -32,17 +28,17 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
     {
         request.Email = request.Email.ToLower();
         
-        if (UserRepository.Get().Any(x => x.Email == request.Email))
+        if (ItemRepository.Get().Any(x => x.Email == request.Email))
             throw new ApiException("A user with that email address already exists", statusCode: 400);
         
-        if (UserRepository.Get().Any(x => x.Username == request.Username))
+        if (ItemRepository.Get().Any(x => x.Username == request.Username))
             throw new ApiException("A user with that username already exists", statusCode: 400);
 
         request.Password = HashHelper.Hash(request.Password);
         
         var item = Mapper.Map<User>(request!);
 
-        var finalItem = UserRepository.Add(item);
+        var finalItem = ItemRepository.Add(item);
 
         var response = Mapper.Map<DetailUserResponse>(finalItem);
 
@@ -55,10 +51,10 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
     {
         var item = LoadItemById(id);
 
-        if (UserRepository.Get().Any(x => x.Email == request.Email && x.Id != item.Id))
+        if (ItemRepository.Get().Any(x => x.Email == request.Email && x.Id != item.Id))
             throw new ApiException("A user with that email address already exists", statusCode: 400);
 
-        if (UserRepository.Get().Any(x => x.Username == request.Username && x.Id != item.Id))
+        if (ItemRepository.Get().Any(x => x.Username == request.Username && x.Id != item.Id))
             throw new ApiException("A user with that username already exists", statusCode: 400);
 
         if (!string.IsNullOrEmpty(request.Password))
@@ -84,7 +80,7 @@ public class UsersController : BaseCrudController<User, DetailUserResponse, Crea
         if(!string.IsNullOrEmpty(request.Password))
             mappedItem.TokenValidTime = DateTime.UtcNow;
         
-        UserRepository.Update(mappedItem);
+        ItemRepository.Update(mappedItem);
 
         return Mapper.Map<DetailUserResponse>(mappedItem);
     }
