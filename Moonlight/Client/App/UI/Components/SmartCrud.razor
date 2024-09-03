@@ -67,21 +67,20 @@ else if (ShowUpdatePage)
 }
 else if (ShowDetailsPage)
 {
-    <div class="pb-3 bg-slate-800 rounded-lg">
-        <div class="bg-slate-700 py-3 rounded-t-lg">
-            <div class="font-normal text-white text-lg ml-3">
-                <div class="flex items-center">
-                    <i class="bi bi-chevron-left text-slate-300"></i>
-                    <span class="ml-2">Details</span>
-                </div>
+    <div class="bg-slate-700 py-3 rounded-lg">
+        <div class="font-normal text-white text-lg ml-3">
+            <div class="flex items-center">
+                <i class="bi bi-chevron-left text-slate-300"></i>
+                <span class="ml-2">Details</span>
             </div>
         </div>
-        <div class="py-3 px-5">
-            @DetailView.Invoke(ItemToShowDetails)
-            
-            <div class="mt-3 flex justify-end">
-                <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Back</WButton>
-            </div>
+    </div>
+    
+    <div class="px-5 mt-3">
+        @DetailView.Invoke(ItemToShowDetails)
+
+        <div class="mt-3 flex justify-end">
+            <WButton OnClick="_ => GoToView()" CssClasses="bg-slate-600 hover:bg-slate-700">Back</WButton>
         </div>
     </div>
 }
@@ -177,11 +176,10 @@ else
 
     private Action<SmartFormOption<TCreateForm>> CreateFormConfigure;
     private Action<SmartFormOption<TUpdateForm>> UpdateFormConfigure;
-    
+
     // Details
-    
-    [Parameter]
-    public RenderFragment<TItem> DetailView { get; set; }
+
+    [Parameter] public RenderFragment<TItem> DetailView { get; set; }
     private TItem ItemToShowDetails;
     private bool ShowDetailsPage = false;
 
@@ -203,7 +201,7 @@ else
         ShowCreatePage = false;
         ShowUpdatePage = false;
         ShowDetailsPage = false;
-        
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -236,13 +234,13 @@ else
         await Options.CreateFunction.Invoke(CreateForm);
 
         await ToastService.Success("Successfully added item");
-        
+
         if (!Options.ShowCreateAsModal)
         {
             ShowCreatePage = false;
             await InvokeAsync(StateHasChanged);
         }
-        
+
         await RefreshView();
     }
 
@@ -324,7 +322,7 @@ else
             ShowUpdatePage = false;
             await InvokeAsync(StateHasChanged);
         }
-        
+
         await ToastService.Success("Successfully updated item");
         await RefreshView();
     }
@@ -336,7 +334,7 @@ else
     public async Task LaunchDetails(TItem item)
     {
         ItemToShowDetails = item;
-        
+
         if (Options.ShowDetailsAsModal)
         {
             await ModalService.Launch<ComponentModal>(buildAttributes: parameters =>
@@ -351,7 +349,7 @@ else
             await InvokeAsync(StateHasChanged);
         }
     }
-    
+
     #endregion
 
     #region Selection
