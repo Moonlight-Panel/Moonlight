@@ -17,4 +17,8 @@ public class CrudOptions<TItem, TCreateForm, TUpdateForm>
     public bool ShowCreateAsModal { get; set; } = true;
     public bool ShowUpdateAsModal { get; set; } = true;
     public bool ShowDetailsAsModal { get; set; } = true;
+
+    public bool ShowCreatesBar { get; set; } = true;
+    public bool ShowDetailsBar { get; set; } = true;
+    public bool ShowUpdateBar { get; set; } = true;
 }
