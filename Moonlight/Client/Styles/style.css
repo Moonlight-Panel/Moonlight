@@ -6,25 +6,14 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-/* Scrollbar */
-
-::-webkit-scrollbar{
-    width: 10px;
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #64748b transparent;
 }
 
-::-webkit-scrollbar-track-piece{
-    background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb{
-    background-color: #CBCBCB;
-    outline: 2px solid #FFF;
-    outline-offset: -2px;
-    border: .1px solid #B7B7B7;
-}
-
-::-webkit-scrollbar-thumb:hover{
-    background-color: #909090;
+.no-scrollbar {
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
 }
 
 #blazor-error-ui {
