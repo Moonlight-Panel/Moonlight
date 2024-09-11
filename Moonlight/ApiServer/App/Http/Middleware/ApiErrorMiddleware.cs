@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Net.Sockets;
+using MoonCore.Exceptions;
 using Moonlight.ApiServer.App.Exceptions;
 
 namespace Moonlight.ApiServer.App.Http.Middleware;
@@ -22,7 +25,57 @@ public class ApiErrorMiddleware
             await Results.Problem(
                 title: e.Title,
                 detail: e.Detail,
-                statusCode: e.StatusCode
+                statusCode: e.StatusCode,
+                type: "moonlight/api-server-error"
+            ).ExecuteAsync(context);
+        }
+        catch (HttpApiException httpApiException)
+        {
+            await Results.Problem(
+                title: httpApiException.Title,
+                detail: httpApiException.Detail,
+                statusCode: httpApiException.Status,
+                type: "moonlight/remote-api-error"
+            ).ExecuteAsync(context);
+        }
+        catch (HttpRequestException e)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<ApiErrorMiddleware>>();
+            
+            if (e.InnerException is SocketException)
+            {
+                logger.LogCritical("An unhandled socket exception occured. [{method}] {path}: {e}", context.Request.Method, context.Request.Path, e);
+            
+                await Results.Problem(
+                    title: "An socket exception occured on the api server",
+                    detail: "Check the api server logs for more details",
+                    statusCode: 502,
+                    type: "moonlight/remote-api-connection-error"
+                ).ExecuteAsync(context);
+                
+                return;
+            }
+            
+            logger.LogCritical("An unhandled exception occured. [{method}] {path}: {e}", context.Request.Method, context.Request.Path, e.Demystify());
+            
+            await Results.Problem(
+                title: "An http request exception occured on the api server",
+                detail: "Check the api server logs for more details",
+                statusCode: 500,
+                type: "moonlight/remote-api-request-error"
+            ).ExecuteAsync(context);
+        }
+        catch (Exception e)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<ApiErrorMiddleware>>();
+            
+            logger.LogCritical("An unhandled exception occured. [{method}] {path}: {e}", context.Request.Method, context.Request.Path, e);
+            
+            await Results.Problem(
+                title: "An unhanded exception occured on the api server",
+                detail: "Check the api server logs for more details",
+                statusCode: 500,
+                type: "moonlight/critical-api-error"
             ).ExecuteAsync(context);
         }
     }
