@@ -24,6 +24,43 @@
         </ul>
     </div>
 }
+else if (BarStyle)
+{
+    <div class="bg-slate-800 rounded-lg">
+        <div class="font-normal text-white text-lg ml-3 flex flex-row">
+            <div class="flex items-center">
+                <div class="my-3">
+                    <i class="bi bi-chevron-left text-slate-300"></i>
+                    <a href="#" @onclick:preventDefault @onclick="() => BarClick.Invoke()" class="ml-2 hidden sm:inline">
+                        @BarText
+                    </a>
+                </div>
+            </div>
+
+            <div class="ml-4 sm:ml-10 flex items-end overflow-x-scroll sm:overflow-x-auto overflow-y-clip no-scrollbar">
+                <div class="mb-0.5">
+                    <ul class="flex flex-row -mb-px text-base">
+                        @foreach (var tab in Tabs)
+                        {
+                            if (CurrentTab == tab)
+                            {
+                                <a href="#" @onclick:preventDefault class="inline-block me-3 px-1 pb-2.5 border-b-2 rounded-t-lg active text-white border-indigo-500" aria-current="page">
+                                    @tab.Name
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="#" @onclick:preventDefault @onclick="() => SwitchTab(tab)" class="inline-block me-3 px-1 pb-2.5 border-transparent rounded-t-lg hover:text-white hover:border-b-2 hover:border-indigo-500">
+                                    @tab.Name
+                                </a>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 else
 {
     <div class="text-sm font-medium text-center border-b text-slate-400 border-slate-700 mb-5">
@@ -61,6 +98,11 @@ else
 @code
 {
     [Parameter] public bool NavStyle { get; set; } = false;
+    [Parameter] public bool BarStyle { get; set; } = false;
+
+    [Parameter] public Func<Task> BarClick { get; set; }
+    [Parameter] public string BarText { get; set; } = "";
+
     [Parameter] public RenderFragment ChildContent { get; set; }
 
     private readonly List<SmartTab> Tabs = new();
@@ -68,7 +110,7 @@ else
 
     public void AddTab(SmartTab tab)
     {
-        if(!Tabs.Contains(tab))
+        if (!Tabs.Contains(tab))
             Tabs.Add(tab);
     }
 
