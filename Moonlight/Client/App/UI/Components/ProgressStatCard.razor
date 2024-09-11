@@ -1,0 +1,63 @@
+<div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+    <div>
+        @if (!string.IsNullOrEmpty(Icon))
+        {
+            <div class="absolute rounded-md p-3 @(IconColor)">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="@(Icon) text-3xl text-white"></i>
+                </div>
+            </div>
+        }
+        <p class="@(string.IsNullOrEmpty(Icon) ? "ml-2" : "ml-16") truncate text-sm font-medium text-slate-500">@(Title)</p>
+    </div>
+
+    <div class="@(string.IsNullOrEmpty(Icon) ? "ml-2" : "ml-16") flex items-baseline">
+        <div class="mt-2.5 w-full rounded-full h-4 mb-4 bg-slate-700">
+            @{
+                var percent = CalculatePercent();
+                var percentRounded = Math.Round(percent);
+
+                string color;
+
+                if (UsePercentColor)
+                {
+                    if (percentRounded >= 60 && percentRounded < 80)
+                        color = "bg-amber-400";
+                    else if (percentRounded >= 80)
+                        color = "bg-red-400";
+                    else
+                        color = "bg-blue-500";
+                }
+                else
+                    color = ProgressColor;
+            }
+
+            <div class="h-4 rounded-full text-center text-white text-xs font-medium @color" style="width: @(percentRounded)%">
+                @if (ShowPercent)
+                {
+                    <span>@(percentRounded)%</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public string IconColor { get; set; } = "bg-indigo-600";
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public int CurrentValue { get; set; } = 0;
+    [Parameter] public int MaxValue { get; set; } = 0;
+    [Parameter] public bool ShowPercent { get; set; } = false;
+    [Parameter] public bool UsePercentColor { get; set; } = true;
+    [Parameter] public string ProgressColor { get; set; } = "";
+
+    private float CalculatePercent()
+    {
+        if (MaxValue <= 0 || CurrentValue <= 0)
+            return 0;
+
+        return CurrentValue * MaxValue / 100f;
+    }
+}
