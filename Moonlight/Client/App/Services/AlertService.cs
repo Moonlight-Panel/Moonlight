@@ -18,6 +18,7 @@ public class AlertService
     public Task Success(string title, string text) => LaunchInternal<SuccessAlert>(title, text);
     public Task Warning(string title, string text) => LaunchInternal<WarningAlert>(title, text);
     public Task Error(string title, string text) => LaunchInternal<ErrorAlert>(title, text);
+    public Task ErrorLog(string title, string text) => LaunchInternal<ErrorLogAlert>(title, text, size: "2xl");
 
     public async Task DangerConfirm(string text, Func<Task> onConfirm, string? icon = null)
     {
@@ -31,12 +32,12 @@ public class AlertService
         });
     }
 
-    private async Task LaunchInternal<T>(string title, string text) where T : BaseModal
+    private async Task LaunchInternal<T>(string title, string text, string size = "lg") where T : BaseModal
     {
         await ModalService.Launch<T>(buildAttributes: parameters =>
         {
             parameters.Add("Title", title);
             parameters.Add("Text", text);
-        });
+        }, size: size);
     }
 }
