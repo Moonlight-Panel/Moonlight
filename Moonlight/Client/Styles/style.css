@@ -16,6 +16,10 @@
     scrollbar-color: transparent transparent;
 }
 
+.progress-bar-transition {
+    transition: width 0.6s ease;
+}
+
 #blazor-error-ui {
     display: none;
 }

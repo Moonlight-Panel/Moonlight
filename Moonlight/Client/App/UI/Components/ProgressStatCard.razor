@@ -1,4 +1,4 @@
-<div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 pb-5 pt-5 shadow">
+<div class="relative overflow-hidden rounded-lg bg-slate-800 px-4 @(string.IsNullOrEmpty(Icon) ? "pt-3 pb-3" : "pb-5 pt-5") shadow">
     <div>
         @if (!string.IsNullOrEmpty(Icon))
         {
@@ -12,7 +12,7 @@
     </div>
 
     <div class="@(string.IsNullOrEmpty(Icon) ? "ml-2" : "ml-16") flex items-baseline">
-        <div class="mt-2.5 w-full rounded-full h-4 mb-4 bg-slate-700">
+        <div class="mt-2.5 w-full rounded-full mb-2 h-4 bg-slate-700">
             @{
                 var percent = CalculatePercent();
                 var percentRounded = Math.Round(percent);
@@ -32,7 +32,7 @@
                     color = ProgressColor;
             }
 
-            <div class="h-4 rounded-full text-center text-white text-xs font-medium @color" style="width: @(percentRounded)%">
+            <div class="h-4 rounded-full text-center text-white text-xs font-medium progress-bar-transition @color" style="width: @(percentRounded)%">
                 @if (ShowPercent)
                 {
                     <span>@(percentRounded)%</span>
@@ -47,17 +47,17 @@
     [Parameter] public string Icon { get; set; } = "";
     [Parameter] public string IconColor { get; set; } = "bg-indigo-600";
     [Parameter] public string Title { get; set; } = "";
-    [Parameter] public int CurrentValue { get; set; } = 0;
-    [Parameter] public int MaxValue { get; set; } = 0;
+    [Parameter] public double CurrentValue { get; set; } = 0;
+    [Parameter] public double MaxValue { get; set; } = 0;
     [Parameter] public bool ShowPercent { get; set; } = false;
     [Parameter] public bool UsePercentColor { get; set; } = true;
     [Parameter] public string ProgressColor { get; set; } = "";
 
-    private float CalculatePercent()
+    private double CalculatePercent()
     {
         if (MaxValue <= 0 || CurrentValue <= 0)
             return 0;
 
-        return CurrentValue * MaxValue / 100f;
+        return CurrentValue * MaxValue / 100;
     }
 }
