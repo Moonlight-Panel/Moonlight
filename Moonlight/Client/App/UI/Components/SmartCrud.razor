@@ -118,7 +118,7 @@ else
                 </Template>
             </SmartColumn>
 
-            @View.Invoke(this)
+            @View
 
             <SmartColumn TItem="TItem" HeadCssClasses="">
                 <HeadTemplate>
@@ -162,7 +162,7 @@ else
 
 @code
 {
-    [Parameter] public RenderFragment<SmartCrud<TItem, TCreateForm, TUpdateForm>> View { get; set; }
+    [Parameter] public RenderFragment View { get; set; }
     [Parameter] public Action<CrudOptions<TItem, TCreateForm, TUpdateForm>> OnConfigure { get; set; }
 
     [Parameter] public RenderFragment<TItem[]>? SelectionActions { get; set; }
@@ -203,7 +203,7 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task GoToView()
+    public async Task GoToView()
     {
         ShowCreatePage = false;
         ShowUpdatePage = false;
