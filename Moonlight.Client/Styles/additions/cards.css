@@ -1,0 +1,19 @@
+.card {
+    @apply flex flex-col bg-gray-800 shadow-sm rounded-xl;
+}
+
+.card-header {
+    @apply px-5 py-4 border-b border-gray-700/60 flex items-center;
+}
+
+.card-title {
+    @apply font-semibold text-gray-100;
+}
+
+.card-body {
+    @apply px-5 py-5;
+}
+
+.card-footer {
+    @apply pt-3 pb-3 border-t border-gray-700/60 mt-auto;
+}

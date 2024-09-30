@@ -1,6 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight", "Moonlight\Moonlight.csproj", "{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.ApiServer", "Moonlight.ApiServer\Moonlight.ApiServer.csproj", "{B1286CB5-0A6E-4E06-A937-9F5FE1662C5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Client", "Moonlight.Client\Moonlight.Client.csproj", "{8E3F3B36-544D-4FB4-94E9-4572FF099B19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Shared", "Moonlight.Shared\Moonlight.Shared.csproj", "{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,10 +12,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9AD26D2-AAA7-4C57-884D-5AACAA54D5B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1286CB5-0A6E-4E06-A937-9F5FE1662C5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1286CB5-0A6E-4E06-A937-9F5FE1662C5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1286CB5-0A6E-4E06-A937-9F5FE1662C5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1286CB5-0A6E-4E06-A937-9F5FE1662C5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E3F3B36-544D-4FB4-94E9-4572FF099B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E3F3B36-544D-4FB4-94E9-4572FF099B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E3F3B36-544D-4FB4-94E9-4572FF099B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E3F3B36-544D-4FB4-94E9-4572FF099B19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

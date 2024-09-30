@@ -1,0 +1,9 @@
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #64748b transparent;
+}
+
+.no-scrollbar {
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+}

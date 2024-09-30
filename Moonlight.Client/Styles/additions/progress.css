@@ -1,0 +1,25 @@
+.progress {
+    @apply bg-gray-800 rounded-full overflow-hidden;
+}
+
+.progress-bar {
+    @apply bg-primary-500 rounded-full h-3;
+    transition: width 0.6s ease;
+}
+
+.progress-bar.progress-intermediate {
+    animation: progress-animation 1s infinite linear;
+    transform-origin: 0 50%
+}
+
+@keyframes progress-animation {
+    0% {
+        transform: translateX(0) scaleX(0);
+    }
+    40% {
+        transform: translateX(0) scaleX(0.4);
+    }
+    100% {
+        transform: translateX(100%) scaleX(0.5);
+    }
+}

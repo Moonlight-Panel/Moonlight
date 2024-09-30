@@ -1,0 +1,80 @@
+/* Buttons */
+
+.btn,
+.btn-lg,
+.btn-sm,
+.btn-xs {
+    @apply font-medium text-sm inline-flex items-center justify-center border border-transparent rounded-lg leading-5 shadow-sm transition;
+}
+
+.btn {
+    @apply px-3 py-2;
+}
+
+.btn-lg {
+    @apply px-4 py-3;
+}
+
+.btn-sm {
+    @apply px-2 py-1;
+}
+
+.btn-xs {
+    @apply px-2 py-0.5;
+}
+
+/* Colors */
+
+.btn-primary {
+    @apply bg-primary-600 hover:bg-primary-500 focus-visible:outline-primary-600;
+}
+
+.btn-secondary {
+    @apply bg-secondary-800 hover:bg-secondary-700 focus-visible:outline-secondary-800;
+}
+
+.btn-tertiary {
+    @apply bg-tertiary-600 hover:bg-tertiary-500 focus-visible:outline-tertiary-600;
+}
+
+.btn-danger {
+    @apply bg-danger-600 hover:bg-danger-500 focus-visible:outline-danger-600;
+}
+
+.btn-warning {
+    @apply bg-warning-500 hover:bg-warning-400 focus-visible:outline-warning-500;
+}
+
+.btn-info {
+    @apply bg-info-600 hover:bg-info-500 focus-visible:outline-info-600;
+}
+
+.btn-success {
+    @apply bg-success-600 hover:bg-success-500 focus-visible:outline-success-600;
+}
+
+/* Outline */
+
+.btn-outline-primary {
+    @apply bg-gray-800 hover:border-gray-600 text-primary-500;
+}
+
+.btn-outline-tertiary {
+    @apply bg-gray-800 hover:border-gray-600 text-tertiary-500;
+}
+
+.btn-outline-danger {
+    @apply bg-gray-800 hover:border-gray-600 text-danger-500;
+}
+
+.btn-outline-warning {
+    @apply bg-gray-800 hover:border-gray-600 text-warning-400;
+}
+
+.btn-outline-info {
+    @apply bg-gray-800 hover:border-gray-600 text-info-500;
+}
+
+.btn-outline-success {
+    @apply bg-gray-800 hover:border-gray-600 text-success-500;
+}

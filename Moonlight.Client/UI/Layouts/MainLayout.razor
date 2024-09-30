@@ -1,0 +1,35 @@
+﻿@using MoonCore.Helpers
+@using Moonlight.Client.UI.Partials
+
+@inherits LayoutComponentBase
+
+<div>
+    <AppSidebar Layout="this" />
+    
+    <div class="lg:pl-72">
+        <AppHeader Layout="this"/>
+
+        <ErrorHandler>
+            <main class="py-10">
+                <div class="px-4 sm:px-6 lg:px-8">
+                    @Body
+                </div>
+            </main>
+        </ErrorHandler>
+
+        <ToastLauncher />
+        <ModalLauncher />
+    </div>
+</div>
+
+@code
+{
+    public event Func<Task> OnStateChanged; 
+    public bool ShowMobileNavigation { get; private set; } = false;
+
+    public async Task ToggleMobileNavigation()
+    {
+        ShowMobileNavigation = !ShowMobileNavigation;
+        await OnStateChanged();
+    }
+}
