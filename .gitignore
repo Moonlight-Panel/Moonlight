@@ -424,3 +424,4 @@ FodyWeavers.xsd
 storage/
 Moonlight/Moonlight.Client/wwwroot/css/style.min.css
 /.idea/.idea.Moonlight/.idea
+style.min.css
