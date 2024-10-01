@@ -1,3 +1,5 @@
+using Microsoft.OpenApi.Models;
+using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
@@ -5,6 +7,7 @@ using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Helpers;
+using Moonlight.ApiServer.Http.Middleware;
 
 // Prepare file system
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -73,17 +76,31 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton(configService);
 
+builder.Services.AddSingleton<JwtHelper>();
+builder.Services.AutoAddServices<Program>();
+
 // Database
 var databaseHelper = new DatabaseHelper(
     loggerFactory.CreateLogger<DatabaseHelper>()
 );
 
 builder.Services.AddSingleton(databaseHelper);
+builder.Services.AddScoped(typeof(DatabaseRepository<>));
 
 builder.Services.AddDbContext<CoreDataContext>();
 databaseHelper.AddDbContext<CoreDataContext>();
 
 databaseHelper.GenerateMappings();
+
+// API Docs
+if (configService.Get().Development.EnableApiDocs)
+{
+    // Configure swagger api specification generator and set the document title for the api docs to use
+    builder.Services.AddSwaggerGen(options => options.SwaggerDoc("main", new OpenApiInfo()
+    {
+        Title = "Moonlight API"
+    }));
+}
 
 var app = builder.Build();
 
@@ -92,19 +109,22 @@ using (var scope = app.Services.CreateScope())
     await databaseHelper.EnsureMigrated(scope.ServiceProvider);
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+if(app.Environment.IsDevelopment())
     app.UseWebAssemblyDebugging();
-}
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<AuthenticationMiddleware>();
+
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
+
+// API Docs
+if (configService.Get().Development.EnableApiDocs)
+    app.MapSwagger("/api/swagger/{documentName}");
 
 app.Run();

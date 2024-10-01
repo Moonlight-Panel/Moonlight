@@ -3,6 +3,8 @@
 public class AppConfiguration
 {
     public DatabaseConfig Database { get; set; } = new();
+    public AuthenticationConfig Authentication { get; set; } = new();
+    public DevelopmentConfig Development { get; set; } = new();
     
     public class DatabaseConfig
     {
@@ -13,5 +15,20 @@ public class AppConfiguration
         public string Password { get; set; } = "db_password";
 
         public string Database { get; set; } = "db_name";
+    }
+    
+    public class AuthenticationConfig
+    {
+        public string Secret { get; set; } = Guid
+            .NewGuid()
+            .ToString()
+            .Replace("-", "");
+
+        public int TokenDuration { get; set; } = 10;
+    }
+    
+    public class DevelopmentConfig
+    {
+        public bool EnableApiDocs { get; set; } = false;
     }
 }
