@@ -25,7 +25,6 @@
 
     <ItemGroup>
       <Folder Include="Helpers\" />
-      <Folder Include="Services\" />
       <Folder Include="UI\Components\" />
       <Folder Include="wwwroot\css\" />
     </ItemGroup>

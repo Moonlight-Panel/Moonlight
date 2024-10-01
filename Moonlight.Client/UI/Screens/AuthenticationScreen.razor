@@ -1,0 +1,18 @@
+@page "/auth/register"
+@page "/auth/login"
+
+@inject NavigationManager Navigation
+
+@{
+    var url = new Uri(Navigation.Uri);
+    var isRegister = url.LocalPath.StartsWith("/auth/register");
+}
+
+@if (isRegister)
+{
+    
+}
+else
+{
+    
+}

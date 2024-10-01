@@ -55,6 +55,10 @@ var implementationService = new ImplementationService();
 
 implementationService.Register<ISidebarItemProvider, DefaultSidebarItemProvider>();
 
+var authUiHandler = new AuthenticationUiHandler();
+implementationService.Register<IAppScreen>(authUiHandler);
+implementationService.Register<IAppLoader>(authUiHandler);
+
 builder.Services.AddSingleton(implementationService);
 
 await builder.Build().RunAsync();

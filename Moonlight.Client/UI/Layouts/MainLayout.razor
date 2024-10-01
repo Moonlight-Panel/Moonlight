@@ -1,35 +1,118 @@
 ﻿@using MoonCore.Helpers
+@using MoonCore.PluginFramework.Services
+@using Moonlight.Client.Interfaces
 @using Moonlight.Client.UI.Partials
 
 @inherits LayoutComponentBase
 
-<div>
-    <AppSidebar Layout="this" />
-    
-    <div class="lg:pl-72">
-        <AppHeader Layout="this"/>
+@inject ImplementationService ImplementationService
+@inject IServiceProvider ServiceProvider
+@inject ILogger<MainLayout> Logger
 
-        <ErrorHandler>
-            <main class="py-10">
-                <div class="px-4 sm:px-6 lg:px-8">
-                    @Body
-                </div>
-            </main>
-        </ErrorHandler>
+@if (IsLoading)
+{
+    <LazyLoader Load="Load">
 
-        <ToastLauncher />
-        <ModalLauncher />
+    </LazyLoader>
+}
+else if (CurrentScreen != null)
+{
+    @CurrentScreen
+}
+else
+{
+    <div>
+        <AppSidebar Layout="this"/>
+
+        <div class="lg:pl-72">
+            <AppHeader Layout="this"/>
+
+            <ErrorHandler>
+                <main class="py-10">
+                    <div class="px-4 sm:px-6 lg:px-8">
+                        <CascadingValue Value="this" IsFixed="true">
+                            @Body
+                        </CascadingValue>
+                    </div>
+                </main>
+            </ErrorHandler>
+        </div>
     </div>
-</div>
+}
+
+<ToastLauncher/>
+<ModalLauncher/>
+
 
 @code
 {
-    public event Func<Task> OnStateChanged; 
+    // Mobile navigation
+    public event Func<Task> OnStateChanged;
     public bool ShowMobileNavigation { get; private set; } = false;
 
     public async Task ToggleMobileNavigation()
     {
         ShowMobileNavigation = !ShowMobileNavigation;
         await OnStateChanged();
+    }
+
+    // App loaders & screens
+    private bool IsLoading = true;
+    private RenderFragment? CurrentScreen;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.UpdateText("Retrieving data");
+        await RunLoaders();
+
+        await RenderScreens();
+
+        IsLoading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task Reload()
+    {
+        IsLoading = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RunLoaders()
+    {
+        var appLoaders = ImplementationService
+            .Get<IAppLoader>()
+            .OrderBy(x => x.Priority);
+
+        foreach (var loader in appLoaders) //TODO: Measure performance of every loader?
+        {
+            try
+            {
+                await loader.Load(ServiceProvider);
+            }
+            catch (Exception e)
+            {
+                Logger.LogCritical("An app loader threw an unhandled exception: {e}", e);
+            }
+        }
+    }
+
+    public async Task RenderScreens()
+    {
+        CurrentScreen = null;
+
+        var appScreens = ImplementationService
+            .Get<IAppScreen>()
+            .OrderBy(x => x.Priority);
+
+        foreach (var screen in appScreens)
+        {
+            if (!await screen.ShouldRender(ServiceProvider))
+                continue;
+
+            CurrentScreen = screen.Render();
+            await InvokeAsync(StateHasChanged);
+
+            return;
+        }
     }
 }
