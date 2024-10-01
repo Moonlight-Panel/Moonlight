@@ -12,7 +12,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MoonCore" Version="1.5.7" />
+        <PackageReference Include="MoonCore" Version="1.5.8" />
         <PackageReference Include="MoonCore.Extended" Version="1.0.2" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.0" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
@@ -25,11 +25,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Database\Entities\" />
       <Folder Include="Database\Migrations\" />
-      <Folder Include="Http\Controllers\" />
-      <Folder Include="Models\" />
-      <Folder Include="Services\" />
+      <Folder Include="Implementations\" />
+      <Folder Include="Interfaces\" />
       <Folder Include="storage\" />
     </ItemGroup>
 
