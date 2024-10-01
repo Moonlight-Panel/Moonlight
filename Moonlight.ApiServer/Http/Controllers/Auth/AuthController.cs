@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Moonlight.ApiServer.Attributes;
+using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
@@ -39,6 +41,21 @@ public class AuthController : Controller
         return new RegisterResponse()
         {
             Token = await AuthService.GenerateToken(user)
+        };
+    }
+    
+    [HttpGet("check")]
+    [RequirePermission("meta.authenticated")]
+    public async Task<CheckResponse> Check()
+    {
+        var perm = HttpContext.User as PermClaimsPrinciple;
+        var user = perm!.CurrentModel;
+
+        return new CheckResponse()
+        {
+            Email = user.Email,
+            Username = user.Username,
+            Permissions = perm.Permissions
         };
     }
 }

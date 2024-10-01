@@ -117,7 +117,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseMiddleware<ApiErrorMiddleware>();
 app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<AuthorizationMiddleware>();
 
 app.MapControllers();
 

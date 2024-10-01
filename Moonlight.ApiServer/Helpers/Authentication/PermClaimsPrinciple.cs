@@ -6,12 +6,13 @@ namespace Moonlight.ApiServer.Helpers.Authentication;
 public class PermClaimsPrinciple : ClaimsPrincipal
 {
     public string[] Permissions { get; private set; }
-    public User? CurrentModel { get; private set; }
+    public User? CurrentModelNullable { get; private set; }
+    public User CurrentModel => CurrentModelNullable!;
     
-    public PermClaimsPrinciple(string[] permissions, User? currentModel)
+    public PermClaimsPrinciple(string[] permissions, User? currentModelNullable)
     {
         Permissions = permissions;
-        CurrentModel = currentModel;
+        CurrentModelNullable = currentModelNullable;
     }
 
     public bool HasPermission(string requiredPermission)
