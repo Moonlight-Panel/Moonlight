@@ -11,13 +11,15 @@
 
 @if (IsLoading)
 {
-    <LazyLoader Load="Load">
-
-    </LazyLoader>
+    <div class="h-full w-full min-h-[100dvh] flex items-center justify-center">
+        <div id="loader"></div>
+    </div>
 }
 else if (CurrentScreen != null)
 {
-    @CurrentScreen
+    <CascadingValue Value="this" IsFixed="true">
+        @CurrentScreen
+    </CascadingValue>
 }
 else
 {
@@ -60,20 +62,27 @@ else
     private bool IsLoading = true;
     private RenderFragment? CurrentScreen;
 
-    private async Task Load(LazyLoader lazyLoader)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await lazyLoader.UpdateText("Retrieving data");
-        await RunLoaders();
+        if(!firstRender)
+            return;
 
-        await RenderScreens();
-
-        IsLoading = false;
-        await InvokeAsync(StateHasChanged);
+        await Load();
     }
 
-    public async Task Reload()
+    public async Task Load()
     {
         IsLoading = true;
+        await InvokeAsync(StateHasChanged);
+        
+        //
+        await RunLoaders();
+
+        // Screens
+        await RenderScreens();
+
+        //
+        IsLoading = false;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -87,6 +96,7 @@ else
         {
             try
             {
+                Logger.LogDebug("Running application loader '{name}'", loader.GetType().Name);
                 await loader.Load(ServiceProvider);
             }
             catch (Exception e)
@@ -110,9 +120,11 @@ else
                 continue;
 
             CurrentScreen = screen.Render();
+            
             await InvokeAsync(StateHasChanged);
-
             return;
         }
+
+        await InvokeAsync(StateHasChanged);
     }
 }

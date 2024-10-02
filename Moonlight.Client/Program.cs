@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MoonCore.Blazor.Tailwind.Extensions;
+using MoonCore.Blazor.Tailwind.Forms;
+using MoonCore.Blazor.Tailwind.Forms.Components;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Services;
@@ -48,7 +50,12 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped(sp => new HttpApiClient(sp.GetRequiredService<HttpClient>()));
 
+builder.Services.AutoAddServices<Program>();
+
 builder.Services.AddMoonCoreBlazorTailwind();
+
+FormComponentRepository.Set<string, StringComponent>();
+FormComponentRepository.Set<int, IntComponent>();
 
 // Implementation service
 var implementationService = new ImplementationService();

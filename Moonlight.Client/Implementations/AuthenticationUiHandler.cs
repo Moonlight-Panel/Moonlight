@@ -14,7 +14,7 @@ public class AuthenticationUiHandler : IAppLoader, IAppScreen
     {
         var identityService = serviceProvider.GetRequiredService<IdentityService>();
         
-        return Task.FromResult(identityService.IsLoggedIn);
+        return Task.FromResult(!identityService.IsLoggedIn); // Only show the screen when we are not logged in
     }
 
     public RenderFragment Render() => ComponentHelper.FromType<AuthenticationScreen>();

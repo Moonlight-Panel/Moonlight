@@ -1,3 +1,4 @@
+using MoonCore.Attributes;
 using MoonCore.Blazor.Tailwind.Services;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
@@ -5,6 +6,7 @@ using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.Client.Services;
 
+[Scoped]
 public class IdentityService
 {
     public string Username { get; private set; }
@@ -40,7 +42,7 @@ public class IdentityService
             IsLoggedIn = false;
         }
 
-        await OnStateChanged();
+        //await OnStateChanged?.Invoke();
     }
 
     public async Task Login(string token)

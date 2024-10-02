@@ -1,11 +1,11 @@
 {
-  "name": "Moonlight.Client",
+  "name": "Moonlight Client",
   "short_name": "Moonlight.Client",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#03173d",
+  "theme_color": "#030b1f",
   "prefer_related_applications": false,
   "icons": [
     {
