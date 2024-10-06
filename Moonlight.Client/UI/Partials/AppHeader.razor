@@ -62,7 +62,7 @@
                 From: "transform opacity-100 scale-100"
                 To: "transform opacity-0 scale-95"
             -->
-                <div class="@(ShowProfileNav ? "opacity-100" : "opacity-0") transition ease-out duration-100 absolute right-0 z-10 mt-2.5 w-44 origin-top-right rounded-md bg-gray-750 py-2 shadow-lg ring-1 ring-gray-100/5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                <div class="@(ShowProfileNav ? "opacity-100" : "opacity-0 hidden") transition ease-out duration-100 absolute right-0 z-10 mt-2.5 w-44 origin-top-right rounded-md bg-gray-750 py-2 shadow-lg ring-1 ring-gray-100/5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
                     <!-- Active: "bg-gray-50", Not Active: "" -->
                     <a href="/admin" class="block px-3 py-1 text-sm leading-6 text-gray-100 hover:text-primary-500" role="menuitem" tabindex="-1" id="user-menu-item-0">Your profile</a>
                     <a @onclick="Logout" @onclick:preventDefault href="#" class="block px-3 py-1 text-sm leading-6 text-gray-100 hover:text-primary-500" role="menuitem" tabindex="-1" id="user-menu-item-1">Sign out</a>
