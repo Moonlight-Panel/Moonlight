@@ -1,0 +1,65 @@
+@page "/admin/users"
+
+@using MoonCore.Blazor.Tailwind.Forms.Components
+@using MoonCore.Helpers
+@using MoonCore.Models
+@using Moonlight.Shared.Http.Requests.Admin.Users
+@using Moonlight.Shared.Http.Responses.Admin.Users
+
+@inject HttpApiClient HttpApiClient
+
+<Crud TItem="UserDetailResponse"
+      TCreateForm="CreateUserRequest"
+      TUpdateForm="UpdateUserRequest"
+      OnConfigure="OnConfigure">
+    <View>
+        <Column TItem="UserDetailResponse" Field="@(x => x.Id)" Title="Id" />
+        <Column TItem="UserDetailResponse" Field="@(x => x.Username)" Title="Username" />
+        <Column TItem="UserDetailResponse" Field="@(x => x.Email)" Title="Email" />
+    </View>
+</Crud>
+
+@code
+{
+    private void OnConfigure(CrudOptions<UserDetailResponse, CreateUserRequest, UpdateUserRequest> crudOptions)
+    {
+        crudOptions.ItemName = "User";
+        
+        crudOptions.ItemLoader = async (page, pageSize)
+            => await HttpApiClient.GetJson<PagedData<UserDetailResponse>>($"api/admin/users?page={page}&pageSize={pageSize}");
+
+        crudOptions.SingleItemLoader = async id
+            => await HttpApiClient.GetJson<UserDetailResponse>($"api/admin/users/{id}");
+        
+        crudOptions.QueryIdentifier = item => item.Id.ToString(); //TODO: Make this default
+
+        crudOptions.OnCreate = async request
+            => await HttpApiClient.Post("api/admin/users", request);
+
+        crudOptions.OnUpdate = async (item, request)
+            => await HttpApiClient.Patch($"api/admin/users/{item.Id}", request);
+
+        crudOptions.OnDelete = async item
+            => await HttpApiClient.Delete($"api/admin/users/{item.Id}");
+
+        crudOptions.OnConfigureCreate = configuration =>
+        {
+            configuration.WithField(x => x.Username);
+            configuration.WithField(x => x.Email);
+            configuration.WithField(x => x.Password)
+                .WithComponent<StringComponent>(component => component.Type = "password");
+        };
+        
+        crudOptions.OnConfigureUpdate = (_, configuration) =>
+        {
+            configuration.WithField(x => x.Username);
+            configuration.WithField(x => x.Email);
+            
+            configuration.WithField(x => x.Password, fieldConfiguration =>
+                {
+                    fieldConfiguration.Description = "Optional. Specify if you want to change this accounts password";
+                })
+                .WithComponent<StringComponent>(component => component.Type = "password");
+        };
+    }
+}

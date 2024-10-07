@@ -86,6 +86,7 @@ var databaseHelper = new DatabaseHelper(
 
 builder.Services.AddSingleton(databaseHelper);
 builder.Services.AddScoped(typeof(DatabaseRepository<>));
+builder.Services.AddScoped(typeof(CrudHelper<,>));
 
 builder.Services.AddDbContext<CoreDataContext>();
 databaseHelper.AddDbContext<CoreDataContext>();
