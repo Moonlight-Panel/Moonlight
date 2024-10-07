@@ -27,7 +27,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Group = "Admin",
                 Path = "/admin",
                 Priority = 0,
-                RequiresExactMatch = true
+                RequiresExactMatch = true,
+                Permission = "admin.overview"
             },
             new SidebarItem()
             {
@@ -36,7 +37,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Group = "Admin",
                 Path = "/admin/users",
                 Priority = 1,
-                RequiresExactMatch = false
+                RequiresExactMatch = false,
+                Permission = "admin.users.read"
             },
             new SidebarItem()
             {
@@ -45,7 +47,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Group = "Admin",
                 Path = "/admin/api",
                 Priority = 2,
-                RequiresExactMatch = false
+                RequiresExactMatch = false,
+                Permission = "admin.api.read"
             },
             new SidebarItem()
             {
@@ -54,7 +57,8 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Group = "Admin",
                 Path = "/admin/system",
                 Priority = 3,
-                RequiresExactMatch = false
+                RequiresExactMatch = false,
+                Permission = "admin.system.info"
             },
         ];
     }

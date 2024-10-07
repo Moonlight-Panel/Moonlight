@@ -3,6 +3,7 @@ using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Models;
+using Moonlight.ApiServer.Attributes;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.Shared.Http.Requests.Admin.Users;
 using Moonlight.Shared.Http.Responses.Admin.Users;
@@ -23,14 +24,17 @@ public class UsersController : Controller
     }
 
     [HttpGet]
+    [RequirePermission("admin.users.read")]
     public async Task<IPagedData<UserDetailResponse>> Get([FromQuery] int page, [FromQuery] int pageSize = 50)
         => await CrudHelper.Get(page, pageSize);
 
     [HttpGet("{id}")]
+    [RequirePermission("admin.users.read")]
     public async Task<UserDetailResponse> GetSingle(int id)
         => await CrudHelper.GetSingle(id);
 
     [HttpPost]
+    [RequirePermission("admin.users.create")]
     public async Task<UserDetailResponse> Create([FromBody] CreateUserRequest request)
     {
         // Reformat values
@@ -50,6 +54,7 @@ public class UsersController : Controller
     }
 
     [HttpPatch("{id}")]
+    [RequirePermission("admin.users.update")]
     public async Task<UserDetailResponse> Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
     {
         var user = await CrudHelper.GetSingleModel(id);
@@ -76,6 +81,7 @@ public class UsersController : Controller
     }
 
     [HttpDelete("{id}")]
+    [RequirePermission("admin.users.delete")]
     public async Task Delete([FromRoute] int id)
         => await CrudHelper.Delete(id);
 }

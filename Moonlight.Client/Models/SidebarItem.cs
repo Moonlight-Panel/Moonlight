@@ -8,4 +8,5 @@ public class SidebarItem
     public string Path { get; set; }
     public int Priority { get; set; }
     public bool RequiresExactMatch { get; set; } = false;
+    public string? Permission { get; set; }
 }

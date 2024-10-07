@@ -86,6 +86,8 @@ public class AuthorizationMiddleware
                     detail: permission,
                     statusCode: 403
                 ).ExecuteAsync(context);
+
+                return false;
             }
         }
 

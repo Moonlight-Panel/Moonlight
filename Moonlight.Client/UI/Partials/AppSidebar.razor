@@ -1,9 +1,11 @@
 ﻿@using MoonCore.PluginFramework.Services
 @using Moonlight.Client.Interfaces
 @using Moonlight.Client.Models
+@using Moonlight.Client.Services
 @using Moonlight.Client.UI.Layouts
 
 @inject NavigationManager Navigation
+@inject IdentityService IdentityService
 @inject ImplementationService ImplementationService
 
 @{
@@ -111,7 +113,7 @@
                     <li>
                         @if (!string.IsNullOrEmpty(group.Key))
                         {
-                            <div class="text-xs font-semibold leading-6 text-gray-400">
+                            <div class="text-xs font-semibold leading-6 text-gray-400 my-2">
                                 @group.Key
                             </div>
                         }
@@ -168,7 +170,7 @@
     {
         Items = ImplementationService.Get<ISidebarItemProvider>()
             .SelectMany(x => x.Get())
-            //.Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
+            .Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
             .GroupBy(x => x.Group ?? "")
             .OrderByDescending(x => string.IsNullOrEmpty(x.Key))
             .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Priority).ToArray());

@@ -1,11 +1,14 @@
-﻿@using MoonCore.Helpers
+﻿@using MoonCore.Exceptions
+@using MoonCore.Helpers
 @using MoonCore.PluginFramework.Services
 @using Moonlight.Client.Interfaces
+@using Moonlight.Client.Services
 @using Moonlight.Client.UI.Partials
 
 @inherits LayoutComponentBase
 
 @inject ImplementationService ImplementationService
+@inject IdentityService IdentityService
 @inject IServiceProvider ServiceProvider
 @inject ILogger<MainLayout> Logger
 
@@ -29,15 +32,21 @@ else
         <div class="lg:pl-72">
             <AppHeader Layout="this"/>
 
-            <ErrorHandler>
-                <main class="py-10">
-                    <div class="px-4 sm:px-6 lg:px-8">
-                        <CascadingValue Value="this" IsFixed="true">
-                            @Body
-                        </CascadingValue>
-                    </div>
-                </main>
-            </ErrorHandler>
+            <main class="py-10">
+                <div class="px-4 sm:px-6 lg:px-8">
+                    <ErrorHandler CustomHandler="HandleException">
+
+                        <PermissionHandler CheckFunction="CheckPermission">
+                            <CascadingValue Value="this" IsFixed="true">
+                                @Body
+                            </CascadingValue>
+                        </PermissionHandler>
+                        
+                    </ErrorHandler>
+                </div>
+            </main>
+            
+            
         </div>
     </div>
 }
@@ -126,5 +135,18 @@ else
         }
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private bool CheckPermission(string permission) => IdentityService.HasPermission(permission);
+
+    private Task<bool> HandleException(Exception exception, ErrorHandler handler)
+    {
+        if (exception is HttpApiException httpApiException && httpApiException.Status == 401)
+        {
+            Task.Run(Load);
+            return Task.FromResult(true);
+        }
+        
+        return Task.FromResult(false);
     }
 }
