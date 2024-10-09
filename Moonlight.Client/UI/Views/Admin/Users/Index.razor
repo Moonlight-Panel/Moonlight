@@ -51,6 +51,9 @@
             configuration.WithField(x => x.Email);
             configuration.WithField(x => x.Password)
                 .WithComponent<StringComponent>(component => component.Type = "password");
+            
+            configuration.WithField(x => x.PermissionsJson)
+                .WithComponent<TagComponent>();
         };
         
         crudOptions.OnConfigureUpdate = (_, configuration) =>

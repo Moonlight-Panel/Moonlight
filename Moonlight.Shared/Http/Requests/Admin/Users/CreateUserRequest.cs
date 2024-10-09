@@ -16,4 +16,6 @@ public class CreateUserRequest
     [MinLength(8, ErrorMessage = "Your password needs to be at least 8 characters long")]
     [MaxLength(256, ErrorMessage = "Your password should not exceed the length of 256 characters")]
     public string Password { get; set; }
+    
+    public string PermissionsJson { get; set; } = "[]";
 }
