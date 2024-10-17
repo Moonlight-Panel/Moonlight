@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using MoonCore.Extended.Abstractions;
+using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
@@ -19,6 +20,8 @@ Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
 var configService = new ConfigService<AppConfiguration>(
     PathBuilder.File("storage", "config.json")
 );
+
+var config = configService.Get();
 
 ApplicationStateHelper.SetConfiguration(configService);
 
@@ -79,6 +82,52 @@ builder.Services.AddSingleton(configService);
 builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AutoAddServices<Program>();
 
+// OAuth2
+builder.Services.AddSingleton<TokenHelper>();
+
+builder.Services.AddHttpClient();
+builder.Services.AddOAuth2Consumer(configuration =>
+{
+    configuration.ClientId = config.Authentication.ClientId;
+    configuration.ClientSecret = config.Authentication.ClientSecret;
+    configuration.AuthorizationRedirect =
+        config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
+
+    configuration.AccessEndpoint = config.Authentication.AccessEndpoint ?? $"{config.PublicUrl}/oauth2/access";
+    configuration.RefreshEndpoint = config.Authentication.RefreshEndpoint ?? $"{config.PublicUrl}/oauth2/refresh";
+    
+    if (config.Authentication.UseLocalOAuth2Service)
+    {
+        configuration.AuthorizationEndpoint = config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/oauth2/authorize";
+    }
+    else
+    {
+        if(config.Authentication.AuthorizationUri == null)
+            logger.LogWarning("The 'AuthorizationUri' for the oauth2 client is not set. If you want to use an external oauth2 provider, you need to specify this url. If you want to use the local oauth2 service, set 'UseLocalOAuth2Service' to true");
+
+        configuration.AuthorizationEndpoint = config.Authentication.AuthorizationUri!;
+    }
+});
+
+if (config.Authentication.UseLocalOAuth2Service)
+{
+    logger.LogInformation("Using local oauth2 provider");
+    
+    builder.Services.AddOAuth2Provider(configuration =>
+    {
+        configuration.AccessSecret = config.Authentication.AccessSecret;
+        configuration.RefreshSecret = config.Authentication.RefreshSecret;
+
+        configuration.ClientId = config.Authentication.ClientId;
+        configuration.ClientId = config.Authentication.ClientSecret;
+        configuration.CodeSecret = config.Authentication.CodeSecret;
+        configuration.AuthorizationRedirect =
+            config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
+        configuration.AccessTokenDuration = 60;
+        configuration.RefreshTokenDuration = 3600;
+    });
+}
+
 // Database
 var databaseHelper = new DatabaseHelper(
     loggerFactory.CreateLogger<DatabaseHelper>()
@@ -110,7 +159,7 @@ using (var scope = app.Services.CreateScope())
     await databaseHelper.EnsureMigrated(scope.ServiceProvider);
 }
 
-if(app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
     app.UseWebAssemblyDebugging();
 
 app.UseBlazorFrameworkFiles();

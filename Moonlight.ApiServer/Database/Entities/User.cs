@@ -10,4 +10,8 @@ public class User
 
     public DateTime TokenValidTimestamp { get; set; } = DateTime.UtcNow;
     public string PermissionsJson { get; set; } = "[]";
+
+    public string AccessToken { get; set; } = "";
+    public string RefreshToken { get; set; } = "";
+    public DateTime RefreshTimestamp { get; set; } = DateTime.UtcNow;
 }

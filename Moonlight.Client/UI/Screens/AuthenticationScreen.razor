@@ -1,141 +1,24 @@
-@page "/auth/register"
-@page "/auth/login"
-
-@using MoonCore.Blazor.Tailwind.Forms.Components
 @using MoonCore.Helpers
-@using Moonlight.Client.Services
-@using Moonlight.Client.UI.Layouts
-@using Moonlight.Shared.Http.Requests.Auth
 @using Moonlight.Shared.Http.Responses.Auth
 
-@implements IDisposable
-
 @inject NavigationManager Navigation
-@inject HttpApiClient ApiClient
-@inject IdentityService IdentityService
+@inject HttpApiClient HttpApiClient
 
-@{
-    var url = new Uri(Navigation.Uri);
-    var isRegister = url.LocalPath.StartsWith("/auth/register");
-}
-
-<div class="h-full w-full min-h-[100dvh] flex items-center justify-center px-5 md:px-0">
-
-    @if (isRegister)
-    {
-        <div class="card card-body w-full max-w-lg">
-            <div class="sm:mx-auto sm:w-full sm:max-w-sm mb-5">
-                <img class="mx-auto h-16 w-auto" src="/logolong.webp" alt="Moonlight">
-                <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-100">Register your account</h2>
-            </div>
-
-            <HandleForm @ref="RegisterForm" Model="RegisterRequest" OnValidSubmit="OnSubmitRegister">
-                <GeneratedForm Model="RegisterRequest" OnConfigure="OnConfigureRegister" Gap="gap-x-6 gap-y-3"/>
-            </HandleForm>
-
-            <div class="mt-5 flex flex-col justify-center">
-                <WButton OnClick="_ => RegisterForm.Submit()" CssClasses="btn btn-primary">Register</WButton>
-                <p class="mt-3 text-center text-sm text-gray-500">
-                    Already registered?
-                    <a href="/auth/login" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Login</a>
-                </p>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="card card-body w-full max-w-lg">
-            <div class="sm:mx-auto sm:w-full sm:max-w-sm mb-5">
-                <img class="mx-auto h-16 w-auto" src="/logolong.webp" alt="Moonlight">
-                <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-100">Sign in to your account</h2>
-            </div>
-
-            <HandleForm @ref="LoginForm" Model="LoginRequest" OnValidSubmit="OnSubmitLogin">
-                <GeneratedForm Model="LoginRequest" OnConfigure="OnConfigureLogin" Gap="gap-x-6 gap-y-3"/>
-            </HandleForm>
-
-            <div class="mt-5 flex flex-col justify-center">
-                <WButton OnClick="_ => LoginForm.Submit()" CssClasses="btn btn-primary">Login</WButton>
-                <p class="mt-3 text-center text-sm text-gray-500">
-                    Need an account registered?
-                    <a href="/auth/register" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Register</a>
-                </p>
-            </div>
-        </div>
-    }
-
+<div class="flex justify-center">
+    <WButton OnClick="StartAuth" CssClasses="btn btn-primary">Authenticate</WButton>
 </div>
 
 @code
 {
-    [CascadingParameter] public MainLayout Layout { get; set; }
-
-    // Page change handling
-    protected override void OnInitialized()
+    private async Task StartAuth(WButton _)
     {
-        Navigation.LocationChanged += NavigationOnLocationChanged;
-    }
+        var authStartData = await HttpApiClient.GetJson<AuthStartResponse>("api/auth/start");
 
-    private async void NavigationOnLocationChanged(object? sender, LocationChangedEventArgs e)
-        => await InvokeAsync(StateHasChanged);
-
-    public void Dispose()
-    {
-        Navigation.LocationChanged -= NavigationOnLocationChanged;
-    }
-
-    // Register
-    private RegisterRequest RegisterRequest = new();
-    private HandleForm RegisterForm;
-
-    private async Task OnSubmitRegister()
-    {
-        var response = await ApiClient.PostJson<RegisterResponse>("api/auth/register", RegisterRequest);
-        await IdentityService.Login(response.Token);
-
-        await HandleAfterAuthPage();
-    }
-
-    private void OnConfigureRegister(FormConfiguration<RegisterRequest> configuration)
-    {
-        configuration.WithField(x => x.Username, fieldConfiguration => { fieldConfiguration.Columns = 6; });
-
-        configuration.WithField(x => x.Email, fieldConfiguration => { fieldConfiguration.Columns = 6; });
-
-        configuration
-            .WithField(x => x.Password, fieldConfiguration => { fieldConfiguration.Columns = 6; })
-            .WithComponent<StringComponent>(component => { component.Type = "password"; });
-    }
-
-    // Login
-    private LoginRequest LoginRequest = new();
-    private HandleForm LoginForm;
-
-    private async Task OnSubmitLogin()
-    {
-        var response = await ApiClient.PostJson<LoginResponse>("api/auth/login", LoginRequest);
-        await IdentityService.Login(response.Token);
-
-        await HandleAfterAuthPage();
-    }
-
-    private void OnConfigureLogin(FormConfiguration<LoginRequest> configuration)
-    {
-        configuration.WithField(x => x.Email, fieldConfiguration => { fieldConfiguration.Columns = 6; });
-
-        configuration
-            .WithField(x => x.Password, fieldConfiguration => { fieldConfiguration.Columns = 6; })
-            .WithComponent<StringComponent>(component => { component.Type = "password"; });
-    }
-
-    // Navigation handling
-    private async Task HandleAfterAuthPage()
-    {
-        var url = new Uri(Navigation.Uri);
-
-        if (url.LocalPath.StartsWith("/auth/login") || url.LocalPath.StartsWith("/auth/register"))
-            Navigation.NavigateTo("/");
+        var uri = authStartData.Endpoint
+                  + $"?client_id={authStartData.ClientId}" +
+                  $"&redirect_uri={authStartData.RedirectUri}" +
+                  $"&response_type=code";
         
-        await Layout.Load();
+        Navigation.NavigateTo(uri, true);
     }
 }

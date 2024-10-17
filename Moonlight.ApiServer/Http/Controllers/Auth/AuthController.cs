@@ -1,5 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MoonCore.Extended.Abstractions;
+using MoonCore.Extended.Helpers;
+using MoonCore.Extended.OAuth2.ApiServer;
+using MoonCore.Helpers;
+using MoonCore.Services;
 using Moonlight.ApiServer.Attributes;
+using Moonlight.ApiServer.Configuration;
+using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Auth;
@@ -11,39 +18,58 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 [Route("api/auth")]
 public class AuthController : Controller
 {
-    private readonly AuthService AuthService;
+    private readonly OAuth2Service OAuth2Service;
+    private readonly TokenHelper TokenHelper;
+    private readonly ConfigService<AppConfiguration> ConfigService;
+    private readonly DatabaseRepository<User> UserRepository;
 
-    public AuthController(AuthService authService)
+    public AuthController(OAuth2Service oAuth2Service, TokenHelper tokenHelper, DatabaseRepository<User> userRepository, ConfigService<AppConfiguration> configService)
     {
-        AuthService = authService;
+        OAuth2Service = oAuth2Service;
+        TokenHelper = tokenHelper;
+        UserRepository = userRepository;
+        ConfigService = configService;
     }
 
-    [HttpPost("login")]
-    public async Task<LoginResponse> Login([FromBody] LoginRequest request)
+    [HttpGet("start")]
+    public async Task<AuthStartResponse> Start()
     {
-        var user = await AuthService.Login(request.Email, request.Password);
+        var data = await OAuth2Service.StartAuthorizing();
 
-        return new LoginResponse()
-        {
-            Token = await AuthService.GenerateToken(user)
-        };
+        return Mapper.Map<AuthStartResponse>(data);
     }
 
-    [HttpPost("register")]
-    public async Task<RegisterResponse> Register([FromBody] RegisterRequest request)
+    [HttpGet("handle")]
+    public async Task Handle([FromQuery(Name = "code")] string code)
     {
-        var user = await AuthService.Register(
-            request.Username,
-            request.Email,
-            request.Password
-        );
+        //TODO: Validate jwt syntax
         
-        return new RegisterResponse()
+        var accessData = await OAuth2Service.RequestAccess(code);
+        
+        //TODO: Add modular oauth2 consumer system
+        var userId = 1;
+
+        var user = UserRepository.Get().First(x => x.Id == userId);
+
+        user.AccessToken = accessData.AccessToken;
+        user.RefreshToken = accessData.RefreshToken;
+        user.RefreshTimestamp = DateTime.UtcNow.AddSeconds(accessData.ExpiresIn);
+        
+        UserRepository.Update(user);
+
+        var authConfig = ConfigService.Get().Authentication;
+        var tokenPair = await TokenHelper.GeneratePair(authConfig.MlAccessSecret, authConfig.MlAccessSecret, data =>
         {
-            Token = await AuthService.GenerateToken(user)
-        };
+            data.Add("userId", user.Id.ToString());
+        });
+        
+        Response.Cookies.Append("ml-access", tokenPair.AccessToken);
+        Response.Cookies.Append("ml-refresh", tokenPair.RefreshToken);
+        Response.Cookies.Append("ml-timestamp", DateTimeOffset.UtcNow.AddSeconds(3600).ToUnixTimeSeconds().ToString());
+        
+        Response.Redirect("/");
     }
-    
+
     [HttpGet("check")]
     [RequirePermission("meta.authenticated")]
     public async Task<CheckResponse> Check()

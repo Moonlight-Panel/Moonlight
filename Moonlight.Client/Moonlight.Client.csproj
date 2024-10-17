@@ -10,9 +10,10 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.6"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.6" PrivateAssets="all"/>
-        <PackageReference Include="MoonCore" Version="1.5.8" />
+        <PackageReference Include="MoonCore" Version="1.5.9" />
         <PackageReference Include="MoonCore.Blazor" Version="1.2.1" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.0" />
+        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.0.6" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,12 +28,6 @@
       <Folder Include="Helpers\" />
       <Folder Include="UI\Components\" />
       <Folder Include="wwwroot\css\" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="MoonCore.Blazor.Tailwind">
-            <HintPath>..\..\..\..\GitHub\Marcel-Baumgartner\MoonCore\MoonCore\MoonCore.Blazor.Tailwind\bin\Debug\net8.0\MoonCore.Blazor.Tailwind.dll</HintPath>
-        </Reference>
     </ItemGroup>
 
 </Project>
