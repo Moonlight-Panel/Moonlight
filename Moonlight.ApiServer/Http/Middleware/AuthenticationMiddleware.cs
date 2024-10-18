@@ -1,14 +1,4 @@
-﻿using System.Text.Json;
-using MoonCore.Extended.Abstractions;
-using MoonCore.Extended.Helpers;
-using MoonCore.Extended.Models;
-using MoonCore.Extended.OAuth2.ApiServer;
-using MoonCore.Services;
-using Moonlight.ApiServer.Configuration;
-using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Helpers.Authentication;
-
-namespace Moonlight.ApiServer.Http.Middleware;
+﻿namespace Moonlight.ApiServer.Http.Middleware;
 
 public class AuthenticationMiddleware
 {
@@ -23,10 +13,10 @@ public class AuthenticationMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        await Authenticate(context);
+        //await Authenticate(context);
         await Next(context);
     }
-
+/*
     private async Task Authenticate(HttpContext context)
     {
         var request = context.Request;
@@ -105,7 +95,7 @@ public class AuthenticationMiddleware
         // Save permission state
         context.User = new PermClaimsPrinciple(permissions, user);
 
-        /*
+        /// IGNORE
         string? token = null;
 
         // Cookie for Moonlight.Client
@@ -140,7 +130,7 @@ public class AuthenticationMiddleware
         if (token.Count(x => x == '.') == 2) // JWT only has two dots
             await AuthenticateUser(context, token);
         else
-            await AuthenticateApiKey(context, token);*/
+            await AuthenticateApiKey(context, token);
     }
 
     private async Task AuthenticateUser(HttpContext context, string jwt)
@@ -182,4 +172,5 @@ public class AuthenticationMiddleware
     private async Task AuthenticateApiKey(HttpContext context, string apiKey)
     {
     }
+*/
 }

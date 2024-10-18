@@ -1,13 +1,18 @@
+using System.Text.Json;
 using Microsoft.OpenApi.Models;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
+using MoonCore.Extended.OAuth2.ApiServer;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Models;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
+using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
+using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Http.Middleware;
 
 // Prepare file system
@@ -119,7 +124,7 @@ if (config.Authentication.UseLocalOAuth2Service)
         configuration.RefreshSecret = config.Authentication.RefreshSecret;
 
         configuration.ClientId = config.Authentication.ClientId;
-        configuration.ClientId = config.Authentication.ClientSecret;
+        configuration.ClientSecret = config.Authentication.ClientSecret;
         configuration.CodeSecret = config.Authentication.CodeSecret;
         configuration.AuthorizationRedirect =
             config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
@@ -127,6 +132,59 @@ if (config.Authentication.UseLocalOAuth2Service)
         configuration.RefreshTokenDuration = 3600;
     });
 }
+
+builder.Services.AddTokenAuthentication(configuration =>
+{
+    configuration.AccessSecret = config.Authentication.AccessSecret;
+    configuration.DataLoader = async (data, provider, context) =>
+    {
+        if (!data.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
+            return false;
+
+        var userRepo = provider.GetRequiredService<DatabaseRepository<User>>();
+        var user = userRepo.Get().FirstOrDefault(x => x.Id == userId);
+
+        if (user == null)
+            return false;
+        
+        // OAuth2 - Check external
+        if (DateTime.UtcNow > user.RefreshTimestamp)
+        {
+            var tokenConsumer = new TokenConsumer(user.AccessToken, user.RefreshToken, user.RefreshTimestamp,
+                async refreshToken =>
+                {
+                    var oauth2Service = context.RequestServices.GetRequiredService<OAuth2Service>();
+
+                    var accessData = await oauth2Service.RefreshAccess(refreshToken);
+
+                    user.AccessToken = accessData.AccessToken;
+                    user.RefreshToken = accessData.RefreshToken;
+                    user.RefreshTimestamp = DateTime.UtcNow.AddSeconds(accessData.ExpiresIn);
+                
+                    userRepo.Update(user);
+
+                    return new TokenPair()
+                    {
+                        AccessToken = user.AccessToken,
+                        RefreshToken = user.RefreshToken
+                    };
+                });
+
+            await tokenConsumer.GetAccessToken();
+            //TODO: API CALL (modular)
+        }
+        
+        // Load permissions, handle empty values
+        var permissions = JsonSerializer.Deserialize<string[]>(
+            string.IsNullOrEmpty(user.PermissionsJson) ? "[]" : user.PermissionsJson
+        ) ?? [];
+
+        // Save permission state
+        context.User = new PermClaimsPrinciple(permissions, user);
+        
+        return true;
+    };
+});
 
 // Database
 var databaseHelper = new DatabaseHelper(
@@ -168,7 +226,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseMiddleware<ApiErrorMiddleware>();
-app.UseMiddleware<AuthenticationMiddleware>();
+
+app.UseTokenAuthentication(_ => {});
+
 app.UseMiddleware<AuthorizationMiddleware>();
 
 app.MapControllers();

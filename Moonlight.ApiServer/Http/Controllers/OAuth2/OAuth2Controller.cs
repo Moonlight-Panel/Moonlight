@@ -17,13 +17,11 @@ public class OAuth2Controller : Controller
     private readonly OAuth2Service OAuth2Service;
     private readonly AuthService AuthService;
     private readonly DatabaseRepository<User> UserRepository;
-    private readonly ConfigService<AppConfiguration> ConfigService;
 
-    public OAuth2Controller(OAuth2Service oAuth2Service, ConfigService<AppConfiguration> configService,
+    public OAuth2Controller(OAuth2Service oAuth2Service,
         AuthService authService, DatabaseRepository<User> userRepository)
     {
         OAuth2Service = oAuth2Service;
-        ConfigService = configService;
         AuthService = authService;
         UserRepository = userRepository;
     }
@@ -38,14 +36,8 @@ public class OAuth2Controller : Controller
         if (responseType != "code")
             throw new HttpApiException("Invalid response type", 400);
 
-        var config = ConfigService.Get();
-
-        // TODO: This call should be handled by the OAuth2Service
-        if (clientId != config.Authentication.ClientId)
-            throw new HttpApiException("Invalid client id", 400);
-
-        if (redirectUri != (config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle"))
-            throw new HttpApiException("Invalid redirect uri", 400);
+        if (!await OAuth2Service.IsValidAuthorization(clientId, redirectUri))
+            throw new HttpApiException("Invalid authorization request", 400);
 
         Response.StatusCode = 200;
         await Response.WriteAsync(
@@ -76,14 +68,8 @@ public class OAuth2Controller : Controller
         if (responseType != "code")
             throw new HttpApiException("Invalid response type", 400);
 
-        var config = ConfigService.Get();
-
-        // TODO: This call should be handled by the OAuth2Service
-        if (clientId != config.Authentication.ClientId)
-            throw new HttpApiException("Invalid client id", 400);
-
-        if (redirectUri != (config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle"))
-            throw new HttpApiException("Invalid redirect uri", 400);
+        if (!await OAuth2Service.IsValidAuthorization(clientId, redirectUri))
+            throw new HttpApiException("Invalid authorization request", 400);
 
         var user = await AuthService.Login(email, password);
 
