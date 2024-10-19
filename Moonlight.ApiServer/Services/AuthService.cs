@@ -70,14 +70,4 @@ public class AuthService
         
         return Task.FromResult(user);
     }
-
-    public async Task<string> GenerateToken(User user)
-    {
-        var authConfig = ConfigService.Get().Authentication;
-
-        return await JwtHelper.Create(authConfig.Secret, data =>
-        {
-            data.Add("userId", user.Id.ToString());
-        }, "login", TimeSpan.FromDays(authConfig.TokenDuration));
-    }
 }

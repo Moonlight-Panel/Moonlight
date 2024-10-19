@@ -7,6 +7,7 @@ using MoonCore.Extended.OAuth2.ApiServer;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Models;
+using MoonCore.PluginFramework.Services;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
@@ -93,41 +94,41 @@ builder.Services.AddSingleton<TokenHelper>();
 builder.Services.AddHttpClient();
 builder.Services.AddOAuth2Consumer(configuration =>
 {
-    configuration.ClientId = config.Authentication.ClientId;
-    configuration.ClientSecret = config.Authentication.ClientSecret;
+    configuration.ClientId = config.Authentication.OAuth2.ClientId;
+    configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
     configuration.AuthorizationRedirect =
-        config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
+        config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
 
-    configuration.AccessEndpoint = config.Authentication.AccessEndpoint ?? $"{config.PublicUrl}/oauth2/access";
-    configuration.RefreshEndpoint = config.Authentication.RefreshEndpoint ?? $"{config.PublicUrl}/oauth2/refresh";
+    configuration.AccessEndpoint = config.Authentication.OAuth2.AccessEndpoint ?? $"{config.PublicUrl}/oauth2/access";
+    configuration.RefreshEndpoint = config.Authentication.OAuth2.RefreshEndpoint ?? $"{config.PublicUrl}/oauth2/refresh";
     
-    if (config.Authentication.UseLocalOAuth2Service)
+    if (config.Authentication.UseLocalOAuth2)
     {
-        configuration.AuthorizationEndpoint = config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/oauth2/authorize";
+        configuration.AuthorizationEndpoint = config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/oauth2/authorize";
     }
     else
     {
-        if(config.Authentication.AuthorizationUri == null)
+        if(config.Authentication.OAuth2.AuthorizationUri == null)
             logger.LogWarning("The 'AuthorizationUri' for the oauth2 client is not set. If you want to use an external oauth2 provider, you need to specify this url. If you want to use the local oauth2 service, set 'UseLocalOAuth2Service' to true");
 
-        configuration.AuthorizationEndpoint = config.Authentication.AuthorizationUri!;
+        configuration.AuthorizationEndpoint = config.Authentication.OAuth2.AuthorizationUri!;
     }
 });
 
-if (config.Authentication.UseLocalOAuth2Service)
+if (config.Authentication.UseLocalOAuth2)
 {
     logger.LogInformation("Using local oauth2 provider");
     
     builder.Services.AddOAuth2Provider(configuration =>
     {
-        configuration.AccessSecret = config.Authentication.AccessSecret;
-        configuration.RefreshSecret = config.Authentication.RefreshSecret;
+        configuration.AccessSecret = config.Authentication.LocalOAuth2.AccessSecret;
+        configuration.RefreshSecret = config.Authentication.LocalOAuth2.RefreshSecret;
 
-        configuration.ClientId = config.Authentication.ClientId;
-        configuration.ClientSecret = config.Authentication.ClientSecret;
-        configuration.CodeSecret = config.Authentication.CodeSecret;
+        configuration.ClientId = config.Authentication.OAuth2.ClientId;
+        configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
+        configuration.CodeSecret = config.Authentication.LocalOAuth2.CodeSecret;
         configuration.AuthorizationRedirect =
-            config.Authentication.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
+            config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
         configuration.AccessTokenDuration = 60;
         configuration.RefreshTokenDuration = 3600;
     });
@@ -135,7 +136,7 @@ if (config.Authentication.UseLocalOAuth2Service)
 
 builder.Services.AddTokenAuthentication(configuration =>
 {
-    configuration.AccessSecret = config.Authentication.MlAccessSecret;
+    configuration.AccessSecret = config.Authentication.AccessSecret;
     configuration.DataLoader = async (data, provider, context) =>
     {
         if (!data.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
@@ -209,6 +210,13 @@ if (configService.Get().Development.EnableApiDocs)
         Title = "Moonlight API"
     }));
 }
+
+// Implementation service
+var implementationService = new ImplementationService();
+
+
+
+builder.Services.AddSingleton(implementationService);
 
 var app = builder.Build();
 

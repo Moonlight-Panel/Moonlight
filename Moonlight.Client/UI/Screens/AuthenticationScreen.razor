@@ -12,7 +12,7 @@
 {
     private async Task StartAuth(WButton _)
     {
-        var authStartData = await HttpApiClient.GetJson<AuthStartResponse>("api/auth/start");
+        var authStartData = await HttpApiClient.GetJson<OAuth2StartResponse>("api/auth/start");
 
         var uri = authStartData.Endpoint
                   + $"?client_id={authStartData.ClientId}" +

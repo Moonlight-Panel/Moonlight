@@ -29,7 +29,6 @@
     <ItemGroup>
       <Folder Include="Database\Migrations\" />
       <Folder Include="Implementations\" />
-      <Folder Include="Interfaces\" />
       <Folder Include="storage\" />
     </ItemGroup>
 

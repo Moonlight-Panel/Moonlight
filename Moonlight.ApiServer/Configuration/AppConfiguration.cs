@@ -23,25 +23,32 @@ public class AppConfiguration
     
     public class AuthenticationConfig
     {
-        public string MlAccessSecret { get; set; } = Formatter.GenerateString(32);
-        public string MlRefreshSecret { get; set; } = Formatter.GenerateString(32);
-        
-        public string Secret { get; set; } = Formatter.GenerateString(32);
-
-        public int TokenDuration { get; set; } = 10;
-
-        public bool UseLocalOAuth2Service { get; set; } = true;
         public string AccessSecret { get; set; } = Formatter.GenerateString(32);
         public string RefreshSecret { get; set; } = Formatter.GenerateString(32);
-        public string ClientId { get; set; } = Formatter.GenerateString(8);
-        public string ClientSecret { get; set; } = Formatter.GenerateString(32);
-        public string? AuthorizationUri { get; set; }
-        public string? AuthorizationRedirect { get; set; }
-        public string? AccessEndpoint { get; set; }
-        public string? RefreshEndpoint { get; set; }
+        public int AccessDuration { get; set; } = 60;
+        public int RefreshDuration { get; set; } = 3600;
 
-        // Local OAuth2 Service
-        public string CodeSecret { get; set; } = Formatter.GenerateString(32);
+        public OAuth2Data OAuth2 { get; set; } = new();
+        public bool UseLocalOAuth2 { get; set; } = true;
+        
+        public LocalOAuth2Data LocalOAuth2 { get; set; } = new();
+        
+        public class LocalOAuth2Data
+        {
+            public string AccessSecret { get; set; } = Formatter.GenerateString(32);
+            public string RefreshSecret { get; set; } = Formatter.GenerateString(32);
+            public string CodeSecret { get; set; } = Formatter.GenerateString(32);
+        }
+        
+        public class OAuth2Data
+        {
+            public string ClientId { get; set; } = Formatter.GenerateString(8);
+            public string ClientSecret { get; set; } = Formatter.GenerateString(32);
+            public string? AuthorizationUri { get; set; }
+            public string? AuthorizationRedirect { get; set; }
+            public string? AccessEndpoint { get; set; }
+            public string? RefreshEndpoint { get; set; }
+        }
     }
     
     public class DevelopmentConfig
