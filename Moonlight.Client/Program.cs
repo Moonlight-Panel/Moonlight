@@ -64,9 +64,9 @@ builder.Services.AddScoped(sp =>
         var cookieService = sp.GetRequiredService<CookieService>();
 
         return new TokenConsumer(
-            await cookieService.GetValue("ml-access"),
-            await cookieService.GetValue("ml-refresh"),
-            DateTimeOffset.FromUnixTimeSeconds(long.Parse(await cookieService.GetValue("ml-timestamp"))).UtcDateTime,
+            await cookieService.GetValue("kms-access", "x"),
+            await cookieService.GetValue("kms-refresh", "x"),
+            DateTimeOffset.FromUnixTimeSeconds(long.Parse(await cookieService.GetValue("kms-timestamp", "0"))).UtcDateTime,
             async refreshToken =>
             {
                 await httpClient.PostAsync("api/auth/refresh", new StringContent(
@@ -78,8 +78,8 @@ builder.Services.AddScoped(sp =>
 
                 return new TokenPair()
                 {
-                    AccessToken = await cookieService.GetValue("ml-access"),
-                    RefreshToken = await cookieService.GetValue("ml-refresh")
+                    AccessToken = await cookieService.GetValue("kms-access", "x"),
+                    RefreshToken = await cookieService.GetValue("kms-refresh", "x")
                 };
             }
         );

@@ -1,8 +1,12 @@
+@page "/auth"
+
 @using MoonCore.Helpers
+@using Moonlight.Shared.Http.Requests.Auth
 @using Moonlight.Shared.Http.Responses.Auth
 
 @inject NavigationManager Navigation
 @inject HttpApiClient HttpApiClient
+@inject CookieService CookieService
 
 <div class="flex justify-center">
     <WButton OnClick="StartAuth" CssClasses="btn btn-primary">Authenticate</WButton>
@@ -10,9 +14,31 @@
 
 @code
 {
+    [SupplyParameterFromQuery(Name = "code")]
+    [Parameter]
+    public string? Code { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(!firstRender)
+            return;
+        
+        if(Code == null)
+            return;
+
+        var authHandleData = await HttpApiClient.PostJson<OAuth2HandleResponse>("api/auth", new OAuth2HandleRequest()
+        {
+            Code = Code
+        });
+
+        await CookieService.SetValue("kms-access", authHandleData.AccessToken, 10);
+        await CookieService.SetValue("kms-refresh", authHandleData.RefreshToken, 10);
+        await CookieService.SetValue("kms-timestamp", DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds().ToString(), 10);
+    }
+
     private async Task StartAuth(WButton _)
     {
-        var authStartData = await HttpApiClient.GetJson<OAuth2StartResponse>("api/auth/start");
+        var authStartData = await HttpApiClient.GetJson<OAuth2StartResponse>("api/auth");
 
         var uri = authStartData.Endpoint
                   + $"?client_id={authStartData.ClientId}" +

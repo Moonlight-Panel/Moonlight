@@ -15,6 +15,8 @@ using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Http.Middleware;
+using Moonlight.ApiServer.Implementations.OAuth2;
+using Moonlight.ApiServer.Interfaces.OAuth2;
 
 // Prepare file system
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
@@ -97,7 +99,7 @@ builder.Services.AddOAuth2Consumer(configuration =>
     configuration.ClientId = config.Authentication.OAuth2.ClientId;
     configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
     configuration.AuthorizationRedirect =
-        config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
+        config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/code";
 
     configuration.AccessEndpoint = config.Authentication.OAuth2.AccessEndpoint ?? $"{config.PublicUrl}/oauth2/access";
     configuration.RefreshEndpoint = config.Authentication.OAuth2.RefreshEndpoint ?? $"{config.PublicUrl}/oauth2/refresh";
@@ -128,7 +130,7 @@ if (config.Authentication.UseLocalOAuth2)
         configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
         configuration.CodeSecret = config.Authentication.LocalOAuth2.CodeSecret;
         configuration.AuthorizationRedirect =
-            config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/api/auth/handle";
+            config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/code";
         configuration.AccessTokenDuration = 60;
         configuration.RefreshTokenDuration = 3600;
     });
@@ -147,33 +149,6 @@ builder.Services.AddTokenAuthentication(configuration =>
 
         if (user == null)
             return false;
-        
-        // OAuth2 - Check external
-        if (false && DateTime.UtcNow > user.RefreshTimestamp)
-        {
-            var tokenConsumer = new TokenConsumer(user.AccessToken, user.RefreshToken, user.RefreshTimestamp,
-                async refreshToken =>
-                {
-                    var oauth2Service = context.RequestServices.GetRequiredService<OAuth2Service>();
-
-                    var accessData = await oauth2Service.RefreshAccess(refreshToken);
-
-                    user.AccessToken = accessData.AccessToken;
-                    user.RefreshToken = accessData.RefreshToken;
-                    user.RefreshTimestamp = DateTime.UtcNow.AddSeconds(accessData.ExpiresIn);
-                
-                    userRepo.Update(user);
-
-                    return new TokenPair()
-                    {
-                        AccessToken = user.AccessToken,
-                        RefreshToken = user.RefreshToken
-                    };
-                });
-
-            //await tokenConsumer.GetAccessToken();
-            //TODO: API CALL (modular)
-        }
         
         // Load permissions, handle empty values
         var permissions = JsonSerializer.Deserialize<string[]>(
@@ -214,7 +189,8 @@ if (configService.Get().Development.EnableApiDocs)
 // Implementation service
 var implementationService = new ImplementationService();
 
-
+if(config.Authentication.UseLocalOAuth2)
+    implementationService.Register<IOAuth2Provider, LocalOAuth2Provider>();
 
 builder.Services.AddSingleton(implementationService);
 

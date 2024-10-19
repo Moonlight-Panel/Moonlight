@@ -63,7 +63,7 @@ public class AuthController : Controller
             throw new HttpApiException("No oauth2 provider has been registered", 500);
 
         // Sync user from oauth2 provider
-        var user = await provider.Sync(HttpContext.RequestServices, accessData.AccessToken, accessData.RefreshToken);
+        var user = await provider.Sync(HttpContext.RequestServices, accessData.AccessToken);
 
         if (user == null)
             throw new HttpApiException("The oauth2 provider was unable to authenticate you", 401);
@@ -172,7 +172,7 @@ public class AuthController : Controller
             var refreshData = OAuth2Service.RefreshAccess(user.RefreshToken).Result;
             
             // Sync user with oauth2 provider
-            var syncedUser = provider.Sync(serviceProvider, refreshData.AccessToken, refreshData.RefreshToken).Result;
+            var syncedUser = provider.Sync(serviceProvider, refreshData.AccessToken).Result;
 
             if (syncedUser == null) // User sync has failed. No refresh allowed
                 return false;

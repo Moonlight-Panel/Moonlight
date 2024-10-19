@@ -7,6 +7,7 @@ using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Services;
+using Moonlight.Shared.Http.Responses.OAuth2;
 
 namespace Moonlight.ApiServer.Http.Controllers.OAuth2;
 
@@ -88,7 +89,7 @@ public class OAuth2Controller : Controller
         [FromForm(Name = "redirect_uri")] string redirectUri,
         [FromForm(Name = "grant_type")] string grantType,
         [FromForm(Name = "code")] string code
-        )
+    )
     {
         if (grantType != "authorization_code")
             throw new HttpApiException("Invalid grant type", 400);
@@ -106,14 +107,56 @@ public class OAuth2Controller : Controller
             user = UserRepository.Get().FirstOrDefault(x => x.Id == userId);
 
             return user != null;
-        }, data =>
-        {
-            data.Add("userId", user!.Id.ToString());
-        });
+        }, data => { data.Add("userId", user!.Id.ToString()); });
 
         if (access == null)
             throw new HttpApiException("Unable to validate access", 400);
 
         return access;
+    }
+
+    [HttpGet("info")]
+    public async Task<InfoResponse> Info()
+    {
+        if (!Request.Headers.ContainsKey("Authorization"))
+            throw new HttpApiException("Authorization header is missing", 400);
+
+        var authHeader = Request.Headers["Authorization"].First() ?? "";
+
+        if (string.IsNullOrEmpty(authHeader))
+            throw new HttpApiException("Authorization header is missing", 400);
+
+        User? currentUser = null;
+        
+        var isValid = await OAuth2Service.IsValidAccessToken(
+            authHeader,
+            data =>
+            {
+                // Check if the userId is present in the access token
+                if (!data.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
+                    return false;
+
+                currentUser = UserRepository
+                    .Get()
+                    .FirstOrDefault(x => x.Id == userId);
+
+                if (currentUser == null)
+                    return false;
+
+                return true;
+            }
+        );
+
+        if (!isValid)
+            throw new HttpApiException("Invalid access token", 401);
+        
+        if(currentUser == null)
+            throw new HttpApiException("Invalid access token", 401);
+
+        return new InfoResponse()
+        {
+            Username = currentUser.Username,
+            Email = currentUser.Email
+        };
     }
 }
