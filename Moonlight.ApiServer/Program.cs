@@ -75,7 +75,7 @@ var logConfigPath = PathBuilder.File("storage", "logConfig.json");
 if (!File.Exists(logConfigPath))
 {
     await File.WriteAllTextAsync(logConfigPath,
-        "{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\"}}");
+        "{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\",\"MoonCore.Extended.Helpers.JwtHelper\": \"Error\"}}");
 }
 
 builder.Logging.AddConfiguration(await File.ReadAllTextAsync(logConfigPath));
@@ -99,7 +99,7 @@ builder.Services.AddOAuth2Consumer(configuration =>
     configuration.ClientId = config.Authentication.OAuth2.ClientId;
     configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
     configuration.AuthorizationRedirect =
-        config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/code";
+        config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/auth";
 
     configuration.AccessEndpoint = config.Authentication.OAuth2.AccessEndpoint ?? $"{config.PublicUrl}/oauth2/access";
     configuration.RefreshEndpoint = config.Authentication.OAuth2.RefreshEndpoint ?? $"{config.PublicUrl}/oauth2/refresh";
@@ -130,7 +130,7 @@ if (config.Authentication.UseLocalOAuth2)
         configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
         configuration.CodeSecret = config.Authentication.LocalOAuth2.CodeSecret;
         configuration.AuthorizationRedirect =
-            config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/code";
+            config.Authentication.OAuth2.AuthorizationRedirect ?? $"{config.PublicUrl}/auth";
         configuration.AccessTokenDuration = 60;
         configuration.RefreshTokenDuration = 3600;
     });

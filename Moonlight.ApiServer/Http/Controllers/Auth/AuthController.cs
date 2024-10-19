@@ -166,7 +166,7 @@ public class AuthController : Controller
             return false;
 
         // Check if it's time to resync with the oauth2 provider
-        if (DateTime.UtcNow >= user.RefreshTimestamp)
+        if (false && DateTime.UtcNow >= user.RefreshTimestamp)
         {
             // It's time to refresh the access to the external oauth2 provider
             var refreshData = OAuth2Service.RefreshAccess(user.RefreshToken).Result;

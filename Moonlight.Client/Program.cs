@@ -13,6 +13,7 @@ using MoonCore.Models;
 using MoonCore.PluginFramework.Services;
 using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
+using Moonlight.Client.Services;
 using Moonlight.Client.UI;
 using Moonlight.Shared.Http.Requests.Auth;
 
@@ -89,6 +90,7 @@ builder.Services.AddScoped(sp =>
 });
 
 builder.Services.AddMoonCoreBlazorTailwind();
+builder.Services.AddScoped<WindowService>();
 
 builder.Services.AutoAddServices<Program>();
 
