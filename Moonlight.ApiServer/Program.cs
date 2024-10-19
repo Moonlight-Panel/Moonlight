@@ -135,7 +135,7 @@ if (config.Authentication.UseLocalOAuth2Service)
 
 builder.Services.AddTokenAuthentication(configuration =>
 {
-    configuration.AccessSecret = config.Authentication.AccessSecret;
+    configuration.AccessSecret = config.Authentication.MlAccessSecret;
     configuration.DataLoader = async (data, provider, context) =>
     {
         if (!data.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
@@ -148,7 +148,7 @@ builder.Services.AddTokenAuthentication(configuration =>
             return false;
         
         // OAuth2 - Check external
-        if (DateTime.UtcNow > user.RefreshTimestamp)
+        if (false && DateTime.UtcNow > user.RefreshTimestamp)
         {
             var tokenConsumer = new TokenConsumer(user.AccessToken, user.RefreshToken, user.RefreshTimestamp,
                 async refreshToken =>
@@ -170,7 +170,7 @@ builder.Services.AddTokenAuthentication(configuration =>
                     };
                 });
 
-            await tokenConsumer.GetAccessToken();
+            //await tokenConsumer.GetAccessToken();
             //TODO: API CALL (modular)
         }
         

@@ -1,4 +1,5 @@
 ﻿@using MoonCore.Exceptions
+@using MoonCore.Extensions
 @using MoonCore.Helpers
 @using MoonCore.PluginFramework.Services
 @using Moonlight.Client.Interfaces
@@ -75,7 +76,7 @@ else
     {
         if(!firstRender)
             return;
-
+        
         await Load();
     }
 

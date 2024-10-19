@@ -1,14 +1,20 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MoonCore.Blazor.Tailwind.Extensions;
 using MoonCore.Blazor.Tailwind.Forms;
 using MoonCore.Blazor.Tailwind.Forms.Components;
+using MoonCore.Blazor.Tailwind.Services;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Models;
 using MoonCore.PluginFramework.Services;
 using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.UI;
+using Moonlight.Shared.Http.Requests.Auth;
 
 // Build pre run logger
 var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
@@ -48,11 +54,43 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddScoped(sp => new HttpApiClient(sp.GetRequiredService<HttpClient>()));
+builder.Services.AddScoped(sp =>
+{
+    var httpClient = sp.GetRequiredService<HttpClient>();
+    var result = new HttpApiClient(httpClient);
 
-builder.Services.AutoAddServices<Program>();
+    result.UseBearerTokenConsumer(async () =>
+    {
+        var cookieService = sp.GetRequiredService<CookieService>();
+
+        return new TokenConsumer(
+            await cookieService.GetValue("ml-access"),
+            await cookieService.GetValue("ml-refresh"),
+            DateTimeOffset.FromUnixTimeSeconds(long.Parse(await cookieService.GetValue("ml-timestamp"))).UtcDateTime,
+            async refreshToken =>
+            {
+                await httpClient.PostAsync("api/auth/refresh", new StringContent(
+                    JsonSerializer.Serialize(new RefreshRequest()
+                    {
+                        RefreshToken = refreshToken
+                    }), new MediaTypeHeaderValue("application/json")
+                ));
+
+                return new TokenPair()
+                {
+                    AccessToken = await cookieService.GetValue("ml-access"),
+                    RefreshToken = await cookieService.GetValue("ml-refresh")
+                };
+            }
+        );
+    });
+
+    return result;
+});
 
 builder.Services.AddMoonCoreBlazorTailwind();
+
+builder.Services.AutoAddServices<Program>();
 
 FormComponentRepository.Set<string, StringComponent>();
 FormComponentRepository.Set<int, IntComponent>();
@@ -68,4 +106,6 @@ implementationService.Register<IAppLoader>(authUiHandler);
 
 builder.Services.AddSingleton(implementationService);
 
-await builder.Build().RunAsync();
+var app = builder.Build();
+
+await app.RunAsync();
