@@ -87,7 +87,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton(configService);
 
-builder.Services.AddSingleton<JwtHelper>();
 builder.Services.AutoAddServices<Program>();
 
 // OAuth2
@@ -141,7 +140,7 @@ builder.Services.AddTokenAuthentication(configuration =>
     configuration.AccessSecret = config.Authentication.AccessSecret;
     configuration.DataLoader = async (data, provider, context) =>
     {
-        if (!data.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
+        if (!data.TryGetValue("userId", out var userIdStr) || !userIdStr.TryGetInt32(out var userId))
             return false;
 
         var userRepo = provider.GetRequiredService<DatabaseRepository<User>>();
@@ -211,7 +210,7 @@ app.UseRouting();
 
 app.UseMiddleware<ApiErrorMiddleware>();
 
-app.UseTokenAuthentication(_ => {});
+app.UseTokenAuthentication();
 
 app.UseMiddleware<AuthorizationMiddleware>();
 

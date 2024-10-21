@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
@@ -12,7 +13,6 @@ using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
-using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 
@@ -27,20 +27,22 @@ public class AuthController : Controller
     private readonly ConfigService<AppConfiguration> ConfigService;
     private readonly DatabaseRepository<User> UserRepository;
     private readonly ImplementationService ImplementationService;
+    private readonly ILogger<AuthController> Logger;
 
     public AuthController(
         OAuth2Service oAuth2Service,
         TokenHelper tokenHelper,
         DatabaseRepository<User> userRepository,
         ConfigService<AppConfiguration> configService,
-        ImplementationService implementationService
-    )
+        ImplementationService implementationService,
+        ILogger<AuthController> logger)
     {
         OAuth2Service = oAuth2Service;
         TokenHelper = tokenHelper;
         UserRepository = userRepository;
         ConfigService = configService;
         ImplementationService = implementationService;
+        Logger = logger;
     }
 
     [HttpGet]
@@ -54,7 +56,7 @@ public class AuthController : Controller
     [HttpPost]
     public async Task<OAuth2HandleResponse> Handle([FromBody] OAuth2HandleRequest request)
     {
-        var accessData = await OAuth2Service.RequestAccess(request.Code);
+        var accessData = await OAuth2Service.RequestAccess(request.Code);;
 
         // Find oauth2 provider
         var provider = ImplementationService.Get<IOAuth2Provider>().FirstOrDefault();
@@ -93,10 +95,10 @@ public class AuthController : Controller
 
         var authConfig = ConfigService.Get().Authentication;
 
-        var tokenPair = await TokenHelper.GeneratePair(
+        var tokenPair = TokenHelper.GeneratePair(
             authConfig.AccessSecret,
-            authConfig.AccessSecret,
-            data => { data.Add("userId", user.Id.ToString()); },
+            authConfig.RefreshSecret,
+            data => { data.Add("userId", user.Id); },
             authConfig.AccessDuration,
             authConfig.RefreshDuration
         );
@@ -116,7 +118,7 @@ public class AuthController : Controller
     {
         var authConfig = ConfigService.Get().Authentication;
 
-        var tokenPair = await TokenHelper.RefreshPair(
+        var tokenPair = TokenHelper.RefreshPair(
             request.RefreshToken,
             authConfig.AccessSecret,
             authConfig.RefreshSecret,
@@ -139,7 +141,7 @@ public class AuthController : Controller
         };
     }
 
-    private bool ProcessRefreshData(Dictionary<string, string> refreshTokenData, Dictionary<string, string> newData, IServiceProvider serviceProvider)
+    private bool ProcessRefreshData(Dictionary<string, JsonElement> refreshTokenData, Dictionary<string, object> newData, IServiceProvider serviceProvider)
     {
         // Find oauth2 provider
         var provider = ImplementationService.Get<IOAuth2Provider>().FirstOrDefault();
@@ -148,7 +150,7 @@ public class AuthController : Controller
             throw new HttpApiException("No oauth2 provider has been registered", 500);
         
         // Check if the userId is present in the refresh token
-        if (!refreshTokenData.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
+        if (!refreshTokenData.TryGetValue("userId", out var userIdStr) || !userIdStr.TryGetInt32(out var userId))
             return false;
 
         // Load user from database if existent
@@ -166,34 +168,43 @@ public class AuthController : Controller
             return false;
 
         // Check if it's time to resync with the oauth2 provider
-        if (false && DateTime.UtcNow >= user.RefreshTimestamp)
+        if (DateTime.UtcNow >= user.RefreshTimestamp)
         {
-            // It's time to refresh the access to the external oauth2 provider
-            var refreshData = OAuth2Service.RefreshAccess(user.RefreshToken).Result;
-            
-            // Sync user with oauth2 provider
-            var syncedUser = provider.Sync(serviceProvider, refreshData.AccessToken).Result;
+            try
+            {
+                // It's time to refresh the access to the external oauth2 provider
+                var refreshData = OAuth2Service.RefreshAccess(user.RefreshToken).Result;
 
-            if (syncedUser == null) // User sync has failed. No refresh allowed
+                // Sync user with oauth2 provider
+                var syncedUser = provider.Sync(serviceProvider, refreshData.AccessToken).Result;
+
+                if (syncedUser == null) // User sync has failed. No refresh allowed
+                    return false;
+
+                // Save oauth2 refresh and access tokens for later use (re-authentication etc.).
+                // Fetch user model in current db context, just in case the oauth2 provider
+                // uses a different db context or smth
+
+                var userModel = UserRepository
+                    .Get()
+                    .First(x => x.Id == syncedUser.Id);
+
+                userModel.AccessToken = refreshData.AccessToken;
+                userModel.RefreshToken = refreshData.RefreshToken;
+                userModel.RefreshTimestamp = DateTime.UtcNow.AddSeconds(refreshData.ExpiresIn);
+
+                UserRepository.Update(userModel);
+            }
+            catch (Exception e)
+            {
+                // We are handling this error more softly, because it will occur when a user hasn't logged in a long period of time
+                Logger.LogDebug("An error occured while refreshing external oauth2 access: {e}", e);
                 return false;
-            
-            // Save oauth2 refresh and access tokens for later use (re-authentication etc.).
-            // Fetch user model in current db context, just in case the oauth2 provider
-            // uses a different db context or smth
-
-            var userModel = UserRepository
-                .Get()
-                .First(x => x.Id == syncedUser.Id);
-
-            userModel.AccessToken = refreshData.AccessToken;
-            userModel.RefreshToken = refreshData.RefreshToken;
-            userModel.RefreshTimestamp = DateTime.UtcNow.AddSeconds(refreshData.ExpiresIn);
-
-            UserRepository.Update(userModel);
+            }
         }
         
         // All checks have passed, allow refresh
-        newData.Add("userId", user.Id.ToString());
+        newData.Add("userId", user.Id);
         return true;
     }
 

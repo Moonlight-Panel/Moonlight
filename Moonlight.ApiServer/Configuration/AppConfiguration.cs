@@ -38,6 +38,9 @@ public class AppConfiguration
             public string AccessSecret { get; set; } = Formatter.GenerateString(32);
             public string RefreshSecret { get; set; } = Formatter.GenerateString(32);
             public string CodeSecret { get; set; } = Formatter.GenerateString(32);
+
+            public int AccessTokenDuration { get; set; } = 60;
+            public int RefreshTokenDuration { get; set; } = 3600;
         }
         
         public class OAuth2Data

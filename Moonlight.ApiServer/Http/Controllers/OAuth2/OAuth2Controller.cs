@@ -74,7 +74,7 @@ public class OAuth2Controller : Controller
 
         var user = await AuthService.Login(email, password);
 
-        var code = await OAuth2Service.GenerateCode(data => { data.Add("userId", user.Id.ToString()); });
+        var code = await OAuth2Service.GenerateCode(data => { data.Add("userId", user.Id); });
 
         var redirectUrl = redirectUri +
                           $"?code={code}";
@@ -98,21 +98,51 @@ public class OAuth2Controller : Controller
 
         var access = await OAuth2Service.ValidateAccess(clientId, clientSecret, redirectUri, code, data =>
         {
-            if (!data.TryGetValue("userId", out var userIdStr))
-                return false;
-
-            if (!int.TryParse(userIdStr, out var userId))
+            if (!data.TryGetValue("userId", out var userIdStr) || !userIdStr.TryGetInt32(out var userId))
                 return false;
 
             user = UserRepository.Get().FirstOrDefault(x => x.Id == userId);
 
             return user != null;
-        }, data => { data.Add("userId", user!.Id.ToString()); });
+        }, data => { data.Add("userId", user!.Id); });
 
         if (access == null)
             throw new HttpApiException("Unable to validate access", 400);
 
         return access;
+    }
+
+    [HttpPost("refresh")]
+    public async Task<RefreshData> Refresh(
+        [FromForm(Name = "grant_type")] string grantType,
+        [FromForm(Name = "refresh_token")] string refreshToken
+    )
+    {
+        if (grantType != "refresh_token")
+            throw new HttpApiException("Invalid grant type", 400);
+
+        var refreshData = await OAuth2Service.RefreshAccess(refreshToken, (refreshTokenData, newTokenData) =>
+        {
+            // Check if the userId is present in the refresh token
+            if (!refreshTokenData.TryGetValue("userId", out var userIdStr) || !userIdStr.TryGetInt32(out var userId))
+                return false;
+            
+            // Load user from database if existent
+            var user = UserRepository
+                .Get()
+                .FirstOrDefault(x => x.Id == userId);
+            
+            if (user == null)
+                return false;
+            
+            newTokenData.Add("userId", user.Id);
+            return true;
+        });
+        
+        if(refreshData == null)
+            throw new HttpApiException("Unable to validate refresh", 400);
+
+        return refreshData;
     }
 
     [HttpGet("info")]
@@ -127,13 +157,13 @@ public class OAuth2Controller : Controller
             throw new HttpApiException("Authorization header is missing", 400);
 
         User? currentUser = null;
-        
+
         var isValid = await OAuth2Service.IsValidAccessToken(
             authHeader,
             data =>
             {
                 // Check if the userId is present in the access token
-                if (!data.TryGetValue("userId", out var userIdStr) || !int.TryParse(userIdStr, out var userId))
+                if (!data.TryGetValue("userId", out var userIdStr) || !userIdStr.TryGetInt32(out var userId))
                     return false;
 
                 currentUser = UserRepository
@@ -149,8 +179,8 @@ public class OAuth2Controller : Controller
 
         if (!isValid)
             throw new HttpApiException("Invalid access token", 401);
-        
-        if(currentUser == null)
+
+        if (currentUser == null)
             throw new HttpApiException("Invalid access token", 401);
 
         return new InfoResponse()

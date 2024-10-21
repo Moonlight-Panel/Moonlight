@@ -13,16 +13,13 @@ public class AuthService
 {
     private readonly DatabaseRepository<User> UserRepository;
     private readonly ConfigService<AppConfiguration> ConfigService;
-    private readonly JwtHelper JwtHelper;
 
     public AuthService(
         DatabaseRepository<User> userRepository,
-        ConfigService<AppConfiguration> configService,
-        JwtHelper jwtHelper)
+        ConfigService<AppConfiguration> configService)
     {
         UserRepository = userRepository;
         ConfigService = configService;
-        JwtHelper = jwtHelper;
     }
 
     public Task<User> Register(string username, string email, string password)

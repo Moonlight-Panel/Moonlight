@@ -16,6 +16,7 @@ using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
 using Moonlight.Shared.Http.Requests.Auth;
+using Moonlight.Shared.Http.Responses.Auth;
 
 // Build pre run logger
 var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
@@ -70,12 +71,18 @@ builder.Services.AddScoped(sp =>
             DateTimeOffset.FromUnixTimeSeconds(long.Parse(await cookieService.GetValue("kms-timestamp", "0"))).UtcDateTime,
             async refreshToken =>
             {
-                await httpClient.PostAsync("api/auth/refresh", new StringContent(
+                var response = await httpClient.PostAsync("api/auth/refresh", new StringContent(
                     JsonSerializer.Serialize(new RefreshRequest()
                     {
                         RefreshToken = refreshToken
                     }), new MediaTypeHeaderValue("application/json")
                 ));
+
+                var refreshRes = await response.ParseAsJson<RefreshResponse>();
+
+                await cookieService.SetValue("kms-access", refreshRes.AccessToken, 10);
+                await cookieService.SetValue("kms-refresh", refreshRes.RefreshToken, 10);
+                await cookieService.SetValue("kms-timestamp", DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds().ToString(), 10);
 
                 return new TokenPair()
                 {
