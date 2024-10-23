@@ -3,6 +3,7 @@
 
 @inject IdentityService IdentityService
 @inject ToastService ToastService
+@inject NavigationManager Navigation
 
 <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-gray-800/60 backdrop-blur px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
     @if (Layout.ShowMobileNavigation)
@@ -112,6 +113,7 @@
         await IdentityService.Logout();
         await ToastService.Info("Successfully logged out");
 
-        await Layout.Load();
+        //await Layout.Load();
+        Navigation.NavigateTo(Navigation.Uri, true);
     }
 }

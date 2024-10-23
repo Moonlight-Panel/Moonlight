@@ -1,7 +1,10 @@
 using MoonCore.Attributes;
+using MoonCore.Blazor.Services;
 using MoonCore.Blazor.Tailwind.Services;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
+using MoonCore.Models;
+using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.Client.Services;
@@ -14,24 +17,20 @@ public class IdentityService
     public string[] Permissions { get; private set; }
     public bool IsLoggedIn { get; private set; }
 
-    public event Func<Task> OnStateChanged;
+    private readonly HttpApiClient HttpApiClient;
+    private readonly LocalStorageService LocalStorageService;
 
-    private readonly CookieService CookieService;
-    private readonly HttpApiClient ApiClient;
-    
-    public IdentityService(CookieService cookieService, HttpApiClient apiClient)
+    public IdentityService(HttpApiClient httpApiClient, LocalStorageService localStorageService)
     {
-        CookieService = cookieService;
-        ApiClient = apiClient;
+        HttpApiClient = httpApiClient;
+        LocalStorageService = localStorageService;
     }
-
-    #region Login / Logout
 
     public async Task Check()
     {
         try
         {
-            var response = await ApiClient.GetJson<CheckResponse>("api/auth/check");
+            var response = await HttpApiClient.GetJson<CheckResponse>("api/auth/check");
 
             Username = response.Username;
             Email = response.Email;
@@ -47,19 +46,12 @@ public class IdentityService
         //await OnStateChanged?.Invoke();
     }
 
-    public async Task Login(string token)
-    {
-        await CookieService.SetValue("token", token, 30);
-        await Check();
-    }
-
     public async Task Logout()
     {
-        await CookieService.SetValue("token", "", 30);
-        await Check();
+        await LocalStorageService.SetString("AccessToken", "unset");
+        await LocalStorageService.SetString("RefreshToken", "unset");
+        await LocalStorageService.Set("ExpiresAt", DateTime.MinValue);
     }
-
-    #endregion
     
     public bool HasPermission(string requiredPermission)
     {

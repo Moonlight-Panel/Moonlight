@@ -1,5 +1,6 @@
 @page "/auth"
 
+@using MoonCore.Blazor.Services
 @using MoonCore.Helpers
 @using Moonlight.Client.Services
 @using Moonlight.Shared.Http.Requests.Auth
@@ -7,9 +8,9 @@
 
 @inject NavigationManager Navigation
 @inject HttpApiClient HttpApiClient
-@inject CookieService CookieService
 @inject WindowService WindowService
 @inject HttpClient HttpClient
+@inject LocalStorageService LocalStorageService
 
 @if (Code == null)
 {
@@ -95,9 +96,9 @@ else
             Code = Code
         });
 
-        await CookieService.SetValue("kms-access", authHandleData.AccessToken, 10);
-        await CookieService.SetValue("kms-refresh", authHandleData.RefreshToken, 10);
-        await CookieService.SetValue("kms-timestamp", DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds().ToString(), 10);
+        await LocalStorageService.SetString("AccessToken", authHandleData.AccessToken);
+        await LocalStorageService.SetString("RefreshToken", authHandleData.RefreshToken);
+        await LocalStorageService.Set("ExpiresAt", authHandleData.ExpiresAt);
         
         try
         {
@@ -124,8 +125,8 @@ else
             await WindowService.Open(
                 uri,
                 "OAuth2 Flow",
-                500,
-                650
+                600,
+                450
             );
 
             IsAuthenticating = true;
@@ -139,17 +140,23 @@ else
 
                     try
                     {
+                        if(!await LocalStorageService.ContainsKey("AccessToken"))
+                            continue;
+                        
                         if (HttpClient.DefaultRequestHeaders.Contains("Authorization"))
                             HttpClient.DefaultRequestHeaders.Remove("Authorization");
-                        
-                        HttpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + await CookieService.GetValue("kms-access", "x"));
+
+                        HttpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + await LocalStorageService.GetString("AccessToken"));
 
                         var res = await HttpClient.GetAsync("api/auth/check");
-                        
-                        if(res.IsSuccessStatusCode)
+
+                        if (res.IsSuccessStatusCode)
                             break;
                     }
-                    finally{}
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
                 
                 Navigation.NavigateTo(Navigation.Uri, true);

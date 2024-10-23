@@ -1,12 +1,11 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MoonCore.Blazor.Extensions;
+using MoonCore.Blazor.Services;
 using MoonCore.Blazor.Tailwind.Extensions;
 using MoonCore.Blazor.Tailwind.Forms;
 using MoonCore.Blazor.Tailwind.Forms.Components;
-using MoonCore.Blazor.Tailwind.Services;
+using MoonCore.Exceptions;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Models;
@@ -55,42 +54,41 @@ builder.Logging.AddProviders(providers);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped(sp =>
 {
     var httpClient = sp.GetRequiredService<HttpClient>();
+    var localStorageService = sp.GetRequiredService<LocalStorageService>();
     var result = new HttpApiClient(httpClient);
-
-    result.UseBearerTokenConsumer(async () =>
+    
+    result.AddLocalStorageTokenAuthentication(localStorageService, async refreshToken =>
     {
-        var cookieService = sp.GetRequiredService<CookieService>();
+        try
+        {
+            var httpApiClient = new HttpApiClient(httpClient);
 
-        return new TokenConsumer(
-            await cookieService.GetValue("kms-access", "x"),
-            await cookieService.GetValue("kms-refresh", "x"),
-            DateTimeOffset.FromUnixTimeSeconds(long.Parse(await cookieService.GetValue("kms-timestamp", "0"))).UtcDateTime,
-            async refreshToken =>
-            {
-                var response = await httpClient.PostAsync("api/auth/refresh", new StringContent(
-                    JsonSerializer.Serialize(new RefreshRequest()
-                    {
-                        RefreshToken = refreshToken
-                    }), new MediaTypeHeaderValue("application/json")
-                ));
-
-                var refreshRes = await response.ParseAsJson<RefreshResponse>();
-
-                await cookieService.SetValue("kms-access", refreshRes.AccessToken, 10);
-                await cookieService.SetValue("kms-refresh", refreshRes.RefreshToken, 10);
-                await cookieService.SetValue("kms-timestamp", DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds().ToString(), 10);
-
-                return new TokenPair()
+            var response = await httpApiClient.PostJson<RefreshResponse>(
+                "api/auth/refresh",
+                new RefreshRequest()
                 {
-                    AccessToken = await cookieService.GetValue("kms-access", "x"),
-                    RefreshToken = await cookieService.GetValue("kms-refresh", "x")
-                };
-            }
-        );
+                    RefreshToken = refreshToken
+                }
+            );
+
+            return (new TokenPair()
+            {
+                AccessToken = response.AccessToken,
+                RefreshToken = response.RefreshToken
+            }, response.ExpiresAt);
+        }
+        catch (HttpApiException)
+        {
+            return (new TokenPair()
+            {
+                AccessToken = "unset",
+                RefreshToken = "unset"
+            }, DateTime.MinValue);
+        }
     });
 
     return result;
@@ -98,6 +96,7 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddMoonCoreBlazorTailwind();
 builder.Services.AddScoped<WindowService>();
+builder.Services.AddScoped<LocalStorageService>();
 
 builder.Services.AutoAddServices<Program>();
 

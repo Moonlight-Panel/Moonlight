@@ -12,13 +12,14 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MoonCore" Version="1.6.4" />
+        <PackageReference Include="MoonCore" Version="1.6.6" />
+        <PackageReference Include="MoonCore.Blazor" Version="1.2.4" />
+        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.0.7" />
         <PackageReference Include="MoonCore.Extended" Version="1.1.2" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.0" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
         <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.0.6" />
     </ItemGroup>
 
     <ItemGroup>
