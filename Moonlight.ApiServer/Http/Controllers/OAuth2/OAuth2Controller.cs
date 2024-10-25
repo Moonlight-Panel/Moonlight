@@ -1,18 +1,19 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.OAuth2.AuthServer;
 using MoonCore.Extended.OAuth2.Models;
-using MoonCore.Services;
-using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Http.Controllers.OAuth2.Pages;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Responses.OAuth2;
 
 namespace Moonlight.ApiServer.Http.Controllers.OAuth2;
 
 [ApiController]
-[Route("oauth2")]
+[Microsoft.AspNetCore.Mvc.Route("oauth2")]
 public class OAuth2Controller : Controller
 {
     private readonly OAuth2Service OAuth2Service;
@@ -31,7 +32,8 @@ public class OAuth2Controller : Controller
     public async Task Authorize(
         [FromQuery(Name = "response_type")] string responseType,
         [FromQuery(Name = "client_id")] string clientId,
-        [FromQuery(Name = "redirect_uri")] string redirectUri
+        [FromQuery(Name = "redirect_uri")] string redirectUri,
+        [FromQuery(Name = "action")] string action = "login"
     )
     {
         if (responseType != "code")
@@ -41,20 +43,29 @@ public class OAuth2Controller : Controller
             throw new HttpApiException("Invalid authorization request", 400);
 
         Response.StatusCode = 200;
-        await Response.WriteAsync(
-            "<h1>Login lol</h1><br />" +
-            "<br />" +
-            "<br />" +
-            "<form method=\"post\">" +
-            "<label for=\"email\">Email:</label>" +
-            "<input type=\"email\" id=\"email\" name=\"email\"><br>" +
-            "<br>" +
-            "<label for=\"password\">Password:</label>" +
-            "<input type=\"password\" id=\"password\" name=\"password\"><br>" +
-            "<br>" +
-            "<input type=\"submit\" value=\"Submit\">" +
-            "</form>"
-        );
+
+        if (action == "register")
+        {
+            await Response.WriteAsync(
+                await RenderPage<Register>(parmeters =>
+                {
+                    parmeters.Add("ClientId", clientId);
+                    parmeters.Add("ResponseType", responseType);
+                    parmeters.Add("RedirectUri", redirectUri);
+                })
+            );
+        }
+        else
+        {
+            await Response.WriteAsync(
+                await RenderPage<Login>(parmeters =>
+                {
+                    parmeters.Add("ClientId", clientId);
+                    parmeters.Add("ResponseType", responseType);
+                    parmeters.Add("RedirectUri", redirectUri);
+                })
+            );
+        }
     }
 
     [HttpPost("authorize")]
@@ -188,5 +199,23 @@ public class OAuth2Controller : Controller
             Username = currentUser.Username,
             Email = currentUser.Email
         };
+    }
+
+    private async Task<string> RenderPage<T>(Action<Dictionary<string, object>>? onConfigureParameters = null) where T : ComponentBase
+    {
+        var parameters = new Dictionary<string, object>();
+        onConfigureParameters?.Invoke(parameters);
+        
+        await using var htmlRenderer = new HtmlRenderer(HttpContext.RequestServices, HttpContext.RequestServices.GetRequiredService<ILoggerFactory>());
+
+        var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var parameterView = ParameterView.FromDictionary(parameters!);
+            var output = await htmlRenderer.RenderComponentAsync<T>(parameterView);
+
+            return output.ToHtmlString();
+        });
+
+        return html;
     }
 }

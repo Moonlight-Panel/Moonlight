@@ -108,6 +108,8 @@ else
         {
             IsHandlingDone = true;
             await InvokeAsync(StateHasChanged);
+
+            Navigation.NavigateTo("/", true);
         }
     }
 
@@ -120,6 +122,9 @@ else
                   $"&redirect_uri={authStartData.RedirectUri}" +
                   $"&response_type=code";
 
+        Navigation.NavigateTo(uri, true);
+        return;
+        
         try
         {
             await WindowService.Open(
