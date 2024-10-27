@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.OpenApi.Models;
 using MoonCore.Extended.Abstractions;
@@ -7,6 +8,7 @@ using MoonCore.Extended.OAuth2.ApiServer;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Models;
+using MoonCore.PluginFramework.Extensions;
 using MoonCore.PluginFramework.Services;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
@@ -16,6 +18,7 @@ using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Http.Middleware;
 using Moonlight.ApiServer.Implementations.OAuth2;
+using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 
 // Prepare file system
@@ -186,12 +189,13 @@ if (configService.Get().Development.EnableApiDocs)
 }
 
 // Implementation service
-var implementationService = new ImplementationService();
-
-if(config.Authentication.UseLocalOAuth2)
-    implementationService.Register<IOAuth2Provider, LocalOAuth2Provider>();
-
-builder.Services.AddSingleton(implementationService);
+builder.Services.AddPlugins(configuration =>
+{
+    configuration.AddInterface<IOAuth2Provider>();
+    configuration.AddInterface<IAuthInterceptor>();
+    
+    configuration.AddAssembly(Assembly.GetEntryAssembly()!);
+}, logger);
 
 var app = builder.Build();
 

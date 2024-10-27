@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MoonCore.Blazor.Extensions;
@@ -9,6 +10,7 @@ using MoonCore.Exceptions;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Models;
+using MoonCore.PluginFramework.Extensions;
 using MoonCore.PluginFramework.Services;
 using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
@@ -103,16 +105,16 @@ builder.Services.AutoAddServices<Program>();
 FormComponentRepository.Set<string, StringComponent>();
 FormComponentRepository.Set<int, IntComponent>();
 
-// Implementation service
-var implementationService = new ImplementationService();
-
-implementationService.Register<ISidebarItemProvider, DefaultSidebarItemProvider>();
-
-var authUiHandler = new AuthenticationUiHandler();
-implementationService.Register<IAppScreen>(authUiHandler);
-implementationService.Register<IAppLoader>(authUiHandler);
-
-builder.Services.AddSingleton(implementationService);
+// Interface service
+builder.Services.AddPlugins(configuration =>
+{
+    configuration.AddAssembly(Assembly.GetEntryAssembly()!);
+    
+    configuration.AddInterface<IAppLoader>();
+    configuration.AddInterface<IAppScreen>();
+    
+    configuration.AddInterface<ISidebarItemProvider>();
+}, logger);
 
 var app = builder.Build();
 

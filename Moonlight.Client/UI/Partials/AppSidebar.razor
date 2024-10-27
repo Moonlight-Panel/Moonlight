@@ -6,7 +6,7 @@
 
 @inject NavigationManager Navigation
 @inject IdentityService IdentityService
-@inject ImplementationService ImplementationService
+@inject ISidebarItemProvider[] SidebarItemProviders
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -168,7 +168,7 @@
 
     protected override void OnInitialized()
     {
-        Items = ImplementationService.Get<ISidebarItemProvider>()
+        Items = SidebarItemProviders
             .SelectMany(x => x.Get())
             .Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
             .GroupBy(x => x.Group ?? "")

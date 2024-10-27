@@ -26,23 +26,26 @@ public class AuthController : Controller
     private readonly TokenHelper TokenHelper;
     private readonly ConfigService<AppConfiguration> ConfigService;
     private readonly DatabaseRepository<User> UserRepository;
-    private readonly ImplementationService ImplementationService;
     private readonly ILogger<AuthController> Logger;
+    private readonly IOAuth2Provider[] OAuth2Providers;
+    private readonly IAuthInterceptor[] AuthInterceptors;
 
     public AuthController(
         OAuth2Service oAuth2Service,
         TokenHelper tokenHelper,
         DatabaseRepository<User> userRepository,
         ConfigService<AppConfiguration> configService,
-        ImplementationService implementationService,
-        ILogger<AuthController> logger)
+        ILogger<AuthController> logger,
+        IOAuth2Provider[] oAuth2Providers,
+        IAuthInterceptor[] authInterceptors)
     {
         OAuth2Service = oAuth2Service;
         TokenHelper = tokenHelper;
         UserRepository = userRepository;
         ConfigService = configService;
-        ImplementationService = implementationService;
         Logger = logger;
+        OAuth2Providers = oAuth2Providers;
+        AuthInterceptors = authInterceptors;
     }
 
     [HttpGet]
@@ -59,7 +62,7 @@ public class AuthController : Controller
         var accessData = await OAuth2Service.RequestAccess(request.Code);;
 
         // Find oauth2 provider
-        var provider = ImplementationService.Get<IOAuth2Provider>().FirstOrDefault();
+        var provider = OAuth2Providers.FirstOrDefault();
 
         if (provider == null)
             throw new HttpApiException("No oauth2 provider has been registered", 500);
@@ -71,9 +74,7 @@ public class AuthController : Controller
             throw new HttpApiException("The oauth2 provider was unable to authenticate you", 401);
         
         // Allow plugins to intercept access calls
-        var interceptors = ImplementationService.Get<IAuthInterceptor>();
-
-        if (interceptors.Any(interceptor => !interceptor.AllowAccess(user, HttpContext.RequestServices)))
+        if (AuthInterceptors.Any(interceptor => !interceptor.AllowAccess(user, HttpContext.RequestServices)))
             throw new HttpApiException("Unable to get access token", 401);
 
         // Save oauth2 refresh and access tokens for later use (re-authentication etc.).
@@ -144,7 +145,7 @@ public class AuthController : Controller
     private bool ProcessRefreshData(Dictionary<string, JsonElement> refreshTokenData, Dictionary<string, object> newData, IServiceProvider serviceProvider)
     {
         // Find oauth2 provider
-        var provider = ImplementationService.Get<IOAuth2Provider>().FirstOrDefault();
+        var provider = OAuth2Providers.FirstOrDefault();
 
         if (provider == null)
             throw new HttpApiException("No oauth2 provider has been registered", 500);
@@ -162,9 +163,7 @@ public class AuthController : Controller
             return false;
 
         // Allow plugins to intercept the refresh call
-        var interceptors = ImplementationService.Get<IAuthInterceptor>();
-
-        if (interceptors.Any(interceptor => !interceptor.AllowRefresh(user, serviceProvider)))
+        if (AuthInterceptors.Any(interceptor => !interceptor.AllowRefresh(user, serviceProvider)))
             return false;
 
         // Check if it's time to resync with the oauth2 provider

@@ -8,10 +8,11 @@
 
 @inherits LayoutComponentBase
 
-@inject ImplementationService ImplementationService
 @inject IdentityService IdentityService
 @inject IServiceProvider ServiceProvider
 @inject ILogger<MainLayout> Logger
+@inject IAppLoader[] AppLoaders
+@inject IAppScreen[] AppScreens
 
 @if (IsLoading)
 {
@@ -98,8 +99,7 @@ else
 
     private async Task RunLoaders()
     {
-        var appLoaders = ImplementationService
-            .Get<IAppLoader>()
+        var appLoaders = AppLoaders
             .OrderBy(x => x.Priority);
 
         foreach (var loader in appLoaders) //TODO: Measure performance of every loader?
@@ -120,8 +120,7 @@ else
     {
         CurrentScreen = null;
 
-        var appScreens = ImplementationService
-            .Get<IAppScreen>()
+        var appScreens = AppScreens
             .OrderBy(x => x.Priority);
 
         foreach (var screen in appScreens)
