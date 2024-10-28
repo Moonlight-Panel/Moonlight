@@ -104,7 +104,6 @@ else
             // Update UI
             IsHandlingDone = true;
             await InvokeAsync(StateHasChanged);
-            await Task.Delay(TimeSpan.FromSeconds(2));
 
             try
             {
@@ -112,6 +111,8 @@ else
             }
             finally
             {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                
                 Navigation.NavigateTo("/", true);
             }
         }
