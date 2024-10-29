@@ -38,8 +38,15 @@ public static class Startup
         // Ensure logging config, add a default one is missing
         if (!File.Exists(logConfigPath))
         {
-            await File.WriteAllTextAsync(logConfigPath,
-                "{\"LogLevel\":{\"Default\":\"Information\",\"Microsoft.AspNetCore\":\"Warning\",\"MoonCore.Extended.Helpers.JwtHelper\": \"Error\"}}");
+            var logLevels = new Dictionary<string, string>
+            {
+                { "Default", "Information" },
+                { "Microsoft.AspNetCore", "Warning" }
+            };
+
+            var logLevelsJson = JsonSerializer.Serialize(logLevels);
+            var logConfig = "{\"LogLevel\":" + logLevelsJson + "}";
+            await File.WriteAllTextAsync(logConfigPath, logConfig);
         }
 
         builder.Logging.AddConfiguration(await File.ReadAllTextAsync(logConfigPath));
