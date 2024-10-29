@@ -131,8 +131,8 @@ else
                   $"&redirect_uri={authStartData.RedirectUri}" +
                   $"&response_type=code";
 
-        Navigation.NavigateTo(uri, true);
-        return;
+        //Navigation.NavigateTo(uri, true);
+        //return;
         
         try
         {
@@ -140,7 +140,7 @@ else
                 uri,
                 "OAuth2 Flow",
                 600,
-                450
+                470
             );
 
             IsAuthenticating = true;
