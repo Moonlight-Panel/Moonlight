@@ -9,7 +9,14 @@
     <NotFound>
         <PageTitle>Not found</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <div class="flex flex-col justify-center text-center">
+                <img class="h-48 mt-5 mb-3" src="/svg/notfound.svg" alt="Not found illustration"/>
+
+                <h3 class="mt-2 font-semibold text-white text-lg">Page not found</h3>
+                <p class="mt-1 text-gray-300">
+                    The page you requested does not exist
+                </p>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>

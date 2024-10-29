@@ -1,0 +1,35 @@
+﻿@page "/admin/system"
+
+@using MoonCore.Blazor.Tailwind.Attributes
+@using Moonlight.Client.UI.Components
+
+@attribute [RequirePermission("admin.system.read")]
+
+<div class="gap-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+    <StatCard Title="CPU Usage" Text="2%" Icon="bi bi-cpu"/>
+    <StatCard Title="Memory Usage" Text="71 MB" Icon="bi bi-memory"/>
+    <StatCard Title="Host OS" Text="Debian 12" Icon="bi bi-motherboard"/>
+    <StatCard Title="Uptime" Text="1d 5h 12h 3s" Icon="bi bi-clock-history"/>
+        
+    <div class="card card-body relative">
+        <div>
+            <div class="absolute rounded-lg p-3 bg-danger-600">
+                <div class="h-6 w-6 flex justify-center items-center">
+                    <i class="bi bi-arrow-repeat text-4xl text-white"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="ml-16 flex items-center mb-2">
+            <WButton OnClick="Restart" CssClasses="btn btn-danger w-full">Restart</WButton>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private async Task Restart(WButton _)
+    {
+        
+    }
+}

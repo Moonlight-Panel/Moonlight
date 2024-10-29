@@ -9,4 +9,5 @@ public class CoreDataContext : DatabaseContext
     public override string Prefix { get; } = "Core";
 
     public DbSet<User> Users { get; set; }
+    public DbSet<ApiKey> ApiKeys { get; set; }
 }

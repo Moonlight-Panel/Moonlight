@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using MoonCore.Blazor.Tailwind.Attributes;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Models;
-using Moonlight.ApiServer.Attributes;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.Shared.Http.Requests.Admin.Users;
 using Moonlight.Shared.Http.Responses.Admin.Users;

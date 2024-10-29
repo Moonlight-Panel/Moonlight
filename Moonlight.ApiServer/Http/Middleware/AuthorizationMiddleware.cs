@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using Moonlight.ApiServer.Attributes;
+using MoonCore.Blazor.Tailwind.Attributes;
 using Moonlight.ApiServer.Exceptions;
 using Moonlight.ApiServer.Helpers.Authentication;
 

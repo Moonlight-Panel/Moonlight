@@ -16,6 +16,7 @@ using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
+using Moonlight.Client.UI.Forms;
 using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 
@@ -104,6 +105,7 @@ builder.Services.AutoAddServices<Program>();
 
 FormComponentRepository.Set<string, StringComponent>();
 FormComponentRepository.Set<int, IntComponent>();
+FormComponentRepository.Set<DateTime, DateComponent>();
 
 // Interface service
 builder.Services.AddPlugins(configuration =>

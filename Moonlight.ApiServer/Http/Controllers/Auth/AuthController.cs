@@ -1,13 +1,12 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using MoonCore.Blazor.Tailwind.Attributes;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extended.OAuth2.ApiServer;
 using MoonCore.Helpers;
-using MoonCore.PluginFramework.Services;
 using MoonCore.Services;
-using Moonlight.ApiServer.Attributes;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers.Authentication;

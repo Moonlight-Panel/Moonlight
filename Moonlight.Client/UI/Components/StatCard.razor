@@ -1,0 +1,16 @@
+﻿<div class="card card-body">
+    <div class="flex justify-between">
+        <p class="text-xl font-semibold text-slate-200">
+            @Text
+        </p>
+        <i class="@Icon text-4xl text-primary-500"></i>
+    </div>
+    <p class="text-base text-slate-300">@Title</p>
+</div>
+
+@code
+{
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string Text { get; set; }
+    [Parameter] public string Icon { get; set; }
+}

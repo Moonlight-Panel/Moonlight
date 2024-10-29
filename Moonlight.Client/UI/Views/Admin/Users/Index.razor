@@ -34,7 +34,7 @@
         crudOptions.SingleItemLoader = async id
             => await HttpApiClient.GetJson<UserDetailResponse>($"api/admin/users/{id}");
         
-        crudOptions.QueryIdentifier = item => item.Id.ToString(); //TODO: Make this default
+        crudOptions.QueryIdentifier = response => response.Id.ToString();
 
         crudOptions.OnCreate = async request
             => await HttpApiClient.Post("api/admin/users", request);

@@ -41,7 +41,8 @@ public static class Startup
             var logLevels = new Dictionary<string, string>
             {
                 { "Default", "Information" },
-                { "Microsoft.AspNetCore", "Warning" }
+                { "Microsoft.AspNetCore", "Warning" },
+                { "System.Net.Http.HttpClient", "Warning" }
             };
 
             var logLevelsJson = JsonSerializer.Serialize(logLevels);
@@ -113,7 +114,7 @@ public static class Startup
             databaseHelper.AddDbContext(database);
             builder.Services.AddScoped(database);
         }
-        
+
         databaseHelper.GenerateMappings();
 
         builder.Services.AddSingleton(databaseHelper);
@@ -163,7 +164,7 @@ public static class Startup
         });
 
         if (!config.Authentication.UseLocalOAuth2) return Task.CompletedTask;
-        
+
         logger.LogInformation("Using local oauth2 provider");
 
         builder.Services.AddOAuth2Provider(configuration =>
