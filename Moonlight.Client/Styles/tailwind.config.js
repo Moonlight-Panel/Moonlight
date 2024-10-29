@@ -115,6 +115,9 @@ module.exports = {
                     900: '#111721',
                     950: '#0e121c',
                 }
+            },
+            animation: {
+                'shimmer': 'shimmer 2s linear infinite',
             }
         },
     },

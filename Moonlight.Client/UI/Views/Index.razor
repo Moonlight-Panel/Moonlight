@@ -1,5 +1,12 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using Moonlight.Client.Services
 
-Welcome to your new app.
+@inject IdentityService IdentityService
+
+<div class="font-medium leading-[1.1] tracking-tight">
+    <div class="animate-shimmer bg-gradient-to-r from-violet-400 via-sky-400 to-purple-400 bg-clip-text font-semibold text-transparent text-3xl" style="animation-duration: 5s; background-size: 200% 100%">
+        Welcome, @(IdentityService.Username)
+    </div>
+    <div class="text-gray-200 text-2xl">What do you want to do today?</div>
+</div>
