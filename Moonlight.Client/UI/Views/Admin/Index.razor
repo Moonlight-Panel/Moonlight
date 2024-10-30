@@ -1,3 +1,184 @@
 ﻿@page "/admin"
 
-<h1>Elo testy</h1>
+@using ApexCharts
+
+<div class="card max-w-md">
+    <ApexChart @ref="ApexChart" TItem="MyData"
+               Options="Options">
+
+        <ApexPointSeries TItem="MyData"
+                         Items="Data"
+                         Name="Net Profit"
+                         SeriesType="SeriesType.Area"
+                         Color="#3b82f6"
+                         ShowDataLabels="false"
+                         XValue="e => e.Index"
+                         YValue="e => e.Value"/>
+    </ApexChart>
+</div>
+
+@code {
+    private List<MyData> Data { get; set; } = new();
+
+    private ApexChartOptions<MyData> Options;
+    private ApexChart<MyData> ApexChart;
+
+    private int Counter = 0;
+    private int IndexCounter = 0;
+
+    protected override void OnInitialized()
+    {
+        Options = new()
+        {
+            Stroke = new()
+            {
+                Curve = new CurveSelections()
+                {
+                    Curve.Smooth
+                },
+                Width = 4
+            },
+            Title = new()
+            {
+                Text = ""
+            },
+            Chart = new()
+            {
+                Toolbar = new()
+                {
+                    Show = false
+                },
+                Animations = new()
+                {
+                    Easing = Easing.Linear,
+                    DynamicAnimation = new()
+                    {
+                        Speed = 950
+                    }
+                },
+                Zoom = new Zoom
+                {
+                    Enabled = false
+                },
+                Height = "100%",
+                Sparkline = new()
+                {
+                    Enabled = false
+                }
+            },
+            Tooltip = new()
+            {
+                Enabled = false
+            },
+            Xaxis = new()
+            {
+                Range = 20,
+                Tooltip = new()
+                {
+                    Enabled = false
+                },
+                Labels = new()
+                {
+                    Show = false
+                },
+                AxisTicks = new()
+                {
+                    Show = false
+                },
+                AxisBorder = new()
+                {
+                    Show = false
+                }
+            },
+            Yaxis = new(),
+            Series = new(),
+            Grid = new()
+            {
+                Show = false,
+                Padding = new Padding()
+                {
+                    Bottom = 0,
+                    Left = 0,
+                    Right = 0,
+                    Top = 0
+                }
+            },
+        };
+
+        Options.Yaxis.Add(new()
+        {
+            Labels = new()
+            {
+                Show = false,
+                Style = new()
+                {
+                    CssClass = "fs-6",
+                    Colors = new("#FFFFFF")
+                },
+                Formatter = $"function (value) {{ return Math.round(value) + ' Users' }}",
+            },
+            Show = false
+        });
+
+        for (int i = 0; i < 20; i++)
+        {
+            IndexCounter++;
+            Data.Add(new MyData { Index = IndexCounter, Value = 0 });
+        }
+
+        Task.Run(async () =>
+        {
+            await Task.Delay(1000);
+
+            var random = new Random();
+
+            while (true)
+            {
+                var x = random.Next(0, 100);
+                await HandleData(x);
+
+                await Task.Delay(1000);
+            }
+        });
+    }
+
+    public async Task HandleData(int newValue)
+    {
+        if (Counter > 30)
+        {
+            await ApexChart.UpdateSeriesAsync();
+            Counter = 0;
+        }
+
+        IndexCounter++;
+        var item = new MyData()
+        {
+            Index = IndexCounter,
+            Value = newValue
+        };
+
+        Data.Add(item);
+
+        if (Data.Count > 30)
+            Data.RemoveAt(0);
+
+        try
+        {
+            await ApexChart.AppendDataAsync(new[] { item });
+        }
+        catch (TaskCanceledException)
+        {
+            /* ignore task canceled exception */
+        }
+
+        Counter++;
+    }
+
+    public class MyData
+    {
+        public int Index { get; set; }
+        public int Value { get; set; }
+    }
+
+
+}
