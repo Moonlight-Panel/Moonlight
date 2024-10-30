@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MoonCore.Authentication;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
@@ -7,7 +8,6 @@ using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
-using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Interfaces.Startup;
 
 namespace Moonlight.ApiServer;
@@ -79,7 +79,10 @@ public static class Startup
                 ) ?? [];
 
                 // Save permission state
-                context.User = new PermClaimsPrinciple(permissions, user);
+                context.User = new PermClaimsPrinciple(permissions)
+                {
+                    IdentityModel = user
+                };
 
                 return true;
             };

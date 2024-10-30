@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Blazor.Tailwind.Attributes;
+using MoonCore.Attributes;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;

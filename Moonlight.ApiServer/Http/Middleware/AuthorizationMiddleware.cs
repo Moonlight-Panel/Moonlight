@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
-using MoonCore.Blazor.Tailwind.Attributes;
+using MoonCore.Attributes;
+using MoonCore.Authentication;
+using MoonCore.Extensions;
 using Moonlight.ApiServer.Exceptions;
-using Moonlight.ApiServer.Helpers.Authentication;
 
 namespace Moonlight.ApiServer.Http.Middleware;
 
@@ -64,7 +65,7 @@ public class AuthorizationMiddleware
         }
 
         // Check if one of the required permissions is to be logged in
-        if (requiredPermissions.Any(x => x == "meta.authenticated") && permClaimsPrinciple.CurrentModelNullable == null)
+        if (requiredPermissions.Any(x => x == "meta.authenticated") && permClaimsPrinciple.IdentityModel == null)
         {
             await Results.Problem(
                 title: "This endpoint requires a user authenticated token",

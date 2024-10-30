@@ -158,6 +158,8 @@ foreach (var startupInterface in appStartupInterfaces)
     }
 }
 
+app.UseMiddleware<ApiAuthenticationMiddleware>();
+
 app.UseMiddleware<AuthorizationMiddleware>();
 
 // Call interfaces

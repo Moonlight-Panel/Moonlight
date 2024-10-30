@@ -1,15 +1,16 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Blazor.Tailwind.Attributes;
+using MoonCore.Attributes;
+using MoonCore.Authentication;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extended.OAuth2.ApiServer;
+using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Helpers.Authentication;
 using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.Shared.Http.Requests.Auth;
@@ -210,14 +211,14 @@ public class AuthController : Controller
     [RequirePermission("meta.authenticated")]
     public Task<CheckResponse> Check()
     {
-        var perm = HttpContext.User as PermClaimsPrinciple;
-        var user = perm!.CurrentModel;
+        var permClaim = (HttpContext.User as PermClaimsPrinciple)!;
+        var user = (User)permClaim.IdentityModel;
 
         var response = new CheckResponse()
         {
             Email = user.Email,
             Username = user.Username,
-            Permissions = perm.Permissions
+            Permissions = permClaim.Permissions
         };
 
         return Task.FromResult(response);

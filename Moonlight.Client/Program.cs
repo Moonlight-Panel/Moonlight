@@ -11,8 +11,6 @@ using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Models;
 using MoonCore.PluginFramework.Extensions;
-using MoonCore.PluginFramework.Services;
-using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;

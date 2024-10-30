@@ -1,10 +1,7 @@
 using MoonCore.Attributes;
 using MoonCore.Blazor.Services;
-using MoonCore.Blazor.Tailwind.Services;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
-using MoonCore.Models;
-using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.Client.Services;
