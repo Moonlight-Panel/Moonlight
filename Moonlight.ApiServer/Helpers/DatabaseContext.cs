@@ -8,12 +8,12 @@ namespace Moonlight.ApiServer.Helpers;
 
 public abstract class DatabaseContext : DbContext
 {
-    private ConfigService<AppConfiguration>? ConfigService;
+    private AppConfiguration? Configuration;
     public abstract string Prefix { get; }
 
     public DatabaseContext()
     {
-        ConfigService = ApplicationStateHelper.Configuration;
+        Configuration = ApplicationStateHelper.Configuration;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -23,14 +23,14 @@ public abstract class DatabaseContext : DbContext
 
         // If no config service has been configured, we are probably
         // in a EF Core migration, so we need to construct the config manually
-        if (ConfigService == null)
+        if (Configuration == null)
         {
-            ConfigService = new ConfigService<AppConfiguration>(
-                PathBuilder.File("storage", "config.json")
-            );
+            Configuration = new ConfigService<AppConfiguration>(
+                PathBuilder.File("storage", "app.json")
+            ).Get();
         }
 
-        var config = ConfigService.Get().Database;
+        var config = Configuration.Database;
 
         var connectionString = $"host={config.Host};" +
                                $"port={config.Port};" +

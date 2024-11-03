@@ -10,17 +10,17 @@ namespace Moonlight.ApiServer.Http.Controllers.Swagger;
 [Route("api/swagger")]
 public class SwaggerController : Controller
 {
-    private readonly ConfigService<AppConfiguration> ConfigService;
+    private readonly AppConfiguration Configuration;
 
-    public SwaggerController(ConfigService<AppConfiguration> configService)
+    public SwaggerController(AppConfiguration configuration)
     {
-        ConfigService = configService;
+        Configuration = configuration;
     }
     
     [HttpGet]
     public async Task<ActionResult> Get()
     {
-        if (!ConfigService.Get().Development.EnableApiDocs)
+        if (!Configuration.Development.EnableApiDocs)
             return BadRequest("Api docs are disabled");
         
         var options = new ApiDocsOptions();

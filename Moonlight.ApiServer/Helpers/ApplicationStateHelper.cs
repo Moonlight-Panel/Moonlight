@@ -5,7 +5,7 @@ namespace Moonlight.ApiServer.Helpers;
 
 public class ApplicationStateHelper
 {
-    public static ConfigService<AppConfiguration>? Configuration { get; private set; }
+    public static AppConfiguration Configuration { get; private set; }
 
-    public static void SetConfiguration(ConfigService<AppConfiguration>? configuration) => Configuration = configuration;
+    public static void SetConfiguration(AppConfiguration configuration) => Configuration = configuration;
 }

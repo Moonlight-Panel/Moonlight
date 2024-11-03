@@ -16,14 +16,13 @@ public class LocalOAuth2Provider : IOAuth2Provider
         
         try
         {
-            var configService = provider.GetRequiredService<ConfigService<AppConfiguration>>();
-            var config = configService.Get();
+            var configuration = provider.GetRequiredService<AppConfiguration>();
 
             using var httpClient = new HttpClient();
             
             httpClient.DefaultRequestHeaders.Add("Authorization", accessToken);
             
-            var response = await httpClient.GetAsync($"{config.PublicUrl}/oauth2/info");
+            var response = await httpClient.GetAsync($"{configuration.PublicUrl}/oauth2/info");
             await response.HandlePossibleApiError();
             var info = await response.ParseAsJson<InfoResponse>();
 

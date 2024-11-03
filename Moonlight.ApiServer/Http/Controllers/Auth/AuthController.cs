@@ -24,9 +24,9 @@ public class AuthController : Controller
 {
     private readonly OAuth2Service OAuth2Service;
     private readonly TokenHelper TokenHelper;
-    private readonly ConfigService<AppConfiguration> ConfigService;
     private readonly DatabaseRepository<User> UserRepository;
     private readonly ILogger<AuthController> Logger;
+    private readonly AppConfiguration Configuration;
     private readonly IOAuth2Provider[] OAuth2Providers;
     private readonly IAuthInterceptor[] AuthInterceptors;
 
@@ -34,18 +34,18 @@ public class AuthController : Controller
         OAuth2Service oAuth2Service,
         TokenHelper tokenHelper,
         DatabaseRepository<User> userRepository,
-        ConfigService<AppConfiguration> configService,
         ILogger<AuthController> logger,
         IOAuth2Provider[] oAuth2Providers,
-        IAuthInterceptor[] authInterceptors)
+        IAuthInterceptor[] authInterceptors,
+        AppConfiguration configuration)
     {
         OAuth2Service = oAuth2Service;
         TokenHelper = tokenHelper;
         UserRepository = userRepository;
-        ConfigService = configService;
         Logger = logger;
         OAuth2Providers = oAuth2Providers;
         AuthInterceptors = authInterceptors;
+        Configuration = configuration;
     }
 
     [HttpGet]
@@ -94,7 +94,7 @@ public class AuthController : Controller
         // Generate local token-pair for the authentication
         // between client and the api server
 
-        var authConfig = ConfigService.Get().Authentication;
+        var authConfig = Configuration.Authentication;
 
         var tokenPair = TokenHelper.GeneratePair(
             authConfig.AccessSecret,
@@ -117,7 +117,7 @@ public class AuthController : Controller
     [HttpPost("refresh")]
     public async Task<RefreshResponse> Refresh([FromBody] RefreshRequest request)
     {
-        var authConfig = ConfigService.Get().Authentication;
+        var authConfig = Configuration.Authentication;
 
         var tokenPair = TokenHelper.RefreshPair(
             request.RefreshToken,

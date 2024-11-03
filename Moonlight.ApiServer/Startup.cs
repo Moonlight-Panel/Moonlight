@@ -18,6 +18,9 @@ public static class Startup
 
     public static async Task ConfigureLogging(IHostApplicationBuilder builder)
     {
+        // Create logging path
+        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
+        
         // Configure application logging
         builder.Logging.ClearProviders();
 

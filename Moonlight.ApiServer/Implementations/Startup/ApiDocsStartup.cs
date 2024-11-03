@@ -7,18 +7,18 @@ namespace Moonlight.ApiServer.Implementations.Startup;
 
 public class ApiDocsStartup : IAppStartup, IEndpointStartup
 {
-    private readonly ConfigService<AppConfiguration> ConfigService;
     private readonly ILogger<ApiDocsStartup> Logger;
+    private readonly AppConfiguration AppConfiguration;
 
-    public ApiDocsStartup(ConfigService<AppConfiguration> configService, ILogger<ApiDocsStartup> logger)
+    public ApiDocsStartup(ILogger<ApiDocsStartup> logger, AppConfiguration appConfiguration)
     {
-        ConfigService = configService;
         Logger = logger;
+        AppConfiguration = appConfiguration;
     }
 
     public Task BuildApp(IHostApplicationBuilder builder)
     {
-        if(!ConfigService.Get().Development.EnableApiDocs)
+        if(!AppConfiguration.Development.EnableApiDocs)
             return Task.CompletedTask;
         
         builder.Services.AddEndpointsApiExplorer();
@@ -36,7 +36,7 @@ public class ApiDocsStartup : IAppStartup, IEndpointStartup
 
     public Task ConfigureEndpoints(IEndpointRouteBuilder routeBuilder)
     {
-        if(!ConfigService.Get().Development.EnableApiDocs)
+        if(!AppConfiguration.Development.EnableApiDocs)
             return Task.CompletedTask;
         
         routeBuilder.MapSwagger("/api/swagger/{documentName}");

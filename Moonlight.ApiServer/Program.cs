@@ -1,3 +1,4 @@
+using System.Net;
 using System.Reflection;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
@@ -32,15 +33,6 @@ Console.WriteLine();
 // Storage i guess
 Directory.CreateDirectory(PathBuilder.Dir("storage"));
 
-// Configuration
-var configService = new ConfigService<AppConfiguration>(
-    PathBuilder.File("storage", "config.json")
-);
-
-var config = configService.Get();
-
-ApplicationStateHelper.SetConfiguration(configService);
-
 // TODO: Load plugin/module assemblies
 
 // Configure startup logger
@@ -60,7 +52,14 @@ var startupLogger = startupLoggerFactory.CreateLogger("Startup");
 
 // Configure startup interfaces
 var startupServiceCollection = new ServiceCollection();
-startupServiceCollection.AddSingleton(configService);
+
+startupServiceCollection.AddConfiguration(options =>
+{
+    options.UsePath(PathBuilder.Dir("storage"));
+    options.UseEnvironmentPrefix("MOONLIGHT");
+    
+    options.AddConfiguration<AppConfiguration>("app");
+});
 
 startupServiceCollection.AddLogging(loggingBuilder => { loggingBuilder.AddProviders(providers); });
 
@@ -73,11 +72,14 @@ startupServiceCollection.AddPlugins(configuration =>
 
     // Configure assemblies to scan
     configuration.AddAssembly(Assembly.GetEntryAssembly()!);
-}, startupLogger);
+});
 
 
 var startupServiceProvider = startupServiceCollection.BuildServiceProvider();
 var appStartupInterfaces = startupServiceProvider.GetRequiredService<IAppStartup[]>();
+
+var config = startupServiceProvider.GetRequiredService<AppConfiguration>();
+ApplicationStateHelper.SetConfiguration(config);
 
 // Start the actual app
 var builder = WebApplication.CreateBuilder(args);
@@ -108,7 +110,7 @@ foreach (var startupInterface in appStartupInterfaces)
 }
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton(configService);
+builder.Services.AddSingleton(config);
 builder.Services.AutoAddServices<Program>();
 builder.Services.AddSingleton<TokenHelper>();
 builder.Services.AddHttpClient();
@@ -123,7 +125,7 @@ builder.Services.AddPlugins(configuration =>
     configuration.AddInterface<IAuthInterceptor>();
 
     configuration.AddAssembly(Assembly.GetEntryAssembly()!);
-}, startupLogger);
+});
 
 var app = builder.Build();
 

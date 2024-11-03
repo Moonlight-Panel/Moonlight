@@ -1,0 +1,41 @@
+services:
+  api-server:
+    image: moonlightpanel/panel:custom
+    build:
+      context: .
+      dockerfile: ./Moonlight.ApiServer/Dockerfile
+    ports:
+      - "9069:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - MOONLIGHT_APP_DATABASE_HOST=db
+      - MOONLIGHT_APP_DATABASE_PORT=3306
+      - MOONLIGHT_APP_DATABASE_USERNAME=moonlight
+      - MOONLIGHT_APP_DATABASE_PASSWORD=s3cret
+      - MOONLIGHT_APP_DATABASE_DATABASE=moonlight
+      - MOONLIGHT_APP_PUBLICURL=http://localhost:9069
+    volumes:
+      - api_data:/app/storage
+    links:
+      - db
+    pull_policy: build
+  
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=s3cret
+      - MYSQL_PASSWORD=s3cret
+      - MYSQL_DATABASE=moonlight
+      - MYSQL_USER=moonlight
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 1s
+      retries: 10
+
+volumes:
+  api_data:
+  db_data:

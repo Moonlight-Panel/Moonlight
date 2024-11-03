@@ -114,7 +114,7 @@ builder.Services.AddPlugins(configuration =>
     configuration.AddInterface<IAppScreen>();
     
     configuration.AddInterface<ISidebarItemProvider>();
-}, logger);
+});
 
 var app = builder.Build();
 
