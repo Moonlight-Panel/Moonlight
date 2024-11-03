@@ -9,6 +9,12 @@ public class AppConfiguration
     public DatabaseConfig Database { get; set; } = new();
     public AuthenticationConfig Authentication { get; set; } = new();
     public DevelopmentConfig Development { get; set; } = new();
+    public ClientConfig Client { get; set; } = new();
+
+    public class ClientConfig
+    {
+        public bool Enable { get; set; } = true;
+    }
     
     public class DatabaseConfig
     {

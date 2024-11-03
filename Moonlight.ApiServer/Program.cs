@@ -131,11 +131,14 @@ var app = builder.Build();
 
 await Startup.PrepareDatabase(app);
 
-if (app.Environment.IsDevelopment())
-    app.UseWebAssemblyDebugging();
+if (config.Client.Enable)
+{
+    if (app.Environment.IsDevelopment())
+        app.UseWebAssemblyDebugging();
 
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+    app.UseBlazorFrameworkFiles();
+    app.UseStaticFiles();
+}
 
 app.UseRouting();
 
@@ -184,6 +187,8 @@ foreach (var endpointStartup in endpointStartupInterfaces)
 }
 
 app.MapControllers();
-app.MapFallbackToFile("index.html");
+
+if(config.Client.Enable)
+    app.MapFallbackToFile("index.html");
 
 app.Run();

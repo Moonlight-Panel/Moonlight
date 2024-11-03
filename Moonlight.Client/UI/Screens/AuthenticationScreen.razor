@@ -131,8 +131,10 @@ else
                   $"&redirect_uri={authStartData.RedirectUri}" +
                   $"&response_type=code";
 
-        //Navigation.NavigateTo(uri, true);
-        //return;
+        Navigation.NavigateTo(uri, true);
+        return;
+        
+        // TODO: Make this configurable
         
         try
         {
