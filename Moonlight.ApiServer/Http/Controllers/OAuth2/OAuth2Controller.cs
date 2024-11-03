@@ -47,22 +47,22 @@ public class OAuth2Controller : Controller
         if (action == "register")
         {
             await Response.WriteAsync(
-                await RenderPage<Register>(parmeters =>
+                await RenderPage<Register>(parameters =>
                 {
-                    parmeters.Add("ClientId", clientId);
-                    parmeters.Add("ResponseType", responseType);
-                    parmeters.Add("RedirectUri", redirectUri);
+                    parameters.Add("ClientId", clientId);
+                    parameters.Add("ResponseType", responseType);
+                    parameters.Add("RedirectUri", redirectUri);
                 })
             );
         }
         else
         {
             await Response.WriteAsync(
-                await RenderPage<Login>(parmeters =>
+                await RenderPage<Login>(parameters =>
                 {
-                    parmeters.Add("ClientId", clientId);
-                    parmeters.Add("ResponseType", responseType);
-                    parmeters.Add("RedirectUri", redirectUri);
+                    parameters.Add("ClientId", clientId);
+                    parameters.Add("ResponseType", responseType);
+                    parameters.Add("RedirectUri", redirectUri);
                 })
             );
         }
@@ -74,7 +74,9 @@ public class OAuth2Controller : Controller
         [FromQuery(Name = "client_id")] string clientId,
         [FromQuery(Name = "redirect_uri")] string redirectUri,
         [FromForm(Name = "email")] string email,
-        [FromForm(Name = "password")] string password
+        [FromForm(Name = "password")] string password,
+        [FromForm(Name = "username")] string username = "",
+        [FromQuery(Name = "action")] string action = "login"
     )
     {
         if (responseType != "code")
@@ -83,7 +85,12 @@ public class OAuth2Controller : Controller
         if (!await OAuth2Service.IsValidAuthorization(clientId, redirectUri))
             throw new HttpApiException("Invalid authorization request", 400);
 
-        var user = await AuthService.Login(email, password);
+        User user;
+
+        if (action == "register")
+            user = await AuthService.Register(username, email, password);
+        else
+            user = await AuthService.Login(email, password);
 
         var code = await OAuth2Service.GenerateCode(data => { data.Add("userId", user.Id); });
 

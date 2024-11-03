@@ -12,12 +12,10 @@ namespace Moonlight.ApiServer.Services;
 public class AuthService
 {
     private readonly DatabaseRepository<User> UserRepository;
-    private readonly AppConfiguration Configuration;
 
-    public AuthService(DatabaseRepository<User> userRepository, AppConfiguration configuration)
+    public AuthService(DatabaseRepository<User> userRepository)
     {
         UserRepository = userRepository;
-        Configuration = configuration;
     }
 
     public Task<User> Register(string username, string email, string password)
