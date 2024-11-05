@@ -9,6 +9,7 @@ using Moonlight.ApiServer;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Http.Middleware;
+using Moonlight.ApiServer.Implementations;
 using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
@@ -112,7 +113,6 @@ foreach (var startupInterface in appStartupInterfaces)
 builder.Services.AddControllers();
 builder.Services.AddSingleton(config);
 builder.Services.AutoAddServices<Program>();
-builder.Services.AddSingleton<TokenHelper>();
 builder.Services.AddHttpClient();
 
 await Startup.ConfigureTokenAuthentication(builder, config);
@@ -126,6 +126,8 @@ builder.Services.AddPlugins(configuration =>
 
     configuration.AddAssembly(Assembly.GetEntryAssembly()!);
 });
+
+builder.Services.AddSingleton<MoonCore.Extended.Interfaces.IOAuth2Provider>(new TestyOuth2Provider());
 
 var app = builder.Build();
 
@@ -145,6 +147,7 @@ app.UseRouting();
 app.UseMiddleware<ApiErrorMiddleware>();
 
 await Startup.UseTokenAuthentication(app);
+await Startup.UseOAuth2(app);
 
 // Call interfaces
 foreach (var startupInterface in appStartupInterfaces)

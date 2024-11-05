@@ -1,19 +1,7 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MoonCore.Attributes;
 using MoonCore.Authentication;
-using MoonCore.Exceptions;
-using MoonCore.Extended.Abstractions;
-using MoonCore.Extended.Helpers;
-using MoonCore.Extended.OAuth2.ApiServer;
-using MoonCore.Extensions;
-using MoonCore.Helpers;
-using MoonCore.Services;
-using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Interfaces.Auth;
-using Moonlight.ApiServer.Interfaces.OAuth2;
-using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.ApiServer.Http.Controllers.Auth;
@@ -22,6 +10,7 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 [Route("api/auth")]
 public class AuthController : Controller
 {
+    /*
     private readonly OAuth2Service OAuth2Service;
     private readonly TokenHelper TokenHelper;
     private readonly DatabaseRepository<User> UserRepository;
@@ -205,7 +194,7 @@ public class AuthController : Controller
         // All checks have passed, allow refresh
         newData.Add("userId", user.Id);
         return true;
-    }
+    }*/
 
     [HttpGet("check")]
     [RequirePermission("meta.authenticated")]

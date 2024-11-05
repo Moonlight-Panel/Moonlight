@@ -2,6 +2,8 @@
 @using Moonlight.Client.Interfaces
 @using Moonlight.Client.Services
 @using Moonlight.Client.UI.Partials
+@using MoonCore.Blazor.Components
+@using Moonlight.Client.UI.Components
 
 @inherits LayoutComponentBase
 
@@ -35,17 +37,19 @@ else
                 <div class="px-4 sm:px-6 lg:px-8">
                     <ErrorHandler CustomHandler="HandleException">
 
-                        <PermissionHandler CheckFunction="CheckPermission">
-                            <CascadingValue Value="this" IsFixed="true">
-                                @Body
-                            </CascadingValue>
-                        </PermissionHandler>
-                        
+                        <TestyHmm>
+                            <PermissionHandler CheckFunction="CheckPermission">
+                                <CascadingValue Value="this" IsFixed="true">
+                                    @Body
+                                </CascadingValue>
+                            </PermissionHandler>
+                        </TestyHmm>
+
                     </ErrorHandler>
                 </div>
             </main>
-            
-            
+
+
         </div>
     </div>
 }
@@ -72,9 +76,9 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(!firstRender)
+        if (!firstRender)
             return;
-        
+
         await Load();
     }
 
@@ -82,7 +86,7 @@ else
     {
         IsLoading = true;
         await InvokeAsync(StateHasChanged);
-        
+
         //
         await RunLoaders();
 
@@ -126,7 +130,7 @@ else
                 continue;
 
             CurrentScreen = screen.Render();
-            
+
             await InvokeAsync(StateHasChanged);
             return;
         }
@@ -143,7 +147,7 @@ else
             Task.Run(Load);
             return Task.FromResult(true);
         }
-        
+
         return Task.FromResult(false);
     }
 }

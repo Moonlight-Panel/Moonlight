@@ -56,6 +56,11 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+builder.AddTokenAuthentication();
+builder.AddOAuth2();
+
+/*
 builder.Services.AddScoped(sp =>
 {
     var httpClient = sp.GetRequiredService<HttpClient>();
@@ -93,7 +98,7 @@ builder.Services.AddScoped(sp =>
     });
 
     return result;
-});
+});*/
 
 builder.Services.AddMoonCoreBlazorTailwind();
 builder.Services.AddScoped<WindowService>();

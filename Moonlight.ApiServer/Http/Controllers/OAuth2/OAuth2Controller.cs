@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
-using MoonCore.Extended.OAuth2.AuthServer;
 using MoonCore.Extended.OAuth2.Models;
+using MoonCore.Extended.OAuth2.Provider;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Http.Controllers.OAuth2.Pages;
 using Moonlight.ApiServer.Services;
@@ -16,11 +16,11 @@ namespace Moonlight.ApiServer.Http.Controllers.OAuth2;
 [Microsoft.AspNetCore.Mvc.Route("oauth2")]
 public class OAuth2Controller : Controller
 {
-    private readonly OAuth2Service OAuth2Service;
+    private readonly OAuth2ProviderService OAuth2Service;
     private readonly AuthService AuthService;
     private readonly DatabaseRepository<User> UserRepository;
 
-    public OAuth2Controller(OAuth2Service oAuth2Service,
+    public OAuth2Controller(OAuth2ProviderService oAuth2Service,
         AuthService authService, DatabaseRepository<User> userRepository)
     {
         OAuth2Service = oAuth2Service;
