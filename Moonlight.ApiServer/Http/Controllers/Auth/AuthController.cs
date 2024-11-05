@@ -59,7 +59,7 @@ public class AuthController : Controller
     [HttpPost]
     public async Task<OAuth2HandleResponse> Handle([FromBody] OAuth2HandleRequest request)
     {
-        var accessData = await OAuth2Service.RequestAccess(request.Code);;
+        var accessData = await OAuth2Service.RequestAccess(request.Code);
 
         // Find oauth2 provider
         var provider = OAuth2Providers.FirstOrDefault();
