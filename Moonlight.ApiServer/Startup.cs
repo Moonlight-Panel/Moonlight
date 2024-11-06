@@ -196,7 +196,7 @@ public static class Startup
                         var logger = loggerFactory.CreateLogger("OAuth2 Refresh");
                         
                         // We are handling this error more softly, because it will occur when a user hasn't logged in a long period of time
-                        logger.LogDebug("An error occured while refreshing external oauth2 access: {e}", e);
+                        logger.LogTrace("An error occured while refreshing external oauth2 access: {e}", e);
                         return false;
                     }
                 }
@@ -305,6 +305,14 @@ public static class Startup
 
                     if (user == null)
                         throw new HttpApiException("OAuth2 provider returned empty user", 500);
+
+                    // Save new token
+                    user.AccessToken = accessData.AccessToken;
+                    user.RefreshToken = accessData.RefreshToken;
+                    user.RefreshTimestamp = DateTime.UtcNow.AddSeconds(accessData.ExpiresIn);
+
+                    var userRepo = serviceProvider.GetRequiredService<DatabaseRepository<User>>();
+                    userRepo.Update(user);
 
                     return new Dictionary<string, object>()
                     {

@@ -15,7 +15,7 @@
         <PackageReference Include="MoonCore" Version="1.7.3" />
         <PackageReference Include="MoonCore.Blazor" Version="1.2.6" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.4" />
-        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.1.1" />
+        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.1.2" />
     </ItemGroup>
 
     <ItemGroup>

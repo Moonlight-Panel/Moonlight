@@ -1,5 +1,6 @@
 using System.Net;
 using System.Reflection;
+using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
@@ -142,7 +143,7 @@ if (config.Client.Enable)
 
 app.UseRouting();
 
-app.UseMiddleware<ApiErrorMiddleware>();
+app.UseApiErrorHandling();
 
 await Startup.UseTokenAuthentication(app);
 await Startup.UseOAuth2(app);
