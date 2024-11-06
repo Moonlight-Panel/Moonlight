@@ -127,8 +127,6 @@ builder.Services.AddPlugins(configuration =>
     configuration.AddAssembly(Assembly.GetEntryAssembly()!);
 });
 
-builder.Services.AddSingleton<MoonCore.Extended.Interfaces.IOAuth2Provider>(new TestyOuth2Provider());
-
 var app = builder.Build();
 
 await Startup.PrepareDatabase(app);
