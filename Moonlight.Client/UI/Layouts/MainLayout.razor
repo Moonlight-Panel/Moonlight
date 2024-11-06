@@ -35,16 +35,12 @@ else
 
             <main class="py-10">
                 <div class="px-4 sm:px-6 lg:px-8">
-                    <ErrorHandler CustomHandler="HandleException">
-
-                        <TestyHmm>
-                            <PermissionHandler CheckFunction="CheckPermission">
-                                <CascadingValue Value="this" IsFixed="true">
-                                    @Body
-                                </CascadingValue>
-                            </PermissionHandler>
-                        </TestyHmm>
-
+                    <ErrorHandler>
+                        <PermissionHandler CheckFunction="CheckPermission">
+                            <CascadingValue Value="this" IsFixed="true">
+                                @Body
+                            </CascadingValue>
+                        </PermissionHandler>
                     </ErrorHandler>
                 </div>
             </main>
@@ -110,6 +106,10 @@ else
                 Logger.LogDebug("Running application loader '{name}'", loader.GetType().Name);
                 await loader.Load(ServiceProvider);
             }
+            catch (HttpApiException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Logger.LogCritical("An app loader threw an unhandled exception: {e}", e);
@@ -139,15 +139,4 @@ else
     }
 
     private bool CheckPermission(string permission) => IdentityService.HasPermission(permission);
-
-    private Task<bool> HandleException(Exception exception, ErrorHandler handler)
-    {
-        if (exception is HttpApiException httpApiException && httpApiException.Status == 401)
-        {
-            Task.Run(Load);
-            return Task.FromResult(true);
-        }
-
-        return Task.FromResult(false);
-    }
 }

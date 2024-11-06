@@ -31,4 +31,8 @@
       <Folder Include="wwwroot\css\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="UI\Screens\AuthenticationScreen.razor" />
+    </ItemGroup>
+
 </Project>

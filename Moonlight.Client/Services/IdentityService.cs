@@ -9,10 +9,10 @@ namespace Moonlight.Client.Services;
 [Scoped]
 public class IdentityService
 {
-    public string Username { get; private set; }
-    public string Email { get; private set; }
-    public string[] Permissions { get; private set; }
-    public bool IsLoggedIn { get; private set; }
+    public string Username { get; private set; } = "";
+    public string Email { get; private set; } = "";
+    public string[] Permissions { get; private set; } = [];
+    public bool IsLoggedIn { get; private set; } = false;
 
     private readonly HttpApiClient HttpApiClient;
     private readonly LocalStorageService LocalStorageService;
@@ -25,20 +25,15 @@ public class IdentityService
 
     public async Task Check()
     {
-        try
-        {
-            var response = await HttpApiClient.GetJson<CheckResponse>("api/auth/check");
+        IsLoggedIn = false;
+        
+        var response = await HttpApiClient.GetJson<CheckResponse>("api/auth/check");
 
-            Username = response.Username;
-            Email = response.Email;
-            Permissions = response.Permissions;
+        Username = response.Username;
+        Email = response.Email;
+        Permissions = response.Permissions;
 
-            IsLoggedIn = true;
-        }
-        catch (HttpApiException)
-        {
-            IsLoggedIn = false;
-        }
+        IsLoggedIn = true;
 
         //await OnStateChanged?.Invoke();
     }

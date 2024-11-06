@@ -1,22 +1,28 @@
 ﻿@using Moonlight.Client.UI.Layouts
+@using MoonCore.Blazor.Components
+@using Moonlight.Client.UI.Components
 
-<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <CascadingValue Name="TargetPageType" Value="routeData.PageType">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        </CascadingValue>
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <div class="flex flex-col justify-center text-center">
-                <img class="h-48 mt-5 mb-3" src="/svg/notfound.svg" alt="Not found illustration"/>
+<ErrorLogger>
+    <OAuth2AuthenticationHandler>
+        <Router AppAssembly="@typeof(App).Assembly">
+            <Found Context="routeData">
+                <CascadingValue Name="TargetPageType" Value="routeData.PageType">
+                    <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+                </CascadingValue>
+            </Found>
+            <NotFound>
+                <PageTitle>Not found</PageTitle>
+                <LayoutView Layout="@typeof(MainLayout)">
+                    <div class="flex flex-col justify-center text-center">
+                        <img class="h-48 mt-5 mb-3" src="/svg/notfound.svg" alt="Not found illustration"/>
 
-                <h3 class="mt-2 font-semibold text-white text-lg">Page not found</h3>
-                <p class="mt-1 text-gray-300">
-                    The page you requested does not exist
-                </p>
-            </div>
-        </LayoutView>
-    </NotFound>
-</Router>
+                        <h3 class="mt-2 font-semibold text-white text-lg">Page not found</h3>
+                        <p class="mt-1 text-gray-300">
+                            The page you requested does not exist
+                        </p>
+                    </div>
+                </LayoutView>
+            </NotFound>
+        </Router>
+    </OAuth2AuthenticationHandler>
+</ErrorLogger>
