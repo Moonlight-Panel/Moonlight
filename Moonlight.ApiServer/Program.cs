@@ -1,196 +1,198 @@
-using System.Net;
 using System.Reflection;
 using MoonCore.Extended.Extensions;
-using MoonCore.Extended.Helpers;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
-using MoonCore.Services;
 using Moonlight.ApiServer;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Http.Middleware;
-using Moonlight.ApiServer.Implementations;
 using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
 
-// Cry about it
-#pragma warning disable ASP0000
-
-// Fancy start console output... yes very fancy :>
-var rainbow = new Crayon.Rainbow(0.5);
-foreach (var c in "Moonlight")
+public class Program
 {
-    Console.Write(
-        rainbow
-            .Next()
-            .Bold()
-            .Text(c.ToString())
-    );
-}
+    public static async Task Main(string[] args)
+    {
+        // Cry about it
+        #pragma warning disable ASP0000
 
-Console.WriteLine();
+        // Fancy start console output... yes very fancy :>
+        var rainbow = new Crayon.Rainbow(0.5);
+        foreach (var c in "Moonlight")
+        {
+            Console.Write(
+                rainbow
+                    .Next()
+                    .Bold()
+                    .Text(c.ToString())
+            );
+        }
+
+        Console.WriteLine();
 
 // Storage i guess
-Directory.CreateDirectory(PathBuilder.Dir("storage"));
+        Directory.CreateDirectory(PathBuilder.Dir("storage"));
 
 // TODO: Load plugin/module assemblies
 
 // Configure startup logger
-var startupLoggerFactory = new LoggerFactory();
+        var startupLoggerFactory = new LoggerFactory();
 
 // TODO: Add direct extension method
-var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
-{
-    configuration.Console.Enable = true;
-    configuration.Console.EnableAnsiMode = true;
-    configuration.FileLogging.Enable = false;
-});
+        var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
+        {
+            configuration.Console.Enable = true;
+            configuration.Console.EnableAnsiMode = true;
+            configuration.FileLogging.Enable = false;
+        });
 
-startupLoggerFactory.AddProviders(providers);
+        startupLoggerFactory.AddProviders(providers);
 
-var startupLogger = startupLoggerFactory.CreateLogger("Startup");
+        var startupLogger = startupLoggerFactory.CreateLogger("Startup");
 
 // Configure startup interfaces
-var startupServiceCollection = new ServiceCollection();
+        var startupServiceCollection = new ServiceCollection();
 
-startupServiceCollection.AddConfiguration(options =>
-{
-    options.UsePath(PathBuilder.Dir("storage"));
-    options.UseEnvironmentPrefix("MOONLIGHT");
-    
-    options.AddConfiguration<AppConfiguration>("app");
-});
+        startupServiceCollection.AddConfiguration(options =>
+        {
+            options.UsePath(PathBuilder.Dir("storage"));
+            options.UseEnvironmentPrefix("MOONLIGHT");
 
-startupServiceCollection.AddLogging(loggingBuilder => { loggingBuilder.AddProviders(providers); });
+            options.AddConfiguration<AppConfiguration>("app");
+        });
 
-startupServiceCollection.AddPlugins(configuration =>
-{
-    // Configure startup interfaces
-    configuration.AddInterface<IAppStartup>();
-    configuration.AddInterface<IDatabaseStartup>();
-    configuration.AddInterface<IEndpointStartup>();
+        startupServiceCollection.AddLogging(loggingBuilder => { loggingBuilder.AddProviders(providers); });
 
-    // Configure assemblies to scan
-    configuration.AddAssembly(Assembly.GetEntryAssembly()!);
-});
+        startupServiceCollection.AddPlugins(configuration =>
+        {
+            // Configure startup interfaces
+            configuration.AddInterface<IAppStartup>();
+            configuration.AddInterface<IDatabaseStartup>();
+            configuration.AddInterface<IEndpointStartup>();
+
+            // Configure assemblies to scan
+            configuration.AddAssembly(typeof(Program).Assembly);
+        });
 
 
-var startupServiceProvider = startupServiceCollection.BuildServiceProvider();
-var appStartupInterfaces = startupServiceProvider.GetRequiredService<IAppStartup[]>();
+        var startupServiceProvider = startupServiceCollection.BuildServiceProvider();
+        var appStartupInterfaces = startupServiceProvider.GetRequiredService<IAppStartup[]>();
 
-var config = startupServiceProvider.GetRequiredService<AppConfiguration>();
-ApplicationStateHelper.SetConfiguration(config);
+        var config = startupServiceProvider.GetRequiredService<AppConfiguration>();
+        ApplicationStateHelper.SetConfiguration(config);
 
 // Start the actual app
-var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
-await Startup.ConfigureLogging(builder);
+        await Startup.ConfigureLogging(builder);
 
-await Startup.ConfigureDatabase(
-    builder,
-    startupLoggerFactory,
-    startupServiceProvider.GetRequiredService<IDatabaseStartup[]>()
-);
+        await Startup.ConfigureDatabase(
+            builder,
+            startupLoggerFactory,
+            startupServiceProvider.GetRequiredService<IDatabaseStartup[]>()
+        );
 
 // Call interfaces
-foreach (var startupInterface in appStartupInterfaces)
-{
-    try
-    {
-        await startupInterface.BuildApp(builder);
-    }
-    catch (Exception e)
-    {
-        startupLogger.LogCritical(
-            "An unhandled error occured while processing BuildApp call for interface '{interfaceName}': {e}",
-            startupInterface.GetType().FullName,
-            e
-        );
-    }
-}
+        foreach (var startupInterface in appStartupInterfaces)
+        {
+            try
+            {
+                await startupInterface.BuildApp(builder);
+            }
+            catch (Exception e)
+            {
+                startupLogger.LogCritical(
+                    "An unhandled error occured while processing BuildApp call for interface '{interfaceName}': {e}",
+                    startupInterface.GetType().FullName,
+                    e
+                );
+            }
+        }
 
-builder.Services.AddControllers();
-builder.Services.AddSingleton(config);
-builder.Services.AutoAddServices<Program>();
-builder.Services.AddHttpClient();
+        builder.Services.AddControllers();
+        builder.Services.AddSingleton(config);
+        builder.Services.AutoAddServices<Program>();
+        builder.Services.AddHttpClient();
 
-await Startup.ConfigureTokenAuthentication(builder, config);
-await Startup.ConfigureOAuth2(builder, startupLogger, config);
+        await Startup.ConfigureTokenAuthentication(builder, config);
+        await Startup.ConfigureOAuth2(builder, startupLogger, config);
 
 // Implementation service
-builder.Services.AddPlugins(configuration =>
-{
-    configuration.AddInterface<IOAuth2Provider>();
-    configuration.AddInterface<IAuthInterceptor>();
+        builder.Services.AddPlugins(configuration =>
+        {
+            configuration.AddInterface<IOAuth2Provider>();
+            configuration.AddInterface<IAuthInterceptor>();
 
-    configuration.AddAssembly(Assembly.GetEntryAssembly()!);
-});
+            configuration.AddAssembly(typeof(Program).Assembly);
+        });
 
-var app = builder.Build();
+        var app = builder.Build();
 
-await Startup.PrepareDatabase(app);
+        await Startup.PrepareDatabase(app);
 
-if (config.Client.Enable)
-{
-    if (app.Environment.IsDevelopment())
-        app.UseWebAssemblyDebugging();
+        if (config.Client.Enable)
+        {
+            if (app.Environment.IsDevelopment())
+                app.UseWebAssemblyDebugging();
 
-    app.UseBlazorFrameworkFiles();
-    app.UseStaticFiles();
-}
+            app.UseBlazorFrameworkFiles();
+            app.UseStaticFiles();
+        }
 
-app.UseRouting();
+        app.UseRouting();
 
-app.UseApiErrorHandling();
+        app.UseApiErrorHandling();
 
-await Startup.UseTokenAuthentication(app);
-await Startup.UseOAuth2(app);
-
-// Call interfaces
-foreach (var startupInterface in appStartupInterfaces)
-{
-    try
-    {
-        await startupInterface.ConfigureApp(app);
-    }
-    catch (Exception e)
-    {
-        startupLogger.LogCritical(
-            "An unhandled error occured while processing ConfigureApp call for interface '{interfaceName}': {e}",
-            startupInterface.GetType().FullName,
-            e
-        );
-    }
-}
-
-app.UseMiddleware<ApiAuthenticationMiddleware>();
-
-app.UseMiddleware<AuthorizationMiddleware>();
+        await Startup.UseTokenAuthentication(app);
+        await Startup.UseOAuth2(app);
 
 // Call interfaces
-var endpointStartupInterfaces = startupServiceProvider.GetRequiredService<IEndpointStartup[]>();
+        foreach (var startupInterface in appStartupInterfaces)
+        {
+            try
+            {
+                await startupInterface.ConfigureApp(app);
+            }
+            catch (Exception e)
+            {
+                startupLogger.LogCritical(
+                    "An unhandled error occured while processing ConfigureApp call for interface '{interfaceName}': {e}",
+                    startupInterface.GetType().FullName,
+                    e
+                );
+            }
+        }
 
-foreach (var endpointStartup in endpointStartupInterfaces)
-{
-    try
-    {
-        await endpointStartup.ConfigureEndpoints(app);
-    }
-    catch (Exception e)
-    {
-        startupLogger.LogCritical(
-            "An unhandled error occured while processing ConfigureEndpoints call for interface '{interfaceName}': {e}",
-            endpointStartup.GetType().FullName,
-            e
-        );
+        app.UseMiddleware<ApiAuthenticationMiddleware>();
+
+        app.UseMiddleware<AuthorizationMiddleware>();
+
+// Call interfaces
+        var endpointStartupInterfaces = startupServiceProvider.GetRequiredService<IEndpointStartup[]>();
+
+        foreach (var endpointStartup in endpointStartupInterfaces)
+        {
+            try
+            {
+                await endpointStartup.ConfigureEndpoints(app);
+            }
+            catch (Exception e)
+            {
+                startupLogger.LogCritical(
+                    "An unhandled error occured while processing ConfigureEndpoints call for interface '{interfaceName}': {e}",
+                    endpointStartup.GetType().FullName,
+                    e
+                );
+            }
+        }
+
+        app.MapControllers();
+
+        if (config.Client.Enable)
+            app.MapFallbackToFile("index.html");
+
+        await app.RunAsync();
     }
 }
-
-app.MapControllers();
-
-if(config.Client.Enable)
-    app.MapFallbackToFile("index.html");
-
-app.Run();
