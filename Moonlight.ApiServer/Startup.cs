@@ -288,9 +288,6 @@ public static class Startup
             // TODO: Make modular
             configuration.ProcessComplete = async (serviceProvider, accessData) =>
             {
-                var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                var logger = loggerFactory.CreateLogger("OAuth2 Handler");
-                
                 var oauth2Providers = serviceProvider.GetRequiredService<IOAuth2Provider[]>();
                 
                 // Find oauth2 provider
@@ -321,6 +318,9 @@ public static class Startup
                 }
                 catch (Exception e)
                 {
+                    var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory.CreateLogger(provider.GetType());
+                    
                     logger.LogTrace("An error occured while syncing user with oauth2 provider: {e}", e);
                     throw new HttpApiException("Unable to synchronize with oauth2 provider", 400);
                 }

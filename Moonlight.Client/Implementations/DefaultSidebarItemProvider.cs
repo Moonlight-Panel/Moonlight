@@ -58,7 +58,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
                 Path = "/admin/system",
                 Priority = 3,
                 RequiresExactMatch = false,
-                Permission = "admin.system.info"
+                Permission = "admin.system.overview"
             },
         ];
     }
