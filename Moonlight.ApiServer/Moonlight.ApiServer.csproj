@@ -5,6 +5,16 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <IsPackable>true</IsPackable>
+        <Version>2.1.0</Version>
+        <Title>Moonlight.ApiServer</Title>
+        <Authors>Moonlight Panel</Authors>
+        <Description>A build of moonlight's api server as a nuget package to develop moonlight plugins/modules</Description>
+        <Copyright>Moonlight Panel</Copyright>
+        <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Moonlight-Panel/Moonlight</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>moonlight</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

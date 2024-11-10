@@ -6,6 +6,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <IsPackable>true</IsPackable>
+        <Version>2.1.0</Version>
+        <Title>Moonlight.Client</Title>
+        <Authors>Moonlight Panel</Authors>
+        <Description>A build of moonlight's client as a nuget package to develop moonlight plugins/modules</Description>
+        <Copyright>Moonlight Panel</Copyright>
+        <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Moonlight-Panel/Moonlight</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>moonlight</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
