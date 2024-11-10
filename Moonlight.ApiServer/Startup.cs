@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text.Json;
 using MoonCore.Authentication;
 using MoonCore.Exceptions;
@@ -16,6 +17,7 @@ using Moonlight.ApiServer.Http.Middleware;
 using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
+using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Responses.OAuth2;
 
 namespace Moonlight.ApiServer;
@@ -25,7 +27,7 @@ public static class Startup
     public static async Task Main(string[] args)
         => await Run(args, []);
     
-    public static async Task Run(string[] args, Assembly[]? pluginAssemblies = null)
+    public static async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
     {
         // Cry about it
 #pragma warning disable ASP0000
@@ -47,12 +49,10 @@ public static class Startup
 // Storage i guess
         Directory.CreateDirectory(PathBuilder.Dir("storage"));
 
-// TODO: Load plugin/module assemblies
-
-// Configure startup logger
+        // Configure startup logger
         var startupLoggerFactory = new LoggerFactory();
 
-// TODO: Add direct extension method
+        // TODO: Add direct extension method
         var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
         {
             configuration.Console.Enable = true;
@@ -64,7 +64,35 @@ public static class Startup
 
         var startupLogger = startupLoggerFactory.CreateLogger("Startup");
 
-// Configure startup interfaces
+        // Load plugin/modules
+        var moduleService = new ModuleService(startupLoggerFactory.CreateLogger<ModuleService>());
+        moduleService.Load();
+        
+        // Load api server module assemblies
+        var apiServerDlls = moduleService.Modules.SelectMany(
+            x => moduleService.GetModuleDlls(x.Name, "apiServer")
+        );
+
+        var apiServerModuleContext = new AssemblyLoadContext(null);
+
+        foreach (var apiServerDll in apiServerDlls)
+        {
+            try
+            {
+                apiServerModuleContext.LoadFromStream(File.OpenRead(
+                    apiServerDll
+                ));
+            }
+            catch (Exception e)
+            {
+                startupLogger.LogCritical("Unable to load dll {name} into context: {e}", apiServerDll, e);
+                throw;
+            }
+        }
+
+        var moduleAssemblies = apiServerModuleContext.Assemblies.ToArray();
+        
+        // Configure startup interfaces
         var startupServiceCollection = new ServiceCollection();
 
         startupServiceCollection.AddConfiguration(options =>
@@ -87,10 +115,10 @@ public static class Startup
             // Configure assemblies to scan
             configuration.AddAssembly(typeof(Startup).Assembly);
             
-            if(pluginAssemblies != null)
-                configuration.AddAssemblies(pluginAssemblies);
+            if(additionalAssemblies != null)
+                configuration.AddAssemblies(additionalAssemblies);
             
-            //TODO: Load plugins from file
+            configuration.AddAssemblies(moduleAssemblies);
         });
 
 
@@ -128,7 +156,13 @@ public static class Startup
             }
         }
 
-        builder.Services.AddControllers();
+        var controllerBuilder = builder.Services.AddControllers();
+        
+        // Add current assemblies to the application part
+        foreach (var moduleAssembly in moduleAssemblies)
+            controllerBuilder.AddApplicationPart(moduleAssembly);
+
+        builder.Services.AddSingleton(moduleService);
         builder.Services.AddSingleton(config);
         builder.Services.AutoAddServices(typeof(Startup).Assembly);
         builder.Services.AddHttpClient();
@@ -144,10 +178,10 @@ public static class Startup
 
             configuration.AddAssembly(typeof(Startup).Assembly);
             
-            if(pluginAssemblies != null)
-                configuration.AddAssemblies(pluginAssemblies);
+            if(additionalAssemblies != null)
+                configuration.AddAssemblies(additionalAssemblies);
             
-            //TODO: Load plugins from file
+            configuration.AddAssemblies(moduleAssemblies);
         });
 
         var app = builder.Build();
