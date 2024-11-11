@@ -1,6 +1,8 @@
-﻿namespace Moonlight.ApiServer.Database.Entities;
+﻿using MoonCore.Extended.OAuth2.Consumer;
 
-public class User
+namespace Moonlight.ApiServer.Database.Entities;
+
+public class User : IUserModel
 {
     public int Id { get; set; }
 

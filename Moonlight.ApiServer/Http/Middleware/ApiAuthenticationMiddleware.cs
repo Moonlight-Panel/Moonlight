@@ -57,7 +57,10 @@ public class ApiAuthenticationMiddleware
             return Task.CompletedTask;
 
         var permissions = JsonSerializer.Deserialize<string[]>(apiKey.PermissionsJson) ?? [];
-        context.User = new PermClaimsPrinciple(permissions);
+        context.User = new PermClaimsPrinciple()
+        {
+            Permissions = permissions
+        };
         
         return Task.CompletedTask;
     }
