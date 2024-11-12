@@ -368,6 +368,8 @@ public static class Startup
         application.UseOAuth2Authentication<User>();
         application.UseLocalOAuth2Provider<User>();
 
+        application.UseMiddleware<PermissionLoaderMiddleware>();
+
         return Task.CompletedTask;
     }
 

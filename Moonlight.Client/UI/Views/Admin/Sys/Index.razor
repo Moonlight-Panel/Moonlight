@@ -10,7 +10,7 @@
 @inject HttpApiClient ApiClient
 
 <LazyLoader Load="LoadOverview">
-    <div class="gap-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="gap-5 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4">
         <StatCard Title="CPU Usage" Text="@(OverviewData.CpuUsage + "%")" Icon="bi bi-cpu"/>
         <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(OverviewData.MemoryUsage))" Icon="bi bi-memory"/>
         <StatCard Title="Host OS" Text="@(OverviewData.OperatingSystem)" Icon="bi bi-motherboard"/>

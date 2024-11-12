@@ -61,47 +61,7 @@ public class Startup
 
         builder.AddTokenAuthentication();
         builder.AddOAuth2();
-
-/*
-builder.Services.AddScoped(sp =>
-{
-    var httpClient = sp.GetRequiredService<HttpClient>();
-    var localStorageService = sp.GetRequiredService<LocalStorageService>();
-    var result = new HttpApiClient(httpClient);
-
-    result.AddLocalStorageTokenAuthentication(localStorageService, async refreshToken =>
-    {
-        try
-        {
-            var httpApiClient = new HttpApiClient(httpClient);
-
-            var response = await httpApiClient.PostJson<RefreshResponse>(
-                "api/auth/refresh",
-                new RefreshRequest()
-                {
-                    RefreshToken = refreshToken
-                }
-            );
-
-            return (new TokenPair()
-            {
-                AccessToken = response.AccessToken,
-                RefreshToken = response.RefreshToken
-            }, response.ExpiresAt);
-        }
-        catch (HttpApiException)
-        {
-            return (new TokenPair()
-            {
-                AccessToken = "unset",
-                RefreshToken = "unset"
-            }, DateTime.MinValue);
-        }
-    });
-
-    return result;
-});*/
-
+        
         builder.Services.AddMoonCoreBlazorTailwind();
         builder.Services.AddScoped<WindowService>();
         builder.Services.AddScoped<LocalStorageService>();
