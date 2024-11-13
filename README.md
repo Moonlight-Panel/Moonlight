@@ -25,7 +25,7 @@ Moonlight v1 was designed with a specific free hosting project in mind, which li
 
 > - Complete UI redesign
 > - A modular feature system to enable and disable features
-> - A plugin system to modify extisting features in terms of their behavior and UI
+> - A plugin system to modify existing features in terms of their behavior and UI
 > - Customizable theming that lets you style Moonlight exactly how you want
 > - Improved error handling
 > - A diagnostic system to quickly identify and resolve issues faster
@@ -34,10 +34,10 @@ Moonlight v1 was designed with a specific free hosting project in mind, which li
 ### When will v2 release?
 
 Moonlight v2 will release in the following stages:
-> 1. Beta Releases (starting in April). Includes the servers feature
+> 1. Beta Releases (starting in April)
 > 2. Bug fixing of reported beta bugs
-> 3. Release of the first stable and fully supported version of moonlight v2
-> 4. Implementing of more features which can be downloaded and enabled if you want to do so
+> 3. Release of the first stable and fully supported version of Moonlight v2
+> 4. Implementing more features which can be downloaded and enabled if you want to do so
 
 > [!NOTE]
 > If you wish to see the current progress of the development of v2, have a look [here](https://github.com/orgs/Moonlight-Panel/projects/5/views/2).
@@ -48,7 +48,7 @@ You can find exclusive previews in our discord server [https://discord.gg/TJaspT
 
 ### How can you support the project?
 
-You can support this project by contributing to the development, discussing features and the plans of the implementation in order to find the best solution and with donating on my ko-fi page [https://ko-fi.com/masuowo](https://ko-fi.com/masuowo)!
+Support the project by contributing to development, joining feature discussions, or donating on my ko-fi page: [https://ko-fi.com/masuowo](https://ko-fi.com/masuowo)!
 
 ### Built with
 
