@@ -69,33 +69,7 @@ public static class Startup
 
         var startupLogger = startupLoggerFactory.CreateLogger("Startup");
 
-        // Load plugin/modules
-        var moduleService = new ModuleService(startupLoggerFactory.CreateLogger<ModuleService>());
-        moduleService.Load();
-        
-        // Load api server module assemblies
-        var apiServerDlls = moduleService.Modules.SelectMany(
-            x => moduleService.GetModuleDlls(x.Name, "apiServer")
-        );
-
-        var apiServerModuleContext = new AssemblyLoadContext(null);
-
-        foreach (var apiServerDll in apiServerDlls)
-        {
-            try
-            {
-                apiServerModuleContext.LoadFromStream(File.OpenRead(
-                    apiServerDll
-                ));
-            }
-            catch (Exception e)
-            {
-                startupLogger.LogCritical("Unable to load dll {name} into context: {e}", apiServerDll, e);
-                throw;
-            }
-        }
-
-        var moduleAssemblies = apiServerModuleContext.Assemblies.ToArray();
+        //TODO: Load plugin
         
         // Configure startup interfaces
         var startupServiceCollection = new ServiceCollection();
@@ -123,7 +97,7 @@ public static class Startup
             if(additionalAssemblies != null)
                 configuration.AddAssemblies(additionalAssemblies);
             
-            configuration.AddAssemblies(moduleAssemblies);
+            //configuration.AddAssemblies(moduleAssemblies);
         });
 
 
@@ -164,10 +138,9 @@ public static class Startup
         var controllerBuilder = builder.Services.AddControllers();
         
         // Add current assemblies to the application part
-        foreach (var moduleAssembly in moduleAssemblies)
-            controllerBuilder.AddApplicationPart(moduleAssembly);
-
-        builder.Services.AddSingleton(moduleService);
+        //foreach (var moduleAssembly in moduleAssemblies)
+        //    controllerBuilder.AddApplicationPart(moduleAssembly);
+        
         builder.Services.AddSingleton(config);
         builder.Services.AutoAddServices(typeof(Startup).Assembly);
         builder.Services.AddHttpClient();
@@ -185,7 +158,7 @@ public static class Startup
             if(additionalAssemblies != null)
                 configuration.AddAssemblies(additionalAssemblies);
             
-            configuration.AddAssemblies(moduleAssemblies);
+            //configuration.AddAssemblies(moduleAssemblies);
         });
 
         var app = builder.Build();
