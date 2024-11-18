@@ -15,6 +15,10 @@
   <img src="https://img.shields.io/github/issues/Moonlight-Panel/Moonlight?color=a01ce6" alt="Issues">
 </p>
 
+> [!NOTE]
+> For general information about moonlight checkout our [website](https://moonlightpanel.xyz/)
+
+
 ## About v2!
 
 ### Why a rewrite?
@@ -32,15 +36,10 @@ Moonlight v1 was designed with a specific free hosting project in mind, which li
 > - Modular authentication system and a lot more!
 
 ### When will v2 release?
-
-Moonlight v2 will release in the following stages:
-> 1. Beta Releases (starting in April)
-> 2. Bug fixing of reported beta bugs
-> 3. Release of the first stable and fully supported version of Moonlight v2
-> 4. Implementing more features which can be downloaded and enabled if you want to do so
+> We are currently changing our application architecture from a completly server side blazor application to a wasm frontend and an asp.net api server as the backend. This change provides an REST api for developers wanting to integrate moonlight into parts of their applications and allows to scale moonlight horizontally. This will take some time to reach the state of the current v2 branch so please be patient :)
 
 > [!NOTE]
-> If you wish to see the current progress of the development of v2, have a look [here](https://github.com/orgs/Moonlight-Panel/projects/5/views/2).
+> If you wish to see the current progress of the development of v2, have a look [here](https://github.com/orgs/Moonlight-Panel/projects/7).
 
 ### Are there screenshots or demos of v2?
 
@@ -52,6 +51,12 @@ Support the project by contributing to development, joining feature discussions,
 
 ### Built with
 
+Current v2:
+- [TailwindCSS]([https://getbootstrap.com/](https://tailwindcss.com/))
+- [Blazor Server Side](https://learn.microsoft.com/de-de/aspnet/core/blazor/hosting-models?view=aspnetcore-8.0)
+- [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+
+Installable (old) v2:
 - [Bootstrap 5](https://getbootstrap.com/)
 - [Blazor Server Side](https://learn.microsoft.com/de-de/aspnet/core/blazor/hosting-models?view=aspnetcore-7.0)
 - [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
@@ -60,7 +65,7 @@ Support the project by contributing to development, joining feature discussions,
 
 Distributed under the CC0 1.0 Universal License. See [LICENSE](https://github.com/Moonlight-Panel/Moonlight/blob/main/LICENSE) for more information.
 
-## Authors
+## Main contributors
 
 - **Masu Baumgartner** - [Masu Baumgartner](https://github.com/Masu-Baumgartner) - *Moonlights core system & frontend and basically any other part of moonlight*
 - **Moritz Deiaco** - [Moritz Deiaco](https://github.com/Moritz-Deiaco) - *Moonlight Core and UI*
