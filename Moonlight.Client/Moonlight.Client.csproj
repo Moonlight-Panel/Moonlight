@@ -22,7 +22,7 @@
         <PackageReference Include="Blazor-ApexCharts" Version="3.5.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all"/>
-        <PackageReference Include="MoonCore" Version="1.7.4" />
+        <PackageReference Include="MoonCore" Version="1.7.8" />
         <PackageReference Include="MoonCore.Blazor" Version="1.2.7" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.4" />
         <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.1.2" />

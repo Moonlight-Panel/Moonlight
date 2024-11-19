@@ -9,6 +9,7 @@ using MoonCore.Blazor.Tailwind.Forms.Components;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
+using MoonCore.Plugins;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
@@ -18,6 +19,9 @@ namespace Moonlight.Client;
 
 public class Startup
 {
+    public static async Task Main(string[] args)
+        => await Run(args, []);
+
     public static async Task Run(string[] args, Assembly[] assemblies)
     {
         // Build pre run logger
@@ -49,6 +53,16 @@ public class Startup
 
         // Building app
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
+        
+        // Load plugins
+        var pluginLoader = new PluginLoaderService(
+            loggerFactory.CreateLogger<PluginLoaderService>()
+        );
+        
+        pluginLoader.AddHttpHostedSource($"{builder.HostEnvironment.BaseAddress}api/pluginsStream");
+        await pluginLoader.Load();
+
+        builder.Services.AddSingleton(pluginLoader);
 
         // Configure application logging
         builder.Logging.ClearProviders();
@@ -61,7 +75,7 @@ public class Startup
 
         builder.AddTokenAuthentication();
         builder.AddOAuth2();
-        
+
         builder.Services.AddMoonCoreBlazorTailwind();
         builder.Services.AddScoped<WindowService>();
         builder.Services.AddScoped<LocalStorageService>();
@@ -76,7 +90,10 @@ public class Startup
         builder.Services.AddPlugins(configuration =>
         {
             configuration.AddAssembly(typeof(Startup).Assembly);
+            
             configuration.AddAssemblies(assemblies);
+            
+            configuration.AddAssemblies(pluginLoader.PluginAssemblies);
 
             configuration.AddInterface<IAppLoader>();
             configuration.AddInterface<IAppScreen>();

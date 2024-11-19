@@ -14,6 +14,7 @@ using MoonCore.Extended.OAuth2.LocalProvider.Implementations;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
+using MoonCore.Plugins;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
@@ -31,7 +32,7 @@ public static class Startup
 {
     public static async Task Main(string[] args)
         => await Run(args, []);
-    
+
     public static async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
     {
         // Cry about it
@@ -51,7 +52,7 @@ public static class Startup
 
         Console.WriteLine();
 
-// Storage i guess
+        // Storage i guess
         Directory.CreateDirectory(PathBuilder.Dir("storage"));
 
         // Configure startup logger
@@ -69,8 +70,15 @@ public static class Startup
 
         var startupLogger = startupLoggerFactory.CreateLogger("Startup");
 
-        //TODO: Load plugin
-        
+        // Load plugins
+        var pluginService = new PluginService(
+            startupLoggerFactory.CreateLogger<PluginService>()
+        );
+
+        await pluginService.Load();
+
+        var pluginAssemblies = await LoadPlugins(pluginService, startupLoggerFactory);
+
         // Configure startup interfaces
         var startupServiceCollection = new ServiceCollection();
 
@@ -93,11 +101,11 @@ public static class Startup
 
             // Configure assemblies to scan
             configuration.AddAssembly(typeof(Startup).Assembly);
-            
-            if(additionalAssemblies != null)
+
+            if (additionalAssemblies != null)
                 configuration.AddAssemblies(additionalAssemblies);
-            
-            //configuration.AddAssemblies(moduleAssemblies);
+
+            configuration.AddAssemblies(pluginAssemblies);
         });
 
 
@@ -107,7 +115,7 @@ public static class Startup
         var config = startupServiceProvider.GetRequiredService<AppConfiguration>();
         ApplicationStateHelper.SetConfiguration(config);
 
-// Start the actual app
+        // Start the actual app
         var builder = WebApplication.CreateBuilder(args);
 
         await ConfigureLogging(builder);
@@ -118,7 +126,7 @@ public static class Startup
             startupServiceProvider.GetRequiredService<IDatabaseStartup[]>()
         );
 
-// Call interfaces
+        // Call interfaces
         foreach (var startupInterface in appStartupInterfaces)
         {
             try
@@ -136,14 +144,17 @@ public static class Startup
         }
 
         var controllerBuilder = builder.Services.AddControllers();
-        
+
         // Add current assemblies to the application part
-        //foreach (var moduleAssembly in moduleAssemblies)
-        //    controllerBuilder.AddApplicationPart(moduleAssembly);
-        
+        foreach (var moduleAssembly in pluginAssemblies)
+            controllerBuilder.AddApplicationPart(moduleAssembly);
+
         builder.Services.AddSingleton(config);
+        builder.Services.AddSingleton(pluginService);
         builder.Services.AutoAddServices(typeof(Startup).Assembly);
         builder.Services.AddHttpClient();
+
+        await ConfigureCaching(builder, startupLogger, config);
 
         await ConfigureOAuth2(builder, startupLogger, config);
 
@@ -154,11 +165,11 @@ public static class Startup
             configuration.AddInterface<IAuthInterceptor>();
 
             configuration.AddAssembly(typeof(Startup).Assembly);
-            
-            if(additionalAssemblies != null)
+
+            if (additionalAssemblies != null)
                 configuration.AddAssemblies(additionalAssemblies);
-            
-            //configuration.AddAssemblies(moduleAssemblies);
+
+            configuration.AddAssemblies(pluginAssemblies);
         });
 
         var app = builder.Build();
@@ -180,7 +191,7 @@ public static class Startup
 
         await UseOAuth2(app);
 
-// Call interfaces
+        // Call interfaces
         foreach (var startupInterface in appStartupInterfaces)
         {
             try
@@ -201,7 +212,7 @@ public static class Startup
 
         app.UseMiddleware<AuthorizationMiddleware>();
 
-// Call interfaces
+        // Call interfaces
         var endpointStartupInterfaces = startupServiceProvider.GetRequiredService<IEndpointStartup[]>();
 
         foreach (var endpointStartup in endpointStartupInterfaces)
@@ -332,7 +343,7 @@ public static class Startup
             builder.Services.AddScoped<ILocalProviderImplementation<User>, LocalOAuth2Provider>();
             builder.Services.AddScoped<IOAuth2Provider<User>, LocalOAuth2Provider<User>>();
         }
-        
+
         return Task.CompletedTask;
     }
 
@@ -344,6 +355,36 @@ public static class Startup
         application.UseMiddleware<PermissionLoaderMiddleware>();
 
         return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Caching
+
+    public static Task ConfigureCaching(WebApplicationBuilder builder, ILogger logger, AppConfiguration configuration)
+    {
+        builder.Services.AddMemoryCache();
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Plugin loading
+
+    private static async Task<Assembly[]> LoadPlugins(PluginService pluginService, ILoggerFactory loggerFactory)
+    {
+        var pluginLoader = new PluginLoaderService(
+            loggerFactory.CreateLogger<PluginLoaderService>()
+        );
+
+        var assemblyFiles = pluginService.GetAssemblies("apiServer").Values.ToArray();
+        var entrypoints = pluginService.GetEntrypoints("apiServer");
+
+        pluginLoader.AddFilesSource(assemblyFiles, entrypoints);
+
+        await pluginLoader.Load();
+
+        return pluginLoader.PluginAssemblies;
     }
 
     #endregion

@@ -1,9 +1,12 @@
 ﻿@using Moonlight.Client.UI.Layouts
 @using MoonCore.Blazor.Components
+@using MoonCore.Plugins
+
+@inject PluginLoaderService PluginLoaderService
 
 <ErrorLogger>
     <OAuth2AuthenticationHandler>
-        <Router AppAssembly="@typeof(App).Assembly">
+        <Router AppAssembly="@typeof(App).Assembly" AdditionalAssemblies="PluginLoaderService.PluginAssemblies">
             <Found Context="routeData">
                 <CascadingValue Name="TargetPageType" Value="routeData.PageType">
                     <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>

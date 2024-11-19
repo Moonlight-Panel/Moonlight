@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.Models;
 
@@ -6,10 +6,10 @@ namespace Moonlight.ApiServer.Services;
 
 public class PluginService
 {
-    private readonly Dictionary<string, PluginMeta> Plugins = new();
+    public readonly List<PluginMeta> Plugins = new();
+    
+    private static string PluginsFolder = PathBuilder.Dir("storage", "plugins");
     private readonly ILogger<PluginService> Logger;
-
-    private static string PluginsPath = PathBuilder.Dir("storage", "plugins");
 
     public PluginService(ILogger<PluginService> logger)
     {
@@ -18,58 +18,91 @@ public class PluginService
 
     public async Task Load()
     {
-        Logger.LogInformation("Loading plugins...");
-
-        foreach (var pluginPath in Directory.EnumerateDirectories(PluginsPath))
+        // Load all manifest files
+        foreach (var pluginFolder in Directory.EnumerateDirectories(PluginsFolder))
         {
-            var metaPath = PathBuilder.File(PluginsPath, "meta.json");
+            var manifestPath = PathBuilder.File(pluginFolder, "plugin.json");
 
-            if (!File.Exists(metaPath))
+            if (!File.Exists(manifestPath))
             {
-                Logger.LogWarning("Ignoring folder '{name}'. No meta.json found", pluginPath);
+                Logger.LogWarning("Ignoring '{folder}' because no manifest has been found", pluginFolder);
                 continue;
             }
 
-            var metaContent = await File.ReadAllTextAsync(metaPath);
-            PluginMeta meta;
+            PluginManifest manifest;
 
             try
             {
-                meta = JsonSerializer.Deserialize<PluginMeta>(metaContent)
-                       ?? throw new JsonException();
+                var manifestText = await File.ReadAllTextAsync(manifestPath);
+                manifest = JsonSerializer.Deserialize<PluginManifest>(manifestText)!;
             }
             catch (Exception e)
             {
-                Logger.LogCritical("Unable to deserialize meta.json: {e}", e);
-                continue;
+                Logger.LogError("An unhandled error occured while loading plugin manifest in '{folder}': {e}",
+                    pluginFolder, e);
+                break;
             }
-            
-            Plugins.Add(pluginPath, meta);
+
+            Logger.LogTrace("Loaded plugin manifest. Id: {id}", manifest.Id);
+
+            Plugins.Add(new()
+            {
+                Manifest = manifest,
+                Path = pluginFolder
+            });
         }
+
+        // Check for missing dependencies
+        var pluginsToNotLoad = new List<string>();
+
+        foreach (var plugin in Plugins)
+        {
+            foreach (var dependency in plugin.Manifest.Dependencies)
+            {
+                // Check if dependency is found
+                if (Plugins.Any(x => x.Manifest.Id == dependency))
+                    continue;
+
+                Logger.LogError(
+                    "Unable to load plugin '{id}' ({path}) because the dependency {dependency} is missing",
+                    plugin.Manifest.Id,
+                    plugin.Path,
+                    dependency
+                );
+                
+                pluginsToNotLoad.Add(plugin.Manifest.Id);
+                break;
+            }
+        }
+        
+        // Remove unloadable plugins from cache
+        Plugins.RemoveAll(x => pluginsToNotLoad.Contains(x.Manifest.Id));
     }
 
-    public Task<Dictionary<string, string[]>> GetBinariesBySection(string section)
+    public Dictionary<string, string> GetAssemblies(string section)
     {
-        var bins = Plugins
-            .Values
-            .Where(x => x.Binaries.ContainsKey(section))
-            .ToDictionary(x => x.Id, x => x.Binaries[section]);
+        var pathMappings = new Dictionary<string, string>();
 
-        return Task.FromResult(bins);
+        foreach (var plugin in Plugins)
+        {
+            foreach (var file in Directory.EnumerateFiles(PathBuilder.Dir(plugin.Path, "bin", section)))
+            {
+                if(!file.EndsWith(".dll"))
+                    continue;
+
+                var fileName = Path.GetFileName(file);
+                pathMappings[fileName] = file;
+            }
+        }
+
+        return pathMappings;
     }
 
-    public Task<Stream?> GetBinaryStream(string plugin, string section, string fileName)
+    public string[] GetEntrypoints(string section)
     {
-        if (Plugins.All(x => x.Value.Id != plugin))
-            return Task.FromResult<Stream?>(null);
-
-        var pluginData = Plugins.First(x => x.Value.Id == plugin);
-        var binaryPath = PathBuilder.File(pluginData.Key, section, fileName);
-
-        if (!File.Exists(binaryPath))
-            return Task.FromResult<Stream?>(null);
-
-        var fs = File.OpenRead(binaryPath);
-        return Task.FromResult<Stream?>(fs);
+        return Plugins
+            .Where(x => x.Manifest.Entrypoints.ContainsKey(section))
+            .SelectMany(x => x.Manifest.Entrypoints[section])
+            .ToArray();
     }
 }

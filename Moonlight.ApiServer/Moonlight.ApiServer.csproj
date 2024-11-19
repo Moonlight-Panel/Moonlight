@@ -23,7 +23,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MoonCore" Version="1.7.4" />
+        <PackageReference Include="MoonCore" Version="1.7.8" />
         <PackageReference Include="MoonCore.Extended" Version="1.1.7" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.4" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
@@ -38,7 +38,9 @@
 
     <ItemGroup>
       <Folder Include="Database\Migrations\" />
-      <Folder Include="storage\plugins\" />
+      <Folder Include="storage\plugins\MyCoolPlugin\bin\apiserver\" />
+      <Folder Include="storage\plugins\MyCoolPlugin\bin\client\" />
+      <Folder Include="storage\plugins\MyCoolPlugin\bin\daemon\" />
     </ItemGroup>
 
     <ItemGroup>
