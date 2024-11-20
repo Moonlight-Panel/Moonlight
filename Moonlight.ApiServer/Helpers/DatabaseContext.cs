@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MoonCore.Helpers;
-using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
@@ -8,27 +6,19 @@ namespace Moonlight.ApiServer.Helpers;
 
 public abstract class DatabaseContext : DbContext
 {
-    private AppConfiguration? Configuration;
     public abstract string Prefix { get; }
+    
+    private readonly AppConfiguration Configuration;
 
-    public DatabaseContext()
+    public DatabaseContext(AppConfiguration configuration)
     {
-        Configuration = ApplicationStateHelper.Configuration;
+        Configuration = configuration;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (optionsBuilder.IsConfigured)
             return;
-
-        // If no config service has been configured, we are probably
-        // in a EF Core migration, so we need to construct the config manually
-        if (Configuration == null)
-        {
-            Configuration = new ConfigService<AppConfiguration>(
-                PathBuilder.File("storage", "app.json")
-            ).Get();
-        }
 
         var config = Configuration.Database;
 

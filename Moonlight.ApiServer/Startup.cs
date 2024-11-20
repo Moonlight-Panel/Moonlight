@@ -1,8 +1,6 @@
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Text.Json;
-using MoonCore.Authentication;
-using MoonCore.Exceptions;
+using MoonCore.Configuration;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
@@ -15,6 +13,7 @@ using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
 using MoonCore.Plugins;
+using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
@@ -24,20 +23,80 @@ using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
 using Moonlight.ApiServer.Services;
-using Moonlight.Shared.Http.Responses.OAuth2;
 
 namespace Moonlight.ApiServer;
 
-public static class Startup
-{
-    public static async Task Main(string[] args)
-        => await Run(args, []);
-
-    public static async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
-    {
-        // Cry about it
+// Cry about it
 #pragma warning disable ASP0000
 
+public class Startup
+{
+    private string[] Args;
+    private Assembly[] AdditionalAssemblies;
+
+    // Logging
+    private ILoggerProvider[] LoggerProviders;
+    private ILoggerFactory LoggerFactory;
+    private ILogger<Startup> Logger;
+
+    // Configuration
+    private AppConfiguration Configuration;
+    private ConfigurationService ConfigurationService;
+    private ConfigurationOptions ConfigurationOptions;
+
+    // WebApplication Stuff
+    private WebApplication WebApplication;
+    private WebApplicationBuilder WebApplicationBuilder;
+
+    // Plugin Loading
+    private PluginService PluginService;
+    private PluginLoaderService PluginLoaderService;
+
+    private IAppStartup[] PluginAppStartups;
+    private IDatabaseStartup[] PluginDatabaseStartups;
+    private IEndpointStartup[] PluginEndpointStartups;
+
+    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
+    {
+        Args = args;
+        AdditionalAssemblies = additionalAssemblies ?? [];
+
+        await PrintVersion();
+
+        await CreateStorage();
+        await SetupAppConfiguration();
+        await SetupLogging();
+        await LoadPlugins();
+        await InitializePlugins();
+
+        await CreateWebApplicationBuilder();
+
+        await RegisterAppConfiguration();
+        await RegisterLogging();
+        await RegisterBase();
+        await RegisterDatabase();
+        await RegisterOAuth2();
+        await RegisterCaching();
+        await HookPluginBuild();
+
+        await BuildWebApplication();
+
+        await PrepareDatabase();
+
+        await UseBase();
+        await UseOAuth2();
+        await UseBaseMiddleware();
+        await HookPluginConfigure();
+
+        await MapBase();
+        await MapOAuth2();
+        await HookPluginEndpoints();
+
+        await WebApplication.RunAsync();
+    }
+
+    private Task PrintVersion()
+    {
         // Fancy start console output... yes very fancy :>
         var rainbow = new Crayon.Rainbow(0.5);
         foreach (var c in "Moonlight")
@@ -52,213 +111,312 @@ public static class Startup
 
         Console.WriteLine();
 
-        // Storage i guess
-        Directory.CreateDirectory(PathBuilder.Dir("storage"));
+        return Task.CompletedTask;
+    }
 
-        // Configure startup logger
-        var startupLoggerFactory = new LoggerFactory();
+    private Task CreateStorage()
+    {
+        Directory.CreateDirectory("storage");
+        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
+        Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
 
-        // TODO: Add direct extension method
-        var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
+        return Task.CompletedTask;
+    }
+
+    #region Base
+
+    private Task RegisterBase()
+    {
+        WebApplicationBuilder.Services.AutoAddServices<Startup>();
+        WebApplicationBuilder.Services.AddHttpClient();
+        WebApplicationBuilder.Services.AddApiExceptionHandler();
+
+        // Add pre-existing services
+        WebApplicationBuilder.Services.AddSingleton(Configuration);
+        WebApplicationBuilder.Services.AddSingleton(PluginService);
+
+        // Configure controllers
+        var mvcBuilder = WebApplicationBuilder.Services.AddControllers();
+
+        // Add plugin and additional assemblies as application parts
+        foreach (var pluginAssembly in PluginLoaderService.PluginAssemblies)
+            mvcBuilder.AddApplicationPart(pluginAssembly);
+
+        foreach (var additionalAssembly in AdditionalAssemblies)
+            mvcBuilder.AddApplicationPart(additionalAssembly);
+
+        return Task.CompletedTask;
+    }
+
+    private Task UseBase()
+    {
+        WebApplication.UseRouting();
+        WebApplication.UseExceptionHandler("/");
+
+        if (Configuration.Client.Enable)
+        {
+            if (WebApplication.Environment.IsDevelopment())
+                WebApplication.UseWebAssemblyDebugging();
+
+            WebApplication.UseBlazorFrameworkFiles();
+            WebApplication.UseStaticFiles();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task UseBaseMiddleware()
+    {
+        WebApplication.UseMiddleware<AuthorizationMiddleware>();
+        WebApplication.UseMiddleware<ApiAuthenticationMiddleware>();
+
+        return Task.CompletedTask;
+    }
+
+    private Task MapBase()
+    {
+        WebApplication.MapControllers();
+
+        if (Configuration.Client.Enable)
+        {
+            WebApplication.MapFallbackToFile("index.html");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Interfaces
+
+    private Task RegisterInterfaces()
+    {
+        WebApplicationBuilder.Services.AddInterfaces(configuration =>
+        {
+            // We use moonlight itself as a plugin assembly
+            configuration.AddAssembly(typeof(Startup).Assembly);
+
+            configuration.AddAssemblies(AdditionalAssemblies);
+            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
+
+            configuration.AddInterface<IOAuth2Provider>();
+            configuration.AddInterface<IAuthInterceptor>();
+        });
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Plugin Loading
+
+    private async Task LoadPlugins()
+    {
+        // Load plugins
+        PluginService = new PluginService(
+            LoggerFactory.CreateLogger<PluginService>()
+        );
+
+        await PluginService.Load();
+
+        // Initialize api server plugin loader
+        PluginLoaderService = new PluginLoaderService(
+            LoggerFactory.CreateLogger<PluginLoaderService>()
+        );
+
+        // Search up entrypoints and assemblies for the apiServer
+        var assemblyFiles = PluginService.GetAssemblies("apiServer")
+            .Values
+            .ToArray();
+
+        var entrypoints = PluginService.GetEntrypoints("apiServer");
+
+        // Build source from the retrieved data
+        PluginLoaderService.AddFilesSource(assemblyFiles, entrypoints);
+
+        // Perform assembly loading
+        await PluginLoaderService.Load();
+    }
+
+    private Task InitializePlugins()
+    {
+        var initialisationServiceCollection = new ServiceCollection();
+
+        // Configure base services for initialisation
+        initialisationServiceCollection.AddSingleton(Configuration);
+
+        initialisationServiceCollection.AddLogging(builder => { builder.AddProviders(LoggerProviders); });
+
+        // Configure plugin loading by using the interface service
+        initialisationServiceCollection.AddInterfaces(configuration =>
+        {
+            // We use moonlight itself as a plugin assembly
+            configuration.AddAssembly(typeof(Startup).Assembly);
+
+            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
+            configuration.AddAssemblies(AdditionalAssemblies);
+
+            configuration.AddInterface<IAppStartup>();
+            configuration.AddInterface<IDatabaseStartup>();
+            configuration.AddInterface<IEndpointStartup>();
+        });
+
+        var initialisationServiceProvider = initialisationServiceCollection.BuildServiceProvider();
+
+        PluginAppStartups = initialisationServiceProvider.GetRequiredService<IAppStartup[]>();
+        PluginDatabaseStartups = initialisationServiceProvider.GetRequiredService<IDatabaseStartup[]>();
+        PluginEndpointStartups = initialisationServiceProvider.GetRequiredService<IEndpointStartup[]>();
+
+        return Task.CompletedTask;
+    }
+
+    #region Hooks
+
+    private async Task HookPluginBuild()
+    {
+        foreach (var pluginAppStartup in PluginAppStartups)
+        {
+            try
+            {
+                await pluginAppStartup.BuildApp(WebApplicationBuilder);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(
+                    "An error occured while processing 'BuildApp' for '{name}': {e}",
+                    pluginAppStartup.GetType().FullName,
+                    e
+                );
+            }
+        }
+    }
+
+    private async Task HookPluginConfigure()
+    {
+        foreach (var pluginAppStartup in PluginAppStartups)
+        {
+            try
+            {
+                await pluginAppStartup.ConfigureApp(WebApplication);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(
+                    "An error occured while processing 'ConfigureApp' for '{name}': {e}",
+                    pluginAppStartup.GetType().FullName,
+                    e
+                );
+            }
+        }
+    }
+
+    private async Task HookPluginEndpoints()
+    {
+        foreach (var pluginEndpointStartup in PluginEndpointStartups)
+        {
+            try
+            {
+                await pluginEndpointStartup.ConfigureEndpoints(WebApplication);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(
+                    "An error occured while processing 'ConfigureEndpoints' for '{name}': {e}",
+                    pluginEndpointStartup.GetType().FullName,
+                    e
+                );
+            }
+        }
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Configurations
+
+    private Task SetupAppConfiguration()
+    {
+        ConfigurationService = new ConfigurationService();
+
+        // Setup options
+        ConfigurationOptions = new ConfigurationOptions();
+
+        ConfigurationOptions.AddConfiguration<AppConfiguration>("app");
+        ConfigurationOptions.Path = PathBuilder.Dir("storage");
+        ConfigurationOptions.EnvironmentPrefix = "MOONLIGHT";
+
+        // Create minimal logger
+        var loggerFactory = new LoggerFactory();
+
+        loggerFactory.AddMoonCore(configuration =>
         {
             configuration.Console.Enable = true;
             configuration.Console.EnableAnsiMode = true;
             configuration.FileLogging.Enable = false;
         });
 
-        startupLoggerFactory.AddProviders(providers);
+        var logger = loggerFactory.CreateLogger<ConfigurationService>();
 
-        var startupLogger = startupLoggerFactory.CreateLogger("Startup");
-
-        // Load plugins
-        var pluginService = new PluginService(
-            startupLoggerFactory.CreateLogger<PluginService>()
+        // Retrieve configuration
+        Configuration = ConfigurationService.GetConfiguration<AppConfiguration>(
+            ConfigurationOptions,
+            logger
         );
 
-        await pluginService.Load();
-
-        var pluginAssemblies = await LoadPlugins(pluginService, startupLoggerFactory);
-
-        // Configure startup interfaces
-        var startupServiceCollection = new ServiceCollection();
-
-        startupServiceCollection.AddConfiguration(options =>
-        {
-            options.UsePath(PathBuilder.Dir("storage"));
-            options.UseEnvironmentPrefix("MOONLIGHT");
-
-            options.AddConfiguration<AppConfiguration>("app");
-        });
-
-        startupServiceCollection.AddLogging(loggingBuilder => { loggingBuilder.AddProviders(providers); });
-
-        startupServiceCollection.AddPlugins(configuration =>
-        {
-            // Configure startup interfaces
-            configuration.AddInterface<IAppStartup>();
-            configuration.AddInterface<IDatabaseStartup>();
-            configuration.AddInterface<IEndpointStartup>();
-
-            // Configure assemblies to scan
-            configuration.AddAssembly(typeof(Startup).Assembly);
-
-            if (additionalAssemblies != null)
-                configuration.AddAssemblies(additionalAssemblies);
-
-            configuration.AddAssemblies(pluginAssemblies);
-        });
-
-
-        var startupServiceProvider = startupServiceCollection.BuildServiceProvider();
-        var appStartupInterfaces = startupServiceProvider.GetRequiredService<IAppStartup[]>();
-
-        var config = startupServiceProvider.GetRequiredService<AppConfiguration>();
-        ApplicationStateHelper.SetConfiguration(config);
-
-        // Start the actual app
-        var builder = WebApplication.CreateBuilder(args);
-
-        await ConfigureLogging(builder);
-
-        await ConfigureDatabase(
-            builder,
-            startupLoggerFactory,
-            startupServiceProvider.GetRequiredService<IDatabaseStartup[]>()
-        );
-
-        // Call interfaces
-        foreach (var startupInterface in appStartupInterfaces)
-        {
-            try
-            {
-                await startupInterface.BuildApp(builder);
-            }
-            catch (Exception e)
-            {
-                startupLogger.LogCritical(
-                    "An unhandled error occured while processing BuildApp call for interface '{interfaceName}': {e}",
-                    startupInterface.GetType().FullName,
-                    e
-                );
-            }
-        }
-
-        var controllerBuilder = builder.Services.AddControllers();
-
-        // Add current assemblies to the application part
-        foreach (var moduleAssembly in pluginAssemblies)
-            controllerBuilder.AddApplicationPart(moduleAssembly);
-
-        builder.Services.AddSingleton(config);
-        builder.Services.AddSingleton(pluginService);
-        builder.Services.AutoAddServices(typeof(Startup).Assembly);
-        builder.Services.AddHttpClient();
-
-        await ConfigureCaching(builder, startupLogger, config);
-
-        await ConfigureOAuth2(builder, startupLogger, config);
-
-        // Implementation service
-        builder.Services.AddPlugins(configuration =>
-        {
-            configuration.AddInterface<IOAuth2Provider>();
-            configuration.AddInterface<IAuthInterceptor>();
-
-            configuration.AddAssembly(typeof(Startup).Assembly);
-
-            if (additionalAssemblies != null)
-                configuration.AddAssemblies(additionalAssemblies);
-
-            configuration.AddAssemblies(pluginAssemblies);
-        });
-
-        var app = builder.Build();
-
-        await PrepareDatabase(app);
-
-        if (config.Client.Enable)
-        {
-            if (app.Environment.IsDevelopment())
-                app.UseWebAssemblyDebugging();
-
-            app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
-        }
-
-        app.UseRouting();
-
-        app.UseApiErrorHandling();
-
-        await UseOAuth2(app);
-
-        // Call interfaces
-        foreach (var startupInterface in appStartupInterfaces)
-        {
-            try
-            {
-                await startupInterface.ConfigureApp(app);
-            }
-            catch (Exception e)
-            {
-                startupLogger.LogCritical(
-                    "An unhandled error occured while processing ConfigureApp call for interface '{interfaceName}': {e}",
-                    startupInterface.GetType().FullName,
-                    e
-                );
-            }
-        }
-
-        app.UseMiddleware<ApiAuthenticationMiddleware>();
-
-        app.UseMiddleware<AuthorizationMiddleware>();
-
-        // Call interfaces
-        var endpointStartupInterfaces = startupServiceProvider.GetRequiredService<IEndpointStartup[]>();
-
-        foreach (var endpointStartup in endpointStartupInterfaces)
-        {
-            try
-            {
-                await endpointStartup.ConfigureEndpoints(app);
-            }
-            catch (Exception e)
-            {
-                startupLogger.LogCritical(
-                    "An unhandled error occured while processing ConfigureEndpoints call for interface '{interfaceName}': {e}",
-                    endpointStartup.GetType().FullName,
-                    e
-                );
-            }
-        }
-
-        app.MapControllers();
-
-        if (config.Client.Enable)
-            app.MapFallbackToFile("index.html");
-
-        await app.RunAsync();
+        return Task.CompletedTask;
     }
+
+    private Task RegisterAppConfiguration()
+    {
+        ConfigurationService.RegisterInDi(ConfigurationOptions, WebApplicationBuilder.Services);
+        WebApplicationBuilder.Services.AddSingleton(ConfigurationService);
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Web Application
+
+    private Task CreateWebApplicationBuilder()
+    {
+        WebApplicationBuilder = WebApplication.CreateBuilder(Args);
+        return Task.CompletedTask;
+    }
+
+    private Task BuildWebApplication()
+    {
+        WebApplication = WebApplicationBuilder.Build();
+        return Task.CompletedTask;
+    }
+
+    #endregion
 
     #region Logging
 
-    public static async Task ConfigureLogging(IHostApplicationBuilder builder)
+    private Task SetupLogging()
     {
-        // Create logging path
-        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
-
-        // Configure application logging
-        builder.Logging.ClearProviders();
-
-        builder.Logging.AddMoonCore(configuration =>
+        LoggerProviders = LoggerBuildHelper.BuildFromConfiguration(configuration =>
         {
             configuration.Console.Enable = true;
             configuration.Console.EnableAnsiMode = true;
-
-            configuration.FileLogging.Enable = true;
-            configuration.FileLogging.Path = PathBuilder.File("storage", "logs", "moonlight.log");
-            configuration.FileLogging.EnableLogRotation = true;
-            configuration.FileLogging.RotateLogNameTemplate = PathBuilder.File("storage", "logs", "moonlight.log.{0}");
+            configuration.FileLogging.Enable = false;
         });
+
+        LoggerFactory = new LoggerFactory();
+        LoggerFactory.AddProviders(LoggerProviders);
+
+        Logger = LoggerFactory.CreateLogger<Startup>();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task RegisterLogging()
+    {
+        // Configure application logging
+        WebApplicationBuilder.Logging.ClearProviders();
+        WebApplicationBuilder.Logging.AddProviders(LoggerProviders);
 
         // Logging levels
         var logConfigPath = PathBuilder.File("storage", "logConfig.json");
@@ -278,40 +436,49 @@ public static class Startup
             await File.WriteAllTextAsync(logConfigPath, logConfig);
         }
 
-        builder.Logging.AddConfiguration(await File.ReadAllTextAsync(logConfigPath));
+        // Add logging configuration
+        WebApplicationBuilder.Logging.AddConfiguration(
+            await File.ReadAllTextAsync(logConfigPath)
+        );
+
+        // Mute exception handler middleware
+        // https://github.com/dotnet/aspnetcore/issues/19740
+        WebApplicationBuilder.Logging.AddFilter(
+            "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware",
+            LogLevel.Critical
+        );
     }
 
     #endregion
 
     #region Database
 
-    public static async Task ConfigureDatabase(IHostApplicationBuilder builder, ILoggerFactory loggerFactory,
-        IDatabaseStartup[] databaseStartups)
+    private async Task RegisterDatabase()
     {
-        var logger = loggerFactory.CreateLogger<DatabaseHelper>();
+        var logger = LoggerFactory.CreateLogger<DatabaseHelper>();
         var databaseHelper = new DatabaseHelper(logger);
 
         var databaseCollection = new DatabaseContextCollection();
 
-        foreach (var databaseStartup in databaseStartups)
+        foreach (var databaseStartup in PluginDatabaseStartups)
             await databaseStartup.ConfigureDatabase(databaseCollection);
 
         foreach (var database in databaseCollection)
         {
             databaseHelper.AddDbContext(database);
-            builder.Services.AddScoped(database);
+            WebApplicationBuilder.Services.AddScoped(database);
         }
 
         databaseHelper.GenerateMappings();
 
-        builder.Services.AddSingleton(databaseHelper);
-        builder.Services.AddScoped(typeof(DatabaseRepository<>));
-        builder.Services.AddScoped(typeof(CrudHelper<,>));
+        WebApplicationBuilder.Services.AddSingleton(databaseHelper);
+        WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
+        WebApplicationBuilder.Services.AddScoped(typeof(CrudHelper<,>));
     }
 
-    public static async Task PrepareDatabase(IApplicationBuilder builder)
+    private async Task PrepareDatabase()
     {
-        using var scope = builder.ApplicationServices.CreateScope();
+        using var scope = WebApplication.Services.CreateScope();
         var databaseHelper = scope.ServiceProvider.GetRequiredService<DatabaseHelper>();
 
         await databaseHelper.EnsureMigrated(scope.ServiceProvider);
@@ -321,39 +488,48 @@ public static class Startup
 
     #region OAuth2
 
-    public static Task ConfigureOAuth2(WebApplicationBuilder builder, ILogger logger, AppConfiguration config)
+    private Task RegisterOAuth2()
     {
-        builder.AddOAuth2Authentication<User>(configuration =>
+        WebApplicationBuilder.Services.AddOAuth2Authentication<User>(configuration =>
         {
-            configuration.AccessSecret = config.Authentication.AccessSecret;
-            configuration.RefreshSecret = config.Authentication.RefreshSecret;
-            configuration.RefreshDuration = TimeSpan.FromSeconds(config.Authentication.RefreshDuration);
-            configuration.RefreshInterval = TimeSpan.FromSeconds(config.Authentication.AccessDuration);
-            configuration.ClientId = config.Authentication.OAuth2.ClientId;
-            configuration.ClientSecret = config.Authentication.OAuth2.ClientSecret;
-            configuration.AuthorizeEndpoint = config.PublicUrl + "/api/_auth/oauth2/authorize";
-            configuration.RedirectUri = config.PublicUrl;
+            configuration.AccessSecret = Configuration.Authentication.AccessSecret;
+            configuration.RefreshSecret = Configuration.Authentication.RefreshSecret;
+            configuration.RefreshDuration = TimeSpan.FromSeconds(Configuration.Authentication.RefreshDuration);
+            configuration.RefreshInterval = TimeSpan.FromSeconds(Configuration.Authentication.AccessDuration);
+            configuration.ClientId = Configuration.Authentication.OAuth2.ClientId;
+            configuration.ClientSecret = Configuration.Authentication.OAuth2.ClientSecret;
+            configuration.AuthorizeEndpoint = Configuration.PublicUrl + "/api/_auth/oauth2/authorize";
+            configuration.RedirectUri = Configuration.PublicUrl;
         });
 
-        builder.Services.AddScoped<IDataProvider<User>, LocalOAuth2Provider>();
+        WebApplicationBuilder.Services.AddScoped<IDataProvider<User>, LocalOAuth2Provider>();
 
-        if (config.Authentication.UseLocalOAuth2)
-        {
-            builder.AddLocalOAuth2Provider<User>(config.PublicUrl);
-            builder.Services.AddScoped<ILocalProviderImplementation<User>, LocalOAuth2Provider>();
-            builder.Services.AddScoped<IOAuth2Provider<User>, LocalOAuth2Provider<User>>();
-        }
+        if (!Configuration.Authentication.UseLocalOAuth2)
+            return Task.CompletedTask;
+
+        WebApplicationBuilder.Services.AddLocalOAuth2Provider<User>(Configuration.PublicUrl);
+        WebApplicationBuilder.Services.AddScoped<ILocalProviderImplementation<User>, LocalOAuth2Provider>();
+        WebApplicationBuilder.Services.AddScoped<IOAuth2Provider<User>, LocalOAuth2Provider<User>>();
 
         return Task.CompletedTask;
     }
 
-    public static Task UseOAuth2(WebApplication application)
+    private Task UseOAuth2()
     {
-        application.UseOAuth2Authentication<User>();
-        application.UseLocalOAuth2Provider<User>();
+        WebApplication.UseOAuth2Authentication<User>();
+        WebApplication.UseMiddleware<PermissionLoaderMiddleware>();
 
-        application.UseMiddleware<PermissionLoaderMiddleware>();
+        return Task.CompletedTask;
+    }
 
+    private Task MapOAuth2()
+    {
+        WebApplication.MapOAuth2Authentication<User>();
+
+        if (!Configuration.Authentication.UseLocalOAuth2)
+            return Task.CompletedTask;
+
+        WebApplication.MapLocalOAuth2Provider<User>();
         return Task.CompletedTask;
     }
 
@@ -361,30 +537,10 @@ public static class Startup
 
     #region Caching
 
-    public static Task ConfigureCaching(WebApplicationBuilder builder, ILogger logger, AppConfiguration configuration)
+    private Task RegisterCaching()
     {
-        builder.Services.AddMemoryCache();
+        WebApplicationBuilder.Services.AddMemoryCache();
         return Task.CompletedTask;
-    }
-
-    #endregion
-
-    #region Plugin loading
-
-    private static async Task<Assembly[]> LoadPlugins(PluginService pluginService, ILoggerFactory loggerFactory)
-    {
-        var pluginLoader = new PluginLoaderService(
-            loggerFactory.CreateLogger<PluginLoaderService>()
-        );
-
-        var assemblyFiles = pluginService.GetAssemblies("apiServer").Values.ToArray();
-        var entrypoints = pluginService.GetEntrypoints("apiServer");
-
-        pluginLoader.AddFilesSource(assemblyFiles, entrypoints);
-
-        await pluginLoader.Load();
-
-        return pluginLoader.PluginAssemblies;
     }
 
     #endregion

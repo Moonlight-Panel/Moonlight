@@ -19,22 +19,46 @@ namespace Moonlight.Client;
 
 public class Startup
 {
-    public static async Task Main(string[] args)
-        => await Run(args, []);
-
-    public static async Task Run(string[] args, Assembly[] assemblies)
+    private string[] Args;
+    private Assembly[] AdditionalAssemblies;
+    
+    // Logging
+    private ILoggerProvider[] LoggerProviders;
+    private ILoggerFactory LoggerFactory;
+    private ILogger<Startup> Logger;
+    
+    // WebAssemblyHost
+    private WebAssemblyHostBuilder WebAssemblyHostBuilder;
+    private WebAssemblyHost WebAssemblyHost;
+    
+    // Plugin Loading
+    private PluginLoaderService PluginLoaderService;
+    
+    public async Task Run(string[] args, Assembly[]? assemblies = null)
     {
-        // Build pre run logger
-        var providers = LoggerBuildHelper.BuildFromConfiguration(configuration =>
-        {
-            configuration.Console.Enable = true;
-            configuration.Console.EnableAnsiMode = true;
-            configuration.FileLogging.Enable = false;
-        });
+        Args = args;
+        AdditionalAssemblies = assemblies ?? [];
 
-        using var loggerFactory = new LoggerFactory(providers);
-        var logger = loggerFactory.CreateLogger("Startup");
+        await PrintVersion();
+        await SetupLogging();
 
+        await CreateWebAssemblyHostBuilder();
+
+        await LoadPlugins();
+        
+        await RegisterLogging();
+        await RegisterBase();
+        await RegisterOAuth2();
+        await RegisterFormComponents();
+        await RegisterInterfaces();
+
+        await BuildWebAssemblyHost();
+
+        await WebAssemblyHost.RunAsync();
+    }
+
+    private Task PrintVersion()
+    {
         // Fancy start console output... yes very fancy :>
         Console.Write("Running ");
 
@@ -50,59 +74,133 @@ public class Startup
         }
 
         Console.WriteLine();
-
-        // Building app
-        var builder = WebAssemblyHostBuilder.CreateDefault(args);
         
-        // Load plugins
-        var pluginLoader = new PluginLoaderService(
-            loggerFactory.CreateLogger<PluginLoaderService>()
+        return Task.CompletedTask;
+    }
+    
+    private Task RegisterBase()
+    {
+        WebAssemblyHostBuilder.RootComponents.Add<App>("#app");
+        WebAssemblyHostBuilder.RootComponents.Add<HeadOutlet>("head::after");
+
+        WebAssemblyHostBuilder.Services.AddScoped(_ =>
+            new HttpClient
+            {
+                BaseAddress = new Uri(WebAssemblyHostBuilder.HostEnvironment.BaseAddress)
+            }
         );
         
-        pluginLoader.AddHttpHostedSource($"{builder.HostEnvironment.BaseAddress}api/pluginsStream");
-        await pluginLoader.Load();
+        WebAssemblyHostBuilder.Services.AddScoped<WindowService>();
+        WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
+        WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
 
-        builder.Services.AddSingleton(pluginLoader);
+        WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
 
-        // Configure application logging
-        builder.Logging.ClearProviders();
-        builder.Logging.AddProviders(providers);
+        return Task.CompletedTask;
+    }
+    
+    private Task RegisterOAuth2()
+    {
+        WebAssemblyHostBuilder.AddTokenAuthentication();
+        WebAssemblyHostBuilder.AddOAuth2();
 
-        builder.RootComponents.Add<App>("#app");
-        builder.RootComponents.Add<HeadOutlet>("head::after");
+        return Task.CompletedTask;
+    }
 
-        builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-        builder.AddTokenAuthentication();
-        builder.AddOAuth2();
-
-        builder.Services.AddMoonCoreBlazorTailwind();
-        builder.Services.AddScoped<WindowService>();
-        builder.Services.AddScoped<LocalStorageService>();
-
-        builder.Services.AutoAddServices<Startup>();
-
+    private Task RegisterFormComponents()
+    {
         FormComponentRepository.Set<string, StringComponent>();
         FormComponentRepository.Set<int, IntComponent>();
-        FormComponentRepository.Set<DateTime, DateComponent>();
+        
+        return Task.CompletedTask;
+    }
 
-        // Interface service
-        builder.Services.AddPlugins(configuration =>
+    #region Interfaces
+
+    private Task RegisterInterfaces()
+    {
+        WebAssemblyHostBuilder.Services.AddInterfaces(configuration =>
         {
+            // We use moonlight itself as a plugin assembly
             configuration.AddAssembly(typeof(Startup).Assembly);
             
-            configuration.AddAssemblies(assemblies);
-            
-            configuration.AddAssemblies(pluginLoader.PluginAssemblies);
+            configuration.AddAssemblies(AdditionalAssemblies);
+            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
 
             configuration.AddInterface<IAppLoader>();
             configuration.AddInterface<IAppScreen>();
-
             configuration.AddInterface<ISidebarItemProvider>();
         });
-
-        var app = builder.Build();
-
-        await app.RunAsync();
+        
+        return Task.CompletedTask;
     }
+
+    #endregion
+
+    #region Plugins
+
+    private async Task LoadPlugins()
+    {
+        // Initialize api server plugin loader
+        PluginLoaderService = new PluginLoaderService(
+            LoggerFactory.CreateLogger<PluginLoaderService>()
+        );
+
+        // Build source from the retrieved data
+        var pluginsStreamUrl = $"{WebAssemblyHostBuilder.HostEnvironment.BaseAddress}api/pluginsStream";
+        PluginLoaderService.AddHttpHostedSource(pluginsStreamUrl);
+
+        // Perform assembly loading
+        await PluginLoaderService.Load();
+        
+        // Add plugin loader service to di for the Router/App.razor
+        WebAssemblyHostBuilder.Services.AddSingleton(PluginLoaderService);
+    }
+
+    #endregion
+
+    #region Logging
+    
+    private Task SetupLogging()
+    {
+        LoggerProviders = LoggerBuildHelper.BuildFromConfiguration(configuration =>
+        {
+            configuration.Console.Enable = true;
+            configuration.Console.EnableAnsiMode = true;
+            configuration.FileLogging.Enable = false;
+        });
+
+        LoggerFactory = new LoggerFactory();
+        LoggerFactory.AddProviders(LoggerProviders);
+
+        Logger = LoggerFactory.CreateLogger<Startup>();
+        
+        return Task.CompletedTask;
+    }
+    
+    private Task RegisterLogging()
+    {
+        WebAssemblyHostBuilder.Logging.ClearProviders();
+        WebAssemblyHostBuilder.Logging.AddProviders(LoggerProviders);
+
+        return Task.CompletedTask;
+    }
+    
+    #endregion
+
+    #region Web Application
+
+    private Task CreateWebAssemblyHostBuilder()
+    {
+        WebAssemblyHostBuilder = WebAssemblyHostBuilder.CreateDefault(Args);
+        return Task.CompletedTask;
+    }
+
+    private Task BuildWebAssemblyHost()
+    {
+        WebAssemblyHost = WebAssemblyHostBuilder.Build();
+        return Task.CompletedTask;
+    }
+
+    #endregion
 }
