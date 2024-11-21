@@ -129,6 +129,7 @@ public class Startup
     {
         WebApplicationBuilder.Services.AutoAddServices<Startup>();
         WebApplicationBuilder.Services.AddHttpClient();
+        
         WebApplicationBuilder.Services.AddApiExceptionHandler();
 
         // Add pre-existing services
@@ -151,7 +152,7 @@ public class Startup
     private Task UseBase()
     {
         WebApplication.UseRouting();
-        WebApplication.UseExceptionHandler("/");
+        WebApplication.UseApiExceptionHandler();
 
         if (Configuration.Client.Enable)
         {
@@ -445,6 +446,11 @@ public class Startup
         // https://github.com/dotnet/aspnetcore/issues/19740
         WebApplicationBuilder.Logging.AddFilter(
             "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware",
+            LogLevel.Critical
+        );
+        
+        WebApplicationBuilder.Logging.AddFilter(
+            "Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware",
             LogLevel.Critical
         );
     }
