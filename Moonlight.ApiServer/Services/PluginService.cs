@@ -11,6 +11,11 @@ public class PluginService
     private static string PluginsFolder = PathBuilder.Dir("storage", "plugins");
     private readonly ILogger<PluginService> Logger;
 
+    private readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public PluginService(ILogger<PluginService> logger)
     {
         Logger = logger;
@@ -34,7 +39,7 @@ public class PluginService
             try
             {
                 var manifestText = await File.ReadAllTextAsync(manifestPath);
-                manifest = JsonSerializer.Deserialize<PluginManifest>(manifestText)!;
+                manifest = JsonSerializer.Deserialize<PluginManifest>(manifestText, SerializerOptions)!;
             }
             catch (Exception e)
             {

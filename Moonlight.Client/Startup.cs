@@ -20,7 +20,6 @@ namespace Moonlight.Client;
 public class Startup
 {
     private string[] Args;
-    private Assembly[] AdditionalAssemblies;
     
     // Logging
     private ILoggerProvider[] LoggerProviders;
@@ -33,11 +32,17 @@ public class Startup
     
     // Plugin Loading
     private PluginLoaderService PluginLoaderService;
+    private ApplicationAssemblyService ApplicationAssemblyService;
     
     public async Task Run(string[] args, Assembly[]? assemblies = null)
     {
         Args = args;
-        AdditionalAssemblies = assemblies ?? [];
+        
+        // Setup assembly storage
+        ApplicationAssemblyService = new()
+        {
+            AdditionalAssemblies = assemblies ?? []
+        };
 
         await PrintVersion();
         await SetupLogging();
@@ -124,8 +129,8 @@ public class Startup
             // We use moonlight itself as a plugin assembly
             configuration.AddAssembly(typeof(Startup).Assembly);
             
-            configuration.AddAssemblies(AdditionalAssemblies);
-            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
+            configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
+            configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
 
             configuration.AddInterface<IAppLoader>();
             configuration.AddInterface<IAppScreen>();
@@ -154,7 +159,9 @@ public class Startup
         await PluginLoaderService.Load();
         
         // Add plugin loader service to di for the Router/App.razor
-        WebAssemblyHostBuilder.Services.AddSingleton(PluginLoaderService);
+        ApplicationAssemblyService.PluginAssemblies = PluginLoaderService.PluginAssemblies;
+        
+        WebAssemblyHostBuilder.Services.AddSingleton(ApplicationAssemblyService);
     }
 
     #endregion

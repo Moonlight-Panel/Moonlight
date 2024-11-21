@@ -4,7 +4,6 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <IsPackable>true</IsPackable>
         <Version>2.1.0</Version>
@@ -16,33 +15,41 @@
         <RepositoryUrl>https://github.com/Moonlight-Panel/Moonlight</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>moonlight</PackageTags>
+        <DefaultItemExcludes>
+            **\bin\**;**\obj\**;**\node_modules\**;**\Styles\*.json
+        </DefaultItemExcludes>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Blazor-ApexCharts" Version="3.5.0" />
+        <PackageReference Include="Blazor-ApexCharts" Version="3.5.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all"/>
-        <PackageReference Include="MoonCore" Version="1.7.8" />
-        <PackageReference Include="MoonCore.Blazor" Version="1.2.7" />
-        <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5" />
-        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.1.4" />
+        <PackageReference Include="MoonCore" Version="1.7.9"/>
+        <PackageReference Include="MoonCore.Blazor" Version="1.2.7"/>
+        <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5"/>
+        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.1.4"/>
     </ItemGroup>
 
-    <ItemGroup>
+    <!-- 
+        Specify the /p:BuildPWA=true flag to build moonlight as a PWA.
+        This flag is by default disabled to allow nuget package generation
+    -->
+
+    <PropertyGroup Condition="'$(BuildPWA)' == 'true'">
+        <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(BuildPWA)' == 'true'">
         <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj" />
+        <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Helpers\" />
-      <Folder Include="wwwroot\css\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="UI\Screens\AuthenticationScreen.razor" />
+        <Folder Include="Helpers\"/>
+        <Folder Include="wwwroot\css\"/>
     </ItemGroup>
 
 </Project>
