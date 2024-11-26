@@ -87,6 +87,7 @@ public class Startup
         await UseOAuth2();
         await UseBaseMiddleware();
         await HookPluginConfigure();
+        await UsePluginAssets();
 
         await MapBase();
         await MapOAuth2();
@@ -268,6 +269,16 @@ public class Startup
         PluginDatabaseStartups = initialisationServiceProvider.GetRequiredService<IDatabaseStartup[]>();
         PluginEndpointStartups = initialisationServiceProvider.GetRequiredService<IEndpointStartup[]>();
 
+        return Task.CompletedTask;
+    }
+
+    private Task UsePluginAssets()
+    {
+        WebApplication.UseStaticFiles(new StaticFileOptions()
+        {
+            FileProvider = new PluginAssetFileProvider(PluginService)
+        });
+        
         return Task.CompletedTask;
     }
 

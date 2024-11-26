@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using MoonCore.Blazor.Extensions;
 using MoonCore.Blazor.Services;
 using MoonCore.Blazor.Tailwind.Extensions;
@@ -14,6 +15,7 @@ using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
 using Moonlight.Client.UI.Forms;
+using Moonlight.Shared.Http.Responses.PluginsStream;
 
 namespace Moonlight.Client;
 
@@ -58,6 +60,8 @@ public class Startup
         await RegisterInterfaces();
 
         await BuildWebAssemblyHost();
+
+        await LoadPluginAssets();
 
         await WebAssemblyHost.RunAsync();
     }
@@ -162,6 +166,20 @@ public class Startup
         ApplicationAssemblyService.PluginAssemblies = PluginLoaderService.PluginAssemblies;
         
         WebAssemblyHostBuilder.Services.AddSingleton(ApplicationAssemblyService);
+    }
+
+    private async Task LoadPluginAssets()
+    {
+        var apiClient = WebAssemblyHost.Services.GetRequiredService<HttpApiClient>();
+        var assetManifest = await apiClient.GetJson<PluginsAssetManifest>("api/pluginsStream/assets");
+
+        var jsRuntime = WebAssemblyHost.Services.GetRequiredService<IJSRuntime>();
+
+        foreach (var cssFile in assetManifest.CssFiles)
+            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadCss", cssFile);
+        
+        foreach (var javascriptFile in assetManifest.JavascriptFiles)
+            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", javascriptFile);
     }
 
     #endregion

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using MoonCore.Exceptions;
 using MoonCore.Models;
 using Moonlight.ApiServer.Services;
+using Moonlight.Shared.Http.Responses.PluginsStream;
 
 namespace Moonlight.ApiServer.Http.Controllers;
 
@@ -22,36 +23,13 @@ public class PluginsStreamController : Controller
     [HttpGet]
     public Task<HostedPluginsManifest> GetManifest()
     {
-        var assembliesMap = Cache.GetOrCreate("clientPluginAssemblies", entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
-
-            return PluginService.GetAssemblies("client");
-        })!;
-
-        var entrypoints = Cache.GetOrCreate("clientPluginEntrypoints", entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
-
-            return PluginService.GetEntrypoints("client");
-        })!;
-
-        return Task.FromResult(new HostedPluginsManifest()
-        {
-            Assemblies = assembliesMap.Keys.ToArray(),
-            Entrypoints = entrypoints
-        });
+        return Task.FromResult(PluginService.HostedPluginsManifest);
     }
 
     [HttpGet("stream")]
     public async Task GetAssembly([FromQuery(Name = "assembly")] string assembly)
     {
-        var assembliesMap = Cache.GetOrCreate("clientPluginAssemblies", entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
-
-            return PluginService.GetAssemblies("client");
-        })!;
+        var assembliesMap = PluginService.AssemblyMap;
 
         if (assembliesMap.ContainsKey(assembly))
             throw new HttpApiException("The requested assembly could not be found", 404);
@@ -59,5 +37,11 @@ public class PluginsStreamController : Controller
         var path = assembliesMap[assembly];
 
         await Results.File(path).ExecuteAsync(HttpContext);
+    }
+
+    [HttpGet("assets")]
+    public Task<PluginsAssetManifest> GetAssetManifest()
+    {
+        return Task.FromResult(PluginService.PluginsAssetManifest);
     }
 }

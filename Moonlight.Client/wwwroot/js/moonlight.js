@@ -25,5 +25,24 @@ window.moonlight = {
         closeCurrent() {
             window.close();
         }
+    },
+    assets: {
+        loadCss: function (url) {
+            let linkElement = document.createElement('link');
+
+            linkElement.href = url;
+            linkElement.rel = 'stylesheet';
+            linkElement.type = 'text/css';
+
+            (document.head || document.documentElement).appendChild(linkElement);
+        },
+        loadJavascript: function (url) {
+            let scriptElement = document.createElement('script');
+
+            scriptElement.src = url;
+            scriptElement.type = 'text/javascript';
+
+            (document.head || document.documentElement).appendChild(scriptElement);
+        }
     }
 };
