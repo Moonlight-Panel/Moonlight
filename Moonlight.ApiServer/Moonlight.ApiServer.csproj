@@ -38,9 +38,6 @@
 
     <ItemGroup>
       <Folder Include="Database\Migrations\" />
-      <Folder Include="storage\plugins\MyCoolPlugin\bin\apiserver\" />
-      <Folder Include="storage\plugins\MyCoolPlugin\bin\client\" />
-      <Folder Include="storage\plugins\MyCoolPlugin\bin\daemon\" />
     </ItemGroup>
 
     <ItemGroup>

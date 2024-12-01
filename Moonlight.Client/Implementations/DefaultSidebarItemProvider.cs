@@ -12,7 +12,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
             // User
             new SidebarItem()
             {
-                Icon = "bi bi-columns",
+                Icon = "icon-chart-no-axes-gantt",
                 Name = "Overview",
                 Path = "/",
                 Priority = 0,
@@ -22,7 +22,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
             // Admin
             new SidebarItem()
             {
-                Icon = "bi bi-columns",
+                Icon = "icon-chart-no-axes-gantt",
                 Name = "Overview",
                 Group = "Admin",
                 Path = "/admin",
@@ -32,7 +32,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
             },
             new SidebarItem()
             {
-                Icon = "bi bi-people",
+                Icon = "icon-users",
                 Name = "Users",
                 Group = "Admin",
                 Path = "/admin/users",
@@ -42,7 +42,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
             },
             new SidebarItem()
             {
-                Icon = "bi bi-key",
+                Icon = "icon-key-square",
                 Name = "API",
                 Group = "Admin",
                 Path = "/admin/api",
@@ -52,7 +52,7 @@ public class DefaultSidebarItemProvider : ISidebarItemProvider
             },
             new SidebarItem()
             {
-                Icon = "bi bi-gear",
+                Icon = "icon-settings",
                 Name = "System",
                 Group = "Admin",
                 Path = "/admin/system",

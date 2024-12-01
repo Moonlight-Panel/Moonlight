@@ -11,15 +11,15 @@
 
 <LazyLoader Load="LoadOverview">
     <div class="gap-5 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4">
-        <StatCard Title="CPU Usage" Text="@(OverviewData.CpuUsage + "%")" Icon="bi bi-cpu"/>
-        <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(OverviewData.MemoryUsage))" Icon="bi bi-memory"/>
-        <StatCard Title="Host OS" Text="@(OverviewData.OperatingSystem)" Icon="bi bi-motherboard"/>
-        <StatCard Title="Uptime" Text="@(Formatter.FormatUptime(OverviewData.Uptime))" Icon="bi bi-clock-history"/>
+        <StatCard Title="CPU Usage" Text="@(OverviewData.CpuUsage + "%")" Icon="icon-cpu"/>
+        <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(OverviewData.MemoryUsage))" Icon="icon-memory-stick"/>
+        <StatCard Title="Host OS" Text="@(OverviewData.OperatingSystem)" Icon="icon-server-cog"/>
+        <StatCard Title="Uptime" Text="@(Formatter.FormatUptime(OverviewData.Uptime))" Icon="icon-clock"/>
 
         <div class="card card-body">
             <div class="flex justify-center">
                 <WButton OnClick="Restart" CssClasses="btn btn-danger w-full">
-                    <i class="bi bi-arrow-repeat text-xl text-white me-2"></i>
+                    <i class="icon-repeat text-xl text-white me-2"></i>
                     Restart/Shutdown
                 </WButton>
             </div>
