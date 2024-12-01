@@ -176,10 +176,10 @@ public class Startup
                 switch (extension)
                 {
                     case ".css":
-                        assetService.CssFiles.Add(nextArg);
+                        assetService.AddCssAsset(nextArg);
                         break;
                     case ".js":
-                        assetService.JavascriptFiles.Add(nextArg);
+                        assetService.AddJavascriptAsset(nextArg);
                         break;
                     default:
                         Logger.LogWarning("Unknown asset extension {extension}. Ignoring it", extension);

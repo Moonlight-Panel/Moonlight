@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Responses.Assets;
 
-namespace Moonlight.ApiServer.Http.Controllers;
+namespace Moonlight.ApiServer.Http.Controllers.Assets;
 
 [ApiController]
 [Route("api/assets")]
@@ -20,8 +20,8 @@ public class AssetsController : Controller
     {
         return new FrontendAssetResponse()
         {
-            CssFiles = AssetService.CssFiles.ToArray(),
-            JavascriptFiles = AssetService.JavascriptFiles.ToArray(),
+            CssFiles = AssetService.GetCssAssets(),
+            JavascriptFiles = AssetService.GetJavascriptAssets(),
         };
     }
 }

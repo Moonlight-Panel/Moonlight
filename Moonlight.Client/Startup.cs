@@ -62,7 +62,6 @@ public class Startup
 
         await BuildWebAssemblyHost();
 
-        await LoadPluginAssets();
         await LoadAssets();
 
         await WebAssemblyHost.RunAsync();
@@ -176,7 +175,7 @@ public class Startup
         );
 
         // Build source from the retrieved data
-        var pluginsStreamUrl = $"{WebAssemblyHostBuilder.HostEnvironment.BaseAddress}api/pluginsStream";
+        var pluginsStreamUrl = $"{WebAssemblyHostBuilder.HostEnvironment.BaseAddress}api/assets/plugins";
         PluginLoaderService.AddHttpHostedSource(pluginsStreamUrl);
 
         // Perform assembly loading
@@ -186,20 +185,6 @@ public class Startup
         ApplicationAssemblyService.PluginAssemblies = PluginLoaderService.PluginAssemblies;
         
         WebAssemblyHostBuilder.Services.AddSingleton(ApplicationAssemblyService);
-    }
-
-    private async Task LoadPluginAssets()
-    {
-        var apiClient = WebAssemblyHost.Services.GetRequiredService<HttpApiClient>();
-        var assetManifest = await apiClient.GetJson<PluginsAssetManifest>("api/pluginsStream/assets");
-
-        var jsRuntime = WebAssemblyHost.Services.GetRequiredService<IJSRuntime>();
-
-        foreach (var cssFile in assetManifest.CssFiles)
-            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadCss", cssFile);
-        
-        foreach (var javascriptFile in assetManifest.JavascriptFiles)
-            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", javascriptFile);
     }
 
     #endregion

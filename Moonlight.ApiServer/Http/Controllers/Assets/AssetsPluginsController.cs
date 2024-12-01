@@ -1,23 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using MoonCore.Exceptions;
 using MoonCore.Models;
 using Moonlight.ApiServer.Services;
-using Moonlight.Shared.Http.Responses.PluginsStream;
 
-namespace Moonlight.ApiServer.Http.Controllers;
+namespace Moonlight.ApiServer.Http.Controllers.Assets;
 
 [ApiController]
-[Route("api/pluginsStream")]
-public class PluginsStreamController : Controller
+[Route("api/assets/plugins")]
+public class AssetsPluginsController : Controller
 {
     private readonly PluginService PluginService;
-    private readonly IMemoryCache Cache;
 
-    public PluginsStreamController(PluginService pluginService, IMemoryCache cache)
+    public AssetsPluginsController(PluginService pluginService)
     {
         PluginService = pluginService;
-        Cache = cache;
     }
 
     [HttpGet]
@@ -29,7 +25,7 @@ public class PluginsStreamController : Controller
     [HttpGet("stream")]
     public async Task GetAssembly([FromQuery(Name = "assembly")] string assembly)
     {
-        var assembliesMap = PluginService.AssemblyMap;
+        var assembliesMap = PluginService.ClientAssemblyMap;
 
         if (assembliesMap.ContainsKey(assembly))
             throw new HttpApiException("The requested assembly could not be found", 404);
@@ -37,11 +33,5 @@ public class PluginsStreamController : Controller
         var path = assembliesMap[assembly];
 
         await Results.File(path).ExecuteAsync(HttpContext);
-    }
-
-    [HttpGet("assets")]
-    public Task<PluginsAssetManifest> GetAssetManifest()
-    {
-        return Task.FromResult(PluginService.PluginsAssetManifest);
     }
 }

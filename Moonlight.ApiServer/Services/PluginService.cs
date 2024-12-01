@@ -8,11 +8,10 @@ namespace Moonlight.ApiServer.Services;
 
 public class PluginService
 {
-    public readonly List<PluginMeta> Plugins = new();
-    public readonly Dictionary<string, string> AssetMap = new();
-    public HostedPluginsManifest HostedPluginsManifest;
-    public PluginsAssetManifest PluginsAssetManifest;
-    public Dictionary<string, string> AssemblyMap;
+    public List<PluginMeta> Plugins { get; private set; } = new();
+    public Dictionary<string, string> AssetMap { get; private set; } = new();
+    public HostedPluginsManifest HostedPluginsManifest { get; private set; }
+    public Dictionary<string, string> ClientAssemblyMap { get; private set; }
 
     private static string PluginsFolder = PathBuilder.Dir("storage", "plugins");
     private readonly ILogger<PluginService> Logger;
@@ -75,7 +74,7 @@ public class PluginService
                     continue;
 
                 Logger.LogError(
-                    "Unable to load plugin '{id}' ({path}) because the dependency {dependency} is missing",
+                    "Unable to load plugin '{id}' ({path}) because the dependency '{dependency}' is missing",
                     plugin.Manifest.Id,
                     plugin.Path,
                     dependency
@@ -90,24 +89,17 @@ public class PluginService
         Plugins.RemoveAll(x => pluginsToNotLoad.Contains(x.Manifest.Id));
         
         // Generate assembly map for client
-        AssemblyMap = GetAssemblies("client");
+        ClientAssemblyMap = GetAssemblies("client");
         
         // Generate plugin stream manifest for client
         HostedPluginsManifest = new()
         {
-            Assemblies = AssemblyMap.Keys.ToArray(),
+            Assemblies = ClientAssemblyMap.Keys.ToArray(),
             Entrypoints = GetEntrypoints("client")
         };
         
         // Generate asset map
         GenerateAssetMap();
-        
-        // Generate asset manifest
-        PluginsAssetManifest = new()
-        {
-            CssFiles = AssetMap.Keys.Where(x => x.EndsWith(".css")).ToArray(),
-            JavascriptFiles = AssetMap.Keys.Where(x => x.EndsWith(".js")).ToArray(),
-        };
     }
 
     public Dictionary<string, string> GetAssemblies(string section)
@@ -116,7 +108,12 @@ public class PluginService
 
         foreach (var plugin in Plugins)
         {
-            foreach (var file in Directory.EnumerateFiles(PathBuilder.Dir(plugin.Path, "bin", section)))
+            var binaryPath = PathBuilder.Dir(plugin.Path, "bin", section);
+            
+            if(!Directory.Exists(binaryPath))
+                continue;
+            
+            foreach (var file in Directory.EnumerateFiles(binaryPath))
             {
                 if (!file.EndsWith(".dll"))
                     continue;
