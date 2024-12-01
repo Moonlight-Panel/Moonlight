@@ -78,9 +78,11 @@ public class Startup
         await RegisterOAuth2();
         await RegisterCaching();
         await HookPluginBuild();
+        await HandleConfigureArguments();
 
         await BuildWebApplication();
 
+        await HandleServiceArguments();
         await PrepareDatabase();
 
         await UseBase();
@@ -123,6 +125,73 @@ public class Startup
 
         return Task.CompletedTask;
     }
+
+    #region Command line arguments
+
+    private Task HandleConfigureArguments()
+    {
+        return Task.CompletedTask;
+    }
+    
+    private Task HandleServiceArguments()
+    {
+        // Handle manual asset loading arguments
+        if (Args.Any(x => x.StartsWith("--frontend-asset")))
+        {
+            if (!Configuration.Client.Enable)
+            {
+                Logger.LogWarning("The hosting of the moonlight frontend is disabled. Ignoring all --frontend-asset options");
+                return Task.CompletedTask; // TODO: Change this when adding more service argument handling functions
+            }
+
+            if (!WebApplicationBuilder.Environment.IsDevelopment())
+                Logger.LogWarning("Using the --frontend-asset option is not meant to be used in production. Plugin assets will be loaded automaticly");
+            
+            var assetService = WebApplication.Services.GetRequiredService<AssetService>();
+            
+            for (int i = 0; i < Args.Length; i++)
+            {
+                var currentArg = Args[i];
+                
+                // Ignore all args without relation to our frontend assets
+                if(!currentArg.Equals("--frontend-asset", StringComparison.InvariantCultureIgnoreCase))
+                    continue;
+
+                if (i + 1 >= Args.Length)
+                {
+                    Logger.LogWarning("You need to specify an asset path after the --frontend-asset option");
+                    continue;
+                }
+
+                var nextArg = Args[i + 1];
+
+                if (nextArg.StartsWith("--"))
+                {
+                    Logger.LogWarning("You need to specify an asset path after the --frontend-asset option");
+                    continue;
+                }
+
+                var extension = Path.GetExtension(nextArg);
+
+                switch (extension)
+                {
+                    case ".css":
+                        assetService.CssFiles.Add(nextArg);
+                        break;
+                    case ".js":
+                        assetService.JavascriptFiles.Add(nextArg);
+                        break;
+                    default:
+                        Logger.LogWarning("Unknown asset extension {extension}. Ignoring it", extension);
+                        break;
+                }
+            }
+        }
+        
+        return Task.CompletedTask;
+    }
+
+    #endregion
 
     #region Base
 

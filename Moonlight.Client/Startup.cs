@@ -15,6 +15,7 @@ using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
 using Moonlight.Client.UI.Forms;
+using Moonlight.Shared.Http.Responses.Assets;
 using Moonlight.Shared.Http.Responses.PluginsStream;
 
 namespace Moonlight.Client;
@@ -50,7 +51,7 @@ public class Startup
         await SetupLogging();
 
         await CreateWebAssemblyHostBuilder();
-
+        
         await LoadPlugins();
         
         await RegisterLogging();
@@ -62,6 +63,7 @@ public class Startup
         await BuildWebAssemblyHost();
 
         await LoadPluginAssets();
+        await LoadAssets();
 
         await WebAssemblyHost.RunAsync();
     }
@@ -123,6 +125,24 @@ public class Startup
         
         return Task.CompletedTask;
     }
+
+    #region Asset Loading
+
+    private async Task LoadAssets()
+    {
+        var apiClient = WebAssemblyHost.Services.GetRequiredService<HttpApiClient>();
+        var assetManifest = await apiClient.GetJson<FrontendAssetResponse>("api/assets");
+
+        var jsRuntime = WebAssemblyHost.Services.GetRequiredService<IJSRuntime>();
+
+        foreach (var cssFile in assetManifest.CssFiles)
+            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadCss", cssFile);
+        
+        foreach (var javascriptFile in assetManifest.JavascriptFiles)
+            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", javascriptFile);
+    }
+
+    #endregion
 
     #region Interfaces
 
