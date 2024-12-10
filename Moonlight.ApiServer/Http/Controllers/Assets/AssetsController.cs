@@ -20,7 +20,6 @@ public class AssetsController : Controller
     {
         return new FrontendAssetResponse()
         {
-            CssFiles = AssetService.GetCssAssets(),
             JavascriptFiles = AssetService.GetJavascriptAssets(),
         };
     }

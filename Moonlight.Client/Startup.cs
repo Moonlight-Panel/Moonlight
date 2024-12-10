@@ -134,9 +134,6 @@ public class Startup
         var assetManifest = await apiClient.GetJson<FrontendAssetResponse>("api/assets");
 
         var jsRuntime = WebAssemblyHost.Services.GetRequiredService<IJSRuntime>();
-
-        foreach (var cssFile in assetManifest.CssFiles)
-            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadCss", cssFile);
         
         foreach (var javascriptFile in assetManifest.JavascriptFiles)
             await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", javascriptFile);

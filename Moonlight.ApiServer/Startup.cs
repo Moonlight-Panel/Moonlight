@@ -51,6 +51,9 @@ public class Startup
     // Plugin Loading
     private PluginService PluginService;
     private PluginLoaderService PluginLoaderService;
+    
+    // Asset bundling
+    private BundleService BundleService;
 
     private IAppStartup[] PluginAppStartups;
     private IDatabaseStartup[] PluginDatabaseStartups;
@@ -150,7 +153,7 @@ public class Startup
             
             var assetService = WebApplication.Services.GetRequiredService<AssetService>();
             
-            for (int i = 0; i < Args.Length; i++)
+            for (var i = 0; i < Args.Length; i++)
             {
                 var currentArg = Args[i];
                 
@@ -177,7 +180,7 @@ public class Startup
                 switch (extension)
                 {
                     case ".css":
-                        assetService.AddCssAsset(nextArg);
+                        BundleService.BundleCss(nextArg);
                         break;
                     case ".js":
                         assetService.AddJavascriptAsset(nextArg);
@@ -316,7 +319,10 @@ public class Startup
 
         // Configure base services for initialisation
         initialisationServiceCollection.AddSingleton(Configuration);
-
+        
+        BundleService = new BundleService();
+        initialisationServiceCollection.AddSingleton(BundleService);
+            
         initialisationServiceCollection.AddLogging(builder => { builder.AddProviders(LoggerProviders); });
 
         // Configure plugin loading by using the interface service
@@ -344,8 +350,9 @@ public class Startup
 
     private Task RegisterPluginAssets()
     {
-        WebApplicationBuilder.Services.AddHostedService(sp => sp.GetRequiredService<BundleService>());
-        WebApplicationBuilder.Services.AddSingleton<BundleService>();
+        WebApplicationBuilder.Services.AddHostedService(sp => sp.GetRequiredService<BundleGenerationService>());
+        WebApplicationBuilder.Services.AddSingleton<BundleGenerationService>();
+        WebApplicationBuilder.Services.AddSingleton(BundleService);
         
         return Task.CompletedTask;
     }
