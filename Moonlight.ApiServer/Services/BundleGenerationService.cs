@@ -41,11 +41,18 @@ public class BundleGenerationService : IHostedService
                 
                 continue;
             }
+            
+            Logger.LogTrace("Discovered css file '{path}' at '{physicalPath}'", cssFile, fileInfo.PhysicalPath);
 
             physicalCssFiles.Add(fileInfo.PhysicalPath);
         }
+        
+        if(physicalCssFiles.Count == 0)
+            Logger.LogWarning("No physical paths to css files loaded. The generated bundle will be empty. Unless this is intended by you this is a bug");
 
         // TODO: Implement cache
+        
+        // TODO: File system watcher for development
 
         var bundleContent = await CreateCssBundle(physicalCssFiles);
 
@@ -65,27 +72,43 @@ public class BundleGenerationService : IHostedService
             return await File.ReadAllTextAsync(physicalPaths[0]);
 
         // Create bundle by stripping out double declared classes and combining all css files into one bundle
-        var content = "";
-        var styleSheets = new List<Stylesheet>();
         var parser = new StylesheetParser();
+        string? content = null;
+        Stylesheet? mainStylesheet = null;
+        var additionalStyleSheets = new List<Stylesheet>();
 
-        foreach (var fileContent in physicalPaths)
+        foreach (var physicalPath in physicalPaths)
         {
             try
             {
-                var sh = await parser.ParseAsync(fileContent);
-                styleSheets.Add(sh);
+                var fileContent = await File.ReadAllTextAsync(physicalPath);
+                var stylesheet = await parser.ParseAsync(fileContent);
+                
+                // Check if it's the first stylesheet we are loading
+                if (mainStylesheet == null || content == null)
+                {
+                    // Delegate the first stylesheet to be the main one
+                    content = fileContent + "\n";
+                    mainStylesheet = stylesheet;
+                }
+                else
+                    additionalStyleSheets.Add(stylesheet); // All other stylesheets are to be processed
             }
             catch (Exception e)
             {
-                Logger.LogWarning("An error occured while parsing css file: {e}", e);
+                Logger.LogError("An error occured while parsing css file: {e}", e);
             }
         }
 
-        // Delegate the first stylesheet as the main stylesheet
-        var mainStylesheet = styleSheets.First();
-
-        foreach (var stylesheet in styleSheets.Skip(1)) // Process all stylesheets expect the first (main) one
+        // Handle an empty main stylesheet delegation
+        if (mainStylesheet == null || content == null)
+        {
+            Logger.LogError("An unable to delegate main stylesheet. Did every load attempt of an stylesheet fail?");
+            return "";
+        }
+        
+        // Process stylesheets against the main one
+        foreach (var stylesheet in additionalStyleSheets)
         {
             // Style
             foreach (var styleRule in stylesheet.StyleRules)
@@ -93,7 +116,7 @@ public class BundleGenerationService : IHostedService
                 if (mainStylesheet.StyleRules.Any(x => x.Selector.Text == styleRule.Selector.Text))
                     continue;
 
-                content += styleRule.ToCss() + "\n";
+                content += styleRule.StylesheetText.Text + "\n";
             }
 
             // Container
@@ -102,7 +125,7 @@ public class BundleGenerationService : IHostedService
                 if (mainStylesheet.ContainerRules.Any(x => x.ConditionText == containerRule.ConditionText))
                     continue;
 
-                content += containerRule.ToCss() + "\n";
+                content += containerRule.StylesheetText.Text + "\n";
             }
 
             // Import Rule
@@ -111,7 +134,7 @@ public class BundleGenerationService : IHostedService
                 if (mainStylesheet.ImportRules.Any(x => x.Text == importRule.Text))
                     continue;
 
-                content += importRule.ToCss() + "\n";
+                content += importRule.StylesheetText.Text + "\n";
             }
 
             // Media Rules
@@ -124,7 +147,7 @@ public class BundleGenerationService : IHostedService
                 if (mainStylesheet.PageRules.Any(x => x.SelectorText == pageRule.SelectorText))
                     continue;
 
-                content += pageRule.ToCss() + "\n";
+                content += pageRule.StylesheetText.Text + "\n";
             }
         }
 
