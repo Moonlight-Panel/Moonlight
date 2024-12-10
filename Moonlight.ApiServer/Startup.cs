@@ -79,6 +79,7 @@ public class Startup
         await RegisterCaching();
         await HookPluginBuild();
         await HandleConfigureArguments();
+        await RegisterPluginAssets();
 
         await BuildWebApplication();
 
@@ -341,8 +342,21 @@ public class Startup
         return Task.CompletedTask;
     }
 
+    private Task RegisterPluginAssets()
+    {
+        WebApplicationBuilder.Services.AddHostedService(sp => sp.GetRequiredService<BundleService>());
+        WebApplicationBuilder.Services.AddSingleton<BundleService>();
+        
+        return Task.CompletedTask;
+    }
+
     private Task UsePluginAssets()
     {
+        WebApplication.UseStaticFiles(new StaticFileOptions()
+        {
+            FileProvider = new BundleAssetFileProvider()
+        });
+        
         WebApplication.UseStaticFiles(new StaticFileOptions()
         {
             FileProvider = new PluginAssetFileProvider(PluginService)
