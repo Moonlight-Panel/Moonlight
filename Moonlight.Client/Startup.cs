@@ -101,6 +101,7 @@ public class Startup
         );
         
         WebAssemblyHostBuilder.Services.AddScoped<WindowService>();
+        WebAssemblyHostBuilder.Services.AddScoped<DownloadService>();
         WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
         WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
 

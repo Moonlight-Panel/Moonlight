@@ -1,5 +1,19 @@
 ﻿@page "/admin"
+@using Moonlight.Client.Services
 
+@inject DownloadService DownloadService
+
+<WButton OnClick="OnClick">Test DownloadService</WButton>
+
+@code
+{
+    private async Task OnClick(WButton _)
+    {
+        await DownloadService.DownloadString("test.txt", "Download seems to be working");
+    }
+}
+
+@*
 @using ApexCharts
 
 <div class="card max-w-md">
@@ -181,4 +195,4 @@
     }
 
 
-}
+}*@
