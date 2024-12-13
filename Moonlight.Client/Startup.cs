@@ -201,8 +201,9 @@ public class Startup
         {
             // We use moonlight itself as a plugin assembly
             configuration.AddAssembly(typeof(Startup).Assembly);
-
-            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
+            
+            configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
+            configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
 
             configuration.AddInterface<IAppStartup>();
         });
