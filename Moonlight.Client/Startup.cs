@@ -36,6 +36,8 @@ public class Startup
     // Plugin Loading
     private PluginLoaderService PluginLoaderService;
     private ApplicationAssemblyService ApplicationAssemblyService;
+
+    private IAppStartup[] PluginAppStartups;
     
     public async Task Run(string[] args, Assembly[]? assemblies = null)
     {
@@ -53,15 +55,18 @@ public class Startup
         await CreateWebAssemblyHostBuilder();
         
         await LoadPlugins();
+        await InitializePlugins();
         
         await RegisterLogging();
         await RegisterBase();
         await RegisterOAuth2();
         await RegisterFormComponents();
         await RegisterInterfaces();
+        await HookPluginBuild();
 
         await BuildWebAssemblyHost();
 
+        await HookPluginConfigure();
         await LoadAssets();
 
         await WebAssemblyHost.RunAsync();
@@ -184,6 +189,72 @@ public class Startup
         
         WebAssemblyHostBuilder.Services.AddSingleton(ApplicationAssemblyService);
     }
+
+    private Task InitializePlugins()
+    {
+        var initialisationServiceCollection = new ServiceCollection();
+            
+        initialisationServiceCollection.AddLogging(builder => { builder.AddProviders(LoggerProviders); });
+
+        // Configure plugin loading by using the interface service
+        initialisationServiceCollection.AddInterfaces(configuration =>
+        {
+            // We use moonlight itself as a plugin assembly
+            configuration.AddAssembly(typeof(Startup).Assembly);
+
+            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
+
+            configuration.AddInterface<IAppStartup>();
+        });
+
+        var initialisationServiceProvider = initialisationServiceCollection.BuildServiceProvider();
+
+        PluginAppStartups = initialisationServiceProvider.GetRequiredService<IAppStartup[]>();
+
+        return Task.CompletedTask;
+    }
+
+    #region Hooks
+
+    private async Task HookPluginBuild()
+    {
+        foreach (var pluginAppStartup in PluginAppStartups)
+        {
+            try
+            {
+                await pluginAppStartup.BuildApp(WebAssemblyHostBuilder);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(
+                    "An error occured while processing 'BuildApp' for '{name}': {e}",
+                    pluginAppStartup.GetType().FullName,
+                    e
+                );
+            }
+        }
+    }
+
+    private async Task HookPluginConfigure()
+    {
+        foreach (var pluginAppStartup in PluginAppStartups)
+        {
+            try
+            {
+                await pluginAppStartup.ConfigureApp(WebAssemblyHost);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(
+                    "An error occured while processing 'ConfigureApp' for '{name}': {e}",
+                    pluginAppStartup.GetType().FullName,
+                    e
+                );
+            }
+        }
+    }
+
+    #endregion
 
     #endregion
 
