@@ -47,7 +47,7 @@ public class ApiKeysController : Controller
             Secret = secret
         };
 
-        var finalApiKey = ApiKeyRepository.Add(apiKey);
+        var finalApiKey = await ApiKeyRepository.Add(apiKey);
         
         return Mapper.Map<CreateApiKeyResponse>(finalApiKey);
     }

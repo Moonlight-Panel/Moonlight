@@ -1,6 +1,7 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 
+@import "additions/theme.css";
 @import "additions/animations.css";
 @import "additions/fonts.css";
 @import "additions/buttons.css";

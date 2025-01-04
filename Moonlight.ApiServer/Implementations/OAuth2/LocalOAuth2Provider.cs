@@ -41,7 +41,7 @@ public class LocalOAuth2Provider : ILocalProviderImplementation<User>
         return Task.FromResult(user);
     }
 
-    public Task<User> Register(string username, string email, string password)
+    public async Task<User> Register(string username, string email, string password)
     {
         if (UserRepository.Get().Any(x => x.Username == username))
             throw new HttpApiException("A user with that username already exists", 400);
@@ -56,8 +56,8 @@ public class LocalOAuth2Provider : ILocalProviderImplementation<User>
             Password = HashHelper.Hash(password)
         };
 
-        var finalUser = UserRepository.Add(user);
-        
-        return Task.FromResult(finalUser);
+        var finalUser = await UserRepository.Add(user);
+
+        return finalUser;
     }
 }
