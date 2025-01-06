@@ -1,0 +1,25 @@
+@page "/admin/system/design"
+
+@using MoonCore.Attributes
+@using MoonCore.Helpers
+
+@attribute [RequirePermission("admin.system.design")]
+
+@inject HttpApiClient ApiClient
+
+<div class="mb-3">
+    <NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />
+</div>
+
+<div class="card card-body p-3 justify-end">
+</div>
+
+@code
+{
+    private readonly Dictionary<string, string> Colors = new();
+
+    protected override void OnInitialized()
+    {
+        
+    }
+}

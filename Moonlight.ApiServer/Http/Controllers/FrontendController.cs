@@ -42,7 +42,7 @@ public class FrontendController : Controller
         return configuration;
     }
 
-    [HttpGet("plugins/{assemblyName}")]
+    [HttpGet("plugins/{assemblyName}")] // TODO: Test this
     public async Task GetPluginAssembly(string assemblyName)
     {
         var assembliesMap = PluginService.ClientAssemblyMap;

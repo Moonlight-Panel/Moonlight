@@ -39,7 +39,6 @@
 
     <ItemGroup>
       <Folder Include="Database\Migrations\" />
-      <Folder Include="Http\Controllers\Frontend\" />
     </ItemGroup>
 
     <ItemGroup>
