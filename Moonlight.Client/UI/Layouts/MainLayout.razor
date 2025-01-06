@@ -2,8 +2,7 @@
 @using Moonlight.Client.Interfaces
 @using Moonlight.Client.Services
 @using Moonlight.Client.UI.Partials
-@using MoonCore.Blazor.Components
-@using Moonlight.Client.UI.Components
+@using Moonlight.Shared.Misc
 
 @inherits LayoutComponentBase
 
@@ -12,6 +11,9 @@
 @inject ILogger<MainLayout> Logger
 @inject IAppLoader[] AppLoaders
 @inject IAppScreen[] AppScreens
+@inject FrontendConfiguration Configuration
+
+<PageTitle>@Configuration.Title</PageTitle>
 
 @if (IsLoading)
 {

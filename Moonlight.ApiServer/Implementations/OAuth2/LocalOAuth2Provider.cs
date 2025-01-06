@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
@@ -15,17 +16,18 @@ public class LocalOAuth2Provider : ILocalProviderImplementation<User>
         UserRepository = userRepository;
     }
     
-    public Task SaveChanges(User model)
+    public async Task SaveChanges(User model)
     {
-        UserRepository.Update(model);
-        return Task.CompletedTask;
+        await UserRepository.Update(model);
     }
 
-    public Task<User?> LoadById(int id)
+    public async Task<User?> LoadById(int id)
     {
-        var res = UserRepository.Get().FirstOrDefault(x => x.Id == id);
+        var res = await UserRepository
+            .Get()
+            .FirstOrDefaultAsync(x => x.Id == id);
 
-        return Task.FromResult(res);
+        return res;
     }
 
     public Task<User> Login(string email, string password)

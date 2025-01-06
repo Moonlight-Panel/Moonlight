@@ -1,0 +1,19 @@
+{
+  "apiUrl": "http://localhost:5165",
+  "hostEnvironment": "Static",
+  "theme": {
+    "variables": {
+      "primary": {
+        "500": "100 100 100"
+      }
+    }
+  },
+  "scripts": {
+  },
+  "plugins": {
+    "assemblies": [
+    ],
+    "entrypoints": [
+    ]
+  }
+}

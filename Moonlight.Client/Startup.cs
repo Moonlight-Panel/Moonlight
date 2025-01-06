@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
@@ -11,38 +12,40 @@ using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
 using MoonCore.Plugins;
+using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
-using Moonlight.Client.UI.Forms;
-using Moonlight.Shared.Http.Responses.Assets;
-using Moonlight.Shared.Http.Responses.PluginsStream;
+using Moonlight.Shared.Misc;
 
 namespace Moonlight.Client;
 
 public class Startup
 {
     private string[] Args;
-    
+
+    // Configuration
+    private FrontendConfiguration Configuration;
+
     // Logging
     private ILoggerProvider[] LoggerProviders;
     private ILoggerFactory LoggerFactory;
     private ILogger<Startup> Logger;
-    
+
     // WebAssemblyHost
     private WebAssemblyHostBuilder WebAssemblyHostBuilder;
     private WebAssemblyHost WebAssemblyHost;
-    
+
     // Plugin Loading
     private PluginLoaderService PluginLoaderService;
     private ApplicationAssemblyService ApplicationAssemblyService;
 
     private IAppStartup[] PluginAppStartups;
-    
+
     public async Task Run(string[] args, Assembly[]? assemblies = null)
     {
         Args = args;
-        
+
         // Setup assembly storage
         ApplicationAssemblyService = new()
         {
@@ -53,10 +56,11 @@ public class Startup
         await SetupLogging();
 
         await CreateWebAssemblyHostBuilder();
-        
+
+        await LoadConfiguration();
         await LoadPlugins();
         await InitializePlugins();
-        
+
         await RegisterLogging();
         await RegisterBase();
         await RegisterOAuth2();
@@ -89,10 +93,33 @@ public class Startup
         }
 
         Console.WriteLine();
-        
+
         return Task.CompletedTask;
     }
-    
+
+    private async Task LoadConfiguration()
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(WebAssemblyHostBuilder.HostEnvironment.BaseAddress);
+
+            var jsonText = await httpClient.GetStringAsync("frontend.json");
+            
+            Configuration = JsonSerializer.Deserialize<FrontendConfiguration>(jsonText, new JsonSerializerOptions()
+            {
+                PropertyNameCaseInsensitive = true
+            })!;
+
+            WebAssemblyHostBuilder.Services.AddSingleton(Configuration);
+        }
+        catch (Exception e)
+        {
+            Logger.LogCritical("Unable to load configuration. Unable to continue: {e}", e);
+            throw;
+        }
+    }
+
     private Task RegisterBase()
     {
         WebAssemblyHostBuilder.RootComponents.Add<App>("#app");
@@ -101,10 +128,10 @@ public class Startup
         WebAssemblyHostBuilder.Services.AddScoped(_ =>
             new HttpClient
             {
-                BaseAddress = new Uri(WebAssemblyHostBuilder.HostEnvironment.BaseAddress)
+                BaseAddress = new Uri(Configuration.ApiUrl)
             }
         );
-        
+
         WebAssemblyHostBuilder.Services.AddScoped<WindowService>();
         WebAssemblyHostBuilder.Services.AddScoped<DownloadService>();
         WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
@@ -114,7 +141,7 @@ public class Startup
 
         return Task.CompletedTask;
     }
-    
+
     private Task RegisterOAuth2()
     {
         WebAssemblyHostBuilder.AddTokenAuthentication();
@@ -127,7 +154,7 @@ public class Startup
     {
         FormComponentRepository.Set<string, StringComponent>();
         FormComponentRepository.Set<int, IntComponent>();
-        
+
         return Task.CompletedTask;
     }
 
@@ -135,13 +162,10 @@ public class Startup
 
     private async Task LoadAssets()
     {
-        var apiClient = WebAssemblyHost.Services.GetRequiredService<HttpApiClient>();
-        var assetManifest = await apiClient.GetJson<FrontendAssetResponse>("api/assets");
-
         var jsRuntime = WebAssemblyHost.Services.GetRequiredService<IJSRuntime>();
-        
-        foreach (var javascriptFile in assetManifest.JavascriptFiles)
-            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", javascriptFile);
+
+        foreach (var scriptName in Configuration.Scripts)
+            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", scriptName);
     }
 
     #endregion
@@ -154,7 +178,7 @@ public class Startup
         {
             // We use moonlight itself as a plugin assembly
             configuration.AddAssembly(typeof(Startup).Assembly);
-            
+
             configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
             configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
 
@@ -162,7 +186,7 @@ public class Startup
             configuration.AddInterface<IAppScreen>();
             configuration.AddInterface<ISidebarItemProvider>();
         });
-        
+
         return Task.CompletedTask;
     }
 
@@ -177,23 +201,33 @@ public class Startup
             LoggerFactory.CreateLogger<PluginLoaderService>()
         );
 
-        // Build source from the retrieved data
-        var pluginsStreamUrl = $"{WebAssemblyHostBuilder.HostEnvironment.BaseAddress}api/assets/plugins";
-        PluginLoaderService.AddHttpHostedSource(pluginsStreamUrl);
+        // Create everything required to stream plugins
+        using var clientForStreaming = new HttpClient();
+
+        clientForStreaming.BaseAddress = new Uri(Configuration.HostEnvironment == "ApiServer"
+            ? Configuration.ApiUrl
+            : WebAssemblyHostBuilder.HostEnvironment.BaseAddress
+        );
+
+        PluginLoaderService.AddSource(new RemotePluginSource(
+            Configuration,
+            LoggerFactory.CreateLogger<RemotePluginSource>(),
+            clientForStreaming
+        ));
 
         // Perform assembly loading
         await PluginLoaderService.Load();
-        
+
         // Add plugin loader service to di for the Router/App.razor
         ApplicationAssemblyService.PluginAssemblies = PluginLoaderService.PluginAssemblies;
-        
+
         WebAssemblyHostBuilder.Services.AddSingleton(ApplicationAssemblyService);
     }
 
     private Task InitializePlugins()
     {
         var initialisationServiceCollection = new ServiceCollection();
-            
+
         initialisationServiceCollection.AddLogging(builder => { builder.AddProviders(LoggerProviders); });
 
         // Configure plugin loading by using the interface service
@@ -201,7 +235,7 @@ public class Startup
         {
             // We use moonlight itself as a plugin assembly
             configuration.AddAssembly(typeof(Startup).Assembly);
-            
+
             configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
             configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
 
@@ -260,7 +294,7 @@ public class Startup
     #endregion
 
     #region Logging
-    
+
     private Task SetupLogging()
     {
         LoggerProviders = LoggerBuildHelper.BuildFromConfiguration(configuration =>
@@ -274,10 +308,10 @@ public class Startup
         LoggerFactory.AddProviders(LoggerProviders);
 
         Logger = LoggerFactory.CreateLogger<Startup>();
-        
+
         return Task.CompletedTask;
     }
-    
+
     private Task RegisterLogging()
     {
         WebAssemblyHostBuilder.Logging.ClearProviders();
@@ -285,7 +319,7 @@ public class Startup
 
         return Task.CompletedTask;
     }
-    
+
     #endregion
 
     #region Web Application

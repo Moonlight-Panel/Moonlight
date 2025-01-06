@@ -25,7 +25,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="MoonCore" Version="1.8.1" />
-        <PackageReference Include="MoonCore.Extended" Version="1.2.5" />
+        <PackageReference Include="MoonCore.Extended" Version="1.2.6" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
@@ -39,12 +39,18 @@
 
     <ItemGroup>
       <Folder Include="Database\Migrations\" />
+      <Folder Include="Http\Controllers\Frontend\" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Http\Controllers\OAuth2\Pages\Login.razor" />
+      <_ContentIncludedByDefault Remove="Http\Controllers\OAuth2\Pages\Register.razor" />
     </ItemGroup>
 
 </Project>
