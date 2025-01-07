@@ -3,6 +3,7 @@
 @using Moonlight.Client.Services
 @using Moonlight.Client.UI.Partials
 @using Moonlight.Shared.Misc
+@using Moonlight.Client.UI.Components
 
 @inherits LayoutComponentBase
 
@@ -14,6 +15,8 @@
 @inject FrontendConfiguration Configuration
 
 <PageTitle>@Configuration.Title</PageTitle>
+
+<ThemeLoader />
 
 @if (IsLoading)
 {

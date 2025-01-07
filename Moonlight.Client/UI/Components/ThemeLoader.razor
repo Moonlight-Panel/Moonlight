@@ -1,0 +1,43 @@
+@using Moonlight.Client.Services
+
+@inject ThemeService ThemeService
+
+@implements IDisposable
+
+<style>
+    :root {
+        @Css
+    }
+</style>
+
+@code
+{
+    private string Css = "";
+
+    protected override void OnInitialized()
+    {
+        GenerateCss();
+        
+        ThemeService.OnRefresh += OnRefresh;
+    }
+
+    private async Task OnRefresh()
+    {
+        GenerateCss();
+        
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void GenerateCss()
+    {
+        Css = "";
+
+        foreach (var variable in ThemeService.Variables)
+            Css += $"--color-{variable.Key}: {variable.Value};\n";
+    }
+
+    public void Dispose()
+    {
+        ThemeService.OnRefresh -= OnRefresh;
+    }
+}

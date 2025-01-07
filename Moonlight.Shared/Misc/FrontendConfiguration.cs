@@ -11,7 +11,7 @@ public class FrontendConfiguration
     
     public class ThemeData
     {
-        public Dictionary<string, Dictionary<int, string>> Variables { get; set; } = new();
+        public Dictionary<string, string> Variables { get; set; } = new();
     }
     
     public class PluginData

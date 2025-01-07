@@ -1,0 +1,253 @@
+@using System.Text.Json
+@using MoonCore.Helpers
+@using Moonlight.Client.Services
+@using Moonlight.Client.UI.Components
+@using Moonlight.Shared.Misc
+
+@inject HttpApiClient ApiClient
+@inject FrontendConfiguration FrontendConfiguration
+@inject ThemeService ThemeService
+@inject ToastService ToastService
+@inject DownloadService DownloadService
+
+<div class="card card-body p-2">
+    <div class="flex flex-row items-center justify-end gap-x-2">
+        <WButton OnClick="_ => Save()" CssClasses="btn btn-success">
+            <i class="icon-save me-1"></i>
+            <span>Save</span>
+        </WButton>
+        <InputFile OnChange="Import" id="import-file" hidden="hidden" />
+        <label for="import-file" class="btn btn-info cursor-pointer">
+            <i class="icon-file-up me-1"></i>
+            <span>Import</span>
+        </label>
+        <WButton OnClick="_ => Export()" CssClasses="btn btn-warning">
+            <i class="icon-download me-1"></i>
+            <span>Export</span>
+        </WButton>
+    </div>
+</div>
+
+<div class="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+    @foreach (var colorSettingGroup in GroupedColorSettings)
+    {
+        <div class="flex flex-col gap-y-2">
+            @foreach (var colorSetting in colorSettingGroup.Value)
+            {
+                <ThemeColorSelector Identifier="@colorSetting.Identifier"
+                                    Value="@colorSetting.Value"
+                                    DefaultValue="@colorSetting.DefaultValue"
+                                    OnChanged="color => OnChanged(colorSetting, color)"/>
+            }
+        </div>
+    }
+</div>
+
+@code
+{
+    private readonly Dictionary<string, List<ColorSetting>> GroupedColorSettings = new();
+
+    protected override void OnInitialized()
+    {
+        // Primary
+        AddSetting("primary", "primary-50", 238, 242, 255);
+        AddSetting("primary", "primary-100", 224, 231, 255);
+        AddSetting("primary", "primary-200", 199, 210, 254);
+        AddSetting("primary", "primary-300", 165, 180, 252);
+        AddSetting("primary", "primary-400", 129, 140, 248);
+        AddSetting("primary", "primary-500", 99, 102, 241);
+        AddSetting("primary", "primary-600", 79, 70, 229);
+        AddSetting("primary", "primary-700", 67, 56, 202);
+        AddSetting("primary", "primary-800", 55, 48, 163);
+        AddSetting("primary", "primary-900", 49, 46, 129);
+        AddSetting("primary", "primary-950", 30, 27, 75);
+
+        // Secondary
+        AddSetting("secondary", "secondary-100", 249, 249, 249);
+        AddSetting("secondary", "secondary-200", 241, 241, 242);
+        AddSetting("secondary", "secondary-300", 219, 223, 233);
+        AddSetting("secondary", "secondary-400", 181, 181, 195);
+        AddSetting("secondary", "secondary-500", 153, 161, 183);
+        AddSetting("secondary", "secondary-600", 112, 121, 147);
+        AddSetting("secondary", "secondary-700", 68, 78, 107);
+        AddSetting("secondary", "secondary-800", 28, 36, 56);
+        AddSetting("secondary", "secondary-900", 17, 23, 33);
+        AddSetting("secondary", "secondary-950", 14, 18, 28);
+
+        // Tertiary
+        AddSetting("tertiary", "tertiary-50", 245, 243, 255);
+        AddSetting("tertiary", "tertiary-100", 237, 233, 254);
+        AddSetting("tertiary", "tertiary-200", 221, 214, 254);
+        AddSetting("tertiary", "tertiary-300", 196, 181, 253);
+        AddSetting("tertiary", "tertiary-400", 167, 139, 250);
+        AddSetting("tertiary", "tertiary-500", 139, 92, 246);
+        AddSetting("tertiary", "tertiary-600", 124, 58, 237);
+        AddSetting("tertiary", "tertiary-700", 109, 40, 217);
+        AddSetting("tertiary", "tertiary-800", 91, 33, 182);
+        AddSetting("tertiary", "tertiary-900", 76, 29, 149);
+        AddSetting("tertiary", "tertiary-950", 46, 16, 101);
+
+        // Warning
+        AddSetting("warning", "warning-50", 254, 252, 232);
+        AddSetting("warning", "warning-100", 254, 249, 195);
+        AddSetting("warning", "warning-200", 254, 240, 138);
+        AddSetting("warning", "warning-300", 253, 224, 71);
+        AddSetting("warning", "warning-400", 250, 204, 21);
+        AddSetting("warning", "warning-500", 234, 179, 8);
+        AddSetting("warning", "warning-600", 202, 138, 4);
+        AddSetting("warning", "warning-700", 161, 98, 7);
+        AddSetting("warning", "warning-800", 133, 77, 14);
+        AddSetting("warning", "warning-900", 113, 63, 18);
+        AddSetting("warning", "warning-950", 66, 32, 6);
+
+        // Danger
+        AddSetting("danger", "danger-50", 254, 242, 242);
+        AddSetting("danger", "danger-100", 254, 226, 226);
+        AddSetting("danger", "danger-200", 254, 202, 202);
+        AddSetting("danger", "danger-300", 252, 165, 165);
+        AddSetting("danger", "danger-400", 248, 113, 113);
+        AddSetting("danger", "danger-500", 239, 68, 68);
+        AddSetting("danger", "danger-600", 220, 38, 38);
+        AddSetting("danger", "danger-700", 185, 28, 28);
+        AddSetting("danger", "danger-800", 153, 27, 27);
+        AddSetting("danger", "danger-900", 127, 29, 29);
+        AddSetting("danger", "danger-950", 69, 10, 10);
+
+        // Success
+        AddSetting("success", "success-50", 240, 253, 244);
+        AddSetting("success", "success-100", 220, 252, 231);
+        AddSetting("success", "success-200", 187, 247, 208);
+        AddSetting("success", "success-300", 134, 239, 172);
+        AddSetting("success", "success-400", 74, 222, 128);
+        AddSetting("success", "success-500", 34, 197, 94);
+        AddSetting("success", "success-600", 22, 163, 74);
+        AddSetting("success", "success-700", 21, 128, 61);
+        AddSetting("success", "success-800", 22, 101, 52);
+        AddSetting("success", "success-900", 20, 83, 45);
+        AddSetting("success", "success-950", 5, 46, 22);
+
+        // Info
+        AddSetting("info", "info-50", 239, 246, 255);
+        AddSetting("info", "info-100", 219, 234, 254);
+        AddSetting("info", "info-200", 191, 219, 254);
+        AddSetting("info", "info-300", 147, 197, 253);
+        AddSetting("info", "info-400", 96, 165, 250);
+        AddSetting("info", "info-500", 59, 130, 246);
+        AddSetting("info", "info-600", 37, 99, 235);
+        AddSetting("info", "info-700", 29, 78, 216);
+        AddSetting("info", "info-800", 30, 64, 175);
+        AddSetting("info", "info-900", 30, 58, 138);
+        AddSetting("info", "info-950", 23, 37, 84);
+
+        // Gray
+        AddSetting("gray", "gray-100", 249, 249, 249);
+        AddSetting("gray", "gray-200", 241, 241, 242);
+        AddSetting("gray", "gray-300", 219, 223, 233);
+        AddSetting("gray", "gray-400", 181, 181, 195);
+        AddSetting("gray", "gray-500", 153, 161, 183);
+        AddSetting("gray", "gray-600", 112, 121, 147);
+        AddSetting("gray", "gray-700", 68, 78, 107);
+        AddSetting("gray", "gray-750", 41, 50, 73);
+        AddSetting("gray", "gray-800", 28, 36, 56);
+        AddSetting("gray", "gray-900", 17, 23, 33);
+        AddSetting("gray", "gray-950", 14, 18, 28);
+
+        // Full
+        AddSetting("full", "light", 255, 255, 255);
+        AddSetting("full", "dark", 0, 0, 0);
+    }
+
+    private void AddSetting(string group, string identifier, int r, int g, int b)
+    {
+        if (!GroupedColorSettings.ContainsKey(group))
+            GroupedColorSettings[group] = new();
+
+        var value = ThemeService.Variables.GetValueOrDefault(identifier);
+
+        GroupedColorSettings[group].Add(new ColorSetting()
+        {
+            Identifier = identifier,
+            DefaultValue = $"{r} {g} {b}",
+            Value = value
+        });
+    }
+
+    private async Task OnChanged(ColorSetting colorSetting, string color)
+    {
+        if (color == colorSetting.DefaultValue)
+            colorSetting.Value = null;
+        else
+            colorSetting.Value = color;
+
+        if (colorSetting.Value == null && ThemeService.Variables.ContainsKey(colorSetting.Identifier))
+            ThemeService.Variables.Remove(colorSetting.Identifier);
+        else if (colorSetting.Value != null)
+            ThemeService.Variables[colorSetting.Identifier] = colorSetting.Value;
+
+        await ThemeService.Refresh();
+    }
+
+    private async Task Save()
+    {
+        if (FrontendConfiguration.HostEnvironment != "ApiServer")
+        {
+            await ToastService.Danger(
+                "Theme Settings",
+                "Unable to save the theme settings. If you are using a static host, you need to configure the colors in the frontend.json file"
+            );
+            
+            return;
+        }
+        
+        await ToastService.Success("Successfully saved theme settings");
+        
+        //TODO: Implement saving on the api server
+    }
+
+    private async Task Export()
+    {
+        // Serialize the variables
+        var json = JsonSerializer.Serialize(ThemeService.Variables);
+
+        // Download the theme configuration
+        await DownloadService.DownloadString("theme.json", json);
+
+        await ToastService.Success("Successfully exported theme configuration");
+    }
+
+    private async Task Import(InputFileChangeEventArgs eventArgs)
+    {
+        if (!eventArgs.File.Name.EndsWith(".json"))
+        {
+            await ToastService.Danger("Only .json files are allowed");
+            return;
+        }
+        
+        // Read file content
+        var stream = eventArgs.File.OpenReadStream();
+        var sr = new StreamReader(stream);
+        var json = await sr.ReadToEndAsync();
+
+        // Deserialize
+        var variables = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
+        
+        // Update variables
+        ThemeService.Variables.Clear();
+
+        foreach (var variable in variables)
+            ThemeService.Variables[variable.Key] = variable.Value;
+
+        // Apply changes
+        await ThemeService.Refresh();
+        
+        //
+        await ToastService.Success("Successfully imported theme configuration");
+    }
+
+    class ColorSetting
+    {
+        public string Identifier { get; set; }
+        public string DefaultValue { get; set; }
+        public string? Value { get; set; }
+    }
+}

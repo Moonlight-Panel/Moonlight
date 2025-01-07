@@ -1,0 +1,12 @@
+@page "/admin/system/theme"
+
+@using MoonCore.Attributes
+@using Moonlight.Client.UI.Partials.Design
+
+@attribute [RequirePermission("admin.system.theme")]
+
+<div class="mb-3">
+    <NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />
+</div>
+
+<ThemeSettings />

@@ -3,13 +3,10 @@
   "hostEnvironment": "Static",
   "theme": {
     "variables": {
-      "primary": {
-        "500": "100 100 100"
-      }
     }
   },
-  "scripts": {
-  },
+  "scripts": [
+  ],
   "plugins": {
     "assemblies": [
     ],
