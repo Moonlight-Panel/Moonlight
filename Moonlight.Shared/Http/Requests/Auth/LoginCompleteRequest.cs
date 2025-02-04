@@ -2,8 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Moonlight.Shared.Http.Requests.Auth;
 
-public class OAuth2HandleRequest
+public class LoginCompleteRequest
 {
-    [Required(ErrorMessage = "You need to provide the oauth2 code")]
+    [Required(ErrorMessage = "You need to provide a code")]
     public string Code { get; set; }
 }

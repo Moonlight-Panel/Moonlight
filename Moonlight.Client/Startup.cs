@@ -3,11 +3,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
-using MoonCore.Blazor.Extensions;
 using MoonCore.Blazor.Services;
 using MoonCore.Blazor.Tailwind.Extensions;
-using MoonCore.Blazor.Tailwind.Forms;
-using MoonCore.Blazor.Tailwind.Forms.Components;
+using MoonCore.Blazor.Tailwind.Auth;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
@@ -16,7 +14,6 @@ using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
-using Moonlight.Client.UI.Forms;
 using Moonlight.Shared.Misc;
 
 namespace Moonlight.Client;
@@ -64,8 +61,7 @@ public class Startup
 
         await RegisterLogging();
         await RegisterBase();
-        await RegisterOAuth2();
-        await RegisterFormComponents();
+        await RegisterAuthentication();
         await RegisterInterfaces();
         await HookPluginBuild();
 
@@ -132,30 +128,32 @@ public class Startup
                 BaseAddress = new Uri(Configuration.ApiUrl)
             }
         );
+        
+        WebAssemblyHostBuilder.Services.AddScoped(sp =>
+        {
+            var httpClient = sp.GetRequiredService<HttpClient>();
+            var httpApiClient = new HttpApiClient(httpClient);
+
+            var localStorageService = sp.GetRequiredService<LocalStorageService>();
+
+            httpApiClient.OnConfigureRequest += async request =>
+            {
+                var accessToken = await localStorageService.GetString("AccessToken");
+
+                if (string.IsNullOrEmpty(accessToken))
+                    return;
+
+                request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            };
+
+            return httpApiClient;
+        });
 
         WebAssemblyHostBuilder.Services.AddScoped<WindowService>();
-        WebAssemblyHostBuilder.Services.AddScoped<DownloadService>();
         WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
         WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
 
         WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
-
-        return Task.CompletedTask;
-    }
-
-    private Task RegisterOAuth2()
-    {
-        WebAssemblyHostBuilder.AddTokenAuthentication();
-        WebAssemblyHostBuilder.AddOAuth2();
-
-        return Task.CompletedTask;
-    }
-
-    private Task RegisterFormComponents()
-    {
-        FormComponentRepository.Set<string, StringComponent>();
-        FormComponentRepository.Set<int, IntComponent>();
-        FormComponentRepository.Set<DateTime, DateComponent>();
 
         return Task.CompletedTask;
     }
@@ -335,6 +333,20 @@ public class Startup
     private Task BuildWebAssemblyHost()
     {
         WebAssemblyHost = WebAssemblyHostBuilder.Build();
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Authentication
+
+    private Task RegisterAuthentication()
+    {
+        WebAssemblyHostBuilder.Services.AddAuthorizationCore();
+        WebAssemblyHostBuilder.Services.AddCascadingAuthenticationState();
+        
+        WebAssemblyHostBuilder.Services.AddAuthenticationStateManager<RemoteAuthStateManager>();
+        
         return Task.CompletedTask;
     }
 

@@ -1,0 +1,69 @@
+﻿@page "/admin/users/create"
+
+@using MoonCore.Helpers
+@using Moonlight.Shared.Http.Requests.Admin.Users
+
+@inject HttpApiClient ApiClient
+@inject NavigationManager Navigation
+@inject ToastService ToastService
+
+<PageHeader Title="Create User">
+    <a href="/admin/users" class="btn btn-secondary">
+        <i class="icon-chevron-left mr-1"></i>
+        Back
+    </a>
+    <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+        <i class="icon-check mr-1"></i>
+        Create
+    </WButton>
+</PageHeader>
+
+<div class="mt-5">
+    <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
+        <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Name</label>
+                <div class="mt-2">
+                    <input @bind="Request.Username" type="text" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Version</label>
+                <div class="mt-2">
+                    <input @bind="Request.Email" type="email" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Author</label>
+                <div class="mt-2">
+                    <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Donate Url</label>
+                <div class="mt-2">
+                    <input @bind="Request.PermissionsJson" type="text" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+        </div>
+    </HandleForm>
+</div>
+
+@code
+{
+    private HandleForm Form;
+    private CreateUserRequest Request;
+
+    protected override void OnInitialized()
+    {
+        Request = new();
+    }
+
+    private async Task OnSubmit()
+    {
+        await ApiClient.Post("api/users", Request);
+
+        await ToastService.Success("Successfully created User");
+        Navigation.NavigateTo("/admin/users");
+    }
+}

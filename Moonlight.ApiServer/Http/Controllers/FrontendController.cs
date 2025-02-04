@@ -25,7 +25,7 @@ public class FrontendController : Controller
     }
 
     [HttpGet("frontend.json")]
-    public async Task<FrontendConfiguration> GetConfiguration()
+    public Task<FrontendConfiguration> GetConfiguration()
     {
         var configuration = new FrontendConfiguration()
         {
@@ -39,7 +39,7 @@ public class FrontendController : Controller
 
         configuration.Scripts = AssetService.GetJavascriptAssets();
 
-        return configuration;
+        return Task.FromResult(configuration);
     }
 
     [HttpGet("plugins/{assemblyName}")] // TODO: Test this

@@ -7,7 +7,6 @@
 
 @inherits LayoutComponentBase
 
-@inject IdentityService IdentityService
 @inject IServiceProvider ServiceProvider
 @inject ILogger<MainLayout> Logger
 @inject IAppLoader[] AppLoaders
@@ -40,13 +39,9 @@ else
 
             <main class="py-10">
                 <div class="px-4 sm:px-6 lg:px-8">
-                    <ErrorHandler>
-                        <PermissionHandler CheckFunction="CheckPermission">
-                            <CascadingValue Value="this" IsFixed="true">
-                                @Body
-                            </CascadingValue>
-                        </PermissionHandler>
-                    </ErrorHandler>
+                    <CascadingValue Value="this" IsFixed="true">
+                        @Body
+                    </CascadingValue>
                 </div>
             </main>
 
@@ -142,6 +137,4 @@ else
 
         await InvokeAsync(StateHasChanged);
     }
-
-    private bool CheckPermission(string permission) => IdentityService.HasPermission(permission);
 }

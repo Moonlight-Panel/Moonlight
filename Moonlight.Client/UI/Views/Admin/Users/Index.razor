@@ -1,71 +1,55 @@
-@page "/admin/users"
+﻿@page "/admin/users"
 
-@using MoonCore.Attributes
-@using MoonCore.Blazor.Tailwind.Forms.Components
 @using MoonCore.Helpers
 @using MoonCore.Models
-@using Moonlight.Shared.Http.Requests.Admin.Users
+@using MoonCore.Blazor.Tailwind.Dt
 @using Moonlight.Shared.Http.Responses.Admin.Users
 
-@attribute [RequirePermission("admin.users.read")]
+@inject HttpApiClient ApiClient
+@inject AlertService AlertService
+@inject ToastService ToastService
 
-@inject HttpApiClient HttpApiClient
+<PageHeader Title="Users" />
 
-<Crud TItem="UserDetailResponse"
-      TCreateForm="CreateUserRequest"
-      TUpdateForm="UpdateUserRequest"
-      OnConfigure="OnConfigure">
-    <View>
-        <Column TItem="UserDetailResponse" Field="@(x => x.Id)" Title="Id" />
-        <Column TItem="UserDetailResponse" Field="@(x => x.Username)" Title="Username" />
-        <Column TItem="UserDetailResponse" Field="@(x => x.Email)" Title="Email" />
-    </View>
-</Crud>
+<DataTable @ref="Table" TItem="UserDetailResponse" PageSize="15" LoadItemsPaginatedAsync="LoadData">
+    <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Id)" Name="Id" />
+    <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Username)" Name="Username" />
+    <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Email)" Name="Email" />
+    <DataTableColumn TItem="UserDetailResponse">
+        <ColumnTemplate>
+            <div class="flex justify-end">
+                <a href="/admin/users/update/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
+                    <i class="icon-pencil text-base"></i>
+                </a>
+
+                <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault
+                   class="text-danger-500">
+                    <i class="icon-trash text-base"></i>
+                </a>
+            </div>
+        </ColumnTemplate>
+    </DataTableColumn>
+</DataTable>
 
 @code
 {
-    private void OnConfigure(CrudOptions<UserDetailResponse, CreateUserRequest, UpdateUserRequest> crudOptions)
+    private DataTable<UserDetailResponse> Table;
+    
+    private async Task<IPagedData<UserDetailResponse>> LoadData(PaginationOptions options)
+     => await ApiClient.GetJson<PagedData<UserDetailResponse>>($"api/admin/users?page={options.Page}&pageSize={options.PerPage}");
+
+    private async Task Delete(UserDetailResponse detailResponse)
     {
-        crudOptions.ItemName = "User";
-        
-        crudOptions.ItemLoader = async (page, pageSize)
-            => await HttpApiClient.GetJson<PagedData<UserDetailResponse>>($"api/admin/users?page={page}&pageSize={pageSize}");
+        await AlertService.ConfirmDanger(
+            "User deletion",
+            $"Do you really want to delete the user '{detailResponse.Username}'",
+            async () =>
+            {
+                await ApiClient.Delete($"api/admin/users/{detailResponse.Id}");
+                await ToastService.Success("Successfully deleted user");
 
-        crudOptions.SingleItemLoader = async id
-            => await HttpApiClient.GetJson<UserDetailResponse>($"api/admin/users/{id}");
-        
-        crudOptions.QueryIdentifier = response => response.Id.ToString();
-
-        crudOptions.OnCreate = async request
-            => await HttpApiClient.Post("api/admin/users", request);
-
-        crudOptions.OnUpdate = async (item, request)
-            => await HttpApiClient.Patch($"api/admin/users/{item.Id}", request);
-
-        crudOptions.OnDelete = async item
-            => await HttpApiClient.Delete($"api/admin/users/{item.Id}");
-
-        crudOptions.OnConfigureCreate = configuration =>
-        {
-            configuration.WithField(x => x.Username);
-            configuration.WithField(x => x.Email);
-            configuration.WithField(x => x.Password)
-                .WithComponent<StringComponent>(component => component.Type = "password");
-            
-            configuration.WithField(x => x.PermissionsJson)
-                .WithComponent<TagComponent>();
-        };
-        
-        crudOptions.OnConfigureUpdate = (_, configuration) =>
-        {
-            configuration.WithField(x => x.Username);
-            configuration.WithField(x => x.Email);
-            
-            configuration.WithField(x => x.Password, fieldConfiguration =>
-                {
-                    fieldConfiguration.Description = "Optional. Specify if you want to change this accounts password";
-                })
-                .WithComponent<StringComponent>(component => component.Type = "password");
-        };
+                await Table.Refresh();
+            }
+        );
     }
 }

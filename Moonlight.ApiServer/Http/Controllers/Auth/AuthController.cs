@@ -1,8 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MoonCore.Attributes;
-using MoonCore.Authentication;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using MoonCore.Exceptions;
+using MoonCore.Extended.Abstractions;
+using MoonCore.Helpers;
+using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
+using Moonlight.Shared.Http.Responses.OAuth2;
 
 namespace Moonlight.ApiServer.Http.Controllers.Auth;
 
@@ -10,206 +20,138 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 [Route("api/auth")]
 public class AuthController : Controller
 {
-    /*
-    private readonly OAuth2Service OAuth2Service;
-    private readonly TokenHelper TokenHelper;
-    private readonly DatabaseRepository<User> UserRepository;
-    private readonly ILogger<AuthController> Logger;
     private readonly AppConfiguration Configuration;
-    private readonly IOAuth2Provider[] OAuth2Providers;
-    private readonly IAuthInterceptor[] AuthInterceptors;
+    private readonly ILogger<AuthController> Logger;
+    private readonly DatabaseRepository<User> UserRepository;
 
     public AuthController(
-        OAuth2Service oAuth2Service,
-        TokenHelper tokenHelper,
-        DatabaseRepository<User> userRepository,
+        AppConfiguration configuration,
         ILogger<AuthController> logger,
-        IOAuth2Provider[] oAuth2Providers,
-        IAuthInterceptor[] authInterceptors,
-        AppConfiguration configuration)
+        DatabaseRepository<User> userRepository
+    )
     {
-        OAuth2Service = oAuth2Service;
-        TokenHelper = tokenHelper;
-        UserRepository = userRepository;
-        Logger = logger;
-        OAuth2Providers = oAuth2Providers;
-        AuthInterceptors = authInterceptors;
         Configuration = configuration;
+        Logger = logger;
+        UserRepository = userRepository;
     }
 
-    [HttpGet]
-    public async Task<OAuth2StartResponse> Start()
+    [AllowAnonymous]
+    [HttpGet("start")]
+    public Task<LoginStartResponse> Start()
     {
-        var data = await OAuth2Service.StartAuthorizing();
-
-        return Mapper.Map<OAuth2StartResponse>(data);
-    }
-
-    [HttpPost]
-    public async Task<OAuth2HandleResponse> Handle([FromBody] OAuth2HandleRequest request)
-    {
-        var accessData = await OAuth2Service.RequestAccess(request.Code);
-
-        // Find oauth2 provider
-        var provider = OAuth2Providers.FirstOrDefault();
-
-        if (provider == null)
-            throw new HttpApiException("No oauth2 provider has been registered", 500);
-
-        // Sync user from oauth2 provider
-        var user = await provider.Sync(HttpContext.RequestServices, accessData.AccessToken);
-
-        if (user == null)
-            throw new HttpApiException("The oauth2 provider was unable to authenticate you", 401);
-        
-        // Allow plugins to intercept access calls
-        if (AuthInterceptors.Any(interceptor => !interceptor.AllowAccess(user, HttpContext.RequestServices)))
-            throw new HttpApiException("Unable to get access token", 401);
-
-        // Save oauth2 refresh and access tokens for later use (re-authentication etc.).
-        // Fetch user model in current db context, just in case the oauth2 provider
-        // uses a different db context or smth
-
-        var userModel = UserRepository
-            .Get()
-            .First(x => x.Id == user.Id);
-
-        userModel.AccessToken = accessData.AccessToken;
-        userModel.RefreshToken = accessData.RefreshToken;
-        userModel.RefreshTimestamp = DateTime.UtcNow.AddSeconds(accessData.ExpiresIn);
-
-        UserRepository.Update(userModel);
-
-        // Generate local token-pair for the authentication
-        // between client and the api server
-
-        var authConfig = Configuration.Authentication;
-
-        var tokenPair = TokenHelper.GeneratePair(
-            authConfig.AccessSecret,
-            authConfig.RefreshSecret,
-            data => { data.Add("userId", user.Id); },
-            authConfig.AccessDuration,
-            authConfig.RefreshDuration
-        );
-
-        // Authentication finished. Return data to client
-
-        return new OAuth2HandleResponse()
+        var response = new LoginStartResponse()
         {
-            AccessToken = tokenPair.AccessToken,
-            RefreshToken = tokenPair.RefreshToken,
-            ExpiresAt = DateTime.UtcNow.AddSeconds(authConfig.AccessDuration)
-        };
-    }
-
-    [HttpPost("refresh")]
-    public async Task<RefreshResponse> Refresh([FromBody] RefreshRequest request)
-    {
-        var authConfig = Configuration.Authentication;
-
-        var tokenPair = TokenHelper.RefreshPair(
-            request.RefreshToken,
-            authConfig.AccessSecret,
-            authConfig.RefreshSecret,
-            (refreshData, newData)
-                => ProcessRefreshData(refreshData, newData, HttpContext.RequestServices),
-            authConfig.AccessDuration,
-            authConfig.RefreshDuration
-        );
-
-        // Handle refresh error
-        if (!tokenPair.HasValue)
-            throw new HttpApiException("Unable to refresh token", 401);
-
-        // Return data
-        return new RefreshResponse()
-        {
-            AccessToken = tokenPair.Value.AccessToken,
-            RefreshToken = tokenPair.Value.RefreshToken,
-            ExpiresAt = DateTime.UtcNow.AddSeconds(authConfig.AccessDuration)
-        };
-    }
-
-    private bool ProcessRefreshData(Dictionary<string, JsonElement> refreshTokenData, Dictionary<string, object> newData, IServiceProvider serviceProvider)
-    {
-        // Find oauth2 provider
-        var provider = OAuth2Providers.FirstOrDefault();
-
-        if (provider == null)
-            throw new HttpApiException("No oauth2 provider has been registered", 500);
-        
-        // Check if the userId is present in the refresh token
-        if (!refreshTokenData.TryGetValue("userId", out var userIdStr) || !userIdStr.TryGetInt32(out var userId))
-            return false;
-
-        // Load user from database if existent
-        var user = UserRepository
-            .Get()
-            .FirstOrDefault(x => x.Id == userId);
-
-        if (user == null)
-            return false;
-
-        // Allow plugins to intercept the refresh call
-        if (AuthInterceptors.Any(interceptor => !interceptor.AllowRefresh(user, serviceProvider)))
-            return false;
-
-        // Check if it's time to resync with the oauth2 provider
-        if (DateTime.UtcNow >= user.RefreshTimestamp)
-        {
-            try
-            {
-                // It's time to refresh the access to the external oauth2 provider
-                var refreshData = OAuth2Service.RefreshAccess(user.RefreshToken).Result;
-
-                // Sync user with oauth2 provider
-                var syncedUser = provider.Sync(serviceProvider, refreshData.AccessToken).Result;
-
-                if (syncedUser == null) // User sync has failed. No refresh allowed
-                    return false;
-
-                // Save oauth2 refresh and access tokens for later use (re-authentication etc.).
-                // Fetch user model in current db context, just in case the oauth2 provider
-                // uses a different db context or smth
-
-                var userModel = UserRepository
-                    .Get()
-                    .First(x => x.Id == syncedUser.Id);
-
-                userModel.AccessToken = refreshData.AccessToken;
-                userModel.RefreshToken = refreshData.RefreshToken;
-                userModel.RefreshTimestamp = DateTime.UtcNow.AddSeconds(refreshData.ExpiresIn);
-
-                UserRepository.Update(userModel);
-            }
-            catch (Exception e)
-            {
-                // We are handling this error more softly, because it will occur when a user hasn't logged in a long period of time
-                Logger.LogDebug("An error occured while refreshing external oauth2 access: {e}", e);
-                return false;
-            }
-        }
-        
-        // All checks have passed, allow refresh
-        newData.Add("userId", user.Id);
-        return true;
-    }*/
-
-    [HttpGet("check")]
-    [RequirePermission("meta.authenticated")]
-    public Task<CheckResponse> Check()
-    {
-        var permClaim = (HttpContext.User as PermClaimsPrinciple)!;
-        var user = (User)permClaim.IdentityModel;
-
-        var response = new CheckResponse()
-        {
-            Email = user.Email,
-            Username = user.Username,
-            Permissions = permClaim.Permissions
+            ClientId = Configuration.Authentication.OAuth2.ClientId,
+            RedirectUri = Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl,
+            Endpoint = Configuration.Authentication.OAuth2.AuthorizationEndpoint ?? Configuration.PublicUrl + "/oauth2/authorize"
         };
 
         return Task.FromResult(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("complete")]
+    public async Task<LoginCompleteResponse> Complete([FromBody] LoginCompleteRequest request)
+    {
+        // TODO: Make modular
+        
+        // Create http client to call the auth provider
+        using var httpClient = new HttpClient();
+        httpClient.BaseAddress = new Uri(Configuration.PublicUrl);
+        httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {Configuration.Authentication.OAuth2.ClientSecret}");
+        
+        var httpApiClient = new HttpApiClient(httpClient);
+        
+        // Call the auth provider
+        OAuth2HandleResponse handleData;
+
+        try
+        {
+            handleData = await httpApiClient.PostJson<OAuth2HandleResponse>("oauth2/handle", new FormUrlEncodedContent(
+                [
+                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                    new KeyValuePair<string, string>("code", request.Code),
+                    new KeyValuePair<string, string>("redirect_uri", Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl),
+                    new KeyValuePair<string, string>("client_id", Configuration.Authentication.OAuth2.ClientId)
+                ]
+            ));
+        }
+        catch (HttpApiException e)
+        {
+            if (e.Status == 400)
+                Logger.LogTrace("The auth server returned an error: {e}", e);
+            else
+                Logger.LogCritical("The auth server returned an error: {e}", e);
+
+            throw new HttpApiException("Unable to request user data", 500);
+        }
+        
+        // Handle the returned data
+        var userId = handleData.UserId;
+
+        var user = await UserRepository
+            .Get()
+            .FirstOrDefaultAsync(x => x.Id == userId);
+
+        if (user == null)
+            throw new HttpApiException("Unable to load user data", 500);
+        
+        //
+        var permissions = JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? [];
+        
+        // Generate token
+        var securityTokenDescriptor = new SecurityTokenDescriptor()
+        {
+            Expires = DateTime.Now.AddDays(10),
+            IssuedAt = DateTime.Now,
+            NotBefore = DateTime.Now.AddMinutes(-1),
+            Claims = new Dictionary<string, object>()
+            {
+                {
+                    "userId",
+                    user.Id
+                },
+                {
+                    "permissions",
+                    string.Join(";", permissions)
+                }
+            },
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(Configuration.Authentication.Secret)
+                ),
+                SecurityAlgorithms.HmacSha256
+            ),
+            Issuer = Configuration.PublicUrl,
+            Audience = Configuration.PublicUrl
+        };
+
+        var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
+
+        var jwt = jwtSecurityTokenHandler.WriteToken(securityToken);
+
+        return new()
+        {
+            AccessToken = jwt
+        };
+    }
+
+    [Authorize]
+    [HttpGet("check")]
+    public async Task<CheckResponse> Check()
+    {
+        var userIdClaim = User.Claims.First(x => x.Type == "userId");
+        var userId = int.Parse(userIdClaim.Value);
+        var user = await UserRepository.Get().FirstAsync(x => x.Id == userId);
+
+        var permissions = JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? [];
+        
+        return new()
+        {
+            Email = user.Email,
+            Username = user.Username,
+            Permissions = string.Join(";", permissions)
+        };
     }
 }

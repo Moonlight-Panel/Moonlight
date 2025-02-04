@@ -1,14 +1,14 @@
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MoonCore.Configuration;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
-using MoonCore.Extended.OAuth2.Consumer;
-using MoonCore.Extended.OAuth2.Consumer.Extensions;
-using MoonCore.Extended.OAuth2.LocalProvider;
-using MoonCore.Extended.OAuth2.LocalProvider.Extensions;
-using MoonCore.Extended.OAuth2.LocalProvider.Implementations;
+using MoonCore.Extended.JwtInvalidation;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
@@ -17,8 +17,6 @@ using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
-using Moonlight.ApiServer.Http.Middleware;
-using Moonlight.ApiServer.Implementations.OAuth2;
 using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
@@ -78,7 +76,7 @@ public class Startup
         await RegisterLogging();
         await RegisterBase();
         await RegisterDatabase();
-        await RegisterOAuth2();
+        await RegisterAuth();
         await RegisterCaching();
         await HookPluginBuild();
         await HandleConfigureArguments();
@@ -90,13 +88,11 @@ public class Startup
         await PrepareDatabase();
 
         await UseBase();
-        await UseOAuth2();
-        await UseBaseMiddleware();
+        await UseAuth();
         await HookPluginConfigure();
         await UsePluginAssets();
 
         await MapBase();
-        await MapOAuth2();
         await HookPluginEndpoints();
 
         await WebApplication.RunAsync();
@@ -236,14 +232,6 @@ public class Startup
             WebApplication.UseBlazorFrameworkFiles();
             WebApplication.UseStaticFiles();
         }
-
-        return Task.CompletedTask;
-    }
-
-    private Task UseBaseMiddleware()
-    {
-        WebApplication.UseMiddleware<AuthorizationMiddleware>();
-        WebApplication.UseMiddleware<ApiAuthenticationMiddleware>();
 
         return Task.CompletedTask;
     }
@@ -593,50 +581,56 @@ public class Startup
 
     #endregion
 
-    #region OAuth2
+    #region Authentication & Authorisation
 
-    private Task RegisterOAuth2()
+    private Task RegisterAuth()
     {
-        WebApplicationBuilder.Services.AddOAuth2Authentication<User>(configuration =>
+        WebApplicationBuilder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new()
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                        Configuration.Authentication.Secret
+                    )),
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateAudience = true,
+                    ValidAudience = Configuration.PublicUrl,
+                    ValidateIssuer = true,
+                    ValidIssuer = Configuration.PublicUrl
+                };
+            });
+        
+        WebApplicationBuilder.Services.AddJwtInvalidation(options =>
         {
-            configuration.AccessSecret = Configuration.Authentication.AccessSecret;
-            configuration.RefreshSecret = Configuration.Authentication.RefreshSecret;
-            configuration.RefreshDuration = TimeSpan.FromSeconds(Configuration.Authentication.RefreshDuration);
-            configuration.RefreshInterval = TimeSpan.FromSeconds(Configuration.Authentication.AccessDuration);
-            configuration.ClientId = Configuration.Authentication.OAuth2.ClientId;
-            configuration.ClientSecret = Configuration.Authentication.OAuth2.ClientSecret;
-            configuration.AuthorizeEndpoint = Configuration.PublicUrl + "/api/_auth/oauth2/authorize";
-            configuration.RedirectUri = Configuration.PublicUrl;
+            options.InvalidateTimeProvider = async (provider, principal) =>
+            {
+                var userIdClaim = principal.Claims.First(x => x.Type == "userId");
+                var userId = int.Parse(userIdClaim.Value);
+                
+                var userRepository = provider.GetRequiredService<DatabaseRepository<User>>();
+                var user = await userRepository.Get().FirstAsync(x => x.Id == userId);
+
+                return user.TokenValidTimestamp;
+            };
         });
 
-        WebApplicationBuilder.Services.AddScoped<IDataProvider<User>, LocalOAuth2Provider>();
-
-        if (!Configuration.Authentication.UseLocalOAuth2)
-            return Task.CompletedTask;
-
-        WebApplicationBuilder.Services.AddLocalOAuth2Provider<User>(Configuration.PublicUrl);
-        WebApplicationBuilder.Services.AddScoped<ILocalProviderImplementation<User>, LocalOAuth2Provider>();
-        WebApplicationBuilder.Services.AddScoped<IOAuth2Provider<User>, LocalOAuth2Provider<User>>();
-
+        WebApplicationBuilder.Services.AddAuthorization();
+        
         return Task.CompletedTask;
     }
 
-    private Task UseOAuth2()
+    private Task UseAuth()
     {
-        WebApplication.UseOAuth2Authentication<User>();
-        WebApplication.UseMiddleware<PermissionLoaderMiddleware>();
-
-        return Task.CompletedTask;
-    }
-
-    private Task MapOAuth2()
-    {
-        WebApplication.MapOAuth2Authentication<User>();
-
-        if (!Configuration.Authentication.UseLocalOAuth2)
-            return Task.CompletedTask;
-
-        WebApplication.MapLocalOAuth2Provider<User>();
+        WebApplication.UseAuthentication();
+        
+        WebApplication.UseJwtInvalidation();
+        
+        WebApplication.UseAuthorization();
+        
         return Task.CompletedTask;
     }
 
