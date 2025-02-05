@@ -1,15 +1,13 @@
 ﻿@page "/admin/api"
-@*
-@using MoonCore.Attributes
+
 @using MoonCore.Helpers
 @using MoonCore.Models
-@using Moonlight.Shared.Http.Requests.Admin.ApiKeys
+@using MoonCore.Blazor.Tailwind.Dt
 @using Moonlight.Shared.Http.Responses.Admin.ApiKeys
 
-@attribute [RequirePermission("admin.apikeys.read")]
-
-@inject HttpApiClient HttpApiClient
+@inject HttpApiClient ApiClient
 @inject AlertService AlertService
+@inject ToastService ToastService
 
 <div class="grid grid-cols-1 sm:grid-cols-3 mb-8 gap-x-3">
     <div class="col-span-1 card card-body border-l-4 border-primary-500">
@@ -49,63 +47,57 @@
     </div>
 </div>
 
-<Crud TItem="ApiKeyDetailResponse"
-      TCreateForm="CreateApiKeyRequest"
-      TUpdateForm="UpdateApiKeyRequest"
-      OnConfigure="OnConfigure">
-    <View>
-        <Column TItem="ApiKeyDetailResponse" Field="@(x => x.Id)" Title="Id"/>
-        <Column TItem="ApiKeyDetailResponse" Field="@(x => x.Description)" Title="Description"/>
-        <Column TItem="ApiKeyDetailResponse" Field="@(x => x.ExpiresAt)" Title="Expires at">
-            <Template>
-                @Formatter.FormatDate(context.ExpiresAt)
-            </Template>
-        </Column>
-    </View>
-</Crud>
+<div class="mb-5 flex justify-end">
+    <a href="/admin/api/create" class="btn btn-primary">
+        Create
+    </a>
+</div>
+
+<DataTable @ref="Table" TItem="ApiKeyDetailResponse" PageSize="15" LoadItemsPaginatedAsync="LoadData">
+    <Configuration>
+        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Id)" Name="Id" />
+        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Description)" Name="Description" />
+        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.ExpiresAt)" Name="Expires at">
+            <ColumnTemplate>
+                @(Formatter.FormatDate(context.ExpiresAt))
+            </ColumnTemplate>
+        </DataTableColumn>
+        <DataTableColumn TItem="ApiKeyDetailResponse">
+            <ColumnTemplate>
+                <div class="flex justify-end">
+                    <a href="/admin/api/update/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
+                        <i class="icon-pencil text-base"></i>
+                    </a>
+
+                    <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault
+                       class="text-danger-500">
+                        <i class="icon-trash text-base"></i>
+                    </a>
+                </div>
+            </ColumnTemplate>
+        </DataTableColumn>
+    </Configuration>
+</DataTable>
 
 @code
 {
-    private void OnConfigure(CrudOptions<ApiKeyDetailResponse, CreateApiKeyRequest, UpdateApiKeyRequest> crudOptions)
+    private DataTable<ApiKeyDetailResponse> Table;
+    
+    private async Task<IPagedData<ApiKeyDetailResponse>> LoadData(PaginationOptions options)
+     => await ApiClient.GetJson<PagedData<ApiKeyDetailResponse>>($"api/admin/apikeys?page={options.Page}&pageSize={options.PerPage}");
+
+    private async Task Delete(ApiKeyDetailResponse apiKeyDetailResponse)
     {
-        crudOptions.ItemName = "API Key";
+        await AlertService.ConfirmDanger(
+            "API Key deletion",
+            $"Do you really want to delete the api key '{apiKeyDetailResponse.Description}'",
+            async () =>
+            {
+                await ApiClient.Delete($"api/admin/apikeys/{apiKeyDetailResponse.Id}");
+                await ToastService.Success("Successfully deleted api key");
 
-        crudOptions.ItemLoader = async (page, pageSize)
-            => await HttpApiClient.GetJson<PagedData<ApiKeyDetailResponse>>($"api/admin/apikeys?page={page}&pageSize={pageSize}");
-
-        crudOptions.SingleItemLoader = async id
-            => await HttpApiClient.GetJson<ApiKeyDetailResponse>($"api/admin/apikeys/{id}");
-
-        crudOptions.QueryIdentifier = response => response.Id.ToString();
-
-        crudOptions.OnCreate = async request =>
-        {
-            var response = await HttpApiClient.PostJson<CreateApiKeyResponse>("api/admin/apikeys", request);
-
-            await AlertService.Success(
-                "API Key successfully created",
-                $"Copy the following secret. It wont be shown again. '{response.Secret}'"
-            );
-        };
-
-        crudOptions.OnUpdate = async (item, request)
-            => await HttpApiClient.Patch($"api/admin/apikeys/{item.Id}", request);
-
-        crudOptions.OnDelete = async item
-            => await HttpApiClient.Delete($"api/admin/apikeys/{item.Id}");
-
-        crudOptions.OnConfigureCreate = configuration =>
-        {
-            configuration.WithField(x => x.Description);
-            configuration.WithField(x => x.PermissionsJson);
-            configuration.WithField(x => x.ExpiresAt, fieldConfiguration => { fieldConfiguration.DefaultValue = DateTime.UtcNow.AddMonths(1); });
-        };
-
-        crudOptions.OnConfigureUpdate = (_, configuration) =>
-        {
-            configuration.WithField(x => x.Description);
-            configuration.WithField(x => x.PermissionsJson);
-            configuration.WithField(x => x.ExpiresAt);
-        };
+                await Table.Refresh();
+            }
+        );
     }
-}*@
+}

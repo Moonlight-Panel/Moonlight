@@ -1,0 +1,70 @@
+﻿@page "/admin/api/create"
+
+@using MoonCore.Helpers
+@using Moonlight.Shared.Http.Requests.Admin.ApiKeys
+@using Moonlight.Shared.Http.Responses.Admin.ApiKeys
+
+@inject HttpApiClient ApiClient
+@inject NavigationManager Navigation
+@inject ToastService ToastService
+@inject AlertService AlertService
+
+<PageHeader Title="Create API Key">
+    <a href="/admin/api" class="btn btn-secondary">
+        <i class="icon-chevron-left mr-1"></i>
+        Back
+    </a>
+    <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+        <i class="icon-check mr-1"></i>
+        Create
+    </WButton>
+</PageHeader>
+
+<div class="mt-5">
+    <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
+        <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Description</label>
+                <div class="mt-2">
+                    <input @bind="Request.Description" type="text" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
+                <div class="mt-2">
+                    <input @bind="Request.PermissionsJson" type="email" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-white">Expires at</label>
+                <div class="mt-2">
+                    <input @bind="Request.ExpiresAt" type="datetime" autocomplete="off" class="form-input w-full">
+                </div>
+            </div>
+        </div>
+    </HandleForm>
+</div>
+
+@code
+{
+    private HandleForm Form;
+    private CreateApiKeyRequest Request;
+
+    protected override void OnInitialized()
+    {
+        Request = new();
+    }
+
+    private async Task OnSubmit()
+    {
+        var response = await ApiClient.PostJson<CreateApiKeyResponse>("api/admin/apikeys", Request);
+
+        await AlertService.Success(
+            "API Key successfully created",
+            $"Copy the following secret. It wont be shown again. '{response.Secret}'"
+        );
+
+        await ToastService.Success("Successfully created api key");
+        Navigation.NavigateTo("/admin/api");
+    }
+}

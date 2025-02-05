@@ -6,7 +6,9 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5165",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HTTP_PROXY": "",
+        "HTTPS_PROXY": ""
       },
       "hotReloadEnabled": true
     },
@@ -16,7 +18,9 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5165",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HTTP_PROXY": "",
+        "HTTPS_PROXY": ""
       },
       "hotReloadEnabled": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"

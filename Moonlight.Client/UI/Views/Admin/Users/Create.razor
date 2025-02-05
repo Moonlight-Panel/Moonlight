@@ -22,25 +22,25 @@
     <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
         <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Name</label>
+                <label class="block text-sm font-medium leading-6 text-white">Username</label>
                 <div class="mt-2">
                     <input @bind="Request.Username" type="text" autocomplete="off" class="form-input w-full">
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Version</label>
+                <label class="block text-sm font-medium leading-6 text-white">Email</label>
                 <div class="mt-2">
                     <input @bind="Request.Email" type="email" autocomplete="off" class="form-input w-full">
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Author</label>
+                <label class="block text-sm font-medium leading-6 text-white">Password</label>
                 <div class="mt-2">
                     <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Donate Url</label>
+                <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
                 <div class="mt-2">
                     <input @bind="Request.PermissionsJson" type="text" autocomplete="off" class="form-input w-full">
                 </div>
@@ -61,9 +61,9 @@
 
     private async Task OnSubmit()
     {
-        await ApiClient.Post("api/users", Request);
+        await ApiClient.Post("api/admin/users", Request);
 
-        await ToastService.Success("Successfully created User");
+        await ToastService.Success("Successfully created user");
         Navigation.NavigateTo("/admin/users");
     }
 }

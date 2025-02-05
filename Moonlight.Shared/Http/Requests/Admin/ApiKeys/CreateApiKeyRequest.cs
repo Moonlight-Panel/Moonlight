@@ -11,5 +11,5 @@ public class CreateApiKeyRequest
     public string PermissionsJson { get; set; } = "[]";
     
     [Required(ErrorMessage = "You need to specify an expire date")]
-    public DateTime ExpiresAt { get; set; }
+    public DateTime ExpiresAt { get; set; } = DateTime.Now.AddDays(30);
 }

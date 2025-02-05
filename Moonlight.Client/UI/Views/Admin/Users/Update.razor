@@ -1,4 +1,4 @@
-﻿@page "/users/update/{Id:int}"
+﻿@page "/admin/users/update/{Id:int}"
 
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.Users
@@ -24,19 +24,19 @@
         <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Name</label>
+                    <label class="block text-sm font-medium leading-6 text-white">Username</label>
                     <div class="mt-2">
                         <input @bind="Request.Username" type="text" autocomplete="off" class="form-input w-full">
                     </div>
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Version</label>
+                    <label class="block text-sm font-medium leading-6 text-white">Email</label>
                     <div class="mt-2">
                         <input @bind="Request.Email" type="email" autocomplete="off" class="form-input w-full">
                     </div>
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Author</label>
+                    <label class="block text-sm font-medium leading-6 text-white">Password</label>
                     <div class="mt-2">
                         <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
                     </div>
@@ -55,7 +55,7 @@
 
     private async Task Load(LazyLoader _)
     {
-        var detail = await ApiClient.GetJson<UserDetailResponse>($"api/users/{Id}");
+        var detail = await ApiClient.GetJson<UserDetailResponse>($"api/admin/users/{Id}");
         Request = Mapper.Map<UpdateUserRequest>(detail);
     }
 
@@ -63,7 +63,7 @@
     {
         await ApiClient.Patch($"api/admin/users/{Id}", Request);
 
-        await ToastService.Success("Successfully updated User");
+        await ToastService.Success("Successfully updated user");
         Navigation.NavigateTo("/admin/users");
     }
 }
