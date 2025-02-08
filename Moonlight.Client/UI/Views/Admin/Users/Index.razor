@@ -11,7 +11,7 @@
 
 <div class="mb-5">
     <PageHeader Title="Users">
-        <a href="/admin/api/create" class="btn btn-primary">
+        <a href="/admin/users/create" class="btn btn-primary">
             Create
         </a>
     </PageHeader>
@@ -25,7 +25,7 @@
         <DataTableColumn TItem="UserDetailResponse">
             <ColumnTemplate>
                 <div class="flex justify-end">
-                    <a href="/admin/users/update/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
+                    <a href="/admin/users/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
                         <i class="icon-pencil text-base"></i>
                     </a>
 
