@@ -117,6 +117,9 @@ module.exports = {
                 white: 'rgb(var(--color-light))',
                 black: 'rgb(var(--color-dark))'
             },
+            textColor:{
+                diffcolor: 'rgb(var(--color-diffcolor, var(--color-light)))'
+            },
             animation: {
                 'shimmer': 'shimmer 2s linear infinite',
             }
