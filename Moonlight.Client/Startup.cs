@@ -153,7 +153,7 @@ public class Startup
 
         WebAssemblyHostBuilder.Services.AddScoped<ThemeService>();
         
-        //WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
+        WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
 
         return Task.CompletedTask;
     }

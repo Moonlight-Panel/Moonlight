@@ -102,7 +102,7 @@ public class AuthController : Controller
         // Generate token
         var securityTokenDescriptor = new SecurityTokenDescriptor()
         {
-            Expires = DateTime.Now.AddDays(10),
+            Expires = DateTime.Now.AddDays(10), // TODO: config
             IssuedAt = DateTime.Now,
             NotBefore = DateTime.Now.AddMinutes(-1),
             Claims = new Dictionary<string, object>()
