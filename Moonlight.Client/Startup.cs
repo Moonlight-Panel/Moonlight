@@ -38,7 +38,7 @@ public class Startup
     private PluginLoaderService PluginLoaderService;
     private ApplicationAssemblyService ApplicationAssemblyService;
 
-    private IAppStartup[] PluginAppStartups;
+    private IPluginStartup[] PluginStartups;
 
     public async Task Run(string[] args, Assembly[]? assemblies = null)
     {
@@ -182,8 +182,6 @@ public class Startup
             configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
             configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
 
-            configuration.AddInterface<IAppLoader>();
-            configuration.AddInterface<IAppScreen>();
             configuration.AddInterface<ISidebarItemProvider>();
         });
 
@@ -226,25 +224,42 @@ public class Startup
 
     private Task InitializePlugins()
     {
-        var initialisationServiceCollection = new ServiceCollection();
+        // Define minimal service collection
+        var startupSc = new ServiceCollection();
 
-        initialisationServiceCollection.AddLogging(builder => { builder.AddProviders(LoggerProviders); });
-
-        // Configure plugin loading by using the interface service
-        initialisationServiceCollection.AddInterfaces(configuration =>
+        // Create logging proxy
+        startupSc.AddLogging(builder =>
         {
-            // We use moonlight itself as a plugin assembly
-            configuration.AddAssembly(typeof(Startup).Assembly);
-
-            configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
-            configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
-
-            configuration.AddInterface<IAppStartup>();
+            builder.ClearProviders();
+            builder.AddProviders(LoggerProviders);
         });
 
-        var initialisationServiceProvider = initialisationServiceCollection.BuildServiceProvider();
+        //
+        var startupSp = startupSc.BuildServiceProvider();
+        
+        // Initialize plugin startups
+        var startups = new List<IPluginStartup>();
+        var startupType = typeof(IPluginStartup);
 
-        PluginAppStartups = initialisationServiceProvider.GetRequiredService<IAppStartup[]>();
+        foreach (var pluginAssembly in ApplicationAssemblyService.PluginAssemblies)
+        {
+            var startupTypes = pluginAssembly
+                .ExportedTypes
+                .Where(x => x.IsAbstract && x.IsInterface && x.IsAssignableTo(startupType))
+                .ToArray();
+
+            foreach (var type in startupTypes)
+            {
+                var startup = ActivatorUtilities.CreateInstance(startupSp, type) as IPluginStartup;
+                
+                if(startup == null)
+                    continue;
+                
+                startups.Add(startup);
+            }
+        }
+
+        PluginStartups = startups.ToArray();
 
         return Task.CompletedTask;
     }
@@ -253,11 +268,11 @@ public class Startup
 
     private async Task HookPluginBuild()
     {
-        foreach (var pluginAppStartup in PluginAppStartups)
+        foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.BuildApp(WebAssemblyHostBuilder);
+                await pluginAppStartup.BuildApplication(WebAssemblyHostBuilder);
             }
             catch (Exception e)
             {
@@ -272,11 +287,11 @@ public class Startup
 
     private async Task HookPluginConfigure()
     {
-        foreach (var pluginAppStartup in PluginAppStartups)
+        foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.ConfigureApp(WebAssemblyHost);
+                await pluginAppStartup.ConfigureApplication(WebAssemblyHost);
             }
             catch (Exception e)
             {

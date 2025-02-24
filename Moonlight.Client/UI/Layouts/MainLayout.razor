@@ -9,8 +9,6 @@
 
 @inject IServiceProvider ServiceProvider
 @inject ILogger<MainLayout> Logger
-@inject IAppLoader[] AppLoaders
-@inject IAppScreen[] AppScreens
 @inject FrontendConfiguration Configuration
 
 <PageTitle>@Configuration.Title</PageTitle>
@@ -84,57 +82,7 @@ else
         await InvokeAsync(StateHasChanged);
 
         //
-        await RunLoaders();
-
-        // Screens
-        await RenderScreens();
-
-        //
         IsLoading = false;
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task RunLoaders()
-    {
-        var appLoaders = AppLoaders
-            .OrderBy(x => x.Priority);
-
-        foreach (var loader in appLoaders) //TODO: Measure performance of every loader?
-        {
-            try
-            {
-                Logger.LogDebug("Running application loader '{name}'", loader.GetType().Name);
-                await loader.Load(ServiceProvider);
-            }
-            catch (HttpApiException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                Logger.LogCritical("An app loader threw an unhandled exception: {e}", e);
-            }
-        }
-    }
-
-    public async Task RenderScreens()
-    {
-        CurrentScreen = null;
-
-        var appScreens = AppScreens
-            .OrderBy(x => x.Priority);
-
-        foreach (var screen in appScreens)
-        {
-            if (!await screen.ShouldRender(ServiceProvider))
-                continue;
-
-            CurrentScreen = screen.Render();
-
-            await InvokeAsync(StateHasChanged);
-            return;
-        }
-
         await InvokeAsync(StateHasChanged);
     }
 }
