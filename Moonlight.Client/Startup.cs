@@ -8,13 +8,12 @@ using MoonCore.Blazor.Tailwind.Extensions;
 using MoonCore.Blazor.Tailwind.Auth;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
-using MoonCore.PluginFramework.Extensions;
 using MoonCore.Plugins;
 using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Services;
-using Moonlight.Client.UI;
 using Moonlight.Shared.Misc;
+using Moonlight.Client.UI;
 
 namespace Moonlight.Client;
 
@@ -62,7 +61,6 @@ public class Startup
         await RegisterLogging();
         await RegisterBase();
         await RegisterAuthentication();
-        await RegisterInterfaces();
         await HookPluginBuild();
 
         await BuildWebAssemblyHost();
@@ -153,7 +151,9 @@ public class Startup
         WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
         WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
 
-        WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
+        WebAssemblyHostBuilder.Services.AddScoped<ThemeService>();
+        
+        //WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
 
         return Task.CompletedTask;
     }
@@ -166,26 +166,6 @@ public class Startup
 
         foreach (var scriptName in Configuration.Scripts)
             await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", scriptName);
-    }
-
-    #endregion
-
-    #region Interfaces
-
-    private Task RegisterInterfaces()
-    {
-        WebAssemblyHostBuilder.Services.AddInterfaces(configuration =>
-        {
-            // We use moonlight itself as a plugin assembly
-            configuration.AddAssembly(typeof(Startup).Assembly);
-
-            configuration.AddAssemblies(ApplicationAssemblyService.AdditionalAssemblies);
-            configuration.AddAssemblies(ApplicationAssemblyService.PluginAssemblies);
-
-            configuration.AddInterface<ISidebarItemProvider>();
-        });
-
-        return Task.CompletedTask;
     }
 
     #endregion
@@ -240,12 +220,18 @@ public class Startup
         // Initialize plugin startups
         var startups = new List<IPluginStartup>();
         var startupType = typeof(IPluginStartup);
+        
+        var assembliesToScan = new List<Assembly>();
+        
+        assembliesToScan.Add(typeof(Startup).Assembly);
+        assembliesToScan.AddRange(PluginLoaderService.PluginAssemblies);
+        assembliesToScan.AddRange(ApplicationAssemblyService.AdditionalAssemblies);
 
-        foreach (var pluginAssembly in ApplicationAssemblyService.PluginAssemblies)
+        foreach (var pluginAssembly in assembliesToScan)
         {
             var startupTypes = pluginAssembly
                 .ExportedTypes
-                .Where(x => x.IsAbstract && x.IsInterface && x.IsAssignableTo(startupType))
+                .Where(x => !x.IsAbstract && !x.IsInterface && x.IsAssignableTo(startupType))
                 .ToArray();
 
             foreach (var type in startupTypes)

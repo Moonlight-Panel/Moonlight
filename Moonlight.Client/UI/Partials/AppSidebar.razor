@@ -4,7 +4,7 @@
 @using Moonlight.Client.UI.Layouts
 
 @inject NavigationManager Navigation
-@inject ISidebarItemProvider[] SidebarItemProviders
+@inject IEnumerable<ISidebarItemProvider> SidebarItemProviders
 
 @{
     var url = new Uri(Navigation.Uri);

@@ -53,9 +53,7 @@ public class Startup
     // Asset bundling
     private BundleService BundleService;
 
-    private IAppStartup[] PluginAppStartups;
-    private IDatabaseStartup[] PluginDatabaseStartups;
-    private IEndpointStartup[] PluginEndpointStartups;
+    private IPluginStartup[] PluginStartups;
 
     public async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
     {
@@ -303,35 +301,53 @@ public class Startup
 
     private Task InitializePlugins()
     {
-        var initialisationServiceCollection = new ServiceCollection();
+        // Define minimal service collection
+        var startupSc = new ServiceCollection();
 
         // Configure base services for initialisation
-        initialisationServiceCollection.AddSingleton(Configuration);
+        startupSc.AddSingleton(Configuration);
         
         BundleService = new BundleService();
-        initialisationServiceCollection.AddSingleton(BundleService);
+        startupSc.AddSingleton(BundleService);
             
-        initialisationServiceCollection.AddLogging(builder => { builder.AddProviders(LoggerProviders); });
-
-        // Configure plugin loading by using the interface service
-        initialisationServiceCollection.AddInterfaces(configuration =>
+        startupSc.AddLogging(builder =>
         {
-            // We use moonlight itself as a plugin assembly
-            configuration.AddAssembly(typeof(Startup).Assembly);
-
-            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
-            configuration.AddAssemblies(AdditionalAssemblies);
-
-            configuration.AddInterface<IAppStartup>();
-            configuration.AddInterface<IDatabaseStartup>();
-            configuration.AddInterface<IEndpointStartup>();
+            builder.ClearProviders();
+            builder.AddProviders(LoggerProviders);
         });
+        
+        //
+        var startupSp = startupSc.BuildServiceProvider();
+        
+        // Initialize plugin startups
+        var startups = new List<IPluginStartup>();
+        var startupType = typeof(IPluginStartup);
 
-        var initialisationServiceProvider = initialisationServiceCollection.BuildServiceProvider();
+        var assembliesToScan = new List<Assembly>();
+        
+        assembliesToScan.Add(typeof(Startup).Assembly);
+        assembliesToScan.AddRange(PluginLoaderService.PluginAssemblies);
+        assembliesToScan.AddRange(AdditionalAssemblies);
+        
+        foreach (var pluginAssembly in assembliesToScan)
+        {
+            var startupTypes = pluginAssembly
+                .ExportedTypes
+                .Where(x => !x.IsAbstract && !x.IsInterface && x.IsAssignableTo(startupType))
+                .ToArray();
 
-        PluginAppStartups = initialisationServiceProvider.GetRequiredService<IAppStartup[]>();
-        PluginDatabaseStartups = initialisationServiceProvider.GetRequiredService<IDatabaseStartup[]>();
-        PluginEndpointStartups = initialisationServiceProvider.GetRequiredService<IEndpointStartup[]>();
+            foreach (var type in startupTypes)
+            {
+                var startup = ActivatorUtilities.CreateInstance(startupSp, type) as IPluginStartup;
+                
+                if(startup == null)
+                    continue;
+                
+                startups.Add(startup);
+            }
+        }
+
+        PluginStartups = startups.ToArray();
 
         return Task.CompletedTask;
     }
@@ -364,11 +380,11 @@ public class Startup
 
     private async Task HookPluginBuild()
     {
-        foreach (var pluginAppStartup in PluginAppStartups)
+        foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.BuildApp(WebApplicationBuilder);
+                await pluginAppStartup.BuildApplication(WebApplicationBuilder);
             }
             catch (Exception e)
             {
@@ -383,11 +399,11 @@ public class Startup
 
     private async Task HookPluginConfigure()
     {
-        foreach (var pluginAppStartup in PluginAppStartups)
+        foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.ConfigureApp(WebApplication);
+                await pluginAppStartup.ConfigureApplication(WebApplication);
             }
             catch (Exception e)
             {
@@ -402,7 +418,7 @@ public class Startup
 
     private async Task HookPluginEndpoints()
     {
-        foreach (var pluginEndpointStartup in PluginEndpointStartups)
+        foreach (var pluginEndpointStartup in PluginStartups)
         {
             try
             {
@@ -555,7 +571,7 @@ public class Startup
 
         var databaseCollection = new DatabaseContextCollection();
 
-        foreach (var databaseStartup in PluginDatabaseStartups)
+        foreach (var databaseStartup in PluginStartups)
             await databaseStartup.ConfigureDatabase(databaseCollection);
 
         foreach (var database in databaseCollection)
