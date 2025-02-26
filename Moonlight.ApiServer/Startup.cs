@@ -69,6 +69,7 @@ public class Startup
         await CreateStorage();
         await SetupAppConfiguration();
         await SetupLogging();
+        await SetupBundling();
         await LoadPlugins();
         await InitializePlugins();
 
@@ -123,6 +124,15 @@ public class Startup
         Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
 
+        return Task.CompletedTask;
+    }
+
+    private Task SetupBundling()
+    {
+        BundleService = new();
+        
+        BundleService.BundleCss("css/core.min.css");
+        
         return Task.CompletedTask;
     }
 
@@ -490,6 +500,7 @@ public class Startup
     private async Task RegisterDatabase()
     {
         WebApplicationBuilder.Services.AddDatabaseMappings();
+        WebApplicationBuilder.Services.AddServiceCollectionAccessor();
         
         WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
         WebApplicationBuilder.Services.AddScoped(typeof(CrudHelper<,>));

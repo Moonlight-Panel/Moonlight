@@ -134,7 +134,7 @@ public class BundleGenerationService : IHostedService
                 if (mainStylesheet.ImportRules.Any(x => x.Text == importRule.Text))
                     continue;
 
-                content += importRule.StylesheetText.Text + "\n";
+                content = importRule.StylesheetText.Text + "\n" + content;
             }
 
             // Media Rules

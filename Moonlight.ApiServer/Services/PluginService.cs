@@ -125,6 +125,9 @@ public class PluginService
             var wwwRootPath = Path.GetFullPath(
                 PathBuilder.Dir(pluginFolder, "wwwroot")
             );
+            
+            if(!Directory.Exists(wwwRootPath))
+                continue;
 
             wwwRootProviders.Add(
                 new PhysicalFileProvider(wwwRootPath)

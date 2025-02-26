@@ -10,12 +10,10 @@ namespace Moonlight.ApiServer.Implementations.Startup;
 public class CoreStartup : IPluginStartup
 {
     private readonly AppConfiguration Configuration;
-    private readonly BundleService BundleService;
 
-    public CoreStartup(AppConfiguration configuration, BundleService bundleService)
+    public CoreStartup(AppConfiguration configuration)
     {
         Configuration = configuration;
-        BundleService = bundleService;
     }
 
     public Task BuildApplication(IHostApplicationBuilder builder)
@@ -35,15 +33,9 @@ public class CoreStartup : IPluginStartup
 
         #endregion
 
-        #region Assets
-
-        BundleService.BundleCss("css/core.min.css");
-
-        #endregion
-
         #region Database
 
-        builder.Services.AddDbContext<DbContext, CoreDataContext>();
+        builder.Services.AddDbContext<CoreDataContext>();
 
         #endregion
         
