@@ -1,6 +1,5 @@
 ﻿@using Moonlight.Client.Interfaces
 @using Moonlight.Client.Models
-@using Moonlight.Client.Services
 @using Moonlight.Client.UI.Layouts
 
 @inject NavigationManager Navigation
@@ -129,8 +128,12 @@
 
     protected override void OnInitialized()
     {
-        Items = SidebarItemProviders
-            .SelectMany(x => x.Get())
+        var sidebarItems = new List<SidebarItem>();
+
+        foreach (var provider in SidebarItemProviders)
+            provider.ModifySidebar(sidebarItems);
+        
+        Items = sidebarItems
             //.Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
             .GroupBy(x => x.Group ?? "")
             .OrderByDescending(x => string.IsNullOrEmpty(x.Key))

@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Exceptions;
+using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Misc;
@@ -25,7 +27,7 @@ public class FrontendController : Controller
     }
 
     [HttpGet("frontend.json")]
-    public Task<FrontendConfiguration> GetConfiguration()
+    public async Task<FrontendConfiguration> GetConfiguration()
     {
         var configuration = new FrontendConfiguration()
         {
@@ -33,13 +35,22 @@ public class FrontendController : Controller
             ApiUrl = Configuration.PublicUrl,
             HostEnvironment = "ApiServer"
         };
+        
+        // Load theme if it exists
+        var themePath = PathBuilder.File("storage", "theme.json");
+
+        if (System.IO.File.Exists(themePath))
+        {
+            var variablesJson = await System.IO.File.ReadAllTextAsync(themePath);
+            configuration.Theme.Variables = JsonSerializer.Deserialize<Dictionary<string, string>>(variablesJson) ?? new();
+        }
 
         configuration.Plugins.Entrypoints = PluginService.HostedPluginsManifest.Entrypoints;
         configuration.Plugins.Assemblies = PluginService.HostedPluginsManifest.Assemblies;
 
         configuration.Scripts = AssetService.GetJavascriptAssets();
 
-        return Task.FromResult(configuration);
+        return configuration;
     }
 
     [HttpGet("plugins/{assemblyName}")] // TODO: Test this

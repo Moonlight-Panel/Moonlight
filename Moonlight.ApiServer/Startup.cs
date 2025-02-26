@@ -17,7 +17,6 @@ using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
-using Moonlight.ApiServer.Interfaces.Auth;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
 using Moonlight.ApiServer.Services;
@@ -242,27 +241,6 @@ public class Startup
         {
             WebApplication.MapFallbackToFile("index.html");
         }
-
-        return Task.CompletedTask;
-    }
-
-    #endregion
-
-    #region Interfaces
-
-    private Task RegisterInterfaces()
-    {
-        WebApplicationBuilder.Services.AddInterfaces(configuration =>
-        {
-            // We use moonlight itself as a plugin assembly
-            configuration.AddAssembly(typeof(Startup).Assembly);
-
-            configuration.AddAssemblies(AdditionalAssemblies);
-            configuration.AddAssemblies(PluginLoaderService.PluginAssemblies);
-
-            configuration.AddInterface<IOAuth2Provider>();
-            configuration.AddInterface<IAuthInterceptor>();
-        });
 
         return Task.CompletedTask;
     }

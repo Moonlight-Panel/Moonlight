@@ -4,5 +4,5 @@ namespace Moonlight.Client.Interfaces;
 
 public interface ISidebarItemProvider
 {
-    public SidebarItem[] Get();
+    public void ModifySidebar(List<SidebarItem> items);
 }

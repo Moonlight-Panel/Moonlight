@@ -2,6 +2,7 @@
 @using MoonCore.Helpers
 @using Moonlight.Client.Services
 @using Moonlight.Client.UI.Components
+@using Moonlight.Shared.Http.Requests.Admin.Sys
 @using Moonlight.Shared.Misc
 
 @inject HttpApiClient ApiClient
@@ -199,9 +200,13 @@
             return;
         }
         
-        await ToastService.Success("Successfully saved theme settings");
+        // Send new variables
+        await ApiClient.Patch("api/admin/system/theme", new UpdateThemeRequest()
+        {
+            Variables = ThemeService.Variables
+        });
         
-        //TODO: Implement saving on the api server
+        await ToastService.Success("Successfully saved theme settings");
     }
 
     private async Task Export()

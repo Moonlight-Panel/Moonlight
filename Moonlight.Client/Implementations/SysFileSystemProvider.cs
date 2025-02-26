@@ -2,7 +2,7 @@
 using MoonCore.Blazor.Tailwind.Fm.Models;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
-using Moonlight.Shared.Http.Responses.Admin.Sys.Files;
+using Moonlight.Shared.Http.Responses.Admin.Sys;
 
 namespace Moonlight.Client.Implementations;
 

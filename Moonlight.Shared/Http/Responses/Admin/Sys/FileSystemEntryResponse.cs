@@ -1,4 +1,4 @@
-﻿namespace Moonlight.Shared.Http.Responses.Admin.Sys.Files;
+﻿namespace Moonlight.Shared.Http.Responses.Admin.Sys;
 
 public class FileSystemEntryResponse
 {

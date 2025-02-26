@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MoonCore.Extended.PermFilter;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
-using Moonlight.Shared.Http.Responses.Admin.Sys.Files;
+using Moonlight.Shared.Http.Responses.Admin.Sys;
 
 namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 
