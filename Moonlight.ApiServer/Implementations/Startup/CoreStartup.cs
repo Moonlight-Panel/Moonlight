@@ -1,7 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
-using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Interfaces.Startup;
 using Moonlight.ApiServer.Services;
 
@@ -40,19 +40,18 @@ public class CoreStartup : IPluginStartup
         BundleService.BundleCss("css/core.min.css");
 
         #endregion
+
+        #region Database
+
+        builder.Services.AddDbContext<DbContext, CoreDataContext>();
+
+        #endregion
         
         return Task.CompletedTask;
     }
 
     public Task ConfigureApplication(IApplicationBuilder app)
     {
-        return Task.CompletedTask;
-    }
-
-    public Task ConfigureDatabase(DatabaseContextCollection collection)
-    {
-        collection.Add<CoreDataContext>();
-        
         return Task.CompletedTask;
     }
 

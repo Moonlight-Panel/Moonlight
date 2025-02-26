@@ -9,14 +9,12 @@ using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extended.JwtInvalidation;
-using MoonCore.Extended.SingleDb;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.PluginFramework.Extensions;
 using MoonCore.Plugins;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
-using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Interfaces.Auth;
@@ -568,33 +566,17 @@ public class Startup
 
     private async Task RegisterDatabase()
     {
-        var logger = LoggerFactory.CreateLogger<DatabaseHelper>();
-        var databaseHelper = new DatabaseHelper(logger);
-
-        var databaseCollection = new DatabaseContextCollection();
-
-        foreach (var databaseStartup in PluginStartups)
-            await databaseStartup.ConfigureDatabase(databaseCollection);
-
-        foreach (var database in databaseCollection)
-        {
-            databaseHelper.AddDbContext(database);
-            WebApplicationBuilder.Services.AddScoped(database);
-        }
-
-        databaseHelper.GenerateMappings();
-
-        WebApplicationBuilder.Services.AddSingleton(databaseHelper);
+        WebApplicationBuilder.Services.AddDatabaseMappings();
+        
         WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
         WebApplicationBuilder.Services.AddScoped(typeof(CrudHelper<,>));
     }
 
     private async Task PrepareDatabase()
     {
-        using var scope = WebApplication.Services.CreateScope();
-        var databaseHelper = scope.ServiceProvider.GetRequiredService<DatabaseHelper>();
-
-        await databaseHelper.EnsureMigrated(scope.ServiceProvider);
+        await WebApplication.Services.EnsureDatabaseMigrated();
+        
+        WebApplication.Services.GenerateDatabaseMappings();
     }
 
     #endregion
@@ -630,7 +612,10 @@ public class Startup
                 var userId = int.Parse(userIdClaim.Value);
                 
                 var userRepository = provider.GetRequiredService<DatabaseRepository<User>>();
-                var user = await userRepository.Get().FirstAsync(x => x.Id == userId);
+                var user = await userRepository.Get().FirstOrDefaultAsync(x => x.Id == userId);
+                
+                if(user == null)
+                    return DateTime.MaxValue;
 
                 return user.TokenValidTimestamp;
             };

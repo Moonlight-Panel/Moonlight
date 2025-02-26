@@ -13,7 +13,15 @@ public class CoreDataContext : DatabaseContext
     public DbSet<User> Users { get; set; }
     public DbSet<ApiKey> ApiKeys { get; set; }
     
-    public CoreDataContext(DatabaseOptions options) : base(options)
+    public CoreDataContext(AppConfiguration configuration)
     {
+        Options = new()
+        {
+            Host = configuration.Database.Host,
+            Port = configuration.Database.Port,
+            Username = configuration.Database.Username,
+            Password = configuration.Database.Password,
+            Database = configuration.Database.Database
+        };
     }
 }
