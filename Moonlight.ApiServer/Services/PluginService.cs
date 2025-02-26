@@ -1,181 +1,136 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.FileProviders;
 using MoonCore.Helpers;
-using MoonCore.Models;
 using Moonlight.ApiServer.Models;
-using Moonlight.Shared.Http.Responses.PluginsStream;
 
 namespace Moonlight.ApiServer.Services;
 
 public class PluginService
 {
-    public List<PluginMeta> Plugins { get; private set; } = new();
-    public Dictionary<string, string> AssetMap { get; private set; } = new();
-    public HostedPluginsManifest HostedPluginsManifest { get; private set; }
-    public Dictionary<string, string> ClientAssemblyMap { get; private set; }
-
-    private static string PluginsFolder = PathBuilder.Dir("storage", "plugins");
     private readonly ILogger<PluginService> Logger;
+    private readonly string PluginRoot;
 
-    private readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    public readonly Dictionary<PluginManifest, string> LoadedPlugins = new();
+    public IFileProvider WwwRootFileProvider;
 
     public PluginService(ILogger<PluginService> logger)
     {
         Logger = logger;
+
+        PluginRoot = PathBuilder.Dir("storage", "plugins");
     }
 
     public async Task Load()
     {
-        // Load all manifest files
-        foreach (var pluginFolder in Directory.EnumerateDirectories(PluginsFolder))
+        var jsonOptions = new JsonSerializerOptions()
         {
-            var manifestPath = PathBuilder.File(pluginFolder, "plugin.json");
+            PropertyNameCaseInsensitive = true
+        };
+        
+        var pluginDirs = Directory.GetDirectories(PluginRoot);
+        var pluginMap = new Dictionary<PluginManifest, string>();
 
-            if (!File.Exists(manifestPath))
+        #region Scan plugins/ directory for plugin.json files
+
+        foreach (var dir in pluginDirs)
+        {
+            var metaPath = PathBuilder.File(dir, "plugin.json");
+
+            if (!File.Exists(metaPath))
             {
-                Logger.LogWarning("Ignoring '{folder}' because no manifest has been found", pluginFolder);
+                Logger.LogWarning("Skipped '{dir}' as it is missing a plugin.json", dir);
                 continue;
             }
 
-            PluginManifest manifest;
+            var json = await File.ReadAllTextAsync(metaPath);
 
             try
             {
-                var manifestText = await File.ReadAllTextAsync(manifestPath);
-                manifest = JsonSerializer.Deserialize<PluginManifest>(manifestText, SerializerOptions)!;
+                var meta = JsonSerializer.Deserialize<PluginManifest>(json, jsonOptions);
+
+                if (meta == null)
+                    throw new JsonException("Unable to parse. Return value was null");
+
+                pluginMap.Add(meta, dir);
             }
-            catch (Exception e)
+            catch (JsonException e)
             {
-                Logger.LogError("An unhandled error occured while loading plugin manifest in '{folder}': {e}",
-                    pluginFolder, e);
-                break;
-            }
-
-            Logger.LogTrace("Loaded plugin manifest. Id: {id}", manifest.Id);
-
-            Plugins.Add(new()
-            {
-                Manifest = manifest,
-                Path = pluginFolder
-            });
-        }
-
-        // Check for missing dependencies
-        var pluginsToNotLoad = new List<string>();
-
-        foreach (var plugin in Plugins)
-        {
-            foreach (var dependency in plugin.Manifest.Dependencies)
-            {
-                // Check if dependency is found
-                if (Plugins.Any(x => x.Manifest.Id == dependency))
-                    continue;
-
-                Logger.LogError(
-                    "Unable to load plugin '{id}' ({path}) because the dependency '{dependency}' is missing",
-                    plugin.Manifest.Id,
-                    plugin.Path,
-                    dependency
-                );
-
-                pluginsToNotLoad.Add(plugin.Manifest.Id);
-                break;
+                Logger.LogError("Unable to load plugin.json at '{path}': {e}", metaPath, e);
             }
         }
 
-        // Remove unloadable plugins from cache
-        Plugins.RemoveAll(x => pluginsToNotLoad.Contains(x.Manifest.Id));
-        
-        // Generate assembly map for client
-        ClientAssemblyMap = GetAssemblies("client");
-        
-        // Generate plugin stream manifest for client
-        HostedPluginsManifest = new()
+        #endregion
+
+        #region Depdenency check
+
+        foreach (var plugin in pluginMap.Keys)
         {
-            Assemblies = ClientAssemblyMap.Keys.ToArray(),
-            Entrypoints = GetEntrypoints("client")
-        };
-        
-        // Generate asset map
-        GenerateAssetMap();
+            var hasMissingDep = false;
+
+            foreach (var dependency in plugin.Dependencies)
+            {
+                if (pluginMap.Keys.All(x => x.Id != dependency))
+                {
+                    hasMissingDep = true;
+                    Logger.LogWarning("Plugin '{name}' has missing dependency: {dep}", plugin.Name, dependency);
+                }
+            }
+
+            if (hasMissingDep)
+                Logger.LogWarning("Unable to load '{name}' due to missing dependencies", plugin.Name);
+            else
+                LoadedPlugins.Add(plugin, pluginMap[plugin]);
+        }
+
+        #endregion
+
+        #region Create wwwroot file provider
+
+        Logger.LogInformation("Creating wwwroot file provider");
+        WwwRootFileProvider = CreateWwwRootProvider();
+
+        #endregion
+
+        Logger.LogInformation("Loaded {count} plugins", LoadedPlugins.Count);
     }
 
     public Dictionary<string, string> GetAssemblies(string section)
     {
-        var pathMappings = new Dictionary<string, string>();
+        var assemblyMap = new Dictionary<string, string>();
 
-        foreach (var plugin in Plugins)
+        foreach (var loadedPlugin in LoadedPlugins.Keys)
         {
-            var binaryPath = PathBuilder.Dir(plugin.Path, "bin", section);
-            
-            if(!Directory.Exists(binaryPath))
+            // Skip all plugins which haven't defined any assemblies in that section
+            if (!loadedPlugin.Assemblies.ContainsKey(section))
                 continue;
-            
-            foreach (var file in Directory.EnumerateFiles(binaryPath))
-            {
-                if (!file.EndsWith(".dll"))
-                    continue;
 
-                var fileName = Path.GetFileName(file);
-                pathMappings[fileName] = file;
+            var pluginPath = LoadedPlugins[loadedPlugin];
+
+            foreach (var assembly in loadedPlugin.Assemblies[section])
+            {
+                var assemblyFile = Path.GetFileName(assembly);
+                assemblyMap[assemblyFile] = PathBuilder.File(pluginPath, assembly);
             }
         }
 
-        return pathMappings;
+        return assemblyMap;
     }
 
-    public string[] GetEntrypoints(string section)
+    private IFileProvider CreateWwwRootProvider()
     {
-        return Plugins
-            .Where(x => x.Manifest.Entrypoints.ContainsKey(section))
-            .SelectMany(x => x.Manifest.Entrypoints[section])
-            .ToArray();
-    }
+        List<IFileProvider> wwwRootProviders = new();
 
-    private void GenerateAssetMap()
-    {
-        AssetMap.Clear();
-
-        foreach (var plugin in Plugins)
+        foreach (var pluginFolder in LoadedPlugins.Values)
         {
-            var assetPath = PathBuilder.Dir(plugin.Path, "wwwroot");
+            var wwwRootPath = Path.GetFullPath(
+                PathBuilder.Dir(pluginFolder, "wwwroot")
+            );
 
-            if (!Directory.Exists(assetPath))
-                continue;
-
-            var files = new List<string>();
-            GetFilesInDirectory(assetPath, files);
-
-            foreach (var file in files)
-            {
-                var mapPath = Formatter.ReplaceStart(file, assetPath, "");
-
-                mapPath = mapPath.Replace("\\", "/"); // To handle fucking windows
-                mapPath = mapPath.StartsWith("/") ? mapPath : "/" + mapPath; // Ensure starting /
-
-                if (AssetMap.ContainsKey(mapPath))
-                {
-                    Logger.LogWarning(
-                        "The plugin '{name}' tries to map an asset to the path '{path}' which is already used by another plugin. Ignoring asset mapping",
-                        plugin.Manifest.Id,
-                        mapPath
-                    );
-                    
-                    continue;
-                }
-
-                AssetMap[mapPath] = file;
-            }
+            wwwRootProviders.Add(
+                new PhysicalFileProvider(wwwRootPath)
+            );
         }
-    }
 
-    private void GetFilesInDirectory(string directory, List<string> files)
-    {
-        files.AddRange(Directory.EnumerateFiles(directory));
-
-        foreach (var dir in Directory.EnumerateDirectories(directory))
-            GetFilesInDirectory(dir, files);
+        return new CompositeFileProvider(wwwRootProviders);
     }
 }

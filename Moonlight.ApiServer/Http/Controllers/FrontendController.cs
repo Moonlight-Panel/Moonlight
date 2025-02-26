@@ -13,17 +13,14 @@ public class FrontendController : Controller
 {
     private readonly AppConfiguration Configuration;
     private readonly PluginService PluginService;
-    private readonly AssetService AssetService;
 
     public FrontendController(
         AppConfiguration configuration,
-        PluginService pluginService,
-        AssetService assetService
+        PluginService pluginService
     )
     {
         Configuration = configuration;
         PluginService = pluginService;
-        AssetService = assetService;
     }
 
     [HttpGet("frontend.json")]
@@ -35,28 +32,55 @@ public class FrontendController : Controller
             ApiUrl = Configuration.PublicUrl,
             HostEnvironment = "ApiServer"
         };
-        
-        // Load theme if it exists
+
+        #region Load theme.json if it exists
+
         var themePath = PathBuilder.File("storage", "theme.json");
 
         if (System.IO.File.Exists(themePath))
         {
             var variablesJson = await System.IO.File.ReadAllTextAsync(themePath);
-            configuration.Theme.Variables = JsonSerializer.Deserialize<Dictionary<string, string>>(variablesJson) ?? new();
+            configuration.Theme.Variables =
+                JsonSerializer.Deserialize<Dictionary<string, string>>(variablesJson) ?? new();
         }
 
-        configuration.Plugins.Entrypoints = PluginService.HostedPluginsManifest.Entrypoints;
-        configuration.Plugins.Assemblies = PluginService.HostedPluginsManifest.Assemblies;
+        #endregion
 
-        configuration.Scripts = AssetService.GetJavascriptAssets();
+        // Collect assemblies for the 'client' section
+        configuration.Assemblies = PluginService
+            .GetAssemblies("client")
+            .Keys
+            .ToArray();
+
+        // Collect scripts to execute
+        configuration.Scripts = PluginService
+            .LoadedPlugins
+            .Keys
+            .SelectMany(x => x.Scripts)
+            .ToArray();
+
+        // Collect styles
+        var styles = new List<string>();
+
+        styles.AddRange(
+            PluginService
+                .LoadedPlugins
+                .Keys
+                .SelectMany(x => x.Styles)
+        );
+
+        // Add bundle css
+        styles.Add("css/bundle.min.css");
+
+        configuration.Styles = styles.ToArray();
 
         return configuration;
     }
 
-    [HttpGet("plugins/{assemblyName}")] // TODO: Test this
+    [HttpGet("plugins/{assemblyName}")]
     public async Task GetPluginAssembly(string assemblyName)
     {
-        var assembliesMap = PluginService.ClientAssemblyMap;
+        var assembliesMap = PluginService.GetAssemblies("client");
 
         if (assembliesMap.ContainsKey(assemblyName))
             throw new HttpApiException("The requested assembly could not be found", 404);

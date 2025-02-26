@@ -6,6 +6,9 @@ public class BundleService
 
     public void BundleCss(string path)
         => CssFiles.Add(path);
+    
+    public void BundleCssRange(string[] paths)
+        => CssFiles.AddRange(paths);
 
     public IEnumerable<string> GetCssFiles() => CssFiles;
 }

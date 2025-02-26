@@ -7,5 +7,9 @@ public class PluginManifest
     public string Author { get; set; }
     public string[] Dependencies { get; set; } = [];
 
-    public Dictionary<string, string[]> Entrypoints { get; set; } = new();
+    public string[] Scripts { get; set; } = [];
+    public string[] Styles { get; set; } = [];
+
+    public string[] BundledStyles { get; set; } = [];
+    public Dictionary<string, string[]> Assemblies { get; set; } = new();
 }

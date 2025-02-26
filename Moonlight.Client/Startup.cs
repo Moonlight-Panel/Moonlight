@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -34,20 +35,15 @@ public class Startup
     private WebAssemblyHost WebAssemblyHost;
 
     // Plugin Loading
-    private PluginLoaderService PluginLoaderService;
-    private ApplicationAssemblyService ApplicationAssemblyService;
+    private AssemblyLoadContext PluginLoadContext;
+    private Assembly[] AdditionalAssemblies;
 
     private IPluginStartup[] PluginStartups;
 
-    public async Task Run(string[] args, Assembly[]? assemblies = null)
+    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
     {
         Args = args;
-
-        // Setup assembly storage
-        ApplicationAssemblyService = new()
-        {
-            AdditionalAssemblies = assemblies ?? []
-        };
+        AdditionalAssemblies = additionalAssemblies ?? [];
 
         await PrintVersion();
         await SetupLogging();
@@ -174,11 +170,6 @@ public class Startup
 
     private async Task LoadPlugins()
     {
-        // Initialize api server plugin loader
-        PluginLoaderService = new PluginLoaderService(
-            LoggerFactory.CreateLogger<PluginLoaderService>()
-        );
-
         // Create everything required to stream plugins
         using var clientForStreaming = new HttpClient();
 
@@ -187,19 +178,21 @@ public class Startup
             : WebAssemblyHostBuilder.HostEnvironment.BaseAddress
         );
 
-        PluginLoaderService.AddSource(new RemotePluginSource(
-            Configuration,
-            LoggerFactory.CreateLogger<RemotePluginSource>(),
-            clientForStreaming
-        ));
+        PluginLoadContext = new AssemblyLoadContext(null);
 
-        // Perform assembly loading
-        await PluginLoaderService.Load();
+        foreach (var assembly in Configuration.Assemblies)
+        {
+            var assemblyStream = await clientForStreaming.GetStreamAsync($"plugins/{assembly}");
+            PluginLoadContext.LoadFromStream(assemblyStream);
+        }
+        
+        // Add application assembly service
+        var appAssemblyService = new ApplicationAssemblyService();
+        
+        appAssemblyService.Assemblies.AddRange(AdditionalAssemblies);
+        appAssemblyService.Assemblies.AddRange(PluginLoadContext.Assemblies);
 
-        // Add plugin loader service to di for the Router/App.razor
-        ApplicationAssemblyService.PluginAssemblies = PluginLoaderService.PluginAssemblies;
-
-        WebAssemblyHostBuilder.Services.AddSingleton(ApplicationAssemblyService);
+        WebAssemblyHostBuilder.Services.AddSingleton(appAssemblyService);
     }
 
     private Task InitializePlugins()
@@ -224,8 +217,8 @@ public class Startup
         var assembliesToScan = new List<Assembly>();
         
         assembliesToScan.Add(typeof(Startup).Assembly);
-        assembliesToScan.AddRange(PluginLoaderService.PluginAssemblies);
-        assembliesToScan.AddRange(ApplicationAssemblyService.AdditionalAssemblies);
+        assembliesToScan.AddRange(AdditionalAssemblies);
+        assembliesToScan.AddRange(PluginLoadContext.Assemblies);
 
         foreach (var pluginAssembly in assembliesToScan)
         {

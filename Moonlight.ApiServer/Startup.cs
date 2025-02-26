@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,7 +20,9 @@ using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
+using Moonlight.ApiServer.Models;
 using Moonlight.ApiServer.Services;
+using Moonlight.Client.Services;
 
 namespace Moonlight.ApiServer;
 
@@ -30,6 +33,7 @@ public class Startup
 {
     private string[] Args;
     private Assembly[] AdditionalAssemblies;
+    private PluginManifest[] AdditionalPluginManifests;
 
     // Logging
     private ILoggerProvider[] LoggerProviders;
@@ -47,17 +51,18 @@ public class Startup
 
     // Plugin Loading
     private PluginService PluginService;
-    private PluginLoaderService PluginLoaderService;
+    private AssemblyLoadContext PluginLoadContext;
     
     // Asset bundling
-    private BundleService BundleService;
+    private BundleService BundleService = new();
 
     private IPluginStartup[] PluginStartups;
 
-    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
+    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null, PluginManifest[]? additionalManifests = null)
     {
         Args = args;
         AdditionalAssemblies = additionalAssemblies ?? [];
+        AdditionalPluginManifests = additionalManifests ?? [];
 
         await PrintVersion();
 
@@ -76,18 +81,16 @@ public class Startup
         await RegisterAuth();
         await RegisterCaching();
         await HookPluginBuild();
-        await HandleConfigureArguments();
         await RegisterPluginAssets();
 
         await BuildWebApplication();
 
-        await HandleServiceArguments();
         await PrepareDatabase();
 
+        await UsePluginAssets(); // We need to move the plugin assets to the top to allow plugins to override content
         await UseBase();
         await UseAuth();
         await HookPluginConfigure();
-        await UsePluginAssets();
 
         await MapBase();
         await HookPluginEndpoints();
@@ -123,73 +126,6 @@ public class Startup
         return Task.CompletedTask;
     }
 
-    #region Command line arguments
-
-    private Task HandleConfigureArguments()
-    {
-        return Task.CompletedTask;
-    }
-    
-    private Task HandleServiceArguments()
-    {
-        // Handle manual asset loading arguments
-        if (Args.Any(x => x.StartsWith("--frontend-asset")))
-        {
-            if (!Configuration.Client.Enable)
-            {
-                Logger.LogWarning("The hosting of the moonlight frontend is disabled. Ignoring all --frontend-asset options");
-                return Task.CompletedTask; // TODO: Change this when adding more service argument handling functions
-            }
-
-            if (!WebApplicationBuilder.Environment.IsDevelopment())
-                Logger.LogWarning("Using the --frontend-asset option is not meant to be used in production. Plugin assets will be loaded automaticly");
-            
-            var assetService = WebApplication.Services.GetRequiredService<AssetService>();
-            
-            for (var i = 0; i < Args.Length; i++)
-            {
-                var currentArg = Args[i];
-                
-                // Ignore all args without relation to our frontend assets
-                if(!currentArg.Equals("--frontend-asset", StringComparison.InvariantCultureIgnoreCase))
-                    continue;
-
-                if (i + 1 >= Args.Length)
-                {
-                    Logger.LogWarning("You need to specify an asset path after the --frontend-asset option");
-                    continue;
-                }
-
-                var nextArg = Args[i + 1];
-
-                if (nextArg.StartsWith("--"))
-                {
-                    Logger.LogWarning("You need to specify an asset path after the --frontend-asset option");
-                    continue;
-                }
-
-                var extension = Path.GetExtension(nextArg);
-
-                switch (extension)
-                {
-                    case ".css":
-                        BundleService.BundleCss(nextArg);
-                        break;
-                    case ".js":
-                        assetService.AddJavascriptAsset(nextArg);
-                        break;
-                    default:
-                        Logger.LogWarning("Unknown asset extension {extension}. Ignoring it", extension);
-                        break;
-                }
-            }
-        }
-        
-        return Task.CompletedTask;
-    }
-
-    #endregion
-
     #region Base
 
     private Task RegisterBase()
@@ -207,7 +143,7 @@ public class Startup
         var mvcBuilder = WebApplicationBuilder.Services.AddControllers();
 
         // Add plugin and additional assemblies as application parts
-        foreach (var pluginAssembly in PluginLoaderService.PluginAssemblies)
+        foreach (var pluginAssembly in PluginLoadContext.Assemblies)
             mvcBuilder.AddApplicationPart(pluginAssembly);
 
         foreach (var additionalAssembly in AdditionalAssemblies)
@@ -238,9 +174,7 @@ public class Startup
         WebApplication.MapControllers();
 
         if (Configuration.Client.Enable)
-        {
             WebApplication.MapFallbackToFile("index.html");
-        }
 
         return Task.CompletedTask;
     }
@@ -255,26 +189,33 @@ public class Startup
         PluginService = new PluginService(
             LoggerFactory.CreateLogger<PluginService>()
         );
+        
+        // Add plugins manually if specified in the startup
+        foreach (var manifest in AdditionalPluginManifests)
+            PluginService.LoadedPlugins.Add(manifest, Directory.GetCurrentDirectory());
 
+        // Search and load all plugins
         await PluginService.Load();
 
-        // Initialize api server plugin loader
-        PluginLoaderService = new PluginLoaderService(
-            LoggerFactory.CreateLogger<PluginLoaderService>()
-        );
-
-        // Search up entrypoints and assemblies for the apiServer
+        // Search up assemblies for the apiServer
         var assemblyFiles = PluginService.GetAssemblies("apiServer")
             .Values
             .ToArray();
 
-        var entrypoints = PluginService.GetEntrypoints("apiServer");
+        // Create the load context and add assemblies
+        PluginLoadContext = new AssemblyLoadContext(null);
 
-        // Build source from the retrieved data
-        PluginLoaderService.AddFilesSource(assemblyFiles, entrypoints);
-
-        // Perform assembly loading
-        await PluginLoaderService.Load();
+        foreach (var assemblyFile in assemblyFiles)
+        {
+            try
+            {
+                PluginLoadContext.LoadFromAssemblyPath(assemblyFile);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Unable to load plugin assembly '{assemblyFile}': {e}", assemblyFile, e);
+            }
+        }
     }
 
     private Task InitializePlugins()
@@ -284,9 +225,13 @@ public class Startup
 
         // Configure base services for initialisation
         startupSc.AddSingleton(Configuration);
-        
-        BundleService = new BundleService();
+
+        // Add bundle service so plugins can do additional bundling if required
         startupSc.AddSingleton(BundleService);
+        
+        // Auto add all files specified in the bundledStyles section to the bundle job
+        foreach (var plugin in PluginService.LoadedPlugins.Keys)
+            BundleService.BundleCssRange(plugin.BundledStyles);
             
         startupSc.AddLogging(builder =>
         {
@@ -304,7 +249,7 @@ public class Startup
         var assembliesToScan = new List<Assembly>();
         
         assembliesToScan.Add(typeof(Startup).Assembly);
-        assembliesToScan.AddRange(PluginLoaderService.PluginAssemblies);
+        assembliesToScan.AddRange(PluginLoadContext.Assemblies);
         assembliesToScan.AddRange(AdditionalAssemblies);
         
         foreach (var pluginAssembly in assembliesToScan)
@@ -348,7 +293,7 @@ public class Startup
         
         WebApplication.UseStaticFiles(new StaticFileOptions()
         {
-            FileProvider = new PluginAssetFileProvider(PluginService)
+            FileProvider = PluginService.WwwRootFileProvider
         });
         
         return Task.CompletedTask;
