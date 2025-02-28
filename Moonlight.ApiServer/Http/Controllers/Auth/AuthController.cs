@@ -24,6 +24,9 @@ public class AuthController : Controller
     private readonly ILogger<AuthController> Logger;
     private readonly DatabaseRepository<User> UserRepository;
 
+    private readonly string RedirectUri;
+    private readonly string EndpointUri;
+
     public AuthController(
         AppConfiguration configuration,
         ILogger<AuthController> logger,
@@ -33,6 +36,14 @@ public class AuthController : Controller
         Configuration = configuration;
         Logger = logger;
         UserRepository = userRepository;
+
+        RedirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
+            ? Configuration.PublicUrl
+            : Configuration.Authentication.OAuth2.AuthorizationRedirect;
+        
+        EndpointUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationEndpoint)
+            ? Configuration.PublicUrl + "/oauth2/authorize"
+            : Configuration.Authentication.OAuth2.AuthorizationEndpoint;
     }
 
     [AllowAnonymous]
@@ -42,8 +53,8 @@ public class AuthController : Controller
         var response = new LoginStartResponse()
         {
             ClientId = Configuration.Authentication.OAuth2.ClientId,
-            RedirectUri = Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl,
-            Endpoint = Configuration.Authentication.OAuth2.AuthorizationEndpoint ?? Configuration.PublicUrl + "/oauth2/authorize"
+            RedirectUri = RedirectUri,
+            Endpoint = EndpointUri
         };
 
         return Task.FromResult(response);
@@ -71,7 +82,7 @@ public class AuthController : Controller
                 [
                     new KeyValuePair<string, string>("grant_type", "authorization_code"),
                     new KeyValuePair<string, string>("code", request.Code),
-                    new KeyValuePair<string, string>("redirect_uri", Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl),
+                    new KeyValuePair<string, string>("redirect_uri", RedirectUri),
                     new KeyValuePair<string, string>("client_id", Configuration.Authentication.OAuth2.ClientId)
                 ]
             ));

@@ -21,11 +21,17 @@ public class OAuth2Controller : Controller
 {
     private readonly AppConfiguration Configuration;
     private readonly DatabaseRepository<User> UserRepository;
+    
+    private readonly string ExpectedRedirectUri;
 
     public OAuth2Controller(AppConfiguration configuration, DatabaseRepository<User> userRepository)
     {
         Configuration = configuration;
         UserRepository = userRepository;
+        
+        ExpectedRedirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
+            ? Configuration.PublicUrl
+            : Configuration.Authentication.OAuth2.AuthorizationRedirect;
     }
 
     [AllowAnonymous]
@@ -37,10 +43,8 @@ public class OAuth2Controller : Controller
         [FromQuery(Name = "view")] string view = "login"
     )
     {
-        var requiredRedirectUri = Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl;
-
         if (Configuration.Authentication.OAuth2.ClientId != clientId ||
-            requiredRedirectUri != redirectUri ||
+            redirectUri != ExpectedRedirectUri ||
             responseType != "code")
         {
             throw new HttpApiException("Invalid oauth2 request", 400);
@@ -84,10 +88,8 @@ public class OAuth2Controller : Controller
         [FromQuery(Name = "view")] string view = "login"
     )
     {
-        var requiredRedirectUri = Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl;
-
         if (Configuration.Authentication.OAuth2.ClientId != clientId ||
-            requiredRedirectUri != redirectUri ||
+            redirectUri != ExpectedRedirectUri ||
             responseType != "code")
         {
             throw new HttpApiException("Invalid oauth2 request", 400);
@@ -175,7 +177,7 @@ public class OAuth2Controller : Controller
         if(clientId != Configuration.Authentication.OAuth2.ClientId)
             throw new HttpApiException("Invalid client id provided", 400);
         
-        if(redirectUri != (Configuration.Authentication.OAuth2.AuthorizationRedirect ?? Configuration.PublicUrl))
+        if(redirectUri != ExpectedRedirectUri)
             throw new HttpApiException("Invalid redirect uri provided", 400);
         
         var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
@@ -187,7 +189,7 @@ public class OAuth2Controller : Controller
             codeData = jwtSecurityTokenHandler.ValidateToken(code, new TokenValidationParameters()
             {
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    Configuration.Authentication.Secret
+                    Configuration.Authentication.OAuth2.Secret
                 )),
                 ValidateIssuerSigningKey = true,
                 ValidateLifetime = true,
@@ -241,7 +243,7 @@ public class OAuth2Controller : Controller
             },
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(Configuration.Authentication.Secret)
+                    Encoding.UTF8.GetBytes(Configuration.Authentication.OAuth2.Secret)
                 ),
                 SecurityAlgorithms.HmacSha256
             )
