@@ -6,23 +6,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.Configuration;
+using MoonCore.EnvConfiguration;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Extended.JwtInvalidation;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
-using MoonCore.PluginFramework.Extensions;
-using MoonCore.Plugins;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
-using Moonlight.ApiServer.Interfaces.OAuth2;
 using Moonlight.ApiServer.Interfaces.Startup;
 using Moonlight.ApiServer.Models;
 using Moonlight.ApiServer.Services;
-using Moonlight.Client.Services;
 
 namespace Moonlight.ApiServer;
 
@@ -42,8 +39,7 @@ public class Startup
 
     // Configuration
     private AppConfiguration Configuration;
-    private ConfigurationService ConfigurationService;
-    private ConfigurationOptions ConfigurationOptions;
+    private IConfigurationRoot ConfigurationRoot;
 
     // WebApplication Stuff
     private WebApplication WebApplication;
@@ -80,7 +76,6 @@ public class Startup
         await RegisterBase();
         await RegisterDatabase();
         await RegisterAuth();
-        await RegisterCaching();
         await HookPluginBuild();
         await RegisterPluginAssets();
 
@@ -121,7 +116,6 @@ public class Startup
     private Task CreateStorage()
     {
         Directory.CreateDirectory("storage");
-        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
 
         return Task.CompletedTask;
@@ -374,43 +368,32 @@ public class Startup
 
     #region Configurations
 
-    private Task SetupAppConfiguration()
+    private async Task SetupAppConfiguration()
     {
-        ConfigurationService = new ConfigurationService();
+        // Configure configuration (wow)
+        var configurationBuilder = new ConfigurationBuilder();
+        
+        // Ensure configuration file exists
+        var jsonFilePath = PathBuilder.File(Directory.GetCurrentDirectory(), "storage", "app.json");
 
-        // Setup options
-        ConfigurationOptions = new ConfigurationOptions();
+        if (!File.Exists(jsonFilePath))
+            await File.WriteAllTextAsync(jsonFilePath, JsonSerializer.Serialize(new AppConfiguration()));
 
-        ConfigurationOptions.AddConfiguration<AppConfiguration>("app");
-        ConfigurationOptions.Path = PathBuilder.Dir("storage");
-        ConfigurationOptions.EnvironmentPrefix = "MOONLIGHT";
-
-        // Create minimal logger
-        var loggerFactory = new LoggerFactory();
-
-        loggerFactory.AddMoonCore(configuration =>
-        {
-            configuration.Console.Enable = true;
-            configuration.Console.EnableAnsiMode = true;
-            configuration.FileLogging.Enable = false;
-        });
-
-        var logger = loggerFactory.CreateLogger<ConfigurationService>();
-
-        // Retrieve configuration
-        Configuration = ConfigurationService.GetConfiguration<AppConfiguration>(
-            ConfigurationOptions,
-            logger
+        configurationBuilder.AddJsonFile(
+            jsonFilePath
         );
 
-        return Task.CompletedTask;
+        configurationBuilder.AddEnvironmentVariables(prefix: "MOONLIGHT_", separator: "_");
+
+        ConfigurationRoot = configurationBuilder.Build();
+
+        // Retrieve configuration
+        Configuration = ConfigurationRoot.Get<AppConfiguration>()!;
     }
 
     private Task RegisterAppConfiguration()
     {
-        ConfigurationService.RegisterInDi(ConfigurationOptions, WebApplicationBuilder.Services);
-        WebApplicationBuilder.Services.AddSingleton(ConfigurationService);
-
+        WebApplicationBuilder.Services.AddSingleton(Configuration);
         return Task.CompletedTask;
     }
 
@@ -497,13 +480,15 @@ public class Startup
 
     #region Database
 
-    private async Task RegisterDatabase()
+    private Task RegisterDatabase()
     {
         WebApplicationBuilder.Services.AddDatabaseMappings();
         WebApplicationBuilder.Services.AddServiceCollectionAccessor();
         
         WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
         WebApplicationBuilder.Services.AddScoped(typeof(CrudHelper<,>));
+        
+        return Task.CompletedTask;
     }
 
     private async Task PrepareDatabase()
@@ -568,16 +553,6 @@ public class Startup
         
         WebApplication.UseAuthorization();
         
-        return Task.CompletedTask;
-    }
-
-    #endregion
-
-    #region Caching
-
-    private Task RegisterCaching()
-    {
-        WebApplicationBuilder.Services.AddMemoryCache();
         return Task.CompletedTask;
     }
 
