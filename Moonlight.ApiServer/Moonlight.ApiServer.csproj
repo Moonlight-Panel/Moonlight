@@ -25,7 +25,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="MoonCore" Version="1.8.4" />
-        <PackageReference Include="MoonCore.Extended" Version="1.3.0" />
+        <PackageReference Include="MoonCore.Extended" Version="1.3.1" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5" />
         <PackageReference Include="SharpZipLib" Version="1.4.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
@@ -45,11 +45,6 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Http\Controllers\OAuth2\Pages\Login.razor" />
-      <_ContentIncludedByDefault Remove="Http\Controllers\OAuth2\Pages\Register.razor" />
     </ItemGroup>
 
 </Project>

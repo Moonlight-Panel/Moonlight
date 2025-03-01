@@ -505,8 +505,8 @@ public class Startup
     private Task RegisterAuth()
     {
         WebApplicationBuilder.Services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddAuthentication("userAuthentication")
+            .AddJwtBearer("userAuthentication",options =>
             {
                 options.TokenValidationParameters = new()
                 {
@@ -523,7 +523,7 @@ public class Startup
                 };
             });
         
-        WebApplicationBuilder.Services.AddJwtInvalidation(options =>
+        WebApplicationBuilder.Services.AddJwtInvalidation("userAuthentication",options =>
         {
             options.InvalidateTimeProvider = async (provider, principal) =>
             {
