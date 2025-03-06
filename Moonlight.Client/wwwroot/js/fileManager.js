@@ -1,26 +1,82 @@
 window.moonCoreFileManager = {
     uploadCache: [],
+    addFilesToCache: async function(id) {
+        let files = document.getElementById(id).files;
+
+
+        for (let i = 0; i < files.length; i++) {
+            this.uploadCache.push(files[i]);
+        }
+
+        await this.ref.invokeMethodAsync("TriggerUpload", this.uploadCache.length);
+    },
+    getNextFromCache: async function() {
+        if(this.uploadCache.length === 0)
+            return null;
+
+        let nextItem = this.uploadCache.pop();
+
+        if(!nextItem)
+            return null;
+
+        let file;
+        let path;
+
+        if(nextItem instanceof File)
+        {
+            file = nextItem;
+            path = file.name;
+        }
+        else
+        {
+            file = await this.openFileEntry(nextItem);
+            path = nextItem.fullPath;
+        }
+
+        if(file.size === 0)
+        {
+            return {
+                path: null,
+                stream: null,
+                left: this.uploadCache.length
+            }
+        }
+
+        let stream = await this.createStreamRef(file);
+
+        return {
+            path: path,
+            stream: stream,
+            left: this.uploadCache.length
+        };
+    },
     readCache: async function (index) {
-        const item = this.uploadCache.at(index);
-        const streamRef = await this.createStreamRef(item);
+        const item = this.uploadCache.pop();
+        console.log(item);
+        const streamRefData = await this.createStreamRef(item);
+
+        if(streamRefData == null)
+            return {path: item.fullPath, streamRef: null};
 
         return {
             path: item.fullPath,
-            streamRef: streamRef
+            streamRef: streamRefData.stream,
+            size: streamRefData.size
         };
     },
-    createStreamRef: async function (fileEntry) {
+    openFileEntry: async function (fileEntry) {
         const promise = new Promise(resolve => {
             fileEntry.file(file => {
                 resolve(file);
             }, err => console.log(err));
         });
 
-        const processedFile = await promise;
-
+        return await promise;
+    },
+    createStreamRef: async function (processedFile) {
         // Prevent uploads of empty files
         if (processedFile.size <= 0) {
-            console.log("Skipping upload of '" + fileEntry.fullPath + "' as its empty");
+            console.log("Skipping upload of '" + processedFile.name + "' as its empty");
             return null;
         }
 
@@ -39,6 +95,8 @@ window.moonCoreFileManager = {
         return DotNet.createJSStreamReference(arrayBuffer);
     },
     setup: function (id, callbackRef) {
+        this.ref = callbackRef;
+
         // Check which features are supported by the browser
         const supportsFileSystemAccessAPI =
             'getAsFileSystemHandle' in DataTransferItem.prototype;
@@ -64,8 +122,8 @@ window.moonCoreFileManager = {
             }
 
             this.getAllWebkitFileEntries(e.dataTransfer.items).then(async value => {
-                this.uploadCache = value;
-                await callbackRef.invokeMethodAsync("OnFilesDropped", this.uploadCache.length);
+                value.forEach(a => this.uploadCache.push(a));
+                await this.ref.invokeMethodAsync("TriggerUpload", this.uploadCache.length);
             });
         });
     },
