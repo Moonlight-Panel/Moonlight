@@ -71,6 +71,7 @@ public class Startup
 
         await CreateWebApplicationBuilder();
 
+        await ConfigureKestrel();
         await RegisterAppConfiguration();
         await RegisterLogging();
         await RegisterBase();
@@ -180,6 +181,20 @@ public class Startup
         if (Configuration.Client.Enable)
             WebApplication.MapFallbackToFile("index.html");
 
+        return Task.CompletedTask;
+    }
+
+    private Task ConfigureKestrel()
+    {
+        WebApplicationBuilder.WebHost.ConfigureKestrel(kestrelOptions =>
+        {
+            var maxUploadInBytes = ByteConverter
+                .FromMegaBytes(Configuration.Kestrel.UploadLimit)
+                .Bytes;
+            
+            kestrelOptions.Limits.MaxRequestBodySize = maxUploadInBytes;
+        });
+        
         return Task.CompletedTask;
     }
 

@@ -3,8 +3,10 @@ using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.AspNetCore.Mvc;
+using MoonCore.Exceptions;
 using MoonCore.Extended.PermFilter;
 using MoonCore.Helpers;
+using Moonlight.ApiServer.Configuration;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
 
@@ -65,7 +67,11 @@ public class FilesController : Controller
     [HttpPost("create")]
     public async Task Create([FromQuery] string path)
     {
-        var stream = Request.Body;
+        if (Request.Form.Files.Count != 1)
+            throw new HttpApiException("You need to provide exactly one file", 400);
+
+        var file = Request.Form.Files[0];
+        var stream = file.OpenReadStream();
 
         var safePath = SanitizePath(path);
         var physicalPath = PathBuilder.File(BaseDirectory, safePath);

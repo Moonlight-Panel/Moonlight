@@ -47,7 +47,13 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
     }
 
     public async Task Create(string path, Stream stream)
-        => await HttpApiClient.PostStream($"{BaseApiUrl}/create?path={path}", stream);
+    {
+        var content = new MultipartFormDataContent();
+        
+        content.Add(new StreamContent(stream), "file", "x");
+        
+        await HttpApiClient.Post($"{BaseApiUrl}/create?path={path}", content);
+    }
 
     public async Task Move(string oldPath, string newPath)
         => await HttpApiClient.Post($"{BaseApiUrl}/move?oldPath={oldPath}&newPath={newPath}");

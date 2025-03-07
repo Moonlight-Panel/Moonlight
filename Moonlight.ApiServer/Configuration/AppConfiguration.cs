@@ -10,6 +10,7 @@ public class AppConfiguration
     public AuthenticationConfig Authentication { get; set; } = new();
     public DevelopmentConfig Development { get; set; } = new();
     public ClientConfig Client { get; set; } = new();
+    public KestrelConfig Kestrel { get; set; } = new();
 
     public class ClientConfig
     {
@@ -47,5 +48,10 @@ public class AppConfiguration
     public class DevelopmentConfig
     {
         public bool EnableApiDocs { get; set; } = false;
+    }
+    
+    public class KestrelConfig
+    {
+        public int UploadLimit { get; set; } = 100;
     }
 }
