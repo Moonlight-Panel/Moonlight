@@ -1,5 +1,7 @@
-﻿using MoonCore.Blazor.Tailwind.Fm;
+﻿using MoonCore.Blazor.Services;
+using MoonCore.Blazor.Tailwind.Fm;
 using MoonCore.Blazor.Tailwind.Fm.Models;
+using MoonCore.Blazor.Tailwind.Services;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
@@ -8,7 +10,9 @@ namespace Moonlight.Client.Implementations;
 
 public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemProvider
 {
+    private readonly DownloadService DownloadService;
     private readonly HttpApiClient HttpApiClient;
+    private readonly LocalStorageService LocalStorageService;
     private readonly string BaseApiUrl = "api/admin/system/files";
 
     public CompressType[] CompressTypes { get; } =
@@ -25,9 +29,11 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
         }
     ];
 
-    public SysFileSystemProvider(HttpApiClient httpApiClient)
+    public SysFileSystemProvider(HttpApiClient httpApiClient, DownloadService downloadService, LocalStorageService localStorageService)
     {
         HttpApiClient = httpApiClient;
+        DownloadService = downloadService;
+        LocalStorageService = localStorageService;
     }
 
     public async Task<FileSystemEntry[]> List(string path)
@@ -66,6 +72,29 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
 
     public async Task<Stream> Read(string path)
         => await HttpApiClient.GetStream($"{BaseApiUrl}/read?path={path}");
+
+    public async Task Download(Func<long, Task> updateProgress, string path, string fileName)
+    {
+        var accessToken = await LocalStorageService.GetString("AccessToken");
+        
+        await DownloadService.DownloadUrl(fileName, $"{BaseApiUrl}/read?path={path}", async (bytes, _) =>
+        {
+            await updateProgress.Invoke(bytes);
+        }, headers =>
+        {
+            headers.Add("Authorization", $"Bearer {accessToken}");
+        });
+    }
+
+    public async Task Upload(Func<long, Task> updateProgress, string path, Stream stream)
+    {
+        var progressStream = new ProgressStream(stream, onReadChanged: new Progress<long>(async bytes =>
+        {
+            await updateProgress.Invoke(bytes);
+        }));
+
+        await Create(path, progressStream);
+    }
 
     public async Task Compress(CompressType type, string path, string[] itemsToCompress)
     {

@@ -1,6 +1,7 @@
 ﻿@page "/admin/system/files"
 
 @using MoonCore.Attributes
+@using MoonCore.Blazor.Services
 @using MoonCore.Helpers
 @using MoonCore.Blazor.Tailwind.Fm
 @using Moonlight.Client.Implementations
@@ -8,6 +9,8 @@
 @attribute [RequirePermission("admin.system.overview")]
 
 @inject HttpApiClient ApiClient
+@inject DownloadService DownloadService
+@inject LocalStorageService LocalStorageService
 
 <div class="mb-3">
     <NavTabs Index="2" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />
@@ -21,6 +24,6 @@
 
     protected override void OnInitialized()
     {
-        FileSystemProvider = new SysFileSystemProvider(ApiClient);
+        FileSystemProvider = new SysFileSystemProvider(ApiClient, DownloadService, LocalStorageService);
     }
 }

@@ -18,10 +18,10 @@ window.moonCoreFileManager = {
 
         if(!nextItem)
             return null;
-
+        
         let file;
         let path;
-
+        
         if(nextItem instanceof File)
         {
             file = nextItem;
@@ -32,7 +32,7 @@ window.moonCoreFileManager = {
             file = await this.openFileEntry(nextItem);
             path = nextItem.fullPath;
         }
-
+        
         if(file.size === 0)
         {
             return {
@@ -41,9 +41,9 @@ window.moonCoreFileManager = {
                 left: this.uploadCache.length
             }
         }
-
+        
         let stream = await this.createStreamRef(file);
-
+        
         return {
             path: path,
             stream: stream,
@@ -57,7 +57,7 @@ window.moonCoreFileManager = {
 
         if(streamRefData == null)
             return {path: item.fullPath, streamRef: null};
-
+        
         return {
             path: item.fullPath,
             streamRef: streamRefData.stream,
@@ -96,7 +96,7 @@ window.moonCoreFileManager = {
     },
     setup: function (id, callbackRef) {
         this.ref = callbackRef;
-
+        
         // Check which features are supported by the browser
         const supportsFileSystemAccessAPI =
             'getAsFileSystemHandle' in DataTransferItem.prototype;
