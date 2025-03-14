@@ -7,18 +7,11 @@
 @inject AuthenticationStateManager AuthStateManager
 
 <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-gray-800/60 backdrop-blur px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-    @if (Layout.ShowMobileNavigation)
-    {
-        <button @onclick="Layout.ToggleMobileNavigation" type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden">
-            <span class="sr-only">Close sidebar</span>
-            <i class="bi bi-x-lg text-xl"></i>
-        </button>
-    }
-    else
+    @if (!Layout.ShowMobileNavigation)
     {
         <button @onclick="Layout.ToggleMobileNavigation" type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden">
             <span class="sr-only">Open sidebar</span>
-            <i class="bi bi-list text-xl"></i>
+            <i class="icon-menu text-xl"></i>
         </button>
     }
 
@@ -44,7 +37,6 @@
                 </button>
                 
                 <div class="@(ShowProfileNav ? "opacity-100" : "opacity-0 hidden") transition ease-out duration-100 absolute right-0 z-10 mt-2.5 w-44 origin-top-right rounded-md bg-gray-750 py-2 shadow-lg ring-1 ring-gray-100/5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                    <a href="/admin" class="block px-3 py-1 text-sm leading-6 text-gray-100 hover:text-primary-500" role="menuitem" tabindex="-1" id="user-menu-item-0">Your profile</a>
                     <a @onclick="Logout" @onclick:preventDefault href="#" class="block px-3 py-1 text-sm leading-6 text-gray-100 hover:text-primary-500" role="menuitem" tabindex="-1" id="user-menu-item-1">Sign out</a>
                 </div>
             </div>

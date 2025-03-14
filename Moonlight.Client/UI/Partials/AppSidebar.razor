@@ -9,17 +9,24 @@
     var url = new Uri(Navigation.Uri);
 }
 
-<div
-    class="relative z-40 lg:hidden transition-opacity @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0 hidden")"
-    role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-800/80"></div>
+<div class="relative z-50 lg:hidden transition-opacity ease-linear duration-300 @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0 pointer-events-none")" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-900/80"></div>
 
-    <div class="fixed inset-0 flex justify-center bg-gray-900">
-        <div class="relative flex w-full max-w-xs flex-1">
-            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
-                <div class="flex h-16 shrink-0 items-center">a
-                    <img class="h-8 w-auto" src="/logo.svg" alt="Moonlight">
+    <div class="fixed inset-0 flex">
+        <div class="relative mr-16 flex w-full max-w-xs flex-1 transition ease-in-out duration-300 transform @(Layout.ShowMobileNavigation ? "translate-x-0" : "-translate-x-full")">
+            <div class="absolute left-full top-0 flex w-16 justify-center pt-5 ease-in-out duration-300 @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0")">
+                <button @onclick="Layout.ToggleMobileNavigation" type="button" class="-m-2.5 p-2.5">
+                    <span class="sr-only">Close sidebar</span>
+                    <i class="icon-x text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
+                <div class="flex h-16 shrink-0 items-center">
+                    <img class="h-8 w-auto" src="/logo.svg"
+                         alt="Your Company">
                 </div>
+                
                 <nav class="flex flex-1 flex-col">
                     <ul role="list" class="flex flex-1 flex-col gap-y-7">
                         @foreach (var group in Items)
@@ -63,6 +70,7 @@
                         }
                     </ul>
                 </nav>
+                
             </div>
         </div>
     </div>
@@ -132,7 +140,7 @@
 
         foreach (var provider in SidebarItemProviders)
             provider.ModifySidebar(sidebarItems);
-        
+
         Items = sidebarItems
             //.Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
             .GroupBy(x => x.Group ?? "")
