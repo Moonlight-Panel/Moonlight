@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Interfaces.Startup;
-using Moonlight.ApiServer.Services;
 
 namespace Moonlight.ApiServer.Implementations.Startup;
 
@@ -25,10 +23,23 @@ public class CoreStartup : IPluginStartup
             builder.Services.AddEndpointsApiExplorer();
         
             // Configure swagger api specification generator and set the document title for the api docs to use
-            builder.Services.AddSwaggerGen(options => options.SwaggerDoc("main", new OpenApiInfo()
+            builder.Services.AddSwaggerGen(options =>
             {
-                Title = "Moonlight API"
-            }));
+                options.SwaggerDoc("main", new OpenApiInfo()
+                {
+                    Title = "Moonlight API"
+                });
+                
+                options.CustomSchemaIds(x => x.FullName);
+                
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+            });
         }
 
         #endregion

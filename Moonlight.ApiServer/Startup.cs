@@ -48,13 +48,14 @@ public class Startup
     // Plugin Loading
     private PluginService PluginService;
     private AssemblyLoadContext PluginLoadContext;
-    
+
     // Asset bundling
     private BundleService BundleService = new();
 
     private IPluginStartup[] PluginStartups;
 
-    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null, PluginManifest[]? additionalManifests = null)
+    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null,
+        PluginManifest[]? additionalManifests = null)
     {
         Args = args;
         AdditionalAssemblies = additionalAssemblies ?? [];
@@ -125,9 +126,9 @@ public class Startup
     private Task SetupBundling()
     {
         BundleService = new();
-        
+
         BundleService.BundleCss("css/core.min.css");
-        
+
         return Task.CompletedTask;
     }
 
@@ -137,7 +138,7 @@ public class Startup
     {
         WebApplicationBuilder.Services.AutoAddServices<Startup>();
         WebApplicationBuilder.Services.AddHttpClient();
-        
+
         WebApplicationBuilder.Services.AddApiExceptionHandler();
 
         // Add pre-existing services
@@ -191,10 +192,10 @@ public class Startup
             var maxUploadInBytes = ByteConverter
                 .FromMegaBytes(Configuration.Kestrel.UploadLimit)
                 .Bytes;
-            
+
             kestrelOptions.Limits.MaxRequestBodySize = maxUploadInBytes;
         });
-        
+
         return Task.CompletedTask;
     }
 
@@ -208,7 +209,7 @@ public class Startup
         PluginService = new PluginService(
             LoggerFactory.CreateLogger<PluginService>()
         );
-        
+
         // Add plugins manually if specified in the startup
         foreach (var manifest in AdditionalPluginManifests)
             PluginService.LoadedPlugins.Add(manifest, Directory.GetCurrentDirectory());
@@ -247,30 +248,30 @@ public class Startup
 
         // Add bundle service so plugins can do additional bundling if required
         startupSc.AddSingleton(BundleService);
-        
+
         // Auto add all files specified in the bundledStyles section to the bundle job
         foreach (var plugin in PluginService.LoadedPlugins.Keys)
             BundleService.BundleCssRange(plugin.BundledStyles);
-            
+
         startupSc.AddLogging(builder =>
         {
             builder.ClearProviders();
             builder.AddProviders(LoggerProviders);
         });
-        
+
         //
         var startupSp = startupSc.BuildServiceProvider();
-        
+
         // Initialize plugin startups
         var startups = new List<IPluginStartup>();
         var startupType = typeof(IPluginStartup);
 
         var assembliesToScan = new List<Assembly>();
-        
+
         assembliesToScan.Add(typeof(Startup).Assembly);
         assembliesToScan.AddRange(PluginLoadContext.Assemblies);
         assembliesToScan.AddRange(AdditionalAssemblies);
-        
+
         foreach (var pluginAssembly in assembliesToScan)
         {
             var startupTypes = pluginAssembly
@@ -281,10 +282,10 @@ public class Startup
             foreach (var type in startupTypes)
             {
                 var startup = ActivatorUtilities.CreateInstance(startupSp, type) as IPluginStartup;
-                
-                if(startup == null)
+
+                if (startup == null)
                     continue;
-                
+
                 startups.Add(startup);
             }
         }
@@ -299,7 +300,7 @@ public class Startup
         WebApplicationBuilder.Services.AddHostedService(sp => sp.GetRequiredService<BundleGenerationService>());
         WebApplicationBuilder.Services.AddSingleton<BundleGenerationService>();
         WebApplicationBuilder.Services.AddSingleton(BundleService);
-        
+
         return Task.CompletedTask;
     }
 
@@ -309,12 +310,12 @@ public class Startup
         {
             FileProvider = new BundleAssetFileProvider()
         });
-        
+
         WebApplication.UseStaticFiles(new StaticFileOptions()
         {
             FileProvider = PluginService.WwwRootFileProvider
         });
-        
+
         return Task.CompletedTask;
     }
 
@@ -387,7 +388,7 @@ public class Startup
     {
         // Configure configuration (wow)
         var configurationBuilder = new ConfigurationBuilder();
-        
+
         // Ensure configuration file exists
         var jsonFilePath = PathBuilder.File(Directory.GetCurrentDirectory(), "storage", "app.json");
 
@@ -484,7 +485,7 @@ public class Startup
             "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware",
             LogLevel.Critical
         );
-        
+
         WebApplicationBuilder.Logging.AddFilter(
             "Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware",
             LogLevel.Critical
@@ -499,17 +500,17 @@ public class Startup
     {
         WebApplicationBuilder.Services.AddDatabaseMappings();
         WebApplicationBuilder.Services.AddServiceCollectionAccessor();
-        
+
         WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
         WebApplicationBuilder.Services.AddScoped(typeof(CrudHelper<,>));
-        
+
         return Task.CompletedTask;
     }
 
     private async Task PrepareDatabase()
     {
         await WebApplication.Services.EnsureDatabaseMigrated();
-        
+
         WebApplication.Services.GenerateDatabaseMappings();
     }
 
@@ -520,8 +521,8 @@ public class Startup
     private Task RegisterAuth()
     {
         WebApplicationBuilder.Services
-            .AddAuthentication("userAuthentication")
-            .AddJwtBearer("userAuthentication",options =>
+            .AddAuthentication("coreAuthentication")
+            .AddJwtBearer("coreAuthentication", options =>
             {
                 options.TokenValidationParameters = new()
                 {
@@ -537,37 +538,57 @@ public class Startup
                     ValidIssuer = Configuration.PublicUrl
                 };
             });
-        
-        WebApplicationBuilder.Services.AddJwtInvalidation("userAuthentication",options =>
+
+        WebApplicationBuilder.Services.AddJwtInvalidation("coreAuthentication", options =>
         {
             options.InvalidateTimeProvider = async (provider, principal) =>
             {
-                var userIdClaim = principal.Claims.First(x => x.Type == "userId");
-                var userId = int.Parse(userIdClaim.Value);
-                
-                var userRepository = provider.GetRequiredService<DatabaseRepository<User>>();
-                var user = await userRepository.Get().FirstOrDefaultAsync(x => x.Id == userId);
-                
-                if(user == null)
-                    return DateTime.MaxValue;
+                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == "userId");
 
-                return user.TokenValidTimestamp;
+                if (userIdClaim != null)
+                {
+                    var userId = int.Parse(userIdClaim.Value);
+
+                    var userRepository = provider.GetRequiredService<DatabaseRepository<User>>();
+                    var user = await userRepository.Get().FirstOrDefaultAsync(x => x.Id == userId);
+
+                    if (user == null)
+                        return DateTime.MaxValue;
+
+                    return user.TokenValidTimestamp;
+                }
+
+                var apiKeyIdClaim = principal.Claims.FirstOrDefault(x => x.Type == "apiKeyId");
+
+                if (apiKeyIdClaim != null)
+                {
+                    var apiKeyId = int.Parse(apiKeyIdClaim.Value);
+
+                    var apiKeyRepository = provider.GetRequiredService<DatabaseRepository<ApiKey>>();
+                    var apiKey = await apiKeyRepository.Get().FirstOrDefaultAsync(x => x.Id == apiKeyId);
+
+                    // If the api key exists, we don't want to invalidate the request.
+                    // If it doesn't exist we want to invalidate the request
+                    return apiKey == null ? DateTime.MaxValue : DateTime.MinValue;
+                }
+
+                return DateTime.MaxValue;
             };
         });
 
         WebApplicationBuilder.Services.AddAuthorization();
-        
+
         return Task.CompletedTask;
     }
 
     private Task UseAuth()
     {
         WebApplication.UseAuthentication();
-        
+
         WebApplication.UseJwtInvalidation();
-        
+
         WebApplication.UseAuthorization();
-        
+
         return Task.CompletedTask;
     }
 

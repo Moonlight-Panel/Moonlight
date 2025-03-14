@@ -88,12 +88,26 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
 
     public async Task Upload(Func<long, Task> updateProgress, string path, Stream stream)
     {
-        var progressStream = new ProgressStream(stream, onReadChanged: new Progress<long>(async bytes =>
-        {
-            await updateProgress.Invoke(bytes);
-        }));
+        var cts = new CancellationTokenSource();
 
-        await Create(path, progressStream);
+        Task.Run(async () =>
+        {
+            while (!cts.IsCancellationRequested)
+            {
+                await updateProgress.Invoke(stream.Position);
+                await Task.Delay(TimeSpan.FromMilliseconds(500), cts.Token);
+            }
+        });
+
+        try
+        {
+            await Create(path, stream);
+        }
+        finally
+        {
+            // Ensure we aren't creating an endless loop ^^
+            await cts.CancelAsync();
+        }
     }
 
     public async Task Compress(CompressType type, string path, string[] itemsToCompress)

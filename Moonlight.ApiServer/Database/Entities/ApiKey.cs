@@ -6,7 +6,6 @@ public class ApiKey
 {
     public int Id { get; set; }
 
-    public string Secret { get; set; }
     public string Description { get; set; }
     
     [Column(TypeName="jsonb")]
@@ -14,4 +13,7 @@ public class ApiKey
     
     [Column(TypeName = "timestamp with time zone")]
     public DateTime ExpiresAt { get; set; }
+    
+    [Column(TypeName = "timestamp with time zone")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

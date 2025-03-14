@@ -5,6 +5,7 @@ using MoonCore.Extended.PermFilter;
 using MoonCore.Helpers;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Admin.ApiKeys;
 using Moonlight.Shared.Http.Responses.Admin.ApiKeys;
 
@@ -16,11 +17,13 @@ public class ApiKeysController : Controller
 {
     private readonly CrudHelper<ApiKey, ApiKeyDetailResponse> CrudHelper;
     private readonly DatabaseRepository<ApiKey> ApiKeyRepository;
+    private readonly ApiKeyService ApiKeyService;
 
-    public ApiKeysController(CrudHelper<ApiKey, ApiKeyDetailResponse> crudHelper, DatabaseRepository<ApiKey> apiKeyRepository)
+    public ApiKeysController(CrudHelper<ApiKey, ApiKeyDetailResponse> crudHelper, DatabaseRepository<ApiKey> apiKeyRepository, ApiKeyService apiKeyService)
     {
         CrudHelper = crudHelper;
         ApiKeyRepository = apiKeyRepository;
+        ApiKeyService = apiKeyService;
     }
     
     [HttpGet]
@@ -37,19 +40,20 @@ public class ApiKeysController : Controller
     [RequirePermission("admin.apikeys.create")]
     public async Task<CreateApiKeyResponse> Create([FromBody] CreateApiKeyRequest request)
     {
-        var secret = "api_" + Formatter.GenerateString(32);
-        
         var apiKey = new ApiKey()
         {
             Description = request.Description,
             PermissionsJson = request.PermissionsJson,
-            ExpiresAt = request.ExpiresAt,
-            Secret = secret
+            ExpiresAt = request.ExpiresAt
         };
 
         var finalApiKey = await ApiKeyRepository.Add(apiKey);
+
+        var response = Mapper.Map<CreateApiKeyResponse>(finalApiKey);
+
+        response.Secret = ApiKeyService.GenerateJwt(finalApiKey);
         
-        return Mapper.Map<CreateApiKeyResponse>(finalApiKey);
+        return response;
     }
 
     [HttpPatch("{id}")]
