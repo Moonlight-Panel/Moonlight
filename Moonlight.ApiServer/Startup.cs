@@ -80,11 +80,13 @@ public class Startup
         await RegisterAuth();
         await HookPluginBuild();
         await RegisterPluginAssets();
+        await RegisterCors();
 
         await BuildWebApplication();
 
         await PrepareDatabase();
-
+        
+        await UseCors();
         await UsePluginAssets(); // We need to move the plugin assets to the top to allow plugins to override content
         await UseBase();
         await UseAuth();
@@ -589,6 +591,30 @@ public class Startup
 
         WebApplication.UseAuthorization();
 
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Cors
+
+    private Task RegisterCors()
+    {
+        WebApplicationBuilder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().Build();
+            });
+        });
+        
+        return Task.CompletedTask;
+    }
+
+    private Task UseCors()
+    {
+        WebApplication.UseCors();
+        
         return Task.CompletedTask;
     }
 

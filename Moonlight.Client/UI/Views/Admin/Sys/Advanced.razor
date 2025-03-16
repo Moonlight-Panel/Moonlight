@@ -1,0 +1,41 @@
+@page "/admin/system/advanced"
+
+@using MoonCore.Attributes
+@using MoonCore.Helpers
+
+@attribute [RequirePermission("admin.system.advanced")]
+
+@inject HttpApiClient ApiClient
+@inject DownloadService DownloadService
+
+<div class="mb-3">
+    <NavTabs Index="3" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />
+</div>
+
+<div class="grid grid-cols-2">
+    <div class="col-span-2 md:col-span-1 card">
+        <div class="card-header">
+            <span class="card-title">Frontend hosting files</span>
+        </div>
+        <div class="card-body">
+            <p>
+                If you want to host your moonlight frontend on a static web server instead of it being hosted by the api server
+                (useful for hosting on a cdn for high availability) you can use this helper. By pressing the button below moonlight
+                will generate a zip file containing everything you need to host the frontend. Next to the WASM app itself it automatically
+                includes your installed theme and plugins. For more information, have a look at <a class="text-primary-500" href="https://help.moonlightpanel.xyz">our docs</a>
+            </p>
+            
+            <WButton OnClick="GenerateFrontend" CssClasses="btn btn-primary mt-5">Generate frontend.zip</WButton>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private async Task GenerateFrontend(WButton _)
+    {
+        var stream = await ApiClient.GetStream("api/admin/system/advanced/frontend");
+
+        await DownloadService.DownloadStream("frontend.zip", stream);
+    }
+}

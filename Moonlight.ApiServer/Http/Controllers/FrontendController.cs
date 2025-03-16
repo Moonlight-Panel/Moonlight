@@ -11,71 +11,18 @@ namespace Moonlight.ApiServer.Http.Controllers;
 [ApiController]
 public class FrontendController : Controller
 {
-    private readonly AppConfiguration Configuration;
+    private readonly FrontendService FrontendService;
     private readonly PluginService PluginService;
 
-    public FrontendController(
-        AppConfiguration configuration,
-        PluginService pluginService
-    )
+    public FrontendController(FrontendService frontendService, PluginService pluginService)
     {
-        Configuration = configuration;
+        FrontendService = frontendService;
         PluginService = pluginService;
     }
 
     [HttpGet("frontend.json")]
     public async Task<FrontendConfiguration> GetConfiguration()
-    {
-        var configuration = new FrontendConfiguration()
-        {
-            Title = "Moonlight",
-            ApiUrl = Configuration.PublicUrl,
-            HostEnvironment = "ApiServer"
-        };
-
-        #region Load theme.json if it exists
-
-        var themePath = PathBuilder.File("storage", "theme.json");
-
-        if (System.IO.File.Exists(themePath))
-        {
-            var variablesJson = await System.IO.File.ReadAllTextAsync(themePath);
-            configuration.Theme.Variables =
-                JsonSerializer.Deserialize<Dictionary<string, string>>(variablesJson) ?? new();
-        }
-
-        #endregion
-
-        // Collect assemblies for the 'client' section
-        configuration.Assemblies = PluginService
-            .GetAssemblies("client")
-            .Keys
-            .ToArray();
-
-        // Collect scripts to execute
-        configuration.Scripts = PluginService
-            .LoadedPlugins
-            .Keys
-            .SelectMany(x => x.Scripts)
-            .ToArray();
-
-        // Collect styles
-        var styles = new List<string>();
-
-        styles.AddRange(
-            PluginService
-                .LoadedPlugins
-                .Keys
-                .SelectMany(x => x.Styles)
-        );
-
-        // Add bundle css
-        styles.Add("css/bundle.min.css");
-
-        configuration.Styles = styles.ToArray();
-
-        return configuration;
-    }
+        => await FrontendService.GetConfiguration();
 
     [HttpGet("plugins/{assemblyName}")]
     public async Task GetPluginAssembly(string assemblyName)
