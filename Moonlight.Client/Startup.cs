@@ -7,6 +7,7 @@ using Microsoft.JSInterop;
 using MoonCore.Blazor.Services;
 using MoonCore.Blazor.Tailwind.Extensions;
 using MoonCore.Blazor.Tailwind.Auth;
+using MoonCore.Blazor.Tailwind.Xhr;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using Moonlight.Client.Interfaces;
@@ -144,6 +145,8 @@ public class Startup
         WebAssemblyHostBuilder.Services.AddScoped<WindowService>();
         WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
         WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
+
+        WebAssemblyHostBuilder.Services.AddScoped<XmlHttpClient>();
 
         WebAssemblyHostBuilder.Services.AddScoped<ThemeService>();
         

@@ -91,7 +91,7 @@ public class FrontendService
         if (wasmMainFile is NotFoundFileInfo || string.IsNullOrEmpty(wasmMainFile.PhysicalPath))
             throw new HttpApiException("Unable to find wasm location", 500);
 
-        var wasmPath = Path.GetDirectoryName(wasmMainFile.PhysicalPath)!;
+        var wasmPath = Path.GetDirectoryName(wasmMainFile.PhysicalPath)! + "/";
 
         // Load and check the blazor framework files
         var blazorFile = WebHostEnvironment.WebRootFileProvider.GetFileInfo("_framework/blazor.webassembly.js");
@@ -99,7 +99,7 @@ public class FrontendService
         if (blazorFile is NotFoundFileInfo || string.IsNullOrEmpty(blazorFile.PhysicalPath))
             throw new HttpApiException("Unable to find blazor location", 500);
 
-        var blazorPath = Path.GetDirectoryName(blazorFile.PhysicalPath)!;
+        var blazorPath = Path.GetDirectoryName(blazorFile.PhysicalPath)! + "/";
 
         // Create zip
         var memoryStream = new MemoryStream();
@@ -124,7 +124,7 @@ public class FrontendService
         // Add plugin wwwroot files
         foreach (var pluginPath in PluginService.LoadedPlugins.Values)
         {
-            var wwwRootPluginPath = Path.Combine(pluginPath, "wwwroot");
+            var wwwRootPluginPath = Path.Combine(pluginPath, "wwwroot/");
 
             if (!Directory.Exists(wwwRootPluginPath))
                 continue;

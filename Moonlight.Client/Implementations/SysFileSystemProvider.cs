@@ -2,6 +2,7 @@
 using MoonCore.Blazor.Tailwind.Fm;
 using MoonCore.Blazor.Tailwind.Fm.Models;
 using MoonCore.Blazor.Tailwind.Services;
+using MoonCore.Blazor.Tailwind.Xhr;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
@@ -13,6 +14,7 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
     private readonly DownloadService DownloadService;
     private readonly HttpApiClient HttpApiClient;
     private readonly LocalStorageService LocalStorageService;
+    private readonly XmlHttpClient XmlHttpClient;
     private readonly string BaseApiUrl = "api/admin/system/files";
 
     public CompressType[] CompressTypes { get; } =
@@ -29,11 +31,12 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
         }
     ];
 
-    public SysFileSystemProvider(HttpApiClient httpApiClient, DownloadService downloadService, LocalStorageService localStorageService)
+    public SysFileSystemProvider(HttpApiClient httpApiClient, DownloadService downloadService, LocalStorageService localStorageService, XmlHttpClient xmlHttpClient)
     {
         HttpApiClient = httpApiClient;
         DownloadService = downloadService;
         LocalStorageService = localStorageService;
+        XmlHttpClient = xmlHttpClient;
     }
 
     public async Task<FileSystemEntry[]> List(string path)
@@ -88,26 +91,28 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
 
     public async Task Upload(Func<long, Task> updateProgress, string path, Stream stream)
     {
-        var cts = new CancellationTokenSource();
+        var tcs = new TaskCompletionSource();
+        var accessToken = await LocalStorageService.GetString("AccessToken");
+        
+        await using var request = await XmlHttpClient.Create();
 
-        Task.Run(async () =>
+        request.OnUploadProgress += async ev =>
         {
-            while (!cts.IsCancellationRequested)
-            {
-                await updateProgress.Invoke(stream.Position);
-                await Task.Delay(TimeSpan.FromMilliseconds(500), cts.Token);
-            }
-        });
+            await updateProgress.Invoke(ev.Loaded);
+        };
 
-        try
+        request.OnLoadend += _ =>
         {
-            await Create(path, stream);
-        }
-        finally
-        {
-            // Ensure we aren't creating an endless loop ^^
-            await cts.CancelAsync();
-        }
+            tcs.SetResult();
+            return Task.CompletedTask;
+        };
+
+        await request.Open("POST", $"{BaseApiUrl}/create?path={path}");
+        await request.SetRequestHeader("Authorization", $"Bearer {accessToken}");
+
+        await request.SendFile(stream, "file", "file");
+
+        await tcs.Task;
     }
 
     public async Task Compress(CompressType type, string path, string[] itemsToCompress)
