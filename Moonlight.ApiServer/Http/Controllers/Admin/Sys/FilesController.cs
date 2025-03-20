@@ -90,12 +90,11 @@ public class FilesController : Controller
         if (!string.IsNullOrEmpty(baseDir))
             Directory.CreateDirectory(baseDir);
 
-        var didExistBefore = System.IO.File.Exists(physicalPath);
-
         await using var fs = System.IO.File.Open(physicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
 
-        // This creates the file in the correct size so we can handle the chunk if it didnt exist
-        if (!didExistBefore)
+        // This resizes the file to the correct size so we can handle the chunk if it didnt exist
+        
+        if (fs.Length != totalSize)
             fs.SetLength(totalSize);
         
         fs.Position = positionToSkipTo;
