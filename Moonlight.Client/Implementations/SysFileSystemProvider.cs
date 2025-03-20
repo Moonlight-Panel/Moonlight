@@ -2,7 +2,6 @@
 using MoonCore.Blazor.Tailwind.Fm;
 using MoonCore.Blazor.Tailwind.Fm.Models;
 using MoonCore.Blazor.Tailwind.Services;
-using MoonCore.Blazor.Tailwind.Xhr;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
@@ -14,7 +13,6 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
     private readonly DownloadService DownloadService;
     private readonly HttpApiClient HttpApiClient;
     private readonly LocalStorageService LocalStorageService;
-    private readonly XmlHttpClient XmlHttpClient;
     private readonly string BaseApiUrl = "api/admin/system/files";
 
     public CompressType[] CompressTypes { get; } =
@@ -31,12 +29,15 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
         }
     ];
 
-    public SysFileSystemProvider(HttpApiClient httpApiClient, DownloadService downloadService, LocalStorageService localStorageService, XmlHttpClient xmlHttpClient)
+    public SysFileSystemProvider(
+        HttpApiClient httpApiClient,
+        DownloadService downloadService,
+        LocalStorageService localStorageService
+    )
     {
         HttpApiClient = httpApiClient;
         DownloadService = downloadService;
         LocalStorageService = localStorageService;
-        XmlHttpClient = xmlHttpClient;
     }
 
     public async Task<FileSystemEntry[]> List(string path)
@@ -57,11 +58,7 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
 
     public async Task Create(string path, Stream stream)
     {
-        var content = new MultipartFormDataContent();
-        
-        content.Add(new StreamContent(stream), "file", "x");
-        
-        await HttpApiClient.Post($"{BaseApiUrl}/create?path={path}", content);
+        await Upload(_ => Task.CompletedTask, path, stream);
     }
 
     public async Task Move(string oldPath, string newPath)
@@ -74,45 +71,46 @@ public class SysFileSystemProvider : IFileSystemProvider, ICompressFileSystemPro
         => await HttpApiClient.Post($"{BaseApiUrl}/mkdir?path={path}");
 
     public async Task<Stream> Read(string path)
-        => await HttpApiClient.GetStream($"{BaseApiUrl}/read?path={path}");
+        => await HttpApiClient.GetStream($"{BaseApiUrl}/download?path={path}");
 
-    public async Task Download(Func<long, Task> updateProgress, string path, string fileName)
+    public async Task Download(Func<int, Task> updateProgress, string path, string fileName)
     {
         var accessToken = await LocalStorageService.GetString("AccessToken");
-        
-        await DownloadService.DownloadUrl(fileName, $"{BaseApiUrl}/read?path={path}", async (bytes, _) =>
-        {
-            await updateProgress.Invoke(bytes);
-        }, headers =>
-        {
-            headers.Add("Authorization", $"Bearer {accessToken}");
-        });
+
+        await DownloadService.DownloadUrl(fileName, $"{BaseApiUrl}/download?path={path}",
+            async (loaded, total) =>
+            {
+                var percent = total == 0 ? 0 : (int)Math.Round((float)loaded / total * 100);
+                await updateProgress.Invoke(percent);
+            },
+            onConfigureHeaders: headers => { headers.Add("Authorization", $"Bearer {accessToken}"); }
+        );
     }
 
-    public async Task Upload(Func<long, Task> updateProgress, string path, Stream stream)
+    public async Task Upload(Func<int, Task> updateProgress, string path, Stream stream)
     {
-        var tcs = new TaskCompletionSource();
-        var accessToken = await LocalStorageService.GetString("AccessToken");
+        var size = stream.Length;
+        var chunkSize = ByteConverter.FromMegaBytes(20).Bytes;
+
+        var chunks = size / chunkSize;
+        chunks += size % chunkSize > 0 ? 1 : 0;
         
-        await using var request = await XmlHttpClient.Create();
-
-        request.OnUploadProgress += async ev =>
+        for (var chunkId = 0; chunkId < chunks; chunkId++)
         {
-            await updateProgress.Invoke(ev.Loaded);
-        };
+            var percent = (int)Math.Round((chunkId + 1f) / chunks * 100);
+            await updateProgress.Invoke(percent);
+            
+            var buffer = new byte[chunkSize];
+            var bytesRead = await stream.ReadAsync(buffer);
 
-        request.OnLoadend += _ =>
-        {
-            tcs.SetResult();
-            return Task.CompletedTask;
-        };
+            var uploadForm = new MultipartFormDataContent();
+            uploadForm.Add(new ByteArrayContent(buffer, 0, bytesRead), "file", path);
 
-        await request.Open("POST", $"{BaseApiUrl}/create?path={path}");
-        await request.SetRequestHeader("Authorization", $"Bearer {accessToken}");
-
-        await request.SendFile(stream, "file", "file");
-
-        await tcs.Task;
+            await HttpApiClient.Post(
+                $"{BaseApiUrl}/upload?path={path}&totalSize={size}&chunkId={chunkId}",
+                uploadForm
+            );
+        }
     }
 
     public async Task Compress(CompressType type, string path, string[] itemsToCompress)

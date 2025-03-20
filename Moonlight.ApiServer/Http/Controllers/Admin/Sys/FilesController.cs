@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using MoonCore.Exceptions;
 using MoonCore.Extended.PermFilter;
 using MoonCore.Helpers;
-using Moonlight.ApiServer.Configuration;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
 
@@ -18,6 +17,7 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 public class FilesController : Controller
 {
     private readonly string BaseDirectory = PathBuilder.Dir("storage");
+    private readonly long ChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
 
     [HttpGet("list")]
     public Task<FileSystemEntryResponse[]> List([FromQuery] string path)
@@ -64,14 +64,24 @@ public class FilesController : Controller
         );
     }
 
-    [HttpPost("create")]
-    public async Task Create([FromQuery] string path)
+    [HttpPost("upload")]
+    public async Task Upload([FromQuery] string path, [FromQuery] long totalSize, [FromQuery] int chunkId)
     {
         if (Request.Form.Files.Count != 1)
             throw new HttpApiException("You need to provide exactly one file", 400);
 
         var file = Request.Form.Files[0];
-        var stream = file.OpenReadStream();
+        
+        if (file.Length > ChunkSize)
+            throw new HttpApiException("The provided data exceeds the chunk size limit", 400);
+        
+        var chunks = totalSize / ChunkSize;
+        chunks += totalSize % ChunkSize > 0 ? 1 : 0;
+
+        if (chunkId > chunks)
+            throw new HttpApiException("Invalid chunk id: Out of bounds", 400);
+        
+        var positionToSkipTo = ChunkSize * chunkId;
 
         var safePath = SanitizePath(path);
         var physicalPath = PathBuilder.File(BaseDirectory, safePath);
@@ -80,15 +90,22 @@ public class FilesController : Controller
         if (!string.IsNullOrEmpty(baseDir))
             Directory.CreateDirectory(baseDir);
 
-        await using var fs = System.IO.File.Create(
-            physicalPath
-        );
+        var didExistBefore = System.IO.File.Exists(physicalPath);
 
-        await stream.CopyToAsync(fs);
+        await using var fs = System.IO.File.Open(physicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
 
+        // This creates the file in the correct size so we can handle the chunk if it didnt exist
+        if (!didExistBefore)
+            fs.SetLength(totalSize);
+        
+        fs.Position = positionToSkipTo;
+
+        var dataStream = file.OpenReadStream();
+
+        await dataStream.CopyToAsync(fs);
         await fs.FlushAsync();
+
         fs.Close();
-        stream.Close();
     }
 
     [HttpPost("move")]
@@ -150,8 +167,8 @@ public class FilesController : Controller
         return Task.CompletedTask;
     }
 
-    [HttpGet("read")]
-    public async Task Read([FromQuery] string path)
+    [HttpGet("download")]
+    public async Task Download([FromQuery] string path)
     {
         var safePath = SanitizePath(path);
         var physicalPath = PathBuilder.File(BaseDirectory, safePath);

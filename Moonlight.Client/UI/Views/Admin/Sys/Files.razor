@@ -4,7 +4,6 @@
 @using MoonCore.Blazor.Services
 @using MoonCore.Helpers
 @using MoonCore.Blazor.Tailwind.Fm
-@using MoonCore.Blazor.Tailwind.Xhr
 @using Moonlight.Client.Implementations
 
 @attribute [RequirePermission("admin.system.overview")]
@@ -12,13 +11,12 @@
 @inject HttpApiClient ApiClient
 @inject DownloadService DownloadService
 @inject LocalStorageService LocalStorageService
-@inject XmlHttpClient XmlHttpClient
 
 <div class="mb-3">
     <NavTabs Index="2" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 </div>
 
-<FileManager FileSystemProvider="FileSystemProvider"/>
+<FileManager FileSystemProvider="FileSystemProvider" MaxUploadSize="4096"/>
 
 @code
 {
@@ -29,8 +27,7 @@
         FileSystemProvider = new SysFileSystemProvider(
             ApiClient,
             DownloadService,
-            LocalStorageService,
-            XmlHttpClient
+            LocalStorageService
         );
     }
 }
