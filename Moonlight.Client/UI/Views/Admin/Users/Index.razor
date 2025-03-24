@@ -17,11 +17,13 @@
     </PageHeader>
 </div>
 
-<DataTable @ref="Table" TItem="UserDetailResponse" PageSize="15" LoadItemsPaginatedAsync="LoadData">
+<DataTable @ref="Table" TItem="UserDetailResponse">
     <Configuration>
-        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Id)" Name="Id" />
-        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Username)" Name="Username" />
-        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Email)" Name="Email" />
+        <Pagination TItem="UserDetailResponse" ItemSource="LoadData" />
+        
+        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Id)" Name="Id"/>
+        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Username)" Name="Username"/>
+        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Email)" Name="Email"/>
         <DataTableColumn TItem="UserDetailResponse">
             <ColumnTemplate>
                 <div class="flex justify-end">

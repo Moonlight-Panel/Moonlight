@@ -53,10 +53,12 @@
     </a>
 </div>
 
-<DataTable @ref="Table" TItem="ApiKeyDetailResponse" PageSize="15" LoadItemsPaginatedAsync="LoadData">
+<DataTable @ref="Table" TItem="ApiKeyDetailResponse">
     <Configuration>
-        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Id)" Name="Id" />
-        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Description)" Name="Description" />
+        <Pagination TItem="ApiKeyDetailResponse" ItemSource="LoadData" />
+        
+        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Id)" Name="Id"/>
+        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Description)" Name="Description"/>
         <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.ExpiresAt)" Name="Expires at">
             <ColumnTemplate>
                 @(Formatter.FormatDate(context.ExpiresAt))
