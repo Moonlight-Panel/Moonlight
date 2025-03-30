@@ -1,140 +1,214 @@
-﻿@using Moonlight.Client.Interfaces
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MoonCore.Blazor.Tailwind.Auth
+@using Moonlight.Client.Interfaces
 @using Moonlight.Client.Models
 @using Moonlight.Client.UI.Layouts
 
+@inject ToastService ToastService
 @inject NavigationManager Navigation
+@inject AuthenticationStateManager AuthStateManager
 @inject IEnumerable<ISidebarItemProvider> SidebarItemProviders
 
 @{
     var url = new Uri(Navigation.Uri);
 }
 
-<div
-    class="relative z-50 lg:hidden transition-opacity ease-linear duration-300 @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0 pointer-events-none")"
-    role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-gray-900/80"></div>
+<div class="fixed inset-y-0 left-0 w-64 max-lg:hidden">
+    <nav class="flex h-full min-h-0 flex-col">
+        <div class="flex flex-col border-b p-4 border-white/5">
+            <span class="relative">
+                <div type="button"
+                        class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-lg font-medium text-gray-100">
+                    <span
+                        class="inline-grid shrink-0 align-middle">
+                        <img class="h-8 rounded-full"
+                             src="/svg/logo.svg"
+                             alt=""/>
+                    </span>
+                    <span class="truncate">Moonlight</span>
+                </div>
+            </span>
+        </div>
+        <div class="flex flex-1 flex-col overflow-y-auto p-4 mt-1">
+            <div class="flex flex-col gap-1.5">
+                @foreach (var item in Items)
+                {
+                    if (!string.IsNullOrEmpty(item.Key))
+                    {
+                        <h3 class="mt-4 px-2 text-sm/5 font-medium text-gray-400">
+                            @item.Key
+                        </h3>
+                    }
 
-    <div class="fixed inset-0 flex">
-        <div
-            class="relative mr-16 flex w-full max-w-xs flex-1 transition ease-in-out duration-300 transform @(Layout.ShowMobileNavigation ? "translate-x-0" : "-translate-x-full")">
+                    foreach (var sidebarItem in item.Value)
+                    {
+                        var isMatch = sidebarItem.RequiresExactMatch
+                            ? url.LocalPath == sidebarItem.Path
+                            : url.LocalPath.StartsWith(sidebarItem.Path);
+
+                        @if (isMatch)
+                        {
+                            <div class="relative">
+                                <span class="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-white"
+                                      style="opacity: 1;">
+                                </span>
+                                <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal bg-white/5 sm:py-2 sm:text-sm/5 text-white"
+                                   href="@sidebarItem.Path">
+                                    <i class="@sidebarItem.Icon text-lg"></i>
+                                    <span class="truncate">
+                                        @sidebarItem.Name
+                                    </span>
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="relative">
+                                <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal sm:py-2 sm:text-sm/5 text-white hover:bg-white/5"
+                                   href="@sidebarItem.Path">
+                                    <i class="@sidebarItem.Icon text-lg"></i>
+                                    <span class="truncate">
+                                        @sidebarItem.Name
+                                    </span>
+                                </a>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+        <div class="flex flex-col border-t p-4 max-lg:hidden border-white/5 mt-2.5">
             <div
-                class="absolute left-full top-0 flex w-16 justify-center pt-5 ease-in-out duration-300 @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0")">
-                <button @onclick="Layout.ToggleMobileNavigation" type="button" class="-m-2.5 p-2.5">
-                    <span class="sr-only">Close sidebar</span>
+                class="flex w-full items-center px-2 py-2.5 gap-6 rounded-lg text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-white">
+                <div class="flex min-w-0 items-center gap-3">
+                    <span class="inline-grid shrink-0 align-middle">
+                        <img class="h-8 rounded-full"
+                             src="/img/pfp_placeholder.png"
+                             alt=""/>
+                    </span>
+                    <div class="min-w-0">
+                        <div class="block truncate text-sm/5 font-medium text-white">
+                            @Username
+                        </div>
+                        <div class="block truncate text-xs/5 font-normal text-gray-400">
+                            @Email
+                        </div>
+                    </div>
+                </div>
+                <a href="#" @onclick:preventDefault @onclick="Logout" class="flex items-center">
+                    <i class="icon-log-out text-lg"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div
+    class="lg:hidden z-50 transition-opacity ease-linear duration-300 @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0 pointer-events-none")"
+    role="dialog" tabindex="-1">
+    <div class="fixed inset-0 bg-black/30"></div>
+    <div class="fixed inset-y-0 w-full max-w-80 p-2">
+        <div
+            class="relative flex h-full flex-col rounded-lg shadow-xs ring-1 bg-gray-900 ring-white/10 transition ease-in-out duration-300 transform @(Layout.ShowMobileNavigation ? "translate-x-0" : "-translate-x-full")">
+            <div class="border-b p-4 border-white/5 flex justify-between px-5 pt-3">
+                <div class="flex items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-white">
+                    <div data-slot="avatar"
+                         class="inline-grid shrink-0 align-middle">
+                        <img
+                            class="h-8 rounded-full" src="/svg/logo.svg" alt=""/>
+                    </div>
+                    <div class="truncate">Moonlight</div>
+                </div>
+
+                <button @onclick="Layout.ToggleMobileNavigation" aria-label="Close navigation" type="button"
+                        class="relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 text-white">
                     <i class="icon-x text-lg"></i>
                 </button>
             </div>
-
-            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4 ring-1 ring-white/10">
-                <div class="flex h-16 shrink-0 items-center">
-                    <img class="h-8 w-auto" src="/svg/logo.svg" alt="Logo">
-                </div>
-
-                <nav class="flex flex-1 flex-col">
-                    <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                        @foreach (var group in Items)
+            <nav class="flex h-full min-h-0 flex-col">
+                <div
+                    class="flex flex-1 flex-col overflow-y-auto p-4">
+                    <div data-slot="section" class="flex flex-col gap-0.5">
+                        @foreach (var item in Items)
                         {
-                            <li>
-                                @if (!string.IsNullOrEmpty(group.Key))
+                            if (!string.IsNullOrEmpty(item.Key))
+                            {
+                                <h3 class="mt-4 px-2 text-sm/5 font-medium text-gray-400">
+                                    @item.Key
+                                </h3>
+                            }
+
+                            foreach (var sidebarItem in item.Value)
+                            {
+                                var isMatch = sidebarItem.RequiresExactMatch
+                                    ? url.LocalPath == sidebarItem.Path
+                                    : url.LocalPath.StartsWith(sidebarItem.Path);
+
+                                @if (isMatch)
                                 {
-                                    <div class="text-xs font-semibold leading-6 text-gray-400">
-                                        @group.Key
+                                    <div class="relative">
+                                        <span class="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-white"
+                                              style="opacity: 1;">
+                                        </span>
+                                        <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal bg-white/5 sm:py-2 sm:text-sm/5 text-white"
+                                           href="@sidebarItem.Path">
+                                            <i class="@sidebarItem.Icon text-lg"></i>
+                                            <span class="truncate">
+                                                @sidebarItem.Name
+                                            </span>
+                                        </a>
                                     </div>
                                 }
-
-                                <ul role="list" class="-mx-2 space-y-1">
-                                    @foreach (var item in group.Value)
-                                    {
-                                        var isMatch = item.RequiresExactMatch
-                                            ? url.LocalPath == item.Path
-                                            : url.LocalPath.StartsWith(item.Path);
-
-                                        <li>
-                                            @if (isMatch)
-                                            {
-                                                <a href="@item.Path"
-                                                   class="bg-gray-800 text-white group flex gap-x-3 rounded-md p-2 text-sm leading-6 items-center">
-                                                    <i class="ms-1 text-lg shrink-0 @item.Icon"></i>
-                                                    @item.Name
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <a href="@item.Path"
-                                                   class="text-gray-300 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 items-center">
-                                                    <i class="ms-1 text-lg shrink-0 @item.Icon"></i>
-                                                    @item.Name
-                                                </a>
-                                            }
-                                        </li>
-                                    }
-                                </ul>
-                            </li>
-                        }
-                    </ul>
-                </nav>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-    <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-800/60 px-6 pb-4">
-        <div class="flex h-16 shrink-0 items-center">
-            <img class="h-10 w-auto" src="/svg/logo.svg" alt="Logo">
-        </div>
-        <nav class="flex flex-1 flex-col">
-            <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                @foreach (var group in Items)
-                {
-                    <li>
-                        @if (!string.IsNullOrEmpty(group.Key))
-                        {
-                            <div class="text-xs font-semibold leading-6 text-gray-400 my-2">
-                                @group.Key
-                            </div>
-                        }
-
-                        <ul role="list" class="-mx-2 space-y-1">
-                            @foreach (var item in group.Value)
-                            {
-                                var isMatch = item.RequiresExactMatch
-                                    ? url.LocalPath == item.Path
-                                    : url.LocalPath.StartsWith(item.Path);
-
-                                <li>
-                                    @if (isMatch)
-                                    {
-                                        <a href="@item.Path"
-                                           class="bg-gray-800 text-white group flex gap-x-3 rounded-md p-2 text-sm leading-6 items-center">
-                                            <i class="ms-1 text-lg shrink-0 @item.Icon"></i>
-                                            @item.Name
+                                else
+                                {
+                                    <div class="relative">
+                                        <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal sm:py-2 sm:text-sm/5 text-white hover:bg-white/5"
+                                           href="@sidebarItem.Path">
+                                            <i class="@sidebarItem.Icon text-lg"></i>
+                                            <span class="truncate">
+                                                @sidebarItem.Name
+                                            </span>
                                         </a>
-                                    }
-                                    else
-                                    {
-                                        <a href="@item.Path"
-                                           class="text-gray-300 hover:text-white hover:bg-gray-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 items-center">
-                                            <i class="ms-1 text-lg shrink-0 @item.Icon"></i>
-                                            @item.Name
-                                        </a>
-                                    }
-                                </li>
+                                    </div>
+                                }
                             }
-                        </ul>
-                    </li>
-                }
-            </ul>
-        </nav>
+                        }
+                    </div>
+
+                    <div class="mt-8 flex-1"></div>
+                    <div class="flex flex-col gap-0.5">
+                        <div class="relative">
+
+                            <a class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 sm:py-2 sm:text-sm/5 text-white"
+                               href="#" @onclick:preventDefault @onclick="Logout">
+                                <i class="icon-log-out"></i>
+                                <span class="truncate">Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
     </div>
 </div>
 
 @code
 {
     [Parameter] public MainLayout Layout { get; set; }
+    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
 
     private Dictionary<string, SidebarItem[]> Items = new();
+
+    private string Username;
+    private string Email;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var identity = await AuthState;
+
+        Username = identity.User.Claims.First(x => x.Type == "username").Value;
+        Email = identity.User.Claims.First(x => x.Type == "email").Value;
+    }
 
     protected override void OnInitialized()
     {
@@ -166,5 +240,10 @@
         };
 
         return Task.CompletedTask;
+    }
+
+    private async Task Logout()
+    {
+        await AuthStateManager.Logout();
     }
 }
