@@ -1,6 +1,6 @@
 ﻿namespace Moonlight.Shared.Http.Responses.Admin.ApiKeys;
 
-public class ApiKeyDetailResponse
+public class ApiKeyResponse
 {
     public int Id { get; set; }
     public string Description { get; set; }

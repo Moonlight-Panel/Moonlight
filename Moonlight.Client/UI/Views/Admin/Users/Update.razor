@@ -55,7 +55,7 @@
 
     private async Task Load(LazyLoader _)
     {
-        var detail = await ApiClient.GetJson<UserDetailResponse>($"api/admin/users/{Id}");
+        var detail = await ApiClient.GetJson<UserResponse>($"api/admin/users/{Id}");
         Request = Mapper.Map<UpdateUserRequest>(detail);
     }
 

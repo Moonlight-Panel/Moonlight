@@ -17,14 +17,14 @@
     </PageHeader>
 </div>
 
-<DataTable @ref="Table" TItem="UserDetailResponse">
+<DataTable @ref="Table" TItem="UserResponse">
     <Configuration>
-        <Pagination TItem="UserDetailResponse" ItemSource="LoadData" />
+        <Pagination TItem="UserResponse" ItemSource="LoadData" />
         
-        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Id)" Name="Id"/>
-        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Username)" Name="Username"/>
-        <DataTableColumn TItem="UserDetailResponse" Field="@(x => x.Email)" Name="Email"/>
-        <DataTableColumn TItem="UserDetailResponse">
+        <DataTableColumn TItem="UserResponse" Field="@(x => x.Id)" Name="Id"/>
+        <DataTableColumn TItem="UserResponse" Field="@(x => x.Username)" Name="Username"/>
+        <DataTableColumn TItem="UserResponse" Field="@(x => x.Email)" Name="Email"/>
+        <DataTableColumn TItem="UserResponse">
             <ColumnTemplate>
                 <div class="flex justify-end">
                     <a href="/admin/users/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
@@ -43,19 +43,19 @@
 
 @code
 {
-    private DataTable<UserDetailResponse> Table;
+    private DataTable<UserResponse> Table;
     
-    private async Task<IPagedData<UserDetailResponse>> LoadData(PaginationOptions options)
-     => await ApiClient.GetJson<PagedData<UserDetailResponse>>($"api/admin/users?page={options.Page}&pageSize={options.PerPage}");
+    private async Task<IPagedData<UserResponse>> LoadData(PaginationOptions options)
+     => await ApiClient.GetJson<PagedData<UserResponse>>($"api/admin/users?page={options.Page}&pageSize={options.PerPage}");
 
-    private async Task Delete(UserDetailResponse detailResponse)
+    private async Task Delete(UserResponse response)
     {
         await AlertService.ConfirmDanger(
             "User deletion",
-            $"Do you really want to delete the user '{detailResponse.Username}'",
+            $"Do you really want to delete the user '{response.Username}'",
             async () =>
             {
-                await ApiClient.Delete($"api/admin/users/{detailResponse.Id}");
+                await ApiClient.Delete($"api/admin/users/{response.Id}");
                 await ToastService.Success("Successfully deleted user");
 
                 await Table.Refresh();

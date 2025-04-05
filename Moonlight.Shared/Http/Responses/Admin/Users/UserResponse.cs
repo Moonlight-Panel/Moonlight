@@ -1,6 +1,6 @@
 namespace Moonlight.Shared.Http.Responses.Admin.Users;
 
-public class UserDetailResponse
+public class UserResponse
 {
     public int Id { get; set; }
     public string Username { get; set; }

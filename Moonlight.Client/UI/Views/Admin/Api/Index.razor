@@ -53,18 +53,18 @@
     </a>
 </div>
 
-<DataTable @ref="Table" TItem="ApiKeyDetailResponse">
+<DataTable @ref="Table" TItem="ApiKeyResponse">
     <Configuration>
-        <Pagination TItem="ApiKeyDetailResponse" ItemSource="LoadData" />
+        <Pagination TItem="ApiKeyResponse" ItemSource="LoadData" />
         
-        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Id)" Name="Id"/>
-        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.Description)" Name="Description"/>
-        <DataTableColumn TItem="ApiKeyDetailResponse" Field="@(x => x.ExpiresAt)" Name="Expires at">
+        <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.Id)" Name="Id"/>
+        <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.Description)" Name="Description"/>
+        <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.ExpiresAt)" Name="Expires at">
             <ColumnTemplate>
                 @(Formatter.FormatDate(context.ExpiresAt))
             </ColumnTemplate>
         </DataTableColumn>
-        <DataTableColumn TItem="ApiKeyDetailResponse">
+        <DataTableColumn TItem="ApiKeyResponse">
             <ColumnTemplate>
                 <div class="flex justify-end">
                     <a href="/admin/api/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
@@ -83,19 +83,19 @@
 
 @code
 {
-    private DataTable<ApiKeyDetailResponse> Table;
+    private DataTable<ApiKeyResponse> Table;
     
-    private async Task<IPagedData<ApiKeyDetailResponse>> LoadData(PaginationOptions options)
-     => await ApiClient.GetJson<PagedData<ApiKeyDetailResponse>>($"api/admin/apikeys?page={options.Page}&pageSize={options.PerPage}");
+    private async Task<IPagedData<ApiKeyResponse>> LoadData(PaginationOptions options)
+     => await ApiClient.GetJson<PagedData<ApiKeyResponse>>($"api/admin/apikeys?page={options.Page}&pageSize={options.PerPage}");
 
-    private async Task Delete(ApiKeyDetailResponse apiKeyDetailResponse)
+    private async Task Delete(ApiKeyResponse apiKeyResponse)
     {
         await AlertService.ConfirmDanger(
             "API Key deletion",
-            $"Do you really want to delete the api key '{apiKeyDetailResponse.Description}'",
+            $"Do you really want to delete the api key '{apiKeyResponse.Description}'",
             async () =>
             {
-                await ApiClient.Delete($"api/admin/apikeys/{apiKeyDetailResponse.Id}");
+                await ApiClient.Delete($"api/admin/apikeys/{apiKeyResponse.Id}");
                 await ToastService.Success("Successfully deleted api key");
 
                 await Table.Refresh();

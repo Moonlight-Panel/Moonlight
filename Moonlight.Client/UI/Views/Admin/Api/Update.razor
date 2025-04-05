@@ -55,7 +55,7 @@
 
     private async Task Load(LazyLoader _)
     {
-        var detail = await ApiClient.GetJson<ApiKeyDetailResponse>($"api/admin/apikeys/{Id}");
+        var detail = await ApiClient.GetJson<ApiKeyResponse>($"api/admin/apikeys/{Id}");
         Request = Mapper.Map<UpdateApiKeyRequest>(detail);
     }
 
