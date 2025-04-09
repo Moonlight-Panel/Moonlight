@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MoonCore.Extended.SingleDb;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Helpers;
 
 namespace Moonlight.ApiServer.Database;
 
@@ -23,5 +23,11 @@ public class CoreDataContext : DatabaseContext
             Password = configuration.Database.Password,
             Database = configuration.Database.Database
         };
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.OnHangfireModelCreating();
     }
 }

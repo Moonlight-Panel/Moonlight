@@ -2,6 +2,8 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Text.Json;
+using Hangfire;
+using Hangfire.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +17,7 @@ using MoonCore.Extensions;
 using MoonCore.Helpers;
 using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
+using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Interfaces.Startup;
@@ -78,18 +81,20 @@ public class Startup
         await RegisterBase();
         await RegisterDatabase();
         await RegisterAuth();
+        await RegisterCors();
+        await RegisterHangfire();
         await HookPluginBuild();
         await RegisterPluginAssets();
-        await RegisterCors();
 
         await BuildWebApplication();
 
         await PrepareDatabase();
-        
+
         await UseCors();
         await UsePluginAssets(); // We need to move the plugin assets to the top to allow plugins to override content
         await UseBase();
         await UseAuth();
+        await UseHangfire();
         await HookPluginConfigure();
 
         await MapBase();
@@ -607,13 +612,54 @@ public class Startup
                 builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().Build();
             });
         });
-        
+
         return Task.CompletedTask;
     }
 
     private Task UseCors()
     {
         WebApplication.UseCors();
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Hangfire
+
+    private Task RegisterHangfire()
+    {
+        WebApplicationBuilder.Services.AddHangfire((provider, configuration) =>
+        {
+            configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
+            configuration.UseSimpleAssemblyNameTypeSerializer();
+            configuration.UseRecommendedSerializerSettings();
+            configuration.UseEFCoreStorage(() =>
+            {
+                var scope = provider.CreateScope();
+                return scope.ServiceProvider.GetRequiredService<CoreDataContext>();
+            }, new EFCoreStorageOptions());
+        });
+
+        WebApplicationBuilder.Services.AddHangfireServer();
+
+        WebApplicationBuilder.Logging.AddFilter(
+            "Hangfire.Server.BackgroundServerProcess",
+            LogLevel.Warning
+        );
+        
+        WebApplicationBuilder.Logging.AddFilter(
+            "Hangfire.BackgroundJobServer",
+            LogLevel.Warning
+        );
+
+        return Task.CompletedTask;
+    }
+
+    private Task UseHangfire()
+    {
+        if (WebApplication.Environment.IsDevelopment())
+            WebApplication.UseHangfireDashboard();
         
         return Task.CompletedTask;
     }
