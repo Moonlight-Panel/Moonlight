@@ -22,5 +22,9 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/storage
+**/compose.yml
 LICENSE
 README.md
+
+# For the people who run moonlight inside the main repo with the relative data path
+data

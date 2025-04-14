@@ -1,5 +1,7 @@
 services:
   api-server:
+    user: 0:0
+    restart: always
     image: moonlightpanel/panel:custom
     build:
       context: .
@@ -10,31 +12,35 @@ services:
       db:
         condition: service_healthy
     environment:
-      - MOONLIGHT_APP_DATABASE_HOST=db
-      - MOONLIGHT_APP_DATABASE_PORT=3306
-      - MOONLIGHT_APP_DATABASE_USERNAME=moonlight
-      - MOONLIGHT_APP_DATABASE_PASSWORD=s3cret
-      - MOONLIGHT_APP_DATABASE_DATABASE=moonlight
-      - MOONLIGHT_APP_PUBLICURL=http://localhost:9069
+      - MOONLIGHT_DATABASE_HOST=db
+      - MOONLIGHT_DATABASE_PORT=5432
+      - MOONLIGHT_DATABASE_USERNAME=moonlight
+      - MOONLIGHT_DATABASE_PASSWORD=s3cret
+      - MOONLIGHT_DATABASE_DATABASE=moonlight
+      - MOONLIGHT_PUBLICURL=http://localhost:9069
+      - MOONLIGHT_AUTHENTICATION_OAUTH2_ACCESSENDPOINT=http://localhost:8080 # Use this when moonlight is using local oauth2 and a different port as the public url
     volumes:
-      - api_data:/app/storage
+      - ./data/moonlight:/app/storage
     links:
       - db
     pull_policy: build
   
   db:
-    image: mysql:latest
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5555:5432"
     environment:
-      - MYSQL_ROOT_PASSWORD=s3cret
-      - MYSQL_PASSWORD=s3cret
-      - MYSQL_DATABASE=moonlight
-      - MYSQL_USER=moonlight
+      - POSTGRES_USER=moonlight
+      - POSTGRES_DB=moonlight
+      - POSTGRES_PASSWORD=s3cret
     volumes:
-      - db_data:/var/lib/mysql
+      - ./data/database:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-      timeout: 1s
-      retries: 10
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   api_data:
