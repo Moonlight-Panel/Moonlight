@@ -40,7 +40,7 @@ public class AuthController : Controller
         RedirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
             ? Configuration.PublicUrl
             : Configuration.Authentication.OAuth2.AuthorizationRedirect;
-        
+
         EndpointUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationEndpoint)
             ? Configuration.PublicUrl + "/oauth2/authorize"
             : Configuration.Authentication.OAuth2.AuthorizationEndpoint;
@@ -65,14 +65,21 @@ public class AuthController : Controller
     public async Task<LoginCompleteResponse> Complete([FromBody] LoginCompleteRequest request)
     {
         // TODO: Make modular
-        
+
         // Create http client to call the auth provider
         using var httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri(Configuration.PublicUrl);
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {Configuration.Authentication.OAuth2.ClientSecret}");
         
+        httpClient.BaseAddress = new Uri(
+            string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AccessEndpoint)
+                ? Configuration.PublicUrl
+                : Configuration.Authentication.OAuth2.AccessEndpoint
+        );
+        
+        httpClient.DefaultRequestHeaders.Add("Authorization",
+            $"Basic {Configuration.Authentication.OAuth2.ClientSecret}");
+
         var httpApiClient = new HttpApiClient(httpClient);
-        
+
         // Call the auth provider
         OAuth2HandleResponse handleData;
 
@@ -96,7 +103,7 @@ public class AuthController : Controller
 
             throw new HttpApiException("Unable to request user data", 500);
         }
-        
+
         // Handle the returned data
         var userId = handleData.UserId;
 
@@ -106,10 +113,10 @@ public class AuthController : Controller
 
         if (user == null)
             throw new HttpApiException("Unable to load user data", 500);
-        
+
         //
         var permissions = JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? [];
-        
+
         // Generate token
         var securityTokenDescriptor = new SecurityTokenDescriptor()
         {
@@ -157,7 +164,7 @@ public class AuthController : Controller
         var user = await UserRepository.Get().FirstAsync(x => x.Id == userId);
 
         var permissions = JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? [];
-        
+
         return new()
         {
             Email = user.Email,

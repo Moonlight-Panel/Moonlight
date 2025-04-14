@@ -41,6 +41,7 @@ public class AppConfiguration
             public string ClientId { get; set; } = Formatter.GenerateString(8);
             public string ClientSecret { get; set; } = Formatter.GenerateString(32);
             public string? AuthorizationEndpoint { get; set; }
+            public string? AccessEndpoint { get; set; }
             public string? AuthorizationRedirect { get; set; }
         }
     }
