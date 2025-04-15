@@ -118,8 +118,6 @@ public class ApiKeysController : Controller
             throw new HttpApiException("No api key with that id found", 404);
 
         apiKey.Description = request.Description;
-        apiKey.PermissionsJson = request.PermissionsJson;
-        apiKey.ExpiresAt = request.ExpiresAt;
 
         await ApiKeyRepository.Update(apiKey);
 

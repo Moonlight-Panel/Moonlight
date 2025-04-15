@@ -29,18 +29,6 @@
                         <input @bind="Request.Description" type="text" autocomplete="off" class="form-input w-full">
                     </div>
                 </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
-                    <div class="mt-2">
-                        <input @bind="Request.PermissionsJson" type="email" autocomplete="off" class="form-input w-full">
-                    </div>
-                </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Expires at</label>
-                    <div class="mt-2">
-                        <input @bind="Request.ExpiresAt" type="datetime" autocomplete="off" class="form-input w-full">
-                    </div>
-                </div>
             </div>
         </HandleForm>
     </div>
@@ -56,7 +44,11 @@
     private async Task Load(LazyLoader _)
     {
         var detail = await ApiClient.GetJson<ApiKeyResponse>($"api/admin/apikeys/{Id}");
-        Request = Mapper.Map<UpdateApiKeyRequest>(detail);
+
+        Request = new()
+        {
+            Description = detail.Description
+        };
     }
 
     private async Task OnSubmit()

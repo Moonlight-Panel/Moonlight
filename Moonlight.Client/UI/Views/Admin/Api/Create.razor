@@ -8,6 +8,7 @@
 @inject NavigationManager Navigation
 @inject ToastService ToastService
 @inject AlertService AlertService
+@inject DownloadService DownloadService
 
 <PageHeader Title="Create API Key">
     <a href="/admin/api" class="btn btn-secondary">
@@ -38,7 +39,7 @@
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium leading-6 text-white">Expires at</label>
                 <div class="mt-2">
-                    <input @bind="Request.ExpiresAt" type="datetime" autocomplete="off" class="form-input w-full">
+                    <input @bind="Request.ExpiresAt" type="date" autocomplete="off" class="form-input w-full">
                 </div>
             </div>
         </div>
@@ -57,11 +58,18 @@
 
     private async Task OnSubmit()
     {
+        Request.ExpiresAt = Request.ExpiresAt.ToUniversalTime();
+        
         var response = await ApiClient.PostJson<CreateApiKeyResponse>("api/admin/apikeys", Request);
+
+        await DownloadService.DownloadString(
+            $"moonlight-key-{response.Id}.txt",
+            response.Secret
+        );
 
         await AlertService.Success(
             "API Key successfully created",
-            $"Copy the following secret. It wont be shown again. '{response.Secret}'"
+            "The API Key has been downloaded. Dont lose it, you cant view it anymore"
         );
 
         await ToastService.Success("Successfully created api key");
