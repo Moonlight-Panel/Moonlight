@@ -44,7 +44,8 @@ public class UsersController : Controller
             {
                 Id = x.Id,
                 Email = x.Email,
-                Username = x.Username
+                Username = x.Username,
+                PermissionsJson = x.PermissionsJson
             })
             .ToArray();
 
@@ -73,7 +74,8 @@ public class UsersController : Controller
         {
             Id = user.Id,
             Email = user.Email,
-            Username = user.Username
+            Username = user.Username,
+            PermissionsJson = user.PermissionsJson
         };
     }
 
@@ -108,7 +110,8 @@ public class UsersController : Controller
         {
             Id = finalUser.Id,
             Email = finalUser.Email,
-            Username = finalUser.Username
+            Username = finalUser.Username,
+            PermissionsJson = finalUser.PermissionsJson
         };
     }
 
@@ -138,12 +141,17 @@ public class UsersController : Controller
         if (!string.IsNullOrEmpty(request.Password))
         {
             user.Password = HashHelper.Hash(request.Password);
-            user.TokenValidTimestamp = DateTime.UtcNow; // This change will get applied by the crud helper
+            user.TokenValidTimestamp = DateTime.UtcNow; // Log out user after password change
+        }
+
+        if (user.PermissionsJson != request.PermissionsJson)
+        {
+            user.PermissionsJson = request.PermissionsJson;
+            user.TokenValidTimestamp = DateTime.UtcNow; // Log out user after permission change
         }
 
         user.Email = request.Email;
         user.Username = request.Username;
-        // TODO: Add permissions update here
 
         await UserRepository.Update(user);
 
@@ -151,7 +159,8 @@ public class UsersController : Controller
         {
             Id = user.Id,
             Email = user.Email,
-            Username = user.Username
+            Username = user.Username,
+            PermissionsJson = user.PermissionsJson
         };
     }
 

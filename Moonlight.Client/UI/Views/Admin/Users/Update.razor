@@ -36,6 +36,12 @@
                     </div>
                 </div>
                 <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
+                    <div class="mt-2">
+                        <input @bind="Request.PermissionsJson" type="text" autocomplete="off" class="form-input w-full">
+                    </div>
+                </div>
+                <div class="sm:col-span-2">
                     <label class="block text-sm font-medium leading-6 text-white">Password</label>
                     <div class="mt-2">
                         <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
@@ -56,7 +62,13 @@
     private async Task Load(LazyLoader _)
     {
         var detail = await ApiClient.GetJson<UserResponse>($"api/admin/users/{Id}");
-        Request = Mapper.Map<UpdateUserRequest>(detail);
+
+        Request = new()
+        {
+            Email = detail.Email,
+            PermissionsJson = detail.PermissionsJson,
+            Username = detail.Username
+        };
     }
 
     private async Task OnSubmit()
