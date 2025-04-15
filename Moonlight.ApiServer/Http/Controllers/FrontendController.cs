@@ -29,11 +29,14 @@ public class FrontendController : Controller
     {
         var assembliesMap = PluginService.GetAssemblies("client");
 
-        if (assembliesMap.ContainsKey(assemblyName))
+        if (!assembliesMap.TryGetValue(assemblyName, out var path))
             throw new HttpApiException("The requested assembly could not be found", 404);
 
-        var path = assembliesMap[assemblyName];
+        var absolutePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            path
+        );
 
-        await Results.File(path).ExecuteAsync(HttpContext);
+        await Results.File(absolutePath).ExecuteAsync(HttpContext);
     }
 }

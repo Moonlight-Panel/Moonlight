@@ -8,17 +8,20 @@ public class BundleGenerationService : IHostedService
 {
     private readonly ILogger<BundleGenerationService> Logger;
     private readonly IWebHostEnvironment HostEnvironment;
+    private readonly PluginService PluginService;
     private readonly BundleService BundleService;
 
     public BundleGenerationService(
         ILogger<BundleGenerationService> logger,
         IWebHostEnvironment hostEnvironment,
-        BundleService bundleService
+        BundleService bundleService,
+        PluginService pluginService
     )
     {
         Logger = logger;
         HostEnvironment = hostEnvironment;
         BundleService = bundleService;
+        PluginService = pluginService;
     }
 
     private async Task Bundle(CancellationToken cancellationToken)
@@ -34,29 +37,36 @@ public class BundleGenerationService : IHostedService
 
             if (fileInfo is NotFoundFileInfo || fileInfo.PhysicalPath == null)
             {
-                Logger.LogWarning(
-                    "Unable to find physical path for the requested css file '{file}'. Make sure its inside a wwwroot folder",
-                    cssFile
-                );
-                
-                continue;
+                fileInfo = PluginService.WwwRootFileProvider.GetFileInfo(cssFile);
+
+                if (fileInfo is NotFoundFileInfo || fileInfo.PhysicalPath == null)
+                {
+                    Logger.LogWarning(
+                        "Unable to find physical path for the requested css file '{file}'. Make sure its inside a wwwroot folder",
+                        cssFile
+                    );
+
+                    continue;
+                }
             }
-            
+
             Logger.LogTrace("Discovered css file '{path}' at '{physicalPath}'", cssFile, fileInfo.PhysicalPath);
 
             physicalCssFiles.Add(fileInfo.PhysicalPath);
         }
-        
-        if(physicalCssFiles.Count == 0)
-            Logger.LogWarning("No physical paths to css files loaded. The generated bundle will be empty. Unless this is intended by you this is a bug");
+
+        if (physicalCssFiles.Count == 0)
+            Logger.LogWarning(
+                "No physical paths to css files loaded. The generated bundle will be empty. Unless this is intended by you this is a bug");
 
         // TODO: Implement cache
-        
+
         // TODO: File system watcher for development
 
         var bundleContent = await CreateCssBundle(physicalCssFiles);
 
         Directory.CreateDirectory(PathBuilder.Dir("storage", "tmp"));
+        
         await File.WriteAllTextAsync(PathBuilder.File("storage", "tmp", "bundle.css"), bundleContent,
             cancellationToken);
 
@@ -83,7 +93,7 @@ public class BundleGenerationService : IHostedService
             {
                 var fileContent = await File.ReadAllTextAsync(physicalPath);
                 var stylesheet = await parser.ParseAsync(fileContent);
-                
+
                 // Check if it's the first stylesheet we are loading
                 if (mainStylesheet == null || content == null)
                 {
@@ -106,7 +116,7 @@ public class BundleGenerationService : IHostedService
             Logger.LogError("An unable to delegate main stylesheet. Did every load attempt of an stylesheet fail?");
             return "";
         }
-        
+
         // Process stylesheets against the main one
         foreach (var stylesheet in additionalStyleSheets)
         {

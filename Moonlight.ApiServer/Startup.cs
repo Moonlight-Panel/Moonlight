@@ -236,7 +236,9 @@ public class Startup
         {
             try
             {
-                PluginLoadContext.LoadFromAssemblyPath(assemblyFile);
+                PluginLoadContext.LoadFromAssemblyPath(
+                    Path.Combine(Directory.GetCurrentDirectory(), assemblyFile)
+                );
             }
             catch (Exception e)
             {
@@ -647,7 +649,7 @@ public class Startup
             "Hangfire.Server.BackgroundServerProcess",
             LogLevel.Warning
         );
-        
+
         WebApplicationBuilder.Logging.AddFilter(
             "Hangfire.BackgroundJobServer",
             LogLevel.Warning
@@ -660,7 +662,7 @@ public class Startup
     {
         if (WebApplication.Environment.IsDevelopment())
             WebApplication.UseHangfireDashboard();
-        
+
         return Task.CompletedTask;
     }
 
