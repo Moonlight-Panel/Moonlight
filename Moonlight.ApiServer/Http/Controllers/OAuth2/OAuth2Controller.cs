@@ -21,14 +21,14 @@ public class OAuth2Controller : Controller
 {
     private readonly AppConfiguration Configuration;
     private readonly DatabaseRepository<User> UserRepository;
-    
+
     private readonly string ExpectedRedirectUri;
 
     public OAuth2Controller(AppConfiguration configuration, DatabaseRepository<User> userRepository)
     {
         Configuration = configuration;
         UserRepository = userRepository;
-        
+
         ExpectedRedirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
             ? Configuration.PublicUrl
             : Configuration.Authentication.OAuth2.AuthorizationRedirect;
@@ -43,6 +43,9 @@ public class OAuth2Controller : Controller
         [FromQuery(Name = "view")] string view = "login"
     )
     {
+        if (!Configuration.Authentication.EnableLocalOAuth2)
+            throw new HttpApiException("Local OAuth2 has been disabled", 403);
+
         if (Configuration.Authentication.OAuth2.ClientId != clientId ||
             redirectUri != ExpectedRedirectUri ||
             responseType != "code")
@@ -88,6 +91,9 @@ public class OAuth2Controller : Controller
         [FromQuery(Name = "view")] string view = "login"
     )
     {
+        if (!Configuration.Authentication.EnableLocalOAuth2)
+            throw new HttpApiException("Local OAuth2 has been disabled", 403);
+
         if (Configuration.Authentication.OAuth2.ClientId != clientId ||
             redirectUri != ExpectedRedirectUri ||
             responseType != "code")
@@ -161,25 +167,28 @@ public class OAuth2Controller : Controller
         [FromForm(Name = "client_id")] string clientId
     )
     {
+        if (!Configuration.Authentication.EnableLocalOAuth2)
+            throw new HttpApiException("Local OAuth2 has been disabled", 403);
+
         // Check header
-        if(!Request.Headers.ContainsKey("Authorization"))
+        if (!Request.Headers.ContainsKey("Authorization"))
             throw new HttpApiException("You are missing the Authorization header", 400);
 
         var authorizationHeaderValue = Request.Headers["Authorization"].FirstOrDefault() ?? "";
-        
-        if(authorizationHeaderValue != $"Basic {Configuration.Authentication.OAuth2.ClientSecret}")
+
+        if (authorizationHeaderValue != $"Basic {Configuration.Authentication.OAuth2.ClientSecret}")
             throw new HttpApiException("Invalid Authorization header value", 400);
-        
+
         // Check form
-        if(grantType != "authorization_code")
+        if (grantType != "authorization_code")
             throw new HttpApiException("Invalid grant type provided", 400);
-        
-        if(clientId != Configuration.Authentication.OAuth2.ClientId)
+
+        if (clientId != Configuration.Authentication.OAuth2.ClientId)
             throw new HttpApiException("Invalid client id provided", 400);
-        
-        if(redirectUri != ExpectedRedirectUri)
+
+        if (redirectUri != ExpectedRedirectUri)
             throw new HttpApiException("Invalid redirect uri provided", 400);
-        
+
         var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
 
         ClaimsPrincipal? codeData;
@@ -210,14 +219,14 @@ public class OAuth2Controller : Controller
 
         if (userIdClaim == null)
             throw new HttpApiException("Malformed code provided", 400);
-        
-        if(!int.TryParse(userIdClaim.Value, out var userId))
+
+        if (!int.TryParse(userIdClaim.Value, out var userId))
             throw new HttpApiException("Malformed code provided", 400);
 
         var user = UserRepository
             .Get()
             .FirstOrDefault(x => x.Id == userId);
-        
+
         if (user == null)
             throw new HttpApiException("Malformed code provided", 400);
 
@@ -227,7 +236,7 @@ public class OAuth2Controller : Controller
         };
     }
 
-    private async Task<string> GenerateCode(User user)
+    private Task<string> GenerateCode(User user)
     {
         var securityTokenDescriptor = new SecurityTokenDescriptor()
         {
@@ -252,7 +261,9 @@ public class OAuth2Controller : Controller
         var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
         var securityToken = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
 
-        return jwtSecurityTokenHandler.WriteToken(securityToken);
+        return Task.FromResult(
+            jwtSecurityTokenHandler.WriteToken(securityToken)
+        );
     }
 
     private async Task<User> Register(string username, string email, string password)
@@ -270,9 +281,7 @@ public class OAuth2Controller : Controller
             Password = HashHelper.Hash(password)
         };
 
-        var finalUser = await UserRepository.Add(user);
-
-        return finalUser;
+        return await UserRepository.Add(user);
     }
 
     private async Task<User> Login(string email, string password)
