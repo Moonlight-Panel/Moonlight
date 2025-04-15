@@ -28,8 +28,6 @@ services:
   db:
     image: postgres:latest
     restart: always
-    ports:
-      - "5555:5432"
     environment:
       - POSTGRES_USER=moonlight
       - POSTGRES_DB=moonlight
@@ -41,7 +39,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-volumes:
-  api_data:
-  db_data:
