@@ -10,6 +10,7 @@ using MoonCore.Extended.Abstractions;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Interfaces;
 using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 using Moonlight.Shared.Http.Responses.OAuth2;
@@ -23,6 +24,7 @@ public class AuthController : Controller
     private readonly AppConfiguration Configuration;
     private readonly ILogger<AuthController> Logger;
     private readonly DatabaseRepository<User> UserRepository;
+    private readonly IOAuth2Provider OAuth2Provider;
 
     private readonly string RedirectUri;
     private readonly string EndpointUri;
@@ -30,12 +32,14 @@ public class AuthController : Controller
     public AuthController(
         AppConfiguration configuration,
         ILogger<AuthController> logger,
-        DatabaseRepository<User> userRepository
+        DatabaseRepository<User> userRepository,
+        IOAuth2Provider oAuth2Provider
     )
     {
+        UserRepository = userRepository;
+        OAuth2Provider = oAuth2Provider;
         Configuration = configuration;
         Logger = logger;
-        UserRepository = userRepository;
 
         RedirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
             ? Configuration.PublicUrl
@@ -64,52 +68,7 @@ public class AuthController : Controller
     [HttpPost("complete")]
     public async Task<LoginCompleteResponse> Complete([FromBody] LoginCompleteRequest request)
     {
-        // TODO: Make modular
-
-        // Create http client to call the auth provider
-        using var httpClient = new HttpClient();
-        
-        httpClient.BaseAddress = new Uri(
-            string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AccessEndpoint)
-                ? Configuration.PublicUrl
-                : Configuration.Authentication.OAuth2.AccessEndpoint
-        );
-        
-        httpClient.DefaultRequestHeaders.Add("Authorization",
-            $"Basic {Configuration.Authentication.OAuth2.ClientSecret}");
-
-        var httpApiClient = new HttpApiClient(httpClient);
-
-        // Call the auth provider
-        OAuth2HandleResponse handleData;
-
-        try
-        {
-            handleData = await httpApiClient.PostJson<OAuth2HandleResponse>("oauth2/handle", new FormUrlEncodedContent(
-                [
-                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
-                    new KeyValuePair<string, string>("code", request.Code),
-                    new KeyValuePair<string, string>("redirect_uri", RedirectUri),
-                    new KeyValuePair<string, string>("client_id", Configuration.Authentication.OAuth2.ClientId)
-                ]
-            ));
-        }
-        catch (HttpApiException e)
-        {
-            if (e.Status == 400)
-                Logger.LogTrace("The auth server returned an error: {e}", e);
-            else
-                Logger.LogCritical("The auth server returned an error: {e}", e);
-
-            throw new HttpApiException("Unable to request user data", 500);
-        }
-
-        // Handle the returned data
-        var userId = handleData.UserId;
-
-        var user = await UserRepository
-            .Get()
-            .FirstOrDefaultAsync(x => x.Id == userId);
+        var user = await OAuth2Provider.Sync(request.Code);
 
         if (user == null)
             throw new HttpApiException("Unable to load user data", 500);
@@ -120,7 +79,7 @@ public class AuthController : Controller
         // Generate token
         var securityTokenDescriptor = new SecurityTokenDescriptor()
         {
-            Expires = DateTime.Now.AddDays(10), // TODO: config
+            Expires = DateTime.Now.AddYears(Configuration.Authentication.TokenDuration),
             IssuedAt = DateTime.Now,
             NotBefore = DateTime.Now.AddMinutes(-1),
             Claims = new Dictionary<string, object>()

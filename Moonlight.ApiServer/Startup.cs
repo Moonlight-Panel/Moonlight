@@ -20,6 +20,8 @@ using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Helpers;
+using Moonlight.ApiServer.Implementations;
+using Moonlight.ApiServer.Interfaces;
 using Moonlight.ApiServer.Interfaces.Startup;
 using Moonlight.ApiServer.Models;
 using Moonlight.ApiServer.Services;
@@ -586,6 +588,10 @@ public class Startup
         });
 
         WebApplicationBuilder.Services.AddAuthorization();
+        
+        // Add local oauth2 provider if enabled
+        if (Configuration.Authentication.EnableLocalOAuth2)
+            WebApplicationBuilder.Services.AddScoped<IOAuth2Provider, LocalOAuth2Provider>();
 
         return Task.CompletedTask;
     }

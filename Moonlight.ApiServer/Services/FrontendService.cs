@@ -132,7 +132,7 @@ public class FrontendService
             await ArchiveFsItem(zipArchive, wwwRootPluginPath, wwwRootPluginPath);
         }
         
-        // Add plugin assemblies (TODO: Test this thing)
+        // Add plugin assemblies for client to the zip file
         var assembliesMap = PluginService.GetAssemblies("client");
 
         foreach (var assemblyName in assembliesMap.Keys)

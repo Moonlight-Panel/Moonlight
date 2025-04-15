@@ -20,7 +20,7 @@ public class AppConfiguration
     public class DatabaseConfig
     {
         public string Host { get; set; } = "your-database-host.name";
-        public int Port { get; set; } = 3306;
+        public int Port { get; set; } = 5432;
 
         public string Username { get; set; } = "db_user";
         public string Password { get; set; } = "db_password";
@@ -31,8 +31,9 @@ public class AppConfiguration
     public class AuthenticationConfig
     {
         public string Secret { get; set; } = Formatter.GenerateString(32);
-        public int TokenDuration { get; set; } = 3600;
-        
+        public int TokenDuration { get; set; } = 24 * 10;
+
+        public bool EnableLocalOAuth2 { get; set; } = true;
         public OAuth2Data OAuth2 { get; set; } = new();
         
         public class OAuth2Data
