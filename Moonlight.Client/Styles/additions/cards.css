@@ -3,17 +3,21 @@
 }
 
 .card-header {
-    @apply px-5 py-4 border-b border-gray-700/60 flex items-center;
+    @apply p-5;
+}
+
+.card-header:has(+ .card-body) {
+    @apply pb-0;
 }
 
 .card-title {
-    @apply font-semibold text-gray-100;
+    @apply text-2xl font-semibold text-white;
 }
 
 .card-body {
-    @apply px-5 py-5 text-gray-300;
+    @apply p-5 text-gray-200;
 }
 
 .card-footer {
-    @apply pt-3 pb-3 border-t border-gray-700/60 mt-auto;
+    @apply p-5;
 }

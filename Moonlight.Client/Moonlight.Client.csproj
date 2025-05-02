@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
+        <PublishTrimmed>false</PublishTrimmed>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -27,7 +28,7 @@
         <PackageReference Include="MoonCore" Version="1.8.5" />
         <PackageReference Include="MoonCore.Blazor" Version="1.2.9" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5"/>
-        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.4.0" />
+        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.4.2" />
     </ItemGroup>
 
     <!-- 
@@ -49,6 +50,7 @@
 
     <ItemGroup>
         <Folder Include="Helpers\"/>
+        <Folder Include="Styles\" />
         <Folder Include="wwwroot\css\"/>
     </ItemGroup>
 

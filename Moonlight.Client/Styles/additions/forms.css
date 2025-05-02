@@ -23,7 +23,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .form-textarea,
 .form-multiselect,
 .form-select {
-    @apply text-sm text-gray-100 leading-5 py-2 px-3 border-gray-700 focus:border-primary-500 shadow-sm rounded-lg;
+    @apply text-sm text-gray-100 leading-5 py-2 px-3 border-gray-700 focus:border-primary shadow-sm rounded-lg;
 }
 
 .form-input,
@@ -37,7 +37,7 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .form-checkbox,
 .form-radio {
-    @apply text-primary-500 checked:bg-primary-500 checked:border-transparent border border-gray-700/60 focus:border-primary-500/50;
+    @apply text-primary checked:bg-primary checked:border-transparent border border-gray-700/60 focus:border-primary/50;
 }
 
 /* Switch element */
@@ -61,7 +61,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .form-switch input[type="checkbox"]:checked + label {
-    @apply bg-primary-600;
+    @apply bg-primary;
 }
 
 .form-switch input[type="checkbox"]:checked + label > span:first-child {

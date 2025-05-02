@@ -4,12 +4,12 @@
 
 @inherits LayoutComponentBase
 
-<div class="relative isolate flex min-h-svh w-full max-lg:flex-col bg-gray-950">
+<div class="relative isolate flex min-h-svh w-full max-lg:flex-col bg-gray-900 lg:bg-gray-950/80">
     <AppSidebar Layout="this"/>
     <AppHeader Layout="this" />
 
     <main class="flex flex-1 flex-col lg:pb-5 lg:min-w-0 lg:pt-5 lg:pr-3.5 lg:pl-64">
-        <div class="grow p-6 lg:rounded-lg lg:p-10 lg:ring-1 lg:shadow-xs lg:bg-gray-900 lg:ring-white/10">
+        <div class="grow p-6 lg:rounded-lg lg:p-10 lg:ring-1 lg:shadow-xs lg:bg-gray-900/80 lg:ring-white/10">
             <div class="mx-auto max-w-7xl">
                 <CascadingValue Value="this" IsFixed="true">
                     @Body
@@ -22,6 +22,19 @@
 
 <ToastLauncher/>
 <ModalLauncher/>
+
+<div id="blazor-error-ui" class="fixed bottom-0 left-0 w-full z-50">
+    <div class="bg-danger-600 text-white p-4 flex flex-row justify-between items-center">
+        <div class="flex items-center">
+            <i class="icon-bomb text-lg text-white me-2"></i>
+            <span>An unhandled error has occurred.</span>
+        </div>
+        <div>
+            <a href="#" class="reload text-white underline mr-4">Reload</a>
+            <a href="#" class="dismiss hidden">🗙</a>
+        </div>
+    </div>
+</div>
 
 @code
 {

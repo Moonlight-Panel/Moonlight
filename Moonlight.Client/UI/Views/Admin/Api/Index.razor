@@ -10,38 +10,38 @@
 @inject ToastService ToastService
 
 <div class="grid grid-cols-1 sm:grid-cols-3 mb-8 gap-x-3 gap-y-2 sm:gap-y-0">
-    <div class="col-span-1 card card-body border-l-4 border-primary-500">
+    <div class="col-span-1 card card-body border-l-4 border-primary">
         <p class="font-medium tracking-wide text-slate-100">
             API Documentation
         </p>
-        <a href="/api/swagger" target="_blank" class="mt-2 flex items-center justify-between text-primary-500">
+        <a href="/api/swagger" target="_blank" class="mt-2 flex items-center justify-between text-primary">
             <div class="font-medium">Open</div>
             <div>
-                <i class="bi bi-box-arrow-up-right text-lg text-primary-500"></i>
+                <i class="bi bi-box-arrow-up-right text-lg text-primary"></i>
             </div>
         </a>
     </div>
 
-    <div class="col-span-1 card card-body border-l-4 border-tertiary-500">
+    <div class="col-span-1 card card-body border-l-4 border-tertiary">
         <p class="font-medium tracking-wide text-slate-100">
             Learn about the api usage
         </p>
-        <a href="https://help.moonlightpanel.xyz" target="_blank" class="mt-2 flex items-center justify-between text-primary-500">
+        <a href="https://help.moonlightpanel.xyz" target="_blank" class="mt-2 flex items-center justify-between text-primary">
             <div class="font-medium">Open</div>
             <div>
-                <i class="bi bi-box-arrow-up-right text-lg text-tertiary-500"></i>
+                <i class="bi bi-box-arrow-up-right text-lg text-tertiary"></i>
             </div>
         </a>
     </div>
 
-    <div class="col-span-1 card card-body border-l-4 border-success-500">
+    <div class="col-span-1 card card-body border-l-4 border-success">
         <p class="font-medium tracking-wide text-slate-100">
             Open API Specification
         </p>
-        <a href="/api/swagger/main" target="_blank" class="mt-2 flex items-center justify-between text-primary-500">
+        <a href="/api/swagger/main" target="_blank" class="mt-2 flex items-center justify-between text-primary">
             <div class="font-medium">Open</div>
             <div>
-                <i class="bi bi-box-arrow-up-right text-lg text-success-500"></i>
+                <i class="bi bi-box-arrow-up-right text-lg text-success"></i>
             </div>
         </a>
     </div>
@@ -67,12 +67,12 @@
         <DataTableColumn TItem="ApiKeyResponse">
             <ColumnTemplate>
                 <div class="flex justify-end">
-                    <a href="/admin/api/@(context.Id)" class="text-primary-500 mr-2 sm:mr-3">
+                    <a href="/admin/api/@(context.Id)" class="text-primary mr-2 sm:mr-3">
                         <i class="icon-pencil text-base"></i>
                     </a>
 
                     <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault
-                       class="text-danger-500">
+                       class="text-danger">
                         <i class="icon-trash text-base"></i>
                     </a>
                 </div>

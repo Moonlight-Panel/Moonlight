@@ -1,80 +1,32 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
+@import "./additions/fonts.css";
+@import "tailwindcss";
+@import "./additions/theme.css" layer(theme);
 
-@import "additions/theme.css";
-@import "additions/animations.css";
-@import "additions/fonts.css";
-@import "additions/buttons.css";
-@import "additions/cards.css";
-@import "additions/forms.css";
-@import "additions/progress.css";
-@import "additions/scrollbar.css";
-@import "additions/loaders.css";
+/* @import "./additions/theme.white.css"; */
 
-@import "tailwindcss/utilities";
+@import "./additions/buttons.css" layer(components);
+@import "./additions/cards.css" layer(components);
+@import "./additions/forms.css" layer(utilities);
+@import "./additions/progress.css" layer(components);
+@import "./additions/scrollbar.css" layer(components);
+@import "./additions/loaders.css" layer(components);
+@import "./additions/tabs.css" layer(components);
+
+@plugin "@tailwindcss/forms";
+
+@source "../**/*.razor";
+@source "../**/*.cs";
+@source "../**/*.html";
+@source "./mappings/*.map";
 
 #blazor-error-ui {
     display: none;
 }
 
-#loader {
-    display: block;
-    width: 10rem;
-    height: 10rem;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    border-top-color: #9370DB;
-    -webkit-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
-    @apply border-t-primary-500
+#blazor-loader-label:after {
+    content: var(--blazor-load-percentage-text, "Loading");
 }
-#loader:before {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    right: 5px;
-    bottom: 5px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    -webkit-animation: spin 3s linear infinite;
-    animation: spin 3s linear infinite;
-    @apply border-t-tertiary-500
-}
-#loader:after {
-    content: "";
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    right: 15px;
-    bottom: 15px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    -webkit-animation: spin 1.5s linear infinite;
-    animation: spin 1.5s linear infinite;
-    @apply border-t-info-500
-}
-@-webkit-keyframes spin {
-    0%   {
-        -webkit-transform: rotate(0deg);
-        -ms-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-        -ms-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-@keyframes spin {
-    0%   {
-        -webkit-transform: rotate(0deg);
-        -ms-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    100% {
-        -webkit-transform: rotate(360deg);
-        -ms-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
+
+#blazor-loader-progress {
+    width: var(--blazor-load-percentage, 0%);
 }

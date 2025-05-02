@@ -15,16 +15,17 @@
 <body class="bg-gray-950 text-white font-inter h-full">
     <div id="app">
 
-        <div class="h-full w-full min-h-[100dvh] flex items-center justify-center">
-            <div id="loader"></div>
+        <div class="flex h-screen justify-center items-center">
+            <div class="sm:max-w-lg">
+                <div id="blazor-loader-label" class="text-center mb-2 text-lg font-semibold"></div>
+                <div class="flex flex-col gap-1">
+                    <div class="progress min-w-sm md:min-w-md" role="progressbar">
+                        <div id="blazor-loader-progress" class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-    </div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
     </div>
     
     <script src="/js/moonlight.js"></script>

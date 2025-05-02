@@ -81,6 +81,16 @@ public class BundleGenerationService : IHostedService
         if (physicalPaths.Count == 1) // Only one stylesheet => nothing to process
             return await File.ReadAllTextAsync(physicalPaths[0]);
 
+        // Simple bundler just to test
+        var result = "";
+
+        foreach (var path in physicalPaths)
+        {
+            result += await File.ReadAllTextAsync(path);
+        }
+        
+        return result;
+        
         // Create bundle by stripping out double declared classes and combining all css files into one bundle
         var parser = new StylesheetParser();
         string? content = null;

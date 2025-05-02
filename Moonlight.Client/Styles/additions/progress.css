@@ -3,7 +3,7 @@
 }
 
 .progress-bar {
-    @apply bg-primary-500 rounded-full h-3;
+    @apply bg-primary rounded-full h-3;
     transition: width 0.6s ease;
 }
 
