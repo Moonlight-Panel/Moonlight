@@ -6,29 +6,53 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <IsPackable>true</IsPackable>
-        <Version>2.1.0</Version>
-        <Title>Moonlight.Client</Title>
-        <Authors>Moonlight Panel</Authors>
-        <Description>A build of moonlight's client as a nuget package to develop moonlight plugins/modules</Description>
-        <Copyright>Moonlight Panel</Copyright>
-        <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/Moonlight-Panel/Moonlight</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>moonlight</PackageTags>
         <DefaultItemExcludes>
             **\bin\**;**\obj\**;**\node_modules\**;**\Styles\*.json
         </DefaultItemExcludes>
     </PropertyGroup>
 
+
+    <PropertyGroup>
+        <PackageId>Moonlight.Client</PackageId>
+        <Version>2.1.0</Version>
+        <Authors>Moonlight Panel</Authors>
+        <Description>A build of the client for moonlight development</Description>
+        <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
     <ItemGroup>
-        <PackageReference Include="Blazor-ApexCharts" Version="4.0.1" />
+        <PackageReference Include="Blazor-ApexCharts" Version="4.0.1"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all"/>
-        <PackageReference Include="MoonCore" Version="1.8.5" />
-        <PackageReference Include="MoonCore.Blazor" Version="1.2.9" />
+        <PackageReference Include="MoonCore" Version="1.8.5"/>
+        <PackageReference Include="MoonCore.Blazor" Version="1.2.9"/>
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5"/>
-        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.4.2" />
+        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.4.2"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <None Include="**\*.cs" Exclude="storage\**\*;bin\**\*;obj\**\*">
+            <Pack>true</Pack>
+            <PackagePath>src</PackagePath>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="**\*.razor" Exclude="storage\**\*;bin\**\*;obj\**\*">
+            <Pack>true</Pack>
+            <PackagePath>src</PackagePath>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <None Include="Styles\**\*" Exclude="storage\**\*;bin\**\*;obj\**\*;Styles\node_modules\**\*">
+            <Pack>true</Pack>
+            <PackagePath>styles</PackagePath>
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+        <Compile Remove="storage\**\*"/>
+        <Content Remove="storage\**\*"/>
+        <None Remove="storage\**\*"/>
     </ItemGroup>
 
     <!-- 
@@ -50,7 +74,7 @@
 
     <ItemGroup>
         <Folder Include="Helpers\"/>
-        <Folder Include="Styles\" />
+        <Folder Include="Styles\"/>
         <Folder Include="wwwroot\css\"/>
     </ItemGroup>
 
