@@ -429,3 +429,7 @@ core.min.css
 # Build script for nuget packages
 finalPackages/
 nupkgs/
+
+# Scripts
+**/bin/**
+**/obj/**

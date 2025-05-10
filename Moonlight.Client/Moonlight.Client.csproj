@@ -9,6 +9,7 @@
         <DefaultItemExcludes>
             **\bin\**;**\obj\**;**\node_modules\**;**\Styles\*.json
         </DefaultItemExcludes>
+        <StaticWebAssetsEnabled>True</StaticWebAssetsEnabled>
     </PropertyGroup>
 
 
@@ -40,11 +41,6 @@
             <PackagePath>src</PackagePath>
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </None>
-        <None Include="**\*.razor" Exclude="storage\**\*;bin\**\*;obj\**\*">
-            <Pack>true</Pack>
-            <PackagePath>src</PackagePath>
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
         <None Include="Styles\**\*" Exclude="storage\**\*;bin\**\*;obj\**\*;Styles\node_modules\**\*">
             <Pack>true</Pack>
             <PackagePath>styles</PackagePath>
@@ -70,12 +66,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Helpers\"/>
-        <Folder Include="Styles\"/>
-        <Folder Include="wwwroot\css\"/>
     </ItemGroup>
 
 </Project>

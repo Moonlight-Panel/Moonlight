@@ -10,6 +10,5 @@ public class PluginManifest
     public string[] Scripts { get; set; } = [];
     public string[] Styles { get; set; } = [];
 
-    public string[] BundledStyles { get; set; } = [];
     public Dictionary<string, string[]> Assemblies { get; set; } = new();
 }

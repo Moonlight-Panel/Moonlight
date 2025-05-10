@@ -2,6 +2,11 @@
   "dependencies": {
     "@tailwindcss/cli": "^4.1.4",
     "@tailwindcss/forms": "^0.5.10",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "xml2js": "^0.6.2"
+  },
+  "scripts": {
+    "tailwind": "npx tailwindcss -i style.css -o ../wwwroot/css/style.min.css --watch",
+    "pretailwind": "node resolveNuget.js ../Moonlight.Client.csproj"
   }
 }

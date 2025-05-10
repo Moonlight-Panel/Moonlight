@@ -54,9 +54,6 @@ public class Startup
     private PluginService PluginService;
     private AssemblyLoadContext PluginLoadContext;
 
-    // Asset bundling
-    private BundleService BundleService = new();
-
     private IPluginStartup[] PluginStartups;
 
     public async Task Run(string[] args, Assembly[]? additionalAssemblies = null,
@@ -71,7 +68,6 @@ public class Startup
         await CreateStorage();
         await SetupAppConfiguration();
         await SetupLogging();
-        await SetupBundling();
         await LoadPlugins();
         await InitializePlugins();
 
@@ -128,15 +124,6 @@ public class Startup
     {
         Directory.CreateDirectory("storage");
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
-
-        return Task.CompletedTask;
-    }
-
-    private Task SetupBundling()
-    {
-        BundleService = new();
-
-        BundleService.BundleCss("css/core.min.css");
 
         return Task.CompletedTask;
     }
@@ -257,13 +244,6 @@ public class Startup
         // Configure base services for initialisation
         startupSc.AddSingleton(Configuration);
 
-        // Add bundle service so plugins can do additional bundling if required
-        startupSc.AddSingleton(BundleService);
-
-        // Auto add all files specified in the bundledStyles section to the bundle job
-        foreach (var plugin in PluginService.LoadedPlugins.Keys)
-            BundleService.BundleCssRange(plugin.BundledStyles);
-
         startupSc.AddLogging(builder =>
         {
             builder.ClearProviders();
@@ -308,10 +288,6 @@ public class Startup
 
     private Task RegisterPluginAssets()
     {
-        WebApplicationBuilder.Services.AddHostedService(sp => sp.GetRequiredService<BundleGenerationService>());
-        WebApplicationBuilder.Services.AddSingleton<BundleGenerationService>();
-        WebApplicationBuilder.Services.AddSingleton(BundleService);
-
         return Task.CompletedTask;
     }
 
