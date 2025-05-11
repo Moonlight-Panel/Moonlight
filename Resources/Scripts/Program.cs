@@ -20,6 +20,9 @@ switch (module)
     case "src":
         await SrcFunctions.Run(moduleArgs);
         break;
+    case "tags":
+        await TagsFunctions.Run(moduleArgs);
+        break;
     default:
         Console.WriteLine($"No module named {module} found");
         break;
