@@ -1,6 +1,8 @@
 using Microsoft.OpenApi.Models;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
+using Moonlight.ApiServer.Implementations.Diagnose;
+using Moonlight.ApiServer.Interfaces;
 using Moonlight.ApiServer.Interfaces.Startup;
 
 namespace Moonlight.ApiServer.Implementations.Startup;
@@ -47,6 +49,12 @@ public class CoreStartup : IPluginStartup
         #region Database
 
         builder.Services.AddDbContext<CoreDataContext>();
+
+        #endregion
+
+        #region Diagnose
+
+        builder.Services.AddSingleton<IDiagnoseProvider, CoreDiagnoseProvider>();
 
         #endregion
         

@@ -1,5 +1,12 @@
+using System.IO.Compression;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Console;
 using MoonCore.Attributes;
+using MoonCore.Exceptions;
+using MoonCore.Helpers;
+using Moonlight.ApiServer.Helpers;
+using Moonlight.ApiServer.Interfaces;
+using Moonlight.ApiServer.Models.Diagnose;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
 
@@ -10,10 +17,14 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 public class SystemController : Controller
 {
     private readonly ApplicationService ApplicationService;
+    private readonly IEnumerable<IDiagnoseProvider> DiagnoseProviders;
+    private readonly DiagnoseService DiagnoseService;
 
-    public SystemController(ApplicationService applicationService)
+    public SystemController(ApplicationService applicationService, IEnumerable<IDiagnoseProvider> diagnoseProviders, DiagnoseService diagnoseService)
     {
         ApplicationService = applicationService;
+        DiagnoseProviders = diagnoseProviders;
+        DiagnoseService = diagnoseService;
     }
 
     [HttpGet]
@@ -34,5 +45,16 @@ public class SystemController : Controller
     public async Task Shutdown()
     {
         await ApplicationService.Shutdown();
+    }
+
+    [HttpGet("diagnose")]
+    [RequirePermission("admin.system.diagnose")]
+    public async Task<IActionResult> Diagnose()
+    {
+        var stream = new MemoryStream();
+        
+        await DiagnoseService.GenerateDiagnose(stream);
+        
+        return File(stream, "application/zip", "diagnose.zip");
     }
 }

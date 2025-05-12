@@ -6,11 +6,15 @@ namespace Moonlight.ApiServer.Implementations.Diagnose;
 
 public class CoreDiagnoseProvider : IDiagnoseProvider
 {
-    public async Task<DiagnoseEntry> GetFiles()
+    public DiagnoseEntry[] GetFiles()
     {
-        return new DiagnoseFile()
-        {
-            GetContent = () => Encoding.UTF8.GetBytes("hello world")
-        };
+        return
+        [
+            new DiagnoseFile()
+            {
+                Name = "test.txt",
+                GetContent = () => Encoding.UTF8.GetBytes("hello world")
+            }
+        ];
     }
 }

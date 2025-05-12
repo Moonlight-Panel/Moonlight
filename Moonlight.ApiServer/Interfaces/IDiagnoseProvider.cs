@@ -4,5 +4,5 @@ namespace Moonlight.ApiServer.Interfaces;
 
 public interface IDiagnoseProvider
 {
-    public Task<DiagnoseEntry> GetFiles();
+    public DiagnoseEntry[] GetFiles();
 }
