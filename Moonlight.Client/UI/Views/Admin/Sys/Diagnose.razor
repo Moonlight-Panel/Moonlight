@@ -2,6 +2,8 @@
 
 @using MoonCore.Attributes
 @using MoonCore.Helpers
+@using Moonlight.Shared.Http.Responses.Admin.Sys
+@using Moonlight.Shared.Misc
 
 @attribute [RequirePermission("admin.system.diagnose")]
 
@@ -25,22 +27,51 @@
                 The report includes useful information about your system, plugins, and environment, making it easier to identify problems or share with support.
             </p>
             
-            <WButton OnClick="GenerateFrontend" CssClasses="btn btn-primary mt-5">Generate diagnose</WButton>
+            <WButton OnClick="GenerateDiagnose" CssClasses="btn btn-primary my-5">Generate diagnose</WButton>
+            
+            @* <div> *@
+            @*     <a class="text-primary cursor-pointer" @onclick:preventDefault @onclick="ToggleDropDown">Advanced <i class="icon-chevron-@(DropdownOpen ? "up" : "down")"></i></a> *@
+            @*      *@
+            @*     <div class="@(DropdownOpen ? "" : "hidden")"> *@
+            @*      *@
+            @*      *@
+            @*         <LazyLoader Load="Load"> *@
+            @*      *@
+            @*             @for (int i = 0; i < AvailableProviders.Length; i++) *@
+            @*             { *@
+            @*                 <div> *@
+            @*                     <input type="checkbox" @bind="@CheckedProviders[i]"/> @Formatter.ConvertCamelCaseToSpaces(AvailableProviders[i].Name) *@
+            @*                 </div> *@
+            @*             } *@
+            @*      *@
+            @*         </LazyLoader> *@
+            @*      *@
+            @*      *@
+            @*     </div> *@
+            @*      *@
+            @* </div> *@
         </div>
     </div>
 </div>
 
 @code
 {
-    private async Task GenerateFrontend(WButton _)
-    {
-        var stream = await ApiClient.GetStream("api/admin/system/diagnose");
 
+    private async Task GenerateDiagnose(WButton _)
+    {
+        var stream = await ApiClient.PostStream("api/admin/system/diagnose");
+        
         await DownloadService.DownloadStream("diagnose.zip", stream);
     }
-}
+    
 
+    private async Task Load(LazyLoader arg)
+    {
+        // AvailableProviders = (await ApiClient.GetJson<SystemAvailableDiagnoseProviderResponse>("api/admin/system/diagnose/available")).AvailableProviders;
+    }
+    
 
-@code {
+    
+
     
 }

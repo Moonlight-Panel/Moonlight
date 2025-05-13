@@ -18,13 +18,12 @@ public class SystemController : Controller
 {
     private readonly ApplicationService ApplicationService;
     private readonly IEnumerable<IDiagnoseProvider> DiagnoseProviders;
-    private readonly DiagnoseService DiagnoseService;
 
-    public SystemController(ApplicationService applicationService, IEnumerable<IDiagnoseProvider> diagnoseProviders, DiagnoseService diagnoseService)
+
+    public SystemController(ApplicationService applicationService, IEnumerable<IDiagnoseProvider> diagnoseProviders)
     {
         ApplicationService = applicationService;
         DiagnoseProviders = diagnoseProviders;
-        DiagnoseService = diagnoseService;
     }
 
     [HttpGet]
@@ -45,16 +44,5 @@ public class SystemController : Controller
     public async Task Shutdown()
     {
         await ApplicationService.Shutdown();
-    }
-
-    [HttpGet("diagnose")]
-    [RequirePermission("admin.system.diagnose")]
-    public async Task<IActionResult> Diagnose()
-    {
-        var stream = new MemoryStream();
-        
-        await DiagnoseService.GenerateDiagnose(stream);
-        
-        return File(stream, "application/zip", "diagnose.zip");
     }
 }
