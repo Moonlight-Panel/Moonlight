@@ -1,24 +1,20 @@
 using Microsoft.OpenApi.Models;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
-using Moonlight.ApiServer.Interfaces.Startup;
+using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer.Implementations.Startup;
 
+[PluginStartup]
 public class CoreStartup : IPluginStartup
 {
-    private readonly AppConfiguration Configuration;
-
-    public CoreStartup(AppConfiguration configuration)
+    public Task BuildApplication(IServiceProvider serviceProvider, IHostApplicationBuilder builder)
     {
-        Configuration = configuration;
-    }
-
-    public Task BuildApplication(IHostApplicationBuilder builder)
-    {
+        var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
+        
         #region Api Docs
 
-        if (Configuration.Development.EnableApiDocs)
+        if (configuration.Development.EnableApiDocs)
         {
             builder.Services.AddEndpointsApiExplorer();
         
@@ -53,14 +49,16 @@ public class CoreStartup : IPluginStartup
         return Task.CompletedTask;
     }
 
-    public Task ConfigureApplication(IApplicationBuilder app)
+    public Task ConfigureApplication(IServiceProvider serviceProvider, IApplicationBuilder app)
     {
         return Task.CompletedTask;
     }
 
-    public Task ConfigureEndpoints(IEndpointRouteBuilder routeBuilder)
+    public Task ConfigureEndpoints(IServiceProvider serviceProvider, IEndpointRouteBuilder routeBuilder)
     {
-        if(Configuration.Development.EnableApiDocs)
+        var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
+        
+        if(configuration.Development.EnableApiDocs)
             routeBuilder.MapSwagger("/api/swagger/{documentName}");
         
         return Task.CompletedTask;

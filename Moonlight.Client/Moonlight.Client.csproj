@@ -1,71 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
-
-    <PropertyGroup>
-        <PublishTrimmed>false</PublishTrimmed>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <DefaultItemExcludes>
+  <PropertyGroup>
+    <PublishTrimmed>false</PublishTrimmed>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DefaultItemExcludes>
             **\bin\**;**\obj\**;**\node_modules\**;**\Styles\*.json
         </DefaultItemExcludes>
-        <StaticWebAssetsEnabled>True</StaticWebAssetsEnabled>
-    </PropertyGroup>
-
-
-    <PropertyGroup>
-        <PackageId>Moonlight.Client</PackageId>
-        <Version>2.1.0</Version>
-        <Authors>Moonlight Panel</Authors>
-        <Description>A build of the client for moonlight development</Description>
-        <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
-        <DevelopmentDependency>true</DevelopmentDependency>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <IsPackable>true</IsPackable>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Blazor-ApexCharts" Version="4.0.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.10"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.10" PrivateAssets="all"/>
-        <PackageReference Include="MoonCore" Version="1.8.5"/>
-        <PackageReference Include="MoonCore.Blazor" Version="1.2.9"/>
-        <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5"/>
-        <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.4.2"/>
-    </ItemGroup>
-
-
-    <ItemGroup>
-        <None Include="**\*.cs" Exclude="storage\**\*;bin\**\*;obj\**\*">
-            <Pack>true</Pack>
-            <PackagePath>src</PackagePath>
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-        <None Include="Styles\**\*" Exclude="storage\**\*;bin\**\*;obj\**\*;Styles\node_modules\**\*">
-            <Pack>true</Pack>
-            <PackagePath>styles</PackagePath>
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
-        <Compile Remove="storage\**\*"/>
-        <Content Remove="storage\**\*"/>
-        <None Remove="storage\**\*"/>
-    </ItemGroup>
-
-    <!-- 
+    <StaticWebAssetsEnabled>True</StaticWebAssetsEnabled>
+    <PackageTags>frontend</PackageTags>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Moonlight.Client</PackageId>
+    <Version>2.1.0</Version>
+    <Authors>Moonlight Panel</Authors>
+    <Description>A build of the client for moonlight development</Description>
+    <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Blazor-ApexCharts" Version="4.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.15" PrivateAssets="all" />
+    <PackageReference Include="MoonCore" Version="1.8.5" />
+    <PackageReference Include="MoonCore.Blazor" Version="1.2.9" />
+    <PackageReference Include="MoonCore.PluginFramework" Version="1.0.5" />
+    <PackageReference Include="MoonCore.Blazor.Tailwind" Version="1.4.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="**\*.cs" Exclude="storage\**\*;bin\**\*;obj\**\*">
+      <Pack>true</Pack>
+      <PackagePath>src</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Include="Styles\**\*" Exclude="storage\**\*;bin\**\*;obj\**\*;Styles\node_modules\**\*">
+      <Pack>true</Pack>
+      <PackagePath>styles</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <Compile Remove="storage\**\*" />
+    <Content Remove="storage\**\*" />
+    <None Remove="storage\**\*" />
+  </ItemGroup>
+  <!-- 
         Specify the /p:BuildPWA=true flag to build moonlight as a PWA.
         This flag is by default disabled to allow nuget package generation
     -->
-
-    <PropertyGroup Condition="'$(BuildPWA)' == 'true'">
-        <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-    </PropertyGroup>
-
-    <ItemGroup Condition="'$(BuildPWA)' == 'true'">
-        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj"/>
-    </ItemGroup>
-
+  <PropertyGroup Condition="'$(BuildPWA)' == 'true'">
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(BuildPWA)' == 'true'">
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj" />
+  </ItemGroup>
 </Project>

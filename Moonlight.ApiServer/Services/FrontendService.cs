@@ -6,6 +6,7 @@ using MoonCore.Attributes;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
+using Moonlight.ApiServer.Models;
 using Moonlight.Shared.Misc;
 
 namespace Moonlight.ApiServer.Services;
@@ -14,18 +15,18 @@ namespace Moonlight.ApiServer.Services;
 public class FrontendService
 {
     private readonly AppConfiguration Configuration;
-    private readonly PluginService PluginService;
     private readonly IWebHostEnvironment WebHostEnvironment;
+    private readonly IEnumerable<FrontendConfigurationOption> ConfigurationOptions;
 
     public FrontendService(
         AppConfiguration configuration,
-        PluginService pluginService,
-        IWebHostEnvironment webHostEnvironment
+        IWebHostEnvironment webHostEnvironment,
+        IEnumerable<FrontendConfigurationOption> configurationOptions
     )
     {
         Configuration = configuration;
-        PluginService = pluginService;
         WebHostEnvironment = webHostEnvironment;
+        ConfigurationOptions = configurationOptions;
     }
 
     public async Task<FrontendConfiguration> GetConfiguration()
@@ -48,33 +49,15 @@ public class FrontendService
                 .Deserialize<Dictionary<string, string>>(variablesJson) ?? new();
         }
 
-        // Collect assemblies for the 'client' section
-        configuration.Assemblies = PluginService
-            .GetAssemblies("client")
-            .Keys
-            .ToArray();
-
         // Collect scripts to execute
-        configuration.Scripts = PluginService
-            .LoadedPlugins
-            .Keys
+        configuration.Scripts = ConfigurationOptions
             .SelectMany(x => x.Scripts)
             .ToArray();
 
         // Collect styles
-        var styles = new List<string>();
-
-        styles.AddRange(
-            PluginService
-                .LoadedPlugins
-                .Keys
-                .SelectMany(x => x.Styles)
-        );
-
-        // Add bundle css
-        styles.Add("css/bundle.min.css");
-
-        configuration.Styles = styles.ToArray();
+        configuration.Styles = ConfigurationOptions
+            .SelectMany(x => x.Styles)
+            .ToArray();
 
         return configuration;
     }
@@ -111,41 +94,11 @@ public class FrontendService
         // Add blazor files
         await ArchiveFsItem(zipArchive, blazorPath, blazorPath, "_framework/");
 
-        // Add bundle.css
-        var bundleContent = await File.ReadAllBytesAsync(Path.Combine("storage", "tmp", "bundle.css"));
-        await ArchiveBytes(zipArchive, "css/bundle.css", bundleContent);
-
         // Add frontend.json
         var frontendConfig = await GetConfiguration();
         frontendConfig.HostEnvironment = "Static";
         var frontendJson = JsonSerializer.Serialize(frontendConfig);
         await ArchiveText(zipArchive, "frontend.json", frontendJson);
-
-        // Add plugin wwwroot files
-        foreach (var pluginPath in PluginService.LoadedPlugins.Values)
-        {
-            var wwwRootPluginPath = Path.Combine(pluginPath, "wwwroot/");
-
-            if (!Directory.Exists(wwwRootPluginPath))
-                continue;
-
-            await ArchiveFsItem(zipArchive, wwwRootPluginPath, wwwRootPluginPath);
-        }
-        
-        // Add plugin assemblies for client to the zip file
-        var assembliesMap = PluginService.GetAssemblies("client");
-
-        foreach (var assemblyName in assembliesMap.Keys)
-        {
-            var path = assembliesMap[assemblyName];
-            
-            await ArchiveFsItem(
-                zipArchive,
-                path,
-                path,
-                $"plugins/{assemblyName}"
-            );
-        }
 
         // Finish zip archive and reset stream so the code calling this function can process it
         zipArchive.Dispose();

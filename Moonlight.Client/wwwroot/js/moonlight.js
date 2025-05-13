@@ -34,6 +34,15 @@ window.moonlight = {
             scriptElement.type = 'text/javascript';
 
             (document.head || document.documentElement).appendChild(scriptElement);
+        },
+        loadStylesheet: function (url) {
+            let linkElement = document.createElement('link');
+
+            linkElement.href = url;
+            linkElement.type = 'text/css';
+            linkElement.rel = 'stylesheet';
+
+            (document.head || document.documentElement).appendChild(linkElement);
         }
     }
 };

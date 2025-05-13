@@ -1,29 +1,19 @@
-﻿using Scripts.Functions;
+﻿using Cocona;
+using Microsoft.Extensions.DependencyInjection;
+using Scripts.Commands;
+using Scripts.Helpers;
 
-if (args.Length == 0)
-{
-    Console.WriteLine("You need to specify a module to run");
-    return;
-}
+Console.WriteLine("Moonlight Build Helper Script");
+Console.WriteLine();
 
-var module = args[0];
-var moduleArgs = args.Skip(1).ToArray();
+var builder = CoconaApp.CreateBuilder(args);
 
-switch (module)
-{
-    case "staticWebAssets":
-        await StaticWebAssetsFunctions.Run(moduleArgs);
-        break;
-    case "content":
-        await ContentFunctions.Run(moduleArgs);
-        break;
-    case "src":
-        await SrcFunctions.Run(moduleArgs);
-        break;
-    case "tags":
-        await TagsFunctions.Run(moduleArgs);
-        break;
-    default:
-        Console.WriteLine($"No module named {module} found");
-        break;
-}
+builder.Services.AddSingleton<CommandHelper>();
+builder.Services.AddSingleton<StartupClassDetector>();
+
+var app = builder.Build();
+
+app.AddCommands<PackCommand>();
+app.AddCommands<PreBuildCommand>();
+
+await app.RunAsync();
