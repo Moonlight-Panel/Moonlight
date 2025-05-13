@@ -9,6 +9,8 @@ namespace Moonlight.ApiServer.Implementations.Diagnose;
 
 public class CoreDiagnoseProvider : IDiagnoseProvider
 {
+    private readonly AppConfiguration Config;
+    
     public DiagnoseEntry[] GetFiles()
     {
         // TODO:
@@ -29,19 +31,17 @@ public class CoreDiagnoseProvider : IDiagnoseProvider
                     
                     new DiagnoseFile()
                     {
-                        Name = "logs.txt",
+                        Name = "config.txt",
                         GetContent = () =>
                         {
-
-                            var configJson = File.ReadAllText(PathBuilder.File("storage", "app.json"));
-
-                            var config = JsonSerializer.Deserialize<AppConfiguration>(configJson);
+                            var json = JsonSerializer.Serialize(Config);
+                            var config =  JsonSerializer.Deserialize<AppConfiguration>(json);
 
                             if (config == null)
                             {
-                                return Encoding.UTF8.GetBytes("could not fetch config");
+                                return Encoding.UTF8.GetBytes("Could not fetch config.");
                             }
-
+                            
                             config.Database.Password = CheckForNullOrEmpty(config.Database.Password);
                             
                             config.Authentication.OAuth2.ClientSecret = CheckForNullOrEmpty(config.Authentication.OAuth2.ClientSecret);
@@ -50,7 +50,7 @@ public class CoreDiagnoseProvider : IDiagnoseProvider
 
                             config.Authentication.Secret = CheckForNullOrEmpty(config.Authentication.Secret);
 
-                            return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(config));
+                            return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(config, new JsonSerializerOptions() { WriteIndented = true}));
                         }
                     }
                     
