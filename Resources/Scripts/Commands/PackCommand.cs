@@ -19,7 +19,8 @@ public class PackCommand
     public async Task Pack(
         [Argument] string solutionDirectory,
         [Argument] string outputLocation,
-        [Option] string buildConfiguration = "Debug"
+        [Option] string buildConfiguration = "Debug",
+        [Option] string? nugetDir = null
     )
     {
         if (!Directory.Exists(solutionDirectory))
@@ -96,13 +97,15 @@ public class PackCommand
         {
             await BuildProject(
                 apiServerProject,
-                buildConfiguration
+                buildConfiguration,
+                nugetDir
             );
 
             var nugetFilePath = await PackProject(
                 apiServerProject,
                 TmpDir,
-                buildConfiguration
+                buildConfiguration,
+                nugetDir
             );
 
             var nugetPackage = ZipFile.Open(
@@ -126,13 +129,15 @@ public class PackCommand
         {
             await BuildProject(
                 frontendProject,
-                buildConfiguration
+                buildConfiguration,
+                nugetDir
             );
 
             var nugetFilePath = await PackProject(
                 frontendProject,
                 TmpDir,
-                buildConfiguration
+                buildConfiguration,
+                nugetDir
             );
 
             var nugetPackage = ZipFile.Open(
@@ -226,39 +231,41 @@ public class PackCommand
         {
             await BuildProject(
                 sharedProject,
-                buildConfiguration
+                buildConfiguration,
+                nugetDir
             );
 
             var nugetFilePath = await PackProject(
                 sharedProject,
                 TmpDir,
-                buildConfiguration
+                buildConfiguration,
+                nugetDir
             );
             
             File.Move(nugetFilePath, Path.Combine(outputLocation, Path.GetFileName(nugetFilePath)), true);
         }
     }
 
-    private async Task BuildProject(string file, string configuration)
+    private async Task BuildProject(string file, string configuration, string? nugetDir)
     {
         var basePath = Path.GetFullPath(Path.GetDirectoryName(file)!);
         var fileName = Path.GetFileName(file);
 
         await CommandHelper.Run(
             "/usr/bin/dotnet",
-            $"build {fileName} --configuration {configuration}",
+            $"build {fileName} --configuration {configuration}" + (string.IsNullOrEmpty(nugetDir) ? "" : $" --source {nugetDir}"),
             basePath
         );
     }
 
-    private async Task<string> PackProject(string file, string output, string configuration)
+    private async Task<string> PackProject(string file, string output, string configuration, string? nugetDir)
     {
         var basePath = Path.GetFullPath(Path.GetDirectoryName(file)!);
         var fileName = Path.GetFileName(file);
 
         await CommandHelper.Run(
             "/usr/bin/dotnet",
-            $"pack {fileName} --output {output} --configuration {configuration}",
+            $"pack {fileName} --output {output} --configuration {configuration}" + (string.IsNullOrEmpty(nugetDir) ? "" : $" --source {nugetDir}"),
             basePath
         );
 
