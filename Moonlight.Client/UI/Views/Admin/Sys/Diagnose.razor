@@ -1,0 +1,46 @@
+@page "/admin/system/diagnose"
+
+@using MoonCore.Attributes
+@using MoonCore.Helpers
+
+@attribute [RequirePermission("admin.system.diagnose")]
+
+@inject HttpApiClient ApiClient
+@inject DownloadService DownloadService
+
+<div class="mb-5">
+    <NavTabs Index="5" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />
+</div>
+
+<div class="grid grid-cols-2">
+    <div class="col-span-2 md:col-span-1 card">
+        <div class="card-header">
+            <span class="card-title">Diagnose</span>
+        </div>
+        <div class="card-body">
+            <p>
+                If you're experiencing issues or need help via our Discord, you're in the right place here!
+                By pressing the button below, Moonlight will run all available diagnostic checks and package the results into a 
+                downloadable zip file.
+                The report includes useful information about your system, plugins, and environment, making it easier to identify problems or share with support.
+            </p>
+            
+            <WButton OnClick="GenerateFrontend" CssClasses="btn btn-primary mt-5">Generate diagnose</WButton>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private async Task GenerateFrontend(WButton _)
+    {
+        var stream = await ApiClient.GetStream("api/admin/system/diagnose");
+
+        await DownloadService.DownloadStream("diagnose.zip", stream);
+    }
+}
+
+
+@code {
+    
+}
