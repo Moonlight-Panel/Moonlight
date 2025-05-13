@@ -10,12 +10,14 @@ namespace Moonlight.ApiServer.Implementations.Diagnose;
 public class CoreDiagnoseProvider : IDiagnoseProvider
 {
     private readonly AppConfiguration Config;
-    
+
+    public CoreDiagnoseProvider(AppConfiguration config)
+    {
+        Config = config;
+    }
+
     public DiagnoseEntry[] GetFiles()
     {
-        // TODO:
-        // - read logs out from file for the diagnose below
-        
         return
         [
             new DiagnoseDirectory()
@@ -26,7 +28,15 @@ public class CoreDiagnoseProvider : IDiagnoseProvider
                     new DiagnoseFile()
                     {
                         Name = "logs.txt",
-                        GetContent = () => Encoding.UTF8.GetBytes("placeholder")
+                        GetContent = () =>
+                        {
+                            var logs = File.ReadAllText(PathBuilder.File("storage", "logs", "latest.log"));
+
+                            if (string.IsNullOrEmpty(logs))
+                                return Encoding.UTF8.GetBytes("Could not get the latest logs.");
+                            
+                            return Encoding.UTF8.GetBytes(logs);
+                        }
                     },
                     
                     new DiagnoseFile()
