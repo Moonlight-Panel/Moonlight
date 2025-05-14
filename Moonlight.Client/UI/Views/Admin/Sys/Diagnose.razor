@@ -29,27 +29,25 @@
             
             <WButton OnClick="GenerateDiagnose" CssClasses="btn btn-primary my-5">Generate diagnose</WButton>
             
-            @* <div> *@
-            @*     <a class="text-primary cursor-pointer" @onclick:preventDefault @onclick="ToggleDropDown">Advanced <i class="icon-chevron-@(DropdownOpen ? "up" : "down")"></i></a> *@
-            @*      *@
-            @*     <div class="@(DropdownOpen ? "" : "hidden")"> *@
-            @*      *@
-            @*      *@
-            @*         <LazyLoader Load="Load"> *@
-            @*      *@
-            @*             @for (int i = 0; i < AvailableProviders.Length; i++) *@
-            @*             { *@
-            @*                 <div> *@
-            @*                     <input type="checkbox" @bind="@CheckedProviders[i]"/> @Formatter.ConvertCamelCaseToSpaces(AvailableProviders[i].Name) *@
-            @*                 </div> *@
-            @*             } *@
-            @*      *@
-            @*         </LazyLoader> *@
-            @*      *@
-            @*      *@
-            @*     </div> *@
-            @*      *@
-            @* </div> *@
+            <div>
+                <a class="text-primary cursor-pointer" @onclick:preventDefault @onclick="ToggleDropDown">Advanced <i class="icon-chevron-@(DropdownOpen ? "up" : "down")"></i></a>
+                <div class="@(DropdownOpen ? "" : "hidden")">
+                    <LazyLoader Load="Load">
+                        <div class="mb-2 pb-2 pt-4 border-b border-white/5 flex items-center gap-3">
+                            <input class="rounded" @bind="SelectAll" type="checkbox" id="selectall_checkbox"/>
+                            <label for="selectall_checkbox">Select all</label>
+                        </div>
+                        
+                        @foreach (var item in AvailableProviders)
+                        {
+                            <div class="mt-1 flex gap-3 items-center">
+                                <input class="rounded" type="checkbox" id="@(item.Key.Type + "_checkbox")" @bind="@AvailableProviders[item.Key]" />
+                                <label for="@(item.Key.Type + "_checkbox")">@item.Key.Name</label>
+                            </div>
+                        }
+                    </LazyLoader>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -59,19 +57,51 @@
 
     private async Task GenerateDiagnose(WButton _)
     {
-        var stream = await ApiClient.PostStream("api/admin/system/diagnose");
+        string[] payload = [];
+
+        if (!SelectAll)
+        {
+            // filter the providers which have been selected if not all providers have been selected
+            payload = AvailableProviders
+                .Where(x => x.Value)
+                .Select(x => x.Key)
+                .Select(x => x.Type)
+                .ToArray();
+        }
         
+        var stream = await ApiClient.PostStream("api/admin/system/diagnose", payload);
+
         await DownloadService.DownloadStream("diagnose.zip", stream);
     }
-    
 
-    private async Task Load(LazyLoader arg)
+    private bool DropdownOpen = false;
+    private bool AllSelected = true;
+    private Dictionary<DiagnoseProvideResponse, bool> AvailableProviders;
+
+    private async Task ToggleDropDown()
     {
-        // AvailableProviders = (await ApiClient.GetJson<SystemAvailableDiagnoseProviderResponse>("api/admin/system/diagnose/available")).AvailableProviders;
+        DropdownOpen = !DropdownOpen;
+
+        await InvokeAsync(StateHasChanged);
     }
     
+    private async Task Load(LazyLoader arg)
+    {
+         AvailableProviders = (await ApiClient.GetJson<DiagnoseProvideResponse[]>("api/admin/system/diagnose/available"))
+             .ToDictionary(x => x, _ => true);
+    }
 
-    
-
-    
+    private bool SelectAll
+    {
+        get => AvailableProviders.Values.All(v => v);
+        set
+        {
+            // flip every entry to the new value
+            var keys = AvailableProviders.Keys.ToList();
+            foreach (var k in keys)
+            {
+                AvailableProviders[k] = value;
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@ using MoonCore.Helpers;
 using Moonlight.ApiServer.Interfaces;
 using Moonlight.ApiServer.Models.Diagnose;
 using System.IO.Compression;
+using System.Text;
 using MoonCore.Attributes;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
 using Moonlight.Shared.Misc;
@@ -18,9 +19,9 @@ public class DiagnoseService
         DiagnoseProviders = diagnoseProviders;
     }
 
-    public async Task<DiagnoseProvider[]> GetAvailable()
+    public async Task<DiagnoseProvideResponse[]> GetAvailable()
     {
-        var availableProviders = new List<DiagnoseProvider>();
+        var availableProviders = new List<DiagnoseProvideResponse>();
 
         foreach (var diagnoseProvider in DiagnoseProviders)
         {
@@ -30,7 +31,7 @@ public class DiagnoseService
 
             // The type name is null if the type is a generic type, unlikely, but still could happen
             if (type != null)
-                availableProviders.Add(new DiagnoseProvider()
+                availableProviders.Add(new DiagnoseProvideResponse()
                 {
                     Name = name,
                     Type = type
@@ -42,53 +43,34 @@ public class DiagnoseService
 
     public async Task GenerateDiagnose(Stream outputStream, string[]? requestedProviders)
     {
-        List<IDiagnoseProvider> providers;
+        IDiagnoseProvider[] providers;
         
         if (requestedProviders != null && requestedProviders.Length > 0)
         {
-            providers = new List<IDiagnoseProvider>();
+            var requesteDiagnoseProviders = new List<IDiagnoseProvider>();
 
             foreach (var requestedProvider in requestedProviders)
             {
                 var provider = DiagnoseProviders.FirstOrDefault(x => x.GetType().FullName == requestedProvider);
 
                 if (provider != null)
-                    providers.Add(provider);
+                    requesteDiagnoseProviders.Add(provider);
             }
+
+            providers = requesteDiagnoseProviders.ToArray();
         }
         else
         {
-            providers = DiagnoseProviders.ToList();
+            providers = DiagnoseProviders.ToArray();
         }
-
-
-        var tasks = providers
-            .SelectMany(x => x.GetFiles())
-            .Select(async x => await ProcessDiagnoseEntry(null, x));
-
-
-        var fileEntries = (await Task.WhenAll(tasks))
-            .SelectMany(x => x)
-            .ToDictionary();
-
 
         try
         {
             using (var zip = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true))
             {
-                foreach (var kv in fileEntries)
+                foreach (var provider in providers)
                 {
-                    string entryName = kv.Key.Replace('\\', '/');
-                    byte[] data = kv.Value;
-
-                    // Optionally pick CompressionLevel.Optimal or NoCompression
-                    var entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
-
-                    using (var entryStream = entry.Open())
-                    using (var ms = new MemoryStream(data))
-                    {
-                        await ms.CopyToAsync(entryStream);
-                    }
+                    await provider.ModifyZipArchive(zip);
                 }
             }
 
@@ -98,63 +80,5 @@ public class DiagnoseService
         {
             throw new Exception($"An unknown error occured while building the Diagnose: {ex.Message}");
         }
-    }
-
-    private async Task<Dictionary<string, byte[]>> ProcessDiagnoseEntry(string? path, DiagnoseEntry entry)
-    {
-        var fileEntries = new Dictionary<string, byte[]>();
-
-        switch (entry)
-        {
-            case DiagnoseDirectory diagnoseDirectory:
-            {
-                var files = await ProcessDiagnoseDirectory(path, diagnoseDirectory);
-
-                foreach (var file in files)
-                {
-                    fileEntries.Add(file.Key, file.Value);
-                }
-
-                break;
-            }
-            case DiagnoseFile diagnoseFile:
-            {
-                var file = await ProcessDiagnoseFile(path, diagnoseFile);
-
-                fileEntries.Add(file.Key, file.Value);
-
-                break;
-            }
-        }
-
-        return fileEntries;
-    }
-
-    private async Task<Dictionary<string, byte[]>> ProcessDiagnoseDirectory(string? path, DiagnoseDirectory directory)
-    {
-        var result = new Dictionary<string, byte[]>();
-
-        var directoryPath = path != null ? string.Join("/", path, directory.Name) : directory.Name;
-
-        foreach (var entry in directory.Children)
-        {
-            var files = await ProcessDiagnoseEntry(directoryPath, entry);
-
-            foreach (var file in files)
-            {
-                result.Add(file.Key, file.Value);
-            }
-        }
-
-        return result;
-    }
-
-    private async Task<KeyValuePair<string, byte[]>> ProcessDiagnoseFile(string? path, DiagnoseFile file)
-    {
-        var filePath = path != null ? string.Join("/", path, file.Name) : file.Name;
-
-        var bytes = file.GetContent();
-
-        return new KeyValuePair<string, byte[]>(filePath, bytes);
     }
 }

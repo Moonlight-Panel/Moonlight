@@ -1,8 +1,9 @@
+using System.IO.Compression;
 using Moonlight.ApiServer.Models.Diagnose;
 
 namespace Moonlight.ApiServer.Interfaces;
 
 public interface IDiagnoseProvider
 {
-    public DiagnoseEntry[] GetFiles();
+    public Task ModifyZipArchive(ZipArchive archive);
 }

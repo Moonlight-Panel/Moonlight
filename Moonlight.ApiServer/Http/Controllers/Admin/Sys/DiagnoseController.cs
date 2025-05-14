@@ -32,13 +32,8 @@ public class DiagnoseController : Controller
 
     [HttpGet("available")]
     [RequirePermission("admin.system.diagnose")]
-    public async Task<SystemAvailableDiagnoseProviderResponse> GetAvailable()
+    public async Task<DiagnoseProvideResponse[]> GetAvailable()
     {
-        var availableProviders = await DiagnoseService.GetAvailable();
-        
-        return new SystemAvailableDiagnoseProviderResponse()
-        {
-            AvailableProviders = availableProviders
-        };
+        return await DiagnoseService.GetAvailable();
     }
 }

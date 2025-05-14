@@ -54,7 +54,8 @@ public class CoreStartup : IPluginStartup
 
         #region Diagnose
 
-        builder.Services.AddSingleton<IDiagnoseProvider, CoreDiagnoseProvider>();
+        builder.Services.AddSingleton<IDiagnoseProvider, CoreConfigDiagnoseProvider>();
+        builder.Services.AddSingleton<IDiagnoseProvider, LogsDiagnoseProvider>();
 
         #endregion
         
