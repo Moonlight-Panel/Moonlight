@@ -42,7 +42,7 @@
                         {
                             <div class="mt-1 flex gap-3 items-center">
                                 <input class="rounded" type="checkbox" id="@(item.Key.Type + "_checkbox")" @bind="@AvailableProviders[item.Key]" />
-                                <label for="@(item.Key.Type + "_checkbox")">@item.Key.Name</label>
+                                <label for="@(item.Key.Type + "_checkbox")">@Formatter.ConvertCamelCaseToSpaces(item.Key.Name)</label>
                             </div>
                         }
                     </LazyLoader>
