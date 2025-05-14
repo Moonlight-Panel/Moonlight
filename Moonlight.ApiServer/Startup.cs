@@ -1,8 +1,8 @@
-using System.Runtime.Loader;
 using System.Text;
 using System.Text.Json;
 using Hangfire;
 using Hangfire.EntityFrameworkCore;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.EnvConfiguration;
@@ -15,12 +15,10 @@ using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Implementations;
 using Moonlight.ApiServer.Implementations.Startup;
 using Moonlight.ApiServer.Interfaces;
 using Moonlight.ApiServer.Plugins;
-using Moonlight.ApiServer.Services;
 
 namespace Moonlight.ApiServer;
 
@@ -79,7 +77,6 @@ public class Startup
         await PrepareDatabase();
 
         await UseCors();
-        await UsePluginAssets(); // We need to move the plugin assets to the top to allow plugins to override content
         await UseBase();
         await UseAuth();
         await UseHangfire();
@@ -191,7 +188,7 @@ public class Startup
         var serviceCollection = new ServiceCollection();
 
         serviceCollection.AddSingleton(Configuration);
-        
+
         serviceCollection.AddLogging(builder =>
         {
             builder.ClearProviders();
@@ -199,35 +196,25 @@ public class Startup
         });
 
         PluginLoadServiceProvider = serviceCollection.BuildServiceProvider();
-        
+
         // Collect startups
         var pluginStartups = new List<IPluginStartup>();
-        
+
         pluginStartups.Add(new CoreStartup());
-        
+
         pluginStartups.AddRange(AdditionalPlugins); // Used by the development server
-        
+
         // Do NOT remove the following comment, as its used to place the plugin startup register calls
         // MLBUILD_PLUGIN_STARTUP_HERE
 
 
         PluginStartups = pluginStartups.ToArray();
-        
+
         return Task.CompletedTask;
     }
 
     private Task RegisterPluginAssets()
     {
-        return Task.CompletedTask;
-    }
-
-    private Task UsePluginAssets()
-    {
-        WebApplication.UseStaticFiles(new StaticFileOptions()
-        {
-            FileProvider = new BundleAssetFileProvider()
-        });
-
         return Task.CompletedTask;
     }
 
@@ -489,7 +476,7 @@ public class Startup
         });
 
         WebApplicationBuilder.Services.AddAuthorization();
-        
+
         // Add local oauth2 provider if enabled
         if (Configuration.Authentication.EnableLocalOAuth2)
             WebApplicationBuilder.Services.AddScoped<IOAuth2Provider, LocalOAuth2Provider>();
@@ -514,12 +501,30 @@ public class Startup
 
     private Task RegisterCors()
     {
+        var allowedOrigins = Configuration.Kestrel.AllowedOrigins.Split(";", StringSplitOptions.RemoveEmptyEntries);
+
         WebApplicationBuilder.Services.AddCors(options =>
         {
-            options.AddDefaultPolicy(builder =>
+            var cors = new CorsPolicyBuilder();
+
+            if (allowedOrigins.Contains("*"))
             {
-                builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().Build();
-            });
+                cors.SetIsOriginAllowed(_ => true)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            }
+            else
+            {
+                cors.WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            }
+
+            options.AddDefaultPolicy(
+                cors.Build()
+            );
         });
 
         return Task.CompletedTask;

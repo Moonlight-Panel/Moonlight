@@ -55,5 +55,6 @@ public class AppConfiguration
     public class KestrelConfig
     {
         public int UploadLimit { get; set; } = 100;
+        public string AllowedOrigins { get; set; } = "*";
     }
 }
