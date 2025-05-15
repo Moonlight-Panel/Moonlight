@@ -18,6 +18,7 @@
     <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IsPackable>true</IsPackable>
+    <CompressionEnabled>false</CompressionEnabled>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Blazor-ApexCharts" Version="6.0.0" />
