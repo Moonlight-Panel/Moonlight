@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using Moonlight.ApiServer.Models.Diagnose;
 
 namespace Moonlight.ApiServer.Interfaces;
 
