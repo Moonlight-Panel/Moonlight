@@ -110,6 +110,7 @@ public class Startup
     private Task CreateStorage()
     {
         Directory.CreateDirectory("storage");
+        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
         Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
 
         return Task.CompletedTask;
@@ -338,7 +339,10 @@ public class Startup
         {
             configuration.Console.Enable = true;
             configuration.Console.EnableAnsiMode = true;
-            configuration.FileLogging.Enable = false;
+            configuration.FileLogging.Enable = true;
+            configuration.FileLogging.Path = PathBuilder.File("storage", "logs", "latest.log");
+            configuration.FileLogging.EnableLogRotation = true;
+            configuration.FileLogging.RotateLogNameTemplate = PathBuilder.File("storage", "logs", "apiserver.{0}.log");
         });
 
         LoggerFactory = new LoggerFactory();

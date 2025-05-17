@@ -1,0 +1,120 @@
+@page "/admin/system/diagnose"
+
+@using MoonCore.Attributes
+@using MoonCore.Helpers
+@using Moonlight.Shared.Http.Requests.Admin.Sys
+@using Moonlight.Shared.Http.Responses.Admin.Sys
+
+@attribute [RequirePermission("admin.system.diagnose")]
+
+@inject HttpApiClient ApiClient
+@inject DownloadService DownloadService
+
+<div class="mb-5">
+    <NavTabs Index="5" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
+</div>
+
+<div class="grid grid-cols-2">
+    <div class="col-span-2 md:col-span-1 card">
+        <div class="card-header">
+            <span class="card-title">Diagnose</span>
+        </div>
+        <div class="card-body">
+            <p>
+                If you're experiencing issues or need help via our Discord, you're in the right place here!
+                By pressing the button below, Moonlight will run all available diagnostic checks and package the results
+                into a
+                downloadable zip file.
+                The report includes useful information about your system, plugins, and environment, making it easier to
+                identify problems or share with support.
+            </p>
+
+            <WButton OnClick="GenerateDiagnose" CssClasses="btn btn-primary my-5">Generate diagnose</WButton>
+
+            <div class="text-sm">
+                <a class="text-primary cursor-pointer flex items-center" @onclick:preventDefault
+                   @onclick="ToggleDropDown">
+                    <span class="me-1.5">Advanced</span>
+                    @if (DropdownOpen)
+                    {
+                        <i class="icon-chevron-up"></i>
+                    }
+                    else
+                    {
+                        <i class="icon-chevron-down"></i>
+                    }
+                </a>
+
+                <div class="@(DropdownOpen ? "" : "hidden")">
+                    <LazyLoader Load="Load">
+                        <div class="mb-2 py-2 border-b border-gray-700 flex items-center gap-3">
+                            <input id="selectall_checkbox" @bind="SelectAll" type="checkbox" class="form-checkbox">
+                            <label for="selectall_checkbox">Select all</label>
+                        </div>
+
+                        @foreach (var item in AvailableProviders)
+                        {
+                            <div class="mt-1 flex gap-3 items-center">
+                                <input class="form-checkbox" type="checkbox" id="@(item.Key.Type + "_checkbox")"
+                                       @bind="@AvailableProviders[item.Key]"/>
+                                <label
+                                    for="@(item.Key.Type + "_checkbox")">@Formatter.ConvertCamelCaseToSpaces(item.Key.Name)</label>
+                            </div>
+                        }
+                    </LazyLoader>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private bool DropdownOpen = false;
+    private Dictionary<DiagnoseProvideResponse, bool> AvailableProviders;
+    
+    private bool SelectAll
+    {
+        get => AvailableProviders.Values.All(v => v);
+        set
+        {
+            foreach (var k in AvailableProviders.Keys)
+                AvailableProviders[k] = value;
+        }
+    }
+
+    private async Task Load(LazyLoader arg)
+    {
+        var providers = await ApiClient.GetJson<DiagnoseProvideResponse[]>(
+            "api/admin/system/diagnose/providers"
+        );
+
+        AvailableProviders = providers
+            .ToDictionary(x => x, _ => true);
+    }
+
+    private async Task GenerateDiagnose(WButton _)
+    {
+        var request = new GenerateDiagnoseRequest();
+
+        if (!SelectAll)
+        {
+            // filter the providers which have been selected if not all providers have been selected
+            request.Providers = AvailableProviders
+                .Where(x => x.Value)
+                .Select(x => x.Key.Type)
+                .ToArray();
+        }
+
+        var stream = await ApiClient.PostStream("api/admin/system/diagnose", request);
+
+        await DownloadService.DownloadStream("diagnose.zip", stream);
+    }
+
+
+    private async Task ToggleDropDown()
+    {
+        DropdownOpen = !DropdownOpen;
+        await InvokeAsync(StateHasChanged);
+    }
+}
