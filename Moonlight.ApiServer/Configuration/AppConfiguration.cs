@@ -44,6 +44,8 @@ public class AppConfiguration
             public string? AuthorizationEndpoint { get; set; }
             public string? AccessEndpoint { get; set; }
             public string? AuthorizationRedirect { get; set; }
+
+            public bool FirstUserAdmin { get; set; } = true;
         }
     }
     
@@ -55,5 +57,6 @@ public class AppConfiguration
     public class KestrelConfig
     {
         public int UploadLimit { get; set; } = 100;
+        public string AllowedOrigins { get; set; } = "*";
     }
 }

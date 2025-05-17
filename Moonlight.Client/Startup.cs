@@ -9,7 +9,9 @@ using MoonCore.Blazor.Tailwind.Extensions;
 using MoonCore.Blazor.Tailwind.Auth;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
+using Moonlight.Client.Plugins;
 using Moonlight.Client.Services;
 using Moonlight.Shared.Misc;
 using Moonlight.Client.UI;
@@ -33,15 +35,14 @@ public class Startup
     private WebAssemblyHost WebAssemblyHost;
 
     // Plugin Loading
-    private AssemblyLoadContext PluginLoadContext;
-    private Assembly[] AdditionalAssemblies;
-
+    private IPluginStartup[] AdditionalPlugins;
     private IPluginStartup[] PluginStartups;
+    private IServiceProvider PluginLoadServiceProvider;
 
-    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null)
+    public async Task Run(string[] args, IPluginStartup[]? additionalPlugins = null)
     {
         Args = args;
-        AdditionalAssemblies = additionalAssemblies ?? [];
+        AdditionalPlugins = additionalPlugins ?? [];
 
         await PrintVersion();
         await SetupLogging();
@@ -49,7 +50,6 @@ public class Startup
         await CreateWebAssemblyHostBuilder();
 
         await LoadConfiguration();
-        await LoadPlugins();
         await InitializePlugins();
 
         await RegisterLogging();
@@ -94,7 +94,7 @@ public class Startup
             httpClient.BaseAddress = new Uri(WebAssemblyHostBuilder.HostEnvironment.BaseAddress);
 
             var jsonText = await httpClient.GetStringAsync("frontend.json");
-            
+
             Configuration = JsonSerializer.Deserialize<FrontendConfiguration>(jsonText, new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true
@@ -120,7 +120,7 @@ public class Startup
                 BaseAddress = new Uri(Configuration.ApiUrl)
             }
         );
-        
+
         WebAssemblyHostBuilder.Services.AddScoped(sp =>
         {
             var httpClient = sp.GetRequiredService<HttpClient>();
@@ -146,7 +146,7 @@ public class Startup
         WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
 
         WebAssemblyHostBuilder.Services.AddScoped<ThemeService>();
-        
+
         WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
 
         return Task.CompletedTask;
@@ -160,38 +160,14 @@ public class Startup
 
         foreach (var scriptName in Configuration.Scripts)
             await jsRuntime.InvokeVoidAsync("moonlight.assets.loadJavascript", scriptName);
+        
+        foreach (var styleName in Configuration.Styles)
+            await jsRuntime.InvokeVoidAsync("moonlight.assets.loadStylesheet", styleName);
     }
 
     #endregion
 
     #region Plugins
-
-    private async Task LoadPlugins()
-    {
-        // Create everything required to stream plugins
-        using var clientForStreaming = new HttpClient();
-
-        clientForStreaming.BaseAddress = new Uri(Configuration.HostEnvironment == "ApiServer"
-            ? Configuration.ApiUrl
-            : WebAssemblyHostBuilder.HostEnvironment.BaseAddress
-        );
-
-        PluginLoadContext = new AssemblyLoadContext(null);
-
-        foreach (var assembly in Configuration.Assemblies)
-        {
-            var assemblyStream = await clientForStreaming.GetStreamAsync($"plugins/{assembly}");
-            PluginLoadContext.LoadFromStream(assemblyStream);
-        }
-        
-        // Add application assembly service
-        var appAssemblyService = new ApplicationAssemblyService();
-        
-        appAssemblyService.Assemblies.AddRange(AdditionalAssemblies);
-        appAssemblyService.Assemblies.AddRange(PluginLoadContext.Assemblies);
-
-        WebAssemblyHostBuilder.Services.AddSingleton(appAssemblyService);
-    }
 
     private Task InitializePlugins()
     {
@@ -205,38 +181,31 @@ public class Startup
             builder.AddProviders(LoggerProviders);
         });
 
-        //
-        var startupSp = startupSc.BuildServiceProvider();
-        
-        // Initialize plugin startups
-        var startups = new List<IPluginStartup>();
-        var startupType = typeof(IPluginStartup);
-        
-        var assembliesToScan = new List<Assembly>();
-        
-        assembliesToScan.Add(typeof(Startup).Assembly);
-        assembliesToScan.AddRange(AdditionalAssemblies);
-        assembliesToScan.AddRange(PluginLoadContext.Assemblies);
+        PluginLoadServiceProvider = startupSc.BuildServiceProvider();
 
-        foreach (var pluginAssembly in assembliesToScan)
-        {
-            var startupTypes = pluginAssembly
-                .ExportedTypes
-                .Where(x => !x.IsAbstract && !x.IsInterface && x.IsAssignableTo(startupType))
-                .ToArray();
+        // Collect startups
+        var pluginStartups = new List<IPluginStartup>();
 
-            foreach (var type in startupTypes)
-            {
-                var startup = ActivatorUtilities.CreateInstance(startupSp, type) as IPluginStartup;
-                
-                if(startup == null)
-                    continue;
-                
-                startups.Add(startup);
-            }
-        }
+        pluginStartups.Add(new CoreStartup());
 
-        PluginStartups = startups.ToArray();
+        pluginStartups.AddRange(AdditionalPlugins); // Used by the development server
+
+        // Do NOT remove the following comment, as its used to place the plugin startup register calls
+        // MLBUILD_PLUGIN_STARTUP_HERE
+
+
+        PluginStartups = pluginStartups.ToArray();
+
+        // Add application assembly service
+        var appAssemblyService = new ApplicationAssemblyService();
+
+        appAssemblyService.Assemblies.AddRange(
+            PluginStartups
+                .Select(x => x.GetType().Assembly)
+                .Distinct()
+        );
+
+        WebAssemblyHostBuilder.Services.AddSingleton(appAssemblyService);
 
         return Task.CompletedTask;
     }
@@ -249,7 +218,7 @@ public class Startup
         {
             try
             {
-                await pluginAppStartup.BuildApplication(WebAssemblyHostBuilder);
+                await pluginAppStartup.BuildApplication(PluginLoadServiceProvider, WebAssemblyHostBuilder);
             }
             catch (Exception e)
             {
@@ -268,7 +237,7 @@ public class Startup
         {
             try
             {
-                await pluginAppStartup.ConfigureApplication(WebAssemblyHost);
+                await pluginAppStartup.ConfigureApplication(PluginLoadServiceProvider, WebAssemblyHost);
             }
             catch (Exception e)
             {
@@ -336,9 +305,9 @@ public class Startup
     {
         WebAssemblyHostBuilder.Services.AddAuthorizationCore();
         WebAssemblyHostBuilder.Services.AddCascadingAuthenticationState();
-        
+
         WebAssemblyHostBuilder.Services.AddAuthenticationStateManager<RemoteAuthStateManager>();
-        
+
         return Task.CompletedTask;
     }
 

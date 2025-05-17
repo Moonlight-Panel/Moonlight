@@ -12,31 +12,13 @@ namespace Moonlight.ApiServer.Http.Controllers;
 public class FrontendController : Controller
 {
     private readonly FrontendService FrontendService;
-    private readonly PluginService PluginService;
 
-    public FrontendController(FrontendService frontendService, PluginService pluginService)
+    public FrontendController(FrontendService frontendService)
     {
         FrontendService = frontendService;
-        PluginService = pluginService;
     }
 
     [HttpGet("frontend.json")]
     public async Task<FrontendConfiguration> GetConfiguration()
         => await FrontendService.GetConfiguration();
-
-    [HttpGet("plugins/{assemblyName}")]
-    public async Task GetPluginAssembly(string assemblyName)
-    {
-        var assembliesMap = PluginService.GetAssemblies("client");
-
-        if (!assembliesMap.TryGetValue(assemblyName, out var path))
-            throw new HttpApiException("The requested assembly could not be found", 404);
-
-        var absolutePath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            path
-        );
-
-        await Results.File(absolutePath).ExecuteAsync(HttpContext);
-    }
 }

@@ -1,20 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <PackageId>Moonlight.Shared</PackageId>
-        <Version>2.1.0</Version>
-        <Authors>Moonlight Panel</Authors>
-        <Description>A build of the shared classes for moonlight development</Description>
-        <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
-        <DevelopmentDependency>true</DevelopmentDependency>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <IsPackable>true</IsPackable>
-    </PropertyGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Title>Moonlight.Shared</Title>
+    <PackageTags>shared</PackageTags>
+    <PackageId>Moonlight.Shared</PackageId>
+    <Version>2.1.0</Version>
+    <Authors>Moonlight Panel</Authors>
+    <Description>A build of the shared classes for moonlight development</Description>
+    <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
 </Project>

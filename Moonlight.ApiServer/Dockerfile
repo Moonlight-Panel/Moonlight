@@ -1,4 +1,9 @@
-﻿# Prepare runtime docker image
+﻿#
+# OUTDATED
+# Use https://github.com/Moonlight-Panel/Deploy
+#
+
+# Prepare runtime docker image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble-chiseled AS base
 WORKDIR /app
 

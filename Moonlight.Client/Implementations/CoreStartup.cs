@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Moonlight.Client.Interfaces;
+using Moonlight.Client.Plugins;
 
 namespace Moonlight.Client.Implementations;
 
 public class CoreStartup : IPluginStartup
 {
-    public Task BuildApplication(WebAssemblyHostBuilder builder)
+    public Task BuildApplication(IServiceProvider serviceProvider, WebAssemblyHostBuilder builder)
     {
         builder.Services.AddSingleton<ISidebarItemProvider, DefaultSidebarItemProvider>();
         builder.Services.AddSingleton<IOverviewElementProvider, DefaultOverviewElementProvider>();
@@ -13,6 +14,6 @@ public class CoreStartup : IPluginStartup
         return Task.CompletedTask;
     }
 
-    public Task ConfigureApplication(WebAssemblyHost app)
+    public Task ConfigureApplication(IServiceProvider serviceProvider, WebAssemblyHost app)
         => Task.CompletedTask;
 }

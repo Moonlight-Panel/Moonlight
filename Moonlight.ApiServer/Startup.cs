@@ -1,13 +1,10 @@
-using System.Reflection;
-using System.Runtime.Loader;
 using System.Text;
 using System.Text.Json;
 using Hangfire;
 using Hangfire.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MoonCore.Configuration;
 using MoonCore.EnvConfiguration;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
@@ -15,16 +12,13 @@ using MoonCore.Extended.Helpers;
 using MoonCore.Extended.JwtInvalidation;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
-using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Helpers;
 using Moonlight.ApiServer.Implementations;
+using Moonlight.ApiServer.Implementations.Startup;
 using Moonlight.ApiServer.Interfaces;
-using Moonlight.ApiServer.Interfaces.Startup;
-using Moonlight.ApiServer.Models;
-using Moonlight.ApiServer.Services;
+using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer;
 
@@ -34,8 +28,6 @@ namespace Moonlight.ApiServer;
 public class Startup
 {
     private string[] Args;
-    private Assembly[] AdditionalAssemblies;
-    private PluginManifest[] AdditionalPluginManifests;
 
     // Logging
     private ILoggerProvider[] LoggerProviders;
@@ -51,24 +43,20 @@ public class Startup
     private WebApplicationBuilder WebApplicationBuilder;
 
     // Plugin Loading
-    private PluginService PluginService;
-    private AssemblyLoadContext PluginLoadContext;
-
     private IPluginStartup[] PluginStartups;
+    private IPluginStartup[] AdditionalPlugins;
+    private IServiceProvider PluginLoadServiceProvider;
 
-    public async Task Run(string[] args, Assembly[]? additionalAssemblies = null,
-        PluginManifest[]? additionalManifests = null)
+    public async Task Run(string[] args, IPluginStartup[]? additionalPlugins = null)
     {
         Args = args;
-        AdditionalAssemblies = additionalAssemblies ?? [];
-        AdditionalPluginManifests = additionalManifests ?? [];
+        AdditionalPlugins = additionalPlugins ?? [];
 
         await PrintVersion();
 
         await CreateStorage();
         await SetupAppConfiguration();
         await SetupLogging();
-        await LoadPlugins();
         await InitializePlugins();
 
         await CreateWebApplicationBuilder();
@@ -89,7 +77,6 @@ public class Startup
         await PrepareDatabase();
 
         await UseCors();
-        await UsePluginAssets(); // We need to move the plugin assets to the top to allow plugins to override content
         await UseBase();
         await UseAuth();
         await UseHangfire();
@@ -140,17 +127,13 @@ public class Startup
 
         // Add pre-existing services
         WebApplicationBuilder.Services.AddSingleton(Configuration);
-        WebApplicationBuilder.Services.AddSingleton(PluginService);
 
         // Configure controllers
         var mvcBuilder = WebApplicationBuilder.Services.AddControllers();
 
-        // Add plugin and additional assemblies as application parts
-        foreach (var pluginAssembly in PluginLoadContext.Assemblies)
-            mvcBuilder.AddApplicationPart(pluginAssembly);
-
-        foreach (var additionalAssembly in AdditionalAssemblies)
-            mvcBuilder.AddApplicationPart(additionalAssembly);
+        // Add plugin assemblies as application parts
+        foreach (var pluginStartup in PluginStartups.Select(x => x.GetType().Assembly).Distinct())
+            mvcBuilder.AddApplicationPart(pluginStartup.GetType().Assembly);
 
         return Task.CompletedTask;
     }
@@ -200,110 +183,39 @@ public class Startup
 
     #region Plugin Loading
 
-    private async Task LoadPlugins()
-    {
-        // Load plugins
-        PluginService = new PluginService(
-            LoggerFactory.CreateLogger<PluginService>()
-        );
-
-        // Add plugins manually if specified in the startup
-        foreach (var manifest in AdditionalPluginManifests)
-            PluginService.LoadedPlugins.Add(manifest, Directory.GetCurrentDirectory());
-
-        // Search and load all plugins
-        await PluginService.Load();
-
-        // Search up assemblies for the apiServer
-        var assemblyFiles = PluginService.GetAssemblies("apiServer")
-            .Values
-            .ToArray();
-
-        // Create the load context and add assemblies
-        PluginLoadContext = new AssemblyLoadContext(null);
-
-        foreach (var assemblyFile in assemblyFiles)
-        {
-            try
-            {
-                PluginLoadContext.LoadFromAssemblyPath(
-                    Path.Combine(Directory.GetCurrentDirectory(), assemblyFile)
-                );
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Unable to load plugin assembly '{assemblyFile}': {e}", assemblyFile, e);
-            }
-        }
-    }
-
     private Task InitializePlugins()
     {
-        // Define minimal service collection
-        var startupSc = new ServiceCollection();
+        // Create service provider for starting up
+        var serviceCollection = new ServiceCollection();
 
-        // Configure base services for initialisation
-        startupSc.AddSingleton(Configuration);
+        serviceCollection.AddSingleton(Configuration);
 
-        startupSc.AddLogging(builder =>
+        serviceCollection.AddLogging(builder =>
         {
             builder.ClearProviders();
             builder.AddProviders(LoggerProviders);
         });
 
-        //
-        var startupSp = startupSc.BuildServiceProvider();
+        PluginLoadServiceProvider = serviceCollection.BuildServiceProvider();
 
-        // Initialize plugin startups
-        var startups = new List<IPluginStartup>();
-        var startupType = typeof(IPluginStartup);
+        // Collect startups
+        var pluginStartups = new List<IPluginStartup>();
 
-        var assembliesToScan = new List<Assembly>();
+        pluginStartups.Add(new CoreStartup());
 
-        assembliesToScan.Add(typeof(Startup).Assembly);
-        assembliesToScan.AddRange(PluginLoadContext.Assemblies);
-        assembliesToScan.AddRange(AdditionalAssemblies);
+        pluginStartups.AddRange(AdditionalPlugins); // Used by the development server
 
-        foreach (var pluginAssembly in assembliesToScan)
-        {
-            var startupTypes = pluginAssembly
-                .ExportedTypes
-                .Where(x => !x.IsAbstract && !x.IsInterface && x.IsAssignableTo(startupType))
-                .ToArray();
+        // Do NOT remove the following comment, as its used to place the plugin startup register calls
+        // MLBUILD_PLUGIN_STARTUP_HERE
 
-            foreach (var type in startupTypes)
-            {
-                var startup = ActivatorUtilities.CreateInstance(startupSp, type) as IPluginStartup;
 
-                if (startup == null)
-                    continue;
-
-                startups.Add(startup);
-            }
-        }
-
-        PluginStartups = startups.ToArray();
+        PluginStartups = pluginStartups.ToArray();
 
         return Task.CompletedTask;
     }
 
     private Task RegisterPluginAssets()
     {
-        return Task.CompletedTask;
-    }
-
-    private Task UsePluginAssets()
-    {
-        WebApplication.UseStaticFiles(new StaticFileOptions()
-        {
-            FileProvider = new BundleAssetFileProvider()
-        });
-
-        WebApplication.UseStaticFiles(new StaticFileOptions()
-        {
-            FileProvider = PluginService.WwwRootFileProvider
-        });
-
         return Task.CompletedTask;
     }
 
@@ -315,7 +227,7 @@ public class Startup
         {
             try
             {
-                await pluginAppStartup.BuildApplication(WebApplicationBuilder);
+                await pluginAppStartup.BuildApplication(PluginLoadServiceProvider, WebApplicationBuilder);
             }
             catch (Exception e)
             {
@@ -334,7 +246,7 @@ public class Startup
         {
             try
             {
-                await pluginAppStartup.ConfigureApplication(WebApplication);
+                await pluginAppStartup.ConfigureApplication(PluginLoadServiceProvider, WebApplication);
             }
             catch (Exception e)
             {
@@ -353,7 +265,7 @@ public class Startup
         {
             try
             {
-                await pluginEndpointStartup.ConfigureEndpoints(WebApplication);
+                await pluginEndpointStartup.ConfigureEndpoints(PluginLoadServiceProvider, WebApplication);
             }
             catch (Exception e)
             {
@@ -568,7 +480,7 @@ public class Startup
         });
 
         WebApplicationBuilder.Services.AddAuthorization();
-        
+
         // Add local oauth2 provider if enabled
         if (Configuration.Authentication.EnableLocalOAuth2)
             WebApplicationBuilder.Services.AddScoped<IOAuth2Provider, LocalOAuth2Provider>();
@@ -593,12 +505,30 @@ public class Startup
 
     private Task RegisterCors()
     {
+        var allowedOrigins = Configuration.Kestrel.AllowedOrigins.Split(";", StringSplitOptions.RemoveEmptyEntries);
+
         WebApplicationBuilder.Services.AddCors(options =>
         {
-            options.AddDefaultPolicy(builder =>
+            var cors = new CorsPolicyBuilder();
+
+            if (allowedOrigins.Contains("*"))
             {
-                builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().Build();
-            });
+                cors.SetIsOriginAllowed(_ => true)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            }
+            else
+            {
+                cors.WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            }
+
+            options.AddDefaultPolicy(
+                cors.Build()
+            );
         });
 
         return Task.CompletedTask;
