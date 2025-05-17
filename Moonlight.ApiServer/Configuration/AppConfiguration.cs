@@ -44,6 +44,8 @@ public class AppConfiguration
             public string? AuthorizationEndpoint { get; set; }
             public string? AccessEndpoint { get; set; }
             public string? AuthorizationRedirect { get; set; }
+
+            public bool FirstUserAdmin { get; set; } = true;
         }
     }
     

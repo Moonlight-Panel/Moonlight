@@ -273,13 +273,22 @@ public class OAuth2Controller : Controller
 
         if (await UserRepository.Get().AnyAsync(x => x.Email == email))
             throw new HttpApiException("A account with that email already exists", 400);
-
+        
         var user = new User()
         {
             Username = username,
             Email = email,
-            Password = HashHelper.Hash(password)
+            Password = HashHelper.Hash(password),
         };
+        
+        if (Configuration.Authentication.OAuth2.FirstUserAdmin)
+        {
+            var userCount = await UserRepository.Get().CountAsync();
+            
+            if (userCount == 0)
+                user.PermissionsJson = "[\"*\"]";
+            
+        }
 
         return await UserRepository.Add(user);
     }
