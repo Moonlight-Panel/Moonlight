@@ -2,108 +2,119 @@ using System.IO.Compression;
 using System.Text;
 using System.Xml.Linq;
 using Cocona;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using Scripts.Helpers;
+using Scripts.Models;
 
 namespace Scripts.Commands;
 
 public class PreBuildCommand
 {
-    private readonly CommandHelper CommandHelper;
+    private readonly NupkgHelper NupkgHelper;
+    private readonly CsprojHelper CsprojHelper;
+    private readonly CodeHelper CodeHelper;
+    private readonly ILogger<PreBuildCommand> Logger;
+
     private const string GeneratedStart = "// MLBUILD Generated Start";
     private const string GeneratedEnd = "// MLBUILD Generated End";
     private const string GeneratedHook = "// MLBUILD_PLUGIN_STARTUP_HERE";
 
-    public PreBuildCommand(CommandHelper commandHelper)
+    private readonly string[] ValidTags = ["frontend", "apiserver", "shared"];
+
+    public PreBuildCommand(
+        CsprojHelper csprojHelper,
+        NupkgHelper nupkgHelper,
+        CodeHelper codeHelper,
+        ILogger<PreBuildCommand> logger
+    )
     {
-        CommandHelper = commandHelper;
+        CsprojHelper = csprojHelper;
+        NupkgHelper = nupkgHelper;
+        CodeHelper = codeHelper;
+        Logger = logger;
     }
 
     [Command("prebuild")]
     public async Task Prebuild(
-        [Argument] string moonlightDir,
-        [Argument] string nugetDir
+        [Argument] string moonlightDirectory,
+        [Argument] string pluginsDirectory
     )
     {
-        var dependencies = await GetDependenciesFromNuget(nugetDir);
+        var projects = await CsprojHelper.FindProjectsInPath(moonlightDirectory, ValidTags);
 
-        Console.WriteLine("Following plugins found:");
+        var nugetManifests = await GetNugetManifests(pluginsDirectory);
 
-        foreach (var dependency in dependencies)
+        Logger.LogInformation("Following plugins found:");
+
+        foreach (var manifest in nugetManifests)
         {
-            Console.WriteLine($"{dependency.Id} ({dependency.Version}) [{dependency.Tags}]");
+            Logger.LogInformation(
+                "- {id} ({version}) [{tags}]",
+                manifest.Id,
+                manifest.Version,
+                string.Join(", ", manifest.Tags)
+            );
         }
-
-        var csProjFiles = Directory.GetFiles(moonlightDir, "*.csproj", SearchOption.AllDirectories);
 
         try
         {
-            Console.WriteLine("Adjusting csproj files");
-            foreach (var csProjFile in csProjFiles)
+            Logger.LogInformation("Adjusting csproj files");
+
+            foreach (var project in projects)
             {
+                var csProjectPath = project.Key;
+
                 await using var fs = File.Open(
-                    csProjFile,
+                    csProjectPath,
                     FileMode.Open,
                     FileAccess.ReadWrite,
                     FileShare.ReadWrite
                 );
 
                 var document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
-                fs.Close();
+                fs.Position = 0;
 
-                // Search for tag definitions
-                var packageTagsElements = document.Descendants("PackageTags").ToArray();
-
-                if (packageTagsElements.Length == 0)
-                {
-                    Console.WriteLine($"No package tags found in {Path.GetFullPath(csProjFile)}. Skipping it");
-                    continue;
-                }
-
-                var packageTags = packageTagsElements.First().Value;
-
-                var dependenciesToAdd = dependencies
-                    .Where(x => x.Tags.Contains(packageTags, StringComparison.InvariantCultureIgnoreCase))
+                var dependenciesToAdd = nugetManifests
+                    .Where(x => x.Tags.Any(tag =>
+                        project.Value.PackageTags.Contains(tag, StringComparer.InvariantCultureIgnoreCase)))
                     .ToArray();
 
-                await RemoveDependencies(csProjFile);
-                await AddDependencies(csProjFile, dependenciesToAdd);
+                await CsprojHelper.CleanDependencies(document, "MoonlightBuildDeps");
+                await CsprojHelper.AddDependencies(document, dependenciesToAdd, "MoonlightBuildDeps");
+
+                fs.Position = 0;
+                await document.SaveAsync(fs, SaveOptions.None, CancellationToken.None);
+
+                await fs.FlushAsync();
+                fs.Close();
             }
 
-            Console.WriteLine("Restoring projects");
-            foreach (var csProjFile in csProjFiles)
+            Logger.LogInformation("Restoring projects");
+            
+            foreach (var csProjectPath in projects.Keys)
+                await CsprojHelper.Restore(csProjectPath);
+
+            Logger.LogInformation("Generating plugin startup");
+
+            foreach (var currentTag in ValidTags)
             {
-                await RestoreProject(csProjFile, nugetDir);
-            }
+                Logger.LogInformation("Checking for '{currentTag}' projects", currentTag);
 
-            Console.WriteLine("Generating plugin startup");
+                var projectsWithTag = projects
+                    .Where(x =>
+                        x.Value.PackageTags.Contains(currentTag, StringComparer.InvariantCultureIgnoreCase)
+                    )
+                    .ToArray();
 
-            string[] validTags = ["apiserver", "frontend"];
-
-            foreach (var currentTag in validTags)
-            {
-                Console.WriteLine($"Checking for '{currentTag}' projects");
-
-                foreach (var csProjFile in csProjFiles)
+                foreach (var project in projectsWithTag)
                 {
-                    var tags = await GetTagsFromCsproj(csProjFile);
+                    var csProjectPath = project.Key;
 
-                    if (string.IsNullOrEmpty(tags))
-                    {
-                        Console.WriteLine($"No package tags found in {Path.GetFullPath(csProjFile)}. Skipping it");
-                        continue;
-                    }
-
-                    if (!tags.Contains(currentTag))
-                        continue;
-
-                    var currentDeps = dependencies
+                    var currentDependencies = nugetManifests
                         .Where(x => x.Tags.Contains(currentTag))
                         .ToArray();
 
-                    var classPaths = await FindStartupClasses(currentDeps);
+                    var classPaths = await FindStartupClasses(currentDependencies);
 
                     var code = new StringBuilder();
 
@@ -112,10 +123,10 @@ public class PreBuildCommand
                     foreach (var path in classPaths)
                         code.AppendLine($"pluginStartups.Add(new global::{path}());");
 
-                    code.AppendLine(GeneratedEnd);
+                    code.Append(GeneratedEnd);
 
                     var filesToSearch = Directory.GetFiles(
-                        Path.GetDirectoryName(csProjFile)!,
+                        Path.GetDirectoryName(csProjectPath)!,
                         "*.cs",
                         SearchOption.AllDirectories
                     );
@@ -127,7 +138,7 @@ public class PreBuildCommand
                         if (!content.Contains(GeneratedHook, StringComparison.InvariantCultureIgnoreCase))
                             continue;
 
-                        Console.WriteLine($"Injecting generated code to: {Path.GetFullPath(file)}");
+                        Logger.LogInformation("Injecting generated code to: {path}", Path.GetFullPath(file));
 
                         content = content.Replace(
                             GeneratedHook,
@@ -142,12 +153,15 @@ public class PreBuildCommand
         }
         catch (Exception)
         {
-            Console.WriteLine("An error occured while prebuilding moonlight. Removing csproj modifications");
+            Logger.LogInformation("An error occured while prebuilding moonlight. Removing csproj modifications");
 
-            foreach (var csProjFile in csProjFiles)
-                await RemoveDependencies(csProjFile);
-
-            await RemoveGeneratedCode(moonlightDir);
+            foreach (var project in projects)
+            {
+                await CsprojHelper.CleanDependencies(project.Key, "MoonlightBuildDeps");
+                
+                var path = Path.GetDirectoryName(project.Key)!;
+                await RemoveGeneratedCode(path);
+            }
 
             throw;
         }
@@ -158,220 +172,68 @@ public class PreBuildCommand
         [Argument] string moonlightDir
     )
     {
-        var csProjFiles = Directory.GetFiles(moonlightDir, "*.csproj", SearchOption.AllDirectories);
+        var projects = await CsprojHelper.FindProjectsInPath(moonlightDir, ValidTags);
+        
+        Logger.LogInformation("Reverting csproj changes");
 
-        Console.WriteLine("Reverting csproj changes");
-
-        foreach (var csProjFile in csProjFiles)
-            await RemoveDependencies(csProjFile);
-
-        Console.WriteLine("Removing generated code");
-        await RemoveGeneratedCode(moonlightDir);
-    }
-
-    [Command("test")]
-    public async Task Test(
-        [Argument] string nugetDir
-    )
-    {
-        var dependencies = await GetDependenciesFromNuget(nugetDir);
-
-        await FindStartupClasses(dependencies);
-    }
-
-    private async Task<Dependency[]> GetDependenciesFromNuget(string nugetDir)
-    {
-        var nugetFiles = Directory.GetFiles(nugetDir, "*.nupkg", SearchOption.AllDirectories);
-        var dependencies = new List<Dependency>();
-
-        foreach (var nugetFile in nugetFiles)
+        foreach (var project in projects)
         {
-            var dependency = await GetDependencyFromPackage(nugetFile);
-            dependencies.Add(dependency);
+            Logger.LogInformation("Removing dependencies: {project}", project.Key);
+            await CsprojHelper.CleanDependencies(project.Key, "MoonlightBuildDeps");
+
+            Logger.LogInformation("Removing generated code: {project}", project.Key);
+            var path = Path.GetDirectoryName(project.Key)!;
+            await RemoveGeneratedCode(path);
         }
-
-        return dependencies.ToArray();
     }
 
-    private async Task<Dependency> GetDependencyFromPackage(string path)
+    private async Task<NupkgManifest[]> GetNugetManifests(string nugetDir)
     {
-        using var nugetPackage = ZipFile.Open(path, ZipArchiveMode.Read);
-
-        var nuspecEntry = nugetPackage.Entries.First(x => x.Name.EndsWith(".nuspec"));
-        await using var nuspecFs = nuspecEntry.Open();
-
-        var nuspec = await XDocument.LoadAsync(nuspecFs, LoadOptions.None, CancellationToken.None);
-
-        var ns = nuspec.Root!.GetDefaultNamespace();
-        var metadata = nuspec.Root!.Element(ns + "metadata")!;
-
-        var id = metadata.Element(ns + "id")!.Value;
-        var version = metadata.Element(ns + "version")!.Value;
-        var tags = metadata.Element(ns + "tags")!.Value;
-
-        nuspecFs.Close();
-
-        return new Dependency()
-        {
-            Id = id,
-            Version = version,
-            Tags = tags
-        };
-    }
-
-    private async Task AddDependencies(string path, Dependency[] dependencies)
-    {
-        await using var fs = File.Open(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-        fs.Position = 0;
-
-        var csProj = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
-
-        var project = csProj.Element("Project")!;
-
-        var itemGroup = new XElement("ItemGroup");
-        itemGroup.SetAttributeValue("Label", "MoonlightBuildDeps");
-
-        foreach (var dependency in dependencies)
-        {
-            var depElement = new XElement("PackageReference");
-            depElement.SetAttributeValue("Include", dependency.Id);
-            depElement.SetAttributeValue("Version", dependency.Version);
-
-            itemGroup.Add(depElement);
-        }
-
-        project.Add(itemGroup);
-
-        fs.Position = 0;
-        await csProj.SaveAsync(fs, SaveOptions.None, CancellationToken.None);
-    }
-
-    private Task RemoveDependencies(string path)
-    {
-        var csProj = XDocument.Load(path, LoadOptions.None);
-
-        var itemGroupsToRemove = csProj
-            .Descendants("ItemGroup")
-            .Where(x => x.Attribute("Label")?.Value.Contains("MoonlightBuildDeps") ?? false)
-            .ToArray();
-
-        itemGroupsToRemove.Remove();
-
-        csProj.Save(path, SaveOptions.None);
-
-        return Task.CompletedTask;
-    }
-
-    private async Task RestoreProject(string file, string nugetPath)
-    {
-        var basePath = Path.GetFullPath(Path.GetDirectoryName(file)!);
-        var fileName = Path.GetFileName(file);
-        var nugetPathFull = Path.GetFullPath(nugetPath);
-
-        Console.WriteLine($"Restore: {basePath} - {fileName}");
-
-        await CommandHelper.Run(
-            "/usr/bin/dotnet",
-            $"restore {fileName} --source {nugetPathFull}",
-            basePath
+        var nugetFiles = Directory.GetFiles(
+            nugetDir,
+            "*.nupkg",
+            SearchOption.AllDirectories
         );
+
+        var manifests = new List<NupkgManifest>();
+
+        foreach (var nugetFilePath in nugetFiles)
+        {
+            using var nugetPackage = ZipFile.Open(nugetFilePath, ZipArchiveMode.Read);
+            var manifest = await NupkgHelper.GetManifest(nugetPackage);
+
+            if (manifest == null)
+                continue;
+
+            manifests.Add(manifest);
+        }
+
+        return manifests.ToArray();
     }
 
-    private async Task<string[]> FindStartupClasses(Dependency[] dependencies)
+    private async Task<string[]> FindStartupClasses(NupkgManifest[] dependencies)
     {
-        var result = new List<string>();
-
         var nugetPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".nuget",
             "packages"
         );
 
-        var filesToScan = dependencies.SelectMany(dependency =>
+        var filesToScan = dependencies
+            .SelectMany(dependency =>
             {
                 var dependencySrcPath = Path.Combine(nugetPath, dependency.Id.ToLower(), dependency.Version, "src");
 
-                Console.WriteLine($"Checking {dependencySrcPath}");
+                Logger.LogDebug("Checking {dependencySrcPath}", dependencySrcPath);
 
                 if (!Directory.Exists(dependencySrcPath))
                     return [];
 
                 return Directory.GetFiles(dependencySrcPath, "*.cs", SearchOption.AllDirectories);
-            }
-        ).ToArray();
+            })
+            .ToArray();
 
-        var mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-
-        var trees = new List<SyntaxTree>();
-
-        foreach (var file in filesToScan)
-        {
-            Console.WriteLine($"Reading {file}");
-
-            var content = await File.ReadAllTextAsync(file);
-            var tree = CSharpSyntaxTree.ParseText(content);
-            trees.Add(tree);
-        }
-
-        var compilation = CSharpCompilation.Create("Analysis", trees, [mscorlib]);
-
-        foreach (var tree in trees)
-        {
-            var model = compilation.GetSemanticModel(tree);
-            var root = await tree.GetRootAsync();
-
-            var classDeclarations = root
-                .DescendantNodes()
-                .OfType<ClassDeclarationSyntax>();
-
-            foreach (var classDeclaration in classDeclarations)
-            {
-                var symbol = model.GetDeclaredSymbol(classDeclaration);
-
-                if (symbol == null)
-                    continue;
-
-                var hasAttribute = symbol.GetAttributes().Any(attr =>
-                {
-                    if (attr.AttributeClass == null)
-                        return false;
-
-                    return attr.AttributeClass.Name == "PluginStartup";
-                });
-
-                if (!hasAttribute)
-                    continue;
-
-                var classPath =
-                    $"{symbol.ContainingNamespace.ToDisplayString()}.{classDeclaration.Identifier.ValueText}";
-
-                Console.WriteLine($"Detected startup in class: {classPath}");
-                result.Add(classPath);
-            }
-        }
-
-        return result.ToArray();
-    }
-
-    private async Task<string> GetTagsFromCsproj(string csProjFile)
-    {
-        await using var fs = File.Open(
-            csProjFile,
-            FileMode.Open,
-            FileAccess.ReadWrite,
-            FileShare.ReadWrite
-        );
-
-        var document = await XDocument.LoadAsync(fs, LoadOptions.None, CancellationToken.None);
-        fs.Close();
-
-        // Search for tag definitions
-        var packageTagsElements = document.Descendants("PackageTags").ToArray();
-
-        if (packageTagsElements.Length == 0)
-            return "";
-
-        return packageTagsElements.First().Value;
+        return await CodeHelper.FindPluginStartups(filesToScan);
     }
 
     private async Task RemoveGeneratedCode(string dir)
@@ -384,10 +246,6 @@ public class PreBuildCommand
 
         foreach (var file in filesToSearch)
         {
-            // We dont want to replace ourself
-            if (file.Contains("PreBuildCommand.cs"))
-                continue;
-
             var content = await File.ReadAllTextAsync(file);
 
             if (!content.Contains(GeneratedStart) || !content.Contains(GeneratedEnd))
@@ -403,12 +261,5 @@ public class PreBuildCommand
 
             await File.WriteAllTextAsync(file, content);
         }
-    }
-
-    private record Dependency
-    {
-        public string Id { get; set; }
-        public string Version { get; set; }
-        public string Tags { get; set; }
     }
 }
