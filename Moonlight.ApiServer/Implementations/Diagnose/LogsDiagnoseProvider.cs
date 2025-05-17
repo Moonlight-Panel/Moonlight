@@ -1,6 +1,4 @@
 using System.IO.Compression;
-using System.Text;
-using MoonCore.Helpers;
 using Moonlight.ApiServer.Extensions;
 using Moonlight.ApiServer.Interfaces;
 
@@ -10,15 +8,15 @@ public class LogsDiagnoseProvider : IDiagnoseProvider
 {
     public async Task ModifyZipArchive(ZipArchive archive)
     {
+        var path = Path.Combine("storage", "logs", "latest.log");
 
-            var logs = await File.ReadAllTextAsync(PathBuilder.File("storage", "logs", "latest.log"));
-
-            if (string.IsNullOrEmpty(logs))
-            {
-                await archive.AddText("logs.txt", "Could not read the logs");
-                return;
-            }
-            
-            await archive.AddText("logs.txt", logs);
+        if (!File.Exists(path))
+        {
+            await archive.AddText("logs.txt", "Logs file latest.log has not been found");
+            return;
+        }
+        
+        var logsContent = await File.ReadAllTextAsync(path);
+        await archive.AddText("logs.txt", logsContent);
     }
 }

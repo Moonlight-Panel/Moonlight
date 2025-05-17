@@ -10,6 +10,7 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 
 [ApiController]
 [Route("api/admin/system/diagnose")]
+[RequirePermission("admin.system.diagnose")]
 public class DiagnoseController : Controller
 {
     private readonly DiagnoseService DiagnoseService;
@@ -20,20 +21,21 @@ public class DiagnoseController : Controller
     }
 
     [HttpPost]
-    [RequirePermission("admin.system.diagnose")]
-    public async Task<IActionResult> Diagnose([FromBody] string[]? requestedDiagnoseProviders = null)
+    public async Task Diagnose([FromBody] GenerateDiagnoseRequest request)
     {
-        var stream = new MemoryStream();
+        var stream = await DiagnoseService.GenerateDiagnose(request.Providers);
         
-        await DiagnoseService.GenerateDiagnose(stream, requestedDiagnoseProviders);
-        
-        return File(stream, "application/zip", "diagnose.zip");
+        await Results.Stream(
+                stream,
+                contentType: "application/zip",
+                fileDownloadName: "diagnose.zip"
+            )
+            .ExecuteAsync(HttpContext);
     }
 
-    [HttpGet("available")]
-    [RequirePermission("admin.system.diagnose")]
-    public async Task<DiagnoseProvideResponse[]> GetAvailable()
+    [HttpGet("providers")]
+    public async Task<DiagnoseProvideResponse[]> GetProviders()
     {
-        return await DiagnoseService.GetAvailable();
+        return await DiagnoseService.GetProviders();
     }
 }

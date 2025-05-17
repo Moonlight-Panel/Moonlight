@@ -24,28 +24,34 @@ public class CoreConfigDiagnoseProvider : IDiagnoseProvider
 
     public async Task ModifyZipArchive(ZipArchive archive)
     {
-        
         var json = JsonSerializer.Serialize(Config);
-        var config =  JsonSerializer.Deserialize<AppConfiguration>(json);
+        var config = JsonSerializer.Deserialize<AppConfiguration>(json);
 
         if (config == null)
         {
-            await archive.AddText("core/config.txt","Could not fetch config.");
-            
+            await archive.AddText("core/config.txt", "Could not fetch config.");
             return;
         }
- 
+
         config.Database.Password = CheckForNullOrEmpty(config.Database.Password);
-                        
+
         config.Authentication.OAuth2.ClientSecret = CheckForNullOrEmpty(config.Authentication.OAuth2.ClientSecret);
-                        
+
         config.Authentication.OAuth2.Secret = CheckForNullOrEmpty(config.Authentication.OAuth2.Secret);
 
         config.Authentication.Secret = CheckForNullOrEmpty(config.Authentication.Secret);
-        
+
         config.Authentication.OAuth2.ClientId = CheckForNullOrEmpty(config.Authentication.OAuth2.ClientId);
 
-        await archive.AddText("core/config.txt",
-            JsonSerializer.Serialize(config, new JsonSerializerOptions() { WriteIndented = true }));
+        await archive.AddText(
+            "core/config.txt",
+            JsonSerializer.Serialize(
+                config,
+                new JsonSerializerOptions()
+                {
+                    WriteIndented = true
+                }
+            )
+        );
     }
 }
