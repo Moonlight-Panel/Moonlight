@@ -1,13 +1,13 @@
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Extended.PermFilter;
 using Moonlight.Shared.Http.Responses.Admin.Hangfire;
 
 namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 
 [ApiController]
 [Route("api/admin/system/hangfire")]
-[RequirePermission("admin.system.hangfire")]
+[Authorize(Policy = "permissions:admin.system.hangfire")]
 public class HangfireController : Controller
 {
     private readonly JobStorage JobStorage;

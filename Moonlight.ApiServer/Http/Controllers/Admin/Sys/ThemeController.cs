@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Extended.PermFilter;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys;
 
@@ -11,7 +11,7 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 public class ThemeController : Controller
 {
     [HttpPatch]
-    [RequirePermission("admin.system.theme.update")]
+    [Authorize(Policy = "permissions:admin.system.theme.update")]
     public async Task Patch([FromBody] UpdateThemeRequest request)
     {
         var themePath = PathBuilder.File("storage", "theme.json");

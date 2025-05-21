@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
-using MoonCore.Extended.PermFilter;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Services;
@@ -26,7 +26,7 @@ public class ApiKeysController : Controller
     }
 
     [HttpGet]
-    [RequirePermission("admin.apikeys.read")]
+    [Authorize(Policy = "permissions:admin.apikeys.get")]
     public async Task<IPagedData<ApiKeyResponse>> Get(
         [FromQuery] int page,
         [FromQuery] [Range(1, 100)] int pageSize = 50
@@ -62,7 +62,7 @@ public class ApiKeysController : Controller
     }
 
     [HttpGet("{id}")]
-    [RequirePermission("admin.apikeys.read")]
+    [Authorize(Policy = "permissions:admin.apikeys.get")]
     public async Task<ApiKeyResponse> GetSingle(int id)
     {
         var apiKey = await ApiKeyRepository
@@ -82,7 +82,7 @@ public class ApiKeysController : Controller
     }
 
     [HttpPost]
-    [RequirePermission("admin.apikeys.create")]
+    [Authorize(Policy = "permissions:admin.apikeys.create")]
     public async Task<CreateApiKeyResponse> Create([FromBody] CreateApiKeyRequest request)
     {
         var apiKey = new ApiKey()
@@ -107,7 +107,7 @@ public class ApiKeysController : Controller
     }
 
     [HttpPatch("{id}")]
-    [RequirePermission("admin.apikeys.update")]
+    [Authorize(Policy = "permissions:admin.apikeys.update")]
     public async Task<ApiKeyResponse> Update([FromRoute] int id, [FromBody] UpdateApiKeyRequest request)
     {
         var apiKey = await ApiKeyRepository
@@ -131,7 +131,7 @@ public class ApiKeysController : Controller
     }
 
     [HttpDelete("{id}")]
-    [RequirePermission("admin.apikeys.delete")]
+    [Authorize(Policy = "permissions:admin.apikeys.delete")]
     public async Task Delete([FromRoute] int id)
     {
         var apiKey = await ApiKeyRepository

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Extended.PermFilter;
 using Moonlight.ApiServer.Services;
 
 namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
@@ -18,7 +17,7 @@ public class AdvancedController : Controller
     }
 
     [HttpGet("frontend")]
-    [RequirePermission("admin.system.advanced.frontend")]
+    [Authorize(Policy = "permissions:admin.system.advanced.frontend")]
     public async Task Frontend()
     {
         var stream = await FrontendService.GenerateZip();

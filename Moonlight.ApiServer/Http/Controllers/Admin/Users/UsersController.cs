@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
-using MoonCore.Extended.PermFilter;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.Shared.Http.Requests.Admin.Users;
@@ -24,7 +24,7 @@ public class UsersController : Controller
     }
 
     [HttpGet]
-    [RequirePermission("admin.users.read")]
+    [Authorize(Policy = "permissions:admin.users.get")]
     public async Task<IPagedData<UserResponse>> Get(
         [FromQuery] int page,
         [FromQuery] [Range(1, 100)] int pageSize = 50
@@ -60,7 +60,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("{id}")]
-    [RequirePermission("admin.users.read")]
+    [Authorize(Policy = "permissions:admin.users.get")]
     public async Task<UserResponse> GetSingle(int id)
     {
         var user = await UserRepository
@@ -80,7 +80,7 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [RequirePermission("admin.users.create")]
+    [Authorize(Policy = "permissions:admin.users.create")]
     public async Task<UserResponse> Create([FromBody] CreateUserRequest request)
     {
         // Reformat values
@@ -116,7 +116,7 @@ public class UsersController : Controller
     }
 
     [HttpPatch("{id}")]
-    [RequirePermission("admin.users.update")]
+    [Authorize(Policy = "permissions:admin.users.update")]
     public async Task<UserResponse> Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
     {
         var user = await UserRepository
@@ -165,7 +165,7 @@ public class UsersController : Controller
     }
 
     [HttpDelete("{id}")]
-    [RequirePermission("admin.users.delete")]
+    [Authorize(Policy = "permissions:admin.users.delete")]
     public async Task Delete([FromRoute] int id)
     {
         var user = await UserRepository

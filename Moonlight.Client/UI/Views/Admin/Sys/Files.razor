@@ -1,12 +1,12 @@
 ﻿@page "/admin/system/files"
 
-@using MoonCore.Attributes
+@using Microsoft.AspNetCore.Authorization
 @using MoonCore.Blazor.Services
 @using MoonCore.Helpers
 @using MoonCore.Blazor.Tailwind.Fm
 @using Moonlight.Client.Implementations
 
-@attribute [RequirePermission("admin.system.overview")]
+@attribute [Authorize(Policy = "permissions:admin.system.overview")]
 
 @inject HttpApiClient ApiClient
 @inject DownloadService DownloadService

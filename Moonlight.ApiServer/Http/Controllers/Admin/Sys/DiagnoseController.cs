@@ -1,16 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Attributes;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Admin.Sys;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
-using Moonlight.Shared.Misc;
 
 
 namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 
 [ApiController]
 [Route("api/admin/system/diagnose")]
-[RequirePermission("admin.system.diagnose")]
+[Authorize(Policy = "permissions:admin.system.diagnose")]
 public class DiagnoseController : Controller
 {
     private readonly DiagnoseService DiagnoseService;

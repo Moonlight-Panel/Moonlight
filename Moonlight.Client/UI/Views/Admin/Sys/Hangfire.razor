@@ -1,11 +1,11 @@
 @page "/admin/system/hangfire"
 
-@using MoonCore.Attributes
+@using Microsoft.AspNetCore.Authorization
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Responses.Admin.Hangfire
 @using Moonlight.Client.UI.Components
 
-@attribute [RequirePermission("admin.system.hangfire")]
+@attribute [Authorize(Policy = "permissions:admin.system.hangfire")]
 
 @inject HttpApiClient ApiClient
 

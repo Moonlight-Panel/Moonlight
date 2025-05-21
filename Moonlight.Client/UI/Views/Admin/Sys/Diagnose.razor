@@ -1,11 +1,11 @@
 @page "/admin/system/diagnose"
 
-@using MoonCore.Attributes
+@using Microsoft.AspNetCore.Authorization
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.Sys
 @using Moonlight.Shared.Http.Responses.Admin.Sys
 
-@attribute [RequirePermission("admin.system.diagnose")]
+@attribute [Authorize(Policy = "permissions:admin.system.diagnose")]
 
 @inject HttpApiClient ApiClient
 @inject DownloadService DownloadService

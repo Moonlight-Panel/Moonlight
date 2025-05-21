@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using MoonCore.Blazor.Tailwind.Auth
 @using Moonlight.Client.Interfaces
 @using Moonlight.Client.Models
@@ -8,6 +10,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateManager AuthStateManager
 @inject IEnumerable<ISidebarItemProvider> SidebarItemProviders
+@inject IAuthorizationService AuthorizationService
 
 @{
     var url = new Uri(Navigation.Uri);
@@ -201,29 +204,45 @@
 
     private string Username;
     private string Email;
+    private ClaimsPrincipal Identity;
 
     protected override async Task OnInitializedAsync()
     {
-        var identity = await AuthState;
-
-        Username = identity.User.Claims.First(x => x.Type == "username").Value;
-        Email = identity.User.Claims.First(x => x.Type == "email").Value;
-    }
-
-    protected override void OnInitialized()
-    {
+        var authState = await AuthState;
+        
+        Identity = authState.User;
+        Username = Identity.Claims.First(x => x.Type == "username").Value;
+        Email = Identity.Claims.First(x => x.Type == "email").Value;
+        
         var sidebarItems = new List<SidebarItem>();
 
         foreach (var provider in SidebarItemProviders)
             provider.ModifySidebar(sidebarItems);
 
+        var itemsToRemove = new List<SidebarItem>();
+        
+        foreach (var sidebarItem in sidebarItems)
+        {
+            if(string.IsNullOrEmpty(sidebarItem.Policy))
+                continue;
+
+            var authResult = await AuthorizationService.AuthorizeAsync(Identity, sidebarItem.Policy);
+            
+            if(authResult.Succeeded)
+                continue;
+            
+            itemsToRemove.Add(sidebarItem);
+        }
+
+        foreach (var sidebarItem in itemsToRemove)
+            sidebarItems.Remove(sidebarItem);
+
         Items = sidebarItems
-            //.Where(x => x.Permission == null || (x.Permission != null && IdentityService.HasPermission(x.Permission)))
             .GroupBy(x => x.Group ?? "")
             .OrderByDescending(x => string.IsNullOrEmpty(x.Key))
             .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Priority).ToArray());
     }
-
+    
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)

@@ -2,9 +2,9 @@
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Exceptions;
-using MoonCore.Extended.PermFilter;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
@@ -13,7 +13,7 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 
 [ApiController]
 [Route("api/admin/system/files")]
-[RequirePermission("admin.system.files")]
+[Authorize(Policy = "permissions:admin.system.files")]
 public class FilesController : Controller
 {
     private readonly string BaseDirectory = PathBuilder.Dir("storage");

@@ -1,9 +1,9 @@
 @page "/admin/system/advanced"
 
-@using MoonCore.Attributes
+@using Microsoft.AspNetCore.Authorization
 @using MoonCore.Helpers
 
-@attribute [RequirePermission("admin.system.advanced")]
+@attribute [Authorize(Policy = "permissions:admin.system.advanced")]
 
 @inject HttpApiClient ApiClient
 @inject DownloadService DownloadService

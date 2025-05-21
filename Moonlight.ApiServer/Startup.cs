@@ -12,6 +12,7 @@ using MoonCore.Extended.Helpers;
 using MoonCore.Extended.JwtInvalidation;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Permissions;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Database.Entities;
@@ -480,6 +481,12 @@ public class Startup
         });
 
         WebApplicationBuilder.Services.AddAuthorization();
+        
+        WebApplicationBuilder.Services.AddAuthorizationPermissions(options =>
+        {
+            options.ClaimName = "permissions";
+            options.Prefix = "permissions:";
+        });
 
         // Add local oauth2 provider if enabled
         if (Configuration.Authentication.EnableLocalOAuth2)

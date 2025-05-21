@@ -11,4 +11,11 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.13.0" />
     <PackageReference Include="MoonCore" Version="1.8.6" />
   </ItemGroup>
+  
+  <PropertyGroup>
+    <PackageId>dotnet-moonlight</PackageId>
+    <Title>dotnet-moonlight</Title>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dotnet-moonlight</ToolCommandName>
+  </PropertyGroup>
 </Project>

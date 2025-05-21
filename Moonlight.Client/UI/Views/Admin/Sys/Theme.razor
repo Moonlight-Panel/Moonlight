@@ -1,9 +1,9 @@
 @page "/admin/system/theme"
 
-@using MoonCore.Attributes
+@using Microsoft.AspNetCore.Authorization
 @using Moonlight.Client.UI.Partials.Design
 
-@attribute [RequirePermission("admin.system.theme")]
+@attribute [Authorize(Policy = "permissions:admin.system.theme")]
 
 <div class="mb-5">
     <NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />

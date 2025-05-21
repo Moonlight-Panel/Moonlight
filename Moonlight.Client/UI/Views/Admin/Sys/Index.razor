@@ -1,11 +1,11 @@
 ﻿@page "/admin/system"
 
-@using MoonCore.Attributes
+@using Microsoft.AspNetCore.Authorization
 @using MoonCore.Helpers
 @using Moonlight.Client.UI.Components
 @using Moonlight.Shared.Http.Responses.Admin.Sys
 
-@attribute [RequirePermission("admin.system.overview")]
+@attribute [Authorize(Policy = "permissions:admin.system.overview")]
 
 @inject HttpApiClient ApiClient
 

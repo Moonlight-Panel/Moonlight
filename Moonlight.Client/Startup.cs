@@ -9,6 +9,7 @@ using MoonCore.Blazor.Tailwind.Extensions;
 using MoonCore.Blazor.Tailwind.Auth;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Permissions;
 using Moonlight.Client.Implementations;
 using Moonlight.Client.Interfaces;
 using Moonlight.Client.Plugins;
@@ -307,6 +308,12 @@ public class Startup
         WebAssemblyHostBuilder.Services.AddCascadingAuthenticationState();
 
         WebAssemblyHostBuilder.Services.AddAuthenticationStateManager<RemoteAuthStateManager>();
+        
+        WebAssemblyHostBuilder.Services.AddAuthorizationPermissions(options =>
+        {
+            options.ClaimName = "permissions";
+            options.Prefix = "permissions:";
+        });
 
         return Task.CompletedTask;
     }

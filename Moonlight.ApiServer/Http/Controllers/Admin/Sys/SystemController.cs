@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Attributes;
 using Moonlight.ApiServer.Interfaces;
@@ -21,7 +22,7 @@ public class SystemController : Controller
     }
 
     [HttpGet]
-    [RequirePermission("admin.system.overview")]
+    [Authorize(Policy = "permissions:admin.system.overview")]
     public async Task<SystemOverviewResponse> GetOverview()
     {
         return new()
@@ -34,7 +35,7 @@ public class SystemController : Controller
     }
 
     [HttpPost("shutdown")]
-    [RequirePermission("admin.system.shutdown")]
+    [Authorize(Policy = "permissions:admin.system.shutdown")]
     public async Task Shutdown()
     {
         await ApplicationService.Shutdown();
