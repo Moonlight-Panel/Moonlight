@@ -5,7 +5,7 @@
 
 @import "./additions/buttons.css" layer(components);
 @import "./additions/cards.css" layer(components);
-@import "./additions/forms.css" layer(utilities);
+@import "./additions/forms.css" layer(components);
 @import "./additions/progress.css" layer(components);
 @import "./additions/scrollbar.css" layer(components);
 @import "./additions/loaders.css" layer(components);

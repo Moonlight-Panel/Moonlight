@@ -6,7 +6,9 @@
 @import "./exports.css";
 @import "moonlight/nuget.css";
 
-@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/forms" {
+    strategy: "base";
+}
 
 @source "../**/*.razor";
 @source "../**/*.cs";

@@ -1,8 +1,10 @@
 ﻿@page "/admin/api/create"
 
+@using System.Text.Json
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.ApiKeys
 @using Moonlight.Shared.Http.Responses.Admin.ApiKeys
+@using MoonCore.Blazor.Tailwind.Input2
 
 @inject HttpApiClient ApiClient
 @inject NavigationManager Navigation
@@ -33,7 +35,7 @@
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
                 <div class="mt-2">
-                    <input @bind="Request.PermissionsJson" type="email" autocomplete="off" class="form-input w-full">
+                    <InputTag @bind-Value="Permissions" />
                 </div>
             </div>
             <div class="sm:col-span-2">
@@ -50,6 +52,8 @@
 {
     private HandleForm Form;
     private CreateApiKeyRequest Request;
+    
+    private string[] Permissions = [];
 
     protected override void OnInitialized()
     {
@@ -58,6 +62,7 @@
 
     private async Task OnSubmit()
     {
+        Request.PermissionsJson = JsonSerializer.Serialize(Permissions);
         Request.ExpiresAt = Request.ExpiresAt.ToUniversalTime();
         
         var response = await ApiClient.PostJson<CreateApiKeyResponse>("api/admin/apikeys", Request);

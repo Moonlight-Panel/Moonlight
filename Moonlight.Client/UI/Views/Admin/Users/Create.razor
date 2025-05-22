@@ -1,7 +1,9 @@
 ﻿@page "/admin/users/create"
 
+@using System.Text.Json
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.Users
+@using MoonCore.Blazor.Tailwind.Input2
 
 @inject HttpApiClient ApiClient
 @inject NavigationManager Navigation
@@ -34,15 +36,15 @@
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Password</label>
+                <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
                 <div class="mt-2">
-                    <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
+                    <InputTag @bind-Value="Permissions" />
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
+                <label class="block text-sm font-medium leading-6 text-white">Password</label>
                 <div class="mt-2">
-                    <input @bind="Request.PermissionsJson" type="text" autocomplete="off" class="form-input w-full">
+                    <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
                 </div>
             </div>
         </div>
@@ -54,6 +56,8 @@
     private HandleForm Form;
     private CreateUserRequest Request;
 
+    private string[] Permissions = [];
+
     protected override void OnInitialized()
     {
         Request = new();
@@ -61,6 +65,8 @@
 
     private async Task OnSubmit()
     {
+        Request.PermissionsJson = JsonSerializer.Serialize(Permissions);
+        
         await ApiClient.Post("api/admin/users", Request);
 
         await ToastService.Success("Successfully created user");
