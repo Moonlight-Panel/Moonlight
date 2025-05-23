@@ -11,6 +11,7 @@ public class AppConfiguration
     public DevelopmentConfig Development { get; set; } = new();
     public ClientConfig Client { get; set; } = new();
     public KestrelConfig Kestrel { get; set; } = new();
+    public MetricsData Metrics { get; set; } = new();
 
     public class ClientConfig
     {
@@ -58,5 +59,11 @@ public class AppConfiguration
     {
         public int UploadLimit { get; set; } = 100;
         public string AllowedOrigins { get; set; } = "*";
+    }
+    
+    public class MetricsData
+    {
+        public bool Enable { get; set; } = false;
+        public int Interval { get; set; } = 15;
     }
 }
