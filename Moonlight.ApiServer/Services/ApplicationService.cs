@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using MoonCore.Attributes;
+using MoonCore.Helpers;
 
 namespace Moonlight.ApiServer.Services;
 
@@ -55,11 +56,33 @@ public class ApplicationService
         return Task.FromResult("N/A");
     }
     
-    public Task<long> GetMemoryUsage()
+    public async Task<long> GetMemoryUsage()
     {
-        var process = Process.GetCurrentProcess();
-        var bytes = process.PrivateMemorySize64;
-        return Task.FromResult(bytes);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var process = Process.GetCurrentProcess();
+            return process.PrivateMemorySize64;
+        }
+        else
+        {
+            var lines = await File.ReadAllLinesAsync("/proc/self/smaps");
+            var kilobytes = 0;
+
+            foreach (var line in lines)
+            {
+                if(!line.StartsWith("pss:", StringComparison.InvariantCultureIgnoreCase))
+                    continue;
+
+                var valueString = line
+                    .Replace("pss:", "", StringComparison.InvariantCultureIgnoreCase)
+                    .Replace("kb", "", StringComparison.InvariantCultureIgnoreCase)
+                    .Trim();
+                
+                kilobytes += int.Parse(valueString);
+            }
+
+            return ByteConverter.FromKiloBytes(kilobytes).Bytes;
+        }
     }
     
     public Task<TimeSpan> GetUptime()
