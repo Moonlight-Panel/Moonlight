@@ -1,70 +1,90 @@
-<br/>
-<center>
 <p align="center">
   <a href="https://github.com/Moonlight-Panel/Moonlight">
     <img src="https://raw.githubusercontent.com/Moonlight-Panel/Resources/main/public/images/logo.svg" alt="Logo" width="80" height="80">
   </a>
-
-  <h3 align="center">Moonlight Panel</h3>
-
-  <p align="center">
-    The next generation hosting panel
-  </p>
+<h2 align="center">Moonlight Panel</h2>
 </p>
 
-![Contributors](https://img.shields.io/github/contributors/Moonlight-Panel/Moonlight?color=dark-green) ![Stargazers](https://img.shields.io/github/stars/Moonlight-Panel/Moonlight?style=social) ![Issues](https://img.shields.io/github/issues/Moonlight-Panel/Moonlight) 
+[![GitHub commits](https://img.shields.io/github/commit-activity/t/Moonlight-Panel/Moonlight/v2_ChangeArchitecture?label=Commits)](https://github.com/Moonlight-Panel/Moonlight/releases)
+[![GitHub issues](https://img.shields.io/github/issues/Moonlight-Panel/Moonlight?label=Issues)](https://github.com/Moonlight-Panel/Moonlight/issues)
+[![GitHub stars](https://img.shields.io/github/stars/Moonlight-Panel/Moonlight?label=Stars)](https://github.com/Moonlight-Panel/Moonlight)
+[![Discord](https://img.shields.io/discord/1075368155830034433?label=Discord&logo=discord)](https://discord.gg/3r9JPbgenb)
+[![License: CC0-1.0](https://img.shields.io/badge/license-CC0--1.0-blue.svg?label=License)](https://github.com/Moonlight-Panel/Moonlight/blob/v2/LICENSE)
 
-## About the v2
-</center>
+**Moonlight Panel** is a free and open-source hosting panel designed to simplify the management of game servers. Built
+with a focus on performance, extensibility, and user experience, Moonlight offers a sleek UI and a powerful backend to
+give you full control over your hosting environment.
 
-Why a rewrite?
+👉 [Official Website](https://moonlightpanel.dev/) | [Documentation](https://moonlightpa.nl/docs) | [Discord Community](https://discord.gg/3r9JPbgenb)
 
-> v1 was written focused on the needs of a specific free hosting project and because of that moonlight v1 is lacking on features many users want to see in moonlight
+---
 
-What will the v2 offer compared to v1?
+## 🚀 Features
 
-> - A modular feature system to enable and disable features
-> - A plugin system to modify extisting features behavior and ui
-> - Theming to make moonlight look like you want
-> - Improved error handling
-> - A diagnose system in order to find problems quicker and fix them fastzer
-> - A complete redesign of the ui
-> - Modular authentication system
-> and a lot more
+* **Modern UI**: Responsive and intuitive interface built with Blazor WebAssembly and TailwindCSS 4.
+* **Plugin Support**: Extend functionality and customize behavior through a robust plugin system.
+* **Theming**: Tailor the look and feel of your panel with customizable themes.
+* **OAuth2 Integration**: Seamlessly integrate with external authentication providers.
+* **Advanced Permission System**: Precise control over user and admin permissions.
+* **Virtual Disks**: Protect against file system exploits with virtual disk support.
+* **Scalability**: Designed to handle growing user bases and increased traffic.
+* **Diagnostic Tools**: Built-in tools to quickly identify and resolve issues.
+* **Comprehensive API**: Automate and integrate Moonlight into your existing workflows.
 
-When will moonlight v2 will release?
+---
 
-> Moonlight v2 will release in following steps:
-> 1. Beta Releases (starting in April). Includes the servers feature
-> 2. Bug fixing of reported beta bugs
-> 3. Release of the first stable and fully supported version of moonlight v2
-> 4. Implementing of more features which can be downloaded and enabled if you want to do so
+## 🆕 What's New in v2.1
 
-> If you like to see the current progress of the development of v2, have a look [here](https://github.com/orgs/Moonlight-Panel/projects/5/views/2)
+Version 2.1 is a complete rewrite of the Moonlight Panel, bringing significant improvements:
 
-Are there screenshots or demos of v2?
+* **Performance Enhancements**: Optimized codebase for faster load times and responsiveness.
+* **Stability Improvements**: Robust error handling and diagnostic systems.
+* **Enhanced Extensibility**: More powerful plugin system and theming capabilities.
+* **Modern Tech Stack**: Leveraging .NET Core, Docker, and Blazor WebAssembly for a smooth experience.
 
-> Screenshots and a demo can be found in our discord server
-> [https://discord.gg/TJaspT7A8p](https://discord.gg/TJaspT7A8p)
+For a detailed overview, check out our [v2.1 Article](https://moonlightpanel.dev/articles/1).
 
-How can you support the project?
+---
 
-> You can support the project by contributing to the development, discussing features and the plans of the implementation in order to find the best solution and with donating on my ko-fi page
-[https://ko-fi.com/masuowo](https://ko-fi.com/masuowo)
-This project is currently in beta
-> 
+## 📦 Getting Started
 
-## Built with
+For installation instructions, refer to our [Installation Guide](https://moonlightpa.nl/install).
 
-* [Bootstrap 5](https://getbootstrap.com/)
-* [Blazor Server Side](https://learn.microsoft.com/de-de/aspnet/core/blazor/hosting-models?view=aspnetcore-7.0)
-* [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+---
 
-## License
+## 🧩 Plugin Development
 
-Distributed under the CC0 1.0 Universal License. See [LICENSE](https://github.com/Moonlight-Panel/Moonlight/blob/main/LICENSE) for more information.
+Moonlight's plugin system allows you to customize and extend the panel's functionality. Whether you're adding new
+features or extending existing ones, our [Plugin Development Guide](https://moonlightpa.nl/dev) will help you get
+started.
 
-## Authors
+---
 
-* **Masu Baumgartner** - [Masu Baumgartner](https://github.com/Masu-Baumgartner) - *Moonlights core system & frontend and basiclly any other part of moonlight*
-* **Moritz Deiaco** - [Moritz Deiaco](https://github.com/Moritz-Deiaco) - *Moonlight Core and UI*
+## 🛠️ Contributing
+
+We welcome contributions from the community! Whether it's reporting bugs, suggesting features, or submitting pull
+requests, your input helps make Moonlight better.
+
+* **Bug Reports & Feature Requests**: Use the [Issues](https://github.com/Moonlight-Panel/Moonlight/issues) tab.
+* **Pull Requests**: Fork the repository and submit your changes for review.
+* **Discussions**: Join our [Discord Community](https://discord.gg/3r9JPbgenb) to engage with other users and
+  developers.
+
+---
+
+## 📄 License
+
+This project is licensed under
+the [CC0 1.0 Universal License](https://github.com/Moonlight-Panel/Moonlight/blob/v2/LICENSE).
+
+---
+
+## 👥 Contributors
+
+* **Masu Baumgartner**: Core system & frontend development.
+* **Moritz Deiaco**: Core and UI development.
+* **ChiaraBm**: Core development for v2.1
+* **Dannyx**: Grammar checks (and translations in v1).
+* **Jesper**: Developer of the Moonlight Marketplace
+
+A full list of contributors can be found [here](https://github.com/Moonlight-Panel/Moonlight/graphs/contributors).
