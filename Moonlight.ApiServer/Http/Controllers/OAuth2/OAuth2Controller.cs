@@ -1,6 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,7 @@ namespace Moonlight.ApiServer.Http.Controllers.OAuth2;
 
 [ApiController]
 [Route("oauth2")]
-public class OAuth2Controller : Controller
+public partial class OAuth2Controller : Controller
 {
     private readonly AppConfiguration Configuration;
     private readonly DatabaseRepository<User> UserRepository;
@@ -85,7 +87,7 @@ public class OAuth2Controller : Controller
         [FromQuery(Name = "client_id")] string clientId,
         [FromQuery(Name = "redirect_uri")] string redirectUri,
         [FromQuery(Name = "response_type")] string responseType,
-        [FromForm(Name = "email")] string email,
+        [FromForm(Name = "email")] [EmailAddress(ErrorMessage = "You need to provide a valid email address")] string email,
         [FromForm(Name = "password")] string password,
         [FromForm(Name = "username")] string username = "",
         [FromQuery(Name = "view")] string view = "login"
@@ -273,6 +275,9 @@ public class OAuth2Controller : Controller
 
         if (await UserRepository.Get().AnyAsync(x => x.Email == email))
             throw new HttpApiException("A account with that email already exists", 400);
+
+        if (!UsernameRegex().IsMatch(username))
+            throw new HttpApiException("The username is only allowed to be contained out of small characters and numbers", 400);
         
         var user = new User()
         {
@@ -307,4 +312,7 @@ public class OAuth2Controller : Controller
 
         return user;
     }
+
+    [GeneratedRegex("^[a-z][a-z0-9]*$")]
+    private static partial Regex UsernameRegex();
 }
