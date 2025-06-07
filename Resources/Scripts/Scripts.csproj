@@ -17,5 +17,7 @@
     <Title>dotnet-moonlight</Title>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-moonlight</ToolCommandName>
+    <RepositoryUrl>https://github.com/Moonlight-Panel/Moolight</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 </Project>
