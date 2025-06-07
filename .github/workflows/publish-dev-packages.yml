@@ -27,19 +27,30 @@ jobs:
 
     steps:
       - name: Clean up Environment
-        run: rm -rf ./*
-          rm -rf ./.??*
+        run: |
+            rm -rf ./*
+            rm -rf ./.??*
+          
+      - name: Remove nuget source
+        continue-on-error: true
+        run: dotnet nuget remove source moonlight-github
 
       - uses: actions/checkout@v3
 
+      - name: Add nuget source
+        run: dotnet nuget add source -n moonlight-github "https://nuget.pkg.github.com/Moonlight-Panel/index.json" -u Moonlight-Panel -p ${{secrets.GH_PACKAGES_READWRITE}} --store-password-in-clear-text
+
       - name: Setup Environment
-        run: mkdir ./tool
-             dotnet nuget add source --configfile ./tool/nuget.config -n github "https://nuget.pkg.github.com/Moonlight-Panel/index.json" -u Moonlight-Panel -p ${{secrets.GH_PACKAGES_READWRITE}} --store-password-in-clear-text
-             dotnet tool install --configfile ./tool/nuget.config --tool-path ./tool dotnet-moonlight
+        run: dotnet tool install dotnet-moonlight -g
 
       - name: Build and Pack Moonlight
-        run: mkdir ./tool
-             dotnet moonlight pack . ./packs
+        run: |
+            mkdir ./packs
+            dotnet moonlight pack . ./packs
 
       - name: Publish to Github
         run: dotnet nuget push "./packs/*.nupkg" --skip-duplicate --api-key ${{secrets.GH_PACKAGES_READWRITE}} --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
+
+      - name: Remove nuget source
+        continue-on-error: true
+        run: dotnet nuget remove source moonlight-github
