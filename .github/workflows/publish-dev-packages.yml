@@ -1,0 +1,26 @@
+name: Publish Development Packages
+on:
+  push:
+    branches:
+      - v2_ChangeArchitecture
+      - v2.1
+  workflow_dispatch:
+jobs:
+  build-dotnet-moonlight:
+    runs-on: debian-12
+    name: Build dotnet-moonlight CLI
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v1
+          
+        - name: Build and pack scripts project
+          working-directory: Resources/Scripts
+          run: |
+            dotnet build
+            mkdir -p ../../finalPackages
+            dotnet pack -o ../../finalPackages
+
+        - name: Push nuget package to github packages
+          env:
+            GH_PACKAGES_READWRITE: ${{ secrets.GH_PACKAGES_READWRITE }}
+          run: dotnet nuget push finalPackages/* --api-key $GH_PACKAGES_READWRITE --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
