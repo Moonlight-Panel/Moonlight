@@ -23,4 +23,4 @@ jobs:
         - name: Push nuget package to github packages
           env:
             GH_PACKAGES_READWRITE: ${{ secrets.GH_PACKAGES_READWRITE }}
-          run: dotnet nuget push finalPackages/* --api-key $GH_PACKAGES_READWRITE --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
+          run: dotnet nuget push finalPackages/* --api-key $GH_PACKAGES_READWRITE --skip-duplicate --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
