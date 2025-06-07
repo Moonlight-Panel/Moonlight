@@ -1,26 +1,45 @@
-name: Publish Development Packages
+name: Build and Publish NuGet Package
+
 on:
   push:
-    branches:
-      - v2_ChangeArchitecture
-      - v2.1
-  workflow_dispatch:
-jobs:
-  build-dotnet-moonlight:
-    runs-on: debian-12
-    name: Build dotnet-moonlight CLI
-    steps:
-        - name: Checkout repository
-          uses: actions/checkout@v1
-          
-        - name: Build and pack scripts project
-          working-directory: Resources/Scripts
-          run: |
-            dotnet build
-            mkdir -p ../../finalPackages
-            dotnet pack -o ../../finalPackages
+    branches: [ v2_ChangeArchitecture,v2.1 ]
 
-        - name: Push nuget package to github packages
-          env:
-            GH_PACKAGES_READWRITE: ${{ secrets.GH_PACKAGES_READWRITE }}
-          run: dotnet nuget push finalPackages/* --api-key $GH_PACKAGES_READWRITE --skip-duplicate --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
+jobs:
+  build-scrips:
+    runs-on: debian-12
+
+    steps:
+      - name: Clean up Environment
+        run: rm -rf ./*
+          rm -rf ./.??*
+
+      - uses: actions/checkout@v3
+
+      - name: Pack cli Scrips
+        run: dotnet pack Resources/Scripts/Scripts.csproj -c Debug -o ./packs
+
+      - name: Publish to github Pkg
+        run: dotnet nuget push "./packs/*.nupkg" --skip-duplicate --api-key ${{secrets.GH_PACKAGES_READWRITE}} --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
+
+  build-moonlight:
+    runs-on: debian-12
+    needs: build-scrips
+
+    steps:
+      - name: Clean up Environment
+        run: rm -rf ./*
+          rm -rf ./.??*
+
+      - uses: actions/checkout@v3
+
+      - name: Setup Environment
+        run: mkdir ./tool
+             dotnet nuget add source --configfile ./tool/nuget.config -n github "https://nuget.pkg.github.com/Moonlight-Panel/index.json" -u Moonlight-Panel -p ${{secrets.GH_PACKAGES_READWRITE}} --store-password-in-clear-text
+             dotnet tool install --configfile ./tool/nuget.config --tool-path ./tool dotnet-moonlight
+
+      - name: Build and Pack Moonlight
+        run: mkdir ./tool
+             dotnet moonlight pack . ./packs
+
+      - name: Publish to Github
+        run: dotnet nuget push "./packs/*.nupkg" --skip-duplicate --api-key ${{secrets.GH_PACKAGES_READWRITE}} --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
