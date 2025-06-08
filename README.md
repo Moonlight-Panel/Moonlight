@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/Moonlight-Panel/Moonlight">
-    <img src="https://raw.githubusercontent.com/Moonlight-Panel/Resources/main/public/images/logo.svg" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/Moonlight-Panel/Moonlight/v2_ChangeArchitecture/Resources/Readme/logo.svg" alt="Logo" width="80" height="80">
   </a>
 <h2 align="center">Moonlight Panel</h2>
 </p>
@@ -42,7 +42,7 @@ Version 2.1 is a complete rewrite of the Moonlight Panel, bringing significant i
 * **Enhanced Extensibility**: More powerful plugin system and theming capabilities.
 * **Modern Tech Stack**: Leveraging .NET Core, Docker, and Blazor WebAssembly for a smooth experience.
 
-For a detailed overview, check out our [v2.1 Article](https://moonlightpanel.dev/articles/1).
+For a detailed overview, check out our [v2.1 Article](https://moonlightpanel.dev/article/1).
 
 ---
 
@@ -86,5 +86,6 @@ the [CC0 1.0 Universal License](https://github.com/Moonlight-Panel/Moonlight/blo
 * **ChiaraBm**: Core development for v2.1
 * **Dannyx**: Grammar checks (and translations in v1).
 * **Jesper**: Developer of the Moonlight Marketplace
+* **Spielepapagei**: Github Actions and CI/CD workflows
 
 A full list of contributors can be found [here](https://github.com/Moonlight-Panel/Moonlight/graphs/contributors).

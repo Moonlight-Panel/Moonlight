@@ -11,8 +11,9 @@ jobs:
 
     steps:
       - name: Clean up Environment
-        run: rm -rf ./*
-          rm -rf ./.??*
+        run: |
+            rm -rf ./*
+            rm -rf ./.??*
 
       - uses: actions/checkout@v3
 
