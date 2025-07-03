@@ -21,7 +21,7 @@
   </ItemGroup>
   <PropertyGroup>
     <PackageId>Moonlight.ApiServer</PackageId>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <Authors>Moonlight Panel</Authors>
     <Description>A build of the api server for moonlight development</Description>
     <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
