@@ -6,6 +6,7 @@ using MoonCore.Attributes;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
+using Moonlight.ApiServer.Http.Controllers.Frontend;
 using Moonlight.ApiServer.Models;
 using Moonlight.Shared.Misc;
 
@@ -17,23 +18,26 @@ public class FrontendService
     private readonly AppConfiguration Configuration;
     private readonly IWebHostEnvironment WebHostEnvironment;
     private readonly IEnumerable<FrontendConfigurationOption> ConfigurationOptions;
+    private readonly IServiceProvider ServiceProvider;
 
     public FrontendService(
         AppConfiguration configuration,
         IWebHostEnvironment webHostEnvironment,
-        IEnumerable<FrontendConfigurationOption> configurationOptions
+        IEnumerable<FrontendConfigurationOption> configurationOptions,
+        IServiceProvider serviceProvider
     )
     {
         Configuration = configuration;
         WebHostEnvironment = webHostEnvironment;
         ConfigurationOptions = configurationOptions;
+        ServiceProvider = serviceProvider;
     }
 
     public async Task<FrontendConfiguration> GetConfiguration()
     {
         var configuration = new FrontendConfiguration()
         {
-            Title = "Moonlight",
+            Title = "Moonlight", // TODO: CONFIG
             ApiUrl = Configuration.PublicUrl,
             HostEnvironment = "ApiServer"
         };
@@ -62,7 +66,20 @@ public class FrontendService
         return configuration;
     }
 
-    public async Task<Stream> GenerateZip()
+    public async Task<string> GenerateIndexHtml() // TODO: Cache
+    {
+        var configuration = await GetConfiguration();
+        
+        return await ComponentHelper.RenderComponent<FrontendPage>(
+            ServiceProvider,
+            parameters =>
+            {
+                parameters["Configuration"] = configuration;
+            }
+        );
+    }
+
+    public async Task<Stream> GenerateZip() // TODO: Rework to be able to extract everything successfully
     {
         // We only allow the access to this function when we are actually hosting the frontend
         if (!Configuration.Client.Enable)

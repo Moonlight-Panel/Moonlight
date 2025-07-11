@@ -12,6 +12,7 @@ using MoonCore.Extended.Helpers;
 using MoonCore.Extended.JwtInvalidation;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Logging;
 using MoonCore.Permissions;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
@@ -111,8 +112,7 @@ public class Startup
     private Task CreateStorage()
     {
         Directory.CreateDirectory("storage");
-        Directory.CreateDirectory(PathBuilder.Dir("storage", "logs"));
-        Directory.CreateDirectory(PathBuilder.Dir("storage", "plugins"));
+        Directory.CreateDirectory(Path.Combine("storage", "logs"));
 
         return Task.CompletedTask;
     }
@@ -142,7 +142,7 @@ public class Startup
     private Task UseBase()
     {
         WebApplication.UseRouting();
-        WebApplication.UseApiExceptionHandler();
+        WebApplication.UseExceptionHandler();
 
         if (Configuration.Client.Enable)
         {
@@ -161,7 +161,7 @@ public class Startup
         WebApplication.MapControllers();
 
         if (Configuration.Client.Enable)
-            WebApplication.MapFallbackToFile("index.html");
+            WebApplication.MapFallbackToController("Index", "Frontend");
 
         return Task.CompletedTask;
     }
@@ -194,15 +194,13 @@ public class Startup
         serviceCollection.AddLogging(builder =>
         {
             builder.ClearProviders();
-            builder.AddProviders(LoggerProviders);
+            builder.AddAnsiConsole();
         });
 
         PluginLoadServiceProvider = serviceCollection.BuildServiceProvider();
 
         // Collect startups
         var pluginStartups = new List<IPluginStartup>();
-
-        pluginStartups.Add(new CoreStartup());
 
         pluginStartups.AddRange(AdditionalPlugins); // Used by the development server
 
@@ -291,7 +289,7 @@ public class Startup
         var configurationBuilder = new ConfigurationBuilder();
 
         // Ensure configuration file exists
-        var jsonFilePath = PathBuilder.File(Directory.GetCurrentDirectory(), "storage", "app.json");
+        var jsonFilePath = Path.Combine(Directory.GetCurrentDirectory(), "storage", "app.json");
 
         if (!File.Exists(jsonFilePath))
             await File.WriteAllTextAsync(jsonFilePath, JsonSerializer.Serialize(new AppConfiguration()));
@@ -336,18 +334,8 @@ public class Startup
 
     private Task SetupLogging()
     {
-        LoggerProviders = LoggerBuildHelper.BuildFromConfiguration(configuration =>
-        {
-            configuration.Console.Enable = true;
-            configuration.Console.EnableAnsiMode = true;
-            configuration.FileLogging.Enable = true;
-            configuration.FileLogging.Path = PathBuilder.File("storage", "logs", "latest.log");
-            configuration.FileLogging.EnableLogRotation = true;
-            configuration.FileLogging.RotateLogNameTemplate = PathBuilder.File("storage", "logs", "apiserver.{0}.log");
-        });
-
         LoggerFactory = new LoggerFactory();
-        LoggerFactory.AddProviders(LoggerProviders);
+        LoggerFactory.AddAnsiConsole();
 
         Logger = LoggerFactory.CreateLogger<Startup>();
 
@@ -358,30 +346,33 @@ public class Startup
     {
         // Configure application logging
         WebApplicationBuilder.Logging.ClearProviders();
-        WebApplicationBuilder.Logging.AddProviders(LoggerProviders);
+        WebApplicationBuilder.Logging.AddAnsiConsole();
+        WebApplicationBuilder.Logging.AddFile(Path.Combine("storage", "logs", "moonlight.log"));
 
         // Logging levels
-        var logConfigPath = PathBuilder.File("storage", "logConfig.json");
+        var logConfigPath = Path.Combine("storage", "logConfig.json");
 
         // Ensure logging config, add a default one is missing
         if (!File.Exists(logConfigPath))
         {
-            var logLevels = new Dictionary<string, string>
+            var defaultLogLevels = new Dictionary<string, string>
             {
                 { "Default", "Information" },
                 { "Microsoft.AspNetCore", "Warning" },
                 { "System.Net.Http.HttpClient", "Warning" }
             };
 
-            var logLevelsJson = JsonSerializer.Serialize(logLevels);
-            var logConfig = "{\"LogLevel\":" + logLevelsJson + "}";
-            await File.WriteAllTextAsync(logConfigPath, logConfig);
+            var logLevelsJson = JsonSerializer.Serialize(defaultLogLevels);
+            await File.WriteAllTextAsync(logConfigPath, logLevelsJson);
         }
 
         // Add logging configuration
-        WebApplicationBuilder.Logging.AddConfiguration(
+        var logLevels = JsonSerializer.Deserialize<Dictionary<string, string>>(
             await File.ReadAllTextAsync(logConfigPath)
-        );
+        )!;
+
+        foreach (var level in logLevels)
+            WebApplicationBuilder.Logging.AddFilter(level.Key, Enum.Parse<LogLevel>(level.Value));
 
         // Mute exception handler middleware
         // https://github.com/dotnet/aspnetcore/issues/19740
@@ -406,7 +397,6 @@ public class Startup
         WebApplicationBuilder.Services.AddServiceCollectionAccessor();
 
         WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
-        WebApplicationBuilder.Services.AddScoped(typeof(CrudHelper<,>));
 
         return Task.CompletedTask;
     }
@@ -442,43 +432,9 @@ public class Startup
                     ValidIssuer = Configuration.PublicUrl
                 };
             });
-
-        WebApplicationBuilder.Services.AddJwtInvalidation("coreAuthentication", options =>
-        {
-            options.InvalidateTimeProvider = async (provider, principal) =>
-            {
-                var userIdClaim = principal.Claims.FirstOrDefault(x => x.Type == "userId");
-
-                if (userIdClaim != null)
-                {
-                    var userId = int.Parse(userIdClaim.Value);
-
-                    var userRepository = provider.GetRequiredService<DatabaseRepository<User>>();
-                    var user = await userRepository.Get().FirstOrDefaultAsync(x => x.Id == userId);
-
-                    if (user == null)
-                        return DateTime.MaxValue;
-
-                    return user.TokenValidTimestamp;
-                }
-
-                var apiKeyIdClaim = principal.Claims.FirstOrDefault(x => x.Type == "apiKeyId");
-
-                if (apiKeyIdClaim != null)
-                {
-                    var apiKeyId = int.Parse(apiKeyIdClaim.Value);
-
-                    var apiKeyRepository = provider.GetRequiredService<DatabaseRepository<ApiKey>>();
-                    var apiKey = await apiKeyRepository.Get().FirstOrDefaultAsync(x => x.Id == apiKeyId);
-
-                    // If the api key exists, we don't want to invalidate the request.
-                    // If it doesn't exist we want to invalidate the request
-                    return apiKey == null ? DateTime.MaxValue : DateTime.MinValue;
-                }
-
-                return DateTime.MaxValue;
-            };
-        });
+        
+        WebApplicationBuilder.Services.AddJwtBearerInvalidation("coreAuthentication");
+        WebApplicationBuilder.Services.AddScoped<IJwtInvalidateHandler, UserAuthInvalidation>();
 
         WebApplicationBuilder.Services.AddAuthorization();
         
@@ -498,8 +454,6 @@ public class Startup
     private Task UseAuth()
     {
         WebApplication.UseAuthentication();
-
-        WebApplication.UseJwtInvalidation();
 
         WebApplication.UseAuthorization();
 

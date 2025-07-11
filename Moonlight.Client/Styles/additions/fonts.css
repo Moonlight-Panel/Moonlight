@@ -1,8 +1,0 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=fallback') layer;
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap') layer;
-@import url("https://cdn.jsdelivr.net/npm/lucide-static/font/lucide.css") layer;
-
-@theme {
-    --font-inter: "Inter", var(--font-sans);
-    --font-scp: "Source Code Pro", var(--font-mono);
-}

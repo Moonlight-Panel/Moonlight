@@ -4,6 +4,7 @@ using Moonlight.ApiServer.Database;
 using Moonlight.ApiServer.Implementations.Diagnose;
 using Moonlight.ApiServer.Implementations.Metrics;
 using Moonlight.ApiServer.Interfaces;
+using Moonlight.ApiServer.Models;
 using Moonlight.ApiServer.Plugins;
 using Moonlight.ApiServer.Services;
 using OpenTelemetry.Metrics;
@@ -11,7 +12,6 @@ using OpenTelemetry.Trace;
 
 namespace Moonlight.ApiServer.Implementations.Startup;
 
-[PluginStartup]
 public class CoreStartup : IPluginStartup
 {
     public Task BuildApplication(IServiceProvider serviceProvider, IHostApplicationBuilder builder)
@@ -81,20 +81,37 @@ public class CoreStartup : IPluginStartup
 
         #endregion
 
+        #region Client / Frontend
+
+        if (configuration.Client.Enable)
+        {
+            builder.Services.AddSingleton(new FrontendConfigurationOption()
+            {
+                Scripts =
+                [
+                    "/_content/Moonlight.Client/js/moonlight.js", "/_content/Moonlight.Client/js/moonCore.js",
+                    "/_content/Moonlight.Client/ace/ace.js"
+                ],
+                Styles = ["/css/style.min.css"]
+            });
+        }
+
+        #endregion
+
         return Task.CompletedTask;
     }
 
     public Task ConfigureApplication(IServiceProvider serviceProvider, IApplicationBuilder app)
     {
         var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
-        
+
         #region Prometheus
 
-        if(configuration.Metrics.Enable)
+        if (configuration.Metrics.Enable)
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
         #endregion
-        
+
         return Task.CompletedTask;
     }
 

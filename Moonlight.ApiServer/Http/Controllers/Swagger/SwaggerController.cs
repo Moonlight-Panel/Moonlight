@@ -2,13 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MoonCore.Helpers;
-using MoonCore.Services;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Models;
 
 namespace Moonlight.ApiServer.Http.Controllers.Swagger;
 
-[AllowAnonymous]
 [Route("api/swagger")]
 public class SwaggerController : Controller
 {

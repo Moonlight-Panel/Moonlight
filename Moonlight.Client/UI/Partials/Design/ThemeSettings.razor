@@ -9,7 +9,8 @@
 @inject FrontendConfiguration FrontendConfiguration
 @inject ThemeService ThemeService
 @inject ToastService ToastService
-@inject DownloadService DownloadService
+
+@* @inject DownloadService DownloadService *@
 
 <div class="card card-body p-2">
     <div class="flex flex-row items-center justify-end gap-x-2">
@@ -108,7 +109,7 @@
         AddSetting("danger", "danger-300", 252, 165, 165);
         AddSetting("danger", "danger-400", 248, 113, 113);
         AddSetting("danger", "danger", 239, 68, 68);
-        AddSetting("danger", "danger-600", 220, 38, 38);
+        AddSetting("danger", "error", 220, 38, 38);
         AddSetting("danger", "danger-700", 185, 28, 28);
         AddSetting("danger", "danger-800", 153, 27, 27);
         AddSetting("danger", "danger-900", 127, 29, 29);
@@ -192,7 +193,7 @@
     {
         if (FrontendConfiguration.HostEnvironment != "ApiServer")
         {
-            await ToastService.Danger(
+            await ToastService.Error(
                 "Theme Settings",
                 "Unable to save the theme settings. If you are using a static host, you need to configure the colors in the frontend.json file"
             );
@@ -215,7 +216,7 @@
         var json = JsonSerializer.Serialize(ThemeService.Variables);
 
         // Download the theme configuration
-        await DownloadService.DownloadString("theme.json", json);
+        //await DownloadService.DownloadString("theme.json", json);
 
         await ToastService.Success("Successfully exported theme configuration");
     }
@@ -224,7 +225,7 @@
     {
         if (!eventArgs.File.Name.EndsWith(".json"))
         {
-            await ToastService.Danger("Only .json files are allowed");
+            await ToastService.Error("Only .json files are allowed");
             return;
         }
         

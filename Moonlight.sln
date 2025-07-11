@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Client", "Moonlig
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Shared", "Moonlight.Shared\Moonlight.Shared.csproj", "{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.ApiServer.Runtime", "Moonlight.ApiServer.Runtime\Moonlight.ApiServer.Runtime.csproj", "{97FC686D-BC8A-4145-90C7-CA86B598441E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Client.Runtime", "Moonlight.Client.Runtime\Moonlight.Client.Runtime.csproj", "{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +28,14 @@ Global
 		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C82E4F2A-91D2-4BC7-9AA7-241FDAAFC823}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97FC686D-BC8A-4145-90C7-CA86B598441E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97FC686D-BC8A-4145-90C7-CA86B598441E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97FC686D-BC8A-4145-90C7-CA86B598441E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97FC686D-BC8A-4145-90C7-CA86B598441E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

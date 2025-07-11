@@ -1,5 +1,3 @@
-using Microsoft.JSInterop;
-
 namespace Moonlight.Client.Services;
 
 public class WindowService

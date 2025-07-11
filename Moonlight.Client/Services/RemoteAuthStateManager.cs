@@ -2,8 +2,8 @@
 using System.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using MoonCore.Blazor.FlyonUi.Auth;
 using MoonCore.Blazor.Services;
-using MoonCore.Blazor.Tailwind.Auth;
 using MoonCore.Exceptions;
 using MoonCore.Helpers;
 using Moonlight.Shared.Http.Requests.Auth;

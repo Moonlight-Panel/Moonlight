@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <NoDefaultLaunchSettingsFile>True</NoDefaultLaunchSettingsFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Moonlight.Client\Moonlight.Client.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MoonCore.PluginFramework" Version="1.0.7"/>
+        <PackageReference Include="MoonCore.PluginFramework.Generator" Version="1.0.1"/>
+
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.5" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Styles\exports.css">
+        <Pack>true</Pack>
+        <PackagePath>styles</PackagePath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Include="Styles\package-lock.json">
+        <Pack>true</Pack>
+        <PackagePath>styles</PackagePath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Include="Styles\package.json">
+        <Pack>true</Pack>
+        <PackagePath>styles</PackagePath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="Styles\preTailwind.css">
+        <Pack>true</Pack>
+        <PackagePath>styles</PackagePath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="Styles\resolveNuget.js">
+        <Pack>true</Pack>
+        <PackagePath>styles</PackagePath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="Styles\style.css">
+        <Pack>true</Pack>
+        <PackagePath>styles</PackagePath>
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\css\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\js\moonCore.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\moonlight.js" />
+    </ItemGroup>
+
+</Project>

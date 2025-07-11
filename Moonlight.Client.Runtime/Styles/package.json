@@ -6,9 +6,9 @@
     "xml2js": "^0.6.2"
   },
   "scripts": {
-    "pretailwind-build": "node resolveNuget.js ../Moonlight.Client.csproj",
+    "pretailwind-build": "node resolveNuget.js ../Moonlight.Client.Runtime.csproj",
     "tailwind-build": "npx tailwindcss -i style.css -o ../wwwroot/css/style.min.css",
-    "pretailwind": "node resolveNuget.js ../Moonlight.Client.csproj",
+    "pretailwind": "node resolveNuget.js ../Moonlight.Client.Runtime.csproj",
     "tailwind": "npx tailwindcss -i style.css -o ../wwwroot/css/style.min.css --watch"
   }
 }

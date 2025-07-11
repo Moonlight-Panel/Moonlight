@@ -14,7 +14,7 @@ public class ThemeController : Controller
     [Authorize(Policy = "permissions:admin.system.theme.update")]
     public async Task Patch([FromBody] UpdateThemeRequest request)
     {
-        var themePath = PathBuilder.File("storage", "theme.json");
+        var themePath = Path.Combine("storage", "theme.json");
 
         await System.IO.File.WriteAllTextAsync(
             themePath,

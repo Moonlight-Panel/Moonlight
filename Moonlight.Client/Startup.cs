@@ -1,21 +1,18 @@
-using System.Reflection;
-using System.Runtime.Loader;
 using System.Text.Json;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.JSInterop;
+using Microsoft.Extensions.DependencyInjection;
+using MoonCore.Blazor.FlyonUi;
+using MoonCore.Blazor.FlyonUi.Auth;
 using MoonCore.Blazor.Services;
-using MoonCore.Blazor.Tailwind.Extensions;
-using MoonCore.Blazor.Tailwind.Auth;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using MoonCore.Logging;
 using MoonCore.Permissions;
-using Moonlight.Client.Implementations;
-using Moonlight.Client.Interfaces;
 using Moonlight.Client.Plugins;
 using Moonlight.Client.Services;
 using Moonlight.Shared.Misc;
 using Moonlight.Client.UI;
+using WindowService = Moonlight.Client.Services.WindowService;
 
 namespace Moonlight.Client;
 
@@ -27,7 +24,6 @@ public class Startup
     private FrontendConfiguration Configuration;
 
     // Logging
-    private ILoggerProvider[] LoggerProviders;
     private ILoggerFactory LoggerFactory;
     private ILogger<Startup> Logger;
 
@@ -143,12 +139,13 @@ public class Startup
         });
 
         WebAssemblyHostBuilder.Services.AddScoped<WindowService>();
-        WebAssemblyHostBuilder.Services.AddMoonCoreBlazorTailwind();
+        WebAssemblyHostBuilder.Services.AddFileManagerOperations();
+        WebAssemblyHostBuilder.Services.AddFlyonUiServices();
         WebAssemblyHostBuilder.Services.AddScoped<LocalStorageService>();
 
         WebAssemblyHostBuilder.Services.AddScoped<ThemeService>();
 
-        WebAssemblyHostBuilder.Services.AutoAddServices<Program>();
+        WebAssemblyHostBuilder.Services.AutoAddServices<Startup>();
 
         return Task.CompletedTask;
     }
@@ -179,15 +176,13 @@ public class Startup
         startupSc.AddLogging(builder =>
         {
             builder.ClearProviders();
-            builder.AddProviders(LoggerProviders);
+            builder.AddAnsiConsole();
         });
 
         PluginLoadServiceProvider = startupSc.BuildServiceProvider();
 
         // Collect startups
         var pluginStartups = new List<IPluginStartup>();
-
-        pluginStartups.Add(new CoreStartup());
 
         pluginStartups.AddRange(AdditionalPlugins); // Used by the development server
 
@@ -259,15 +254,8 @@ public class Startup
 
     private Task SetupLogging()
     {
-        LoggerProviders = LoggerBuildHelper.BuildFromConfiguration(configuration =>
-        {
-            configuration.Console.Enable = true;
-            configuration.Console.EnableAnsiMode = true;
-            configuration.FileLogging.Enable = false;
-        });
-
         LoggerFactory = new LoggerFactory();
-        LoggerFactory.AddProviders(LoggerProviders);
+        LoggerFactory.AddAnsiConsole();
 
         Logger = LoggerFactory.CreateLogger<Startup>();
 
@@ -277,7 +265,7 @@ public class Startup
     private Task RegisterLogging()
     {
         WebAssemblyHostBuilder.Logging.ClearProviders();
-        WebAssemblyHostBuilder.Logging.AddProviders(LoggerProviders);
+        WebAssemblyHostBuilder.Logging.AddAnsiConsole();
 
         return Task.CompletedTask;
     }

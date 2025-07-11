@@ -16,14 +16,14 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 [Authorize(Policy = "permissions:admin.system.files")]
 public class FilesController : Controller
 {
-    private readonly string BaseDirectory = PathBuilder.Dir("storage");
+    private readonly string BaseDirectory = "storage";
     private readonly long ChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
 
     [HttpGet("list")]
     public Task<FileSystemEntryResponse[]> List([FromQuery] string path)
     {
         var safePath = SanitizePath(path);
-        var physicalPath = PathBuilder.Dir(BaseDirectory, safePath);
+        var physicalPath = Path.Combine(BaseDirectory, safePath);
 
         var entries = new List<FileSystemEntryResponse>();
 
@@ -84,7 +84,7 @@ public class FilesController : Controller
         var positionToSkipTo = ChunkSize * chunkId;
 
         var safePath = SanitizePath(path);
-        var physicalPath = PathBuilder.File(BaseDirectory, safePath);
+        var physicalPath = Path.Combine(BaseDirectory, safePath);
         var baseDir = Path.GetDirectoryName(physicalPath);
 
         if (!string.IsNullOrEmpty(baseDir))
@@ -113,11 +113,11 @@ public class FilesController : Controller
         var oldSafePath = SanitizePath(oldPath);
         var newSafePath = SanitizePath(newPath);
 
-        var oldPhysicalDirPath = PathBuilder.Dir(BaseDirectory, oldSafePath);
+        var oldPhysicalDirPath = Path.Combine(BaseDirectory, oldSafePath);
 
         if (Directory.Exists(oldPhysicalDirPath))
         {
-            var newPhysicalDirPath = PathBuilder.Dir(BaseDirectory, newSafePath);
+            var newPhysicalDirPath = Path.Combine(BaseDirectory, newSafePath);
 
             Directory.Move(
                 oldPhysicalDirPath,
@@ -126,8 +126,8 @@ public class FilesController : Controller
         }
         else
         {
-            var oldPhysicalFilePath = PathBuilder.File(BaseDirectory, oldSafePath);
-            var newPhysicalFilePath = PathBuilder.File(BaseDirectory, newSafePath);
+            var oldPhysicalFilePath = Path.Combine(BaseDirectory, oldSafePath);
+            var newPhysicalFilePath = Path.Combine(BaseDirectory, newSafePath);
 
             System.IO.File.Move(
                 oldPhysicalFilePath,
@@ -142,13 +142,13 @@ public class FilesController : Controller
     public Task Delete([FromQuery] string path)
     {
         var safePath = SanitizePath(path);
-        var physicalDirPath = PathBuilder.Dir(BaseDirectory, safePath);
+        var physicalDirPath = Path.Combine(BaseDirectory, safePath);
 
         if (Directory.Exists(physicalDirPath))
             Directory.Delete(physicalDirPath, true);
         else
         {
-            var physicalFilePath = PathBuilder.File(BaseDirectory, safePath);
+            var physicalFilePath = Path.Combine(BaseDirectory, safePath);
 
             System.IO.File.Delete(physicalFilePath);
         }
@@ -160,7 +160,7 @@ public class FilesController : Controller
     public Task CreateDirectory([FromQuery] string path)
     {
         var safePath = SanitizePath(path);
-        var physicalPath = PathBuilder.Dir(BaseDirectory, safePath);
+        var physicalPath = Path.Combine(BaseDirectory, safePath);
 
         Directory.CreateDirectory(physicalPath);
         return Task.CompletedTask;
@@ -170,7 +170,7 @@ public class FilesController : Controller
     public async Task Download([FromQuery] string path)
     {
         var safePath = SanitizePath(path);
-        var physicalPath = PathBuilder.File(BaseDirectory, safePath);
+        var physicalPath = Path.Combine(BaseDirectory, safePath);
 
         await using var fs = System.IO.File.Open(physicalPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         await fs.CopyToAsync(Response.Body);
@@ -192,7 +192,7 @@ public class FilesController : Controller
     private async Task CompressTarGz(string path, string[] itemsToCompress)
     {
         var safePath = SanitizePath(path);
-        var destination = PathBuilder.File(BaseDirectory, safePath);
+        var destination = Path.Combine(BaseDirectory, safePath);
 
         await using var outStream = System.IO.File.Create(destination);
         await using var gzoStream = new GZipOutputStream(outStream);
@@ -201,7 +201,7 @@ public class FilesController : Controller
         foreach (var itemName in itemsToCompress)
         {
             var safeFilePath = SanitizePath(itemName);
-            var filePath = PathBuilder.File(BaseDirectory, safeFilePath);
+            var filePath = Path.Combine(BaseDirectory, safeFilePath);
 
             var fi = new FileInfo(filePath);
 
@@ -210,7 +210,7 @@ public class FilesController : Controller
             else
             {
                 var safeDirePath = SanitizePath(itemName);
-                var dirPath = PathBuilder.Dir(BaseDirectory, safeDirePath);
+                var dirPath = Path.Combine(BaseDirectory, safeDirePath);
 
                 await AddDirectoryToTarGz(tarStream, dirPath);
             }
@@ -267,7 +267,7 @@ public class FilesController : Controller
     private async Task CompressZip(string path, string[] itemsToCompress)
     {
         var safePath = SanitizePath(path);
-        var destination = PathBuilder.File(BaseDirectory, safePath);
+        var destination = Path.Combine(BaseDirectory, safePath);
 
         await using var outStream = System.IO.File.Create(destination);
         await using var zipOutputStream = new ZipOutputStream(outStream);
@@ -275,7 +275,7 @@ public class FilesController : Controller
         foreach (var itemName in itemsToCompress)
         {
             var safeFilePath = SanitizePath(itemName);
-            var filePath = PathBuilder.File(BaseDirectory, safeFilePath);
+            var filePath = Path.Combine(BaseDirectory, safeFilePath);
 
             var fi = new FileInfo(filePath);
 
@@ -284,7 +284,7 @@ public class FilesController : Controller
             else
             {
                 var safeDirePath = SanitizePath(itemName);
-                var dirPath = PathBuilder.Dir(BaseDirectory, safeDirePath);
+                var dirPath = Path.Combine(BaseDirectory, safeDirePath);
 
                 await AddDirectoryToZip(zipOutputStream, dirPath);
             }
@@ -350,7 +350,7 @@ public class FilesController : Controller
         var safeDestination = SanitizePath(destination);
 
         var safeArchivePath = SanitizePath(path);
-        var archivePath = PathBuilder.File(BaseDirectory, safeArchivePath);
+        var archivePath = Path.Combine(BaseDirectory, safeArchivePath);
 
         await using var fs = System.IO.File.Open(archivePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         await using var gzipInputStream = new GZipInputStream(fs);
@@ -364,7 +364,7 @@ public class FilesController : Controller
                 break;
 
             var safeFilePath = SanitizePath(entry.Name);
-            var fileDestination = PathBuilder.File(BaseDirectory, safeDestination, safeFilePath);
+            var fileDestination = Path.Combine(BaseDirectory, safeDestination, safeFilePath);
             var parentFolder = Path.GetDirectoryName(fileDestination);
 
             // Ensure parent directory exists, if it's not the base directory
@@ -393,7 +393,7 @@ public class FilesController : Controller
         var safeDestination = SanitizePath(destination);
 
         var safeArchivePath = SanitizePath(path);
-        var archivePath = PathBuilder.File(BaseDirectory, safeArchivePath);
+        var archivePath = Path.Combine(BaseDirectory, safeArchivePath);
 
         await using var fs = System.IO.File.Open(archivePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         await using var zipInputStream = new ZipInputStream(fs);
@@ -409,7 +409,7 @@ public class FilesController : Controller
                 continue;
 
             var safeFilePath = SanitizePath(entry.Name);
-            var fileDestination = PathBuilder.File(BaseDirectory, safeDestination, safeFilePath);
+            var fileDestination = Path.Combine(BaseDirectory, safeDestination, safeFilePath);
             var parentFolder = Path.GetDirectoryName(fileDestination);
 
             // Ensure parent directory exists, if it's not the base directory

@@ -1,14 +1,12 @@
-using System.Text.Json;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Exceptions;
-using MoonCore.Helpers;
-using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Misc;
 
-namespace Moonlight.ApiServer.Http.Controllers;
+namespace Moonlight.ApiServer.Http.Controllers.Frontend;
 
 [ApiController]
+[Route("/")]
 public class FrontendController : Controller
 {
     private readonly FrontendService FrontendService;
@@ -21,4 +19,12 @@ public class FrontendController : Controller
     [HttpGet("frontend.json")]
     public async Task<FrontendConfiguration> GetConfiguration()
         => await FrontendService.GetConfiguration();
+
+    [HttpGet]
+    public async Task<IResult> Index()
+    {
+        var content = await FrontendService.GenerateIndexHtml();
+
+        return Results.Text(content, "text/html", Encoding.UTF8);
+    }
 }
