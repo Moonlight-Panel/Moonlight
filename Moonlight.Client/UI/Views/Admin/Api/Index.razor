@@ -23,7 +23,7 @@
     </div>
 
     <div class="col-span-1 card card-body border-l-4 border-tertiary">
-        <p class="font-medium tracking-wide text-slate-100">
+        <p class="font-medium tracking-wide text-base-content">
             Learn about the api usage
         </p>
         <a href="https://help.moonlightpanel.xyz" target="_blank" class="mt-2 flex items-center justify-between text-primary">
@@ -35,7 +35,7 @@
     </div>
 
     <div class="col-span-1 card card-body border-l-4 border-success">
-        <p class="font-medium tracking-wide text-slate-100">
+        <p class="font-medium tracking-wide text-base-content">
             Open API Specification
         </p>
         <a href="/api/swagger/main" target="_blank" class="mt-2 flex items-center justify-between text-primary">
@@ -61,7 +61,7 @@
         <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.Description)" Name="Description"/>
         <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.ExpiresAt)" Name="Expires at">
             <ColumnTemplate>
-                @(Formatter.FormatDate(context.ExpiresAt))
+                @(Formatter.FormatDate(context.ExpiresAt.UtcDateTime))
             </ColumnTemplate>
         </DataTableColumn>
         <DataTableColumn TItem="ApiKeyResponse">
@@ -72,7 +72,7 @@
                     </a>
 
                     <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault
-                       class="text-danger">
+                       class="text-error">
                         <i class="icon-trash text-base"></i>
                     </a>
                 </div>

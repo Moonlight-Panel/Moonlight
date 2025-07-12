@@ -4,6 +4,7 @@
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.Users
 @using Moonlight.Shared.Http.Responses.Admin.Users
+@using MoonCore.Blazor.FlyonUi.Forms
 
 @inject HttpApiClient ApiClient
 @inject NavigationManager Navigation
@@ -12,11 +13,11 @@
 <LazyLoader Load="Load">
     <PageHeader Title="Update User">
         <a href="/admin/users" class="btn btn-secondary">
-            <i class="icon-chevron-left mr-1"></i>
+            <i class="icon-chevron-left"></i>
             Back
         </a>
         <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
-            <i class="icon-check mr-1"></i>
+            <i class="icon-check"></i>
             Update
         </WButton>
     </PageHeader>
@@ -25,27 +26,27 @@
         <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Username</label>
+                    <label class="block text-sm font-medium leading-6 text-base-content">Username</label>
                     <div class="mt-2">
-                        <input @bind="Request.Username" type="text" autocomplete="off" class="form-input w-full">
+                        <input @bind="Request.Username" type="text" autocomplete="off" class="input w-full">
                     </div>
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Email</label>
+                    <label class="block text-sm font-medium leading-6 text-base-content">Email</label>
                     <div class="mt-2">
-                        <input @bind="Request.Email" type="email" autocomplete="off" class="form-input w-full">
+                        <input @bind="Request.Email" type="email" autocomplete="off" class="input w-full">
                     </div>
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
+                    <label class="block text-sm font-medium leading-6 text-base-content">Permissions</label>
                     <div class="mt-2">
-                        <InputTags @bind-Value="Permissions" />
+                        <InputTags Value="Permissions" />
                     </div>
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Password</label>
+                    <label class="block text-sm font-medium leading-6 text-base-content">Password</label>
                     <div class="mt-2">
-                        <input @bind="Request.Password" type="password" autocomplete="off" class="form-input w-full">
+                        <input @bind="Request.Password" type="password" autocomplete="off" class="input w-full">
                     </div>
                 </div>
             </div>
@@ -60,25 +61,25 @@
     private HandleForm Form;
     private UpdateUserRequest Request;
 
-    private string[] Permissions = [];
+    private List<string> Permissions = [];
 
     private async Task Load(LazyLoader _)
     {
         var detail = await ApiClient.GetJson<UserResponse>($"api/admin/users/{Id}");
 
-        Permissions = JsonSerializer.Deserialize<string[]>(detail.PermissionsJson) ?? [];
+        Permissions = detail.Permissions.ToList();
 
         Request = new()
         {
             Email = detail.Email,
-            PermissionsJson = detail.PermissionsJson,
+            Permissions = detail.Permissions,
             Username = detail.Username
         };
     }
 
     private async Task OnSubmit()
     {
-        Request.PermissionsJson = JsonSerializer.Serialize(Permissions);
+        Request.Permissions = Permissions.ToArray();
         
         await ApiClient.Patch($"api/admin/users/{Id}", Request);
 

@@ -20,13 +20,11 @@ public class ApiKeyService
 
     public string GenerateJwt(ApiKey apiKey)
     {
-        var permissions = JsonSerializer.Deserialize<string[]>(apiKey.PermissionsJson) ?? [];
-        
         var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
 
         var descriptor = new SecurityTokenDescriptor()
         {
-            Expires = apiKey.ExpiresAt,
+            Expires = apiKey.ExpiresAt.UtcDateTime,
             IssuedAt = DateTime.Now,
             NotBefore = DateTime.Now.AddMinutes(-1),
             Claims = new Dictionary<string, object>()
@@ -37,7 +35,7 @@ public class ApiKeyService
                 },
                 {
                     "permissions",
-                    string.Join(";", permissions)
+                    string.Join(";", apiKey.Permissions)
                 }
             },
             SigningCredentials = new SigningCredentials(

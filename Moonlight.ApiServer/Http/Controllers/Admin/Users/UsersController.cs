@@ -45,7 +45,7 @@ public class UsersController : Controller
                 Id = x.Id,
                 Email = x.Email,
                 Username = x.Username,
-                PermissionsJson = x.PermissionsJson
+                Permissions = x.Permissions
             })
             .ToArray();
 
@@ -75,7 +75,7 @@ public class UsersController : Controller
             Id = user.Id,
             Email = user.Email,
             Username = user.Username,
-            PermissionsJson = user.PermissionsJson
+            Permissions = user.Permissions
         };
     }
 
@@ -101,7 +101,7 @@ public class UsersController : Controller
             Email = request.Email,
             Username = request.Username,
             Password = hashedPassword,
-            PermissionsJson = request.PermissionsJson
+            Permissions = request.Permissions
         };
 
         var finalUser = await UserRepository.Add(user);
@@ -111,7 +111,7 @@ public class UsersController : Controller
             Id = finalUser.Id,
             Email = finalUser.Email,
             Username = finalUser.Username,
-            PermissionsJson = finalUser.PermissionsJson
+            Permissions = finalUser.Permissions
         };
     }
 
@@ -144,9 +144,9 @@ public class UsersController : Controller
             user.TokenValidTimestamp = DateTime.UtcNow; // Log out user after password change
         }
 
-        if (user.PermissionsJson != request.PermissionsJson)
+        if (request.Permissions.Any(x => !user.Permissions.Contains(x)))
         {
-            user.PermissionsJson = request.PermissionsJson;
+            user.Permissions = request.Permissions;
             user.TokenValidTimestamp = DateTime.UtcNow; // Log out user after permission change
         }
 
@@ -160,7 +160,7 @@ public class UsersController : Controller
             Id = user.Id,
             Email = user.Email,
             Username = user.Username,
-            PermissionsJson = user.PermissionsJson
+            Permissions = user.Permissions
         };
     }
 

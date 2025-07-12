@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoonCore.Attributes;
-using Moonlight.ApiServer.Interfaces;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
 
@@ -12,13 +10,10 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 public class SystemController : Controller
 {
     private readonly ApplicationService ApplicationService;
-    private readonly IEnumerable<IDiagnoseProvider> DiagnoseProviders;
-
-
-    public SystemController(ApplicationService applicationService, IEnumerable<IDiagnoseProvider> diagnoseProviders)
+    
+    public SystemController(ApplicationService applicationService)
     {
         ApplicationService = applicationService;
-        DiagnoseProviders = diagnoseProviders;
     }
 
     [HttpGet]

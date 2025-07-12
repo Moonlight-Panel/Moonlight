@@ -8,7 +8,7 @@ public class CreateApiKeyRequest
     public string Description { get; set; }
     
     [Required(ErrorMessage = "You need to specify permissions for the api key")]
-    public string PermissionsJson { get; set; } = "[]";
+    public string[] Permissions { get; set; } = [];
     
     [Required(ErrorMessage = "You need to specify an expire date")]
     public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddDays(30);

@@ -104,7 +104,7 @@ public class RemoteAuthStateManager : AuthenticationStateManager
                     [
                         new Claim("username", checkData.Username),
                         new Claim("email", checkData.Email),
-                        new Claim("permissions", checkData.Permissions)
+                        new Claim("permissions", string.Join(";", checkData.Permissions))
                     ],
                     "RemoteAuthStateManager"
                 )

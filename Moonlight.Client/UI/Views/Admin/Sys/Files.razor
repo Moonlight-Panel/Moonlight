@@ -3,31 +3,28 @@
 @using Microsoft.AspNetCore.Authorization
 @using MoonCore.Blazor.Services
 @using MoonCore.Helpers
-@using MoonCore.Blazor.Tailwind.Fm
 @using Moonlight.Client.Implementations
+@using MoonCore.Blazor.FlyonUi.Files.Manager
 
 @attribute [Authorize(Policy = "permissions:admin.system.overview")]
 
 @inject HttpApiClient ApiClient
-@inject DownloadService DownloadService
-@inject LocalStorageService LocalStorageService
 
 <div class="mb-5">
     <NavTabs Index="2" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 </div>
 
-<FileManager FileSystemProvider="FileSystemProvider" MaxUploadSize="4096"/>
+<FileManager FsAccess="FsAccess" TransferChunkSize="TransferChunkSize" UploadLimit="UploadLimit"/>
 
 @code
 {
-    private IFileSystemProvider FileSystemProvider;
+    private IFsAccess FsAccess;
 
+    private static readonly long TransferChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
+    private static readonly long UploadLimit = ByteConverter.FromGigaBytes(20).Bytes;
+    
     protected override void OnInitialized()
     {
-        FileSystemProvider = new SysFileSystemProvider(
-            ApiClient,
-            DownloadService,
-            LocalStorageService
-        );
+        FsAccess = new SystemFsAccess(ApiClient);
     }
 }

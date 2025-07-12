@@ -13,7 +13,7 @@ public class UpdateUserRequest
     public string Username { get; set; }
     
     public string? Password { get; set; }
-    
+
     [Required(ErrorMessage = "You need to provide permissions")]
-    public string PermissionsJson { get; set; } = "[]";
+    public string[] Permissions { get; set; } = [];
 }

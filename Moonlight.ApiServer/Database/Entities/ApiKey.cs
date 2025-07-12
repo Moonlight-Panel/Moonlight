@@ -8,12 +8,9 @@ public class ApiKey
 
     public string Description { get; set; }
     
-    [Column(TypeName="jsonb")]
-    public string PermissionsJson { get; set; } = "[]";
+    public string[] Permissions { get; set; } = [];
     
-    [Column(TypeName = "timestamp with time zone")]
-    public DateTime ExpiresAt { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
     
-    [Column(TypeName = "timestamp with time zone")]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

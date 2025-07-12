@@ -1,6 +1,6 @@
 @using Moonlight.Shared.Misc
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-background text-base-content font-inter">
 
 <head>
     <meta charset="utf-8" />
@@ -18,15 +18,15 @@
     <link rel="apple-touch-icon" sizes="192x192" href="/img/icon-192.png" />
 </head>
 
-<body class="bg-gray-950 text-white font-inter h-full">
+<body>
 <div id="app">
 
     <div class="flex h-screen justify-center items-center">
         <div class="sm:max-w-lg">
             <div id="blazor-loader-label" class="text-center mb-2 text-lg font-semibold"></div>
             <div class="flex flex-col gap-1">
-                <div class="progress min-w-sm md:min-w-md" role="progressbar">
-                    <div id="blazor-loader-progress" class="progress-bar"></div>
+                <div class="progress h-3 min-w-sm md:min-w-md" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    <div id="blazor-loader-progress" class="progress-bar progress-primary"></div>
                 </div>
             </div>
         </div>

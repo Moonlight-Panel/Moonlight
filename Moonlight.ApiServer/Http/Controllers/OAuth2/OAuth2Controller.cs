@@ -291,7 +291,7 @@ public partial class OAuth2Controller : Controller
             var userCount = await UserRepository.Get().CountAsync();
             
             if (userCount == 0)
-                user.PermissionsJson = "[\"*\"]";
+                user.Permissions = ["*"];
             
         }
 

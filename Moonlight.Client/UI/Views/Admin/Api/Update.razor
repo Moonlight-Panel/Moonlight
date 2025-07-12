@@ -12,11 +12,11 @@
 <LazyLoader Load="Load">
     <PageHeader Title="Update API Key">
         <a href="/admin/api" class="btn btn-secondary">
-            <i class="icon-chevron-left mr-1"></i>
+            <i class="icon-chevron-left"></i>
             Back
         </a>
         <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
-            <i class="icon-check mr-1"></i>
+            <i class="icon-check"></i>
             Update
         </WButton>
     </PageHeader>
@@ -25,9 +25,9 @@
         <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
             <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium leading-6 text-white">Description</label>
+                    <label class="block text-sm font-medium leading-6 text-base-content">Description</label>
                     <div class="mt-2">
-                        <input @bind="Request.Description" type="text" autocomplete="off" class="form-input w-full">
+                        <input @bind="Request.Description" type="text" autocomplete="off" class="input w-full">
                     </div>
                 </div>
             </div>

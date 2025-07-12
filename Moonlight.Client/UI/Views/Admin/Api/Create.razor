@@ -4,22 +4,22 @@
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.ApiKeys
 @using Moonlight.Shared.Http.Responses.Admin.ApiKeys
-@using MoonCore.Blazor.Tailwind.Input2
+@using MoonCore.Blazor.FlyonUi.Forms
+@using MoonCore.Blazor.FlyonUi.Helpers
 
 @inject HttpApiClient ApiClient
 @inject NavigationManager Navigation
 @inject ToastService ToastService
 @inject AlertService AlertService
-
-@* @inject DownloadService DownloadService *@
+@inject DownloadService DownloadService
 
 <PageHeader Title="Create API Key">
     <a href="/admin/api" class="btn btn-secondary">
-        <i class="icon-chevron-left mr-1"></i>
+        <i class="icon-chevron-left"></i>
         Back
     </a>
     <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
-        <i class="icon-check mr-1"></i>
+        <i class="icon-check"></i>
         Create
     </WButton>
 </PageHeader>
@@ -28,21 +28,21 @@
     <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnSubmit">
         <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Description</label>
+                <label class="block text-sm font-medium leading-6 text-base-content">Description</label>
                 <div class="mt-2">
-                    <input @bind="Request.Description" type="text" autocomplete="off" class="form-input w-full">
+                    <input @bind="Request.Description" type="text" autocomplete="off" class="input w-full">
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Permissions</label>
+                <label class="block text-sm font-medium leading-6 text-base-content">Permissions</label>
                 <div class="mt-2">
-                    <InputTags @bind-Value="Permissions" />
+                    <InputTags Value="Permissions" />
                 </div>
             </div>
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium leading-6 text-white">Expires at</label>
+                <label class="block text-sm font-medium leading-6 text-base-content">Expires at</label>
                 <div class="mt-2">
-                    <input @bind="Request.ExpiresAt" type="date" autocomplete="off" class="form-input w-full">
+                    <input @bind="Request.ExpiresAt" type="date" autocomplete="off" class="input w-full">
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
     private HandleForm Form;
     private CreateApiKeyRequest Request;
     
-    private string[] Permissions = [];
+    private List<string> Permissions = [];
 
     protected override void OnInitialized()
     {
@@ -63,12 +63,12 @@
 
     private async Task OnSubmit()
     {
-        Request.PermissionsJson = JsonSerializer.Serialize(Permissions);
+        Request.Permissions = Permissions.ToArray();
         Request.ExpiresAt = Request.ExpiresAt.ToUniversalTime();
         
         var response = await ApiClient.PostJson<CreateApiKeyResponse>("api/admin/apikeys", Request);
 
-        await DownloadService.DownloadString(
+        await DownloadService.Download(
             $"moonlight-key-{response.Id}.txt",
             response.Secret
         );

@@ -17,8 +17,40 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 public class FilesController : Controller
 {
     private readonly string BaseDirectory = "storage";
-    private readonly long ChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
+    private readonly long MaxChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
 
+    [HttpPost("touch")]
+    public async Task CreateFile([FromQuery] string path)
+    {
+        var safePath = SanitizePath(path);
+        var physicalPath = Path.Combine(BaseDirectory, safePath);
+
+        if (System.IO.File.Exists(physicalPath))
+            throw new HttpApiException("A file already exists at that path", 400);
+
+        if (Directory.Exists(path))
+            throw new HttpApiException("A folder already exists at that path", 400);
+
+        await using var fs = System.IO.File.Create(physicalPath);
+        fs.Close();
+    }
+    
+    [HttpPost("mkdir")]
+    public Task CreateFolder([FromQuery] string path)
+    {
+        var safePath = SanitizePath(path);
+        var physicalPath = Path.Combine(BaseDirectory, safePath);
+
+        if (Directory.Exists(path))
+            throw new HttpApiException("A folder already exists at that path", 400);
+        
+        if (System.IO.File.Exists(physicalPath))
+            throw new HttpApiException("A file already exists at that path", 400);
+
+        Directory.CreateDirectory(physicalPath);
+        return Task.CompletedTask;
+    }
+    
     [HttpGet("list")]
     public Task<FileSystemEntryResponse[]> List([FromQuery] string path)
     {
@@ -38,7 +70,7 @@ public class FilesController : Controller
                 Name = fi.Name,
                 Size = fi.Length,
                 CreatedAt = fi.CreationTimeUtc,
-                IsFile = true,
+                IsFolder = false,
                 UpdatedAt = fi.LastWriteTimeUtc
             });
         }
@@ -55,7 +87,7 @@ public class FilesController : Controller
                 Size = 0,
                 CreatedAt = di.CreationTimeUtc,
                 UpdatedAt = di.LastWriteTimeUtc,
-                IsFile = false
+                IsFolder = true
             });
         }
 
@@ -65,23 +97,23 @@ public class FilesController : Controller
     }
 
     [HttpPost("upload")]
-    public async Task Upload([FromQuery] string path, [FromQuery] long totalSize, [FromQuery] int chunkId)
+    public async Task Upload([FromQuery] string path, [FromQuery] long chunkSize, [FromQuery] long totalSize, [FromQuery] int chunkId)
     {
         if (Request.Form.Files.Count != 1)
             throw new HttpApiException("You need to provide exactly one file", 400);
 
         var file = Request.Form.Files[0];
         
-        if (file.Length > ChunkSize)
+        if (file.Length > chunkSize)
             throw new HttpApiException("The provided data exceeds the chunk size limit", 400);
         
-        var chunks = totalSize / ChunkSize;
-        chunks += totalSize % ChunkSize > 0 ? 1 : 0;
+        var chunks = totalSize / chunkSize;
+        chunks += totalSize % chunkSize > 0 ? 1 : 0;
 
         if (chunkId > chunks)
             throw new HttpApiException("Invalid chunk id: Out of bounds", 400);
         
-        var positionToSkipTo = ChunkSize * chunkId;
+        var positionToSkipTo = chunkSize * chunkId;
 
         var safePath = SanitizePath(path);
         var physicalPath = Path.Combine(BaseDirectory, safePath);
@@ -153,16 +185,6 @@ public class FilesController : Controller
             System.IO.File.Delete(physicalFilePath);
         }
 
-        return Task.CompletedTask;
-    }
-
-    [HttpPost("mkdir")]
-    public Task CreateDirectory([FromQuery] string path)
-    {
-        var safePath = SanitizePath(path);
-        var physicalPath = Path.Combine(BaseDirectory, safePath);
-
-        Directory.CreateDirectory(physicalPath);
         return Task.CompletedTask;
     }
 
@@ -431,5 +453,23 @@ public class FilesController : Controller
     #endregion
 
     private string SanitizePath(string path)
-        => path.Replace("..", "");
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return string.Empty;
+
+        // Normalize separators
+        path = path.Replace('\\', '/');
+
+        // Remove ".." and "."
+        var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .Where(part => part != ".." && part != ".");
+
+        var sanitized = string.Join("/", parts);
+
+        // Ensure it does not start with a slash
+        if (sanitized.StartsWith('/'))
+            sanitized = sanitized.TrimStart('/');
+
+        return sanitized;
+    }
 }

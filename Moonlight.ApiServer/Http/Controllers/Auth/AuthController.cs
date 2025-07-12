@@ -73,9 +73,6 @@ public class AuthController : Controller
         if (user == null)
             throw new HttpApiException("Unable to load user data", 500);
 
-        //
-        var permissions = JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? [];
-
         // Generate token
         var securityTokenDescriptor = new SecurityTokenDescriptor()
         {
@@ -90,7 +87,7 @@ public class AuthController : Controller
                 },
                 {
                     "permissions",
-                    string.Join(";", permissions)
+                    string.Join(";", user.Permissions)
                 }
             },
             SigningCredentials = new SigningCredentials(
@@ -122,13 +119,11 @@ public class AuthController : Controller
         var userId = int.Parse(userIdClaim.Value);
         var user = await UserRepository.Get().FirstAsync(x => x.Id == userId);
 
-        var permissions = JsonSerializer.Deserialize<string[]>(user.PermissionsJson) ?? [];
-
         return new()
         {
             Email = user.Email,
             Username = user.Username,
-            Permissions = string.Join(";", permissions)
+            Permissions = user.Permissions
         };
     }
 }

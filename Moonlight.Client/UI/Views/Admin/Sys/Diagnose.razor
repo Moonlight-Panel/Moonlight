@@ -1,6 +1,7 @@
 @page "/admin/system/diagnose"
 
 @using Microsoft.AspNetCore.Authorization
+@using MoonCore.Blazor.FlyonUi.Helpers
 @using MoonCore.Helpers
 @using Moonlight.Shared.Http.Requests.Admin.Sys
 @using Moonlight.Shared.Http.Responses.Admin.Sys
@@ -47,7 +48,7 @@
 
                 <div class="@(DropdownOpen ? "" : "hidden")">
                     <LazyLoader Load="Load">
-                        <div class="mb-2 py-2 border-b border-gray-700 flex items-center gap-3">
+                        <div class="mb-2 py-2 border-b border-base-content/70 flex items-center gap-3">
                             <input id="selectall_checkbox" @bind="SelectAll" type="checkbox" class="form-checkbox">
                             <label for="selectall_checkbox">Select all</label>
                         </div>
@@ -99,7 +100,7 @@
 
         if (!SelectAll)
         {
-            // filter the providers which have been selected if not all providers have been selected
+            // Filter the providers which have been selected if not all providers have been selected
             request.Providers = AvailableProviders
                 .Where(x => x.Value)
                 .Select(x => x.Key.Type)
@@ -108,7 +109,7 @@
 
         var stream = await ApiClient.PostStream("api/admin/system/diagnose", request);
 
-        await DownloadService.DownloadStream("diagnose.zip", stream);
+        await DownloadService.Download("diagnose.zip", stream);
     }
 
 

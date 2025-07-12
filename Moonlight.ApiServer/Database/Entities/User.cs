@@ -9,10 +9,6 @@ public class User
     public string Username { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
-    
-    [Column(TypeName="timestamp with time zone")]
-    public DateTime TokenValidTimestamp { get; set; } = DateTime.MinValue;
-    
-    [Column(TypeName="jsonb")]
-    public string PermissionsJson { get; set; } = "[]";
+    public DateTimeOffset TokenValidTimestamp { get; set; } = DateTimeOffset.MinValue;
+    public string[] Permissions { get; set; } = [];
 }

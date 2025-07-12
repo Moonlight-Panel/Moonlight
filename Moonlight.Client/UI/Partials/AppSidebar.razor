@@ -17,17 +17,17 @@
 
 <div class="fixed inset-y-0 left-0 w-64 max-lg:hidden">
     <nav class="flex h-full min-h-0 flex-col">
-        <div class="flex flex-col border-b p-4 border-white/5">
+        <div class="flex flex-col border-b p-4 border-base-content/5">
             <span class="relative">
                 <div type="button"
-                        class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-lg font-medium text-gray-100">
+                     class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-lg font-medium text-base-content">
                     <span
                         class="inline-grid shrink-0 align-middle">
                         <img class="h-8 rounded-full"
                              src="/svg/logo.svg"
                              alt=""/>
                     </span>
-                    <span class="truncate">Moonlight</span>
+                    <span class="truncate">Moonlight v2.1</span>
                 </div>
             </span>
         </div>
@@ -37,7 +37,7 @@
                 {
                     if (!string.IsNullOrEmpty(item.Key))
                     {
-                        <h3 class="mt-4 px-2 text-sm/5 font-medium text-gray-400">
+                        <h3 class="mt-4 px-2 text-sm/5 font-medium text-base-content/40">
                             @item.Key
                         </h3>
                     }
@@ -51,10 +51,10 @@
                         @if (isMatch)
                         {
                             <div class="relative">
-                                <span class="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-white"
+                                <span class="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-primary"
                                       style="opacity: 1;">
                                 </span>
-                                <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal bg-white/5 sm:py-2 sm:text-sm/5 text-white"
+                                <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal bg-primary/5 sm:py-2 sm:text-sm/5 text-base-content"
                                    href="@sidebarItem.Path">
                                     <i class="@sidebarItem.Icon text-lg"></i>
                                     <span class="truncate">
@@ -66,7 +66,7 @@
                         else
                         {
                             <div class="relative">
-                                <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal sm:py-2 sm:text-sm/5 text-white hover:bg-white/5"
+                                <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal sm:py-2 sm:text-sm/5 text-base-content hover:bg-primary/5"
                                    href="@sidebarItem.Path">
                                     <i class="@sidebarItem.Icon text-lg"></i>
                                     <span class="truncate">
@@ -79,9 +79,9 @@
                 }
             </div>
         </div>
-        <div class="flex flex-col border-t p-4 max-lg:hidden border-white/5 mt-2.5">
+        <div class="flex flex-col border-t p-4 max-lg:hidden border-base-content/5 mt-2.5">
             <div
-                class="flex w-full items-center px-2 py-2.5 gap-6 rounded-lg text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-white">
+                class="flex w-full items-center px-2 py-2.5 gap-6 rounded-lg text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-base-content">
                 <div class="flex min-w-0 items-center gap-3">
                     <span class="inline-grid shrink-0 align-middle">
                         <img class="h-8 rounded-full"
@@ -89,10 +89,10 @@
                              alt=""/>
                     </span>
                     <div class="min-w-0">
-                        <div class="block truncate text-sm/5 font-medium text-white">
+                        <div class="block truncate text-sm/5 font-medium text-base-content">
                             @Username
                         </div>
-                        <div class="block truncate text-xs/5 font-normal text-gray-400">
+                        <div class="block truncate text-xs/5 font-normal text-base-content/40">
                             @Email
                         </div>
                     </div>
@@ -108,22 +108,23 @@
 <div
     class="lg:hidden z-50 transition-opacity ease-linear duration-300 @(Layout.ShowMobileNavigation ? "opacity-100" : "opacity-0 pointer-events-none")"
     role="dialog" tabindex="-1">
-    <div class="fixed inset-0 bg-black/30"></div>
+    <div class="fixed inset-0 bg-background/60"></div>
     <div class="fixed inset-y-0 w-full max-w-80 p-2">
         <div
-            class="relative flex h-full flex-col rounded-lg shadow-xs ring-1 bg-gray-900 ring-white/10 transition ease-in-out duration-300 transform @(Layout.ShowMobileNavigation ? "translate-x-0" : "-translate-x-full")">
-            <div class="border-b p-4 border-white/5 flex justify-between px-5 pt-3">
-                <div class="flex items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-white">
+            class="relative flex h-full flex-col rounded-lg shadow-xs ring-1 bg-base-300 ring-white/10 transition ease-in-out duration-300 transform @(Layout.ShowMobileNavigation ? "translate-x-0" : "-translate-x-full")">
+            <div class="border-b p-4 border-base-content/5 flex justify-between px-5 pt-3">
+                <div
+                    class="flex items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-base-content">
                     <div data-slot="avatar"
                          class="inline-grid shrink-0 align-middle">
                         <img
-                            class="h-8 rounded-full" src="/svg/logo.svg" alt=""/>
+                            class="h-8 rounded-full" src="/placeholder.jpg" alt=""/>
                     </div>
-                    <div class="truncate">Moonlight</div>
+                    <div class="truncate">Moonlight v2.1</div>
                 </div>
 
                 <button @onclick="Layout.ToggleMobileNavigation" aria-label="Close navigation" type="button"
-                        class="relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 text-white">
+                        class="relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 text-base-content">
                     <i class="icon-x text-lg"></i>
                 </button>
             </div>
@@ -149,10 +150,10 @@
                                 @if (isMatch)
                                 {
                                     <div class="relative">
-                                        <span class="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-white"
+                                        <span class="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-primary"
                                               style="opacity: 1;">
                                         </span>
-                                        <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal bg-white/5 sm:py-2 sm:text-sm/5 text-white"
+                                        <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal bg-primary/5 sm:py-2 sm:text-sm/5 text-base-content"
                                            href="@sidebarItem.Path">
                                             <i class="@sidebarItem.Icon text-lg"></i>
                                             <span class="truncate">
@@ -164,7 +165,7 @@
                                 else
                                 {
                                     <div class="relative">
-                                        <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal sm:py-2 sm:text-sm/5 text-white hover:bg-white/5"
+                                        <a class="flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-left text-base/6 font-normal sm:py-2 sm:text-sm/5 text-base-content hover:bg-primary/5"
                                            href="@sidebarItem.Path">
                                             <i class="@sidebarItem.Icon text-lg"></i>
                                             <span class="truncate">
@@ -180,8 +181,7 @@
                     <div class="mt-8 flex-1"></div>
                     <div class="flex flex-col gap-0.5">
                         <div class="relative">
-
-                            <a class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 sm:py-2 sm:text-sm/5 text-white"
+                            <a class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 sm:py-2 sm:text-sm/5 text-base-content"
                                href="#" @onclick:preventDefault @onclick="Logout">
                                 <i class="icon-log-out"></i>
                                 <span class="truncate">Logout</span>

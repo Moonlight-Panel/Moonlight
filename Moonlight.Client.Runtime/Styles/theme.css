@@ -1,0 +1,33 @@
+@theme {
+    --mooncore-color-background: #0c0f18;
+    --mooncore-color-base-100: #1e2b47;
+    --mooncore-color-base-150: #1a2640;
+    --mooncore-color-base-200: #101a2e;
+    --mooncore-color-base-250: #0f1729;
+    --mooncore-color-base-300: #0c1221;
+    --mooncore-color-base-content: #dde5f5;
+    --mooncore-color-primary: oklch(.511 .262 276.966);
+    --mooncore-color-primary-content: #dde5f5;
+    --mooncore-color-secondary: oklch(37% 0.034 259.733);
+    --mooncore-color-secondary-content: #dde5f5;
+    --mooncore-color-accent: oklch(.627 .265 303.9);
+    --mooncore-color-accent-content: #dde5f5;
+    --mooncore-color-neutral: #dde5f5;
+    --mooncore-color-neutral-content: oklch(14% 0.005 285.823);
+    --mooncore-color-info: oklch(.546 .245 262.881);
+    --mooncore-color-info-content: #dde5f5;
+    --mooncore-color-success: oklch(.627 .194 149.214);
+    --mooncore-color-success-content: #dde5f5;
+    --mooncore-color-warning: oklch(.828 .189 84.429);
+    --mooncore-color-warning-content: #dde5f5;
+    --mooncore-color-error: oklch(.586 .253 17.585);
+    --mooncore-color-error-content: #dde5f5;
+    --mooncore-radius-selector: 0.25rem;
+    --mooncore-radius-field: 0.5rem;
+    --mooncore-radius-box: 0.5rem;
+    --mooncore-size-selector: 0.25rem;
+    --mooncore-size-field: 0.25rem;
+    --mooncore-border: 1px;
+    --mooncore-depth: 0;
+    --mooncore-noise: 0;
+}

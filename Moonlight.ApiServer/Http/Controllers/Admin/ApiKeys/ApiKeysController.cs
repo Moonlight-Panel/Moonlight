@@ -45,7 +45,7 @@ public class ApiKeysController : Controller
             .Select(x => new ApiKeyResponse()
             {
                 Id = x.Id,
-                PermissionsJson = x.PermissionsJson,
+                Permissions = x.Permissions,
                 Description = x.Description,
                 ExpiresAt = x.ExpiresAt
             })
@@ -75,7 +75,7 @@ public class ApiKeysController : Controller
         return new ApiKeyResponse()
         {
             Id = apiKey.Id,
-            PermissionsJson = apiKey.PermissionsJson,
+            Permissions = apiKey.Permissions,
             Description = apiKey.Description,
             ExpiresAt = apiKey.ExpiresAt
         };
@@ -88,7 +88,7 @@ public class ApiKeysController : Controller
         var apiKey = new ApiKey()
         {
             Description = request.Description,
-            PermissionsJson = request.PermissionsJson,
+            Permissions = request.Permissions,
             ExpiresAt = request.ExpiresAt
         };
 
@@ -97,7 +97,7 @@ public class ApiKeysController : Controller
         var response = new CreateApiKeyResponse
         {
             Id = finalApiKey.Id,
-            PermissionsJson = finalApiKey.PermissionsJson,
+            Permissions = finalApiKey.Permissions,
             Description = finalApiKey.Description,
             ExpiresAt = finalApiKey.ExpiresAt,
             Secret = ApiKeyService.GenerateJwt(finalApiKey)
@@ -125,7 +125,7 @@ public class ApiKeysController : Controller
         {
             Id = apiKey.Id,
             Description = apiKey.Description,
-            PermissionsJson = apiKey.PermissionsJson,
+            Permissions = apiKey.Permissions,
             ExpiresAt = apiKey.ExpiresAt
         };
     }

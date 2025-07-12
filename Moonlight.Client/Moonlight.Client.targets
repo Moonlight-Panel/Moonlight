@@ -1,0 +1,8 @@
+<Project>
+  <ItemGroup>
+    <StylesFilesToCopy Include="$(MSBuildThisFileDirectory)../Styles/**/*.*"/>
+  </ItemGroup>
+  <Target Name="CopyContent" BeforeTargets="Build">
+    <Copy SourceFiles="@(StylesFilesToCopy)" DestinationFolder="$(ProjectDir)Styles/%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

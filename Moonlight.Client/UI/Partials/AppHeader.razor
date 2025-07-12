@@ -2,11 +2,11 @@
 
 @inject NavigationManager Navigation
 
-<header class="flex items-center px-4 lg:hidden border-b border-white/5">
+<header class="flex items-center px-4 lg:hidden border-b border-base-content/5">
     <div class="py-2.5">
         <span class="relative">
             <button @onclick="Layout.ToggleMobileNavigation" aria-label="Open navigation"
-                    class="relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 sm:text-sm/5 text-white"
+                    class="relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 sm:text-sm/5 text-base-content"
                     type="button">
                 <i class="icon-menu text-xl"></i>
             </button>
@@ -18,12 +18,12 @@
             </div>
             <div class="flex items-center gap-3">
                 <span class="relative">
-                    <div class="relative flex min-w-0 cursor-default items-center gap-3 rounded-lg p-2 text-left text-base/6 font-medium sm:text-sm/5 text-white">
+                    <div class="relative flex min-w-0 cursor-default items-center gap-3 rounded-lg p-2 text-left text-base/6 font-medium sm:text-sm/5 text-base-content">
                         <div data-slot="avatar"
                              class="inline-grid shrink-0 align-middle">
                             <img
                                 class="h-8 rounded-full"
-                                src="/img/pfp_placeholder.png"
+                                src="/svg/logo.svg"
                                 alt=""/>
                         </div>
                     </div>

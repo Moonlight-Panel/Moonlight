@@ -1,6 +1,7 @@
 @page "/admin/system/advanced"
 
 @using Microsoft.AspNetCore.Authorization
+@using MoonCore.Blazor.FlyonUi.Helpers
 @using MoonCore.Helpers
 
 @attribute [Authorize(Policy = "permissions:admin.system.advanced")]
@@ -36,6 +37,6 @@
     {
         var stream = await ApiClient.GetStream("api/admin/system/advanced/frontend");
 
-        await DownloadService.DownloadStream("frontend.zip", stream);
+        await DownloadService.Download("frontend.zip", stream);
     }
 }
