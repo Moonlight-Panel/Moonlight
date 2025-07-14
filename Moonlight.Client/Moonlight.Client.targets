@@ -3,6 +3,6 @@
     <StylesFilesToCopy Include="$(MSBuildThisFileDirectory)../Styles/**/*.*"/>
   </ItemGroup>
   <Target Name="CopyContent" BeforeTargets="Build">
-    <Copy SourceFiles="@(StylesFilesToCopy)" DestinationFolder="$(ProjectDir)Styles/%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(StylesFilesToCopy)" DestinationFolder="$(ProjectDir)Styles/Moonlight.Client/%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -17,11 +17,11 @@ module.exports = (opts = {}) => {
         OnceExit() {
             const classArray = Array.from(classSet).sort();
 
-            if (!fs.existsSync("./mappings")){
-                fs.mkdirSync("./mappings");
+            if (!fs.existsSync("../../Moonlight.Client/Styles/mappings")){
+                fs.mkdirSync("../../Moonlight.Client/Styles/mappings");
             }
             
-            fs.writeFileSync('./mappings/mooncore.map', classArray.join('\n'));
+            fs.writeFileSync('../../Moonlight.Client/Styles/mappings/classes.map', classArray.join('\n'));
             console.log(`✅ Extracted ${classArray.length} Tailwind classes to tailwind-classes.txt`);
         }
     };

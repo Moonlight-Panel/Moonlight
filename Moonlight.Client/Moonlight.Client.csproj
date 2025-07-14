@@ -54,15 +54,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Styles\" />
-  </ItemGroup>
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Properties\launchSettings.json" />
-  </ItemGroup>
 
   <ItemGroup>
-    <None Include="Styles/mappings/*" Pack="true" PackagePath="Styles/mappings/" />
-    <None Include="Moonlight.Client.targets" Pack="true" PackagePath="build\Moonlight.Client.targets" />
+    <None Include="Styles/*" Pack="true" PackagePath="Styles/Moonlight.Client/" />
+    <None Include="Moonlight.Client.targets" Pack="true" PackagePath="build/Moonlight.Client.targets" />
   </ItemGroup>
 </Project>

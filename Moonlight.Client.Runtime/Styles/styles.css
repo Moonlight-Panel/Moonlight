@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=fallback') layer(base);
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap') layer()base;
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap') layer(base);
 @import url("https://cdn.jsdelivr.net/npm/lucide-static/font/lucide.css") layer(base);
 
 @import "tailwindcss";
@@ -24,6 +24,7 @@
 @source "../**/*.razor";
 @source "../**/*.cs";
 @source "../**/*.html";
+@source "./mappings/*.map";
 
 @source "../../Moonlight.Client/**/*.cs";
 @source "../../Moonlight.Client/**/*.html";
