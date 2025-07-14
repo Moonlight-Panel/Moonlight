@@ -5,12 +5,12 @@ using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class CleanStartup
+public partial class Startup
 {
     private IServiceProvider PluginLoadServiceProvider;
     private IPluginStartup[] PluginStartups;
     
-    private Task InitializePlugins(IPluginStartup[] pluginStartups)
+    private Task InitializePlugins()
     {
         // Create service provider for starting up
         var serviceCollection = new ServiceCollection();
@@ -24,8 +24,6 @@ public partial class CleanStartup
         });
 
         PluginLoadServiceProvider = serviceCollection.BuildServiceProvider();
-
-        PluginStartups = pluginStartups;
         
         return Task.CompletedTask;
     }

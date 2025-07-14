@@ -1,6 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,13 +7,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
-using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Interfaces;
 using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
-using Moonlight.Shared.Http.Responses.OAuth2;
 
 namespace Moonlight.ApiServer.Http.Controllers.Auth;
 
@@ -77,7 +74,7 @@ public class AuthController : Controller
         // Generate token
         var securityTokenDescriptor = new SecurityTokenDescriptor()
         {
-            Expires = DateTime.Now.AddYears(Configuration.Authentication.TokenDuration),
+            Expires = DateTime.Now.AddHours(Configuration.Authentication.TokenDuration),
             IssuedAt = DateTime.Now,
             NotBefore = DateTime.Now.AddMinutes(-1),
             Claims = new Dictionary<string, object>()

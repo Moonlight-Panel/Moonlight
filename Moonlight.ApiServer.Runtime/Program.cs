@@ -1,5 +1,5 @@
-﻿using Moonlight.ApiServer;
-using Moonlight.ApiServer.Runtime;
+﻿using Moonlight.ApiServer.Runtime;
+using Moonlight.ApiServer.Startup;
 
 var pluginLoader = new PluginLoader();
 pluginLoader.Initialize();
@@ -8,21 +8,28 @@ await startup.Run(args, pluginLoader.Instances);
 
 */
 
-var cs = new CleanStartup();
+var cs = new Startup();
 
-var builder = WebApplication.CreateBuilder();
+await cs.Initialize(args, pluginLoader.Instances);
 
-await cs.AddMoonlight(builder, args, pluginLoader.Instances);
+var builder = WebApplication.CreateBuilder(args);
+
+await cs.AddMoonlight(builder);
 
 var app = builder.Build();
 
-await cs.AddMoonlight(app, args, pluginLoader.Instances);
+await cs.AddMoonlight(app);
 
-if (app.Environment.IsDevelopment())
-    app.UseWebAssemblyDebugging();
+// Handle setup of wasm app hosting in the runtime
+// so the Moonlight.ApiServer doesn't need the wasm package
+if (cs.Configuration.Frontend.EnableHosting)
+{
+    if (app.Environment.IsDevelopment())
+        app.UseWebAssemblyDebugging();
 
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+    app.UseBlazorFrameworkFiles();
+    app.UseStaticFiles();
+}
 
 
 await app.RunAsync();

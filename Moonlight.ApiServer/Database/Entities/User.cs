@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Moonlight.ApiServer.Database.Entities;
+﻿namespace Moonlight.ApiServer.Database.Entities;
 
 public class User
 {

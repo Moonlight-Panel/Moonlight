@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.ApiServer.Runtime
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moonlight.Client.Runtime", "Moonlight.Client.Runtime\Moonlight.Client.Runtime.csproj", "{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Runtime", "Runtime", "{DCE3A43F-ACA8-41C6-BE27-3B3AA033B843}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,5 +40,7 @@ Global
 		{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{97FC686D-BC8A-4145-90C7-CA86B598441E} = {DCE3A43F-ACA8-41C6-BE27-3B3AA033B843}
+		{72F21AA4-4721-4B4C-B2FF-CFDCBB1BCB05} = {DCE3A43F-ACA8-41C6-BE27-3B3AA033B843}
 	EndGlobalSection
 EndGlobal
