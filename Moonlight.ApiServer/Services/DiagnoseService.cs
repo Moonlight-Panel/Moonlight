@@ -1,5 +1,6 @@
 using Moonlight.ApiServer.Interfaces;
 using System.IO.Compression;
+using Microsoft.Extensions.Logging;
 using MoonCore.Attributes;
 using MoonCore.Exceptions;
 using Moonlight.Shared.Http.Responses.Admin.Sys;

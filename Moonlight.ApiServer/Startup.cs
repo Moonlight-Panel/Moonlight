@@ -2,8 +2,14 @@ using System.Text;
 using System.Text.Json;
 using Hangfire;
 using Hangfire.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.EnvConfiguration;
 using MoonCore.Extended.Abstractions;
@@ -27,12 +33,11 @@ namespace Moonlight.ApiServer;
 // Cry about it
 #pragma warning disable ASP0000
 
-public class Startup
+public class StartupX
 {
     private string[] Args;
 
     // Logging
-    private ILoggerProvider[] LoggerProviders;
     private ILoggerFactory LoggerFactory;
     private ILogger<Startup> Logger;
 
