@@ -12,7 +12,6 @@ using Moonlight.ApiServer.Models;
 using Moonlight.ApiServer.Plugins;
 using Moonlight.ApiServer.Services;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 
 namespace Moonlight.ApiServer.Implementations.Startup;
 
@@ -87,7 +86,7 @@ public class CoreStartup : IPluginStartup
 
         #region Client / Frontend
 
-        if (configuration.Client.Enable)
+        if (configuration.Frontend.EnableHosting)
         {
             builder.Services.AddSingleton(new FrontendConfigurationOption()
             {

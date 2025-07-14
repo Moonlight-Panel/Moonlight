@@ -56,11 +56,11 @@ public partial class OAuth2Controller : Controller
             throw new HttpApiException("Invalid oauth2 request", 400);
         }
 
-        Response.StatusCode = 200;
+        string html;
 
         if (view == "register")
         {
-            var html = await ComponentHelper.RenderComponent<Register>(HttpContext.RequestServices, parameters =>
+            html = await ComponentHelper.RenderComponent<Register>(HttpContext.RequestServices, parameters =>
             {
                 parameters.Add("ClientId", clientId);
                 parameters.Add("RedirectUri", redirectUri);
@@ -71,7 +71,7 @@ public partial class OAuth2Controller : Controller
         }
         else
         {
-            var html = await ComponentHelper.RenderComponent<Login>(HttpContext.RequestServices, parameters =>
+            html = await ComponentHelper.RenderComponent<Login>(HttpContext.RequestServices, parameters =>
             {
                 parameters.Add("ClientId", clientId);
                 parameters.Add("RedirectUri", redirectUri);
@@ -80,6 +80,10 @@ public partial class OAuth2Controller : Controller
 
             await Response.WriteAsync(html);
         }
+        
+        await Results
+            .Text(html, "text/html")
+            .ExecuteAsync(HttpContext);
     }
 
     [AllowAnonymous]
@@ -117,7 +121,6 @@ public partial class OAuth2Controller : Controller
                 var code = await GenerateCode(user);
 
                 Response.Redirect($"{redirectUri}?code={code}");
-                return;
             }
             else
             {
@@ -125,39 +128,38 @@ public partial class OAuth2Controller : Controller
                 var code = await GenerateCode(user);
 
                 Response.Redirect($"{redirectUri}?code={code}");
-                return;
             }
         }
         catch (HttpApiException e)
         {
             errorMessage = e.Title;
-        }
-
-        Response.StatusCode = 200;
-
-        if (view == "register")
-        {
-            var html = await ComponentHelper.RenderComponent<Register>(HttpContext.RequestServices, parameters =>
+            
+            string html;
+        
+            if (view == "register")
             {
-                parameters.Add("ClientId", clientId);
-                parameters.Add("RedirectUri", redirectUri);
-                parameters.Add("ResponseType", responseType);
-                parameters.Add("ErrorMessage", errorMessage!);
-            });
-
-            await Response.WriteAsync(html);
-        }
-        else
-        {
-            var html = await ComponentHelper.RenderComponent<Login>(HttpContext.RequestServices, parameters =>
+                html = await ComponentHelper.RenderComponent<Register>(HttpContext.RequestServices, parameters =>
+                {
+                    parameters.Add("ClientId", clientId);
+                    parameters.Add("RedirectUri", redirectUri);
+                    parameters.Add("ResponseType", responseType);
+                    parameters.Add("ErrorMessage", errorMessage!);
+                });
+            }
+            else
             {
-                parameters.Add("ClientId", clientId);
-                parameters.Add("RedirectUri", redirectUri);
-                parameters.Add("ResponseType", responseType);
-                parameters.Add("ErrorMessage", errorMessage!);
-            });
+                html = await ComponentHelper.RenderComponent<Login>(HttpContext.RequestServices, parameters =>
+                {
+                    parameters.Add("ClientId", clientId);
+                    parameters.Add("RedirectUri", redirectUri);
+                    parameters.Add("ResponseType", responseType);
+                    parameters.Add("ErrorMessage", errorMessage!);
+                });
+            }
 
-            await Response.WriteAsync(html);
+            await Results
+                .Text(html, "text/html")
+                .ExecuteAsync(HttpContext);
         }
     }
 

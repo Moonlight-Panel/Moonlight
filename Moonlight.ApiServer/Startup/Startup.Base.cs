@@ -1,19 +1,17 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
-using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class CleanStartup
+public partial class Startup
 {
-    private Task RegisterBase(IPluginStartup[] pluginStartups)
+    private Task RegisterBase()
     {
-        WebApplicationBuilder.Services.AutoAddServices<CleanStartup>();
+        WebApplicationBuilder.Services.AutoAddServices<Startup>();
         WebApplicationBuilder.Services.AddHttpClient();
 
         WebApplicationBuilder.Services.AddApiExceptionHandler();
@@ -25,7 +23,7 @@ public partial class CleanStartup
         var mvcBuilder = WebApplicationBuilder.Services.AddControllers();
 
         // Add plugin assemblies as application parts
-        foreach (var pluginStartup in pluginStartups.Select(x => x.GetType().Assembly).Distinct())
+        foreach (var pluginStartup in PluginStartups.Select(x => x.GetType().Assembly).Distinct())
             mvcBuilder.AddApplicationPart(pluginStartup.GetType().Assembly);
 
         return Task.CompletedTask;
@@ -36,15 +34,6 @@ public partial class CleanStartup
         WebApplication.UseRouting();
         WebApplication.UseExceptionHandler();
 
-        if (Configuration.Client.Enable)
-        {
-            if (WebApplication.Environment.IsDevelopment())
-                WebApplication.UseWebAssemblyDebugging();
-
-            WebApplication.UseBlazorFrameworkFiles();
-            WebApplication.UseStaticFiles();
-        }
-
         return Task.CompletedTask;
     }
 
@@ -52,7 +41,7 @@ public partial class CleanStartup
     {
         WebApplication.MapControllers();
 
-        if (Configuration.Client.Enable)
+        if (Configuration.Frontend.EnableHosting)
             WebApplication.MapFallbackToController("Index", "Frontend");
 
         return Task.CompletedTask;

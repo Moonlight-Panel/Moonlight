@@ -14,7 +14,7 @@
   </ItemGroup>
   <PropertyGroup>
     <PackageId>Moonlight.ApiServer</PackageId>
-    <Version>2.1.2</Version>
+    <Version>2.1.3</Version>
     <Authors>Moonlight Panel</Authors>
     <Description>A build of the api server for moonlight development</Description>
     <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
@@ -38,16 +38,6 @@
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="**\*.cs" Exclude="storage\**\*;bin\**\*;obj\**\*">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="**\*.razor" Exclude="storage\**\*;bin\**\*;obj\**\*">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <Compile Remove="storage\**\*" />
     <Content Remove="storage\**\*" />
     <None Remove="storage\**\*" />
