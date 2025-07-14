@@ -1,4 +1,7 @@
 using System.Diagnostics.Metrics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Interfaces;
 

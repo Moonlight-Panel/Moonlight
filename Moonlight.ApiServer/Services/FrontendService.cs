@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 using MoonCore.Attributes;
 using MoonCore.Exceptions;
@@ -82,7 +83,7 @@ public class FrontendService
     public async Task<Stream> GenerateZip() // TODO: Rework to be able to extract everything successfully
     {
         // We only allow the access to this function when we are actually hosting the frontend
-        if (!Configuration.Client.Enable)
+        if (!Configuration.Frontend.EnableHosting)
             throw new HttpApiException("The hosting of the wasm client has been disabled", 400);
 
         // Load and check wasm path

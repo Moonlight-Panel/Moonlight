@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MoonCore.Attributes;
 using MoonCore.Helpers;
 

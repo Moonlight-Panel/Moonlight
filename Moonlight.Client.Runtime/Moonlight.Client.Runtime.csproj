@@ -64,6 +64,7 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\js\moonCore.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\moonlight.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\svg\logo.svg" />
     </ItemGroup>
 
 </Project>

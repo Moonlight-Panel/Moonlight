@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.Attributes;
 using Moonlight.ApiServer.Configuration;

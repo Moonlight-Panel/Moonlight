@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Misc;

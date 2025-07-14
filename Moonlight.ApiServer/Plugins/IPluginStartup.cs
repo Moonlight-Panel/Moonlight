@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Hosting;
+
 namespace Moonlight.ApiServer.Plugins;
 
 public interface IPluginStartup
