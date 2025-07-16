@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Styles/*" Pack="true" PackagePath="Styles/Moonlight.Client/" />
+    <None Include="Styles/mappings/*.map" Pack="true" PackagePath="Styles/" />
     <None Include="Moonlight.Client.targets" Pack="true" PackagePath="build/Moonlight.Client.targets" />
   </ItemGroup>
 </Project>
