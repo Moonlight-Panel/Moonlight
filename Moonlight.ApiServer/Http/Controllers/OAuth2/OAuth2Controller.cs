@@ -66,8 +66,6 @@ public partial class OAuth2Controller : Controller
                 parameters.Add("RedirectUri", redirectUri);
                 parameters.Add("ResponseType", responseType);
             });
-
-            await Response.WriteAsync(html);
         }
         else
         {
@@ -77,12 +75,10 @@ public partial class OAuth2Controller : Controller
                 parameters.Add("RedirectUri", redirectUri);
                 parameters.Add("ResponseType", responseType);
             });
-
-            await Response.WriteAsync(html);
         }
         
         await Results
-            .Text(html, "text/html")
+            .Text(html, "text/html", Encoding.UTF8)
             .ExecuteAsync(HttpContext);
     }
 
@@ -158,7 +154,7 @@ public partial class OAuth2Controller : Controller
             }
 
             await Results
-                .Text(html, "text/html")
+                .Text(html, "text/html", Encoding.UTF8)
                 .ExecuteAsync(HttpContext);
         }
     }

@@ -29,7 +29,7 @@
 @source "../../Moonlight.Client/**/*.cs";
 @source "../../Moonlight.Client/**/*.html";
 @source "../../Moonlight.Client/**/*.razor";
-@source "../../Moonlight.Client/Styles/mappings/*.map";
+@source "../../Moonlight.Client/Styles/**/*.map";
 
 @source "../../Moonlight.ApiServer/**/*.razor";
 
