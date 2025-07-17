@@ -275,6 +275,7 @@ loading-xs
 lowercase
 m-10
 mask
+max-h-52
 max-lg:flex-col
 max-lg:hidden
 max-w-7xl
@@ -363,10 +364,12 @@ progress
 progress-bar
 progress-indeterminate
 progress-primary
+pt-0
 pt-0.5
 pt-3
 px-1.5
 px-2
+px-2.5
 px-3
 px-4
 px-5

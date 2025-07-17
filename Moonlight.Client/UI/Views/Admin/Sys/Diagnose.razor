@@ -49,14 +49,14 @@
                 <div class="@(DropdownOpen ? "" : "hidden")">
                     <LazyLoader Load="Load">
                         <div class="mb-2 py-2 border-b border-base-content/70 flex items-center gap-3">
-                            <input id="selectall_checkbox" @bind="SelectAll" type="checkbox" class="form-checkbox">
+                            <input id="selectall_checkbox" @bind="SelectAll" type="checkbox" class="checkbox checkbox-primary checkbox-xs">
                             <label for="selectall_checkbox">Select all</label>
                         </div>
 
                         @foreach (var item in AvailableProviders)
                         {
                             <div class="mt-1 flex gap-3 items-center">
-                                <input class="form-checkbox" type="checkbox" id="@(item.Key.Type + "_checkbox")"
+                                <input class="checkbox checkbox-primary checkbox-xs" type="checkbox" id="@(item.Key.Type + "_checkbox")"
                                        @bind="@AvailableProviders[item.Key]"/>
                                 <label
                                     for="@(item.Key.Type + "_checkbox")">@Formatter.ConvertCamelCaseToSpaces(item.Key.Name)</label>
