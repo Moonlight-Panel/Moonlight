@@ -93,7 +93,7 @@ public class CoreStartup : IPluginStartup
                 Scripts =
                 [
                     "/_content/Moonlight.Client/js/moonlight.js", "/_content/MoonCore.Blazor.FlyonUi/moonCore.js",
-                    "/_content/Moonlight.Client/ace/ace.js"
+                    "/_content/MoonCore.Blazor.FlyonUi/ace/ace.js"
                 ],
                 Styles = ["/css/style.min.css"]
             });
