@@ -12,7 +12,7 @@
   <PropertyGroup>
     <PackageTags>frontend</PackageTags>
     <PackageId>Moonlight.Client</PackageId>
-    <Version>2.1.5</Version>
+    <Version>2.1.6</Version>
     <Authors>Moonlight Panel</Authors>
     <Description>A build of the client for moonlight development</Description>
     <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
