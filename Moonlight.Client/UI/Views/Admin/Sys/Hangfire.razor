@@ -13,6 +13,12 @@
     <NavTabs Index="3" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 </div>
 
+<div class="mb-5">
+    <HelperMessage>
+        Hangfire is used to run scheduled and repeating tasks scalable via multiple instances. Here you can see a bunch of stats of the integrated hangfire instance
+    </HelperMessage>
+</div>
+
 <LazyLoader Load="Load">
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5">
         <StatCard Title="Servers" Text="@Stats.Servers.ToString()" Icon="icon-server"/>

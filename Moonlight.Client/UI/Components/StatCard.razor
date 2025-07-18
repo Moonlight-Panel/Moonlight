@@ -1,11 +1,19 @@
-﻿<div class="card card-body">
+﻿@*<div class="card card-body">
     <div class="flex justify-between">
         <p class="text-xl font-semibold text-base-content">
             @Text
         </p>
-        <i class="@Icon text-4xl text-primary"></i>
+        <i class="@Icon "></i>
     </div>
     <p class="text-base-content/80">@Title</p>
+</div>*@
+
+<div class="stat rounded-lg bg-base-100">
+    <div class="stat-figure">
+        <span class="@Icon text-4xl text-primary"></span>
+    </div>
+    <div class="stat-title">@Title</div>
+    <div class="stat-value text-xl!">@Text</div>
 </div>
 
 @code

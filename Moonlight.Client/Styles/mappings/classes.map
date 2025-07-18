@@ -33,6 +33,7 @@ advance-select-toggle
 alert
 alert-error
 alert-outline
+alert-primary
 alert-soft
 align-bottom
 align-middle
@@ -312,6 +313,7 @@ loading-xs
 lowercase
 m-10
 mask
+max-h-52
 max-lg:flex-col
 max-lg:hidden
 max-w-7xl
@@ -398,6 +400,7 @@ overlay-open:opacity-100
 p-0.5
 p-1
 p-2
+p-2.5
 p-3
 p-4
 p-5
@@ -413,10 +416,12 @@ progress
 progress-bar
 progress-indeterminate
 progress-primary
+pt-0
 pt-0.5
 pt-3
 px-1.5
 px-2
+px-2.5
 px-3
 px-4
 px-5
@@ -466,6 +471,7 @@ shrink-0
 size-10
 size-4
 size-5
+size-7
 size-8
 skeleton
 skeleton-animated
@@ -508,7 +514,15 @@ space-y-1
 space-y-4
 space-y-6
 sr-only
+stat
+stat-actions
+stat-desc
+stat-figure
+stat-title
+stat-value
 static
+stats
+stats-border
 status
 status-error
 sticky
@@ -565,6 +579,7 @@ text-warning
 text-warning-content
 text-white
 text-xl
+text-xl!
 text-xs
 text-xs/5
 textarea
