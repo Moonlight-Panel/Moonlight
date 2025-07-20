@@ -1,7 +1,14 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Moonlight.Shared.Http.Requests.Admin.Sys;
+using Microsoft.EntityFrameworkCore;
+using MoonCore.Exceptions;
+using MoonCore.Extended.Abstractions;
+using MoonCore.Models;
+using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Mappers;
+using Moonlight.Shared.Http.Requests.Admin.Sys.Theme;
+using Moonlight.Shared.Http.Responses.Admin;
 
 namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 
@@ -9,15 +16,113 @@ namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
 [Route("api/admin/system/theme")]
 public class ThemeController : Controller
 {
-    [HttpPatch]
-    [Authorize(Policy = "permissions:admin.system.theme.update")]
-    public async Task Patch([FromBody] UpdateThemeRequest request)
-    {
-        var themePath = Path.Combine("storage", "theme.json");
+    private readonly DatabaseRepository<Theme> ThemeRepository;
 
-        await System.IO.File.WriteAllTextAsync(
-            themePath,
-            JsonSerializer.Serialize(request.Variables)
-        );
+    public ThemeController(DatabaseRepository<Theme> themeRepository)
+    {
+        ThemeRepository = themeRepository;
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "permissions:admin.system.theme.read")]
+    public async Task<PagedData<ThemeResponse>> Get(
+        [FromQuery] [Range(0, int.MaxValue)] int page,
+        [FromQuery] [Range(1, 100)] int pageSize
+    )
+    {
+        var count = await ThemeRepository.Get().CountAsync();
+        
+        var items = await ThemeRepository
+            .Get()
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToArrayAsync();
+        
+        var mappedItems = items
+            .Select(ThemeMapper.ToResponse)
+            .ToArray();
+        
+        return new PagedData<ThemeResponse>()
+        {
+            CurrentPage = page,
+            Items = mappedItems,
+            PageSize = pageSize,
+            TotalItems = count,
+            TotalPages = count == 0 ? 0 : (count - 1) / pageSize
+        };
+    }
+
+    [HttpGet("{id:int}")]
+    [Authorize(Policy = "permissions:admin.system.theme.read")]
+    public async Task<ThemeResponse> GetSingle([FromRoute] int id)
+    {
+        var theme = await ThemeRepository
+            .Get()
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        if (theme == null)
+            throw new HttpApiException("Theme with this id not found", 404);
+        
+        return ThemeMapper.ToResponse(theme);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "permissions:admin.system.theme.write")]
+    public async Task<ThemeResponse> Create([FromBody] CreateThemeRequest request)
+    {
+        var theme = ThemeMapper.ToTheme(request);
+        
+        var finalTheme = await ThemeRepository.Add(theme);
+        
+        return ThemeMapper.ToResponse(finalTheme);
+    }
+
+    [HttpPatch("{id:int}")]
+    [Authorize(Policy = "permissions:admin.system.theme.write")]
+    public async Task<ThemeResponse> Update([FromRoute] int id, [FromBody] UpdateThemeRequest request)
+    {
+        var theme = await ThemeRepository
+            .Get()
+            .FirstOrDefaultAsync(t => t.Id == id);
+        
+        if (theme == null)
+            throw new HttpApiException("Theme with this id not found", 404);
+
+        // Disable all other enabled themes if we are enabling the current theme.
+        // This ensures only one theme is enabled at the time
+        if (request.IsEnabled)
+        {
+            var otherThemes = await ThemeRepository
+                .Get()
+                .Where(x => x.IsEnabled && x.Id != id)
+                .ToArrayAsync();
+
+            foreach (var otherTheme in otherThemes)
+                otherTheme.IsEnabled = false;
+
+            await ThemeRepository.RunTransaction(set =>
+            {
+                set.UpdateRange(otherThemes);
+            });
+        }
+        
+        ThemeMapper.Merge(theme, request);
+        await ThemeRepository.Update(theme);
+        
+        return ThemeMapper.ToResponse(theme);
+    }
+
+    [HttpPost("{id:int}")]
+    [Authorize(Policy = "permissions:admin.system.theme.write")]
+    public async Task Delete([FromRoute] int id)
+    {
+        var theme = await ThemeRepository
+            .Get()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        
+        if (theme == null)
+            throw new HttpApiException("Theme with this id not found", 404);
+        
+        await ThemeRepository.Remove(theme);
     }
 }

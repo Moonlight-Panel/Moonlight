@@ -1,0 +1,45 @@
+<label for="@Id" class="btn btn-square border-0 ring-0 outline-0" style="background-color: @Value">
+    <i class="text-lg text-base-content @Icon"></i>
+</label>
+<input value="@Value" @oninput="Update" id="@Id" type="color" class="h-0 w-0 opacity-0"/>
+
+@code
+{
+
+    #region
+
+    [Parameter]
+    public string? Value
+    {
+        get => _value;
+        set
+        {
+            if (_value?.Equals(value) ?? false)
+                return;
+
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    private string? _value;
+
+    #endregion
+
+    [Parameter] public string Icon { get; set; } = "icon-paintbrush";
+
+    private string Id;
+
+    protected override void OnInitialized()
+    {
+        Id = $"color-selector-{GetHashCode()}";
+    }
+
+    private async Task Update(ChangeEventArgs args)
+    {
+        Value = args.Value?.ToString() ?? "#FFFFFF";
+        await InvokeAsync(StateHasChanged);
+    }
+}

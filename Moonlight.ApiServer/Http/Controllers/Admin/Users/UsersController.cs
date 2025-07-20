@@ -26,7 +26,7 @@ public class UsersController : Controller
     [HttpGet]
     [Authorize(Policy = "permissions:admin.users.get")]
     public async Task<IPagedData<UserResponse>> Get(
-        [FromQuery] int page,
+        [FromQuery] [Range(0, int.MaxValue)] int page,
         [FromQuery] [Range(1, 100)] int pageSize = 50
     )
     {

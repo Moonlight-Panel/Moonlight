@@ -3,16 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using MoonCore.Extended.SingleDb;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Models;
 
 namespace Moonlight.ApiServer.Database;
 
 public class CoreDataContext : DatabaseContext
 {
     public override string Prefix { get; } = "Core";
-    
+
     public DbSet<User> Users { get; set; }
     public DbSet<ApiKey> ApiKeys { get; set; }
-    
+    public DbSet<Theme> Themes { get; set; }
+
     public CoreDataContext(AppConfiguration configuration)
     {
         Options = new()
@@ -29,5 +31,12 @@ public class CoreDataContext : DatabaseContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.OnHangfireModelCreating();
+
+        modelBuilder.Ignore<ApplicationTheme>();
+        modelBuilder.Entity<Theme>()
+            .OwnsOne(x => x.Content, builder =>
+            {
+                builder.ToJson();
+            });
     }
 }

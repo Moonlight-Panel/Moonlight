@@ -49,4 +49,9 @@
     <None Include="Styles/mappings/*.map" Pack="true" PackagePath="Styles/" />
     <None Include="Moonlight.Client.targets" Pack="true" PackagePath="build/Moonlight.Client.targets" />
   </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="UI\Views\Internal\Mockup.razor" />
+    <UpToDateCheckInput Remove="UI\Partials\Design\ThemeSettings.razor" />
+  </ItemGroup>
 </Project>
