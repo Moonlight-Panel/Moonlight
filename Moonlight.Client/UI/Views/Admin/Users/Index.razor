@@ -27,13 +27,12 @@
         <DataTableColumn TItem="UserResponse">
             <ColumnTemplate>
                 <div class="flex justify-end">
-                    <a href="/admin/users/@(context.Id)" class="text-primary mr-2 sm:mr-3">
-                        <i class="icon-pencil text-base"></i>
+                    <a href="/admin/users/@(context.Id)" class="mr-2 sm:mr-3">
+                        <i class="icon-pencil text-primary"></i>
                     </a>
 
-                    <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault
-                       class="text-error">
-                        <i class="icon-trash  text-base"></i>
+                    <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault>
+                        <i class="icon-trash text-error"></i>
                     </a>
                 </div>
             </ColumnTemplate>

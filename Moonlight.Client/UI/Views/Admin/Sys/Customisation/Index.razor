@@ -1,0 +1,103 @@
+@page "/admin/system/customisation"
+
+@using Microsoft.AspNetCore.Authorization
+@using MoonCore.Blazor.FlyonUi.DataTables
+@using MoonCore.Models
+@using Moonlight.Client.Services
+@using Moonlight.Shared.Http.Responses.Admin
+
+@attribute [Authorize(Policy = "permissions:admin.system.theme")]
+
+@inject ThemeService ThemeService
+@inject AlertService AlertService
+@inject ToastService ToastService
+
+<NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
+
+<div class="mt-5 flex justify-between">
+    <span class="text-lg font-semibold">Themes</span>
+    <div>
+        <label for="import-theme" class="btn btn-info me-1">
+            <i class="icon-file-up"></i>
+            Import
+        </label>
+        <InputFile id="import-theme" class="hidden" />
+        <a href="/admin/system/customisation/themes/create" class="btn btn-primary">Create</a>
+    </div>
+</div>
+
+<div class="mt-2.5">
+    <DataTable TItem="ThemeResponse">
+        <Configuration>
+            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Id)" Name="Id"/>
+            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Name)" Name="Name">
+                <ColumnTemplate>
+                    <div class="flex items-center">
+                        @context.Name
+                        
+                        @if (context.IsEnabled)
+                        {
+                            <i class="icon-check text-success ms-2"></i>
+                        }
+                    </div>
+                </ColumnTemplate>
+            </DataTableColumn>
+            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Author)" Name="Author"/>
+            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Version)" Name="Version"/>
+            <DataTableColumn TItem="ThemeResponse">
+                <ColumnTemplate>
+                    <div class="flex justify-end">
+                        @if (!string.IsNullOrEmpty(context.DonateUrl))
+                        {
+                            <a href="@context.DonateUrl" target="_blank" class="flex items-center mr-2 sm:mr-3">
+                                <i class="text-accent icon-heart me-1"></i>
+                                <span class="text-accent">Donate</span>
+                            </a>
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(context.UpdateUrl))
+                        {
+                            <a href="#" class="flex items-center mr-2 sm:mr-3">
+                                <i class="text-info icon-refresh-cw me-1"></i>
+                                <span class="text-info">Update</span>
+                            </a>
+                        }
+                        
+                        <a href="/admin/system/customisation/themes/@(context.Id)" class="mr-2 sm:mr-3">
+                            <i class="icon-pencil text-primary"></i>
+                        </a>
+
+                        <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault>
+                            <i class="icon-trash text-error"></i>
+                        </a>
+                    </div>
+                </ColumnTemplate>
+            </DataTableColumn>
+            <Pagination TItem="ThemeResponse" PageSize="10" ItemSource="LoadItems"/>
+        </Configuration>
+    </DataTable>
+</div>
+
+
+@code
+{
+    private DataTable<ThemeResponse> Table;
+    
+    private async Task<IPagedData<ThemeResponse>> LoadItems(PaginationOptions options)
+        => await ThemeService.Get(options.Page, options.PerPage);
+
+    private async Task Delete(ThemeResponse response)
+    {
+        await AlertService.ConfirmDanger(
+            "Theme deletion",
+            $"Do you really want to delete the theme: {response.Name}",
+            async () =>
+            {
+                await ThemeService.Delete(response.Id);
+
+                await ToastService.Success("Successfully deleted theme");
+                await Table.Refresh();
+            }
+        );
+    }
+}

@@ -10,21 +10,21 @@ using Moonlight.ApiServer.Mappers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Theme;
 using Moonlight.Shared.Http.Responses.Admin;
 
-namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys;
+namespace Moonlight.ApiServer.Http.Controllers.Admin.Sys.Customisation;
 
 [ApiController]
-[Route("api/admin/system/theme")]
-public class ThemeController : Controller
+[Route("api/admin/system/customisation/themes")]
+public class ThemesController : Controller
 {
     private readonly DatabaseRepository<Theme> ThemeRepository;
 
-    public ThemeController(DatabaseRepository<Theme> themeRepository)
+    public ThemesController(DatabaseRepository<Theme> themeRepository)
     {
         ThemeRepository = themeRepository;
     }
 
     [HttpGet]
-    [Authorize(Policy = "permissions:admin.system.theme.read")]
+    [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
     public async Task<PagedData<ThemeResponse>> Get(
         [FromQuery] [Range(0, int.MaxValue)] int page,
         [FromQuery] [Range(1, 100)] int pageSize
@@ -53,7 +53,7 @@ public class ThemeController : Controller
     }
 
     [HttpGet("{id:int}")]
-    [Authorize(Policy = "permissions:admin.system.theme.read")]
+    [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
     public async Task<ThemeResponse> GetSingle([FromRoute] int id)
     {
         var theme = await ThemeRepository
@@ -67,7 +67,7 @@ public class ThemeController : Controller
     }
 
     [HttpPost]
-    [Authorize(Policy = "permissions:admin.system.theme.write")]
+    [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
     public async Task<ThemeResponse> Create([FromBody] CreateThemeRequest request)
     {
         var theme = ThemeMapper.ToTheme(request);
@@ -78,7 +78,7 @@ public class ThemeController : Controller
     }
 
     [HttpPatch("{id:int}")]
-    [Authorize(Policy = "permissions:admin.system.theme.write")]
+    [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
     public async Task<ThemeResponse> Update([FromRoute] int id, [FromBody] UpdateThemeRequest request)
     {
         var theme = await ThemeRepository
@@ -112,8 +112,8 @@ public class ThemeController : Controller
         return ThemeMapper.ToResponse(theme);
     }
 
-    [HttpPost("{id:int}")]
-    [Authorize(Policy = "permissions:admin.system.theme.write")]
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
     public async Task Delete([FromRoute] int id)
     {
         var theme = await ThemeRepository

@@ -1,0 +1,103 @@
+@page "/admin/system/customisation/themes/{id:int}"
+
+@using Moonlight.Client.Services
+@using Moonlight.Shared.Http.Requests.Admin.Sys.Theme
+@using Moonlight.Shared.Http.Responses.Admin
+@using Moonlight.Client.UI.Components
+
+@inject ThemeService ThemeService
+@inject ToastService ToastService
+@inject NavigationManager Navigation
+
+<LazyLoader Load="Load">
+    <PageHeader Title="@($"Update {Request.Name}")">
+        <a href="/admin/system/customisation" class="btn btn-secondary">
+            <i class="icon-chevron-left"></i>
+            Back
+        </a>
+        <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+            <i class="icon-check"></i>
+            Update
+        </WButton>
+    </PageHeader>    
+    
+    <HandleForm @ref="Form" Model="Request" OnValidSubmit="OnValidSubmit">
+        <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mb-5 mt-5">
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-base-content">Enable</label>
+                <div class="mt-2">
+                    <div class="flex items-center gap-1">
+                        <input @bind="Request.IsEnabled" type="checkbox" class="switch" />
+                    </div>
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-base-content">Name</label>
+                <div class="mt-2">
+                    <input @bind="Request.Name" type="text" autocomplete="off" class="input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-base-content">Author</label>
+                <div class="mt-2">
+                    <input @bind="Request.Author" type="text" autocomplete="off" class="input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-base-content">Version</label>
+                <div class="mt-2">
+                    <input @bind="Request.Version" type="text" autocomplete="off" class="input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-base-content">Donate URL</label>
+                <div class="mt-2">
+                    <input @bind="Request.DonateUrl" type="text" autocomplete="off" class="input w-full">
+                </div>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium leading-6 text-base-content">Update URL</label>
+                <div class="mt-2">
+                    <input @bind="Request.UpdateUrl" type="text" autocomplete="off" class="input w-full">
+                </div>
+            </div>
+        </div>
+    
+        <ThemeEditor Theme="Request.Content"/>
+    </HandleForm>
+</LazyLoader>
+
+@code
+{
+    [Parameter] public int Id { get; set; }
+
+    private ThemeResponse Response;
+    private UpdateThemeRequest Request;
+
+    private HandleForm Form;
+    
+    private async Task Load(LazyLoader _)
+    {
+        Response = await ThemeService.Get(Id);
+
+        Request = new()
+        {
+            Content = Response.Content,
+            Author = Response.Author,
+            Name = Response.Name,
+            Version = Response.Version,
+            DonateUrl = Response.DonateUrl,
+            IsEnabled = Response.IsEnabled,
+            UpdateUrl = Response.UpdateUrl
+        };
+    }
+    
+    private async Task OnValidSubmit()
+    {
+        await ThemeService.Update(Id, Request);
+        
+        await ToastService.Success("Successfully updated theme");
+        Navigation.NavigateTo("/admin/system/customisation");
+    }
+}
+

@@ -1,25 +1,56 @@
 using MoonCore.Attributes;
+using MoonCore.Helpers;
+using MoonCore.Models;
+using Moonlight.Shared.Http.Requests.Admin.Sys.Theme;
+using Moonlight.Shared.Http.Responses.Admin;
 using Moonlight.Shared.Misc;
 
 namespace Moonlight.Client.Services;
 
-[Singleton]
+[Scoped]
 public class ThemeService
 {
-    public event Func<Task> OnRefresh;
-    
-    public Dictionary<string, string> Variables { get; private set; } = new();
-    
-    public ThemeService(FrontendConfiguration configuration)
+    private readonly HttpApiClient ApiClient;
+
+    public ThemeService(HttpApiClient apiClient)
     {
-        // Load theme variables into the cache
-        foreach (var themeVariable in configuration.Theme.Variables)
-            Variables[themeVariable.Key] = themeVariable.Value;
+        ApiClient = apiClient;
     }
 
-    public async Task Refresh()
+    public async Task<PagedData<ThemeResponse>> Get(int page, int pageSize)
     {
-        if (OnRefresh != null)
-            await OnRefresh.Invoke();
+        return await ApiClient.GetJson<PagedData<ThemeResponse>>(
+            $"api/admin/system/customisation/themes?page={page}&pageSize={pageSize}"
+        );
+    }
+
+    public async Task<ThemeResponse> Get(int id)
+    {
+        return await ApiClient.GetJson<ThemeResponse>(
+            $"api/admin/system/customisation/themes/{id}"
+        );
+    }
+
+    public async Task<ThemeResponse> Create(CreateThemeRequest request)
+    {
+        return await ApiClient.PostJson<ThemeResponse>(
+            "api/admin/system/customisation/themes",
+            request
+        );
+    }
+
+    public async Task<ThemeResponse> Update(int id, UpdateThemeRequest request)
+    {
+        return await ApiClient.PatchJson<ThemeResponse>(
+            $"api/admin/system/customisation/themes/{id}",
+            request
+        );
+    }
+
+    public async Task Delete(int id)
+    {
+        await ApiClient.Delete(
+            $"api/admin/system/customisation/themes/{id}"
+        );
     }
 }

@@ -1,0 +1,116 @@
+@page "/admin/system/customisation/themes/create"
+
+@using Moonlight.Client.Services
+@using Moonlight.Shared.Misc
+@using Moonlight.Client.UI.Components
+@using Moonlight.Shared.Http.Requests.Admin.Sys.Theme
+
+@inject ThemeService ThemeService
+@inject ToastService ToastService
+@inject NavigationManager NavigationManager
+
+<PageHeader Title="Create theme">
+    <a href="/admin/system/customisation" class="btn btn-secondary">
+        <i class="icon-chevron-left"></i>
+        Back
+    </a>
+    <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+        <i class="icon-check"></i>
+        Create
+    </WButton>
+</PageHeader>
+
+<HandleForm @ref="Form" Model="Request" OnValidSubmit="OnValidSubmit">
+    <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 mb-5 mt-5">
+        <div class="sm:col-span-2">
+            <label class="block text-sm font-medium leading-6 text-base-content">Name</label>
+            <div class="mt-2">
+                <input @bind="Request.Name" type="text" autocomplete="off" class="input w-full">
+            </div>
+        </div>
+        <div class="sm:col-span-2">
+            <label class="block text-sm font-medium leading-6 text-base-content">Author</label>
+            <div class="mt-2">
+                <input @bind="Request.Author" type="text" autocomplete="off" class="input w-full">
+            </div>
+        </div>
+        <div class="sm:col-span-2">
+            <label class="block text-sm font-medium leading-6 text-base-content">Version</label>
+            <div class="mt-2">
+                <input @bind="Request.Version" type="text" autocomplete="off" class="input w-full">
+            </div>
+        </div>
+    </div>
+    
+    <ThemeEditor Theme="Request.Content"/>
+</HandleForm>
+
+@code
+{
+    private HandleForm Form;
+    private CreateThemeRequest Request = new();
+
+    protected override void OnInitialized()
+    {
+        Request.Content = CreateDefault();
+    }
+    
+    private async Task OnValidSubmit()
+    {
+        await ThemeService.Create(Request);
+        await ToastService.Success("Successfully created theme");
+        
+        NavigationManager.NavigateTo("/admin/system/customisation");
+    }
+    
+    private ApplicationTheme CreateDefault()
+    {
+        return new ApplicationTheme()
+        {
+            ColorBackground = "#0c0f18",
+
+            ColorBase100 = "#1e2b47",
+            ColorBase150 = "#1a2640",
+            ColorBase200 = "#101a2e",
+            ColorBase250 = "#0f1729",
+            ColorBase300 = "#0c1221",
+
+            ColorBaseContent = "#dde5f5",
+
+            ColorPrimary = "#4f39f6",
+            ColorPrimaryContent = "#dde5f5",
+
+            ColorSecondary = "#354052",
+            ColorSecondaryContent = "#dde5f5",
+
+            ColorAccent = "#ad46ff",
+            ColorAccentContent = "#dde5f5",
+
+            ColorNeutral = "#dde5f5",
+            ColorNeutralContent = "#09090b",
+
+            ColorInfo = "#155dfc",
+            ColorInfoContent = "#dde5f5",
+
+            ColorSuccess = "#00a63e",
+            ColorSuccessContent = "#dde5f5",
+
+            ColorWarning = "#ffba00",
+            ColorWarningContent = "#dde5f5",
+
+            ColorError = "#ec003f",
+            ColorErrorContent = "#dde5f5",
+
+            RadiusSelector = 0.25f,
+            RadiusField = 0.5f,
+            RadiusBox = 0.5f,
+
+            SizeSelector = 0.25f,
+            SizeField = 0.25f,
+
+            Border = 1f,
+            Depth = 0f,
+            Noise = 0f
+        };
+    }
+}

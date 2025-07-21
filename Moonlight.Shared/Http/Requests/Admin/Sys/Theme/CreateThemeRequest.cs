@@ -16,6 +16,6 @@ public class CreateThemeRequest
     
     public string? UpdateUrl { get; set; }
     public string? DonateUrl { get; set; }
-    
-    public ApplicationTheme Content { get; set; }
+
+    public ApplicationTheme Content { get; set; } = new();
 }

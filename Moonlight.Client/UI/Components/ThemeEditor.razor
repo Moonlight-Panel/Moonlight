@@ -1,47 +1,39 @@
-@page "/admin/system/theme"
-
-@using Microsoft.AspNetCore.Authorization
-@using Moonlight.Client.UI.Components
 @using Moonlight.Shared.Misc
 
-@attribute [Authorize(Policy = "permissions:admin.system.theme")]
-
-<NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
-
-<div class="mt-5 grid grid-cols-3 gap-3">
+<div class="grid grid-cols-3 gap-3">
     <div class="col-span-1 flex flex-col gap-3">
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBackground"/>
+            <ColorSelector @bind-Value="Theme.ColorBackground"/>
             <span class="ms-1">Background</span>
         </div>
 
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBaseContent"/>
+            <ColorSelector @bind-Value="Theme.ColorBaseContent"/>
             <span class="ms-1">Base Content</span>
         </div>
 
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBase100"/>
+            <ColorSelector @bind-Value="Theme.ColorBase100"/>
             <span class="ms-1">Base 100</span>
         </div>
 
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBase150"/>
+            <ColorSelector @bind-Value="Theme.ColorBase150"/>
             <span class="ms-1">Base 150</span>
         </div>
 
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBase200"/>
+            <ColorSelector @bind-Value="Theme.ColorBase200"/>
             <span class="ms-1">Base 200</span>
         </div>
 
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBase250"/>
+            <ColorSelector @bind-Value="Theme.ColorBase250"/>
             <span class="ms-1">Base 250</span>
         </div>
 
         <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-            <ColorSelector @bind-Value="ThemeData.ColorBase300"/>
+            <ColorSelector @bind-Value="Theme.ColorBase300"/>
             <span class="ms-1">Base 300</span>
         </div>
     </div>
@@ -49,84 +41,84 @@
     <div class="col-span-2 grid grid-cols-2 gap-3">
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorPrimary"/>
+                <ColorSelector @bind-Value="Theme.ColorPrimary"/>
                 <span class="ms-1">Primary</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorPrimaryContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorPrimaryContent"/>
                 <span class="ms-1">Primary Content</span>
             </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorSecondary"/>
+                <ColorSelector @bind-Value="Theme.ColorSecondary"/>
                 <span class="ms-1">Secondary</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorSecondaryContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorSecondaryContent"/>
                 <span class="ms-1">Secondary Content</span>
             </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorAccent"/>
+                <ColorSelector @bind-Value="Theme.ColorAccent"/>
                 <span class="ms-1">Accent</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorAccentContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorAccentContent"/>
                 <span class="ms-1">Accent Content</span>
             </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorInfo"/>
+                <ColorSelector @bind-Value="Theme.ColorInfo"/>
                 <span class="ms-1">Info</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorInfoContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorInfoContent"/>
                 <span class="ms-1">Info Content</span>
             </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorSuccess"/>
+                <ColorSelector @bind-Value="Theme.ColorSuccess"/>
                 <span class="ms-1">Success</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorSuccessContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorSuccessContent"/>
                 <span class="ms-1">Success Content</span>
             </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorWarning"/>
+                <ColorSelector @bind-Value="Theme.ColorWarning"/>
                 <span class="ms-1">Warning</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorWarningContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorWarningContent"/>
                 <span class="ms-1">Warning Content</span>
             </div>
         </div>
 
         <div class="col-span-1 flex flex-col gap-y-3">
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector @bind-Value="ThemeData.ColorError"/>
+                <ColorSelector @bind-Value="Theme.ColorError"/>
                 <span class="ms-1">Error</span>
             </div>
 
             <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
-                <ColorSelector Icon="icon-type" @bind-Value="ThemeData.ColorErrorContent"/>
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorErrorContent"/>
                 <span class="ms-1">Error Content</span>
             </div>
         </div>
@@ -134,64 +126,7 @@
 </div>
 
 
-
 @code
 {
-    private ApplicationTheme ThemeData;
-
-    protected override void OnInitialized()
-    {
-        ThemeData = CreateDefault();
-    }
-
-    private ApplicationTheme CreateDefault()
-    {
-        return new ApplicationTheme()
-        {
-            ColorBackground = "#0c0f18",
-
-            ColorBase100 = "#1e2b47",
-            ColorBase150 = "#1a2640",
-            ColorBase200 = "#101a2e",
-            ColorBase250 = "#0f1729",
-            ColorBase300 = "#0c1221",
-
-            ColorBaseContent = "#dde5f5",
-
-            ColorPrimary = "#4f39f6",
-            ColorPrimaryContent = "#dde5f5",
-
-            ColorSecondary = "#354052",
-            ColorSecondaryContent = "#dde5f5",
-
-            ColorAccent = "#ad46ff",
-            ColorAccentContent = "#dde5f5",
-
-            ColorNeutral = "#dde5f5",
-            ColorNeutralContent = "#09090b",
-
-            ColorInfo = "#155dfc",
-            ColorInfoContent = "#dde5f5",
-
-            ColorSuccess = "#00a63e",
-            ColorSuccessContent = "#dde5f5",
-
-            ColorWarning = "#ffba00",
-            ColorWarningContent = "#dde5f5",
-
-            ColorError = "#ec003f",
-            ColorErrorContent = "#dde5f5",
-
-            RadiusSelector = 0.25f,
-            RadiusField = 0.5f,
-            RadiusBox = 0.5f,
-
-            SizeSelector = 0.25f,
-            SizeField = 0.25f,
-
-            Border = 1f,
-            Depth = 0f,
-            Noise = 0f
-        };
-    }
+    [Parameter] public ApplicationTheme Theme { get; set; }
 }
