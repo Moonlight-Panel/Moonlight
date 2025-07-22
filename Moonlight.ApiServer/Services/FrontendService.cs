@@ -2,11 +2,14 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using MoonCore.Attributes;
 using MoonCore.Exceptions;
+using MoonCore.Extended.Abstractions;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
+using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Http.Controllers.Frontend;
 using Moonlight.ApiServer.Models;
 using Moonlight.Shared.Misc;
@@ -20,18 +23,21 @@ public class FrontendService
     private readonly IWebHostEnvironment WebHostEnvironment;
     private readonly IEnumerable<FrontendConfigurationOption> ConfigurationOptions;
     private readonly IServiceProvider ServiceProvider;
+    private readonly DatabaseRepository<Theme> ThemeRepository;
 
     public FrontendService(
         AppConfiguration configuration,
         IWebHostEnvironment webHostEnvironment,
         IEnumerable<FrontendConfigurationOption> configurationOptions,
-        IServiceProvider serviceProvider
+        IServiceProvider serviceProvider,
+        DatabaseRepository<Theme> themeRepository
     )
     {
         Configuration = configuration;
         WebHostEnvironment = webHostEnvironment;
         ConfigurationOptions = configurationOptions;
         ServiceProvider = serviceProvider;
+        ThemeRepository = themeRepository;
     }
 
     public async Task<FrontendConfiguration> GetConfiguration()
@@ -71,11 +77,16 @@ public class FrontendService
     {
         var configuration = await GetConfiguration();
         
+        var theme = await ThemeRepository
+            .Get()
+            .FirstOrDefaultAsync(x => x.IsEnabled);
+
         return await ComponentHelper.RenderComponent<FrontendPage>(
             ServiceProvider,
             parameters =>
             {
                 parameters["Configuration"] = configuration;
+                parameters["Theme"] = theme!;
             }
         );
     }

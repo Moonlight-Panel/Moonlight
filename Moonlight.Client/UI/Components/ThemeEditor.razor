@@ -1,127 +1,278 @@
 @using Moonlight.Shared.Misc
 
-<div class="grid grid-cols-3 gap-3">
-    <div class="col-span-1 flex flex-col gap-3">
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+    <div class="col-span-1 flex flex-col gap-y-3 card card-body">
+        <div class="text-lg text-base-content mb-2.5 flex items-center">
+            <i class="icon-paint-bucket me-2"></i>
+            <span>Base Colors</span>
+        </div>
+
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBackground"/>
-            <span class="ms-1">Background</span>
+            <span class="ms-2.5">Background</span>
         </div>
 
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBaseContent"/>
-            <span class="ms-1">Base Content</span>
+            <span class="ms-2.5">Base Content</span>
         </div>
 
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBase100"/>
-            <span class="ms-1">Base 100</span>
+            <span class="ms-2.5">Base 100</span>
         </div>
 
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBase150"/>
-            <span class="ms-1">Base 150</span>
+            <span class="ms-2.5">Base 150</span>
         </div>
 
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBase200"/>
-            <span class="ms-1">Base 200</span>
+            <span class="ms-2.5">Base 200</span>
         </div>
 
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBase250"/>
-            <span class="ms-1">Base 250</span>
+            <span class="ms-2.5">Base 250</span>
         </div>
 
-        <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBase300"/>
-            <span class="ms-1">Base 300</span>
+            <span class="ms-2.5">Base 300</span>
         </div>
     </div>
 
-    <div class="col-span-2 grid grid-cols-2 gap-3">
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+    <div class="col-span-1 flex flex-col gap-y-3 card card-body">
+
+        <div class="text-lg text-base-content mb-2.5 flex items-center">
+            <i class="icon-paint-bucket me-2"></i>
+            <span>Colors</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-y-1.5">
+
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorPrimary"/>
-                <span class="ms-1">Primary</span>
+                <span class="ms-2.5">Primary</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorPrimaryContent"/>
-                <span class="ms-1">Primary Content</span>
+                <span class="ms-2.5">Primary Content</span>
             </div>
-        </div>
 
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorSecondary"/>
-                <span class="ms-1">Secondary</span>
+                <span class="ms-2.5">Secondary</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorSecondaryContent"/>
-                <span class="ms-1">Secondary Content</span>
+                <span class="ms-2.5">Secondary Content</span>
             </div>
-        </div>
 
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorAccent"/>
-                <span class="ms-1">Accent</span>
+                <span class="ms-2.5">Accent</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorAccentContent"/>
-                <span class="ms-1">Accent Content</span>
+                <span class="ms-2.5">Accent Content</span>
             </div>
-        </div>
 
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorInfo"/>
-                <span class="ms-1">Info</span>
+                <span class="ms-2.5">Info</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorInfoContent"/>
-                <span class="ms-1">Info Content</span>
+                <span class="ms-2.5">Info Content</span>
             </div>
-        </div>
 
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorSuccess"/>
-                <span class="ms-1">Success</span>
+                <span class="ms-2.5">Success</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorSuccessContent"/>
-                <span class="ms-1">Success Content</span>
+                <span class="ms-2.5">Success Content</span>
             </div>
-        </div>
 
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorWarning"/>
-                <span class="ms-1">Warning</span>
+                <span class="ms-2.5">Warning</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorWarningContent"/>
-                <span class="ms-1">Warning Content</span>
+                <span class="ms-2.5">Warning Content</span>
             </div>
-        </div>
 
-        <div class="col-span-1 flex flex-col gap-y-3">
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector @bind-Value="Theme.ColorError"/>
-                <span class="ms-1">Error</span>
+                <span class="ms-2.5">Error</span>
             </div>
-
-            <div class="card card-body flex-row grow-0 items-center p-1.5 text-base-content">
+            <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorErrorContent"/>
-                <span class="ms-1">Error Content</span>
+                <span class="ms-2.5">Error Content</span>
             </div>
         </div>
+    </div>
+
+    <div class="col-span-1 flex flex-col gap-3 card card-body">
+
+        <div class="text-lg text-base-content mb-2.5 flex items-center">
+            <i class="icon-square-round-corner me-2"></i>
+            <span>Radius</span>
+        </div>
+
+        <div>
+            <div class="mb-1 text-base-content">Boxes</div>
+            <div class="flex w-full items-start gap-3 flex-wrap sm:flex-nowrap">
+
+                @foreach (var possibleValue in RadiusValues)
+                {
+                    <label class="custom-option flex sm:w-1/2 flex-row items-start gap-3 p-2">
+                        @if (Math.Abs(Theme.RadiusBox - possibleValue) == 0)
+                        {
+                            <input type="radio" name="radius-box" class="radio hidden" checked="checked"/>
+                        }
+                        else
+                        {
+                            <input @onclick="_ => UpdateRadiusBox(possibleValue)" type="radio" name="radius-box" class="radio hidden"/>
+                        }
+                        <span class="label-text w-full">
+                            <div class="pe-1.5 pt-1.5" aria-hidden="true">
+                                <div class="bg-base-200 h-6 w-8 border-e-2 border-t-2 border-base-content/60"
+                                     style="border-start-end-radius: @(possibleValue)rem">
+                                </div>
+                            </div>
+                        </span>
+                    </label>
+                }
+            </div>
+        </div>
+        
+        <div>
+            <div class="mb-1 text-base-content">Fields</div>
+            <div class="flex w-full items-start gap-3 flex-wrap sm:flex-nowrap">
+
+                @foreach (var possibleValue in RadiusValues)
+                {
+                    <label class="custom-option flex sm:w-1/2 flex-row items-start gap-3 p-2">
+                        @if (Math.Abs(Theme.RadiusField - possibleValue) == 0)
+                        {
+                            <input type="radio" name="radius-field" class="radio hidden" checked="checked"/>
+                        }
+                        else
+                        {
+                            <input @onclick="_ => UpdateRadiusField(possibleValue)" type="radio" name="radius-field" class="radio hidden"/>
+                        }
+                        <span class="label-text w-full">
+                            <div class="pe-1.5 pt-1.5" aria-hidden="true">
+                                <div class="bg-base-200 h-6 w-8 border-e-2 border-t-2 border-base-content/60"
+                                     style="border-start-end-radius: @(possibleValue)rem">
+                                </div>
+                            </div>
+                        </span>
+                    </label>
+                }
+            </div>
+        </div>
+        
+        <div>
+            <div class="mb-1 text-base-content">Selectors</div>
+            <div class="flex w-full items-start gap-3 flex-wrap sm:flex-nowrap">
+
+                @foreach (var possibleValue in RadiusValues)
+                {
+                    <label class="custom-option flex sm:w-1/2 flex-row items-start gap-3 p-2">
+                        @if (Math.Abs(Theme.RadiusSelector - possibleValue) == 0)
+                        {
+                            <input type="radio" name="radius-selector" class="radio hidden" checked="checked"/>
+                        }
+                        else
+                        {
+                            <input @onclick="_ => UpdateRadiusSelector(possibleValue)" type="radio" name="radius-selector" class="radio hidden"/>
+                        }
+                        <span class="label-text w-full">
+                            <div class="pe-1.5 pt-1.5" aria-hidden="true">
+                                <div class="bg-base-200 h-6 w-8 border-e-2 border-t-2 border-base-content/60"
+                                     style="border-start-end-radius: @(possibleValue)rem">
+                                </div>
+                            </div>
+                        </span>
+                    </label>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-span-1 flex flex-col gap-3 card card-body">
+        
+        <div class="text-lg text-base-content mb-2.5 flex items-center">
+            <i class="icon-star me-2"></i>
+            <span>Effects</span>
+        </div>
+        
+        <div class="flex items-center gap-1">
+            <input @bind="InputDepth" type="checkbox" class="switch" id="depthEffect" />
+            <label class="label-text text-base" for="depthEffect">
+                Depth Effect
+            </label>
+        </div>
+        
+        <div class="flex items-center gap-1">
+            <input @bind="InputNoise" type="checkbox" class="switch" id="noiseEffect" />
+            <label class="label-text text-base" for="noiseEffect">
+                Noise Effect
+            </label>
+        </div>
+    </div>
+    
+    <div class="col-span-1 flex flex-col gap-3 card card-body">
+        
+        <div class="text-lg text-base-content mb-2.5 flex items-center">
+            <i class="icon-ruler me-2"></i>
+            <span>Sizes</span>
+        </div>
+        
+        <div>
+            <div class="mb-1 text-base-content">Fields</div>
+            <input @bind="Theme.SizeField" type="range" min="3" max="5" class="range" step="0.5" aria-label="range"/>
+
+            <div class="w-full flex justify-between text-xs px-2">
+                <span>3</span>
+                <span>3.5</span>
+                <span>4</span>
+                <span>4.5</span>
+                <span>5</span>
+            </div>
+        </div>
+        
+        <div>
+            <div class="mb-1 text-base-content">Selector</div>
+            <input @bind="Theme.SizeSelector" type="range" min="3" max="5" class="range" step="0.5" aria-label="range"/>
+
+            <div class="w-full flex justify-between text-xs px-2">
+                <span>3</span>
+                <span>3.5</span>
+                <span>4</span>
+                <span>4.5</span>
+                <span>5</span>
+            </div>
+        </div>
+        
+        <div>
+            <div class="mb-1 text-base-content">Border Width</div>
+            <input @bind="Theme.Border" type="range" min="0.5" max="2" class="range" step="0.5" aria-label="range"/>
+
+            <div class="w-full flex justify-between text-xs px-2">
+                <span>0.5</span>
+                <span>1</span>
+                <span>1.5</span>
+                <span>2</span>
+            </div>
+        </div>
+        
     </div>
 </div>
 
@@ -129,4 +280,43 @@
 @code
 {
     [Parameter] public ApplicationTheme Theme { get; set; }
+
+    private float[] RadiusValues =
+    [
+        0,
+        0.25f,
+        0.5f,
+        1f,
+        2f
+    ];
+
+    private bool InputDepth
+    {
+        get => Theme.Depth != 0;
+        set => Theme.Depth = value ? 1 : 0;
+    }
+    
+    private bool InputNoise
+    {
+        get => Theme.Noise != 0;
+        set => Theme.Noise = value ? 1 : 0;
+    }
+
+    private async Task UpdateRadiusBox(float value)
+    {
+        Theme.RadiusBox = value;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task UpdateRadiusField(float value)
+    {
+        Theme.RadiusField = value;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task UpdateRadiusSelector(float value)
+    {
+        Theme.RadiusSelector = value;
+        await InvokeAsync(StateHasChanged);
+    }
 }

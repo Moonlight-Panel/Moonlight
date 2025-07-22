@@ -224,9 +224,11 @@ grid
 grid-cols-1
 grid-cols-12
 grid-cols-2
+grid-cols-3
 grid-flow-col
 grow
 grow-0
+h-0
 h-12
 h-14
 h-2
@@ -399,6 +401,7 @@ overlay-open:duration-50
 overlay-open:opacity-100
 p-0.5
 p-1
+p-1.5
 p-2
 p-2.5
 p-3

@@ -44,6 +44,6 @@ public class ApplicationTheme
     public float SizeField { get; set; }
 
     public float Border { get; set; }
-    public float Depth { get; set; }
-    public float Noise { get; set; }
+    public int Depth { get; set; }
+    public int Noise { get; set; }
 }

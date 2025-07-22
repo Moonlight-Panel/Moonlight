@@ -1,21 +1,73 @@
+@using Moonlight.ApiServer.Database.Entities
 @using Moonlight.Shared.Misc
+
 <!DOCTYPE html>
 <html lang="en" class="bg-background text-base-content font-inter">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@Configuration.Title</title>
-    <base href="/" />
-    
+    <base href="/"/>
+
     @foreach (var style in Configuration.Styles)
     {
-        <link rel="stylesheet" href="@style" />
+        <link rel="stylesheet" href="@style"/>
     }
-    
-    <link href="manifest.webmanifest" rel="manifest" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/_content/Moonlight.Client/img/icon-512.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/_content/Moonlight.Client/img/icon-192.png" />
+
+    <link href="manifest.webmanifest" rel="manifest"/>
+    <link rel="apple-touch-icon" sizes="512x512" href="/_content/Moonlight.Client/img/icon-512.png"/>
+    <link rel="apple-touch-icon" sizes="192x192" href="/_content/Moonlight.Client/img/icon-192.png"/>
+
+    @if (Theme != null)
+    {
+        <style>
+            :root {
+                --mooncore-color-background: @(Theme.Content.ColorBackground);
+                --mooncore-color-base-100: @(Theme.Content.ColorBase100);
+                --mooncore-color-base-150: @(Theme.Content.ColorBase150);
+                --mooncore-color-base-200: @(Theme.Content.ColorBase200);
+                --mooncore-color-base-250: @(Theme.Content.ColorBase250);
+                --mooncore-color-base-300: @(Theme.Content.ColorBase300);
+                --mooncore-color-base-content: @(Theme.Content.ColorBaseContent);
+
+                --mooncore-color-primary: @(Theme.Content.ColorPrimary);
+                --mooncore-color-primary-content: @(Theme.Content.ColorPrimaryContent);
+
+                --mooncore-color-secondary: @(Theme.Content.ColorSecondary);
+                --mooncore-color-secondary-content: @(Theme.Content.ColorSecondaryContent);
+
+                --mooncore-color-accent: @(Theme.Content.ColorAccent);
+                --mooncore-color-accent-content: @(Theme.Content.ColorAccentContent);
+
+                --mooncore-color-neutral: @(Theme.Content.ColorNeutral);
+                --mooncore-color-neutral-content: @(Theme.Content.ColorNeutralContent);
+
+                --mooncore-color-info: @(Theme.Content.ColorInfo);
+                --mooncore-color-info-content: @(Theme.Content.ColorInfoContent);
+
+                --mooncore-color-success: @(Theme.Content.ColorSuccess);
+                --mooncore-color-success-content: @(Theme.Content.ColorSuccessContent);
+
+                --mooncore-color-warning: @(Theme.Content.ColorWarning);
+                --mooncore-color-warning-content: @(Theme.Content.ColorWarningContent);
+
+                --mooncore-color-error: @(Theme.Content.ColorError);
+                --mooncore-color-error-content: @(Theme.Content.ColorErrorContent);
+
+                --mooncore-radius-selector: @(Theme.Content.RadiusSelector)rem;
+                --mooncore-radius-field: @(Theme.Content.RadiusField)rem;
+                --mooncore-radius-box: @(Theme.Content.RadiusBox)rem;
+
+                --mooncore-size-selector: @(Theme.Content.SizeSelector)rem;
+                --mooncore-size-field: @(Theme.Content.SizeField)rem;
+
+                --mooncore-border: @(Theme.Content.Border)px;
+                --mooncore-depth: @(Theme.Content.Depth);
+                --mooncore-noise: @(Theme.Content.Noise);
+            }
+        </style>
+    }
 </head>
 
 <body>
@@ -31,7 +83,7 @@
             </div>
         </div>
     </div>
-        
+
 </div>
 
 @foreach (var script in Configuration.Scripts)
@@ -48,4 +100,5 @@
 @code
 {
     [Parameter] public FrontendConfiguration Configuration { get; set; }
+    [Parameter] public Theme? Theme { get; set; }
 }
