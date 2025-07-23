@@ -24,7 +24,7 @@
     <PackageReference Include="Blazor-ApexCharts" Version="6.0.0" />
     <PackageReference Include="MoonCore" Version="1.9.2" />
     <PackageReference Include="MoonCore.Blazor" Version="1.3.1" />
-    <PackageReference Include="MoonCore.Blazor.FlyonUi" Version="1.0.8" />
+    <PackageReference Include="MoonCore.Blazor.FlyonUi" Version="1.0.9" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="storage\**\*" />
@@ -48,10 +48,5 @@
   <ItemGroup>
     <None Include="Styles/mappings/*.map" Pack="true" PackagePath="Styles/" />
     <None Include="Moonlight.Client.targets" Pack="true" PackagePath="build/Moonlight.Client.targets" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="UI\Views\Internal\Mockup.razor" />
-    <UpToDateCheckInput Remove="UI\Partials\Design\ThemeSettings.razor" />
   </ItemGroup>
 </Project>

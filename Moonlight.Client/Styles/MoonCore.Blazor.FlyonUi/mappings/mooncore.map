@@ -81,6 +81,7 @@ border-2
 border-b
 border-base-content
 border-base-content/20
+border-base-content/25
 border-base-content/40
 border-base-content/5
 border-dashed
@@ -295,6 +296,7 @@ md:text-3xl
 me-1
 me-1.5
 me-2
+me-2.5
 me-5
 menu
 menu-active

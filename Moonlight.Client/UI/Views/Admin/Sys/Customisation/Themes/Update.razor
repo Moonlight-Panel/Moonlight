@@ -28,6 +28,7 @@
                 <div class="mt-2">
                     <div class="flex items-center gap-1">
                         <input @bind="Request.IsEnabled" type="checkbox" class="switch" />
+                        <span class="helper-text">Toggle on in order to enable the theme globally (a reload is required to apply)</span>
                     </div>
                 </div>
             </div>
@@ -47,18 +48,21 @@
                 <label class="block text-sm font-medium leading-6 text-base-content">Version</label>
                 <div class="mt-2">
                     <input @bind="Request.Version" type="text" autocomplete="off" class="input w-full">
+                    <span class="helper-text">This field will be used for update checks</span>
                 </div>
             </div>
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium leading-6 text-base-content">Donate URL</label>
                 <div class="mt-2">
                     <input @bind="Request.DonateUrl" type="text" autocomplete="off" class="input w-full">
+                    <span class="helper-text">Optional: Specify a url here which people should get redirected for donating to the author</span>
                 </div>
             </div>
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium leading-6 text-base-content">Update URL</label>
                 <div class="mt-2">
                     <input @bind="Request.UpdateUrl" type="text" autocomplete="off" class="input w-full">
+                    <span class="helper-text">Optional: Specify a url here which returns the latest version of this theme as the raw exported file</span>
                 </div>
             </div>
         </div>

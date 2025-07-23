@@ -14,8 +14,11 @@
 
 <NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 
-<div class="mt-5 flex justify-between">
-    <span class="text-lg font-semibold">Themes</span>
+<PageSeparator Icon="icon-palette">
+    Themes
+</PageSeparator>
+
+<div class="mt-5 flex justify-end">
     <div>
         <label for="import-theme" class="btn btn-info me-1">
             <i class="icon-file-up"></i>
@@ -26,7 +29,7 @@
     </div>
 </div>
 
-<div class="mt-2.5">
+<div class="my-2.5">
     <DataTable TItem="ThemeResponse">
         <Configuration>
             <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Id)" Name="Id"/>
@@ -77,6 +80,10 @@
         </Configuration>
     </DataTable>
 </div>
+
+<PageSeparator Icon="icon-images">
+    Images & Logos
+</PageSeparator>
 
 
 @code
