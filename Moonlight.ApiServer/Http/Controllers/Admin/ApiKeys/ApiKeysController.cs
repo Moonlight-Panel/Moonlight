@@ -28,8 +28,8 @@ public class ApiKeysController : Controller
     [HttpGet]
     [Authorize(Policy = "permissions:admin.apikeys.get")]
     public async Task<IPagedData<ApiKeyResponse>> Get(
-        [FromQuery] int page,
-        [FromQuery] [Range(1, 100)] int pageSize = 50
+        [FromQuery] [Range(0, int.MaxValue)] int page,
+        [FromQuery] [Range(1, 100)] int pageSize
     )
     {
         var count = await ApiKeyRepository.Get().CountAsync();

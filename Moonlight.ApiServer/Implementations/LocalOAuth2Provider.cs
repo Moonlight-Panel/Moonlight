@@ -27,7 +27,27 @@ public class LocalOAuth2Provider : IOAuth2Provider
         Logger = logger;
     }
 
-    public async Task<User?> Sync(string code)
+    public Task<string> Start()
+    {
+        var redirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
+            ? Configuration.PublicUrl
+            : Configuration.Authentication.OAuth2.AuthorizationRedirect;
+
+        var endpoint = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationEndpoint)
+            ? Configuration.PublicUrl + "/oauth2/authorize"
+            : Configuration.Authentication.OAuth2.AuthorizationEndpoint;
+
+        var clientId = Configuration.Authentication.OAuth2.ClientId;
+        
+        var url = $"{endpoint}" +
+                  $"?client_id={clientId}" +
+                  $"&redirect_uri={redirectUri}" +
+                  $"&response_type=code";
+
+        return Task.FromResult(url);
+    }
+
+    public async Task<User?> Complete(string code)
     {
         // Create http client to call the auth provider
         var httpClient = new HttpClient();
@@ -70,6 +90,10 @@ public class LocalOAuth2Provider : IOAuth2Provider
             throw new HttpApiException("Unable to request user data", 500);
         }
 
+        // Notice: We just look up the user id here
+        // which works as our oauth2 provider is using the same db.
+        // a real oauth2 provider would create a user here
+        
         // Handle the returned data
         var userId = handleData.UserId;
 

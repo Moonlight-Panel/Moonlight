@@ -83,12 +83,7 @@ public class RemoteAuthStateManager : AuthenticationStateManager
     {
         var loginStartData = await HttpApiClient.GetJson<LoginStartResponse>("api/auth/start");
 
-        var url = $"{loginStartData.Endpoint}" +
-                  $"?client_id={loginStartData.ClientId}" +
-                  $"&redirect_uri={loginStartData.RedirectUri}" +
-                  $"&response_type=code";
-
-        NavigationManager.NavigateTo(url, true);
+        NavigationManager.NavigateTo(loginStartData.Url, true);
     }
 
     private async Task<AuthenticationState> LoadAuthState()
