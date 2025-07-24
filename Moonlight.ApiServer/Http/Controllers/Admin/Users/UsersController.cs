@@ -27,7 +27,7 @@ public class UsersController : Controller
     [Authorize(Policy = "permissions:admin.users.get")]
     public async Task<IPagedData<UserResponse>> Get(
         [FromQuery] [Range(0, int.MaxValue)] int page,
-        [FromQuery] [Range(1, 100)] int pageSize = 50
+        [FromQuery] [Range(1, 100)] int pageSize
     )
     {
         var count = await UserRepository.Get().CountAsync();

@@ -7,10 +7,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@Configuration.Title</title>
+    <title>@Title</title>
     <base href="/"/>
 
-    @foreach (var style in Configuration.Styles)
+    @foreach (var style in Styles)
     {
         <link rel="stylesheet" href="@style"/>
     }
@@ -86,7 +86,7 @@
 
 </div>
 
-@foreach (var script in Configuration.Scripts)
+@foreach (var script in Scripts)
 {
     <script src="@script"></script>
 }
@@ -99,6 +99,8 @@
 
 @code
 {
-    [Parameter] public FrontendConfiguration Configuration { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string[] Scripts { get; set; }
+    [Parameter] public string[] Styles { get; set; }
     [Parameter] public Theme? Theme { get; set; }
 }

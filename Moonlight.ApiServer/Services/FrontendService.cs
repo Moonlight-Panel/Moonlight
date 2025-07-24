@@ -40,53 +40,44 @@ public class FrontendService
         ThemeRepository = themeRepository;
     }
 
-    public async Task<FrontendConfiguration> GetConfiguration()
+    public Task<FrontendConfiguration> GetConfiguration()
     {
         var configuration = new FrontendConfiguration()
         {
-            Title = "Moonlight", // TODO: CONFIG
             ApiUrl = Configuration.PublicUrl,
             HostEnvironment = "ApiServer"
         };
 
-        // Load theme.json if it exists
-        var themePath = Path.Combine("storage", "theme.json");
-
-        if (File.Exists(themePath))
-        {
-            var variablesJson = await File.ReadAllTextAsync(themePath);
-
-            configuration.Theme.Variables = JsonSerializer
-                .Deserialize<Dictionary<string, string>>(variablesJson) ?? new();
-        }
-
-        // Collect scripts to execute
-        configuration.Scripts = ConfigurationOptions
-            .SelectMany(x => x.Scripts)
-            .ToArray();
-
-        // Collect styles
-        configuration.Styles = ConfigurationOptions
-            .SelectMany(x => x.Styles)
-            .ToArray();
-
-        return configuration;
+        return Task.FromResult(configuration);
     }
 
     public async Task<string> GenerateIndexHtml() // TODO: Cache
     {
-        var configuration = await GetConfiguration();
-        
+        // Load requested theme
         var theme = await ThemeRepository
             .Get()
             .FirstOrDefaultAsync(x => x.IsEnabled);
+        
+        // Load configured javascript files
+        var scripts = ConfigurationOptions
+            .SelectMany(x => x.Scripts)
+            .Distinct()
+            .ToArray();
+
+        // Load configured css files
+        var styles = ConfigurationOptions
+            .SelectMany(x => x.Styles)
+            .Distinct()
+            .ToArray();
 
         return await ComponentHelper.RenderComponent<FrontendPage>(
             ServiceProvider,
             parameters =>
             {
-                parameters["Configuration"] = configuration;
                 parameters["Theme"] = theme!;
+                parameters["Styles"] = styles;
+                parameters["Scripts"] = scripts;
+                parameters["Title"] = "Moonlight"; // TODO: Config
             }
         );
     }

@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
@@ -20,16 +20,11 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 public class AuthController : Controller
 {
     private readonly AppConfiguration Configuration;
-    private readonly ILogger<AuthController> Logger;
     private readonly DatabaseRepository<User> UserRepository;
     private readonly IOAuth2Provider OAuth2Provider;
 
-    private readonly string RedirectUri;
-    private readonly string EndpointUri;
-
     public AuthController(
         AppConfiguration configuration,
-        ILogger<AuthController> logger,
         DatabaseRepository<User> userRepository,
         IOAuth2Provider oAuth2Provider
     )
@@ -37,36 +32,25 @@ public class AuthController : Controller
         UserRepository = userRepository;
         OAuth2Provider = oAuth2Provider;
         Configuration = configuration;
-        Logger = logger;
-
-        RedirectUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationRedirect)
-            ? Configuration.PublicUrl
-            : Configuration.Authentication.OAuth2.AuthorizationRedirect;
-
-        EndpointUri = string.IsNullOrEmpty(Configuration.Authentication.OAuth2.AuthorizationEndpoint)
-            ? Configuration.PublicUrl + "/oauth2/authorize"
-            : Configuration.Authentication.OAuth2.AuthorizationEndpoint;
     }
 
     [AllowAnonymous]
     [HttpGet("start")]
-    public Task<LoginStartResponse> Start()
+    public async Task<LoginStartResponse> Start()
     {
-        var response = new LoginStartResponse()
-        {
-            ClientId = Configuration.Authentication.OAuth2.ClientId,
-            RedirectUri = RedirectUri,
-            Endpoint = EndpointUri
-        };
+        var url = await OAuth2Provider.Start();
 
-        return Task.FromResult(response);
+        return new LoginStartResponse()
+        {
+            Url = url
+        };
     }
 
     [AllowAnonymous]
     [HttpPost("complete")]
     public async Task<LoginCompleteResponse> Complete([FromBody] LoginCompleteRequest request)
     {
-        var user = await OAuth2Provider.Sync(request.Code);
+        var user = await OAuth2Provider.Complete(request.Code);
 
         if (user == null)
             throw new HttpApiException("Unable to load user data", 500);
@@ -113,8 +97,8 @@ public class AuthController : Controller
     [HttpGet("check")]
     public async Task<CheckResponse> Check()
     {
-        var userIdClaim = User.Claims.First(x => x.Type == "userId");
-        var userId = int.Parse(userIdClaim.Value);
+        var userIdStr = User.FindFirstValue("userId")!;
+        var userId = int.Parse(userIdStr);
         var user = await UserRepository.Get().FirstAsync(x => x.Id == userId);
 
         return new()

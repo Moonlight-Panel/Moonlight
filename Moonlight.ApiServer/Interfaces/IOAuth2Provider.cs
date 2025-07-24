@@ -4,5 +4,7 @@ namespace Moonlight.ApiServer.Interfaces;
 
 public interface IOAuth2Provider
 {
-    public Task<User?> Sync(string code);
+    public Task<string> Start();
+    
+    public Task<User?> Complete(string code);
 }
