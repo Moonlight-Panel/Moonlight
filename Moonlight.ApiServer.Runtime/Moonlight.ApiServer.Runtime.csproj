@@ -17,5 +17,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7" />
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.8" />
     </ItemGroup>
+    
+    <Import Project="Plugins.props" />
 
 </Project>

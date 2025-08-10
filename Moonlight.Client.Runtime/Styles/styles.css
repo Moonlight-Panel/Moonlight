@@ -24,7 +24,7 @@
 @source "../**/*.razor";
 @source "../**/*.cs";
 @source "../**/*.html";
-@source "./mappings/*.map";
+@source "**/*.map";
 
 @source "../../Moonlight.Client/**/*.cs";
 @source "../../Moonlight.Client/**/*.html";

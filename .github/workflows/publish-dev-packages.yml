@@ -6,51 +6,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-scripts:
+  publish:
     runs-on: debian-12
-
+    strategy:
+      matrix:
+        project:
+          - Moonlight.Client
+          - Moonlight.ApiServer
+          - Moonlight.Shared
+    
     steps:
+      # Step 1: Clean environment
       - name: Clean up Environment
         run: |
           rm -rf ./*
           rm -rf ./.??*
-
-      - uses: actions/checkout@v3
-
-      - name: Pack cli Scrips
-        run: dotnet pack Resources/Scripts/Scripts.csproj -c Debug -o ./packs
-
-      - name: Publish to github Pkg
-        run: dotnet nuget push "./packs/*.nupkg" --skip-duplicate --api-key ${{secrets.GH_PACKAGES_READWRITE}} --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
-
-  build-moonlight:
-    runs-on: debian-12
-    needs: build-scripts
-
-    steps:
-      - name: Clean up Environment
-        run: |
-          rm -rf ./*
-          rm -rf ./.??*
-
-      - name: Remove nuget source
-        continue-on-error: true
-        run: dotnet nuget remove source moonlight-github
-
-      - uses: actions/checkout@v3
-
-      - name: Build and Pack Moonlight
-        run: |
-          mkdir ./packs
-          dotnet restore
-          dotnet build
-          dotnet pack -o ./packs -c Debug Moonlight.ApiServer
-          dotnet pack -o ./packs -c Debug Moonlight.Client
-          dotnet pack -o ./packs -c Debug Moonlight.Shared
-
-      - name: Publish to Github
-        run: dotnet nuget push "./packs/*.nupkg" --skip-duplicate --api-key ${{secrets.GH_PACKAGES_READWRITE}} --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
-
-      - name: Remove nuget source
-        continue-on-error: true
-        run: dotnet nuget remove source moonlight-github
+      
+      # Step 2: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Step 3: Run the publishing action
+      - name: Publish on version change
+        uses: alirezanet/publish-nuget@v3.1.0
+        with:
+          PROJECT_FILE_PATH: ${{ matrix.project }}/${{ matrix.project }}.csproj
+          TAG_COMMIT: false
+          NUGET_KEY: ${{secrets.GH_PACKAGES_READWRITE}}
+          NUGET_SOURCE: https://nuget.pkg.github.com/Moonlight-Panel/index.json
