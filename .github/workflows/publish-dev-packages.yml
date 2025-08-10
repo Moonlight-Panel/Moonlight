@@ -25,12 +25,15 @@ jobs:
       # Step 2: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
+       
+      # Step 3: Build project
+      - name: "Build project"
+        run: dotnet build --configuration Debug ${{ matrix.project }}/${{ matrix.project }}.csproj
       
-      # Step 3: Run the publishing action
-      - name: Publish on version change
-        uses: alirezanet/publish-nuget@v3.1.0
-        with:
-          PROJECT_FILE_PATH: ${{ matrix.project }}/${{ matrix.project }}.csproj
-          TAG_COMMIT: false
-          NUGET_KEY: ${{secrets.GH_PACKAGES_READWRITE}}
-          NUGET_SOURCE: https://nuget.pkg.github.com/Moonlight-Panel/index.json
+      # Step 4: Pack project
+      - name: "Pack project"
+        run: dotnet pack --configuration Debug --no-build --output . ${{ matrix.project }}/${{ matrix.project }}.csproj
+      
+      # Step 5: Publish on package registry
+      - name: Publish on package registry"
+        run: dotnet nuget push "*.nupkg" --skip-duplicate --api-key ${{secrets.GH_PACKAGES_READWRITE}} --source https://nuget.pkg.github.com/Moonlight-Panel/index.json
