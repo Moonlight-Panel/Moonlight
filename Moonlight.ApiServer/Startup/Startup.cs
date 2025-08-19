@@ -45,7 +45,7 @@ public partial class Startup
         await RegisterDatabase();
         await RegisterAuth();
         await RegisterCors();
-        await RegisterHangfire();
+        await RegisterTickerQ();
         await HookPluginBuild();
     }
 
@@ -58,7 +58,7 @@ public partial class Startup
         await UseCors();
         await UseBase();
         await UseAuth();
-        await UseHangfire();
+        await UseTickerQ();
         await HookPluginConfigure();
 
         await MapBase();

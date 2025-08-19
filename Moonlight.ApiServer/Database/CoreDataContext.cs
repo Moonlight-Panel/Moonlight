@@ -1,5 +1,4 @@
-﻿using Hangfire.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoonCore.Extended.SingleDb;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
@@ -30,7 +29,6 @@ public class CoreDataContext : DatabaseContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.OnHangfireModelCreating();
 
         modelBuilder.Ignore<ApplicationTheme>();
         modelBuilder.Entity<Theme>()
