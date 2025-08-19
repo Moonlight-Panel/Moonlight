@@ -6,6 +6,7 @@ using MoonCore.Extended.JwtInvalidation;
 using MoonCore.Permissions;
 using Moonlight.ApiServer.Implementations;
 using Moonlight.ApiServer.Interfaces;
+using Moonlight.ApiServer.Services;
 
 namespace Moonlight.ApiServer.Startup;
 
@@ -46,6 +47,8 @@ public partial class Startup
         // Add local oauth2 provider if enabled
         if (Configuration.Authentication.EnableLocalOAuth2)
             WebApplicationBuilder.Services.AddScoped<IOAuth2Provider, LocalOAuth2Provider>();
+
+        WebApplicationBuilder.Services.AddScoped<UserDeletionService>();
 
         return Task.CompletedTask;
     }

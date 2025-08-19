@@ -2,11 +2,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Admin.Users;
 using Moonlight.Shared.Http.Responses.Admin.Users;
 
@@ -166,7 +168,7 @@ public class UsersController : Controller
 
     [HttpDelete("{id}")]
     [Authorize(Policy = "permissions:admin.users.delete")]
-    public async Task Delete([FromRoute] int id)
+    public async Task Delete([FromRoute] int id, [FromQuery] bool force = false)
     {
         var user = await UserRepository
             .Get()
@@ -175,6 +177,16 @@ public class UsersController : Controller
         if (user == null)
             throw new HttpApiException("No user with that id found", 404);
 
-        await UserRepository.Remove(user);
+        var deletionService = HttpContext.RequestServices.GetRequiredService<UserDeletionService>();
+
+        if (!force)
+        {
+            var validationResult = await deletionService.Validate(user);
+
+            if (!validationResult.IsAllowed)
+                throw new HttpApiException($"Unable to delete user", 400, validationResult.Reason);
+        }
+
+        await deletionService.Delete(user, force);
     }
 }
