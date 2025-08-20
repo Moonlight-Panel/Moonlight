@@ -1,0 +1,87 @@
+@using MoonCore.Helpers
+@using Moonlight.Shared.Http.Responses.Auth
+
+@inject HttpApiClient ApiClient
+@inject NavigationManager Navigation
+
+<div class="flex h-screen justify-center items-center">
+    <div class="sm:max-w-lg">
+        <div class="w-full card card-body text-center">
+            <LazyLoader EnableDefaultSpacing="false" Load="Load">
+                @if (ShowSelection)
+                {
+                    <h5 class="card-title mb-2.5">Login to MoonCore</h5>
+                
+                    <p class="mb-4">Choose a login provider to start using the app</p>
+                
+                    <div class="flex flex-col w-full mt-5 gap-y-2.5">
+                        @foreach (var scheme in AuthSchemes)
+                        {
+                            var config = Configs.GetValueOrDefault(scheme.Identifier);
+
+                            if (config == null) // Ignore all schemes which have no ui configured
+                                continue;
+
+                            <button @onclick="() => Start(scheme)" class="btn btn-text w-full" style="background-color: @(config.Color)">
+                                <img src="@config.IconUrl"
+                                     alt="scheme icon"
+                                     class="size-5 object-cover fill-base-content"/>
+                                Sign in with @scheme.DisplayName
+                            </button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="flex justify-center">
+                        <span class="loading loading-spinner loading-xl"></span>
+                    </div>
+                }
+            </LazyLoader>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private AuthSchemeResponse[] AuthSchemes;
+    private Dictionary<string, AuthSchemeConfig> Configs = new();
+    private bool ShowSelection = false;
+
+    protected override void OnInitialized()
+    {
+        Configs["LocalAuth"] = new AuthSchemeConfig()
+        {
+            Color = "#7636e3",
+            IconUrl = "/placeholder.jpg"
+        };
+    }
+
+    private async Task Load(LazyLoader arg)
+    {
+        AuthSchemes = await ApiClient.GetJson<AuthSchemeResponse[]>(
+            "api/auth"
+        );
+
+        // If we only have one auth scheme available
+        // we want to auto redirect the user without
+        // showing the selection screen
+        
+        if (AuthSchemes.Length == 1)
+            await Start(AuthSchemes[0]);
+        else
+            ShowSelection = true;
+    }
+
+    private Task Start(AuthSchemeResponse scheme)
+    {
+        Navigation.NavigateTo($"/api/auth/{scheme.Identifier}", true);
+        return Task.CompletedTask;
+    }
+
+    record AuthSchemeConfig
+    {
+        public string Color { get; set; }
+        public string IconUrl { get; set; }
+    }
+}

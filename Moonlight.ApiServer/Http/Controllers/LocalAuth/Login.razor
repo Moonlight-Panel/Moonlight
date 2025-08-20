@@ -42,8 +42,7 @@
                 </form>
                 <p class="text-base-content/80 mb-4 text-center">
                     No account?
-                    <a href="?client_id=@(ClientId)&redirect_uri=@(RedirectUri)&response_type=@(ResponseType)&view=register"
-                       class="link link-animated link-primary font-normal">Create an account</a>
+                    <a href="/api/localAuth/register" class="link link-animated link-primary font-normal">Create an account</a>
                 </p>
             </div>
         </div>
@@ -55,8 +54,5 @@
 
 @code
 {
-    [Parameter] public string ClientId { get; set; }
-    [Parameter] public string RedirectUri { get; set; }
-    [Parameter] public string ResponseType { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
 }

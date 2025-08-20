@@ -54,26 +54,18 @@ public record AppConfiguration
     {
         [YamlMember(Description = "The secret token to use for creating jwts and encrypting things. This needs to be at least 32 characters long")]
         public string Secret { get; set; } = Formatter.GenerateString(32);
-        
-        [YamlMember(Description = "The lifespan of generated user tokens in hours")]
-        public int TokenDuration { get; set; } = 24 * 10;
 
-        [YamlMember(Description = "This enables the use of the local oauth2 provider, so moonlight will use itself as an oauth2 provider")]
-        public bool EnableLocalOAuth2 { get; set; } = true;
-        public OAuth2Data OAuth2 { get; set; } = new();
+        [YamlMember(Description = "Settings for the user sessions")]
+        public SessionsConfig Sessions { get; set; } = new();
         
-        public record OAuth2Data
-        {
-            public string Secret { get; set; } = Formatter.GenerateString(32);
-            public string ClientId { get; set; } = Formatter.GenerateString(8);
-            public string ClientSecret { get; set; } = Formatter.GenerateString(32);
-            public string? AuthorizationEndpoint { get; set; }
-            public string? AccessEndpoint { get; set; }
-            public string? AuthorizationRedirect { get; set; }
+        [YamlMember(Description = "This specifies if the first registered/synced user will become an admin automatically")]
+        public bool FirstUserAdmin { get; set; } = true;
+    }
 
-            [YamlMember(Description = "This specifies if the first registered user will become an admin automatically. This only works when using local oauth2")]
-            public bool FirstUserAdmin { get; set; } = true;
-        }
+    public record SessionsConfig
+    {
+        public string CookieName { get; set; } = "session";
+        public int ExpiresIn { get; set; } = 10;
     }
     
     public record DevelopmentConfig

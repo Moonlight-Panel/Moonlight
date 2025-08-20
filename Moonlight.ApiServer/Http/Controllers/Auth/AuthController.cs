@@ -1,16 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using MoonCore.Exceptions;
-using MoonCore.Extended.Abstractions;
-using Moonlight.ApiServer.Configuration;
-using Moonlight.ApiServer.Database.Entities;
-using Moonlight.ApiServer.Interfaces;
-using Moonlight.Shared.Http.Requests.Auth;
+using Moonlight.ApiServer.Implementations.LocalAuth;
 using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.ApiServer.Http.Controllers.Auth;
@@ -19,93 +12,87 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 [Route("api/auth")]
 public class AuthController : Controller
 {
-    private readonly AppConfiguration Configuration;
-    private readonly DatabaseRepository<User> UserRepository;
-    private readonly IOAuth2Provider OAuth2Provider;
+    private readonly IAuthenticationSchemeProvider SchemeProvider;
 
-    public AuthController(
-        AppConfiguration configuration,
-        DatabaseRepository<User> userRepository,
-        IOAuth2Provider oAuth2Provider
-    )
+    // Add schemes which should be offered to the client here
+    private readonly string[] SchemeWhitelist = [LocalAuthConstants.AuthenticationScheme];
+
+    public AuthController(IAuthenticationSchemeProvider schemeProvider)
     {
-        UserRepository = userRepository;
-        OAuth2Provider = oAuth2Provider;
-        Configuration = configuration;
+        SchemeProvider = schemeProvider;
     }
 
-    [AllowAnonymous]
-    [HttpGet("start")]
-    public async Task<LoginStartResponse> Start()
+    [HttpGet]
+    public async Task<AuthSchemeResponse[]> GetSchemes()
     {
-        var url = await OAuth2Provider.Start();
+        var schemes = await SchemeProvider.GetAllSchemesAsync();
 
-        return new LoginStartResponse()
-        {
-            Url = url
-        };
-    }
-
-    [AllowAnonymous]
-    [HttpPost("complete")]
-    public async Task<LoginCompleteResponse> Complete([FromBody] LoginCompleteRequest request)
-    {
-        var user = await OAuth2Provider.Complete(request.Code);
-
-        if (user == null)
-            throw new HttpApiException("Unable to load user data", 500);
-
-        // Generate token
-        var securityTokenDescriptor = new SecurityTokenDescriptor()
-        {
-            Expires = DateTime.Now.AddHours(Configuration.Authentication.TokenDuration),
-            IssuedAt = DateTime.Now,
-            NotBefore = DateTime.Now.AddMinutes(-1),
-            Claims = new Dictionary<string, object>()
+        return schemes
+            .Where(x => SchemeWhitelist.Contains(x.Name))
+            .Select(scheme => new AuthSchemeResponse()
             {
-                {
-                    "userId",
-                    user.Id
-                },
-                {
-                    "permissions",
-                    string.Join(";", user.Permissions)
-                }
-            },
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(Configuration.Authentication.Secret)
-                ),
-                SecurityAlgorithms.HmacSha256
-            ),
-            Issuer = Configuration.PublicUrl,
-            Audience = Configuration.PublicUrl
-        };
+                DisplayName = scheme.DisplayName ?? scheme.Name,
+                Identifier = scheme.Name
+            })
+            .ToArray();
+    }
 
-        var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-        var securityToken = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
+    [HttpGet("{identifier:alpha}")]
+    public async Task StartScheme([FromRoute] string identifier)
+    {
+        var scheme = await SchemeProvider.GetSchemeAsync(identifier);
 
-        var jwt = jwtSecurityTokenHandler.WriteToken(securityToken);
-
-        return new()
+        // The check for the whitelist ensures a user isn't starting an auth flow
+        // which isn't meant for users
+        if (scheme == null || !SchemeWhitelist.Contains(scheme.Name))
         {
-            AccessToken = jwt
-        };
+            await Results
+                .Problem(
+                    "Invalid scheme identifier provided",
+                    statusCode: 404
+                )
+                .ExecuteAsync(HttpContext);
+
+            return;
+        }
+
+        await HttpContext.ChallengeAsync(
+            scheme.Name,
+            new AuthenticationProperties()
+            {
+                RedirectUri = "/"
+            }
+        );
     }
 
     [Authorize]
     [HttpGet("check")]
-    public async Task<CheckResponse> Check()
+    public Task<AuthClaimResponse[]> Check()
     {
-        var userIdStr = User.FindFirstValue("userId")!;
-        var userId = int.Parse(userIdStr);
-        var user = await UserRepository.Get().FirstAsync(x => x.Id == userId);
+        var username = User.FindFirstValue(ClaimTypes.Name)!;
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var email = User.FindFirstValue(ClaimTypes.Email)!;
+        var userId = User.FindFirstValue("UserId")!;
+        var permissions = User.FindFirstValue("Permissions")!;
 
-        return new()
+        var claims = new List<AuthClaimResponse>()
         {
-            Email = user.Email,
-            Username = user.Username,
-            Permissions = user.Permissions
+            new(ClaimTypes.Name, username),
+            new(ClaimTypes.NameIdentifier, id),
+            new(ClaimTypes.Email, email),
+            new("UserId", userId),
+            new("Permissions", permissions)
         };
+
+        return Task.FromResult(
+            claims.ToArray()
+        );
+    }
+
+    [HttpGet("logout")]
+    public async Task Logout()
+    {
+        await HttpContext.SignOutAsync();
+        await Results.Redirect("/").ExecuteAsync(HttpContext);
     }
 }

@@ -47,8 +47,7 @@
                 </form>
                 <p class="text-base-content/80 mb-4 text-center">
                     Already registered?
-                    <a href="?client_id=@(ClientId)&redirect_uri=@(RedirectUri)&response_type=@(ResponseType)&view=login"
-                       class="link link-animated link-primary font-normal">Login into your account</a>
+                    <a href="/api/localAuth/login" class="link link-animated link-primary font-normal">Login into your account</a>
                 </p>
             </div>
         </div>
@@ -59,8 +58,5 @@
 
 @code
 {
-    [Parameter] public string ClientId { get; set; }
-    [Parameter] public string RedirectUri { get; set; }
-    [Parameter] public string ResponseType { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
 }

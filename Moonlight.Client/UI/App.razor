@@ -1,8 +1,13 @@
 ﻿@using Moonlight.Client.UI.Layouts
 @using Moonlight.Client.Services
+@using Moonlight.Client.UI.Partials
 
 @inject ApplicationAssemblyService ApplicationAssemblyService
 
 <ApplicationRouter DefaultLayout="@typeof(MainLayout)"
                    AppAssembly="@typeof(App).Assembly"
-                   AdditionalAssemblies="ApplicationAssemblyService.Assemblies" />
+                   AdditionalAssemblies="ApplicationAssemblyService.Assemblies">
+    <LoginTemplate>
+        <LoginSelector />
+    </LoginTemplate>
+</ApplicationRouter>

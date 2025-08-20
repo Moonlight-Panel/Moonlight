@@ -4,6 +4,7 @@
 @using MoonCore.Helpers
 @using Moonlight.Client.Implementations
 @using MoonCore.Blazor.FlyonUi.Files.Manager
+@using MoonCore.Blazor.FlyonUi.Files.Manager.Operations
 
 @attribute [Authorize(Policy = "permissions:admin.system.overview")]
 
@@ -13,7 +14,8 @@
     <NavTabs Index="2" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 </div>
 
-<FileManager FsAccess="FsAccess" TransferChunkSize="TransferChunkSize" UploadLimit="UploadLimit"/>
+<FileManager OnConfigure="OnConfigure" FsAccess="FsAccess" TransferChunkSize="TransferChunkSize"
+             UploadLimit="UploadLimit"/>
 
 @code
 {
@@ -21,9 +23,21 @@
 
     private static readonly long TransferChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
     private static readonly long UploadLimit = ByteConverter.FromGigaBytes(20).Bytes;
-    
+
     protected override void OnInitialized()
     {
         FsAccess = new SystemFsAccess(ApiClient);
+    }
+
+    private void OnConfigure(FileManagerOptions options)
+    {
+        options.AddMultiOperation<DeleteOperation>();
+        options.AddMultiOperation<MoveOperation>();
+        options.AddMultiOperation<DownloadOperation>();
+
+        options.AddSingleOperation<RenameOperation>();
+
+        options.AddToolbarOperation<CreateFileOperation>();
+        options.AddToolbarOperation<CreateFolderOperation>();
     }
 }
