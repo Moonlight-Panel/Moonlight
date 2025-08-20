@@ -6,6 +6,7 @@ using MoonCore.Extended.Helpers;
 using MoonCore.Helpers;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Interfaces;
 
 namespace Moonlight.ApiServer.Services;
 
@@ -14,6 +15,7 @@ public class UserAuthService
     private readonly ILogger<UserAuthService> Logger;
     private readonly DatabaseRepository<User> UserRepository;
     private readonly AppConfiguration Configuration;
+    private readonly IEnumerable<IUserAuthExtension> Extensions;
 
     private const string UserIdClaim = "UserId";
     private const string IssuedAtClaim = "IssuedAt";
@@ -21,12 +23,14 @@ public class UserAuthService
     public UserAuthService(
         ILogger<UserAuthService> logger,
         DatabaseRepository<User> userRepository,
-        AppConfiguration configuration
+        AppConfiguration configuration,
+        IEnumerable<IUserAuthExtension> extensions
     )
     {
         Logger = logger;
         UserRepository = userRepository;
         Configuration = configuration;
+        Extensions = extensions;
     }
 
     public async Task<bool> Sync(ClaimsPrincipal? principal)
@@ -93,11 +97,21 @@ public class UserAuthService
             await UserRepository.Update(user);
         }
 
+        // Enrich claims with required metadata
         principal.Identities.First().AddClaims([
             new Claim(UserIdClaim, user.Id.ToString()),
             new Claim(IssuedAtClaim, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
             new Claim("Permissions", string.Join(';', user.Permissions))
         ]);
+        
+        // Call extensions
+        foreach (var extension in Extensions)
+        {
+            var result = await extension.Sync(user, principal);
+
+            if (!result) // Exit immediately if result is false
+                return false;
+        }
 
         return true;
     }
@@ -137,6 +151,18 @@ public class UserAuthService
         // everything is fine. If not it means that the token should be invalidated
         // as it is too old
 
-        return issuedAt > user.TokenValidTimestamp;
+        if (issuedAt < user.TokenValidTimestamp)
+            return false;
+        
+        // Call extensions
+        foreach (var extension in Extensions)
+        {
+            var result = await extension.Validate(user, principal);
+
+            if (!result) // Exit immediately if result is false
+                return false;
+        }
+
+        return true;
     }
 }

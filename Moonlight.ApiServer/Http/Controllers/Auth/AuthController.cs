@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Implementations.LocalAuth;
+using Moonlight.ApiServer.Interfaces;
 using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.ApiServer.Http.Controllers.Auth;
@@ -13,13 +15,18 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 public class AuthController : Controller
 {
     private readonly IAuthenticationSchemeProvider SchemeProvider;
+    private readonly IEnumerable<IAuthCheckExtension> Extensions;
+    private readonly AppConfiguration Configuration;
 
-    // Add schemes which should be offered to the client here
-    private readonly string[] SchemeWhitelist = [LocalAuthConstants.AuthenticationScheme];
-
-    public AuthController(IAuthenticationSchemeProvider schemeProvider)
+    public AuthController(
+        IAuthenticationSchemeProvider schemeProvider,
+        IEnumerable<IAuthCheckExtension> extensions,
+        AppConfiguration configuration
+    )
     {
         SchemeProvider = schemeProvider;
+        Extensions = extensions;
+        Configuration = configuration;
     }
 
     [HttpGet]
@@ -27,8 +34,10 @@ public class AuthController : Controller
     {
         var schemes = await SchemeProvider.GetAllSchemesAsync();
 
+        var allowedSchemes = Configuration.Authentication.EnabledSchemes;
+
         return schemes
-            .Where(x => SchemeWhitelist.Contains(x.Name))
+            .Where(x => allowedSchemes.Contains(x.Name))
             .Select(scheme => new AuthSchemeResponse()
             {
                 DisplayName = scheme.DisplayName ?? scheme.Name,
@@ -40,11 +49,10 @@ public class AuthController : Controller
     [HttpGet("{identifier:alpha}")]
     public async Task StartScheme([FromRoute] string identifier)
     {
-        var scheme = await SchemeProvider.GetSchemeAsync(identifier);
+        // Validate identifier against our enable list
+        var allowedSchemes = Configuration.Authentication.EnabledSchemes;
 
-        // The check for the whitelist ensures a user isn't starting an auth flow
-        // which isn't meant for users
-        if (scheme == null || !SchemeWhitelist.Contains(scheme.Name))
+        if (!allowedSchemes.Contains(identifier))
         {
             await Results
                 .Problem(
@@ -56,6 +64,22 @@ public class AuthController : Controller
             return;
         }
 
+        // Now we can check if it even exists
+        var scheme = await SchemeProvider.GetSchemeAsync(identifier);
+
+        if (scheme == null)
+        {
+            await Results
+                .Problem(
+                    "Invalid scheme identifier provided",
+                    statusCode: 404
+                )
+                .ExecuteAsync(HttpContext);
+
+            return;
+        }
+
+        // Everything fine, challenge the frontend
         await HttpContext.ChallengeAsync(
             scheme.Name,
             new AuthenticationProperties()
@@ -67,7 +91,7 @@ public class AuthController : Controller
 
     [Authorize]
     [HttpGet("check")]
-    public Task<AuthClaimResponse[]> Check()
+    public async Task<AuthClaimResponse[]> Check()
     {
         var username = User.FindFirstValue(ClaimTypes.Name)!;
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -75,6 +99,7 @@ public class AuthController : Controller
         var userId = User.FindFirstValue("UserId")!;
         var permissions = User.FindFirstValue("Permissions")!;
 
+        // Create basic set of claims used by the frontend
         var claims = new List<AuthClaimResponse>()
         {
             new(ClaimTypes.Name, username),
@@ -84,9 +109,15 @@ public class AuthController : Controller
             new("Permissions", permissions)
         };
 
-        return Task.FromResult(
-            claims.ToArray()
-        );
+        // Enrich the frontend claims by extensions (used by plugins)
+        foreach (var extension in Extensions)
+        {
+            claims.AddRange(
+                await extension.GetFrontendClaims(User)
+            );
+        }
+
+        return claims.ToArray();
     }
 
     [HttpGet("logout")]

@@ -1,4 +1,5 @@
 ﻿using MoonCore.Helpers;
+using Moonlight.ApiServer.Implementations.LocalAuth;
 using YamlDotNet.Serialization;
 
 namespace Moonlight.ApiServer.Configuration;
@@ -29,6 +30,10 @@ public record AppConfiguration
             Kestrel = new()
             {
                 AllowedOrigins = []
+            },
+            Authentication = new()
+            {
+                EnabledSchemes = []
             }
         };
     }
@@ -60,6 +65,9 @@ public record AppConfiguration
         
         [YamlMember(Description = "This specifies if the first registered/synced user will become an admin automatically")]
         public bool FirstUserAdmin { get; set; } = true;
+
+        [YamlMember(Description = "This specifies the authentication schemes the frontend should be able to challenge")]
+        public string[] EnabledSchemes { get; set; } = [LocalAuthConstants.AuthenticationScheme];
     }
 
     public record SessionsConfig
