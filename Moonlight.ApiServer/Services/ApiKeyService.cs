@@ -29,11 +29,11 @@ public class ApiKeyService
             Claims = new Dictionary<string, object>()
             {
                 {
-                    "apiKeyId",
+                    "ApiKeyId",
                     apiKey.Id
                 },
                 {
-                    "permissions",
+                    "Permissions",
                     string.Join(";", apiKey.Permissions)
                 }
             },

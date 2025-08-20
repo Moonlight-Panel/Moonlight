@@ -34,14 +34,7 @@ public class CoreConfigDiagnoseProvider : IDiagnoseProvider
         }
 
         config.Database.Password = CheckForNullOrEmpty(config.Database.Password);
-
-        config.Authentication.OAuth2.ClientSecret = CheckForNullOrEmpty(config.Authentication.OAuth2.ClientSecret);
-
-        config.Authentication.OAuth2.Secret = CheckForNullOrEmpty(config.Authentication.OAuth2.Secret);
-
         config.Authentication.Secret = CheckForNullOrEmpty(config.Authentication.Secret);
-
-        config.Authentication.OAuth2.ClientId = CheckForNullOrEmpty(config.Authentication.OAuth2.ClientId);
 
         await archive.AddText(
             "core/config.txt",

@@ -28,8 +28,8 @@ public partial class Startup
         WebAssemblyHostBuilder = builder;
         
         await PrintVersion();
-        await SetupLogging();
 
+        await SetupLogging();
         await LoadConfiguration();
         await InitializePlugins();
 

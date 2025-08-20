@@ -1,16 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using MoonCore.Exceptions;
-using MoonCore.Extended.Abstractions;
 using Moonlight.ApiServer.Configuration;
-using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Implementations.LocalAuth;
 using Moonlight.ApiServer.Interfaces;
-using Moonlight.Shared.Http.Requests.Auth;
 using Moonlight.Shared.Http.Responses.Auth;
 
 namespace Moonlight.ApiServer.Http.Controllers.Auth;
@@ -19,93 +14,116 @@ namespace Moonlight.ApiServer.Http.Controllers.Auth;
 [Route("api/auth")]
 public class AuthController : Controller
 {
+    private readonly IAuthenticationSchemeProvider SchemeProvider;
+    private readonly IEnumerable<IAuthCheckExtension> Extensions;
     private readonly AppConfiguration Configuration;
-    private readonly DatabaseRepository<User> UserRepository;
-    private readonly IOAuth2Provider OAuth2Provider;
 
     public AuthController(
-        AppConfiguration configuration,
-        DatabaseRepository<User> userRepository,
-        IOAuth2Provider oAuth2Provider
+        IAuthenticationSchemeProvider schemeProvider,
+        IEnumerable<IAuthCheckExtension> extensions,
+        AppConfiguration configuration
     )
     {
-        UserRepository = userRepository;
-        OAuth2Provider = oAuth2Provider;
+        SchemeProvider = schemeProvider;
+        Extensions = extensions;
         Configuration = configuration;
     }
 
-    [AllowAnonymous]
-    [HttpGet("start")]
-    public async Task<LoginStartResponse> Start()
+    [HttpGet]
+    public async Task<AuthSchemeResponse[]> GetSchemes()
     {
-        var url = await OAuth2Provider.Start();
+        var schemes = await SchemeProvider.GetAllSchemesAsync();
 
-        return new LoginStartResponse()
-        {
-            Url = url
-        };
+        var allowedSchemes = Configuration.Authentication.EnabledSchemes;
+
+        return schemes
+            .Where(x => allowedSchemes.Contains(x.Name))
+            .Select(scheme => new AuthSchemeResponse()
+            {
+                DisplayName = scheme.DisplayName ?? scheme.Name,
+                Identifier = scheme.Name
+            })
+            .ToArray();
     }
 
-    [AllowAnonymous]
-    [HttpPost("complete")]
-    public async Task<LoginCompleteResponse> Complete([FromBody] LoginCompleteRequest request)
+    [HttpGet("{identifier:alpha}")]
+    public async Task StartScheme([FromRoute] string identifier)
     {
-        var user = await OAuth2Provider.Complete(request.Code);
+        // Validate identifier against our enable list
+        var allowedSchemes = Configuration.Authentication.EnabledSchemes;
 
-        if (user == null)
-            throw new HttpApiException("Unable to load user data", 500);
-
-        // Generate token
-        var securityTokenDescriptor = new SecurityTokenDescriptor()
+        if (!allowedSchemes.Contains(identifier))
         {
-            Expires = DateTime.Now.AddHours(Configuration.Authentication.TokenDuration),
-            IssuedAt = DateTime.Now,
-            NotBefore = DateTime.Now.AddMinutes(-1),
-            Claims = new Dictionary<string, object>()
+            await Results
+                .Problem(
+                    "Invalid scheme identifier provided",
+                    statusCode: 404
+                )
+                .ExecuteAsync(HttpContext);
+
+            return;
+        }
+
+        // Now we can check if it even exists
+        var scheme = await SchemeProvider.GetSchemeAsync(identifier);
+
+        if (scheme == null)
+        {
+            await Results
+                .Problem(
+                    "Invalid scheme identifier provided",
+                    statusCode: 404
+                )
+                .ExecuteAsync(HttpContext);
+
+            return;
+        }
+
+        // Everything fine, challenge the frontend
+        await HttpContext.ChallengeAsync(
+            scheme.Name,
+            new AuthenticationProperties()
             {
-                {
-                    "userId",
-                    user.Id
-                },
-                {
-                    "permissions",
-                    string.Join(";", user.Permissions)
-                }
-            },
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(Configuration.Authentication.Secret)
-                ),
-                SecurityAlgorithms.HmacSha256
-            ),
-            Issuer = Configuration.PublicUrl,
-            Audience = Configuration.PublicUrl
-        };
-
-        var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-        var securityToken = jwtSecurityTokenHandler.CreateToken(securityTokenDescriptor);
-
-        var jwt = jwtSecurityTokenHandler.WriteToken(securityToken);
-
-        return new()
-        {
-            AccessToken = jwt
-        };
+                RedirectUri = "/"
+            }
+        );
     }
 
     [Authorize]
     [HttpGet("check")]
-    public async Task<CheckResponse> Check()
+    public async Task<AuthClaimResponse[]> Check()
     {
-        var userIdStr = User.FindFirstValue("userId")!;
-        var userId = int.Parse(userIdStr);
-        var user = await UserRepository.Get().FirstAsync(x => x.Id == userId);
+        var username = User.FindFirstValue(ClaimTypes.Name)!;
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var email = User.FindFirstValue(ClaimTypes.Email)!;
+        var userId = User.FindFirstValue("UserId")!;
+        var permissions = User.FindFirstValue("Permissions")!;
 
-        return new()
+        // Create basic set of claims used by the frontend
+        var claims = new List<AuthClaimResponse>()
         {
-            Email = user.Email,
-            Username = user.Username,
-            Permissions = user.Permissions
+            new(ClaimTypes.Name, username),
+            new(ClaimTypes.NameIdentifier, id),
+            new(ClaimTypes.Email, email),
+            new("UserId", userId),
+            new("Permissions", permissions)
         };
+
+        // Enrich the frontend claims by extensions (used by plugins)
+        foreach (var extension in Extensions)
+        {
+            claims.AddRange(
+                await extension.GetFrontendClaims(User)
+            );
+        }
+
+        return claims.ToArray();
+    }
+
+    [HttpGet("logout")]
+    public async Task Logout()
+    {
+        await HttpContext.SignOutAsync();
+        await Results.Redirect("/").ExecuteAsync(HttpContext);
     }
 }

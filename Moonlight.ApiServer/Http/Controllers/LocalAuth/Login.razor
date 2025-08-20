@@ -9,8 +9,7 @@
 
 <div class="flex h-auto min-h-screen items-center justify-center overflow-x-hidden py-10">
     <div class="relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div
-            class="bg-base-100 shadow-base-300/20 z-1 w-full space-y-6 rounded-xl p-6 shadow-md sm:min-w-md lg:p-8">
+        <div class="bg-base-100 shadow-base-300/20 z-1 w-full space-y-6 rounded-xl p-6 shadow-md sm:min-w-md lg:p-8">
             <div class="flex justify-center items-center gap-3">
                 <img src="/_content/Moonlight.Client/svg/logo.svg" class="size-12" alt="brand-logo"/>
             </div>
@@ -42,8 +41,7 @@
                 </form>
                 <p class="text-base-content/80 mb-4 text-center">
                     No account?
-                    <a href="?client_id=@(ClientId)&redirect_uri=@(RedirectUri)&response_type=@(ResponseType)&view=register"
-                       class="link link-animated link-primary font-normal">Create an account</a>
+                    <a href="/api/localAuth/register" class="link link-animated link-primary font-normal">Create an account</a>
                 </p>
             </div>
         </div>
@@ -55,8 +53,5 @@
 
 @code
 {
-    [Parameter] public string ClientId { get; set; }
-    [Parameter] public string RedirectUri { get; set; }
-    [Parameter] public string ResponseType { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
 }

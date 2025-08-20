@@ -33,7 +33,8 @@ public partial class Startup
             {
                 { "Default", "Information" },
                 { "Microsoft.AspNetCore", "Warning" },
-                { "System.Net.Http.HttpClient", "Warning" }
+                { "System.Net.Http.HttpClient", "Warning" },
+                { "Moonlight.ApiServer.Implementations.LocalAuth.LocalAuthHandler", "Warning" }
             };
 
             var logLevelsJson = JsonSerializer.Serialize(defaultLogLevels);

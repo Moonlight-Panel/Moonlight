@@ -1,13 +1,11 @@
 ﻿@using System.Security.Claims
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-@using MoonCore.Blazor.FlyonUi.Auth
 @using Moonlight.Client.Interfaces
 @using Moonlight.Client.Models
 @using Moonlight.Client.UI.Layouts
 
 @inject NavigationManager Navigation
-@inject AuthenticationStateManager AuthStateManager
 @inject IEnumerable<ISidebarItemProvider> SidebarItemProviders
 @inject IAuthorizationService AuthorizationService
 
@@ -210,8 +208,8 @@
         var authState = await AuthState;
         
         Identity = authState.User;
-        Username = Identity.Claims.First(x => x.Type == "username").Value;
-        Email = Identity.Claims.First(x => x.Type == "email").Value;
+        Username = Identity.FindFirst(ClaimTypes.Name)!.Value;
+        Email = Identity.FindFirst(ClaimTypes.Email)!.Value;
         
         var sidebarItems = new List<SidebarItem>();
 
@@ -260,8 +258,9 @@
         return Task.CompletedTask;
     }
 
-    private async Task Logout()
+    private Task Logout()
     {
-        await AuthStateManager.Logout();
+        Navigation.NavigateTo("/api/auth/logout", true);
+        return Task.CompletedTask;
     }
 }
