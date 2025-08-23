@@ -6,20 +6,26 @@ namespace Moonlight.ApiServer.Configuration;
 
 public record AppConfiguration
 {
-    [YamlMember(Description = "The public url your instance should be accessible through")]
+    [YamlMember(Description = "Moonlight configuration\n\n\nThe public url your instance should be accessible through")]
     public string PublicUrl { get; set; } = "http://localhost:5165";
     
-    [YamlMember(Description = "The credentials of the postgres which moonlight should use")]
+    [YamlMember(Description = "\nThe credentials of the postgres which moonlight should use")]
     public DatabaseConfig Database { get; set; } = new();
     
-    [YamlMember(Description = "Settings regarding authentication")]
+    [YamlMember(Description = "\nSettings regarding authentication")]
     public AuthenticationConfig Authentication { get; set; } = new();
     
-    [YamlMember(Description = "These options are only meant for development purposes")]
+    [YamlMember(Description = "\nThese options are only meant for development purposes")]
     public DevelopmentConfig Development { get; set; } = new();
+    
+    [YamlMember(Description = "\nSettings for hosting the frontend")]
     public FrontendData Frontend { get; set; } = new();
+    
+    [YamlMember(Description = "\nSettings for the internal web server moonlight is running in")]
     public KestrelConfig Kestrel { get; set; } = new();
-    public MetricsData Metrics { get; set; } = new();
+    
+    [YamlMember(Description = "\nSettings for open telemetry")]
+    public OpenTelemetryData OpenTelemetry { get; set; } = new();
 
     public static AppConfiguration CreateEmpty()
     {
@@ -91,12 +97,37 @@ public record AppConfiguration
         public string[] AllowedOrigins { get; set; } = ["*"];
     }
     
-    public record MetricsData
+    public record OpenTelemetryData
     {
-        [YamlMember(Description = "This enables the collecting of metrics and allows access to the /metrics endpoint")]
+        [YamlMember(Description = "This enables open telemetry for moonlight")]
         public bool Enable { get; set; } = false;
+
+        public OpenTelemetryMetricsData Metrics { get; set; } = new();
+        public OpenTelemetryTracesData Traces { get; set; } = new();
+        public OpenTelemetryLogsData Logs { get; set; } = new();
+    }
+
+    public record OpenTelemetryMetricsData
+    {
+        [YamlMember(Description = "This enables the exporting of metrics")]
+        public bool Enable { get; set; } = true;
+
+        [YamlMember(Description = "Enables the /metrics exporter for prometheus")]
+        public bool EnablePrometheus { get; set; } = false;
         
         [YamlMember(Description = "The interval in which metrics are created, specified in seconds")]
         public int Interval { get; set; } = 15;
+    }
+    
+    public record OpenTelemetryTracesData
+    {
+        [YamlMember(Description = "This enables the exporting of traces")]
+        public bool Enable { get; set; } = true;
+    }
+    
+    public record OpenTelemetryLogsData
+    {
+        [YamlMember(Description = "This enables the exporting of logs")]
+        public bool Enable { get; set; } = true;
     }
 }

@@ -73,7 +73,7 @@ public class MetricsBackgroundService : BackgroundService
             }
 
             await Task.Delay(
-                TimeSpan.FromSeconds(Configuration.Metrics.Interval),
+                TimeSpan.FromSeconds(Configuration.OpenTelemetry.Metrics.Interval),
                 stoppingToken
             );
         }

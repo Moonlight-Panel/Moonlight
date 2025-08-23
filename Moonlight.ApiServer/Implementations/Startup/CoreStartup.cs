@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Database;
@@ -11,7 +12,10 @@ using Moonlight.ApiServer.Interfaces;
 using Moonlight.ApiServer.Models;
 using Moonlight.ApiServer.Plugins;
 using Moonlight.ApiServer.Services;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Moonlight.ApiServer.Implementations.Startup;
 
@@ -64,22 +68,56 @@ public class CoreStartup : IPluginStartup
 
         #region Prometheus
 
-        if (configuration.Metrics.Enable)
+        if (configuration.OpenTelemetry.Enable)
         {
-            builder.Services.AddSingleton<MetricsBackgroundService>();
-            builder.Services.AddHostedService(sp => sp.GetRequiredService<MetricsBackgroundService>());
+            var openTel = builder.Services.AddOpenTelemetry();
+            var openTelConfig = configuration.OpenTelemetry;
 
-            builder.Services.AddSingleton<IMetric, ApplicationMetric>();
-            builder.Services.AddSingleton<IMetric, UsersMetric>();
+            var resourceBuilder = ResourceBuilder.CreateDefault();
+            resourceBuilder.AddService(serviceName: "moonlight");
 
-            builder.Services.AddOpenTelemetry()
-                .WithMetrics(providerBuilder =>
+            openTel.ConfigureResource(x => x.AddService(serviceName: "moonlight"));
+
+            if (openTelConfig.Metrics.Enable)
+            {
+                builder.Services.AddSingleton<MetricsBackgroundService>();
+                builder.Services.AddHostedService(sp => sp.GetRequiredService<MetricsBackgroundService>());
+
+                builder.Services.AddSingleton<IMetric, ApplicationMetric>();
+                builder.Services.AddSingleton<IMetric, UsersMetric>();
+
+                openTel.WithMetrics(providerBuilder =>
                 {
-                    providerBuilder.AddPrometheusExporter();
                     providerBuilder.AddAspNetCoreInstrumentation();
+                    providerBuilder.AddOtlpExporter();
+
+                    if (openTelConfig.Metrics.EnablePrometheus)
+                        providerBuilder.AddPrometheusExporter();
 
                     providerBuilder.AddMeter("moonlight");
                 });
+            }
+
+            if (openTelConfig.Logs.Enable)
+            {
+                openTel.WithLogging();
+
+                builder.Logging.AddOpenTelemetry(options =>
+                {
+                    options.SetResourceBuilder(resourceBuilder);
+                    options.AddOtlpExporter();
+                });
+            }
+
+            if (openTelConfig.Traces.Enable)
+            {
+                openTel.WithTracing(providerBuilder =>
+                {
+                    providerBuilder.AddAspNetCoreInstrumentation();
+
+                    providerBuilder.AddOtlpExporter();
+                });
+            }
         }
 
         #endregion
@@ -110,7 +148,7 @@ public class CoreStartup : IPluginStartup
 
         #region Prometheus
 
-        if (configuration.Metrics.Enable)
+        if (configuration.OpenTelemetry is { Enable: true, Metrics.EnablePrometheus: true })
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
         #endregion
