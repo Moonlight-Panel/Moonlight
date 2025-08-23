@@ -1,9 +1,14 @@
 @page "/admin/system/customisation"
 
+@using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @using MoonCore.Blazor.FlyonUi.DataTables
+@using MoonCore.Blazor.FlyonUi.Helpers
+@using MoonCore.Helpers
 @using MoonCore.Models
+@using Moonlight.Client.Models
 @using Moonlight.Client.Services
+@using Moonlight.Shared.Http.Requests.Admin.Sys.Theme
 @using Moonlight.Shared.Http.Responses.Admin
 
 @attribute [Authorize(Policy = "permissions:admin.system.theme")]
@@ -11,6 +16,8 @@
 @inject ThemeService ThemeService
 @inject AlertService AlertService
 @inject ToastService ToastService
+@inject DownloadService DownloadService
+@inject ILogger<Index> Logger
 
 <NavTabs Index="1" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 
@@ -24,13 +31,13 @@
             <i class="icon-file-up"></i>
             Import
         </label>
-        <InputFile id="import-theme" class="hidden" />
+        <InputFile OnChange="Import" id="import-theme" class="hidden" multiple />
         <a href="/admin/system/customisation/themes/create" class="btn btn-primary">Create</a>
     </div>
 </div>
 
 <div class="my-2.5">
-    <DataTable TItem="ThemeResponse">
+    <DataTable @ref="Table" TItem="ThemeResponse">
         <Configuration>
             <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Id)" Name="Id"/>
             <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Name)" Name="Name">
@@ -66,6 +73,11 @@
                             </a>
                         }
                         
+                        <a @onclick="() => Export(context)" @onclick:preventDefault href="#" class="flex items-center mr-2 sm:mr-3">
+                            <i class="text-success icon-download me-1"></i>
+                            <span class="text-success">Export</span>
+                        </a>
+                        
                         <a href="/admin/system/customisation/themes/@(context.Id)" class="mr-2 sm:mr-3">
                             <i class="icon-pencil text-primary"></i>
                         </a>
@@ -92,6 +104,85 @@
     
     private async Task<IPagedData<ThemeResponse>> LoadItems(PaginationOptions options)
         => await ThemeService.Get(options.Page, options.PerPage);
+    
+    private async Task Import(InputFileChangeEventArgs eventArgs)
+    {
+        if(eventArgs.FileCount < 1)
+            return;
+
+        var files = eventArgs.GetMultipleFiles();
+
+        var maxFileSize = ByteConverter.FromMegaBytes(1).Bytes;
+
+        foreach (var file in files)
+        {
+            try
+            {
+                if (!file.Name.EndsWith(".json"))
+                {
+                    await ToastService.Error($"Unable to import {file.Name}", "Only .json files are supported");
+                    continue;
+                }
+
+                if (file.Size > maxFileSize)
+                {
+                    await ToastService.Error($"Unable to import {file.Name}", "Exceeded the maximum file limit of 1MB");
+                    continue;
+                }
+
+                await using var stream = file.OpenReadStream(maxFileSize);
+                var themeTransfer = await JsonSerializer.DeserializeAsync<ThemeTransferModel>(stream);
+                
+                stream.Close();
+
+                if (themeTransfer == null)
+                {
+                    await ToastService.Error($"Unable to import {file.Name}", "Failed to deserialize the content");
+                    continue;
+                }
+
+                var theme = await ThemeService.Create(new CreateThemeRequest()
+                {
+                    Name = themeTransfer.Name,
+                    Author = themeTransfer.Author,
+                    Content = themeTransfer.Content,
+                    DonateUrl = themeTransfer.DonateUrl,
+                    UpdateUrl = themeTransfer.UpdateUrl,
+                    Version = themeTransfer.Version
+                });
+
+                await ToastService.Success("Successfully imported theme", theme.Name);
+                
+                await Table.Refresh();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "An unhandled error occured while importing file {file} as theme", file.Name);
+            }
+        }
+    }
+
+    private async Task Export(ThemeResponse theme)
+    {
+        var transfer = new ThemeTransferModel()
+        {
+            Name = theme.Name,
+            Author = theme.Author,
+            Content = theme.Content,
+            DonateUrl = theme.DonateUrl,
+            UpdateUrl = theme.UpdateUrl,
+            Version = theme.Version
+        };
+
+        var json = JsonSerializer.Serialize(transfer, new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        });
+        
+        var fileName = $"{transfer.Name.Replace(" ", string.Empty).Trim()}.json";
+
+        await DownloadService.Download(fileName, json);
+    }
 
     private async Task Delete(ThemeResponse response)
     {
