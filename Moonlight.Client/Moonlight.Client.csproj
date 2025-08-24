@@ -33,16 +33,7 @@
     <Content Remove="storage\**\*" />
     <None Remove="storage\**\*" />
   </ItemGroup>
-  <!-- 
-          Specify the /p:BuildPWA=true flag to build moonlight as a PWA.
-          This flag is by default disabled to allow nuget package generation
-      -->
-  <PropertyGroup Condition="'$(BuildPWA)' == 'true'">
-    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(BuildPWA)' == 'true'">
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Moonlight.Shared\Moonlight.Shared.csproj" />
   </ItemGroup>
