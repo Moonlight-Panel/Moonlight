@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
+using MoonCore.Extended.Models;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Services;
@@ -27,18 +28,15 @@ public class UsersController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.users.get")]
-    public async Task<IPagedData<UserResponse>> Get(
-        [FromQuery] [Range(0, int.MaxValue)] int page,
-        [FromQuery] [Range(1, 100)] int pageSize
-    )
+    public async Task<IPagedData<UserResponse>> Get([FromQuery] PagedOptions options)
     {
         var count = await UserRepository.Get().CountAsync();
 
         var users = await UserRepository
             .Get()
             .OrderBy(x => x.Id)
-            .Skip(page * pageSize)
-            .Take(pageSize)
+            .Skip(options.Page * options.PageSize)
+            .Take(options.PageSize)
             .ToArrayAsync();
 
         var mappedUsers = users
@@ -53,11 +51,11 @@ public class UsersController : Controller
 
         return new PagedData<UserResponse>()
         {
-            CurrentPage = page,
+            CurrentPage = options.Page,
             Items = mappedUsers,
-            PageSize = pageSize,
+            PageSize = options.PageSize,
             TotalItems = count,
-            TotalPages = count == 0 ? 0 : (count - 1) / pageSize
+            TotalPages = count == 0 ? 0 : (count - 1) / options.PageSize
         };
     }
 

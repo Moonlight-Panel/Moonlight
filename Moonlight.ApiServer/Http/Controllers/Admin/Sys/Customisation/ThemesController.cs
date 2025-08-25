@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
+using MoonCore.Extended.Models;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Mappers;
@@ -25,17 +26,14 @@ public class ThemesController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
-    public async Task<PagedData<ThemeResponse>> Get(
-        [FromQuery] [Range(0, int.MaxValue)] int page,
-        [FromQuery] [Range(1, 100)] int pageSize
-    )
+    public async Task<PagedData<ThemeResponse>> Get([FromQuery] PagedOptions options)
     {
         var count = await ThemeRepository.Get().CountAsync();
         
         var items = await ThemeRepository
             .Get()
-            .Skip(page * pageSize)
-            .Take(pageSize)
+            .Skip(options.Page * options.PageSize)
+            .Take(options.PageSize)
             .ToArrayAsync();
         
         var mappedItems = items
@@ -44,11 +42,11 @@ public class ThemesController : Controller
         
         return new PagedData<ThemeResponse>()
         {
-            CurrentPage = page,
+            CurrentPage = options.Page,
             Items = mappedItems,
-            PageSize = pageSize,
+            PageSize = options.PageSize,
             TotalItems = count,
-            TotalPages = count == 0 ? 0 : (count - 1) / pageSize
+            TotalPages = count == 0 ? 0 : (count - 1) / options.PageSize
         };
     }
 
