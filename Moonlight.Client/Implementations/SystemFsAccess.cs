@@ -1,14 +1,16 @@
 using MoonCore.Blazor.FlyonUi.Files;
 using MoonCore.Blazor.FlyonUi.Files.Manager;
+using MoonCore.Blazor.FlyonUi.Files.Manager.Abstractions;
 using MoonCore.Helpers;
+using Moonlight.Shared.Http.Requests.Admin.Sys.Files;
 using Moonlight.Shared.Http.Responses.Admin.Sys;
 
 namespace Moonlight.Client.Implementations;
 
-public class SystemFsAccess : IFsAccess
+public class SystemFsAccess : IFsAccess, ICombineAccess, IArchiveAccess, IDownloadUrlAccess
 {
     private readonly HttpApiClient ApiClient;
-    
+
     private const string BaseApiUrl = "api/admin/system/files";
 
     public SystemFsAccess(HttpApiClient apiClient)
@@ -53,14 +55,27 @@ public class SystemFsAccess : IFsAccess
         );
     }
 
-    public Task Read(string path, Func<Stream, Task> onHandleData)
+    public async Task Read(string path, Func<Stream, Task> onHandleData)
     {
-        throw new NotImplementedException();
+        await using var stream = await ApiClient.GetStream(
+            $"{BaseApiUrl}/download?path={path}"
+        );
+
+        await onHandleData.Invoke(stream);
+
+        stream.Close();
     }
 
-    public Task Write(string path, Stream dataStream)
+    public async Task Write(string path, Stream dataStream)
     {
-        throw new NotImplementedException();
+        using var multiPartForm = new MultipartFormDataContent();
+
+        multiPartForm.Add(new StreamContent(dataStream), "file", "file");
+
+        await ApiClient.Post(
+            $"{BaseApiUrl}/upload?path={path}",
+            multiPartForm
+        );
     }
 
     public async Task Delete(string path)
@@ -70,19 +85,80 @@ public class SystemFsAccess : IFsAccess
         );
     }
 
-    public async Task UploadChunk(string path, int chunkId, long chunkSize, long totalSize, byte[] data)
+    public async Task Combine(string destination, string[] files)
     {
-        using var formContent = new MultipartFormDataContent();
-        formContent.Add(new ByteArrayContent(data), "file", "file");
-        
         await ApiClient.Post(
-            $"{BaseApiUrl}/upload?path={path}&chunkId={chunkId}&chunkSize={chunkSize}&totalSize={totalSize}",
-            formContent
+            $"{BaseApiUrl}/combine",
+            new CombineRequest()
+            {
+                Destination = destination,
+                Files = files
+            }
         );
     }
 
-    public Task<byte[]> DownloadChunk(string path, int chunkId, long chunkSize)
+    public ArchiveFormat[] ArchiveFormats { get; } = new[]
     {
-        throw new NotImplementedException();
+        new ArchiveFormat()
+        {
+            DisplayName = "Zip Archive",
+            Extensions = ["zip"],
+            Identifier = "zip"
+        },
+        new ArchiveFormat()
+        {
+            DisplayName = "Tar.gz Archive",
+            Extensions = ["tar.gz"],
+            Identifier = "tar.gz"
+        }
+    };
+
+    public async Task Archive(
+        string destination,
+        ArchiveFormat format,
+        string root,
+        FsEntry[] files,
+        Func<string, Task>? onProgress = null
+    )
+    {
+        await ApiClient.Post($"{BaseApiUrl}/compress", new CompressRequest()
+        {
+            Destination = destination,
+            Items = files.Select(x => x.Name).ToArray(),
+            Root = root,
+            Format = format.Identifier
+        });
+    }
+
+    public async Task Unarchive(
+        string path,
+        ArchiveFormat format,
+        string destination,
+        Func<string, Task>? onProgress = null)
+    {
+        await ApiClient.Post(
+            $"{BaseApiUrl}/decompress",
+            new DecompressRequest()
+            {
+                Format = format.Identifier,
+                Destination = destination,
+                Path = path
+            }
+        );
+    }
+
+    public async Task<string> GetFileUrl(string path)
+        => await GetDownloadUrl(path);
+
+    public async Task<string> GetFolderUrl(string path)
+        => await GetDownloadUrl(path);
+
+    private async Task<string> GetDownloadUrl(string path)
+    {
+        var response = await ApiClient.PostJson<DownloadUrlResponse>(
+            $"{BaseApiUrl}/downloadUrl?path={path}"
+        );
+
+        return response.Url;
     }
 }

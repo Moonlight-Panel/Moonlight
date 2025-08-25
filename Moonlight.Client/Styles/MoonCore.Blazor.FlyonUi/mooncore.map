@@ -366,6 +366,7 @@ overlay-open:duration-50
 overlay-open:opacity-100
 p-0.5
 p-1
+p-1.5
 p-2
 p-3
 p-4
@@ -399,6 +400,7 @@ radio
 range
 relative
 resize
+ring
 ring-0
 ring-1
 ring-white/10
