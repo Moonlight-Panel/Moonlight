@@ -23,6 +23,9 @@ public record AppConfiguration
     
     [YamlMember(Description = "\nSettings for the internal web server moonlight is running in")]
     public KestrelConfig Kestrel { get; set; } = new();
+
+    [YamlMember(Description = "\nSettings for the internal file manager for moonlights storage access")]
+    public FilesData Files { get; set; } = new();
     
     [YamlMember(Description = "\nSettings for open telemetry")]
     public OpenTelemetryData OpenTelemetry { get; set; } = new();
@@ -42,6 +45,12 @@ public record AppConfiguration
                 EnabledSchemes = []
             }
         };
+    }
+
+    public record FilesData
+    {
+        [YamlMember(Description = "The maximum file size limit a combine operation is allowed to process")]
+        public long CombineLimit { get; set; } = ByteConverter.FromGigaBytes(5).MegaBytes;
     }
 
     public record FrontendData

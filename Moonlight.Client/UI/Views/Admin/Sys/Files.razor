@@ -14,15 +14,11 @@
     <NavTabs Index="2" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 </div>
 
-<FileManager OnConfigure="OnConfigure" FsAccess="FsAccess" TransferChunkSize="TransferChunkSize"
-             UploadLimit="UploadLimit"/>
+<FileManager OnConfigure="OnConfigure" FsAccess="FsAccess" />
 
 @code
 {
     private IFsAccess FsAccess;
-
-    private static readonly long TransferChunkSize = ByteConverter.FromMegaBytes(20).Bytes;
-    private static readonly long UploadLimit = ByteConverter.FromGigaBytes(20).Bytes;
 
     protected override void OnInitialized()
     {
@@ -34,10 +30,18 @@
         options.AddMultiOperation<DeleteOperation>();
         options.AddMultiOperation<MoveOperation>();
         options.AddMultiOperation<DownloadOperation>();
-
+        options.AddMultiOperation<ArchiveOperation>();
+        
+        //options.AddSingleOperation<UnarchiveOperation>();
         options.AddSingleOperation<RenameOperation>();
 
         options.AddToolbarOperation<CreateFileOperation>();
         options.AddToolbarOperation<CreateFolderOperation>();
+        
+        options.AddOpenOperation<EditorOpenOperation>();
+        options.AddOpenOperation<ImageOpenOperation>();
+        options.AddOpenOperation<VideoOpenOperation>();
+
+        options.WriteLimit = ByteConverter.FromMegaBytes(20).Bytes;
     }
 }
