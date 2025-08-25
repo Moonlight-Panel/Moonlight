@@ -9,7 +9,7 @@
     <Title>Moonlight.Shared</Title>
     <PackageTags>shared</PackageTags>
     <PackageId>Moonlight.Shared</PackageId>
-    <Version>2.1.8</Version>
+    <Version>2.1.9</Version>
     <Authors>Moonlight Panel</Authors>
     <Description>A build of the shared classes for moonlight development</Description>
     <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
