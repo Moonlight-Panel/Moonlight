@@ -15,8 +15,8 @@
         <PackageReference Include="MoonCore.PluginFramework" Version="1.0.8" />
         <PackageReference Include="MoonCore.PluginFramework.Generator" Version="1.0.2" />
 
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.5"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.5" PrivateAssets="all"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all" />
     </ItemGroup>
 
     <Import Project="Plugins.props" />

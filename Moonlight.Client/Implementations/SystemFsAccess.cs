@@ -97,21 +97,11 @@ public class SystemFsAccess : IFsAccess, ICombineAccess, IArchiveAccess, IDownlo
         );
     }
 
-    public ArchiveFormat[] ArchiveFormats { get; } = new[]
-    {
-        new ArchiveFormat()
-        {
-            DisplayName = "Zip Archive",
-            Extensions = ["zip"],
-            Identifier = "zip"
-        },
-        new ArchiveFormat()
-        {
-            DisplayName = "Tar.gz Archive",
-            Extensions = ["tar.gz"],
-            Identifier = "tar.gz"
-        }
-    };
+    public ArchiveFormat[] ArchiveFormats { get; } =
+    [
+        new("zip", ["zip"], "Zip Archive"),
+        new("tar.gz", ["tar.gz"], "Tar.gz Archive")
+    ];
 
     public async Task Archive(
         string destination,
