@@ -80,7 +80,7 @@ public class UserAuthService
                     permissions = ["*"];
             }
 
-            user = await UserRepository.Add(new User()
+            user = await UserRepository.AddAsync(new User()
             {
                 Email = email,
                 TokenValidTimestamp = DateTimeOffset.UtcNow.AddMinutes(-1),
@@ -94,7 +94,7 @@ public class UserAuthService
         if (user.Username != username)
         {
             user.Username = username;
-            await UserRepository.Update(user);
+            await UserRepository.UpdateAsync(user);
         }
 
         // Enrich claims with required metadata

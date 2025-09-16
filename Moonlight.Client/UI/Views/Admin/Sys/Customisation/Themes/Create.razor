@@ -58,7 +58,7 @@
     
     private async Task OnValidSubmit()
     {
-        await ThemeService.Create(Request);
+        await ThemeService.CreateAsync(Request);
         await ToastService.Success("Successfully created theme");
         
         NavigationManager.NavigateTo("/admin/system/customisation");

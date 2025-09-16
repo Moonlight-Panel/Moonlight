@@ -82,7 +82,7 @@
     
     private async Task Load(LazyLoader _)
     {
-        Response = await ThemeService.Get(Id);
+        Response = await ThemeService.GetAsync(Id);
 
         Request = new()
         {
@@ -98,7 +98,7 @@
     
     private async Task OnValidSubmit()
     {
-        await ThemeService.Update(Id, Request);
+        await ThemeService.UpdateAsync(Id, Request);
         
         await ToastService.Success("Successfully updated theme");
         Navigation.NavigateTo("/admin/system/customisation");

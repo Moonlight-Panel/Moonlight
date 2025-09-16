@@ -3,13 +3,14 @@
 @using MoonCore.Helpers
 @using MoonCore.Models
 @using Moonlight.Shared.Http.Responses.Admin.Users
-@using MoonCore.Blazor.FlyonUi.DataTables
+@using MoonCore.Blazor.FlyonUi.Grid
+@using MoonCore.Blazor.FlyonUi.Grid.Columns
 
 @inject HttpApiClient ApiClient
 @inject AlertService AlertService
 @inject ToastService ToastService
 
-<div class="mb-5">
+<div class="mb-8">
     <PageHeader Title="Users">
         <a href="/admin/users/create" class="btn btn-primary">
             Create
@@ -17,37 +18,57 @@
     </PageHeader>
 </div>
 
-<DataTable @ref="Table" TItem="UserResponse">
-    <Configuration>
-        <Pagination TItem="UserResponse" ItemSource="LoadData" />
-        
-        <DataTableColumn TItem="UserResponse" Field="@(x => x.Id)" Name="Id"/>
-        <DataTableColumn TItem="UserResponse" Field="@(x => x.Username)" Name="Username"/>
-        <DataTableColumn TItem="UserResponse" Field="@(x => x.Email)" Name="Email"/>
-        <DataTableColumn TItem="UserResponse">
-            <ColumnTemplate>
-                <div class="flex justify-end">
-                    <a href="/admin/users/@(context.Id)" class="mr-2 sm:mr-3">
-                        <i class="icon-pencil text-primary"></i>
-                    </a>
+<DataGrid @ref="Grid"
+          TGridItem="UserResponse"
+          ItemsProvider="ItemsProvider"
+          EnableFiltering="true"
+          EnablePagination="true">
+    <PropertyColumn Field="x => x.Id" Sortable="true" />
+    <PropertyColumn Field="x => x.Username" Sortable="true" />
+    <PropertyColumn Field="x => x.Email" Sortable="true" />
+    
+    <TemplateColumn>
+        <td>
+            <div class="flex justify-end">
+                <a href="/admin/users/@(context.Id)" class="mr-2 sm:mr-3">
+                    <i class="icon-pencil text-primary"></i>
+                </a>
 
-                    <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault>
-                        <i class="icon-trash text-error"></i>
-                    </a>
-                </div>
-            </ColumnTemplate>
-        </DataTableColumn>
-    </Configuration>
-</DataTable>
+                <a href="#" @onclick="() => DeleteAsync(context)" @onclick:preventDefault>
+                    <i class="icon-trash text-error"></i>
+                </a>
+            </div>
+        </td>
+    </TemplateColumn>
+</DataGrid>
 
 @code
 {
-    private DataTable<UserResponse> Table;
+    private DataGrid<UserResponse> Grid;
     
-    private async Task<IPagedData<UserResponse>> LoadData(PaginationOptions options)
-     => await ApiClient.GetJson<PagedData<UserResponse>>($"api/admin/users?page={options.Page}&pageSize={options.PerPage}");
+    private async Task<DataGridItemResult<UserResponse>> ItemsProvider(DataGridItemRequest request)
+    {
+        var query = $"?startIndex={request.StartIndex}&count={request.Count}";
 
-    private async Task Delete(UserResponse response)
+        if (!string.IsNullOrEmpty(request.SortColumn))
+        {
+            var dir = request.SortDirection == SortState.Descending ? "desc" : "asc";
+            query += $"&orderBy={request.SortColumn}&orderByDir={dir}";
+        }
+
+        if (!string.IsNullOrEmpty(request.Filter))
+            query += $"&filter={request.Filter}";
+
+        var data = await ApiClient.GetJson<CountedData<UserResponse>>($"api/admin/users{query}");
+
+        return new()
+        {
+            Items = data.Items,
+            TotalCount = data.TotalCount
+        };
+    }
+    
+    private async Task DeleteAsync(UserResponse response)
     {
         await AlertService.ConfirmDanger(
             "User deletion",
@@ -57,7 +78,7 @@
                 await ApiClient.Delete($"api/admin/users/{response.Id}");
                 await ToastService.Success("Successfully deleted user");
 
-                await Table.Refresh();
+                await Grid.RefreshAsync();
             }
         );
     }

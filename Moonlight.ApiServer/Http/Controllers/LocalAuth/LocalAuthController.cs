@@ -180,7 +180,7 @@ public class LocalAuthController : Controller
             Permissions = permissions
         };
 
-        var finalUser = await UserRepository.Add(user);
+        var finalUser = await UserRepository.AddAsync(user);
 
         return finalUser;
     }

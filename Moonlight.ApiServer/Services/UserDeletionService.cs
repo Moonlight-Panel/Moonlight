@@ -35,8 +35,8 @@ public class UserDeletionService
     public async Task Delete(User user, bool force)
     {
         foreach (var handler in Handlers)
-            await Delete(user, force);
+            await handler.Delete(user, force);
 
-        await UserRepository.Remove(user);
+        await UserRepository.RemoveAsync(user);
     }
 }

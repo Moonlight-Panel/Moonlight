@@ -96,7 +96,7 @@
             .ToDictionary(x => x, _ => true);
     }
 
-    private async Task GenerateDiagnose(WButton _)
+    private async Task GenerateDiagnose(WButton button)
     {
         var request = new GenerateDiagnoseRequest();
 

@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoonCore.Exceptions;
 using MoonCore.Extended.Abstractions;
-using MoonCore.Extended.Models;
 using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
+using Moonlight.ApiServer.Mappers;
 using Moonlight.ApiServer.Services;
 using Moonlight.Shared.Http.Requests.Admin.ApiKeys;
 using Moonlight.Shared.Http.Responses.Admin.ApiKeys;
@@ -28,69 +26,82 @@ public class ApiKeysController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.apikeys.get")]
-    public async Task<IPagedData<ApiKeyResponse>> Get([FromQuery] PagedOptions options)
+    public async Task<ActionResult<ICountedData<ApiKeyResponse>>> Get(
+        [FromQuery] int startIndex,
+        [FromQuery] int count,
+        [FromQuery] string? orderBy,
+        [FromQuery] string? filter,
+        [FromQuery] string orderByDir = "asc"
+    )
     {
-        var count = await ApiKeyRepository.Get().CountAsync();
+        if (count > 100)
+            return Problem("You cannot fetch more items than 100 at a time", statusCode: 400);
+        
+        IQueryable<ApiKey> query = ApiKeyRepository.Get();
 
-        var apiKeys = await ApiKeyRepository
-            .Get()
-            .OrderBy(x => x.Id)
-            .Skip(options.Page * options.PageSize)
-            .Take(options.PageSize)
+        query = orderBy switch
+        {
+            nameof(ApiKey.Id) => orderByDir == "desc"
+                ? query.OrderByDescending(x => x.Id)
+                : query.OrderBy(x => x.Id),
+                
+            nameof(ApiKey.ExpiresAt) => orderByDir == "desc"
+                ? query.OrderByDescending(x => x.ExpiresAt)
+                : query.OrderBy(x => x.ExpiresAt),
+            
+            nameof(ApiKey.CreatedAt) => orderByDir == "desc"
+                ? query.OrderByDescending(x => x.CreatedAt)
+                : query.OrderBy(x => x.CreatedAt),
+            
+            _ => query.OrderBy(x => x.Id)
+        };
+
+        if (!string.IsNullOrEmpty(filter))
+        {
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Description, $"%{filter}%")
+            );
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip(startIndex)
+            .Take(count)
+            .AsNoTracking()
+            .ProjectToResponse()
             .ToArrayAsync();
 
-        var mappedApiKey = apiKeys
-            .Select(x => new ApiKeyResponse()
-            {
-                Id = x.Id,
-                Permissions = x.Permissions,
-                Description = x.Description,
-                ExpiresAt = x.ExpiresAt
-            })
-            .ToArray();
-
-        return new PagedData<ApiKeyResponse>()
+        return new CountedData<ApiKeyResponse>()
         {
-            CurrentPage = options.Page,
-            Items = mappedApiKey,
-            PageSize = options.PageSize,
-            TotalItems = count,
-            TotalPages = count == 0 ? 0 : (count - 1) / options.PageSize
+            Items = items,
+            TotalCount = totalCount
         };
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [Authorize(Policy = "permissions:admin.apikeys.get")]
-    public async Task<ApiKeyResponse> GetSingle(int id)
+    public async Task<ActionResult<ApiKeyResponse>> GetSingle(int id)
     {
         var apiKey = await ApiKeyRepository
             .Get()
+            .AsNoTracking()
+            .ProjectToResponse()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (apiKey == null)
-            throw new HttpApiException("No api key with that id found", 404);
+            return Problem("No api key with that id found", statusCode: 404);
 
-        return new ApiKeyResponse()
-        {
-            Id = apiKey.Id,
-            Permissions = apiKey.Permissions,
-            Description = apiKey.Description,
-            ExpiresAt = apiKey.ExpiresAt
-        };
+        return apiKey;
     }
 
     [HttpPost]
     [Authorize(Policy = "permissions:admin.apikeys.create")]
     public async Task<CreateApiKeyResponse> Create([FromBody] CreateApiKeyRequest request)
     {
-        var apiKey = new ApiKey()
-        {
-            Description = request.Description,
-            Permissions = request.Permissions,
-            ExpiresAt = request.ExpiresAt
-        };
-
-        var finalApiKey = await ApiKeyRepository.Add(apiKey);
+        var apiKey = ApiKeyMapper.ToApiKey(request);
+        
+        var finalApiKey = await ApiKeyRepository.AddAsync(apiKey);
 
         var response = new CreateApiKeyResponse
         {
@@ -104,41 +115,36 @@ public class ApiKeysController : Controller
         return response;
     }
 
-    [HttpPatch("{id}")]
+    [HttpPatch("{id:int}")]
     [Authorize(Policy = "permissions:admin.apikeys.update")]
-    public async Task<ApiKeyResponse> Update([FromRoute] int id, [FromBody] UpdateApiKeyRequest request)
+    public async Task<ActionResult<ApiKeyResponse>> Update([FromRoute] int id, [FromBody] UpdateApiKeyRequest request)
     {
         var apiKey = await ApiKeyRepository
             .Get()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (apiKey == null)
-            throw new HttpApiException("No api key with that id found", 404);
+            return Problem("No api key with that id found", statusCode: 404);
 
-        apiKey.Description = request.Description;
+        ApiKeyMapper.Merge(apiKey, request);
 
-        await ApiKeyRepository.Update(apiKey);
+        await ApiKeyRepository.UpdateAsync(apiKey);
 
-        return new ApiKeyResponse()
-        {
-            Id = apiKey.Id,
-            Description = apiKey.Description,
-            Permissions = apiKey.Permissions,
-            ExpiresAt = apiKey.ExpiresAt
-        };
+        return ApiKeyMapper.ToResponse(apiKey);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [Authorize(Policy = "permissions:admin.apikeys.delete")]
-    public async Task Delete([FromRoute] int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
         var apiKey = await ApiKeyRepository
             .Get()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (apiKey == null)
-            throw new HttpApiException("No api key with that id found", 404);
+            return Problem("No api key with that id found", statusCode: 404);
 
-        await ApiKeyRepository.Remove(apiKey);
+        await ApiKeyRepository.RemoveAsync(apiKey);
+        return NoContent();
     }
 }
