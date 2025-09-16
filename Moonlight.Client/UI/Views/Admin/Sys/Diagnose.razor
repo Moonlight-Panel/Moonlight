@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using MoonCore.Blazor.FlyonUi.Helpers
 @using MoonCore.Helpers
+@using Moonlight.Client.UI.Components
 @using Moonlight.Shared.Http.Requests.Admin.Sys
 @using Moonlight.Shared.Http.Responses.Admin.Sys
 
@@ -15,22 +16,19 @@
     <NavTabs Index="5" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks"/>
 </div>
 
-<div class="grid grid-cols-2">
-    <div class="col-span-2 md:col-span-1 card">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="col-span-1 card">
         <div class="card-header">
-            <span class="card-title">Diagnose</span>
+            <span class="card-title">Report</span>
         </div>
         <div class="card-body">
             <p>
-                If you're experiencing issues or need help via our Discord, you're in the right place here!
-                By pressing the button below, Moonlight will run all available diagnostic checks and package the results
-                into a
-                downloadable zip file.
-                The report includes useful information about your system, plugins, and environment, making it easier to
-                identify problems or share with support.
+                With the button below you can create a diagnose report containing all important information to troubleshoot your moonlight instance and its modules.
+                The diagnose file is a zip containing different logs and censored config files which can be shared with our support on discord.
+                If you only want to export specific parts of the diagnose report, click on "Advanced" and select the desired providers
             </p>
 
-            <WButton OnClick="GenerateDiagnose" CssClasses="btn btn-primary my-5">Generate diagnose</WButton>
+            <WButton OnClick="GenerateDiagnose" CssClasses="btn btn-primary my-5">Generate report</WButton>
 
             <div class="text-sm">
                 <a class="text-primary cursor-pointer flex items-center" @onclick:preventDefault
@@ -66,6 +64,10 @@
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="col-span-1">
+        <SignalRDebug />
     </div>
 </div>
 

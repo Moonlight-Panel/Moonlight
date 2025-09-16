@@ -23,15 +23,18 @@ public partial class Startup
                 // we want to use the ApiKey scheme for authenticating the request
                 options.ForwardDefaultSelector = context =>
                 {
-                    if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader))
-                        return "Session";
+                    var headers = context.Request.Headers;
+       
+                    // For regular api calls
+                    if (headers.ContainsKey("Authorization"))
+                        return "ApiKey";
+ 
+                    // For websocket requests which cannot use the Authorization header
+                    if (headers.Upgrade == "websocket" && headers.Connection == "Upgrade" && context.Request.Query.ContainsKey("access_token"))
+                        return "ApiKey";
 
-                    var auth = authHeader.FirstOrDefault();
-
-                    if (string.IsNullOrEmpty(auth) || !auth.StartsWith("Bearer "))
-                        return "Session";
-
-                    return "ApiKey";
+                    // Regular user traffic/auth
+                    return "Session";
                 };
             })
             .AddJwtBearer("ApiKey", null, options =>
@@ -63,6 +66,16 @@ public partial class Startup
 
                         if (!result)
                             context.Fail("API key has been deleted");
+                    },
+                    
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        if (!string.IsNullOrEmpty(accessToken))
+                            context.Token = accessToken;
+                        
+                        return Task.CompletedTask;
                     }
                 };
             })

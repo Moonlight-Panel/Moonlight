@@ -4,5 +4,5 @@ namespace Moonlight.ApiServer.Interfaces;
 
 public interface IDiagnoseProvider
 {
-    public Task ModifyZipArchive(ZipArchive archive);
+    public Task ModifyZipArchiveAsync(ZipArchive archive);
 }
