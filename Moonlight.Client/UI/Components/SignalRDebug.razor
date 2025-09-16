@@ -1,0 +1,62 @@
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.Extensions.DependencyInjection
+
+@inject NavigationManager Navigation
+@inject ToastService ToastService
+
+@implements IAsyncDisposable
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">SignalR</h3>
+    </div>
+    <div class="card-body">
+        <p>
+            <a class="link" href="https://dotnet.microsoft.com/en-us/apps/aspnet/signalr">SignalR</a> is used by Moonlight to provide realtime communication to itself and other modules.
+            You can test the SignalR communication by pressing the button below. For scaled instances you need to configure a redis compatible server to be used by all your replicas in order
+            for all SignalR Hubs to be synced.
+        </p>
+        <div class="mt-5">
+            <LazyLoader Load="Load">
+                <WButton OnClick="OnClick" CssClasses="btn btn-primary">
+                    Send broadcast
+                </WButton>
+            </LazyLoader>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private HubConnection? Connection;
+
+    private async Task Load(LazyLoader lazyLoader)
+    {
+        await lazyLoader.UpdateText("Connecting to SignalR endpoint");
+        
+        Connection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/api/admin/system/diagnose/ws"))
+            .AddJsonProtocol()
+            .Build();
+
+        Connection.On(
+            "Pong",
+            async () => await ToastService.Success("Received broadcast")
+        );
+
+        await Connection.StartAsync();
+    }
+    
+    private async Task OnClick(WButton _)
+    {
+        if (Connection == null)
+            return;
+
+        await Connection.SendAsync("Ping");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (Connection != null) await Connection.DisposeAsync();
+    }
+}

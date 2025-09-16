@@ -1,5 +1,6 @@
+using System.Diagnostics;
 using System.IO.Compression;
-using System.Text.Json;
+using MoonCore.Yaml;
 using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Extensions;
 using Moonlight.ApiServer.Interfaces;
@@ -8,11 +9,11 @@ namespace Moonlight.ApiServer.Implementations.Diagnose;
 
 public class CoreConfigDiagnoseProvider : IDiagnoseProvider
 {
-    private readonly AppConfiguration Config;
+    private readonly AppConfiguration Configuration;
 
-    public CoreConfigDiagnoseProvider(AppConfiguration config)
+    public CoreConfigDiagnoseProvider(AppConfiguration configuration)
     {
-        Config = config;
+        Configuration = configuration;
     }
 
     private string CheckForNullOrEmpty(string? content)
@@ -22,29 +23,25 @@ public class CoreConfigDiagnoseProvider : IDiagnoseProvider
             : "ISNOTEMPTY";
     }
 
-    public async Task ModifyZipArchive(ZipArchive archive)
+    public async Task ModifyZipArchiveAsync(ZipArchive archive)
     {
-        var json = JsonSerializer.Serialize(Config);
-        var config = JsonSerializer.Deserialize<AppConfiguration>(json);
-
-        if (config == null)
+        try
         {
-            await archive.AddText("core/config.txt", "Could not fetch config.");
-            return;
+            var configString = YamlSerializer.Serialize(Configuration);
+            var configuration = YamlSerializer.Deserialize<AppConfiguration>(configString);
+            
+            configuration.Database.Password = CheckForNullOrEmpty(configuration.Database.Password);
+            configuration.Authentication.Secret = CheckForNullOrEmpty(configuration.Authentication.Secret);
+            configuration.SignalR.RedisConnectionString = CheckForNullOrEmpty(configuration.SignalR.RedisConnectionString);
+
+            await archive.AddTextAsync(
+                "core/config.txt",
+                YamlSerializer.Serialize(configuration)
+            );
         }
-
-        config.Database.Password = CheckForNullOrEmpty(config.Database.Password);
-        config.Authentication.Secret = CheckForNullOrEmpty(config.Authentication.Secret);
-
-        await archive.AddText(
-            "core/config.txt",
-            JsonSerializer.Serialize(
-                config,
-                new JsonSerializerOptions()
-                {
-                    WriteIndented = true
-                }
-            )
-        );
+        catch (Exception e)
+        {
+            await archive.AddTextAsync("core/config.txt", $"Unable to load config: {e.ToStringDemystified()}");
+        }
     }
 }

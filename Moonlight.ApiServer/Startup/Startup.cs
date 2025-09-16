@@ -46,6 +46,7 @@ public partial class Startup
         await RegisterAuth();
         await RegisterCors();
         await RegisterHangfire();
+        await RegisterSignalR();
         await HookPluginBuild();
     }
 
@@ -62,6 +63,7 @@ public partial class Startup
         await HookPluginConfigure();
 
         await MapBase();
+        await MapSignalR();
         await HookPluginEndpoints();
     }
 }

@@ -30,6 +30,9 @@ public record AppConfiguration
     [YamlMember(Description = "\nSettings for open telemetry")]
     public OpenTelemetryData OpenTelemetry { get; set; } = new();
 
+    [YamlMember(Description = "\nConfiguration for the realtime communication solution SignalR")]
+    public SignalRData SignalR { get; set; } = new();
+
     public static AppConfiguration CreateEmpty()
     {
         return new AppConfiguration()
@@ -45,6 +48,15 @@ public record AppConfiguration
                 EnabledSchemes = []
             }
         };
+    }
+
+    public record SignalRData
+    {
+        [YamlMember(Description =
+            "\nWhether to use redis (or any other redis compatible solution) to scale out SignalR hubs. This is required when using multiple api server replicas")]
+        public bool UseRedis { get; set; } = false;
+
+        public string RedisConnectionString { get; set; } = "";
     }
 
     public record FilesData

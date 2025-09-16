@@ -22,7 +22,7 @@ public class DiagnoseService
         Logger = logger;
     }
 
-    public Task<DiagnoseProvideResponse[]> GetProviders()
+    public Task<DiagnoseProvideResponse[]> GetProvidersAsync()
     {
         var availableProviders = new List<DiagnoseProvideResponse>();
 
@@ -48,7 +48,7 @@ public class DiagnoseService
         );
     }
 
-    public async Task<MemoryStream> GenerateDiagnose(string[] requestedProviders)
+    public async Task<MemoryStream> GenerateDiagnoseAsync(string[] requestedProviders)
     {
         IDiagnoseProvider[] providers;
 
@@ -78,7 +78,7 @@ public class DiagnoseService
 
             foreach (var provider in providers)
             {
-                await provider.ModifyZipArchive(zipArchive);
+                await provider.ModifyZipArchiveAsync(zipArchive);
             }
             
             zipArchive.Dispose();

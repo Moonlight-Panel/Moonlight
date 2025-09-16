@@ -21,21 +21,16 @@ public class DiagnoseController : Controller
     }
 
     [HttpPost]
-    public async Task Diagnose([FromBody] GenerateDiagnoseRequest request)
+    public async Task<ActionResult> Diagnose([FromBody] GenerateDiagnoseRequest request)
     {
-        var stream = await DiagnoseService.GenerateDiagnose(request.Providers);
-        
-        await Results.Stream(
-                stream,
-                contentType: "application/zip",
-                fileDownloadName: "diagnose.zip"
-            )
-            .ExecuteAsync(HttpContext);
+        var stream = await DiagnoseService.GenerateDiagnoseAsync(request.Providers);
+
+        return File(stream, "application/zip", "diagnose.zip");
     }
 
     [HttpGet("providers")]
-    public async Task<DiagnoseProvideResponse[]> GetProviders()
+    public async Task<ActionResult<DiagnoseProvideResponse[]>> GetProviders()
     {
-        return await DiagnoseService.GetProviders();
+        return await DiagnoseService.GetProvidersAsync();
     }
 }

@@ -6,17 +6,16 @@ namespace Moonlight.ApiServer.Implementations.Diagnose;
 
 public class LogsDiagnoseProvider : IDiagnoseProvider
 {
-    public async Task ModifyZipArchive(ZipArchive archive)
+    public async Task ModifyZipArchiveAsync(ZipArchive archive)
     {
-        var path = Path.Combine("storage", "logs", "latest.log");
+        var path = Path.Combine("storage", "logs", "moonlight.log");
 
-        if (!File.Exists(path))
+        if (File.Exists(path))
         {
-            await archive.AddText("logs.txt", "Logs file latest.log has not been found");
-            return;
+            var logsContent = await File.ReadAllTextAsync(path);
+            await archive.AddTextAsync("logs.txt", logsContent);
         }
-        
-        var logsContent = await File.ReadAllTextAsync(path);
-        await archive.AddText("logs.txt", logsContent);
+        else
+            await archive.AddTextAsync("logs.txt", "Logs file moonlight.log has not been found");
     }
 }
