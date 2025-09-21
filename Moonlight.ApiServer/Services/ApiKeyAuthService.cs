@@ -14,7 +14,7 @@ public class ApiKeyAuthService
         ApiKeyRepository = apiKeyRepository;
     }
 
-    public async Task<bool> Validate(ClaimsPrincipal? principal)
+    public async Task<bool> ValidateAsync(ClaimsPrincipal? principal)
     {
         // Ignore malformed claims principal
         if (principal is not { Identity.IsAuthenticated: true })

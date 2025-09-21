@@ -23,7 +23,7 @@ public class CombineController : Controller
     }
 
     [HttpPost("combine")]
-    public async Task<IResult> Combine([FromBody] CombineRequest request)
+    public async Task<IResult> CombineAsync([FromBody] CombineRequest request)
     {
         // Validate file lenght
         if (request.Files.Length < 2)

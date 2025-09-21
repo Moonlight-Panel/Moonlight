@@ -10,7 +10,7 @@ public partial class Startup
     private IPluginStartup[] PluginStartups;
     private IServiceProvider PluginLoadServiceProvider;
     
-    private Task InitializePlugins()
+    private Task InitializePluginsAsync()
     {
         // Define minimal service collection
         var startupSc = new ServiceCollection();
@@ -38,13 +38,13 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private async Task HookPluginBuild()
+    private async Task HookPluginBuildAsync()
     {
         foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.BuildApplication(PluginLoadServiceProvider, WebAssemblyHostBuilder);
+                await pluginAppStartup.BuildApplicationAsync(PluginLoadServiceProvider, WebAssemblyHostBuilder);
             }
             catch (Exception e)
             {
@@ -57,13 +57,13 @@ public partial class Startup
         }
     }
 
-    private async Task HookPluginConfigure()
+    private async Task HookPluginConfigureAsync()
     {
         foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.ConfigureApplication(PluginLoadServiceProvider, WebAssemblyHost);
+                await pluginAppStartup.ConfigureApplicationAsync(PluginLoadServiceProvider, WebAssemblyHost);
             }
             catch (Exception e)
             {

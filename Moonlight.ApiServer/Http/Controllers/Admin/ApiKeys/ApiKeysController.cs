@@ -26,7 +26,7 @@ public class ApiKeysController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.apikeys.get")]
-    public async Task<ActionResult<ICountedData<ApiKeyResponse>>> Get(
+    public async Task<ActionResult<ICountedData<ApiKeyResponse>>> GetAsync(
         [FromQuery] int startIndex,
         [FromQuery] int count,
         [FromQuery] string? orderBy,
@@ -81,7 +81,7 @@ public class ApiKeysController : Controller
 
     [HttpGet("{id:int}")]
     [Authorize(Policy = "permissions:admin.apikeys.get")]
-    public async Task<ActionResult<ApiKeyResponse>> GetSingle(int id)
+    public async Task<ActionResult<ApiKeyResponse>> GetSingleAsync(int id)
     {
         var apiKey = await ApiKeyRepository
             .Get()
@@ -97,7 +97,7 @@ public class ApiKeysController : Controller
 
     [HttpPost]
     [Authorize(Policy = "permissions:admin.apikeys.create")]
-    public async Task<CreateApiKeyResponse> Create([FromBody] CreateApiKeyRequest request)
+    public async Task<CreateApiKeyResponse> CreateAsync([FromBody] CreateApiKeyRequest request)
     {
         var apiKey = ApiKeyMapper.ToApiKey(request);
         
@@ -117,7 +117,7 @@ public class ApiKeysController : Controller
 
     [HttpPatch("{id:int}")]
     [Authorize(Policy = "permissions:admin.apikeys.update")]
-    public async Task<ActionResult<ApiKeyResponse>> Update([FromRoute] int id, [FromBody] UpdateApiKeyRequest request)
+    public async Task<ActionResult<ApiKeyResponse>> UpdateAsync([FromRoute] int id, [FromBody] UpdateApiKeyRequest request)
     {
         var apiKey = await ApiKeyRepository
             .Get()
@@ -135,7 +135,7 @@ public class ApiKeysController : Controller
 
     [HttpDelete("{id:int}")]
     [Authorize(Policy = "permissions:admin.apikeys.delete")]
-    public async Task<ActionResult> Delete([FromRoute] int id)
+    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
     {
         var apiKey = await ApiKeyRepository
             .Get()

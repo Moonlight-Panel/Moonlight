@@ -33,7 +33,7 @@ public class UserAuthService
         Extensions = extensions;
     }
 
-    public async Task<bool> Sync(ClaimsPrincipal? principal)
+    public async Task<bool> SyncAsync(ClaimsPrincipal? principal)
     {
         // Ignore malformed claims principal
         if (principal is not { Identity.IsAuthenticated: true })
@@ -107,7 +107,7 @@ public class UserAuthService
         // Call extensions
         foreach (var extension in Extensions)
         {
-            var result = await extension.Sync(user, principal);
+            var result = await extension.SyncAsync(user, principal);
 
             if (!result) // Exit immediately if result is false
                 return false;
@@ -116,7 +116,7 @@ public class UserAuthService
         return true;
     }
 
-    public async Task<bool> Validate(ClaimsPrincipal? principal)
+    public async Task<bool> ValidateAsync(ClaimsPrincipal? principal)
     {
         // Ignore malformed claims principal
         if (principal is not { Identity.IsAuthenticated: true })
@@ -157,7 +157,7 @@ public class UserAuthService
         // Call extensions
         foreach (var extension in Extensions)
         {
-            var result = await extension.Validate(user, principal);
+            var result = await extension.ValidateAsync(user, principal);
 
             if (!result) // Exit immediately if result is false
                 return false;

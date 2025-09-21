@@ -42,7 +42,7 @@
     public event Func<Task> OnStateChanged;
     public bool ShowMobileNavigation { get; private set; } = false;
 
-    public async Task ToggleMobileNavigation()
+    public async Task ToggleMobileNavigationAsync()
     {
         ShowMobileNavigation = !ShowMobileNavigation;
         await OnStateChanged();

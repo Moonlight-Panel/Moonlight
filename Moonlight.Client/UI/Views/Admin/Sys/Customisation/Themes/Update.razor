@@ -9,13 +9,13 @@
 @inject ToastService ToastService
 @inject NavigationManager Navigation
 
-<LazyLoader Load="Load">
+<LazyLoader Load="LoadAsync">
     <PageHeader Title="@($"Update {Request.Name}")">
         <a href="/admin/system/customisation" class="btn btn-secondary">
             <i class="icon-chevron-left"></i>
             Back
         </a>
-        <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+        <WButton OnClick="Form.SubmitAsync" CssClasses="btn btn-primary">
             <i class="icon-check"></i>
             Update
         </WButton>
@@ -80,7 +80,7 @@
 
     private HandleForm Form;
     
-    private async Task Load(LazyLoader _)
+    private async Task LoadAsync(LazyLoader _)
     {
         Response = await ThemeService.GetAsync(Id);
 
@@ -100,7 +100,7 @@
     {
         await ThemeService.UpdateAsync(Id, Request);
         
-        await ToastService.Success("Successfully updated theme");
+        await ToastService.SuccessAsync("Successfully updated theme");
         Navigation.NavigateTo("/admin/system/customisation");
     }
 }

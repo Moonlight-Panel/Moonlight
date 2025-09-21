@@ -7,7 +7,7 @@ namespace Moonlight.ApiServer.Http.Hubs;
 public class DiagnoseHub : Hub
 {
     [HubMethodName("Ping")]
-    public async Task Ping()
+    public async Task PingAsync()
     {
         await Clients.All.SendAsync("Pong");
     }

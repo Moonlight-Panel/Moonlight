@@ -7,14 +7,14 @@ pluginLoader.Initialize();
 
 var startup = new Startup();
 
-await startup.Initialize(pluginLoader.Instances);
+await startup.InitializeAsync(pluginLoader.Instances);
 
 var wasmHostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
 
-await startup.AddMoonlight(wasmHostBuilder);
+await startup.AddMoonlightAsync(wasmHostBuilder);
 
 var wasmApp = wasmHostBuilder.Build();
 
-await startup.AddMoonlight(wasmApp);
+await startup.AddMoonlightAsync(wasmApp);
 
 await wasmApp.RunAsync();

@@ -27,7 +27,7 @@ public class UsersController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.users.get")]
-    public async Task<ActionResult<ICountedData<UserResponse>>> Get(
+    public async Task<ActionResult<ICountedData<UserResponse>>> GetAsync(
         [FromQuery] int startIndex,
         [FromQuery] int count,
         [FromQuery] string? orderBy,
@@ -83,7 +83,7 @@ public class UsersController : Controller
 
     [HttpGet("{id}")]
     [Authorize(Policy = "permissions:admin.users.get")]
-    public async Task<ActionResult<UserResponse>> GetSingle(int id)
+    public async Task<ActionResult<UserResponse>> GetSingleAsync(int id)
     {
         var user = await UserRepository
             .Get()
@@ -98,7 +98,7 @@ public class UsersController : Controller
 
     [HttpPost]
     [Authorize(Policy = "permissions:admin.users.create")]
-    public async Task<ActionResult<UserResponse>> Create([FromBody] CreateUserRequest request)
+    public async Task<ActionResult<UserResponse>> CreateAsync([FromBody] CreateUserRequest request)
     {
         // Reformat values
         request.Username = request.Username.ToLower().Trim();
@@ -128,7 +128,7 @@ public class UsersController : Controller
 
     [HttpPatch("{id}")]
     [Authorize(Policy = "permissions:admin.users.update")]
-    public async Task<ActionResult<UserResponse>> Update([FromRoute] int id, [FromBody] UpdateUserRequest request)
+    public async Task<ActionResult<UserResponse>> UpdateAsync([FromRoute] int id, [FromBody] UpdateUserRequest request)
     {
         var user = await UserRepository
             .Get()
@@ -171,7 +171,7 @@ public class UsersController : Controller
 
     [HttpDelete("{id}")]
     [Authorize(Policy = "permissions:admin.users.delete")]
-    public async Task<ActionResult> Delete([FromRoute] int id, [FromQuery] bool force = false)
+    public async Task<ActionResult> DeleteAsync([FromRoute] int id, [FromQuery] bool force = false)
     {
         var user = await UserRepository
             .Get()
@@ -184,13 +184,13 @@ public class UsersController : Controller
 
         if (!force)
         {
-            var validationResult = await deletionService.Validate(user);
+            var validationResult = await deletionService.ValidateAsync(user);
 
             if (!validationResult.IsAllowed)
                 return Problem("Unable to delete user", statusCode: 400, title: validationResult.Reason);
         }
 
-        await deletionService.Delete(user, force);
+        await deletionService.DeleteAsync(user, force);
         return NoContent();
     }
 }

@@ -21,7 +21,7 @@ public class DiagnoseController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult> Diagnose([FromBody] GenerateDiagnoseRequest request)
+    public async Task<ActionResult> DiagnoseAsync([FromBody] GenerateDiagnoseRequest request)
     {
         var stream = await DiagnoseService.GenerateDiagnoseAsync(request.Providers);
 
@@ -29,7 +29,7 @@ public class DiagnoseController : Controller
     }
 
     [HttpGet("providers")]
-    public async Task<ActionResult<DiagnoseProvideResponse[]>> GetProviders()
+    public async Task<ActionResult<DiagnoseProvideResponse[]>> GetProvidersAsync()
     {
         return await DiagnoseService.GetProvidersAsync();
     }

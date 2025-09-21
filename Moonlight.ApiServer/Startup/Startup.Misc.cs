@@ -6,7 +6,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private Task PrintVersion()
+    private Task PrintVersionAsync()
     {
         // Fancy start console output... yes very fancy :>
         var rainbow = new Crayon.Rainbow(0.5);
@@ -25,7 +25,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task CreateStorage()
+    private Task CreateStorageAsync()
     {
         Directory.CreateDirectory("storage");
         Directory.CreateDirectory(Path.Combine("storage", "logs"));
@@ -33,7 +33,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
     
-    private Task RegisterCors()
+    private Task RegisterCorsAsync()
     {
         var allowedOrigins = Configuration.Kestrel.AllowedOrigins;
 
@@ -64,7 +64,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task UseCors()
+    private Task UseCorsAsync()
     {
         WebApplication.UseCors();
 

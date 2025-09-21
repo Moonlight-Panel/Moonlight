@@ -13,7 +13,7 @@
     <NavTabs Index="0" Names="UiConstants.AdminNavNames" Links="UiConstants.AdminNavLinks" />
 </div>
 
-<LazyLoader Load="LoadOverview">
+<LazyLoader Load="LoadOverviewAsync">
     <div class="gap-5 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4">
         <StatCard Title="CPU Usage" Text="@(OverviewData.CpuUsage + "%")" Icon="icon-cpu"/>
         <StatCard Title="Memory Usage" Text="@(Formatter.FormatSize(OverviewData.MemoryUsage))" Icon="icon-memory-stick"/>
@@ -28,7 +28,7 @@
     <div class="flex">
         <div class="card card-body">
             <div class="flex justify-center">
-                <WButton OnClick="Restart" CssClasses="btn btn-error w-full">
+                <WButton OnClick="RestartAsync" CssClasses="btn btn-error w-full">
                     <i class="icon-repeat me-2"></i>
                     Restart/Shutdown
                 </WButton>
@@ -41,12 +41,12 @@
 {
     private SystemOverviewResponse OverviewData;
     
-    private async Task LoadOverview(LazyLoader arg)
+    private async Task LoadOverviewAsync(LazyLoader arg)
     {
         OverviewData = await ApiClient.GetJson<SystemOverviewResponse>("api/admin/system");
     }
     
-    private async Task Restart(WButton _)
+    private async Task RestartAsync(WButton _)
     {
         await ApiClient.Post("api/admin/system/shutdown");
     }

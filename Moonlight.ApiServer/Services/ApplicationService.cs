@@ -19,7 +19,7 @@ public class ApplicationService
         Host = host;
     }
 
-    public Task<string> GetOsName()
+    public Task<string> GetOsNameAsync()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -58,7 +58,7 @@ public class ApplicationService
         return Task.FromResult("N/A");
     }
     
-    public async Task<long> GetMemoryUsage()
+    public async Task<long> GetMemoryUsageAsync()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -87,14 +87,14 @@ public class ApplicationService
         }
     }
     
-    public Task<TimeSpan> GetUptime()
+    public Task<TimeSpan> GetUptimeAsync()
     {
         var process = Process.GetCurrentProcess();
         var uptime = DateTime.Now - process.StartTime;
         return Task.FromResult(uptime);
     }
 
-    public Task<int> GetCpuUsage()
+    public Task<int> GetCpuUsageAsync()
     {
         var process = Process.GetCurrentProcess();
         var cpuTime = process.TotalProcessorTime;
@@ -105,7 +105,7 @@ public class ApplicationService
         return Task.FromResult(cpuUsage);
     }
 
-    public Task Shutdown()
+    public Task ShutdownAsync()
     {
         Logger.LogCritical("Restart of api server has been requested");
 

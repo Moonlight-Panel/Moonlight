@@ -6,7 +6,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    public Task RegisterSignalR()
+    public Task RegisterSignalRAsync()
     {
         var signalRBuilder = WebApplicationBuilder.Services.AddSignalR();
 
@@ -16,7 +16,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    public Task MapSignalR()
+    public Task MapSignalRAsync()
     {
         WebApplication.MapHub<DiagnoseHub>("/api/admin/system/diagnose/ws");
         

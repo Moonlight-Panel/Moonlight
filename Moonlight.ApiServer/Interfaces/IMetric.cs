@@ -4,6 +4,6 @@ namespace Moonlight.ApiServer.Interfaces;
 
 public interface IMetric
 {
-    public Task Initialize(Meter meter);
-    public Task Run(IServiceProvider provider, CancellationToken cancellationToken);
+    public Task InitializeAsync(Meter meter);
+    public Task RunAsync(IServiceProvider provider, CancellationToken cancellationToken);
 }

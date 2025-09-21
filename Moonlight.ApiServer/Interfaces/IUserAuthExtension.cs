@@ -12,7 +12,7 @@ public interface IUserAuthExtension
     /// <param name="user">The current user this method is called for</param>
     /// <param name="principal">The principal after being processed by moonlight itself</param>
     /// <returns>The result of the synchronisation. Returning false will immediately invalidate the sign-in and no other extensions will be called</returns>
-    public Task<bool> Sync(User user, ClaimsPrincipal principal);
+    public Task<bool> SyncAsync(User user, ClaimsPrincipal principal);
 
     /// <summary>
     /// IMPORTANT: Please note that heavy operations should not occur in this method as it will be called for every request
@@ -21,5 +21,5 @@ public interface IUserAuthExtension
     /// <param name="user">The current user this method is called for</param>
     /// <param name="principal">The principal after being processed by moonlight itself</param>
     /// <returns>The result of the validation. Returning false will immediately invalidate the users session and no other extensions will be called</returns>
-    public Task<bool> Validate(User user, ClaimsPrincipal principal);
+    public Task<bool> ValidateAsync(User user, ClaimsPrincipal principal);
 }

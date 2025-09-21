@@ -18,7 +18,7 @@ public class HangfireController : Controller
     }
 
     [HttpGet("stats")]
-    public Task<HangfireStatsResponse> GetStats()
+    public Task<HangfireStatsResponse> GetStatsAsync()
     {
         var statistics = JobStorage.GetMonitoringApi().GetStatistics();
 

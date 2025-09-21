@@ -20,7 +20,7 @@
 
 <DataGrid @ref="Grid"
           TGridItem="UserResponse"
-          ItemsProvider="ItemsProvider"
+          ItemsProvider="ItemsProviderAsync"
           EnableFiltering="true"
           EnablePagination="true">
     <PropertyColumn Field="x => x.Id" Sortable="true" />
@@ -46,7 +46,7 @@
 {
     private DataGrid<UserResponse> Grid;
     
-    private async Task<DataGridItemResult<UserResponse>> ItemsProvider(DataGridItemRequest request)
+    private async Task<DataGridItemResult<UserResponse>> ItemsProviderAsync(DataGridItemRequest request)
     {
         var query = $"?startIndex={request.StartIndex}&count={request.Count}";
 
@@ -70,13 +70,13 @@
     
     private async Task DeleteAsync(UserResponse response)
     {
-        await AlertService.ConfirmDanger(
+        await AlertService.ConfirmDangerAsync(
             "User deletion",
             $"Do you really want to delete the user '{response.Username}'",
             async () =>
             {
                 await ApiClient.Delete($"api/admin/users/{response.Id}");
-                await ToastService.Success("Successfully deleted user");
+                await ToastService.SuccessAsync("Successfully deleted user");
 
                 await Grid.RefreshAsync();
             }

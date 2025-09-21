@@ -28,11 +28,11 @@
                 If you only want to export specific parts of the diagnose report, click on "Advanced" and select the desired providers
             </p>
 
-            <WButton OnClick="GenerateDiagnose" CssClasses="btn btn-primary my-5">Generate report</WButton>
+            <WButton OnClick="GenerateDiagnoseAsync" CssClasses="btn btn-primary my-5">Generate report</WButton>
 
             <div class="text-sm">
                 <a class="text-primary cursor-pointer flex items-center" @onclick:preventDefault
-                   @onclick="ToggleDropDown">
+                   @onclick="ToggleDropDownAsync">
                     <span class="me-1.5">Advanced</span>
                     @if (DropdownOpen)
                     {
@@ -45,7 +45,7 @@
                 </a>
 
                 <div class="@(DropdownOpen ? "" : "hidden")">
-                    <LazyLoader Load="Load">
+                    <LazyLoader Load="LoadAsync">
                         <div class="mb-2 py-2 border-b border-base-content/70 flex items-center gap-3">
                             <input id="selectall_checkbox" @bind="SelectAll" type="checkbox" class="checkbox checkbox-primary checkbox-xs">
                             <label for="selectall_checkbox">Select all</label>
@@ -86,7 +86,7 @@
         }
     }
 
-    private async Task Load(LazyLoader arg)
+    private async Task LoadAsync(LazyLoader arg)
     {
         var providers = await ApiClient.GetJson<DiagnoseProvideResponse[]>(
             "api/admin/system/diagnose/providers"
@@ -96,7 +96,7 @@
             .ToDictionary(x => x, _ => true);
     }
 
-    private async Task GenerateDiagnose(WButton button)
+    private async Task GenerateDiagnoseAsync(WButton button)
     {
         var request = new GenerateDiagnoseRequest();
 
@@ -111,11 +111,11 @@
 
         var stream = await ApiClient.PostStream("api/admin/system/diagnose", request);
 
-        await DownloadService.Download("diagnose.zip", stream);
+        await DownloadService.DownloadAsync("diagnose.zip", stream);
     }
 
 
-    private async Task ToggleDropDown()
+    private async Task ToggleDropDownAsync()
     {
         DropdownOpen = !DropdownOpen;
         await InvokeAsync(StateHasChanged);

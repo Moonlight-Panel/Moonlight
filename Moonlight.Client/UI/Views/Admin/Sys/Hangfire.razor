@@ -19,7 +19,7 @@
     </HelperMessage>
 </div>
 
-<LazyLoader Load="Load">
+<LazyLoader Load="LoadAsync">
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5">
         <StatCard Title="Servers" Text="@Stats.Servers.ToString()" Icon="icon-server"/>
         <StatCard Title="Recurring" Text="@Stats.Recurring.ToString()" Icon="icon-calendar-sync"/>
@@ -39,7 +39,7 @@
 {
     private HangfireStatsResponse Stats;
 
-    private async Task Load(LazyLoader _)
+    private async Task LoadAsync(LazyLoader _)
     {
         Stats = await ApiClient.GetJson<HangfireStatsResponse>(
             "api/admin/system/hangfire/stats"

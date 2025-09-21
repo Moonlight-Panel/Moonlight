@@ -9,7 +9,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private Task RegisterHangfire()
+    private Task RegisterHangfireAsync()
     {
         WebApplicationBuilder.Services.AddHangfire((provider, configuration) =>
         {
@@ -38,7 +38,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task UseHangfire()
+    private Task UseHangfireAsync()
     {
         if (WebApplication.Environment.IsDevelopment())
             WebApplication.UseHangfireDashboard();

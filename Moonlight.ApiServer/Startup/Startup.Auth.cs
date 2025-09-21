@@ -13,7 +13,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private Task RegisterAuth()
+    private Task RegisterAuthAsync()
     {
         WebApplicationBuilder.Services
             .AddAuthentication(options => { options.DefaultScheme = "MainScheme"; })
@@ -62,7 +62,7 @@ public partial class Startup
                             .RequestServices
                             .GetRequiredService<ApiKeyAuthService>();
 
-                        var result = await apiKeyAuthService.Validate(context.Principal);
+                        var result = await apiKeyAuthService.ValidateAsync(context.Principal);
 
                         if (!result)
                             context.Fail("API key has been deleted");
@@ -120,7 +120,7 @@ public partial class Startup
                         .RequestServices
                         .GetRequiredService<UserAuthService>();
 
-                    var result = await userSyncService.Sync(context.Principal);
+                    var result = await userSyncService.SyncAsync(context.Principal);
 
                     if (!result)
                         context.Principal = new();
@@ -135,7 +135,7 @@ public partial class Startup
                         .RequestServices
                         .GetRequiredService<UserAuthService>();
 
-                    var result = await userSyncService.Validate(context.Principal);
+                    var result = await userSyncService.ValidateAsync(context.Principal);
 
                     if (!result)
                         context.RejectPrincipal();
@@ -178,7 +178,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task UseAuth()
+    private Task UseAuthAsync()
     {
         WebApplication.UseAuthentication();
 

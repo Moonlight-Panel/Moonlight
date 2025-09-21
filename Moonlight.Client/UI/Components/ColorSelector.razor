@@ -1,7 +1,7 @@
 <label for="@Id" class="btn btn-square border-0 ring-0 outline-0" style="background-color: @Value">
     <i class="text-lg text-base-content @Icon"></i>
 </label>
-<input value="@Value" @oninput="Update" id="@Id" type="color" class="h-0 w-0 opacity-0"/>
+<input value="@Value" @oninput="UpdateAsync" id="@Id" type="color" class="h-0 w-0 opacity-0"/>
 
 @code
 {
@@ -37,7 +37,7 @@
         Id = $"color-selector-{GetHashCode()}";
     }
 
-    private async Task Update(ChangeEventArgs args)
+    private async Task UpdateAsync(ChangeEventArgs args)
     {
         Value = args.Value?.ToString() ?? "#FFFFFF";
         await InvokeAsync(StateHasChanged);

@@ -8,11 +8,11 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private async Task SetupAppConfiguration()
+    private async Task SetupAppConfigurationAsync()
     {
         var configPath = Path.Combine("storage", "config.yml");
 
-        await YamlDefaultGenerator.Generate<AppConfiguration>(configPath);
+        await YamlDefaultGenerator.GenerateAsync<AppConfiguration>(configPath);
 
         // Configure configuration (wow)
         var configurationBuilder = new ConfigurationBuilder();
@@ -27,7 +27,7 @@ public partial class Startup
         configurationRoot.Bind(Configuration);
     }
 
-    private Task RegisterAppConfiguration()
+    private Task RegisterAppConfigurationAsync()
     {
         WebApplicationBuilder.Services.AddSingleton(Configuration);
         return Task.CompletedTask;

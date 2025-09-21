@@ -21,7 +21,7 @@ namespace Moonlight.ApiServer.Implementations.Startup;
 
 public class CoreStartup : IPluginStartup
 {
-    public Task BuildApplication(IServiceProvider serviceProvider, IHostApplicationBuilder builder)
+    public Task BuildApplicationAsync(IServiceProvider serviceProvider, IHostApplicationBuilder builder)
     {
         var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
 
@@ -142,7 +142,7 @@ public class CoreStartup : IPluginStartup
         return Task.CompletedTask;
     }
 
-    public Task ConfigureApplication(IServiceProvider serviceProvider, IApplicationBuilder app)
+    public Task ConfigureApplicationAsync(IServiceProvider serviceProvider, IApplicationBuilder app)
     {
         var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
 
@@ -156,7 +156,7 @@ public class CoreStartup : IPluginStartup
         return Task.CompletedTask;
     }
 
-    public Task ConfigureEndpoints(IServiceProvider serviceProvider, IEndpointRouteBuilder routeBuilder)
+    public Task ConfigureEndpointsAsync(IServiceProvider serviceProvider, IEndpointRouteBuilder routeBuilder)
     {
         var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
 

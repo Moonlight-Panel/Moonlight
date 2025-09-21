@@ -10,7 +10,7 @@ public partial class Startup
     private IServiceProvider PluginLoadServiceProvider;
     private IPluginStartup[] PluginStartups;
     
-    private Task InitializePlugins()
+    private Task InitializePluginsAsync()
     {
         // Create service provider for starting up
         var serviceCollection = new ServiceCollection();
@@ -28,13 +28,13 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private async Task HookPluginBuild()
+    private async Task HookPluginBuildAsync()
     {
         foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.BuildApplication(PluginLoadServiceProvider, WebApplicationBuilder);
+                await pluginAppStartup.BuildApplicationAsync(PluginLoadServiceProvider, WebApplicationBuilder);
             }
             catch (Exception e)
             {
@@ -47,13 +47,13 @@ public partial class Startup
         }
     }
 
-    private async Task HookPluginConfigure()
+    private async Task HookPluginConfigureAsync()
     {
         foreach (var pluginAppStartup in PluginStartups)
         {
             try
             {
-                await pluginAppStartup.ConfigureApplication(PluginLoadServiceProvider, WebApplication);
+                await pluginAppStartup.ConfigureApplicationAsync(PluginLoadServiceProvider, WebApplication);
             }
             catch (Exception e)
             {
@@ -66,13 +66,13 @@ public partial class Startup
         }
     }
 
-    private async Task HookPluginEndpoints()
+    private async Task HookPluginEndpointsAsync()
     {
         foreach (var pluginEndpointStartup in PluginStartups)
         {
             try
             {
-                await pluginEndpointStartup.ConfigureEndpoints(PluginLoadServiceProvider, WebApplication);
+                await pluginEndpointStartup.ConfigureEndpointsAsync(PluginLoadServiceProvider, WebApplication);
             }
             catch (Exception e)
             {

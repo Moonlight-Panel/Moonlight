@@ -30,7 +30,7 @@
 
 <div class="my-8">
     <DataGrid TGridItem="ThemeResponse"
-              ItemsProvider="ItemsProvider"
+              ItemsProvider="ItemsProviderAsync"
               EnableFiltering="true"
               EnablePagination="true">
         
@@ -105,7 +105,7 @@
 {
     private DataGrid<ThemeResponse> Grid;
     
-    private async Task<DataGridItemResult<ThemeResponse>> ItemsProvider(DataGridItemRequest request)
+    private async Task<DataGridItemResult<ThemeResponse>> ItemsProviderAsync(DataGridItemRequest request)
     {
         var query = $"?startIndex={request.StartIndex}&count={request.Count}";
 
@@ -142,13 +142,13 @@
             {
                 if (!file.Name.EndsWith(".json"))
                 {
-                    await ToastService.Error($"Unable to import {file.Name}", "Only .json files are supported");
+                    await ToastService.ErrorAsync($"Unable to import {file.Name}", "Only .json files are supported");
                     continue;
                 }
 
                 if (file.Size > maxFileSize)
                 {
-                    await ToastService.Error($"Unable to import {file.Name}", "Exceeded the maximum file limit of 1MB");
+                    await ToastService.ErrorAsync($"Unable to import {file.Name}", "Exceeded the maximum file limit of 1MB");
                     continue;
                 }
 
@@ -159,7 +159,7 @@
 
                 if (themeTransfer == null)
                 {
-                    await ToastService.Error($"Unable to import {file.Name}", "Failed to deserialize the content");
+                    await ToastService.ErrorAsync($"Unable to import {file.Name}", "Failed to deserialize the content");
                     continue;
                 }
 
@@ -173,7 +173,7 @@
                     Version = themeTransfer.Version
                 });
 
-                await ToastService.Success("Successfully imported theme", theme.Name);
+                await ToastService.SuccessAsync("Successfully imported theme", theme.Name);
                 
                 await Grid.RefreshAsync();
             }
@@ -203,19 +203,19 @@
         
         var fileName = $"{transfer.Name.Replace(" ", string.Empty).Trim()}.json";
 
-        await DownloadService.Download(fileName, json);
+        await DownloadService.DownloadAsync(fileName, json);
     }
 
     private async Task DeleteAsync(ThemeResponse response)
     {
-        await AlertService.ConfirmDanger(
+        await AlertService.ConfirmDangerAsync(
             "Theme deletion",
             $"Do you really want to delete the theme: {response.Name}",
             async () =>
             {
                 await ThemeService.DeleteAsync(response.Id);
 
-                await ToastService.Success("Successfully deleted theme");
+                await ToastService.SuccessAsync("Successfully deleted theme");
                 await Grid.RefreshAsync();
             }
         );

@@ -10,15 +10,15 @@ await startup.Run(args, pluginLoader.Instances);
 
 var cs = new Startup();
 
-await cs.Initialize(args, pluginLoader.Instances);
+await cs.InitializeAsync(args, pluginLoader.Instances);
 
 var builder = WebApplication.CreateBuilder(args);
 
-await cs.AddMoonlight(builder);
+await cs.AddMoonlightAsync(builder);
 
 var app = builder.Build();
 
-await cs.AddMoonlight(app);
+await cs.AddMoonlightAsync(app);
 
 // Handle setup of wasm app hosting in the runtime
 // so the Moonlight.ApiServer doesn't need the wasm package

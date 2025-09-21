@@ -11,7 +11,7 @@ public class LogErrorFilter : IGlobalErrorFilter
         Logger = logger;
     }
 
-    public Task<bool> HandleException(Exception ex)
+    public Task<bool> HandleExceptionAsync(Exception ex)
     {
         Logger.LogError(ex, "Global error processed");
         return Task.FromResult(false);

@@ -7,13 +7,34 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Moonlight.ApiServer.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedHangfireTables : Migration
+    public partial class RecreatedMigrationsForChangeOfSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "core");
+
+            migrationBuilder.CreateTable(
+                name: "ApiKeys",
+                schema: "core",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Permissions = table.Column<string[]>(type: "text[]", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApiKeys", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "HangfireCounter",
+                schema: "core",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -29,6 +50,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireHash",
+                schema: "core",
                 columns: table => new
                 {
                     Key = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
@@ -43,6 +65,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireList",
+                schema: "core",
                 columns: table => new
                 {
                     Key = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
@@ -57,6 +80,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireLock",
+                schema: "core",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
@@ -69,6 +93,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireServer",
+                schema: "core",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
@@ -84,6 +109,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireSet",
+                schema: "core",
                 columns: table => new
                 {
                     Key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -97,7 +123,46 @@ namespace Moonlight.ApiServer.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Themes",
+                schema: "core",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Author = table.Column<string>(type: "text", nullable: false),
+                    Version = table.Column<string>(type: "text", nullable: false),
+                    UpdateUrl = table.Column<string>(type: "text", nullable: true),
+                    DonateUrl = table.Column<string>(type: "text", nullable: true),
+                    Content = table.Column<string>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Themes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                schema: "core",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Password = table.Column<string>(type: "text", nullable: false),
+                    TokenValidTimestamp = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Permissions = table.Column<string[]>(type: "text[]", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "HangfireJob",
+                schema: "core",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -115,6 +180,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireJobParameter",
+                schema: "core",
                 columns: table => new
                 {
                     JobId = table.Column<long>(type: "bigint", nullable: false),
@@ -127,6 +193,7 @@ namespace Moonlight.ApiServer.Database.Migrations
                     table.ForeignKey(
                         name: "FK_HangfireJobParameter_HangfireJob_JobId",
                         column: x => x.JobId,
+                        principalSchema: "core",
                         principalTable: "HangfireJob",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -134,6 +201,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireQueuedJob",
+                schema: "core",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -148,6 +216,7 @@ namespace Moonlight.ApiServer.Database.Migrations
                     table.ForeignKey(
                         name: "FK_HangfireQueuedJob_HangfireJob_JobId",
                         column: x => x.JobId,
+                        principalSchema: "core",
                         principalTable: "HangfireJob",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -155,6 +224,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "HangfireState",
+                schema: "core",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -171,6 +241,7 @@ namespace Moonlight.ApiServer.Database.Migrations
                     table.ForeignKey(
                         name: "FK_HangfireState_HangfireJob_JobId",
                         column: x => x.JobId,
+                        principalSchema: "core",
                         principalTable: "HangfireJob",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -178,73 +249,88 @@ namespace Moonlight.ApiServer.Database.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireCounter_ExpireAt",
+                schema: "core",
                 table: "HangfireCounter",
                 column: "ExpireAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireCounter_Key_Value",
+                schema: "core",
                 table: "HangfireCounter",
                 columns: new[] { "Key", "Value" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireHash_ExpireAt",
+                schema: "core",
                 table: "HangfireHash",
                 column: "ExpireAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireJob_ExpireAt",
+                schema: "core",
                 table: "HangfireJob",
                 column: "ExpireAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireJob_StateId",
+                schema: "core",
                 table: "HangfireJob",
                 column: "StateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireJob_StateName",
+                schema: "core",
                 table: "HangfireJob",
                 column: "StateName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireList_ExpireAt",
+                schema: "core",
                 table: "HangfireList",
                 column: "ExpireAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireQueuedJob_JobId",
+                schema: "core",
                 table: "HangfireQueuedJob",
                 column: "JobId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireQueuedJob_Queue_FetchedAt",
+                schema: "core",
                 table: "HangfireQueuedJob",
                 columns: new[] { "Queue", "FetchedAt" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireServer_Heartbeat",
+                schema: "core",
                 table: "HangfireServer",
                 column: "Heartbeat");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireSet_ExpireAt",
+                schema: "core",
                 table: "HangfireSet",
                 column: "ExpireAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireSet_Key_Score",
+                schema: "core",
                 table: "HangfireSet",
                 columns: new[] { "Key", "Score" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_HangfireState_JobId",
+                schema: "core",
                 table: "HangfireState",
                 column: "JobId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_HangfireJob_HangfireState_StateId",
+                schema: "core",
                 table: "HangfireJob",
                 column: "StateId",
+                principalSchema: "core",
                 principalTable: "HangfireState",
                 principalColumn: "Id");
         }
@@ -254,37 +340,60 @@ namespace Moonlight.ApiServer.Database.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_HangfireJob_HangfireState_StateId",
+                schema: "core",
                 table: "HangfireJob");
 
             migrationBuilder.DropTable(
-                name: "HangfireCounter");
+                name: "ApiKeys",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireHash");
+                name: "HangfireCounter",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireJobParameter");
+                name: "HangfireHash",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireList");
+                name: "HangfireJobParameter",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireLock");
+                name: "HangfireList",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireQueuedJob");
+                name: "HangfireLock",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireServer");
+                name: "HangfireQueuedJob",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireSet");
+                name: "HangfireServer",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireState");
+                name: "HangfireSet",
+                schema: "core");
 
             migrationBuilder.DropTable(
-                name: "HangfireJob");
+                name: "Themes",
+                schema: "core");
+
+            migrationBuilder.DropTable(
+                name: "Users",
+                schema: "core");
+
+            migrationBuilder.DropTable(
+                name: "HangfireState",
+                schema: "core");
+
+            migrationBuilder.DropTable(
+                name: "HangfireJob",
+                schema: "core");
         }
     }
 }

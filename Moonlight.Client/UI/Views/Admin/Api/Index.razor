@@ -51,7 +51,7 @@
 
 <DataGrid @ref="Grid"
           TGridItem="ApiKeyResponse"
-          ItemsProvider="ItemsProvider"
+          ItemsProvider="ItemsProviderAsync"
           EnableFiltering="true"
           EnablePagination="true">
     <PropertyColumn Field="x => x.Id" Sortable="true" />
@@ -92,7 +92,7 @@
 {
     private DataGrid<ApiKeyResponse> Grid;
     
-    private async Task<DataGridItemResult<ApiKeyResponse>> ItemsProvider(DataGridItemRequest request)
+    private async Task<DataGridItemResult<ApiKeyResponse>> ItemsProviderAsync(DataGridItemRequest request)
     {
         var query = $"?startIndex={request.StartIndex}&count={request.Count}";
 
@@ -116,13 +116,13 @@
 
     private async Task DeleteAsync(ApiKeyResponse apiKeyResponse)
     {
-        await AlertService.ConfirmDanger(
-            "API Key deletion",
+        await AlertService.ConfirmDangerAsync(
+            "API Key Deletion",
             $"Do you really want to delete the api key '{apiKeyResponse.Description}'",
             async () =>
             {
                 await ApiClient.Delete($"api/admin/apikeys/{apiKeyResponse.Id}");
-                await ToastService.Success("Successfully deleted api key");
+                await ToastService.SuccessAsync("Successfully deleted api key");
 
                 await Grid.RefreshAsync();
             }

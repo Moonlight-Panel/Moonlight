@@ -26,7 +26,7 @@ public class ThemesController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
-    public async Task<ActionResult<ICountedData<ThemeResponse>>> Get(
+    public async Task<ActionResult<ICountedData<ThemeResponse>>> GetAsync(
         [FromQuery] int startIndex,
         [FromQuery] int count,
         [FromQuery] string? orderBy,
@@ -81,7 +81,7 @@ public class ThemesController : Controller
 
     [HttpGet("{id:int}")]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
-    public async Task<ActionResult<ThemeResponse>> GetSingle([FromRoute] int id)
+    public async Task<ActionResult<ThemeResponse>> GetSingleAsync([FromRoute] int id)
     {
         var theme = await ThemeRepository
             .Get()
@@ -97,7 +97,7 @@ public class ThemesController : Controller
 
     [HttpPost]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
-    public async Task<ActionResult<ThemeResponse>> Create([FromBody] CreateThemeRequest request)
+    public async Task<ActionResult<ThemeResponse>> CreateAsync([FromBody] CreateThemeRequest request)
     {
         var theme = ThemeMapper.ToTheme(request);
 
@@ -108,7 +108,7 @@ public class ThemesController : Controller
 
     [HttpPatch("{id:int}")]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
-    public async Task<ActionResult<ThemeResponse>> Update([FromRoute] int id, [FromBody] UpdateThemeRequest request)
+    public async Task<ActionResult<ThemeResponse>> UpdateAsync([FromRoute] int id, [FromBody] UpdateThemeRequest request)
     {
         var theme = await ThemeRepository
             .Get()
@@ -141,7 +141,7 @@ public class ThemesController : Controller
 
     [HttpDelete("{id:int}")]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
-    public async Task<ActionResult> Delete([FromRoute] int id)
+    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
     {
         var theme = await ThemeRepository
             .Get()

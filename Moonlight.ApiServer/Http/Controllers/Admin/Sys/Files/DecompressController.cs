@@ -17,7 +17,7 @@ public class DecompressController : Controller
     private const string BaseDirectory = "storage";
     
     [HttpPost("decompress")]
-    public async Task Decompress([FromBody] DecompressRequest request)
+    public async Task DecompressAsync([FromBody] DecompressRequest request)
     {
         var path = Path.Combine(BaseDirectory, FilePathHelper.SanitizePath(request.Path));
         var destination = Path.Combine(BaseDirectory, FilePathHelper.SanitizePath(request.Destination));
@@ -25,18 +25,18 @@ public class DecompressController : Controller
         switch (request.Format)
         {
             case "tar.gz":
-                await DecompressTarGz(path, destination);
+                await DecompressTarGzAsync(path, destination);
                 break;
             
             case "zip":
-                await DecompressZip(path, destination);
+                await DecompressZipAsync(path, destination);
                 break;
         }
     }
     
      #region Tar Gz
 
-    private async Task DecompressTarGz(string path, string destination)
+    private async Task DecompressTarGzAsync(string path, string destination)
     {
         await using var fs = System.IO.File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         await using var gzipInputStream = new GZipInputStream(fs);
@@ -74,7 +74,7 @@ public class DecompressController : Controller
 
     #region Zip
 
-    private async Task DecompressZip(string path, string destination)
+    private async Task DecompressZipAsync(string path, string destination)
     {
         await using var fs = System.IO.File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         await using var zipInputStream = new ZipInputStream(fs);

@@ -17,7 +17,8 @@ namespace Moonlight.ApiServer.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.7")
+                .HasDefaultSchema("core")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -47,7 +48,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("Key", "Value");
 
-                    b.ToTable("HangfireCounter");
+                    b.ToTable("HangfireCounter", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireHash", b =>
@@ -70,7 +71,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("ExpireAt");
 
-                    b.ToTable("HangfireHash");
+                    b.ToTable("HangfireHash", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireJob", b =>
@@ -106,7 +107,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("StateName");
 
-                    b.ToTable("HangfireJob");
+                    b.ToTable("HangfireJob", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireJobParameter", b =>
@@ -123,7 +124,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasKey("JobId", "Name");
 
-                    b.ToTable("HangfireJobParameter");
+                    b.ToTable("HangfireJobParameter", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireList", b =>
@@ -145,7 +146,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("ExpireAt");
 
-                    b.ToTable("HangfireList");
+                    b.ToTable("HangfireList", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireLock", b =>
@@ -159,7 +160,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HangfireLock");
+                    b.ToTable("HangfireLock", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireQueuedJob", b =>
@@ -188,7 +189,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("Queue", "FetchedAt");
 
-                    b.ToTable("HangfireQueuedJob");
+                    b.ToTable("HangfireQueuedJob", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireServer", b =>
@@ -214,7 +215,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("Heartbeat");
 
-                    b.ToTable("HangfireServer");
+                    b.ToTable("HangfireServer", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireSet", b =>
@@ -239,7 +240,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("Key", "Score");
 
-                    b.ToTable("HangfireSet");
+                    b.ToTable("HangfireSet", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireState", b =>
@@ -272,7 +273,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.ToTable("HangfireState");
+                    b.ToTable("HangfireState", "core");
                 });
 
             modelBuilder.Entity("Moonlight.ApiServer.Database.Entities.ApiKey", b =>
@@ -299,7 +300,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Core_ApiKeys", (string)null);
+                    b.ToTable("ApiKeys", "core");
                 });
 
             modelBuilder.Entity("Moonlight.ApiServer.Database.Entities.Theme", b =>
@@ -333,7 +334,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Core_Themes", (string)null);
+                    b.ToTable("Themes", "core");
                 });
 
             modelBuilder.Entity("Moonlight.ApiServer.Database.Entities.User", b =>
@@ -365,7 +366,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Core_Users", (string)null);
+                    b.ToTable("Users", "core");
                 });
 
             modelBuilder.Entity("Hangfire.EntityFrameworkCore.HangfireJob", b =>
@@ -512,11 +513,11 @@ namespace Moonlight.ApiServer.Database.Migrations
                                 .IsRequired()
                                 .HasColumnType("text");
 
-                            b1.Property<float>("Depth")
-                                .HasColumnType("real");
+                            b1.Property<int>("Depth")
+                                .HasColumnType("integer");
 
-                            b1.Property<float>("Noise")
-                                .HasColumnType("real");
+                            b1.Property<int>("Noise")
+                                .HasColumnType("integer");
 
                             b1.Property<float>("RadiusBox")
                                 .HasColumnType("real");
@@ -535,7 +536,7 @@ namespace Moonlight.ApiServer.Database.Migrations
 
                             b1.HasKey("ThemeId");
 
-                            b1.ToTable("Core_Themes");
+                            b1.ToTable("Themes", "core");
 
                             b1.ToJson("Content");
 

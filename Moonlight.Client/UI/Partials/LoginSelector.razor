@@ -7,7 +7,7 @@
 <div class="flex h-screen justify-center items-center">
     <div class="sm:min-w-md">
         <div class="bg-base-100 shadow-base-300/20 z-1 w-full space-y-6 rounded-xl p-6 shadow-md lg:p-8">
-        <LazyLoader EnableDefaultSpacing="false" Load="Load">
+        <LazyLoader EnableDefaultSpacing="false" Load="LoadAsync">
             @if (ShowSelection)
             {
                 <div class="flex justify-center items-center gap-3">
@@ -34,7 +34,7 @@
                             if (config == null) // Ignore all schemes which have no ui configured
                                 continue;
 
-                            <button @onclick="() => Start(scheme)" class="btn btn-text w-full"
+                            <button @onclick="() => StartAsync(scheme)" class="btn btn-text w-full"
                                     style="background-color: @(config.Color)">
                                 <img src="@config.IconUrl"
                                      alt="scheme icon"
@@ -71,7 +71,7 @@
         };
     }
 
-    private async Task Load(LazyLoader arg)
+    private async Task LoadAsync(LazyLoader arg)
     {
         AuthSchemes = await ApiClient.GetJson<AuthSchemeResponse[]>(
             "api/auth"
@@ -82,12 +82,12 @@
         // showing the selection screen
 
         if (AuthSchemes.Length == 1)
-            await Start(AuthSchemes[0]);
+            await StartAsync(AuthSchemes[0]);
         else
             ShowSelection = true;
     }
 
-    private Task Start(AuthSchemeResponse scheme)
+    private Task StartAsync(AuthSchemeResponse scheme)
     {
         Navigation.NavigateTo($"/api/auth/{scheme.Identifier}", true);
         return Task.CompletedTask;

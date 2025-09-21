@@ -11,7 +11,7 @@ public class ApplicationMetric : IMetric
     private Gauge<int> CpuUsage;
     private Gauge<double> Uptime;
     
-    public Task Initialize(Meter meter)
+    public Task InitializeAsync(Meter meter)
     {
         MemoryUsage = meter.CreateGauge<long>("moonlight_memory_usage");
         CpuUsage = meter.CreateGauge<int>("moonlight_cpu_usage");
@@ -20,17 +20,17 @@ public class ApplicationMetric : IMetric
         return Task.CompletedTask;
     }
 
-    public async Task Run(IServiceProvider provider, CancellationToken cancellationToken)
+    public async Task RunAsync(IServiceProvider provider, CancellationToken cancellationToken)
     {
         var applicationService = provider.GetRequiredService<ApplicationService>();
 
-        var memory = await applicationService.GetMemoryUsage();
+        var memory = await applicationService.GetMemoryUsageAsync();
         MemoryUsage.Record(memory);
 
-        var uptime = await applicationService.GetUptime();
+        var uptime = await applicationService.GetUptimeAsync();
         Uptime.Record(uptime.TotalSeconds);
 
-        var cpu = await applicationService.GetCpuUsage();
+        var cpu = await applicationService.GetCpuUsageAsync();
         CpuUsage.Record(cpu);
     }
 }

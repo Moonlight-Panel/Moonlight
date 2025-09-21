@@ -33,7 +33,7 @@ public class MetricsBackgroundService : BackgroundService
         Metrics = metrics.ToArray();
     }
 
-    private async Task Initialize()
+    private async Task InitializeAsync()
     {
         Logger.LogDebug(
             "Initializing metrics: {names}",
@@ -41,12 +41,12 @@ public class MetricsBackgroundService : BackgroundService
         );
 
         foreach (var metric in Metrics)
-            await metric.Initialize(Meter);
+            await metric.InitializeAsync(Meter);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Initialize();
+        await InitializeAsync();
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -56,7 +56,7 @@ public class MetricsBackgroundService : BackgroundService
             {
                 try
                 {
-                    await metric.Run(scope.ServiceProvider, stoppingToken);
+                    await metric.RunAsync(scope.ServiceProvider, stoppingToken);
                 }
                 catch (TaskCanceledException)
                 {

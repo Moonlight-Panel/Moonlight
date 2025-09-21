@@ -9,7 +9,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private Task RegisterBase()
+    private Task RegisterBaseAsync()
     {
         WebApplicationBuilder.Services.AutoAddServices<Startup>();
         WebApplicationBuilder.Services.AddHttpClient();
@@ -29,7 +29,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task UseBase()
+    private Task UseBaseAsync()
     {
         WebApplication.UseRouting();
         WebApplication.UseExceptionHandler();
@@ -37,7 +37,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task MapBase()
+    private Task MapBaseAsync()
     {
         WebApplication.MapControllers();
 
@@ -47,7 +47,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private Task ConfigureKestrel()
+    private Task ConfigureKestrelAsync()
     {
         WebApplicationBuilder.WebHost.ConfigureKestrel(kestrelOptions =>
         {

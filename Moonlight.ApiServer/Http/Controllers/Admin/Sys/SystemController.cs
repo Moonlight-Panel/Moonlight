@@ -18,21 +18,21 @@ public class SystemController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.system.overview")]
-    public async Task<SystemOverviewResponse> GetOverview()
+    public async Task<SystemOverviewResponse> GetOverviewAsync()
     {
         return new()
         {
-            Uptime = await ApplicationService.GetUptime(),
-            CpuUsage = await ApplicationService.GetCpuUsage(),
-            MemoryUsage = await ApplicationService.GetMemoryUsage(),
-            OperatingSystem = await ApplicationService.GetOsName()
+            Uptime = await ApplicationService.GetUptimeAsync(),
+            CpuUsage = await ApplicationService.GetCpuUsageAsync(),
+            MemoryUsage = await ApplicationService.GetMemoryUsageAsync(),
+            OperatingSystem = await ApplicationService.GetOsNameAsync()
         };
     }
 
     [HttpPost("shutdown")]
     [Authorize(Policy = "permissions:admin.system.shutdown")]
-    public async Task Shutdown()
+    public async Task ShutdownAsync()
     {
-        await ApplicationService.Shutdown();
+        await ApplicationService.ShutdownAsync();
     }
 }

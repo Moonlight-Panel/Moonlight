@@ -19,7 +19,7 @@ public partial class Startup
     public WebApplication WebApplication { get; private set; }
     public WebApplicationBuilder WebApplicationBuilder { get; private set; }
 
-    public Task Initialize(string[] args, IPluginStartup[]? plugins = null)
+    public Task InitializeAsync(string[] args, IPluginStartup[]? plugins = null)
     {
         Args = args;
         PluginStartups = plugins ?? [];
@@ -27,43 +27,43 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    public async Task AddMoonlight(WebApplicationBuilder builder)
+    public async Task AddMoonlightAsync(WebApplicationBuilder builder)
     {
         WebApplicationBuilder = builder;
 
-        await PrintVersion();
+        await PrintVersionAsync();
 
-        await CreateStorage();
-        await SetupAppConfiguration();
-        await SetupLogging();
-        await InitializePlugins();
+        await CreateStorageAsync();
+        await SetupAppConfigurationAsync();
+        await SetupLoggingAsync();
+        await InitializePluginsAsync();
 
-        await ConfigureKestrel();
-        await RegisterAppConfiguration();
-        await RegisterLogging();
-        await RegisterBase();
-        await RegisterDatabase();
-        await RegisterAuth();
-        await RegisterCors();
-        await RegisterHangfire();
-        await RegisterSignalR();
-        await HookPluginBuild();
+        await ConfigureKestrelAsync();
+        await RegisterAppConfigurationAsync();
+        await RegisterLoggingAsync();
+        await RegisterBaseAsync();
+        await RegisterDatabaseAsync();
+        await RegisterAuthAsync();
+        await RegisterCorsAsync();
+        await RegisterHangfireAsync();
+        await RegisterSignalRAsync();
+        await HookPluginBuildAsync();
     }
 
-    public async Task AddMoonlight(WebApplication application)
+    public async Task AddMoonlightAsync(WebApplication application)
     {
         WebApplication = application;
 
-        await PrepareDatabase();
+        await PrepareDatabaseAsync();
 
-        await UseCors();
-        await UseBase();
-        await UseAuth();
-        await UseHangfire();
-        await HookPluginConfigure();
+        await UseCorsAsync();
+        await UseBaseAsync();
+        await UseAuthAsync();
+        await UseHangfireAsync();
+        await HookPluginConfigureAsync();
 
-        await MapBase();
-        await MapSignalR();
-        await HookPluginEndpoints();
+        await MapBaseAsync();
+        await MapSignalRAsync();
+        await HookPluginEndpointsAsync();
     }
 }
