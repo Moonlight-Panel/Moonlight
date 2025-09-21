@@ -25,8 +25,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
-    <PackageReference Include="MoonCore" Version="2.0.0" />
-    <PackageReference Include="MoonCore.Blazor.FlyonUi" Version="1.2.4" />
+    <PackageReference Include="MoonCore" Version="2.0.1" />
+    <PackageReference Include="MoonCore.Blazor.FlyonUi" Version="1.2.5" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
