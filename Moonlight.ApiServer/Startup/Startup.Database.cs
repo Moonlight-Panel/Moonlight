@@ -6,7 +6,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private Task RegisterDatabase()
+    private Task RegisterDatabaseAsync()
     {
         WebApplicationBuilder.Services.AddDatabaseMappings();
         WebApplicationBuilder.Services.AddServiceCollectionAccessor();
@@ -16,9 +16,9 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private async Task PrepareDatabase()
+    private async Task PrepareDatabaseAsync()
     {
-        await WebApplication.Services.EnsureDatabaseMigrated();
+        await WebApplication.Services.EnsureDatabaseMigratedAsync();
 
         WebApplication.Services.GenerateDatabaseMappings();
     }

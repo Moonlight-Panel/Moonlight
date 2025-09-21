@@ -19,9 +19,9 @@ public class AdvancedController : Controller
 
     [HttpGet("frontend")]
     [Authorize(Policy = "permissions:admin.system.advanced.frontend")]
-    public async Task Frontend()
+    public async Task FrontendAsync()
     {
-        var stream = await FrontendService.GenerateZip();
+        var stream = await FrontendService.GenerateZipAsync();
         await Results.File(stream, fileDownloadName: "frontend.zip").ExecuteAsync(HttpContext);
     }
 }

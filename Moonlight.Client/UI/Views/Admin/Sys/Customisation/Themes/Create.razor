@@ -14,7 +14,7 @@
         <i class="icon-chevron-left"></i>
         Back
     </a>
-    <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+    <WButton OnClick="Form.SubmitAsync" CssClasses="btn btn-primary">
         <i class="icon-check"></i>
         Create
     </WButton>
@@ -58,8 +58,8 @@
     
     private async Task OnValidSubmit()
     {
-        await ThemeService.Create(Request);
-        await ToastService.Success("Successfully created theme");
+        await ThemeService.CreateAsync(Request);
+        await ToastService.SuccessAsync("Successfully created theme");
         
         NavigationManager.NavigateTo("/admin/system/customisation");
     }

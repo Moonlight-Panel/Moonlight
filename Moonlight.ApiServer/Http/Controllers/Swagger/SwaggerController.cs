@@ -24,7 +24,7 @@ public class SwaggerController : Controller
 
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult> Get()
+    public async Task<ActionResult> GetAsync()
     {
         if (!Configuration.Development.EnableApiDocs)
             return BadRequest("Api docs are disabled");
@@ -32,7 +32,7 @@ public class SwaggerController : Controller
         var options = new ApiDocsOptions();
         var optionsJson = JsonSerializer.Serialize(options);
 
-        var html = await ComponentHelper.RenderComponent<SwaggerPage>(
+        var html = await ComponentHelper.RenderToHtmlAsync<SwaggerPage>(
             ServiceProvider,
             parameters =>
             {

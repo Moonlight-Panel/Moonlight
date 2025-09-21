@@ -17,7 +17,7 @@
             for all SignalR Hubs to be synced.
         </p>
         <div class="mt-5">
-            <LazyLoader Load="Load">
+            <LazyLoader Load="LoadAsync">
                 <WButton OnClick="OnClick" CssClasses="btn btn-primary">
                     Send broadcast
                 </WButton>
@@ -30,9 +30,9 @@
 {
     private HubConnection? Connection;
 
-    private async Task Load(LazyLoader lazyLoader)
+    private async Task LoadAsync(LazyLoader lazyLoader)
     {
-        await lazyLoader.UpdateText("Connecting to SignalR endpoint");
+        await lazyLoader.UpdateTextAsync("Connecting to SignalR endpoint");
         
         Connection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/api/admin/system/diagnose/ws"))
@@ -41,7 +41,7 @@
 
         Connection.On(
             "Pong",
-            async () => await ToastService.Success("Received broadcast")
+            async () => await ToastService.SuccessAsync("Received broadcast")
         );
 
         await Connection.StartAsync();

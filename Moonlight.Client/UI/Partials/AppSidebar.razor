@@ -95,7 +95,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="#" @onclick:preventDefault @onclick="Logout" class="flex items-center">
+                <a href="#" @onclick:preventDefault @onclick="LogoutAsync" class="flex items-center">
                     <i class="icon-log-out text-lg"></i>
                 </a>
             </div>
@@ -121,7 +121,7 @@
                     <div class="truncate">Moonlight v2.1</div>
                 </div>
 
-                <button @onclick="Layout.ToggleMobileNavigation" aria-label="Close navigation" type="button"
+                <button @onclick="Layout.ToggleMobileNavigationAsync" aria-label="Close navigation" type="button"
                         class="relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 text-base-content">
                     <i class="icon-x text-lg"></i>
                 </button>
@@ -180,7 +180,7 @@
                     <div class="flex flex-col gap-0.5">
                         <div class="relative">
                             <a class="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 sm:py-2 sm:text-sm/5 text-base-content"
-                               href="#" @onclick:preventDefault @onclick="Logout">
+                               href="#" @onclick:preventDefault @onclick="LogoutAsync">
                                 <i class="icon-log-out"></i>
                                 <span class="truncate">Logout</span>
                             </a>
@@ -252,13 +252,13 @@
             if (!Layout.ShowMobileNavigation)
                 return;
 
-            await Layout.ToggleMobileNavigation();
+            await Layout.ToggleMobileNavigationAsync();
         };
 
         return Task.CompletedTask;
     }
 
-    private Task Logout()
+    private Task LogoutAsync()
     {
         Navigation.NavigateTo("/api/auth/logout", true);
         return Task.CompletedTask;

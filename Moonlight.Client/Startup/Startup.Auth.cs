@@ -9,7 +9,7 @@ namespace Moonlight.Client.Startup;
 
 public partial class Startup
 {
-    private Task RegisterAuthentication()
+    private Task RegisterAuthenticationAsync()
     {
         WebAssemblyHostBuilder.Services.AddAuthorizationCore();
         WebAssemblyHostBuilder.Services.AddCascadingAuthenticationState();

@@ -16,33 +16,33 @@ public partial class Startup
     public FrontendConfiguration Configuration { get; private set; }
     
     
-    public Task Initialize(IPluginStartup[]? plugins = null)
+    public Task InitializeAsync(IPluginStartup[]? plugins = null)
     {
         PluginStartups = plugins ?? [];
         
         return Task.CompletedTask;
     }
 
-    public async Task AddMoonlight(WebAssemblyHostBuilder builder)
+    public async Task AddMoonlightAsync(WebAssemblyHostBuilder builder)
     {
         WebAssemblyHostBuilder = builder;
         
-        await PrintVersion();
+        await PrintVersionAsync();
 
-        await SetupLogging();
-        await LoadConfiguration();
-        await InitializePlugins();
+        await SetupLoggingAsync();
+        await LoadConfigurationAsync();
+        await InitializePluginsAsync();
 
-        await RegisterLogging();
-        await RegisterBase();
-        await RegisterAuthentication();
-        await HookPluginBuild();
+        await RegisterLoggingAsync();
+        await RegisterBaseAsync();
+        await RegisterAuthenticationAsync();
+        await HookPluginBuildAsync();
     }
     
-    public async Task AddMoonlight(WebAssemblyHost assemblyHost)
+    public async Task AddMoonlightAsync(WebAssemblyHost assemblyHost)
     {
         WebAssemblyHost = assemblyHost;
         
-        await HookPluginConfigure();
+        await HookPluginConfigureAsync();
     }
 }

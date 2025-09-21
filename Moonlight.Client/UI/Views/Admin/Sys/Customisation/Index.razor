@@ -2,7 +2,9 @@
 
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
-@using MoonCore.Blazor.FlyonUi.DataTables
+@using MoonCore.Blazor.FlyonUi.Grid
+@using MoonCore.Blazor.FlyonUi.Grid.Columns
+@using MoonCore.Blazor.FlyonUi.Grid.ToolbarItems
 @using MoonCore.Blazor.FlyonUi.Helpers
 @using MoonCore.Helpers
 @using MoonCore.Models
@@ -16,6 +18,7 @@
 @inject ThemeService ThemeService
 @inject AlertService AlertService
 @inject ToastService ToastService
+@inject HttpApiClient ApiClient
 @inject DownloadService DownloadService
 @inject ILogger<Index> Logger
 
@@ -25,72 +28,72 @@
     Themes
 </PageSeparator>
 
-<div class="mt-5 flex justify-end">
-    <div>
-        <label for="import-theme" class="btn btn-info me-1">
-            <i class="icon-file-up"></i>
-            Import
-        </label>
-        <InputFile OnChange="Import" id="import-theme" class="hidden" multiple />
-        <a href="/admin/system/customisation/themes/create" class="btn btn-primary">Create</a>
-    </div>
-</div>
+<div class="my-8">
+    <DataGrid TGridItem="ThemeResponse"
+              ItemsProvider="ItemsProviderAsync"
+              EnableFiltering="true"
+              EnablePagination="true">
+        
+        <PropertyColumn Field="x => x.Id" Sortable="true" />
+        <TemplateColumn Title="Name" Sortable="true">
+            <td>
+                <div class="flex items-center">
+                    @context.Name
 
-<div class="my-2.5">
-    <DataTable @ref="Table" TItem="ThemeResponse">
-        <Configuration>
-            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Id)" Name="Id"/>
-            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Name)" Name="Name">
-                <ColumnTemplate>
-                    <div class="flex items-center">
-                        @context.Name
-                        
-                        @if (context.IsEnabled)
-                        {
-                            <i class="icon-check text-success ms-2"></i>
-                        }
-                    </div>
-                </ColumnTemplate>
-            </DataTableColumn>
-            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Author)" Name="Author"/>
-            <DataTableColumn TItem="ThemeResponse" Field="@(x => x.Version)" Name="Version"/>
-            <DataTableColumn TItem="ThemeResponse">
-                <ColumnTemplate>
-                    <div class="flex justify-end">
-                        @if (!string.IsNullOrEmpty(context.DonateUrl))
-                        {
-                            <a href="@context.DonateUrl" target="_blank" class="flex items-center mr-2 sm:mr-3">
-                                <i class="text-accent icon-heart me-1"></i>
-                                <span class="text-accent">Donate</span>
-                            </a>
-                        }
-                        
-                        @if (!string.IsNullOrEmpty(context.UpdateUrl))
-                        {
-                            <a href="#" class="flex items-center mr-2 sm:mr-3">
-                                <i class="text-info icon-refresh-cw me-1"></i>
-                                <span class="text-info">Update</span>
-                            </a>
-                        }
-                        
-                        <a @onclick="() => Export(context)" @onclick:preventDefault href="#" class="flex items-center mr-2 sm:mr-3">
-                            <i class="text-success icon-download me-1"></i>
-                            <span class="text-success">Export</span>
+                    @if (context.IsEnabled)
+                    {
+                        <i class="icon-check text-success ms-2"></i>
+                    }
+                </div>
+            </td>
+        </TemplateColumn>
+        <PropertyColumn Field="x => x.Version" Sortable="true" />
+        <PropertyColumn Field="x => x.Author" />
+        
+        <TemplateColumn>
+            <td>
+                <div class="flex justify-end">
+                    @if (!string.IsNullOrEmpty(context.DonateUrl))
+                    {
+                        <a href="@context.DonateUrl" target="_blank" class="flex items-center mr-2 sm:mr-3">
+                            <i class="text-accent icon-heart me-1"></i>
+                            <span class="text-accent">Donate</span>
                         </a>
-                        
-                        <a href="/admin/system/customisation/themes/@(context.Id)" class="mr-2 sm:mr-3">
-                            <i class="icon-pencil text-primary"></i>
-                        </a>
+                    }
 
-                        <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault>
-                            <i class="icon-trash text-error"></i>
+                    @if (!string.IsNullOrEmpty(context.UpdateUrl))
+                    {
+                        <a href="#" class="flex items-center mr-2 sm:mr-3">
+                            <i class="text-info icon-refresh-cw me-1"></i>
+                            <span class="text-info">Update</span>
                         </a>
-                    </div>
-                </ColumnTemplate>
-            </DataTableColumn>
-            <Pagination TItem="ThemeResponse" PageSize="10" ItemSource="LoadItems"/>
-        </Configuration>
-    </DataTable>
+                    }
+
+                    <a @onclick="() => ExportAsync(context)" @onclick:preventDefault href="#" class="flex items-center mr-2 sm:mr-3">
+                        <i class="text-success icon-download me-1"></i>
+                        <span class="text-success">Export</span>
+                    </a>
+
+                    <a href="/admin/system/customisation/themes/@(context.Id)" class="mr-2 sm:mr-3">
+                        <i class="icon-pencil text-primary"></i>
+                    </a>
+
+                    <a href="#" @onclick="() => DeleteAsync(context)" @onclick:preventDefault>
+                        <i class="icon-trash text-error"></i>
+                    </a>
+                </div>
+            </td>
+        </TemplateColumn>
+
+        <TemplateToolbarItem>
+            <label for="import-theme" class="btn btn-info me-1 ms-1.5">
+                <i class="icon-file-up"></i>
+                Import
+            </label>
+            <InputFile OnChange="ImportAsync" id="import-theme" class="hidden" multiple />
+            <a href="/admin/system/customisation/themes/create" class="btn btn-primary">Create</a>
+        </TemplateToolbarItem>
+    </DataGrid>
 </div>
 
 <PageSeparator Icon="icon-images">
@@ -100,12 +103,31 @@
 
 @code
 {
-    private DataTable<ThemeResponse> Table;
+    private DataGrid<ThemeResponse> Grid;
     
-    private async Task<IPagedData<ThemeResponse>> LoadItems(PaginationOptions options)
-        => await ThemeService.Get(options.Page, options.PerPage);
+    private async Task<DataGridItemResult<ThemeResponse>> ItemsProviderAsync(DataGridItemRequest request)
+    {
+        var query = $"?startIndex={request.StartIndex}&count={request.Count}";
+
+        if (!string.IsNullOrEmpty(request.SortColumn))
+        {
+            var dir = request.SortDirection == SortState.Descending ? "desc" : "asc";
+            query += $"&orderBy={request.SortColumn}&orderByDir={dir}";
+        }
+
+        if (!string.IsNullOrEmpty(request.Filter))
+            query += $"&filter={request.Filter}";
+        
+        var data = await ApiClient.GetJson<CountedData<ThemeResponse>>($"api/admin/system/customisation/themes{query}");
+
+        return new()
+        {
+            Items = data.Items,
+            TotalCount = data.TotalCount
+        };
+    }
     
-    private async Task Import(InputFileChangeEventArgs eventArgs)
+    private async Task ImportAsync(InputFileChangeEventArgs eventArgs)
     {
         if(eventArgs.FileCount < 1)
             return;
@@ -120,13 +142,13 @@
             {
                 if (!file.Name.EndsWith(".json"))
                 {
-                    await ToastService.Error($"Unable to import {file.Name}", "Only .json files are supported");
+                    await ToastService.ErrorAsync($"Unable to import {file.Name}", "Only .json files are supported");
                     continue;
                 }
 
                 if (file.Size > maxFileSize)
                 {
-                    await ToastService.Error($"Unable to import {file.Name}", "Exceeded the maximum file limit of 1MB");
+                    await ToastService.ErrorAsync($"Unable to import {file.Name}", "Exceeded the maximum file limit of 1MB");
                     continue;
                 }
 
@@ -137,11 +159,11 @@
 
                 if (themeTransfer == null)
                 {
-                    await ToastService.Error($"Unable to import {file.Name}", "Failed to deserialize the content");
+                    await ToastService.ErrorAsync($"Unable to import {file.Name}", "Failed to deserialize the content");
                     continue;
                 }
 
-                var theme = await ThemeService.Create(new CreateThemeRequest()
+                var theme = await ThemeService.CreateAsync(new CreateThemeRequest()
                 {
                     Name = themeTransfer.Name,
                     Author = themeTransfer.Author,
@@ -151,9 +173,9 @@
                     Version = themeTransfer.Version
                 });
 
-                await ToastService.Success("Successfully imported theme", theme.Name);
+                await ToastService.SuccessAsync("Successfully imported theme", theme.Name);
                 
-                await Table.Refresh();
+                await Grid.RefreshAsync();
             }
             catch (Exception e)
             {
@@ -162,7 +184,7 @@
         }
     }
 
-    private async Task Export(ThemeResponse theme)
+    private async Task ExportAsync(ThemeResponse theme)
     {
         var transfer = new ThemeTransferModel()
         {
@@ -181,20 +203,20 @@
         
         var fileName = $"{transfer.Name.Replace(" ", string.Empty).Trim()}.json";
 
-        await DownloadService.Download(fileName, json);
+        await DownloadService.DownloadAsync(fileName, json);
     }
 
-    private async Task Delete(ThemeResponse response)
+    private async Task DeleteAsync(ThemeResponse response)
     {
-        await AlertService.ConfirmDanger(
+        await AlertService.ConfirmDangerAsync(
             "Theme deletion",
             $"Do you really want to delete the theme: {response.Name}",
             async () =>
             {
-                await ThemeService.Delete(response.Id);
+                await ThemeService.DeleteAsync(response.Id);
 
-                await ToastService.Success("Successfully deleted theme");
-                await Table.Refresh();
+                await ToastService.SuccessAsync("Successfully deleted theme");
+                await Grid.RefreshAsync();
             }
         );
     }

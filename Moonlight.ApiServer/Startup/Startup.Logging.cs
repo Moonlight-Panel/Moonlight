@@ -6,7 +6,7 @@ namespace Moonlight.ApiServer.Startup;
 
 public partial class Startup
 {
-    private Task SetupLogging()
+    private Task SetupLoggingAsync()
     {
         var loggerFactory = new LoggerFactory();
         loggerFactory.AddAnsiConsole();
@@ -16,7 +16,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private async Task RegisterLogging()
+    private async Task RegisterLoggingAsync()
     {
         // Configure application logging
         WebApplicationBuilder.Logging.ClearProviders();

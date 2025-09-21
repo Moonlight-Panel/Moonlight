@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Blazor.FlyonUi;
-using MoonCore.Blazor.Services;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
 using Moonlight.Client.Services;
@@ -10,7 +9,7 @@ namespace Moonlight.Client.Startup;
 
 public partial class Startup
 {
-    private Task RegisterBase()
+    private Task RegisterBaseAsync()
     {
         WebAssemblyHostBuilder.RootComponents.Add<App>("#app");
         WebAssemblyHostBuilder.RootComponents.Add<HeadOutlet>("head::after");

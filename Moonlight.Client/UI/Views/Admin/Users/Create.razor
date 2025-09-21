@@ -12,7 +12,7 @@
         <i class="icon-chevron-left"></i>
         Back
     </a>
-    <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+    <WButton OnClick="Form.SubmitAsync" CssClasses="btn btn-primary">
         <i class="icon-check"></i>
         Create
     </WButton>
@@ -67,7 +67,7 @@
         
         await ApiClient.Post("api/admin/users", Request);
 
-        await ToastService.Success("Successfully created user");
+        await ToastService.SuccessAsync("Successfully created user");
         Navigation.NavigateTo("/admin/users");
     }
 }

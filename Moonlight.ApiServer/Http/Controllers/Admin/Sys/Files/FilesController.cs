@@ -15,7 +15,7 @@ public class FilesController : Controller
     private const string BaseDirectory = "storage";
 
     [HttpPost("touch")]
-    public async Task CreateFile([FromQuery] string path)
+    public async Task CreateFileAsync([FromQuery] string path)
     {
         var safePath = FilePathHelper.SanitizePath(path);
         var physicalPath = Path.Combine(BaseDirectory, safePath);
@@ -31,7 +31,7 @@ public class FilesController : Controller
     }
     
     [HttpPost("mkdir")]
-    public Task CreateFolder([FromQuery] string path)
+    public Task CreateFolderAsync([FromQuery] string path)
     {
         var safePath = FilePathHelper.SanitizePath(path);
         var physicalPath = Path.Combine(BaseDirectory, safePath);
@@ -47,7 +47,7 @@ public class FilesController : Controller
     }
     
     [HttpGet("list")]
-    public Task<FileSystemEntryResponse[]> List([FromQuery] string path)
+    public Task<FileSystemEntryResponse[]> ListAsync([FromQuery] string path)
     {
         var safePath = FilePathHelper.SanitizePath(path);
         var physicalPath = Path.Combine(BaseDirectory, safePath);
@@ -92,7 +92,7 @@ public class FilesController : Controller
     }
 
     [HttpPost("move")]
-    public Task Move([FromQuery] string oldPath, [FromQuery] string newPath)
+    public Task MoveAsync([FromQuery] string oldPath, [FromQuery] string newPath)
     {
         var oldSafePath = FilePathHelper.SanitizePath(oldPath);
         var newSafePath = FilePathHelper.SanitizePath(newPath);
@@ -123,7 +123,7 @@ public class FilesController : Controller
     }
 
     [HttpDelete("delete")]
-    public Task Delete([FromQuery] string path)
+    public Task DeleteAsync([FromQuery] string path)
     {
         var safePath = FilePathHelper.SanitizePath(path);
         var physicalDirPath = Path.Combine(BaseDirectory, safePath);
@@ -141,7 +141,7 @@ public class FilesController : Controller
     }
 
     [HttpPost("upload")]
-    public async Task<IResult> Upload([FromQuery] string path)
+    public async Task<IResult> UploadAsync([FromQuery] string path)
     {
         if (Request.Form.Files.Count != 1)
             return Results.Problem("Only one file is allowed in the request", statusCode: 400);
@@ -179,7 +179,7 @@ public class FilesController : Controller
     }
 
     [HttpGet("download")]
-    public async Task Download([FromQuery] string path)
+    public async Task DownloadAsync([FromQuery] string path)
     {
         var safePath = FilePathHelper.SanitizePath(path);
         var physicalPath = Path.Combine(BaseDirectory, safePath);

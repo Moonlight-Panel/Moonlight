@@ -26,65 +26,96 @@ public class ThemesController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
-    public async Task<PagedData<ThemeResponse>> Get([FromQuery] PagedOptions options)
+    public async Task<ActionResult<ICountedData<ThemeResponse>>> GetAsync(
+        [FromQuery] int startIndex,
+        [FromQuery] int count,
+        [FromQuery] string? orderBy,
+        [FromQuery] string? filter,
+        [FromQuery] string orderByDir = "asc"
+    )
     {
-        var count = await ThemeRepository.Get().CountAsync();
+        if (count > 100)
+            return Problem("You cannot fetch more items than 100 at a time", statusCode: 400);
         
-        var items = await ThemeRepository
-            .Get()
-            .Skip(options.Page * options.PageSize)
-            .Take(options.PageSize)
-            .ToArrayAsync();
-        
-        var mappedItems = items
-            .Select(ThemeMapper.ToResponse)
-            .ToArray();
-        
-        return new PagedData<ThemeResponse>()
+        IQueryable<Theme> query = ThemeRepository.Get();
+
+        query = orderBy switch
         {
-            CurrentPage = options.Page,
-            Items = mappedItems,
-            PageSize = options.PageSize,
-            TotalItems = count,
-            TotalPages = count == 0 ? 0 : (count - 1) / options.PageSize
+            nameof(Theme.Id) => orderByDir == "desc"
+                ? query.OrderByDescending(x => x.Id)
+                : query.OrderBy(x => x.Id),
+                
+            nameof(Theme.Name) => orderByDir == "desc"
+                ? query.OrderByDescending(x => x.Name)
+                : query.OrderBy(x => x.Name),
+            
+            nameof(Theme.Version) => orderByDir == "desc"
+                ? query.OrderByDescending(x => x.Version)
+                : query.OrderBy(x => x.Version),
+            
+            _ => query.OrderBy(x => x.Id)
+        };
+
+        if (!string.IsNullOrEmpty(filter))
+        {
+            query = query.Where(x =>
+                EF.Functions.ILike(x.Name, $"%{filter}%")
+            );
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip(startIndex)
+            .Take(count)
+            .AsNoTracking()
+            .ProjectToResponse()
+            .ToArrayAsync();
+
+        return new CountedData<ThemeResponse>()
+        {
+            Items = items,
+            TotalCount = totalCount
         };
     }
 
     [HttpGet("{id:int}")]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
-    public async Task<ThemeResponse> GetSingle([FromRoute] int id)
+    public async Task<ActionResult<ThemeResponse>> GetSingleAsync([FromRoute] int id)
     {
         var theme = await ThemeRepository
             .Get()
+            .AsNoTracking()
+            .ProjectToResponse()
             .FirstOrDefaultAsync(t => t.Id == id);
 
         if (theme == null)
-            throw new HttpApiException("Theme with this id not found", 404);
-        
-        return ThemeMapper.ToResponse(theme);
+            return Problem("Theme with this id not found", statusCode: 404);
+
+        return theme;
     }
 
     [HttpPost]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
-    public async Task<ThemeResponse> Create([FromBody] CreateThemeRequest request)
+    public async Task<ActionResult<ThemeResponse>> CreateAsync([FromBody] CreateThemeRequest request)
     {
         var theme = ThemeMapper.ToTheme(request);
-        
-        var finalTheme = await ThemeRepository.Add(theme);
-        
+
+        var finalTheme = await ThemeRepository.AddAsync(theme);
+
         return ThemeMapper.ToResponse(finalTheme);
     }
 
     [HttpPatch("{id:int}")]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
-    public async Task<ThemeResponse> Update([FromRoute] int id, [FromBody] UpdateThemeRequest request)
+    public async Task<ActionResult<ThemeResponse>> UpdateAsync([FromRoute] int id, [FromBody] UpdateThemeRequest request)
     {
         var theme = await ThemeRepository
             .Get()
             .FirstOrDefaultAsync(t => t.Id == id);
-        
+
         if (theme == null)
-            throw new HttpApiException("Theme with this id not found", 404);
+            return Problem("Theme with this id not found", statusCode: 404);
 
         // Disable all other enabled themes if we are enabling the current theme.
         // This ensures only one theme is enabled at the time
@@ -98,29 +129,28 @@ public class ThemesController : Controller
             foreach (var otherTheme in otherThemes)
                 otherTheme.IsEnabled = false;
 
-            await ThemeRepository.RunTransaction(set =>
-            {
-                set.UpdateRange(otherThemes);
-            });
+            await ThemeRepository.RunTransactionAsync(set => { set.UpdateRange(otherThemes); });
         }
-        
+
         ThemeMapper.Merge(theme, request);
-        await ThemeRepository.Update(theme);
         
+        await ThemeRepository.UpdateAsync(theme);
+
         return ThemeMapper.ToResponse(theme);
     }
 
     [HttpDelete("{id:int}")]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.write")]
-    public async Task Delete([FromRoute] int id)
+    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
     {
         var theme = await ThemeRepository
             .Get()
             .FirstOrDefaultAsync(x => x.Id == id);
-        
+
         if (theme == null)
-            throw new HttpApiException("Theme with this id not found", 404);
-        
-        await ThemeRepository.Remove(theme);
+            return Problem("Theme with this id not found", statusCode: 404);
+
+        await ThemeRepository.RemoveAsync(theme);
+        return NoContent();
     }
 }

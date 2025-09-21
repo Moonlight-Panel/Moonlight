@@ -16,7 +16,7 @@
         <i class="icon-chevron-left"></i>
         Back
     </a>
-    <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+    <WButton OnClick="Form.SubmitAsync" CssClasses="btn btn-primary">
         <i class="icon-check"></i>
         Create
     </WButton>
@@ -66,17 +66,17 @@
         
         var response = await ApiClient.PostJson<CreateApiKeyResponse>("api/admin/apikeys", Request);
 
-        await DownloadService.Download(
+        await DownloadService.DownloadAsync(
             $"moonlight-key-{response.Id}.txt",
             response.Secret
         );
 
-        await AlertService.Success(
+        await AlertService.SuccessAsync(
             "API Key successfully created",
             "The API Key has been downloaded. Dont lose it, you cant view it anymore"
         );
 
-        await ToastService.Success("Successfully created api key");
+        await ToastService.SuccessAsync("Successfully created api key");
         Navigation.NavigateTo("/admin/api");
     }
 }

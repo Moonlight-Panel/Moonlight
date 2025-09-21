@@ -62,7 +62,7 @@ public record AppConfiguration
     public record FilesData
     {
         [YamlMember(Description = "The maximum file size limit a combine operation is allowed to process")]
-        public long CombineLimit { get; set; } = ByteConverter.FromGigaBytes(5).MegaBytes;
+        public double CombineLimit { get; set; } = ByteConverter.FromGigaBytes(5).MegaBytes;
     }
 
     public record FrontendData

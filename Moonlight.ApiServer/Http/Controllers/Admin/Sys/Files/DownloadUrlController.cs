@@ -25,7 +25,7 @@ public class DownloadUrlController : Controller
     }
 
     [HttpGet]
-    public async Task Get([FromQuery] string path)
+    public async Task GetAsync([FromQuery] string path)
     {
         var physicalPath = Path.Combine(BaseDirectory, FilePathHelper.SanitizePath(path));
         var name = Path.GetFileName(physicalPath);
@@ -55,7 +55,7 @@ public class DownloadUrlController : Controller
                 await using var zipStream = new ZipOutputStream(Response.Body);
                 zipStream.IsStreamOwner = false;
 
-                await StreamFolderAsZip(zipStream, physicalPath, baseDirectory, HttpContext.RequestAborted);
+                await StreamFolderAsZipAsync(zipStream, physicalPath, baseDirectory, HttpContext.RequestAborted);
             }
             catch (ZipException)
             {
@@ -68,7 +68,7 @@ public class DownloadUrlController : Controller
         }
     }
 
-    private async Task StreamFolderAsZip(
+    private async Task StreamFolderAsZipAsync(
         ZipOutputStream zipStream,
         string path, string rootPath,
         CancellationToken cancellationToken
@@ -102,7 +102,7 @@ public class DownloadUrlController : Controller
             if (HttpContext.RequestAborted.IsCancellationRequested)
                 return;
 
-            await StreamFolderAsZip(zipStream, directory, rootPath, cancellationToken);
+            await StreamFolderAsZipAsync(zipStream, directory, rootPath, cancellationToken);
         }
     }
 
@@ -110,7 +110,7 @@ public class DownloadUrlController : Controller
     // Yes I know we can just create that url on the client as the exist validation is done on both endpoints,
     // but we leave it here for future modifications. E.g. using a distributed file provider or smth like that
     [HttpPost]
-    public Task<DownloadUrlResponse> Post([FromQuery] string path)
+    public Task<DownloadUrlResponse> PostAsync([FromQuery] string path)
     {
         var safePath = FilePathHelper.SanitizePath(path);
         var physicalPath = Path.Combine(BaseDirectory, safePath);

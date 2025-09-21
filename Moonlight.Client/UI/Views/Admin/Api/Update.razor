@@ -7,13 +7,13 @@
 @inject NavigationManager Navigation
 @inject ToastService ToastService
 
-<LazyLoader Load="Load">
+<LazyLoader Load="LoadAsync">
     <PageHeader Title="Update API Key">
         <a href="/admin/api" class="btn btn-secondary">
             <i class="icon-chevron-left"></i>
             Back
         </a>
-        <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+        <WButton OnClick="Form.SubmitAsync" CssClasses="btn btn-primary">
             <i class="icon-check"></i>
             Update
         </WButton>
@@ -40,7 +40,7 @@
     private HandleForm Form;
     private UpdateApiKeyRequest Request;
 
-    private async Task Load(LazyLoader _)
+    private async Task LoadAsync(LazyLoader _)
     {
         var detail = await ApiClient.GetJson<ApiKeyResponse>($"api/admin/apikeys/{Id}");
 
@@ -54,7 +54,7 @@
     {
         await ApiClient.Patch($"api/admin/apikeys/{Id}", Request);
 
-        await ToastService.Success("Successfully updated api key");
+        await ToastService.SuccessAsync("Successfully updated api key");
         Navigation.NavigateTo("/admin/api");
     }
 }

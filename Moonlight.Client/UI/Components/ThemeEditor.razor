@@ -137,7 +137,7 @@
                         }
                         else
                         {
-                            <input @onclick="_ => UpdateRadiusBox(possibleValue)" type="radio" name="radius-box" class="radio hidden"/>
+                            <input @onclick="_ => UpdateRadiusBoxAsync(possibleValue)" type="radio" name="radius-box" class="radio hidden"/>
                         }
                         <span class="label-text w-full">
                             <div class="pe-1.5 pt-1.5" aria-hidden="true">
@@ -164,7 +164,7 @@
                         }
                         else
                         {
-                            <input @onclick="_ => UpdateRadiusField(possibleValue)" type="radio" name="radius-field" class="radio hidden"/>
+                            <input @onclick="_ => UpdateRadiusFieldAsync(possibleValue)" type="radio" name="radius-field" class="radio hidden"/>
                         }
                         <span class="label-text w-full">
                             <div class="pe-1.5 pt-1.5" aria-hidden="true">
@@ -191,7 +191,7 @@
                         }
                         else
                         {
-                            <input @onclick="_ => UpdateRadiusSelector(possibleValue)" type="radio" name="radius-selector" class="radio hidden"/>
+                            <input @onclick="_ => UpdateRadiusSelectorAsync(possibleValue)" type="radio" name="radius-selector" class="radio hidden"/>
                         }
                         <span class="label-text w-full">
                             <div class="pe-1.5 pt-1.5" aria-hidden="true">
@@ -302,19 +302,19 @@
         set => Theme.Noise = value ? 1 : 0;
     }
 
-    private async Task UpdateRadiusBox(float value)
+    private async Task UpdateRadiusBoxAsync(float value)
     {
         Theme.RadiusBox = value;
         await InvokeAsync(StateHasChanged);
     }
     
-    private async Task UpdateRadiusField(float value)
+    private async Task UpdateRadiusFieldAsync(float value)
     {
         Theme.RadiusField = value;
         await InvokeAsync(StateHasChanged);
     }
     
-    private async Task UpdateRadiusSelector(float value)
+    private async Task UpdateRadiusSelectorAsync(float value)
     {
         Theme.RadiusSelector = value;
         await InvokeAsync(StateHasChanged);

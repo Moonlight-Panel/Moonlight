@@ -12,5 +12,5 @@ public interface IAuthCheckExtension
     /// </summary>
     /// <param name="principal">The principal of the current signed-in user</param>
     /// <returns>An array of claim responses which gets added to the list of claims to send to the frontend</returns>
-    public Task<AuthClaimResponse[]> GetFrontendClaims(ClaimsPrincipal principal);
+    public Task<AuthClaimResponse[]> GetFrontendClaimsAsync(ClaimsPrincipal principal);
 }

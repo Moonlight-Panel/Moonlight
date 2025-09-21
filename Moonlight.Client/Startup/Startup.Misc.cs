@@ -6,7 +6,7 @@ namespace Moonlight.Client.Startup;
 
 public partial class Startup
 {
-    private Task PrintVersion()
+    private Task PrintVersionAsync()
     {
         // Fancy start console output... yes very fancy :>
         Console.Write("Running ");
@@ -27,7 +27,7 @@ public partial class Startup
         return Task.CompletedTask;
     }
 
-    private async Task LoadConfiguration()
+    private async Task LoadConfigurationAsync()
     {
         try
         {

@@ -19,7 +19,7 @@ public class CompressController : Controller
     private const string BaseDirectory = "storage";
 
     [HttpPost("compress")]
-    public async Task<IResult> Compress([FromBody] CompressRequest request)
+    public async Task<IResult> CompressAsync([FromBody] CompressRequest request)
     {
         // Validate item length
         if (request.Items.Length == 0)
@@ -48,11 +48,11 @@ public class CompressController : Controller
         switch (request.Format)
         {
             case "tar.gz":
-                await CompressTarGz(destinationPath, itemsPaths, rootPath);
+                await CompressTarGzAsync(destinationPath, itemsPaths, rootPath);
                 break;
 
             case "zip":
-                await CompressZip(destinationPath, itemsPaths, rootPath);
+                await CompressZipAsync(destinationPath, itemsPaths, rootPath);
                 break;
 
             default:
@@ -66,14 +66,14 @@ public class CompressController : Controller
 
     #region Tar Gz
 
-    private async Task CompressTarGz(string destination, IEnumerable<string> items, string root)
+    private async Task CompressTarGzAsync(string destination, IEnumerable<string> items, string root)
     {
         await using var outStream = System.IO.File.Create(destination);
         await using var gzoStream = new GZipOutputStream(outStream);
         await using var tarStream = new TarOutputStream(gzoStream, Encoding.UTF8);
 
         foreach (var item in items)
-            await CompressItemToTarGz(tarStream, item, root);
+            await CompressItemToTarGzAsync(tarStream, item, root);
 
         await tarStream.FlushAsync();
         await gzoStream.FlushAsync();
@@ -84,7 +84,7 @@ public class CompressController : Controller
         outStream.Close();
     }
 
-    private async Task CompressItemToTarGz(TarOutputStream tarOutputStream, string item, string root)
+    private async Task CompressItemToTarGzAsync(TarOutputStream tarOutputStream, string item, string root)
     {
         if (System.IO.File.Exists(item))
         {
@@ -117,7 +117,7 @@ public class CompressController : Controller
         if (Directory.Exists(item))
         {
             foreach (var fsEntry in Directory.EnumerateFileSystemEntries(item))
-                await CompressItemToTarGz(tarOutputStream, fsEntry, root);
+                await CompressItemToTarGzAsync(tarOutputStream, fsEntry, root);
         }
     }
 
@@ -125,13 +125,13 @@ public class CompressController : Controller
 
     #region ZIP
 
-    private async Task CompressZip(string destination, IEnumerable<string> items, string root)
+    private async Task CompressZipAsync(string destination, IEnumerable<string> items, string root)
     {
         await using var outStream = System.IO.File.Create(destination);
         await using var zipOutputStream = new ZipOutputStream(outStream);
 
         foreach (var item in items)
-            await AddItemToZip(zipOutputStream, item, root);
+            await AddItemToZipAsync(zipOutputStream, item, root);
 
         await zipOutputStream.FlushAsync();
         await outStream.FlushAsync();
@@ -140,7 +140,7 @@ public class CompressController : Controller
         outStream.Close();
     }
 
-    private async Task AddItemToZip(ZipOutputStream outputStream, string item, string root)
+    private async Task AddItemToZipAsync(ZipOutputStream outputStream, string item, string root)
     {
         if (System.IO.File.Exists(item))
         {
@@ -175,7 +175,7 @@ public class CompressController : Controller
         if (Directory.Exists(item))
         {
             foreach (var subItem in Directory.EnumerateFileSystemEntries(item))
-                await AddItemToZip(outputStream, subItem, root);
+                await AddItemToZipAsync(outputStream, subItem, root);
         }
     }
 

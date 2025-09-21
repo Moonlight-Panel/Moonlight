@@ -40,7 +40,7 @@ public class FrontendService
         ThemeRepository = themeRepository;
     }
 
-    public Task<FrontendConfiguration> GetConfiguration()
+    public Task<FrontendConfiguration> GetConfigurationAsync()
     {
         var configuration = new FrontendConfiguration()
         {
@@ -51,7 +51,7 @@ public class FrontendService
         return Task.FromResult(configuration);
     }
 
-    public async Task<string> GenerateIndexHtml() // TODO: Cache
+    public async Task<string> GenerateIndexHtmlAsync() // TODO: Cache
     {
         // Load requested theme
         var theme = await ThemeRepository
@@ -70,7 +70,7 @@ public class FrontendService
             .Distinct()
             .ToArray();
 
-        return await ComponentHelper.RenderComponent<FrontendPage>(
+        return await ComponentHelper.RenderToHtmlAsync<FrontendPage>(
             ServiceProvider,
             parameters =>
             {
@@ -82,7 +82,7 @@ public class FrontendService
         );
     }
 
-    public async Task<Stream> GenerateZip() // TODO: Rework to be able to extract everything successfully
+    public async Task<Stream> GenerateZipAsync() // TODO: Rework to be able to extract everything successfully
     {
         // We only allow the access to this function when we are actually hosting the frontend
         if (!Configuration.Frontend.EnableHosting)
@@ -109,16 +109,16 @@ public class FrontendService
         var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true);
 
         // Add wasm application
-        await ArchiveFsItem(zipArchive, wasmPath, wasmPath);
+        await ArchiveFsItemAsync(zipArchive, wasmPath, wasmPath);
 
         // Add blazor files
-        await ArchiveFsItem(zipArchive, blazorPath, blazorPath, "_framework/");
+        await ArchiveFsItemAsync(zipArchive, blazorPath, blazorPath, "_framework/");
 
         // Add frontend.json
-        var frontendConfig = await GetConfiguration();
+        var frontendConfig = await GetConfigurationAsync();
         frontendConfig.HostEnvironment = "Static";
         var frontendJson = JsonSerializer.Serialize(frontendConfig);
-        await ArchiveText(zipArchive, "frontend.json", frontendJson);
+        await ArchiveTextAsync(zipArchive, "frontend.json", frontendJson);
 
         // Finish zip archive and reset stream so the code calling this function can process it
         zipArchive.Dispose();
@@ -128,7 +128,7 @@ public class FrontendService
         return memoryStream;
     }
 
-    private async Task ArchiveFsItem(ZipArchive archive, string path, string prefixToRemove, string prefixToAdd = "")
+    private async Task ArchiveFsItemAsync(ZipArchive archive, string path, string prefixToRemove, string prefixToAdd = "")
     {
         if (File.Exists(path))
         {
@@ -147,17 +147,17 @@ public class FrontendService
         else
         {
             foreach (var directoryItem in Directory.EnumerateFileSystemEntries(path))
-                await ArchiveFsItem(archive, directoryItem, prefixToRemove, prefixToAdd);
+                await ArchiveFsItemAsync(archive, directoryItem, prefixToRemove, prefixToAdd);
         }
     }
 
-    private async Task ArchiveText(ZipArchive archive, string path, string content)
+    private async Task ArchiveTextAsync(ZipArchive archive, string path, string content)
     {
         var data = Encoding.UTF8.GetBytes(content);
-        await ArchiveBytes(archive, path, data);
+        await ArchiveBytesAsync(archive, path, data);
     }
 
-    private async Task ArchiveBytes(ZipArchive archive, string path, byte[] bytes)
+    private async Task ArchiveBytesAsync(ZipArchive archive, string path, byte[] bytes)
     {
         var entry = archive.CreateEntry(path);
         await using var dataStream = entry.Open();

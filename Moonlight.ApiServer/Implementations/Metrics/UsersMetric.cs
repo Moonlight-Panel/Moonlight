@@ -11,14 +11,14 @@ public class UsersMetric : IMetric
 {
     private Gauge<int> Users;
     
-    public Task Initialize(Meter meter)
+    public Task InitializeAsync(Meter meter)
     {
         Users = meter.CreateGauge<int>("moonlight_users");
         
         return Task.CompletedTask;
     }
 
-    public async Task Run(IServiceProvider provider, CancellationToken cancellationToken)
+    public async Task RunAsync(IServiceProvider provider, CancellationToken cancellationToken)
     {
         var usersRepo = provider.GetRequiredService<DatabaseRepository<User>>();
         var count = await usersRepo.Get().CountAsync(cancellationToken: cancellationToken);

@@ -5,6 +5,6 @@ namespace Moonlight.ApiServer.Interfaces;
 
 public interface IUserDeleteHandler
 {
-    public Task<UserDeleteValidationResult> Validate(User user);
-    public Task Delete(User user, bool force);
+    public Task<UserDeleteValidationResult> ValidateAsync(User user);
+    public Task DeleteAsync(User user, bool force);
 }

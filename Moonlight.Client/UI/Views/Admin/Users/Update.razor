@@ -8,13 +8,13 @@
 @inject NavigationManager Navigation
 @inject ToastService ToastService
 
-<LazyLoader Load="Load">
+<LazyLoader Load="LoadAsync">
     <PageHeader Title="Update User">
         <a href="/admin/users" class="btn btn-secondary">
             <i class="icon-chevron-left"></i>
             Back
         </a>
-        <WButton OnClick="_ => Form.Submit()" CssClasses="btn btn-primary">
+        <WButton OnClick="Form.SubmitAsync" CssClasses="btn btn-primary">
             <i class="icon-check"></i>
             Update
         </WButton>
@@ -62,7 +62,7 @@
 
     private List<string> Permissions = [];
 
-    private async Task Load(LazyLoader _)
+    private async Task LoadAsync(LazyLoader _)
     {
         var detail = await ApiClient.GetJson<UserResponse>($"api/admin/users/{Id}");
 
@@ -82,7 +82,7 @@
         
         await ApiClient.Patch($"api/admin/users/{Id}", Request);
 
-        await ToastService.Success("Successfully updated user");
+        await ToastService.SuccessAsync("Successfully updated user");
         Navigation.NavigateTo("/admin/users");
     }
 }

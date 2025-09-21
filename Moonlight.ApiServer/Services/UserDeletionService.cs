@@ -19,11 +19,11 @@ public class UserDeletionService
         Handlers = handlers.ToArray();
     }
 
-    public async Task<UserDeleteValidationResult> Validate(User user)
+    public async Task<UserDeleteValidationResult> ValidateAsync(User user)
     {
         foreach (var handler in Handlers)
         {
-            var result = await handler.Validate(user);
+            var result = await handler.ValidateAsync(user);
 
             if (!result.IsAllowed)
                 return result;
@@ -32,11 +32,11 @@ public class UserDeletionService
         return UserDeleteValidationResult.Allow();
     }
 
-    public async Task Delete(User user, bool force)
+    public async Task DeleteAsync(User user, bool force)
     {
         foreach (var handler in Handlers)
-            await Delete(user, force);
+            await handler.DeleteAsync(user, force);
 
-        await UserRepository.Remove(user);
+        await UserRepository.RemoveAsync(user);
     }
 }

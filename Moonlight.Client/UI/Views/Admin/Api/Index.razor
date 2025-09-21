@@ -3,7 +3,9 @@
 @using MoonCore.Helpers
 @using MoonCore.Models
 @using Moonlight.Shared.Http.Responses.Admin.ApiKeys
-@using MoonCore.Blazor.FlyonUi.DataTables
+@using MoonCore.Blazor.FlyonUi.Grid
+@using MoonCore.Blazor.FlyonUi.Grid.Columns
+@using MoonCore.Blazor.FlyonUi.Grid.ToolbarItems
 
 @inject HttpApiClient ApiClient
 @inject AlertService AlertService
@@ -47,58 +49,82 @@
     </div>
 </div>
 
-<div class="mb-5 flex justify-end">
-    <a href="/admin/api/create" class="btn btn-primary">
-        Create
-    </a>
-</div>
+<DataGrid @ref="Grid"
+          TGridItem="ApiKeyResponse"
+          ItemsProvider="ItemsProviderAsync"
+          EnableFiltering="true"
+          EnablePagination="true">
+    <PropertyColumn Field="x => x.Id" Sortable="true" />
+    <PropertyColumn Field="x => x.Description" />
+    <TemplateColumn Sortable="true" Title="Expires At">
+        <td>
+            @Formatter.FormatDate(context.ExpiresAt.UtcDateTime)
+        </td>
+    </TemplateColumn>
+    <TemplateColumn Sortable="true" Title="Created At">
+        <td>
+            @Formatter.FormatDate(context.CreatedAt.UtcDateTime)
+        </td>
+    </TemplateColumn>
+    <TemplateColumn>
+        <td>
+            <div class="flex justify-end">
+                <a href="/admin/api/@(context.Id)" class="text-primary mr-2 sm:mr-3">
+                    <i class="icon-pencil text-base"></i>
+                </a>
 
-<DataTable @ref="Table" TItem="ApiKeyResponse">
-    <Configuration>
-        <Pagination TItem="ApiKeyResponse" ItemSource="LoadData" />
-        
-        <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.Id)" Name="Id"/>
-        <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.Description)" Name="Description"/>
-        <DataTableColumn TItem="ApiKeyResponse" Field="@(x => x.ExpiresAt)" Name="Expires at">
-            <ColumnTemplate>
-                @(Formatter.FormatDate(context.ExpiresAt.UtcDateTime))
-            </ColumnTemplate>
-        </DataTableColumn>
-        <DataTableColumn TItem="ApiKeyResponse">
-            <ColumnTemplate>
-                <div class="flex justify-end">
-                    <a href="/admin/api/@(context.Id)" class="text-primary mr-2 sm:mr-3">
-                        <i class="icon-pencil text-base"></i>
-                    </a>
-
-                    <a href="#" @onclick="() => Delete(context)" @onclick:preventDefault
-                       class="text-error">
-                        <i class="icon-trash text-base"></i>
-                    </a>
-                </div>
-            </ColumnTemplate>
-        </DataTableColumn>
-    </Configuration>
-</DataTable>
+                <a href="#" @onclick="() => DeleteAsync(context)" @onclick:preventDefault
+                   class="text-error">
+                    <i class="icon-trash text-base"></i>
+                </a>
+            </div>
+        </td>
+    </TemplateColumn>
+    
+    <TemplateToolbarItem>
+        <a href="/admin/api/create" class="btn btn-primary ms-1.5">
+            Create
+        </a>
+    </TemplateToolbarItem>
+</DataGrid>
 
 @code
 {
-    private DataTable<ApiKeyResponse> Table;
+    private DataGrid<ApiKeyResponse> Grid;
     
-    private async Task<IPagedData<ApiKeyResponse>> LoadData(PaginationOptions options)
-     => await ApiClient.GetJson<PagedData<ApiKeyResponse>>($"api/admin/apikeys?page={options.Page}&pageSize={options.PerPage}");
-
-    private async Task Delete(ApiKeyResponse apiKeyResponse)
+    private async Task<DataGridItemResult<ApiKeyResponse>> ItemsProviderAsync(DataGridItemRequest request)
     {
-        await AlertService.ConfirmDanger(
-            "API Key deletion",
+        var query = $"?startIndex={request.StartIndex}&count={request.Count}";
+
+        if (!string.IsNullOrEmpty(request.SortColumn))
+        {
+            var dir = request.SortDirection == SortState.Descending ? "desc" : "asc";
+            query += $"&orderBy={request.SortColumn}&orderByDir={dir}";
+        }
+
+        if (!string.IsNullOrEmpty(request.Filter))
+            query += $"&filter={request.Filter}";
+        
+        var data = await ApiClient.GetJson<CountedData<ApiKeyResponse>>($"api/admin/apikeys{query}");
+
+        return new()
+        {
+            Items = data.Items,
+            TotalCount = data.TotalCount
+        };
+    }
+
+    private async Task DeleteAsync(ApiKeyResponse apiKeyResponse)
+    {
+        await AlertService.ConfirmDangerAsync(
+            "API Key Deletion",
             $"Do you really want to delete the api key '{apiKeyResponse.Description}'",
             async () =>
             {
                 await ApiClient.Delete($"api/admin/apikeys/{apiKeyResponse.Id}");
-                await ToastService.Success("Successfully deleted api key");
+                await ToastService.SuccessAsync("Successfully deleted api key");
 
-                await Table.Refresh();
+                await Grid.RefreshAsync();
             }
         );
     }

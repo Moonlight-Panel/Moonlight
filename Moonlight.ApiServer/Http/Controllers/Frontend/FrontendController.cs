@@ -18,13 +18,13 @@ public class FrontendController : Controller
     }
 
     [HttpGet("frontend.json")]
-    public async Task<FrontendConfiguration> GetConfiguration()
-        => await FrontendService.GetConfiguration();
+    public async Task<FrontendConfiguration> GetConfigurationAsync()
+        => await FrontendService.GetConfigurationAsync();
 
     [HttpGet]
-    public async Task<IResult> Index()
+    public async Task<IResult> IndexAsync()
     {
-        var content = await FrontendService.GenerateIndexHtml();
+        var content = await FrontendService.GenerateIndexHtmlAsync();
 
         return Results.Text(content, "text/html", Encoding.UTF8);
     }
