@@ -1,69 +1,42 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Logging;
-using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private string[] Args;
-
-    // Logger
-    public ILogger<Startup> Logger { get; private set; }
-
-    // Configuration
-    public AppConfiguration Configuration { get; private set; }
-
-    // WebApplication Stuff
-    public WebApplication WebApplication { get; private set; }
-    public WebApplicationBuilder WebApplicationBuilder { get; private set; }
-
-    public Task InitializeAsync(string[] args, IPluginStartup[]? plugins = null)
+    public static void AddMoonlight(this WebApplicationBuilder builder, IPluginStartup[] startups)
     {
-        Args = args;
-        PluginStartups = plugins ?? [];
+        PrintVersionAsync();
+        CreateStorageAsync();
         
-        return Task.CompletedTask;
+        builder.AddConfiguration();
+        builder.AddLogging();
+        
+        builder.ConfigureKestrel();
+        builder.AddBase(startups);
+        builder.AddDatabase();
+        builder.AddAuth();
+        builder.AddMoonlightCors();
+        builder.AddMoonlightHangfire();
+        builder.AddMoonlightSignalR();
+        
+        builder.AddPlugins(startups);
     }
 
-    public async Task AddMoonlightAsync(WebApplicationBuilder builder)
+    public static void UseMoonlight(this WebApplication application, IPluginStartup[] startups)
     {
-        WebApplicationBuilder = builder;
-
-        await PrintVersionAsync();
-
-        await CreateStorageAsync();
-        await SetupAppConfigurationAsync();
-        await SetupLoggingAsync();
-        await InitializePluginsAsync();
-
-        await ConfigureKestrelAsync();
-        await RegisterAppConfigurationAsync();
-        await RegisterLoggingAsync();
-        await RegisterBaseAsync();
-        await RegisterDatabaseAsync();
-        await RegisterAuthAsync();
-        await RegisterCorsAsync();
-        await RegisterHangfireAsync();
-        await RegisterSignalRAsync();
-        await HookPluginBuildAsync();
+        application.UseBase();
+        application.UseMoonlightCors();
+        application.UseAuth();
+        application.UseMoonlightHangfire();
+        application.UsePlugins(startups);
     }
 
-    public async Task AddMoonlightAsync(WebApplication application)
+    public static void MapMoonlight(this WebApplication application, IPluginStartup[] startups)
     {
-        WebApplication = application;
-
-        await PrepareDatabaseAsync();
-
-        await UseCorsAsync();
-        await UseBaseAsync();
-        await UseAuthAsync();
-        await UseHangfireAsync();
-        await HookPluginConfigureAsync();
-
-        await MapBaseAsync();
-        await MapSignalRAsync();
-        await HookPluginEndpointsAsync();
+        application.MapBase();
+        application.MapMoonlightSignalR();
+        application.MapPlugins(startups);
     }
 }

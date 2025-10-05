@@ -1,5 +1,5 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using MoonCore.Logging;
 using Moonlight.Client.Plugins;
 using Moonlight.Client.Services;
 
@@ -7,72 +7,25 @@ namespace Moonlight.Client.Startup;
 
 public partial class Startup
 {
-    private IPluginStartup[] PluginStartups;
-    private IServiceProvider PluginLoadServiceProvider;
-    
-    private Task InitializePluginsAsync()
+    private static void AddPlugins(this WebAssemblyHostBuilder builder, IPluginStartup[] startups)
     {
-        // Define minimal service collection
-        var startupSc = new ServiceCollection();
-
-        // Create logging proxy
-        startupSc.AddLogging(builder =>
+        foreach (var startup in startups)
+            startup.AddPlugin(builder);
+        
+        // Get all assemblies and combine them into the application assembly service
+        // TODO: Consider rewriting this as it may not be that performant to do string checking to find distinct items
+        builder.Services.AddSingleton(new ApplicationAssemblyService()
         {
-            builder.ClearProviders();
-            builder.AddAnsiConsole();
-        });
-
-        PluginLoadServiceProvider = startupSc.BuildServiceProvider();
-
-        // Add application assembly service
-        var appAssemblyService = new ApplicationAssemblyService();
-
-        appAssemblyService.Assemblies.AddRange(
-            PluginStartups
+            Assemblies = startups
                 .Select(x => x.GetType().Assembly)
-                .Distinct()
-        );
-
-        WebAssemblyHostBuilder.Services.AddSingleton(appAssemblyService);
-
-        return Task.CompletedTask;
+                .DistinctBy(x => x.FullName)
+                .ToList()
+        });
     }
 
-    private async Task HookPluginBuildAsync()
+    private static void ConfigurePlugins(this WebAssemblyHost app, IPluginStartup[] startups)
     {
-        foreach (var pluginAppStartup in PluginStartups)
-        {
-            try
-            {
-                await pluginAppStartup.BuildApplicationAsync(PluginLoadServiceProvider, WebAssemblyHostBuilder);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(
-                    "An error occured while processing 'BuildApp' for '{name}': {e}",
-                    pluginAppStartup.GetType().FullName,
-                    e
-                );
-            }
-        }
-    }
-
-    private async Task HookPluginConfigureAsync()
-    {
-        foreach (var pluginAppStartup in PluginStartups)
-        {
-            try
-            {
-                await pluginAppStartup.ConfigureApplicationAsync(PluginLoadServiceProvider, WebAssemblyHost);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(
-                    "An error occured while processing 'ConfigureApp' for '{name}': {e}",
-                    pluginAppStartup.GetType().FullName,
-                    e
-                );
-            }
-        }
+        foreach (var startup in startups)
+            startup.ConfigurePlugin(app);
     }
 }

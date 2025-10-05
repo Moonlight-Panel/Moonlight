@@ -1,39 +1,42 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Blazor.FlyonUi;
+using MoonCore.Blazor.FlyonUi.Exceptions;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using Moonlight.Client.Implementations;
 using Moonlight.Client.Services;
 using Moonlight.Client.UI;
 
 namespace Moonlight.Client.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task RegisterBaseAsync()
+    private static void AddBase(this WebAssemblyHostBuilder builder)
     {
-        WebAssemblyHostBuilder.RootComponents.Add<App>("#app");
-        WebAssemblyHostBuilder.RootComponents.Add<HeadOutlet>("head::after");
+        builder.RootComponents.Add<App>("#app");
+        builder.RootComponents.Add<HeadOutlet>("head::after");
 
-        WebAssemblyHostBuilder.Services.AddScoped(_ =>
+        builder.Services.AddScoped(_ =>
             new HttpClient
             {
-                BaseAddress = new Uri(Configuration.ApiUrl)
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             }
         );
 
-        WebAssemblyHostBuilder.Services.AddScoped(sp =>
+        builder.Services.AddScoped(sp =>
         {
             var httpClient = sp.GetRequiredService<HttpClient>();
             return new HttpApiClient(httpClient);
         });
 
-        WebAssemblyHostBuilder.Services.AddFileManagerOperations();
-        WebAssemblyHostBuilder.Services.AddFlyonUiServices();
+        builder.Services.AddFileManagerOperations();
+        builder.Services.AddFlyonUiServices();
 
-        WebAssemblyHostBuilder.Services.AddScoped<ThemeService>();
+        builder.Services.AddScoped<ThemeService>();
 
-        WebAssemblyHostBuilder.Services.AutoAddServices<Startup>();
-
-        return Task.CompletedTask;
+        builder.Services.AutoAddServices<IAssemblyMarker>();
+        
+        builder.Services.AddScoped<IGlobalErrorFilter, LogErrorFilter>();
     }
 }

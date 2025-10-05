@@ -1,25 +1,17 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Extensions;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task RegisterDatabaseAsync()
+    private static void AddDatabase(this WebApplicationBuilder builder)
     {
-        WebApplicationBuilder.Services.AddDatabaseMappings();
-        WebApplicationBuilder.Services.AddServiceCollectionAccessor();
+        builder.Services.AddDbAutoMigrations();
+        builder.Services.AddDatabaseMappings();
 
-        WebApplicationBuilder.Services.AddScoped(typeof(DatabaseRepository<>));
-
-        return Task.CompletedTask;
-    }
-
-    private async Task PrepareDatabaseAsync()
-    {
-        await WebApplication.Services.EnsureDatabaseMigratedAsync();
-
-        WebApplication.Services.GenerateDatabaseMappings();
+        builder.Services.AddScoped(typeof(DatabaseRepository<>));
     }
 }

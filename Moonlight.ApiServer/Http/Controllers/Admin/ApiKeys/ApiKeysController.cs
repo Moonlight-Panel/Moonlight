@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MoonCore.Common;
 using MoonCore.Extended.Abstractions;
-using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Mappers;
 using Moonlight.ApiServer.Services;
@@ -26,7 +26,7 @@ public class ApiKeysController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.apikeys.get")]
-    public async Task<ActionResult<ICountedData<ApiKeyResponse>>> GetAsync(
+    public async Task<ActionResult<CountedData<ApiKeyResponse>>> GetAsync(
         [FromQuery] int startIndex,
         [FromQuery] int count,
         [FromQuery] string? orderBy,

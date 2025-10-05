@@ -1,11 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MoonCore.Exceptions;
+using MoonCore.Common;
 using MoonCore.Extended.Abstractions;
-using MoonCore.Extended.Models;
-using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Mappers;
 using Moonlight.Shared.Http.Requests.Admin.Sys.Theme;
@@ -26,7 +23,7 @@ public class ThemesController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.system.customisation.themes.read")]
-    public async Task<ActionResult<ICountedData<ThemeResponse>>> GetAsync(
+    public async Task<ActionResult<CountedData<ThemeResponse>>> GetAsync(
         [FromQuery] int startIndex,
         [FromQuery] int count,
         [FromQuery] string? orderBy,

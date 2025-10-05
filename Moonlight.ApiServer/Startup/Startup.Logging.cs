@@ -1,32 +1,24 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using MoonCore.Logging;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task SetupLoggingAsync()
+    private static void AddLogging(this WebApplicationBuilder builder)
     {
-        var loggerFactory = new LoggerFactory();
-        loggerFactory.AddAnsiConsole();
-
-        Logger = loggerFactory.CreateLogger<Startup>();
-
-        return Task.CompletedTask;
-    }
-
-    private async Task RegisterLoggingAsync()
-    {
-        // Configure application logging
-        WebApplicationBuilder.Logging.ClearProviders();
-        WebApplicationBuilder.Logging.AddAnsiConsole();
-        WebApplicationBuilder.Logging.AddFile(Path.Combine("storage", "logs", "moonlight.log"));
+        // Logging providers
+        builder.Logging.ClearProviders();
+        
+        builder.Logging.AddAnsiConsole();
+        builder.Logging.AddFile(Path.Combine("storage", "logs", "moonlight.log"));
 
         // Logging levels
         var logConfigPath = Path.Combine("storage", "logConfig.json");
 
-        // Ensure logging config, add a default one is missing
+        // Ensure default log levels exist
         if (!File.Exists(logConfigPath))
         {
             var defaultLogLevels = new Dictionary<string, string>
@@ -38,25 +30,26 @@ public partial class Startup
             };
 
             var logLevelsJson = JsonSerializer.Serialize(defaultLogLevels);
-            await File.WriteAllTextAsync(logConfigPath, logLevelsJson);
+            File.WriteAllText(logConfigPath, logLevelsJson);
         }
 
-        // Add logging configuration
+        // Read log levels
         var logLevels = JsonSerializer.Deserialize<Dictionary<string, string>>(
-            await File.ReadAllTextAsync(logConfigPath)
+            File.ReadAllText(logConfigPath)
         )!;
 
+        // Apply configured log levels
         foreach (var level in logLevels)
-            WebApplicationBuilder.Logging.AddFilter(level.Key, Enum.Parse<LogLevel>(level.Value));
+            builder.Logging.AddFilter(level.Key, Enum.Parse<LogLevel>(level.Value));
 
         // Mute exception handler middleware
         // https://github.com/dotnet/aspnetcore/issues/19740
-        WebApplicationBuilder.Logging.AddFilter(
+        builder.Logging.AddFilter(
             "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware",
             LogLevel.Critical
         );
 
-        WebApplicationBuilder.Logging.AddFilter(
+        builder.Logging.AddFilter(
             "Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware",
             LogLevel.Critical
         );

@@ -7,14 +7,14 @@ namespace Moonlight.Client.Implementations;
 
 public class CoreStartup : IPluginStartup
 {
-    public Task BuildApplicationAsync(IServiceProvider serviceProvider, WebAssemblyHostBuilder builder)
+    public void AddPlugin(WebAssemblyHostBuilder builder)
     {
         builder.Services.AddSingleton<ISidebarItemProvider, DefaultSidebarItemProvider>();
         builder.Services.AddSingleton<IOverviewElementProvider, DefaultOverviewElementProvider>();
-        
-        return Task.CompletedTask;
     }
 
-    public Task ConfigureApplicationAsync(IServiceProvider serviceProvider, WebAssemblyHost app)
-        => Task.CompletedTask;
+    public void ConfigurePlugin(WebAssemblyHost app)
+    {
+        
+    }
 }

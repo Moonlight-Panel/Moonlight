@@ -1,48 +1,22 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Moonlight.Client.Plugins;
-using Moonlight.Shared.Misc;
 
 namespace Moonlight.Client.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    public ILogger<Startup> Logger { get; private set; }
-
-    // WebAssemblyHost
-    public WebAssemblyHostBuilder WebAssemblyHostBuilder { get; private set; }
-    public WebAssemblyHost WebAssemblyHost { get; private set; }
-
-    // Configuration
-    public FrontendConfiguration Configuration { get; private set; }
-    
-    
-    public Task InitializeAsync(IPluginStartup[]? plugins = null)
+    public static void AddMoonlight(this WebAssemblyHostBuilder builder, IPluginStartup[] startups)
     {
-        PluginStartups = plugins ?? [];
-        
-        return Task.CompletedTask;
+        PrintVersion();
+
+        builder.AddLogging();
+        builder.AddBase();
+        builder.AddAuth();
+        builder.AddPlugins(startups);
     }
 
-    public async Task AddMoonlightAsync(WebAssemblyHostBuilder builder)
+    public static void ConfigureMoonlight(this WebAssemblyHost app, IPluginStartup[] startups)
     {
-        WebAssemblyHostBuilder = builder;
-        
-        await PrintVersionAsync();
-
-        await SetupLoggingAsync();
-        await LoadConfigurationAsync();
-        await InitializePluginsAsync();
-
-        await RegisterLoggingAsync();
-        await RegisterBaseAsync();
-        await RegisterAuthenticationAsync();
-        await HookPluginBuildAsync();
-    }
-    
-    public async Task AddMoonlightAsync(WebAssemblyHost assemblyHost)
-    {
-        WebAssemblyHost = assemblyHost;
-        
-        await HookPluginConfigureAsync();
+        app.ConfigurePlugins(startups);
     }
 }

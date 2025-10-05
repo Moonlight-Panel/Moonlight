@@ -4,6 +4,6 @@ namespace Moonlight.Client.Plugins;
 
 public interface IPluginStartup
 {
-    public Task BuildApplicationAsync(IServiceProvider serviceProvider, WebAssemblyHostBuilder builder);
-    public Task ConfigureApplicationAsync(IServiceProvider serviceProvider, WebAssemblyHost app);
+    public void AddPlugin(WebAssemblyHostBuilder builder);
+    public void ConfigurePlugin(WebAssemblyHost app);
 }

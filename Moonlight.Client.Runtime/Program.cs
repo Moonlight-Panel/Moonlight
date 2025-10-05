@@ -5,16 +5,12 @@ using Moonlight.Client.Startup;
 var pluginLoader = new PluginLoader();
 pluginLoader.Initialize();
 
-var startup = new Startup();
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-await startup.InitializeAsync(pluginLoader.Instances);
+builder.AddMoonlight(pluginLoader.Instances);
 
-var wasmHostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
+var app = builder.Build();
 
-await startup.AddMoonlightAsync(wasmHostBuilder);
+app.ConfigureMoonlight(pluginLoader.Instances);
 
-var wasmApp = wasmHostBuilder.Build();
-
-await startup.AddMoonlightAsync(wasmApp);
-
-await wasmApp.RunAsync();
+await app.RunAsync();

@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Moonlight.ApiServer.Configuration;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task PrintVersionAsync()
+    private static void PrintVersionAsync()
     {
         // Fancy start console output... yes very fancy :>
         var rainbow = new Crayon.Rainbow(0.5);
@@ -21,23 +23,22 @@ public partial class Startup
         }
 
         Console.WriteLine();
-
-        return Task.CompletedTask;
     }
 
-    private Task CreateStorageAsync()
+    private static void CreateStorageAsync()
     {
         Directory.CreateDirectory("storage");
         Directory.CreateDirectory(Path.Combine("storage", "logs"));
-
-        return Task.CompletedTask;
     }
-    
-    private Task RegisterCorsAsync()
-    {
-        var allowedOrigins = Configuration.Kestrel.AllowedOrigins;
 
-        WebApplicationBuilder.Services.AddCors(options =>
+    private static void AddMoonlightCors(this WebApplicationBuilder builder)
+    {
+        var configuration = AppConfiguration.CreateEmpty();
+        builder.Configuration.Bind(configuration);
+        
+        var allowedOrigins = configuration.Kestrel.AllowedOrigins;
+
+        builder.Services.AddCors(options =>
         {
             var cors = new CorsPolicyBuilder();
 
@@ -60,14 +61,10 @@ public partial class Startup
                 cors.Build()
             );
         });
-
-        return Task.CompletedTask;
     }
 
-    private Task UseCorsAsync()
+    private static void UseMoonlightCors(this WebApplication application)
     {
-        WebApplication.UseCors();
-
-        return Task.CompletedTask;
+        application.UseCors();
     }
 }

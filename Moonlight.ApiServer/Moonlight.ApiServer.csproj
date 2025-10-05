@@ -13,7 +13,7 @@
     </ItemGroup>
     <PropertyGroup>
         <PackageId>Moonlight.ApiServer</PackageId>
-        <Version>2.1.11</Version>
+        <Version>2.1.12</Version>
         <Authors>Moonlight Panel</Authors>
         <Description>A build of the api server for moonlight development</Description>
         <PackageProjectUrl>https://github.com/Moonlight-Panel/Moonlight</PackageProjectUrl>
@@ -27,9 +27,9 @@
         <PackageReference Include="Hangfire.EntityFrameworkCore" Version="0.7.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="9.0.9" />
-        <PackageReference Include="MoonCore" Version="2.0.1" />
-        <PackageReference Include="MoonCore.Extended" Version="1.4.0" />
-        <PackageReference Include="MoonCore.PluginFramework.Generator" Version="1.0.2"/>
+        <PackageReference Include="MoonCore" Version="2.0.4" />
+        <PackageReference Include="MoonCore.Extended" Version="1.4.2" />
+        <PackageReference Include="MoonCore.PluginFramework.Generator" Version="1.0.3" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
         <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.12.0-beta.1"/>

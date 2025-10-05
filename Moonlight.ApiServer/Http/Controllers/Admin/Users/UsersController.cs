@@ -2,10 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MoonCore.Exceptions;
+using MoonCore.Common;
 using MoonCore.Extended.Abstractions;
 using MoonCore.Extended.Helpers;
-using MoonCore.Models;
 using Moonlight.ApiServer.Database.Entities;
 using Moonlight.ApiServer.Services;
 using Moonlight.ApiServer.Mappers;
@@ -27,7 +26,7 @@ public class UsersController : Controller
 
     [HttpGet]
     [Authorize(Policy = "permissions:admin.users.get")]
-    public async Task<ActionResult<ICountedData<UserResponse>>> GetAsync(
+    public async Task<ActionResult<CountedData<UserResponse>>> GetAsync(
         [FromQuery] int startIndex,
         [FromQuery] int count,
         [FromQuery] string? orderBy,

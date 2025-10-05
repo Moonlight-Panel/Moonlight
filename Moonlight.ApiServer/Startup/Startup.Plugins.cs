@@ -1,87 +1,25 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MoonCore.Logging;
+using Microsoft.AspNetCore.Builder;
 using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private IServiceProvider PluginLoadServiceProvider;
-    private IPluginStartup[] PluginStartups;
-    
-    private Task InitializePluginsAsync()
+    private static void AddPlugins(this WebApplicationBuilder builder, IPluginStartup[] startups)
     {
-        // Create service provider for starting up
-        var serviceCollection = new ServiceCollection();
-
-        serviceCollection.AddSingleton(Configuration);
-
-        serviceCollection.AddLogging(builder =>
-        {
-            builder.ClearProviders();
-            builder.AddAnsiConsole();
-        });
-
-        PluginLoadServiceProvider = serviceCollection.BuildServiceProvider();
-        
-        return Task.CompletedTask;
+        foreach (var startup in startups)
+            startup.AddPlugin(builder);
     }
 
-    private async Task HookPluginBuildAsync()
+    private static void UsePlugins(this WebApplication application, IPluginStartup[] startups)
     {
-        foreach (var pluginAppStartup in PluginStartups)
-        {
-            try
-            {
-                await pluginAppStartup.BuildApplicationAsync(PluginLoadServiceProvider, WebApplicationBuilder);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(
-                    "An error occured while processing 'BuildApp' for '{name}': {e}",
-                    pluginAppStartup.GetType().FullName,
-                    e
-                );
-            }
-        }
+        foreach (var startup in startups)
+            startup.UsePlugin(application);
     }
 
-    private async Task HookPluginConfigureAsync()
+    private static void MapPlugins(this WebApplication application, IPluginStartup[] startups)
     {
-        foreach (var pluginAppStartup in PluginStartups)
-        {
-            try
-            {
-                await pluginAppStartup.ConfigureApplicationAsync(PluginLoadServiceProvider, WebApplication);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(
-                    "An error occured while processing 'ConfigureApp' for '{name}': {e}",
-                    pluginAppStartup.GetType().FullName,
-                    e
-                );
-            }
-        }
-    }
-
-    private async Task HookPluginEndpointsAsync()
-    {
-        foreach (var pluginEndpointStartup in PluginStartups)
-        {
-            try
-            {
-                await pluginEndpointStartup.ConfigureEndpointsAsync(PluginLoadServiceProvider, WebApplication);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(
-                    "An error occured while processing 'ConfigureEndpoints' for '{name}': {e}",
-                    pluginEndpointStartup.GetType().FullName,
-                    e
-                );
-            }
-        }
+        foreach (var startup in startups)
+            startup.MapPlugin(application);
     }
 }

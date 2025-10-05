@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moonlight.ApiServer.Configuration;
-using Moonlight.ApiServer.Implementations.LocalAuth;
 using Moonlight.ApiServer.Interfaces;
 using Moonlight.Shared.Http.Responses.Auth;
 

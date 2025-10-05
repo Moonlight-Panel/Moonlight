@@ -1,25 +1,26 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Http.Hubs;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    public Task RegisterSignalRAsync()
+    private static void AddMoonlightSignalR(this WebApplicationBuilder builder)
     {
-        var signalRBuilder = WebApplicationBuilder.Services.AddSignalR();
-
-        if (Configuration.SignalR.UseRedis)
-            signalRBuilder.AddStackExchangeRedis(Configuration.SignalR.RedisConnectionString);
+        var configuration = AppConfiguration.CreateEmpty();
+        builder.Configuration.Bind(configuration);
         
-        return Task.CompletedTask;
+        var signalRBuilder = builder.Services.AddSignalR();
+
+        if (configuration.SignalR.UseRedis)
+            signalRBuilder.AddStackExchangeRedis(configuration.SignalR.RedisConnectionString);
     }
 
-    public Task MapSignalRAsync()
+    private static void MapMoonlightSignalR(this WebApplication application)
     {
-        WebApplication.MapHub<DiagnoseHub>("/api/admin/system/diagnose/ws");
-        
-        return Task.CompletedTask;
+        application.MapHub<DiagnoseHub>("/api/admin/system/diagnose/ws");
     }
 }

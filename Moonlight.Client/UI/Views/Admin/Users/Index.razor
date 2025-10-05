@@ -1,10 +1,11 @@
 ﻿@page "/admin/users"
 
+@using MoonCore.Blazor.FlyonUi.Common
 @using MoonCore.Helpers
-@using MoonCore.Models
 @using Moonlight.Shared.Http.Responses.Admin.Users
 @using MoonCore.Blazor.FlyonUi.Grid
 @using MoonCore.Blazor.FlyonUi.Grid.Columns
+@using MoonCore.Common
 
 @inject HttpApiClient ApiClient
 @inject AlertService AlertService
@@ -19,14 +20,11 @@
 </div>
 
 <DataGrid @ref="Grid"
-          TGridItem="UserResponse"
-          ItemsProvider="ItemsProviderAsync"
-          EnableFiltering="true"
-          EnablePagination="true">
-    <PropertyColumn Field="x => x.Id" Sortable="true" />
-    <PropertyColumn Field="x => x.Username" Sortable="true" />
-    <PropertyColumn Field="x => x.Email" Sortable="true" />
-    
+          ItemSource="ItemSource">
+    <PropertyColumn Field="x => x.Id" Sortable="true"/>
+    <PropertyColumn Field="x => x.Username" Sortable="true"/>
+    <PropertyColumn Field="x => x.Email" Sortable="true"/>
+
     <TemplateColumn>
         <td>
             <div class="flex justify-end">
@@ -45,29 +43,26 @@
 @code
 {
     private DataGrid<UserResponse> Grid;
-    
-    private async Task<DataGridItemResult<UserResponse>> ItemsProviderAsync(DataGridItemRequest request)
-    {
-        var query = $"?startIndex={request.StartIndex}&count={request.Count}";
+    private ItemSource<UserResponse> ItemSource => ItemSourceFactory.From(LoadItemsAsync);
 
-        if (!string.IsNullOrEmpty(request.SortColumn))
+    private async Task<IEnumerable<UserResponse>> LoadItemsAsync(
+        int startIndex, int count, string? filter, SortOption? sortOption
+    )
+    {
+        var query = $"?startIndex={startIndex}&count={count}";
+
+        if (sortOption != null)
         {
-            var dir = request.SortDirection == SortState.Descending ? "desc" : "asc";
-            query += $"&orderBy={request.SortColumn}&orderByDir={dir}";
+            var dir = sortOption.Direction == SortDirection.Descending ? "desc" : "asc";
+            query += $"&orderBy={sortOption.Column}&orderByDir={dir}";
         }
 
-        if (!string.IsNullOrEmpty(request.Filter))
-            query += $"&filter={request.Filter}";
+        if (!string.IsNullOrEmpty(filter))
+            query += $"&filter={filter}";
 
-        var data = await ApiClient.GetJson<CountedData<UserResponse>>($"api/admin/users{query}");
-
-        return new()
-        {
-            Items = data.Items,
-            TotalCount = data.TotalCount
-        };
+        return await ApiClient.GetJson<CountedData<UserResponse>>($"api/admin/users{query}");
     }
-    
+
     private async Task DeleteAsync(UserResponse response)
     {
         await AlertService.ConfirmDangerAsync(

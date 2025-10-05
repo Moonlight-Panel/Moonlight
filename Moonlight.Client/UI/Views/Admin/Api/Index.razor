@@ -1,11 +1,12 @@
 ﻿@page "/admin/api"
 
+@using MoonCore.Blazor.FlyonUi.Common
 @using MoonCore.Helpers
-@using MoonCore.Models
 @using Moonlight.Shared.Http.Responses.Admin.ApiKeys
 @using MoonCore.Blazor.FlyonUi.Grid
 @using MoonCore.Blazor.FlyonUi.Grid.Columns
 @using MoonCore.Blazor.FlyonUi.Grid.ToolbarItems
+@using MoonCore.Common
 
 @inject HttpApiClient ApiClient
 @inject AlertService AlertService
@@ -51,9 +52,7 @@
 
 <DataGrid @ref="Grid"
           TGridItem="ApiKeyResponse"
-          ItemsProvider="ItemsProviderAsync"
-          EnableFiltering="true"
-          EnablePagination="true">
+          ItemSource="ItemSource">
     <PropertyColumn Field="x => x.Id" Sortable="true" />
     <PropertyColumn Field="x => x.Description" />
     <TemplateColumn Sortable="true" Title="Expires At">
@@ -91,27 +90,25 @@
 @code
 {
     private DataGrid<ApiKeyResponse> Grid;
-    
-    private async Task<DataGridItemResult<ApiKeyResponse>> ItemsProviderAsync(DataGridItemRequest request)
-    {
-        var query = $"?startIndex={request.StartIndex}&count={request.Count}";
 
-        if (!string.IsNullOrEmpty(request.SortColumn))
+    private ItemSource<ApiKeyResponse> ItemSource => ItemSourceFactory.From(LoadItemsAsync);
+    
+    private async Task<IEnumerable<ApiKeyResponse>> LoadItemsAsync(
+        int startIndex, int count, string? filter, SortOption? sortOption
+    )
+    {
+        var query = $"?startIndex={startIndex}&count={count}";
+
+        if (sortOption != null)
         {
-            var dir = request.SortDirection == SortState.Descending ? "desc" : "asc";
-            query += $"&orderBy={request.SortColumn}&orderByDir={dir}";
+            var dir = sortOption.Direction == SortDirection.Descending ? "desc" : "asc";
+            query += $"&orderBy={sortOption.Column}&orderByDir={dir}";
         }
 
-        if (!string.IsNullOrEmpty(request.Filter))
-            query += $"&filter={request.Filter}";
+        if (!string.IsNullOrEmpty(filter))
+            query += $"&filter={filter}";
         
-        var data = await ApiClient.GetJson<CountedData<ApiKeyResponse>>($"api/admin/apikeys{query}");
-
-        return new()
-        {
-            Items = data.Items,
-            TotalCount = data.TotalCount
-        };
+        return await ApiClient.GetJson<CountedData<ApiKeyResponse>>($"api/admin/apikeys{query}");
     }
 
     private async Task DeleteAsync(ApiKeyResponse apiKeyResponse)

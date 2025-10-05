@@ -1,63 +1,62 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Extended.Extensions;
 using MoonCore.Extensions;
 using MoonCore.Helpers;
+using Moonlight.ApiServer.Configuration;
+using Moonlight.ApiServer.Plugins;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task RegisterBaseAsync()
+    private static void AddBase(this WebApplicationBuilder builder, IPluginStartup[] startups)
     {
-        WebApplicationBuilder.Services.AutoAddServices<Startup>();
-        WebApplicationBuilder.Services.AddHttpClient();
+        builder.Services.AutoAddServices<IAssemblyMarker>();
+        builder.Services.AddHttpClient();
 
-        WebApplicationBuilder.Services.AddApiExceptionHandler();
-
-        // Add pre-existing services
-        WebApplicationBuilder.Services.AddSingleton(Configuration);
+        builder.Services.AddApiExceptionHandler();
 
         // Configure controllers
-        var mvcBuilder = WebApplicationBuilder.Services.AddControllers();
+        var mvcBuilder = builder.Services.AddControllers();
 
         // Add plugin assemblies as application parts
-        foreach (var pluginStartup in PluginStartups.Select(x => x.GetType().Assembly).Distinct())
+        foreach (var pluginStartup in startups.Select(x => x.GetType().Assembly).Distinct())
             mvcBuilder.AddApplicationPart(pluginStartup.GetType().Assembly);
-
-        return Task.CompletedTask;
     }
 
-    private Task UseBaseAsync()
+    private static void UseBase(this WebApplication application)
     {
-        WebApplication.UseRouting();
-        WebApplication.UseExceptionHandler();
-
-        return Task.CompletedTask;
+        application.UseRouting();
+        application.UseExceptionHandler();
     }
 
-    private Task MapBaseAsync()
+    private static void MapBase(this WebApplication application)
     {
-        WebApplication.MapControllers();
-
-        if (Configuration.Frontend.EnableHosting)
-            WebApplication.MapFallbackToController("Index", "Frontend");
-
-        return Task.CompletedTask;
+        application.MapControllers();
+        
+        // Frontend
+        var configuration = AppConfiguration.CreateEmpty();
+        application.Configuration.Bind(configuration);
+        
+        if (configuration.Frontend.EnableHosting)
+            application.MapFallbackToController("Index", "Frontend");
     }
 
-    private Task ConfigureKestrelAsync()
+    private static void ConfigureKestrel(this WebApplicationBuilder builder)
     {
-        WebApplicationBuilder.WebHost.ConfigureKestrel(kestrelOptions =>
+        var configuration = AppConfiguration.CreateEmpty();
+        builder.Configuration.Bind(configuration);
+        
+        builder.WebHost.ConfigureKestrel(kestrelOptions =>
         {
             var maxUploadInBytes = ByteConverter
-                .FromMegaBytes(Configuration.Kestrel.UploadLimit)
+                .FromMegaBytes(configuration.Kestrel.UploadLimit)
                 .Bytes;
 
             kestrelOptions.Limits.MaxRequestBodySize = maxUploadInBytes;
         });
-
-        return Task.CompletedTask;
     }
 }

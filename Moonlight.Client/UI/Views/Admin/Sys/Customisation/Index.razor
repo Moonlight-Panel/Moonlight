@@ -2,12 +2,13 @@
 
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
+@using MoonCore.Blazor.FlyonUi.Common
 @using MoonCore.Blazor.FlyonUi.Grid
 @using MoonCore.Blazor.FlyonUi.Grid.Columns
 @using MoonCore.Blazor.FlyonUi.Grid.ToolbarItems
 @using MoonCore.Blazor.FlyonUi.Helpers
+@using MoonCore.Common
 @using MoonCore.Helpers
-@using MoonCore.Models
 @using Moonlight.Client.Models
 @using Moonlight.Client.Services
 @using Moonlight.Shared.Http.Requests.Admin.Sys.Theme
@@ -30,11 +31,9 @@
 
 <div class="my-8">
     <DataGrid TGridItem="ThemeResponse"
-              ItemsProvider="ItemsProviderAsync"
-              EnableFiltering="true"
-              EnablePagination="true">
-        
-        <PropertyColumn Field="x => x.Id" Sortable="true" />
+              ItemSource="ItemSource">
+
+        <PropertyColumn Field="x => x.Id" Sortable="true"/>
         <TemplateColumn Title="Name" Sortable="true">
             <td>
                 <div class="flex items-center">
@@ -47,9 +46,9 @@
                 </div>
             </td>
         </TemplateColumn>
-        <PropertyColumn Field="x => x.Version" Sortable="true" />
-        <PropertyColumn Field="x => x.Author" />
-        
+        <PropertyColumn Field="x => x.Version" Sortable="true"/>
+        <PropertyColumn Field="x => x.Author"/>
+
         <TemplateColumn>
             <td>
                 <div class="flex justify-end">
@@ -69,7 +68,8 @@
                         </a>
                     }
 
-                    <a @onclick="() => ExportAsync(context)" @onclick:preventDefault href="#" class="flex items-center mr-2 sm:mr-3">
+                    <a @onclick="() => ExportAsync(context)" @onclick:preventDefault href="#"
+                       class="flex items-center mr-2 sm:mr-3">
                         <i class="text-success icon-download me-1"></i>
                         <span class="text-success">Export</span>
                     </a>
@@ -90,7 +90,7 @@
                 <i class="icon-file-up"></i>
                 Import
             </label>
-            <InputFile OnChange="ImportAsync" id="import-theme" class="hidden" multiple />
+            <InputFile OnChange="ImportAsync" id="import-theme" class="hidden" multiple/>
             <a href="/admin/system/customisation/themes/create" class="btn btn-primary">Create</a>
         </TemplateToolbarItem>
     </DataGrid>
@@ -104,32 +104,29 @@
 @code
 {
     private DataGrid<ThemeResponse> Grid;
-    
-    private async Task<DataGridItemResult<ThemeResponse>> ItemsProviderAsync(DataGridItemRequest request)
-    {
-        var query = $"?startIndex={request.StartIndex}&count={request.Count}";
+    private ItemSource<ThemeResponse> ItemSource => ItemSourceFactory.From(LoadItemsAsync);
 
-        if (!string.IsNullOrEmpty(request.SortColumn))
+    private async Task<IEnumerable<ThemeResponse>> LoadItemsAsync(
+        int startIndex, int count, string? filter, SortOption? sortOption
+    )
+    {
+        var query = $"?startIndex={startIndex}&count={count}";
+
+        if (sortOption != null)
         {
-            var dir = request.SortDirection == SortState.Descending ? "desc" : "asc";
-            query += $"&orderBy={request.SortColumn}&orderByDir={dir}";
+            var dir = sortOption.Direction == SortDirection.Descending ? "desc" : "asc";
+            query += $"&orderBy={sortOption.Column}&orderByDir={dir}";
         }
 
-        if (!string.IsNullOrEmpty(request.Filter))
-            query += $"&filter={request.Filter}";
-        
-        var data = await ApiClient.GetJson<CountedData<ThemeResponse>>($"api/admin/system/customisation/themes{query}");
+        if (!string.IsNullOrEmpty(filter))
+            query += $"&filter={filter}";
 
-        return new()
-        {
-            Items = data.Items,
-            TotalCount = data.TotalCount
-        };
+        return await ApiClient.GetJson<CountedData<ThemeResponse>>($"api/admin/system/customisation/themes{query}");
     }
-    
+
     private async Task ImportAsync(InputFileChangeEventArgs eventArgs)
     {
-        if(eventArgs.FileCount < 1)
+        if (eventArgs.FileCount < 1)
             return;
 
         var files = eventArgs.GetMultipleFiles();
@@ -154,7 +151,7 @@
 
                 await using var stream = file.OpenReadStream(maxFileSize);
                 var themeTransfer = await JsonSerializer.DeserializeAsync<ThemeTransferModel>(stream);
-                
+
                 stream.Close();
 
                 if (themeTransfer == null)
@@ -174,7 +171,7 @@
                 });
 
                 await ToastService.SuccessAsync("Successfully imported theme", theme.Name);
-                
+
                 await Grid.RefreshAsync();
             }
             catch (Exception e)
@@ -200,7 +197,7 @@
         {
             WriteIndented = true
         });
-        
+
         var fileName = $"{transfer.Name.Replace(" ", string.Empty).Trim()}.json";
 
         await DownloadService.DownloadAsync(fileName, json);

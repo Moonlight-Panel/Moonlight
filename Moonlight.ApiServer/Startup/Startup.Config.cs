@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MoonCore.EnvConfiguration;
@@ -6,30 +7,23 @@ using Moonlight.ApiServer.Configuration;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private async Task SetupAppConfigurationAsync()
+    private static void AddConfiguration(this WebApplicationBuilder builder)
     {
-        var configPath = Path.Combine("storage", "config.yml");
+        // Yaml
+        var yamlPath = Path.Combine("storage", "config.yml");
 
-        await YamlDefaultGenerator.GenerateAsync<AppConfiguration>(configPath);
+        YamlDefaultGenerator.GenerateAsync<AppConfiguration>(yamlPath).Wait();
 
-        // Configure configuration (wow)
-        var configurationBuilder = new ConfigurationBuilder();
-
-        configurationBuilder.AddYamlFile(configPath);
-        configurationBuilder.AddEnvironmentVariables(prefix: "MOONLIGHT_", separator: "_");
-
-        var configurationRoot = configurationBuilder.Build();
+        builder.Configuration.AddYamlFile(yamlPath);
         
-        // Retrieve configuration
-        Configuration = AppConfiguration.CreateEmpty();
-        configurationRoot.Bind(Configuration);
-    }
-
-    private Task RegisterAppConfigurationAsync()
-    {
-        WebApplicationBuilder.Services.AddSingleton(Configuration);
-        return Task.CompletedTask;
+        // Env
+        builder.Configuration.AddEnvironmentVariables(prefix: "MOONLIGHT_", separator: "_");
+        
+        var configuration = AppConfiguration.CreateEmpty();
+        builder.Configuration.Bind(configuration);
+        
+        builder.Services.AddSingleton(configuration);
     }
 }

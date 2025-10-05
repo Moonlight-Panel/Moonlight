@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -7,11 +8,11 @@ using Moonlight.ApiServer.Database;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task RegisterHangfireAsync()
+    private static void AddMoonlightHangfire(this WebApplicationBuilder builder)
     {
-        WebApplicationBuilder.Services.AddHangfire((provider, configuration) =>
+        builder.Services.AddHangfire((provider, configuration) =>
         {
             configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
             configuration.UseSimpleAssemblyNameTypeSerializer();
@@ -23,26 +24,22 @@ public partial class Startup
             }, new EFCoreStorageOptions());
         });
 
-        WebApplicationBuilder.Services.AddHangfireServer();
+        builder.Services.AddHangfireServer();
 
-        WebApplicationBuilder.Logging.AddFilter(
+        builder.Logging.AddFilter(
             "Hangfire.Server.BackgroundServerProcess",
             LogLevel.Warning
         );
 
-        WebApplicationBuilder.Logging.AddFilter(
+        builder.Logging.AddFilter(
             "Hangfire.BackgroundJobServer",
             LogLevel.Warning
         );
-
-        return Task.CompletedTask;
     }
 
-    private Task UseHangfireAsync()
+    private static void UseMoonlightHangfire(this WebApplication application)
     {
-        if (WebApplication.Environment.IsDevelopment())
-            WebApplication.UseHangfireDashboard();
-
-        return Task.CompletedTask;
+        if (application.Environment.IsDevelopment())
+            application.UseHangfireDashboard();
     }
 }

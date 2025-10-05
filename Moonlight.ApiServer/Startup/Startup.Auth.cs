@@ -3,19 +3,24 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using MoonCore.Permissions;
+using Moonlight.ApiServer.Configuration;
 using Moonlight.ApiServer.Implementations.LocalAuth;
 using Moonlight.ApiServer.Services;
 
 namespace Moonlight.ApiServer.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task RegisterAuthAsync()
+    private static void AddAuth(this WebApplicationBuilder builder)
     {
-        WebApplicationBuilder.Services
+        var configuration = AppConfiguration.CreateEmpty();
+        builder.Configuration.Bind(configuration);
+        
+        builder.Services
             .AddAuthentication(options => { options.DefaultScheme = "MainScheme"; })
             .AddPolicyScheme("MainScheme", null, options =>
             {
@@ -42,15 +47,15 @@ public partial class Startup
                 options.TokenValidationParameters = new()
                 {
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                        Configuration.Authentication.Secret
+                        configuration.Authentication.Secret
                     )),
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero,
                     ValidateAudience = true,
-                    ValidAudience = Configuration.PublicUrl,
+                    ValidAudience = configuration.PublicUrl,
                     ValidateIssuer = true,
-                    ValidIssuer = Configuration.PublicUrl
+                    ValidIssuer = configuration.PublicUrl
                 };
 
                 options.Events = new JwtBearerEvents()
@@ -81,11 +86,11 @@ public partial class Startup
             })
             .AddCookie("Session", null, options =>
             {
-                options.ExpireTimeSpan = TimeSpan.FromDays(Configuration.Authentication.Sessions.ExpiresIn);
+                options.ExpireTimeSpan = TimeSpan.FromDays(configuration.Authentication.Sessions.ExpiresIn);
 
                 options.Cookie = new CookieBuilder()
                 {
-                    Name = Configuration.Authentication.Sessions.CookieName,
+                    Name = configuration.Authentication.Sessions.CookieName,
                     Path = "/",
                     IsEssential = true,
                     SecurePolicy = CookieSecurePolicy.SameAsRequest
@@ -150,16 +155,16 @@ public partial class Startup
                 options.SignInScheme = "Session";
             });
 
-        WebApplicationBuilder.Services.AddAuthorization();
+        builder.Services.AddAuthorization();
         
-        WebApplicationBuilder.Services.AddAuthorizationPermissions(options =>
+        builder.Services.AddAuthorizationPermissions(options =>
         {
             options.ClaimName = "Permissions";
             options.Prefix = "permissions:";
         });
         
-        WebApplicationBuilder.Services.AddScoped<UserAuthService>();
-        WebApplicationBuilder.Services.AddScoped<ApiKeyAuthService>();
+        builder.Services.AddScoped<UserAuthService>();
+        builder.Services.AddScoped<ApiKeyAuthService>();
 
         // Setup data protection storage within storage folder
         // so its persists in containers
@@ -167,23 +172,18 @@ public partial class Startup
 
         Directory.CreateDirectory(dpKeyPath);
 
-        WebApplicationBuilder.Services
+        builder.Services
             .AddDataProtection()
             .PersistKeysToFileSystem(
                 new DirectoryInfo(dpKeyPath)
             );
 
-        WebApplicationBuilder.Services.AddScoped<UserDeletionService>();
-
-        return Task.CompletedTask;
+        builder.Services.AddScoped<UserDeletionService>();
     }
 
-    private Task UseAuthAsync()
+    private static void UseAuth(this WebApplication application)
     {
-        WebApplication.UseAuthentication();
-
-        WebApplication.UseAuthorization();
-
-        return Task.CompletedTask;
+        application.UseAuthentication();
+        application.UseAuthorization();
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Moonlight.ApiServer.Configuration;
@@ -21,11 +20,12 @@ namespace Moonlight.ApiServer.Implementations.Startup;
 
 public class CoreStartup : IPluginStartup
 {
-    public Task BuildApplicationAsync(IServiceProvider serviceProvider, IHostApplicationBuilder builder)
+    public void AddPlugin(WebApplicationBuilder builder)
     {
-        var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
-
-        #region Api Docs
+        var configuration = AppConfiguration.CreateEmpty();
+        builder.Configuration.Bind(configuration);
+        
+         #region Api Docs
 
         if (configuration.Development.EnableApiDocs)
         {
@@ -138,31 +138,27 @@ public class CoreStartup : IPluginStartup
         }
 
         #endregion
-
-        return Task.CompletedTask;
     }
 
-    public Task ConfigureApplicationAsync(IServiceProvider serviceProvider, IApplicationBuilder app)
+    public void UsePlugin(WebApplication app)
     {
-        var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
-
+        var configuration = AppConfiguration.CreateEmpty();
+        app.Configuration.Bind(configuration);
+        
         #region Prometheus
 
         if (configuration.OpenTelemetry is { Enable: true, Metrics.EnablePrometheus: true })
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
         #endregion
-
-        return Task.CompletedTask;
     }
 
-    public Task ConfigureEndpointsAsync(IServiceProvider serviceProvider, IEndpointRouteBuilder routeBuilder)
+    public void MapPlugin(WebApplication app)
     {
-        var configuration = serviceProvider.GetRequiredService<AppConfiguration>();
-
+        var configuration = AppConfiguration.CreateEmpty();
+        app.Configuration.Bind(configuration);
+        
         if (configuration.Development.EnableApiDocs)
-            routeBuilder.MapSwagger("/api/swagger/{documentName}");
-
-        return Task.CompletedTask;
+            app.MapSwagger("/api/swagger/{documentName}");
     }
 }

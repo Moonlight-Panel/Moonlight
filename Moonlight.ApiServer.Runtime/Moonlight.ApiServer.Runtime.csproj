@@ -18,7 +18,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="MoonCore.PluginFramework" Version="1.0.8" />
+        <PackageReference Include="MoonCore.PluginFramework" Version="1.0.9" />
     </ItemGroup>
     
     <Import Project="Plugins.props" />

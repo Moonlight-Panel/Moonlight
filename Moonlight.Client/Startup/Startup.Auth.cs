@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MoonCore.Blazor.FlyonUi.Exceptions;
 using MoonCore.Permissions;
@@ -7,22 +8,20 @@ using Moonlight.Client.Services;
 
 namespace Moonlight.Client.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task RegisterAuthenticationAsync()
+    private static void AddAuth(this WebAssemblyHostBuilder builder)
     {
-        WebAssemblyHostBuilder.Services.AddAuthorizationCore();
-        WebAssemblyHostBuilder.Services.AddCascadingAuthenticationState();
+        builder.Services.AddAuthorizationCore();
+        builder.Services.AddCascadingAuthenticationState();
 
-        WebAssemblyHostBuilder.Services.AddScoped<AuthenticationStateProvider, RemoteAuthStateProvider>();
-        WebAssemblyHostBuilder.Services.AddScoped<IGlobalErrorFilter, UnauthenticatedErrorFilter>();
+        builder.Services.AddScoped<AuthenticationStateProvider, RemoteAuthStateProvider>();
+        builder.Services.AddScoped<IGlobalErrorFilter, UnauthenticatedErrorFilter>();
         
-        WebAssemblyHostBuilder.Services.AddAuthorizationPermissions(options =>
+        builder.Services.AddAuthorizationPermissions(options =>
         {
             options.ClaimName = "Permissions";
             options.Prefix = "permissions:";
         });
-
-        return Task.CompletedTask;
     }
 }

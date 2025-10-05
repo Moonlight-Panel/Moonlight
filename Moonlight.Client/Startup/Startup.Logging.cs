@@ -1,30 +1,13 @@
-using Microsoft.Extensions.DependencyInjection;
-using MoonCore.Blazor.FlyonUi.Exceptions;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MoonCore.Logging;
-using Moonlight.Client.Implementations;
 
 namespace Moonlight.Client.Startup;
 
-public partial class Startup
+public static partial class Startup
 {
-    private Task SetupLoggingAsync()
+    private static void AddLogging(this WebAssemblyHostBuilder builder)
     {
-        var loggerFactory = new LoggerFactory();
-        
-        loggerFactory.AddAnsiConsole();
-
-        Logger = loggerFactory.CreateLogger<Startup>();
-
-        return Task.CompletedTask;
-    }
-
-    private Task RegisterLoggingAsync()
-    {
-        WebAssemblyHostBuilder.Logging.ClearProviders();
-        WebAssemblyHostBuilder.Logging.AddAnsiConsole();
-
-        WebAssemblyHostBuilder.Services.AddScoped<IGlobalErrorFilter, LogErrorFilter>();
-
-        return Task.CompletedTask;
+        builder.Logging.ClearProviders();
+        builder.Logging.AddAnsiConsole();
     }
 }
