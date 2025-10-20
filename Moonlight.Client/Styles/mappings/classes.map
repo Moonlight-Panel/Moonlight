@@ -72,6 +72,7 @@ bg-base-150
 bg-base-200
 bg-base-200!
 bg-base-200/50
+bg-base-200/60
 bg-base-250
 bg-base-300
 bg-base-300/45
@@ -185,6 +186,7 @@ contents
 cursor-default
 cursor-not-allowed
 cursor-pointer
+cursor-progress
 custom-option
 diff
 disabled
@@ -363,6 +365,7 @@ lg:ring-1
 lg:ring-base-content/10
 lg:rounded-lg
 lg:shadow-xs
+lg:table-cell
 link
 link-animated
 link-hover
@@ -496,10 +499,12 @@ overlay-open:duration-50
 overlay-open:opacity-100
 overlay-open:translate-x-0
 overlay-open:translate-y-0
+overscroll-contain
 p-0
 p-0.5
 p-1
 p-1.5
+p-12
 p-2
 p-2.5
 p-3
@@ -544,6 +549,7 @@ radio
 range
 relative
 resize
+right-0
 ring
 ring-0
 ring-1
@@ -665,6 +671,7 @@ tabs-xs
 text-2xl
 text-3xl
 text-4xl
+text-5xl
 text-accent
 text-base
 text-base-content
@@ -747,6 +754,8 @@ w-auto
 w-fit
 w-full
 whitespace-nowrap
+xl:flex
+xl:grid-cols-2
 xl:grid-cols-3
 xl:grid-cols-4
 z-1
