@@ -37,11 +37,12 @@
 
         options.AddToolbarOperation<CreateFileOperation>();
         options.AddToolbarOperation<CreateFolderOperation>();
+        options.AddToolbarOperation<UploadOperation>();
         
         options.AddOpenOperation<EditorOpenOperation>();
         options.AddOpenOperation<ImageOpenOperation>();
         options.AddOpenOperation<VideoOpenOperation>();
 
-        options.WriteLimit = ByteConverter.FromMegaBytes(20).Bytes;
+        options.WriteLimit = (int)ByteConverter.FromMegaBytes(20).Bytes;
     }
 }
