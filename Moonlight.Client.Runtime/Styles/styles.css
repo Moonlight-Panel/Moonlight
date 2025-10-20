@@ -116,7 +116,7 @@
     }
 
     .advance-select-menu {
-        @apply !border-base-content/20 border-2 ring-0! outline-0! bg-base-200/50 !px-0;
+        @apply !border-base-content/20 border-2 ring-0! outline-0! bg-base-200/50 !pt-0 !px-0 !py-0;
     }
 
     .advance-select-option {
