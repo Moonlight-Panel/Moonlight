@@ -10,10 +10,10 @@
     --mooncore-color-primary-content: #dde5f5;
     --mooncore-color-secondary: oklch(37% 0.034 259.733);
     --mooncore-color-secondary-content: #dde5f5;
-    --mooncore-color-accent: oklch(.627 .265 303.9);
+    --mooncore-color-accent: oklch(49.1% 0.27 292.581);
     --mooncore-color-accent-content: #dde5f5;
-    --mooncore-color-neutral: #dde5f5;
-    --mooncore-color-neutral-content: oklch(14% 0.005 285.823);
+    --mooncore-color-neutral: oklch(27% 0.041 260.031);
+    --mooncore-color-neutral-content: oklch(92% 0.004 286.32);
     --mooncore-color-info: oklch(.546 .245 262.881);
     --mooncore-color-info-content: #dde5f5;
     --mooncore-color-success: oklch(.627 .194 149.214);
