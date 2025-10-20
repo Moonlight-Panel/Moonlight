@@ -3,6 +3,13 @@ name: Build and Publish NuGet Package
 on:
   push:
     branches: [ v2_ChangeArchitecture,v2.1 ]
+    paths:
+      - '**.csproj'
+  
+  pull_request:
+    paths:
+      - '**.csproj'
+  
   workflow_dispatch:
 
 jobs:
