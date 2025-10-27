@@ -1,0 +1,151 @@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Moonlight.Client.Interfaces
+@using Moonlight.Client.Models
+
+@inherits MoonCore.Blazor.FlyonUi.Drawers.DrawerBase
+
+@inject NavigationManager Navigation
+@inject IEnumerable<ISidebarItemProvider> SidebarItemProviders
+@inject IAuthorizationService AuthorizationService
+
+@implements IDisposable
+
+@{
+    var url = new Uri(Navigation.Uri);
+}
+
+<div class="drawer-header">
+    <div class="flex items-center gap-3">
+        <div class="avatar">
+            <img src="/_content/Moonlight.Client/svg/logo.svg" alt="Logo" class="!w-8"/>
+        </div>
+        <h3 class="drawer-title text-xl font-semibold">Moonlight v2.1</h3>
+    </div>
+</div>
+<div class="drawer-body !px-2.5">
+    <ul class="menu menu-sm p-0 bg-transparent">
+        @foreach (var group in Items)
+        {
+            if (!string.IsNullOrEmpty(group.Key))
+            {
+                <li>
+                    <div class="divider">@group.Key</div>
+                </li>
+            }
+
+            foreach (var item in group.Value)
+            {
+                var isActive = item.RequiresExactMatch
+                    ? url.LocalPath == item.Path
+                    : url.LocalPath.StartsWith(item.Path);
+
+                <li>
+                    <a href="@item.Path" class="@(isActive ? "menu-active" : "")">
+                        <i class="@item.Icon text-lg"></i>
+                        @item.Name
+                    </a>
+                </li>
+            }
+        }
+    </ul>
+</div>
+<div class="drawer-footer !p-2.5">
+    <div
+        class="flex w-full justify-between items-center px-2 py-2.5 gap-6 rounded-lg text-left text-base/6 font-medium sm:py-2 sm:text-sm/5 text-base-content">
+        <div class="flex min-w-0 items-center gap-3">
+            <span class="inline-grid shrink-0 align-middle">
+                <img class="h-8 rounded-full"
+                     src="/_content/Moonlight.Client/img/pfp_placeholder.png"
+                     alt=""/>
+            </span>
+            <div class="min-w-0">
+                <div class="block truncate text-sm/5 font-medium text-base-content">
+                    @Username
+                </div>
+                <div class="block truncate text-xs/5 font-normal text-base-content/40">
+                    @Email
+                </div>
+            </div>
+        </div>
+        <a href="#" @onclick:preventDefault @onclick="LogoutAsync" class="flex items-center">
+            <i class="icon-log-out text-lg"></i>
+        </a>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
+ 
+    private Dictionary<string, SidebarItem[]> Items = new();
+
+    private string Username;
+    private string Email;
+    private ClaimsPrincipal Identity;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        
+        Identity = authState.User;
+        Username = Identity.FindFirst(ClaimTypes.Name)!.Value;
+        Email = Identity.FindFirst(ClaimTypes.Email)!.Value;
+        
+        var sidebarItems = new List<SidebarItem>();
+
+        foreach (var provider in SidebarItemProviders)
+            provider.ModifySidebar(sidebarItems);
+
+        var itemsToRemove = new List<SidebarItem>();
+        
+        foreach (var sidebarItem in sidebarItems)
+        {
+            if(string.IsNullOrEmpty(sidebarItem.Policy))
+                continue;
+
+            var authResult = await AuthorizationService.AuthorizeAsync(Identity, sidebarItem.Policy);
+            
+            if(authResult.Succeeded)
+                continue;
+            
+            itemsToRemove.Add(sidebarItem);
+        }
+
+        foreach (var sidebarItem in itemsToRemove)
+            sidebarItems.Remove(sidebarItem);
+
+        Items = sidebarItems
+            .GroupBy(x => x.Group ?? "")
+            .OrderByDescending(x => string.IsNullOrEmpty(x.Key))
+            .ToDictionary(x => x.Key, x => x.OrderBy(y => y.Priority).ToArray());
+        
+        Navigation.LocationChanged += OnNavigated;
+    }
+
+    private async void OnNavigated(object? sender, LocationChangedEventArgs e)
+    {
+        // No async void without try catch to prevent hard app crashes when async task fails
+        
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    }
+
+    private Task LogoutAsync()
+    {
+        Navigation.NavigateTo("/api/auth/logout", true);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnNavigated;
+    }
+}

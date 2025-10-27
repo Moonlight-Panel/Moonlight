@@ -8,12 +8,14 @@
 !justify-between
 !me-1.5
 !ms-auto
+!p-2.5
 !px-2.5
 !py-0.5
 !rounded-full
 !rounded-xs
 !text-sm
 !w-2.5
+!w-8
 *:[grid-area:1/1]
 *:first:rounded-tl-lg
 *:last:rounded-tr-lg
@@ -65,16 +67,14 @@ badge-primary
 badge-soft
 badge-success
 basis-full
-bg-background
-bg-background/60
 bg-base-100
-bg-base-150
+bg-base-100/50
 bg-base-200
 bg-base-200!
 bg-base-200/50
 bg-base-200/60
-bg-base-250
 bg-base-300
+bg-base-300/15
 bg-base-300/45
 bg-base-300/50
 bg-base-300/60
@@ -190,7 +190,7 @@ cursor-progress
 custom-option
 diff
 disabled
-divide-base-150/60
+divide-base-100/60
 divide-y
 divider
 drawer
@@ -298,6 +298,7 @@ h-screen
 helper-text
 hidden
 hover:bg-indigo-500
+hover:bg-primary/20
 hover:bg-primary/5
 hover:bg-transparent
 hover:cursor-pointer
@@ -393,6 +394,7 @@ max-w-64
 max-w-7xl
 max-w-8
 max-w-80
+max-w-fit
 max-w-full
 max-w-lg
 max-w-md
@@ -467,6 +469,7 @@ mt-10
 mt-12
 mt-2
 mt-2.5
+mt-20
 mt-3
 mt-3.5
 mt-4
@@ -602,6 +605,7 @@ sm:flex-nowrap
 sm:gap-y-0
 sm:grid-cols-3
 sm:grid-cols-6
+sm:inline
 sm:items-center
 sm:items-end
 sm:justify-between
@@ -654,6 +658,7 @@ sticky
 success-message
 switch
 tab
+tab!
 tab-active
 tab-content
 table

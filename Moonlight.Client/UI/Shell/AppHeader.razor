@@ -1,0 +1,30 @@
+@using MoonCore.Blazor.FlyonUi.Drawers
+
+@inject DrawerService DrawerService
+
+<nav class="navbar grow-0 bg-base-100 p-2">
+    <div class="w-full md:flex md:items-center md:gap-2">
+        <div class="flex items-center justify-between">
+            <div class="navbar-start items-center justify-between max-md:w-full">
+                <button @onclick="LaunchSidebarAsync" class="btn btn-square btn-text text-base-content md:hidden!">
+                    <i class="icon-menu text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="default-navbar-collapse" class="md:navbar-end collapse hidden grow basis-full max-md:w-full" >
+            <div class="avatar p-1">
+                <div class="size-8.5 rounded-full">
+                    <img src="/_content/Moonlight.Client/img/pfp_placeholder.png" alt="Avatar" />
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+@code
+{
+    private async Task LaunchSidebarAsync()
+    {
+        await DrawerService.LaunchAsync<SidebarDrawer>(unfocusHide: true);
+    }
+}

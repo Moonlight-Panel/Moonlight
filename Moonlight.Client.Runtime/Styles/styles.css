@@ -9,14 +9,10 @@
 @theme {
     --font-inter: "Inter", var(--font-sans);
     --font-scp: "Source Code Pro", var(--font-mono);
-    
-    --color-background: var(--mooncore-color-background);
-    --color-base-150: var(--mooncore-color-base-150);
-    --color-base-250: var(--mooncore-color-base-250);
 }
 
 @plugin "flyonui" {
-    themes: mooncore --default;
+    themes: moonlight --default;
 }
 
 @source "./node_modules/flyonui/dist/index.js";
@@ -45,60 +41,21 @@
     width: var(--blazor-load-percentage, 0%);
 }
 
-@plugin "flyonui/theme" {
-    name: "mooncore";
-    default: true;
-    prefersdark: true;
-    color-scheme: "dark";
-    --color-base-100: var(--mooncore-color-base-100);
-    --color-base-200: var(--mooncore-color-base-200);
-    --color-base-300: var(--mooncore-color-base-300);
-    --color-base-content: var(--mooncore-color-base-content);
-    --color-primary: var(--mooncore-color-primary);
-    --color-primary-content: var(--mooncore-color-primary-content);
-    --color-secondary: var(--mooncore-color-secondary);
-    --color-secondary-content: var(--mooncore-color-secondary-content);
-    --color-accent: var(--mooncore-color-accent);
-    --color-accent-content: var(--mooncore-color-accent-content);
-    --color-neutral: var(--mooncore-color-neutral);
-    --color-neutral-content: var(--mooncore-color-neutral-content);
-    --color-info: var(--mooncore-color-info);
-    --color-info-content: var(--mooncore-color-info-content);
-    --color-success: var(--mooncore-color-success);
-    --color-success-content: var(--mooncore-color-success-content);
-    --color-warning: var(--mooncore-color-warning);
-    --color-warning-content: var(--mooncore-color-warning-content);
-    --color-error: var(--mooncore-color-error);
-    --color-error-content: var(--mooncore-color-error-content);
-    --radius-selector: var(--mooncore-radius-selector);
-    --radius-field: var(--mooncore-radius-field);
-    --radius-box: var(--mooncore-radius-box);
-    --size-selector: var(--mooncore-size-selector);
-    --size-field: var(--mooncore-size-field);
-    --border: var(--mooncore-border);
-    --depth: var(--mooncore-depth);
-    --noise: var(--mooncore-noise);
-}
-
 @layer utilities {
     .btn {
         @apply text-sm font-medium inline-flex items-center justify-center;
     }
-    
+
     .checkbox {
         @apply border-base-content/30 bg-base-100;
     }
-    
+
     .input {
-        @apply !border-base-content/20 border-2 ring-0! outline-0! focus:border-primary! focus-within:border-primary! bg-base-200/50;
-    }
-    
-    .advance-select-toggle {
-        @apply !border-base-content/20 border-2 ring-0! outline-0! focus:border-primary! focus-within:border-primary! bg-base-200/50;
+        @apply !border-base-content/20 border-2 ring-0! outline-0! focus:border-primary! focus-within:border-primary! bg-base-100/50;
     }
 
     .select {
-        @apply !border-base-content/20 border-2 ring-0! outline-0! focus:border-primary! focus-within:border-primary! bg-base-200/50;
+        @apply !border-base-content/20 border-2 ring-0! outline-0! focus:border-primary! focus-within:border-primary! bg-base-100/50;
     }
 
     .table {
@@ -109,10 +66,6 @@
 
     .dropdown-item {
         @apply px-2.5 py-1.5 text-sm;
-    }
-
-    .dropdown-menu {
-        @apply bg-base-150;
     }
 
     .advance-select-menu {

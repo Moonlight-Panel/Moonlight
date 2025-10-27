@@ -29,7 +29,6 @@ accordion-content
 accordion-toggle
 active
 active-tab:bg-primary
-active-tab:hover:text-primary-content
 active-tab:text-primary-content
 advance-select-menu
 advance-select-option
@@ -50,14 +49,13 @@ basis-full
 bg-background
 bg-background/60
 bg-base-100
-bg-base-150
+bg-base-100/50
 bg-base-200
 bg-base-200!
 bg-base-200/50
 bg-base-200/60
-bg-base-250
 bg-base-300
-bg-base-300/50
+bg-base-300/15
 bg-base-300/60
 bg-error
 bg-info
@@ -147,7 +145,7 @@ cursor-pointer
 cursor-progress
 diff
 disabled
-divide-base-150/60
+divide-base-100/60
 divide-y
 divider
 drawer
@@ -231,8 +229,8 @@ h-full
 h-screen
 helper-text
 hidden
+hover:bg-primary/20
 hover:bg-primary/5
-hover:bg-transparent
 hover:cursor-pointer
 hover:text-base-content
 hover:text-base-content/60
@@ -309,6 +307,7 @@ max-sm:hidden
 max-w-64
 max-w-7xl
 max-w-80
+max-w-fit
 max-w-full
 max-w-lg
 max-w-sm
@@ -370,6 +369,7 @@ mt-10
 mt-12
 mt-2
 mt-2.5
+mt-20
 mt-3
 mt-3.5
 mt-4
@@ -426,6 +426,7 @@ pt-2
 pt-3
 px-1.5
 px-2
+px-2.5
 px-3
 px-4
 px-5
@@ -462,7 +463,6 @@ shadow-base-300/20
 shadow-lg
 shadow-md
 shadow-none
-shadow-sm
 shadow-xs
 shrink-0
 size-10
@@ -473,6 +473,7 @@ size-8
 size-8.5
 sm:auto-cols-max
 sm:flex
+sm:inline
 sm:items-center
 sm:items-end
 sm:justify-between
@@ -502,6 +503,7 @@ sticky
 success-message
 switch
 tab
+tab!
 tab-active
 table
 table-pin-cols
@@ -560,9 +562,7 @@ transform
 transition
 transition-all
 transition-opacity
-transition-transform
 translate-x-0
-translate-x-full
 truncate
 underline
 uppercase
@@ -570,17 +570,14 @@ validate
 w-0
 w-0.5
 w-13
-w-20
 w-4
 w-56
 w-6
 w-64
-w-fit
 w-full
 whitespace-nowrap
 xl:flex
 xl:grid-cols-2
-z-1
 z-40
 z-50
 z-69

@@ -1,0 +1,31 @@
+@inherits MoonCore.Blazor.FlyonUi.Drawers.DrawerBase
+
+@inject NavigationManager Navigation
+
+@implements IDisposable
+
+<SidebarComponent />
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        try
+        {
+            await CloseAsync();
+        }
+        catch (Exception)
+        {
+            // Ignored
+        }
+    }
+
+    public void Dispose()
+    {
+    }
+}

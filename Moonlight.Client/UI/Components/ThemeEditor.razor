@@ -8,11 +8,6 @@
         </div>
 
         <div class="flex flex-row items-center">
-            <ColorSelector @bind-Value="Theme.ColorBackground"/>
-            <span class="ms-2.5">Background</span>
-        </div>
-
-        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBaseContent"/>
             <span class="ms-2.5">Base Content</span>
         </div>
@@ -23,18 +18,8 @@
         </div>
 
         <div class="flex flex-row items-center">
-            <ColorSelector @bind-Value="Theme.ColorBase150"/>
-            <span class="ms-2.5">Base 150</span>
-        </div>
-
-        <div class="flex flex-row items-center">
             <ColorSelector @bind-Value="Theme.ColorBase200"/>
             <span class="ms-2.5">Base 200</span>
-        </div>
-
-        <div class="flex flex-row items-center">
-            <ColorSelector @bind-Value="Theme.ColorBase250"/>
-            <span class="ms-2.5">Base 250</span>
         </div>
 
         <div class="flex flex-row items-center">
@@ -77,6 +62,15 @@
             <div class="col-span-1 flex flex-row items-center">
                 <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorAccentContent"/>
                 <span class="ms-2.5">Accent Content</span>
+            </div>
+            
+            <div class="col-span-1 flex flex-row items-center">
+                <ColorSelector @bind-Value="Theme.ColorNeutral"/>
+                <span class="ms-2.5">Neutral</span>
+            </div>
+            <div class="col-span-1 flex flex-row items-center">
+                <ColorSelector Icon="icon-type" @bind-Value="Theme.ColorNeutralContent"/>
+                <span class="ms-2.5">Neutral Content</span>
             </div>
 
             <div class="col-span-1 flex flex-row items-center">

@@ -2,12 +2,8 @@ namespace Moonlight.Shared.Misc;
 
 public class ApplicationTheme
 {
-    public string ColorBackground { get; set; }
-    
     public string ColorBase100 { get; set; }
-    public string ColorBase150 { get; set; }
     public string ColorBase200 { get; set; }
-    public string ColorBase250 { get; set; }
     public string ColorBase300 { get; set; }
     
     public string ColorBaseContent { get; set; }

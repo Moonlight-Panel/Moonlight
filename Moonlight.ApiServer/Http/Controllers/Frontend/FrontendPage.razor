@@ -1,7 +1,7 @@
 @using Moonlight.ApiServer.Database.Entities
 
 <!DOCTYPE html>
-<html lang="en" class="bg-background text-base-content font-inter">
+<html lang="en" class="bg-base-200 text-base-content font-inter">
 
 <head>
     <meta charset="utf-8"/>
@@ -22,48 +22,45 @@
     {
         <style>
             :root {
-                --mooncore-color-background: @(Theme.Content.ColorBackground);
-                --mooncore-color-base-100: @(Theme.Content.ColorBase100);
-                --mooncore-color-base-150: @(Theme.Content.ColorBase150);
-                --mooncore-color-base-200: @(Theme.Content.ColorBase200);
-                --mooncore-color-base-250: @(Theme.Content.ColorBase250);
-                --mooncore-color-base-300: @(Theme.Content.ColorBase300);
-                --mooncore-color-base-content: @(Theme.Content.ColorBaseContent);
+                --color-base-100: @(Theme.Content.ColorBase100);
+                --color-base-200: @(Theme.Content.ColorBase200);
+                --color-base-300: @(Theme.Content.ColorBase300);
+                --color-base-content: @(Theme.Content.ColorBaseContent);
 
-                --mooncore-color-primary: @(Theme.Content.ColorPrimary);
-                --mooncore-color-primary-content: @(Theme.Content.ColorPrimaryContent);
+                --color-primary: @(Theme.Content.ColorPrimary);
+                --color-primary-content: @(Theme.Content.ColorPrimaryContent);
 
-                --mooncore-color-secondary: @(Theme.Content.ColorSecondary);
-                --mooncore-color-secondary-content: @(Theme.Content.ColorSecondaryContent);
+                --color-secondary: @(Theme.Content.ColorSecondary);
+                --color-secondary-content: @(Theme.Content.ColorSecondaryContent);
 
-                --mooncore-color-accent: @(Theme.Content.ColorAccent);
-                --mooncore-color-accent-content: @(Theme.Content.ColorAccentContent);
+                --color-accent: @(Theme.Content.ColorAccent);
+                --color-accent-content: @(Theme.Content.ColorAccentContent);
 
-                --mooncore-color-neutral: @(Theme.Content.ColorNeutral);
-                --mooncore-color-neutral-content: @(Theme.Content.ColorNeutralContent);
+                --color-neutral: @(Theme.Content.ColorNeutral);
+                --color-neutral-content: @(Theme.Content.ColorNeutralContent);
 
-                --mooncore-color-info: @(Theme.Content.ColorInfo);
-                --mooncore-color-info-content: @(Theme.Content.ColorInfoContent);
+                --color-info: @(Theme.Content.ColorInfo);
+                --color-info-content: @(Theme.Content.ColorInfoContent);
 
-                --mooncore-color-success: @(Theme.Content.ColorSuccess);
-                --mooncore-color-success-content: @(Theme.Content.ColorSuccessContent);
+                --color-success: @(Theme.Content.ColorSuccess);
+                --color-success-content: @(Theme.Content.ColorSuccessContent);
 
-                --mooncore-color-warning: @(Theme.Content.ColorWarning);
-                --mooncore-color-warning-content: @(Theme.Content.ColorWarningContent);
+                --color-warning: @(Theme.Content.ColorWarning);
+                --color-warning-content: @(Theme.Content.ColorWarningContent);
 
-                --mooncore-color-error: @(Theme.Content.ColorError);
-                --mooncore-color-error-content: @(Theme.Content.ColorErrorContent);
+                --color-error: @(Theme.Content.ColorError);
+                --color-error-content: @(Theme.Content.ColorErrorContent);
 
-                --mooncore-radius-selector: @(Theme.Content.RadiusSelector)rem;
-                --mooncore-radius-field: @(Theme.Content.RadiusField)rem;
-                --mooncore-radius-box: @(Theme.Content.RadiusBox)rem;
+                --radius-selector: @(Theme.Content.RadiusSelector)rem;
+                --radius-field: @(Theme.Content.RadiusField)rem;
+                --radius-box: @(Theme.Content.RadiusBox)rem;
 
-                --mooncore-size-selector: @(Theme.Content.SizeSelector)rem;
-                --mooncore-size-field: @(Theme.Content.SizeField)rem;
+                --size-selector: @(Theme.Content.SizeSelector)rem;
+                --size-field: @(Theme.Content.SizeField)rem;
 
-                --mooncore-border: @(Theme.Content.Border)px;
-                --mooncore-depth: @(Theme.Content.Depth);
-                --mooncore-noise: @(Theme.Content.Noise);
+                --border: @(Theme.Content.Border)px;
+                --depth: @(Theme.Content.Depth);
+                --noise: @(Theme.Content.Noise);
             }
         </style>
     }

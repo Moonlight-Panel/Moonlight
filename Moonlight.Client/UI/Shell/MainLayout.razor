@@ -1,0 +1,22 @@
+@using MoonCore.Blazor.FlyonUi.Drawers
+@using MoonCore.Blazor.FlyonUi.Modals
+@using MoonCore.Blazor.FlyonUi.Toasts
+
+@inherits LayoutComponentBase
+
+<div class="flex flex-row h-screen">
+    <aside class="drawer hidden md:flex shadow-none relative max-w-64 h-full"
+           role="dialog" tabindex="-1">
+        <SidebarComponent />
+    </aside>
+    <div class="w-full h-full flex flex-col">
+        <AppHeader />
+        <div class="flex-1 min-h-0 p-8 overflow-y-auto">
+            @Body
+            
+            <ToastLauncher />
+            <ModalLauncher />
+            <DrawerLauncher />
+        </div>
+    </div>
+</div>
