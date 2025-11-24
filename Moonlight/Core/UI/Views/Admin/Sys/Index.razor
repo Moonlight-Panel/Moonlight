@@ -21,14 +21,14 @@
                 var cpuUsageText = $"{CpuUsage}%";
             }
             
-            <StatCard Value="@cpuUsageText" Description="Cpu usage" Icon="bxs-chip"/>
+            <StatCard Value="@cpuUsageText" Description="CPU Usage" Icon="bxs-chip"/>
         </div>
         <div class="col-md-3 col-12">
             @{
                 var memoryUsageText = Formatter.FormatSize(MemoryUsage);
             }
             
-            <StatCard Value="@memoryUsageText" Description="Memory usage" Icon="bxs-microchip"/>
+            <StatCard Value="@memoryUsageText" Description="Memory Usage" Icon="bxs-microchip"/>
         </div>
         <div class="col-md-3 col-12">
             @{
@@ -40,11 +40,11 @@
         <div class="col-md-3 col-12">
             @if (MoonlightService.IsDockerRun)
             {
-                <StatCard Value="Running in docker" Description="Operating system" Icon="bxl-docker"/>
+                <StatCard Value="Running in docker" Description="Operating System" Icon="bxl-docker"/>
             }
             else
             {
-                <StatCard Value="@OsName" Description="Operating system" Icon="bx-fingerprint"/>
+                <StatCard Value="@OsName" Description="Operating System" Icon="bx-fingerprint"/>
             }
         </div>
         <div class="col-md-3 col-12">
