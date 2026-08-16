@@ -1,0 +1,134 @@
+@using System.Diagnostics.CodeAnalysis
+@using LucideBlazor
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using ShadcnBlazor.Sidebars
+
+@inject NavigationManager Navigation
+@inject IAuthorizationService AuthorizationService
+
+@implements IDisposable
+
+@{
+    var url = new Uri(Navigation.Uri);
+}
+
+<Sidebar Variant="SidebarVariant.Sidebar" Collapsible="SidebarCollapsible.Icon">
+    <SidebarHeader>
+        <SidebarMenu>
+            <SidebarMenuItem>
+                <SidebarMenuButton>
+                    <a href="/" class="flex flex-row items-center">
+                        <img alt="Logo" src="/svgs/logo.svg" class="size-6"/>
+                        <span class="ms-2.5 text-lg font-semibold">Moonlight</span>
+                    </a>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
+    </SidebarHeader>
+
+    <SidebarContent>
+        @foreach (var group in Items.GroupBy(x => x.Group))
+        {
+            <SidebarGroup>
+                @if (!string.IsNullOrWhiteSpace(group.Key))
+                {
+                    <SidebarGroupLabel>
+                        @group.Key
+                    </SidebarGroupLabel>
+                }
+
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        @foreach (var item in group.OrderBy(x => x.Order))
+                        {
+                            var isActive = item.IsExactPath
+                                ? item.Path == url.LocalPath
+                                : url.LocalPath.StartsWith(item.Path, StringComparison.OrdinalIgnoreCase);
+
+                            <SidebarMenuItem @key="item">
+                                <SidebarMenuButton IsActive="@isActive">
+                                    <Slot>
+                                        <a href="@item.Path" @attributes="context">
+                                            <DynamicComponent Type="item.IconType"/>
+                                            <span>@item.Name</span>
+                                        </a>
+                                    </Slot>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        }
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        }
+    </SidebarContent>
+
+    <SidebarFooter>
+        <AppUserNav/>
+    </SidebarFooter>
+</Sidebar>
+
+@code
+{
+    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
+
+    private readonly List<SidebarItem> Items = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+
+        SidebarItem[] items = [
+            new()
+            {
+                Name = "Dashboard",
+                Path = "/",
+                IconType = typeof(LayoutDashboardIcon)
+            }
+        ];
+
+        foreach (var item in items)
+        {
+            if (!string.IsNullOrWhiteSpace(item.Policy))
+            {
+                var result = await AuthorizationService.AuthorizeAsync(authState.User, item.Policy);
+
+                if (!result.Succeeded)
+                    continue;
+            }
+
+            Items.Add(item);
+        }
+
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception)
+        {
+            // Ignored
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+
+    private record SidebarItem
+    {
+        public string Name { get; init; }
+        public string Path { get; init; }
+        public bool IsExactPath { get; init; }
+        public string? Group { get; init; }
+        public int Order { get; init; }
+        public Type IconType { get; init; }
+
+        public string? Policy { get; set; }
+    }
+}

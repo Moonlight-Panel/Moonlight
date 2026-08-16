@@ -1,0 +1,79 @@
+@using System.Security.Claims
+@using LucideBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@using ShadcnBlazor.Avatars
+@using ShadcnBlazor.Dropdowns
+@using ShadcnBlazor.Interop
+@using ShadcnBlazor.Sidebars
+
+@inject NavigationManager Navigation
+
+<SidebarMenu>
+    <SidebarMenuItem>
+        <DropdownMenu>
+            <DropdownMenuTrigger>
+                <Slot>
+                    <SidebarMenuButton
+                        Size="SidebarMenuButtonSize.Lg"
+                        ClassName="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        @attributes="context">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                            <AvatarImage src="https://github.com/ghost.png" alt="Ghost"/>
+                            <AvatarFallback className="rounded-lg">GH</AvatarFallback>
+                        </Avatar>
+                        <div class="grid flex-1 text-left text-sm leading-tight">
+                            <span class="truncate font-medium">@Username</span>
+                            <span class="truncate text-xs">@Email</span>
+                        </div>
+
+                        <ChevronsUpDownIcon ClassName="ml-auto size-4"/>
+                    </SidebarMenuButton>
+                </Slot>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+                ClassName="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                Side="@(SidebarProvider.IsMobile ? PositionSide.Bottom : PositionSide.Right)"
+                Align="PositionAlignment.End">
+                <DropdownMenuLabel ClassName="p-0 font-normal">
+                    <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                        <Avatar ClassName="h-8 w-8 rounded-lg">
+                            <AvatarImage src="https://github.com/ghost.png" alt="Ghost"/>
+                            <AvatarFallback className="rounded-lg">GH</AvatarFallback>
+                        </Avatar>
+                        <div class="grid flex-1 text-left text-sm leading-tight">
+                            <span class="truncate font-medium">@Username</span>
+                            <span class="truncate text-xs">@Email</span>
+                        </div>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator/>
+                <DropdownMenuItem OnClick="Logout">
+                    <LogOutIcon/>
+                    Log out
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    </SidebarMenuItem>
+</SidebarMenu>
+
+@code
+{
+    [CascadingParameter] public SidebarProvider SidebarProvider { get; set; }
+    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
+
+    private string Username;
+    private string Email;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+
+        Username = authState.User.FindFirst(ClaimTypes.Name)?.Value ?? "N/A";
+        Email = authState.User.FindFirst(ClaimTypes.Email)?.Value ?? "N/A";
+    }
+
+    private void Logout()
+    {
+        Navigation.NavigateTo("/_auth/logout", true);
+    }
+}

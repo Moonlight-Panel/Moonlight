@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <SupportedPlatform Include="browser"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentResults" Version="4.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.10"/>
+        <PackageReference Include="ShadcnBlazor" Version="1.0.16" />
+        <PackageReference Include="ShadcnBlazor.Extras" Version="1.0.16" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\background.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\exampleJsInterop.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Features\Auth\" />
+    </ItemGroup>
+
+</Project>

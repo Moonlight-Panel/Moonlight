@@ -1,0 +1,29 @@
+﻿@using Moonlight.Frontend.Shared.Components
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+    <ResourcePreloader/>
+    <link rel="stylesheet" href="@Assets["styles/theme.min.css"]"/>
+    <link rel="stylesheet" href="@Assets["styles/app.min.css"]"/>
+    <ImportMap/>
+    <HeadOutlet @rendermode="InteractiveServer"/>
+    <title>Moonlight</title>
+</head>
+
+<body class="text-foreground">
+
+<Routes @rendermode="InteractiveServer"/>
+<ReconnectModal/>
+
+<script src="@Assets["_content/ShadcnBlazor/interop.js"]" defer></script>
+<script src="@Assets["_content/ShadcnBlazor.Extras/interop.js"]" defer></script>
+<script src="@Assets["_framework/blazor.web.js"]"></script>
+
+</body>
+
+</html>

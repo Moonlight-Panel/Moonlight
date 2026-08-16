@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Platform/">
+    <Project Path="src/Moonlight.Api/Moonlight.Api.csproj" />
+    <Project Path="src/Moonlight.Frontend/Moonlight.Frontend.csproj" />
+    <Project Path="src/Moonlight.Shared/Moonlight.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Sdk/">
+    <Project Path="src/Moonlight.ApiSdk/Moonlight.ApiSdk.csproj" />
+    <Project Path="src/Moonlight.FrontendSdk/Moonlight.FrontendSdk.csproj" />
+  </Folder>
+</Solution>

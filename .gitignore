@@ -1,0 +1,36 @@
+# .NET Build Artifacts
+bin/
+obj/
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.DotSettings.user
+*.suo
+*.user
+*.userosscache
+*.slnx.DotSettings.user
+
+# Visual Studio
+*.vs/
+.vs/
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# Node.js / Bun
+node_modules/
+bun.lock
+bun.lockb
+
+# Development App Settings
+appsettings.Development.json
+appsettings.Local.json
+
+# Logs
+*.log
+*.min.css

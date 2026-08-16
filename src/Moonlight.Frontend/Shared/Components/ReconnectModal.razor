@@ -1,0 +1,121 @@
+﻿@using LucideBlazor
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.Emptys
+
+<script type="module" src="@Assets["scripts/reconnect.js"]"></script>
+
+<dialog id="components-reconnect-modal" data-nosnippet>
+    <div class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50"></div>
+    <div
+        class="bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-75 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg">
+        <Empty ClassName="components-reconnect-first-attempt-visible">
+            <EmptyHeader>
+                <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                    <CloudBackupIcon/>
+                </EmptyMedia>
+                <EmptyTitle>
+                    Reconnecting to server...
+                </EmptyTitle>
+                <EmptyDescription>
+                    Connection to the server has been lost. Reconnecting
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+
+        <Empty ClassName="components-reconnect-repeated-attempt-visible">
+            <EmptyHeader>
+                <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                    <CloudAlertIcon/>
+                </EmptyMedia>
+                <EmptyTitle>
+                    Reconnect failed
+                </EmptyTitle>
+                <EmptyDescription>
+                    Unable to reconnect. Retrying in <span id="components-seconds-to-next-attempt"></span> seconds
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+
+        <Empty ClassName="components-reconnect-failed-visible">
+            <EmptyHeader>
+                <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                    <CloudOffIcon/>
+                </EmptyMedia>
+                <EmptyTitle>
+                    Failed to reconnect
+                </EmptyTitle>
+                <EmptyDescription>
+                    Unable to reconnect. Please retry or reload the page.
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+
+        <Empty ClassName="components-pause-visible">
+            <EmptyHeader>
+                <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                    <CirclePauseIcon/>
+                </EmptyMedia>
+                <EmptyTitle>
+                    Session paused
+                </EmptyTitle>
+                <EmptyDescription>
+                    The session has been paused by the server
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+
+        <Empty ClassName="components-resume-failed-visible">
+            <EmptyHeader>
+                <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                    <CloudOffIcon/>
+                </EmptyMedia>
+                <EmptyTitle>
+                    Failed to resume the session
+                </EmptyTitle>
+                <EmptyDescription>
+                    Unable to resume your session. Please retry or reload the page.
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+
+        <Button id="components-reconnect-button" ClassName="components-reconnect-failed-visible">
+            Retry
+        </Button>
+
+        <Button id="components-resume-button" ClassName="components-pause-visible components-resume-failed-visible">
+            Resume
+        </Button>
+    </div>
+</dialog>
+
+<style>
+    #components-reconnect-modal {
+        display: none;
+    }
+    
+    #components-reconnect-modal.components-reconnect-show {
+        display: block;
+    }
+    
+    .components-reconnect-first-attempt-visible,
+    .components-reconnect-repeated-attempt-visible,
+    .components-reconnect-failed-visible,
+    .components-pause-visible,
+    .components-resume-failed-visible,
+    .components-rejoining-animation {
+        display: none;
+    }
+
+    #components-reconnect-modal.components-reconnect-show:not(.components-reconnect-retrying) .components-reconnect-first-attempt-visible {
+        display: block;
+    }
+    
+    #components-reconnect-modal.components-reconnect-paused .components-pause-visible,
+    #components-reconnect-modal.components-reconnect-resume-failed .components-resume-failed-visible,
+    #components-reconnect-modal.components-reconnect-retrying,
+    #components-reconnect-modal.components-reconnect-retrying .components-reconnect-repeated-attempt-visible,
+    #components-reconnect-modal.components-reconnect-failed,
+    #components-reconnect-modal.components-reconnect-failed .components-reconnect-failed-visible {
+        display: block;
+    }
+</style>

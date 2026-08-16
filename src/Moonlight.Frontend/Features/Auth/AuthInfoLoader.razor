@@ -1,0 +1,78 @@
+@using FluentResults
+@using LucideBlazor
+@using Moonlight.Frontend.Infrastructure.Helpers
+@using Moonlight.Shared.Features.Auth
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.Emptys
+@using ShadcnBlazor.Spinners
+
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+@if (_authInfo is not null)
+{
+    if (_authInfo.IsSuccess)
+    {
+        <CascadingValue IsFixed="true" Value="_authInfo.Value">
+            @ChildContent
+        </CascadingValue>
+    }
+    else
+    {
+        <div class="m-10 flex items-center justify-center">
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                        <TriangleAlertIcon/>
+                    </EmptyMedia>
+                    <EmptyTitle>
+                        Unable to load user info
+                    </EmptyTitle>
+                    <EmptyDescription>
+                        We are not able to fetch your user data from the api<br/>
+                        @_authInfo.GetReasons()
+                    </EmptyDescription>
+                    <EmptyContent>
+                        <Button @onclick="@(() => Navigation.NavigateTo("/_auth/logout", true))">
+                            Sign out and retry
+                        </Button>
+                    </EmptyContent>
+                </EmptyHeader>
+            </Empty>
+        </div>
+    }
+}
+else
+{
+    <div class="m-10 flex items-center justify-center">
+        <Empty>
+            <EmptyHeader>
+                <EmptyMedia>
+                    <Spinner ClassName="size-8"></Spinner>
+                </EmptyMedia>
+                <EmptyTitle>
+                    Loading user information
+                </EmptyTitle>
+                <EmptyDescription>
+                    Fetching information about your account from the api
+                </EmptyDescription>
+            </EmptyHeader>
+        </Empty>
+    </div>
+}
+
+@code
+{
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    
+    private Result<InfoDto>? _authInfo;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(!firstRender) return;
+
+        _authInfo = await AuthService.GetAsync();
+        
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,122 @@
+﻿@using LucideBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@using Moonlight.Frontend.Features.Auth
+@using Moonlight.Frontend.Shared.Layout
+@using Moonlight.Frontend.Shared.Pages
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.Emptys
+@using ShadcnBlazor.Extras.AlertDialogs
+@using ShadcnBlazor.Extras.Dialogs
+@using ShadcnBlazor.Extras.Toasts
+@using ShadcnBlazor.Portals
+
+@inject NavigationManager Navigation
+
+<ErrorBoundary>
+    <ChildContent>
+        <CascadingAuthenticationState>
+            <AuthorizeView>
+                <ChildContent>
+                    <AuthInfoLoader>
+                        <Router AppAssembly="@typeof(App).Assembly"
+                                NotFoundPage="typeof(NotFound)">
+                            <Found Context="routeData">
+                                <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+                                    <NotAuthorized Context="authRouteViewContext">
+                                        <div class="m-10 flex items-center justify-center">
+                                            <Empty>
+                                                <EmptyHeader>
+                                                    <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                                                        <BanIcon/>
+                                                    </EmptyMedia>
+                                                    <EmptyTitle>
+                                                        Permission denied
+                                                    </EmptyTitle>
+                                                    <EmptyDescription>
+                                                        You are not allowed to access this resource
+                                                    </EmptyDescription>
+                                                </EmptyHeader>
+                                            </Empty>
+                                        </div>
+                                    </NotAuthorized>
+                                </AuthorizeRouteView>
+                            </Found>
+                        </Router>
+                    </AuthInfoLoader>
+                </ChildContent>
+                <Authorizing>
+                    <div class="h-screen w-full flex items-center justify-center">
+                        <Empty>
+                            <EmptyHeader>
+                                <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                                    <ScanFaceIcon/>
+                                </EmptyMedia>
+                                <EmptyTitle>
+                                    Authenticating
+                                </EmptyTitle>
+                            </EmptyHeader>
+                        </Empty>
+                    </div>
+                </Authorizing>
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <div class="m-10 flex items-center justify-center">
+                            <Empty>
+                                <EmptyHeader>
+                                    <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                                        <BanIcon/>
+                                    </EmptyMedia>
+                                    <EmptyTitle>
+                                        Unauthorized
+                                    </EmptyTitle>
+                                    <EmptyDescription>
+                                        You cannot access this resource without being logged in
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
+                        </div>
+                    }
+                    else
+                    {
+                        <TriggerAuthentication/>
+                    }
+                </NotAuthorized>
+            </AuthorizeView>
+        </CascadingAuthenticationState>
+    </ChildContent>
+    <ErrorContent>
+        <div class="m-10">
+            <Empty>
+                <EmptyHeader>
+                    <EmptyMedia Variant="EmptyMediaVariant.Icon">
+                        <OctagonAlertIcon ClassName="text-red-500/80"/>
+                    </EmptyMedia>
+                    <EmptyTitle>
+                        Application Error
+                    </EmptyTitle>
+                    <EmptyDescription>
+                        The application encountered an unhandled application error and is not able to continue
+                    </EmptyDescription>
+                    <EmptyContent>
+                        <Button @onclick="() => Navigation.Refresh(true)">
+                            Reload and retry
+                        </Button>
+                    </EmptyContent>
+                </EmptyHeader>
+            </Empty>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+<AlertDialogLauncher/>
+<DialogLauncher/>
+<ToastLauncher/>
+
+<PortalOutlet/>
