@@ -16,6 +16,9 @@
       <Compile Update="Startup.Auth.cs">
         <DependentUpon>Startup.cs</DependentUpon>
       </Compile>
+      <Compile Update="Startup.Users.cs">
+        <DependentUpon>Startup.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

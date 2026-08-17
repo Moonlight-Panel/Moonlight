@@ -36,6 +36,7 @@ public static partial class Startup
         });
         
         AddAuth(builder);
+        AddUsers(builder);
         
         var app = builder.Build();
 

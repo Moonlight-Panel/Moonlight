@@ -1,11 +1,18 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Moonlight.ApiSdk.Features.Misc;
 using Moonlight.Shared.Features.Auth;
+using Moonlight.Shared.Features.Users;
+using Moonlight.Shared.Shared;
 
-namespace Moonlight.Shared.Shared;
+namespace Moonlight.Api.Infrastructure.Helpers;
 
 // Auth
 [JsonSerializable(typeof(InfoDto))]
+
+// Users
+[JsonSerializable(typeof(UserDto))]
+[JsonSerializable(typeof(RangedData<UserDto>))]
 
 // Misc
 [JsonSerializable(typeof(ProblemDetailsDto))]

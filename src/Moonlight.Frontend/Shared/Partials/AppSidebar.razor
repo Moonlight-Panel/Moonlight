@@ -1,11 +1,9 @@
-@using System.Diagnostics.CodeAnalysis
-@using LucideBlazor
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
+@using Moonlight.FrontendSdk.Features.Misc
 @using ShadcnBlazor.Sidebars
 
 @inject NavigationManager Navigation
-@inject IAuthorizationService AuthorizationService
+@inject IEnumerable<ISidebarItemProvider> Providers
+@inject ILogger<AppSidebar> Logger
 
 @implements IDisposable
 
@@ -70,36 +68,22 @@
 
 @code
 {
-    [CascadingParameter] public Task<AuthenticationState> AuthState { get; set; }
-
     private readonly List<SidebarItem> Items = [];
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthState;
-
-        SidebarItem[] items = [
-            new()
-            {
-                Name = "Dashboard",
-                Path = "/",
-                IconType = typeof(LayoutDashboardIcon)
-            }
-        ];
-
-        foreach (var item in items)
+        foreach (var provider in Providers)
         {
-            if (!string.IsNullOrWhiteSpace(item.Policy))
+            try
             {
-                var result = await AuthorizationService.AuthorizeAsync(authState.User, item.Policy);
-
-                if (!result.Succeeded)
-                    continue;
+                await provider.ApplyChangesAsync(Items);
             }
-
-            Items.Add(item);
+            catch (Exception e)
+            {
+                Logger.LogError(e, "An unhandled error occured while applying changes for items");
+            }
         }
-
+        
         Navigation.LocationChanged += OnLocationChanged;
     }
 
@@ -118,17 +102,5 @@
     public void Dispose()
     {
         Navigation.LocationChanged -= OnLocationChanged;
-    }
-
-    private record SidebarItem
-    {
-        public string Name { get; init; }
-        public string Path { get; init; }
-        public bool IsExactPath { get; init; }
-        public string? Group { get; init; }
-        public int Order { get; init; }
-        public Type IconType { get; init; }
-
-        public string? Policy { get; set; }
     }
 }

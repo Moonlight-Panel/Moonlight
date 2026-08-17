@@ -1,0 +1,19 @@
+@page "/admin/users"
+@using LucideBlazor
+@using ShadcnBlazor.Tab
+
+<Tabs DefaultValue="users">
+    <TabsList>
+        <TabsTrigger Value="users">
+            <UsersIcon />
+            Users
+        </TabsTrigger>
+        <TabsTrigger Value="roles">
+            <ShieldIcon />
+            Roles
+        </TabsTrigger>
+    </TabsList>
+    <TabsContent Value="users">
+        <UsersTab />
+    </TabsContent>
+</Tabs>
