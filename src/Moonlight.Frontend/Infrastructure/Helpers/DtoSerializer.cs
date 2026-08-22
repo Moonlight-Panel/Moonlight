@@ -12,6 +12,8 @@ namespace Moonlight.Frontend.Infrastructure.Helpers;
 
 // Users
 [JsonSerializable(typeof(UserDto))]
+[JsonSerializable(typeof(CreateUserDto))]
+[JsonSerializable(typeof(UpdateUserDto))]
 [JsonSerializable(typeof(RangedData<UserDto>))]
 
 // Misc

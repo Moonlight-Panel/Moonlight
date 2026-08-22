@@ -12,7 +12,7 @@ public static partial class Startup
 
         builder.Services
             .AddControllers()
-            .AddJsonOptions(options => options.JsonSerializerOptions.TypeInfoResolver = DtoSerializer.Default);
+            .AddJsonOptions(options => options.JsonSerializerOptions.TypeInfoResolverChain.Add(DtoSerializer.Default));
         
         // Configure logging
         builder.Logging.ClearProviders();

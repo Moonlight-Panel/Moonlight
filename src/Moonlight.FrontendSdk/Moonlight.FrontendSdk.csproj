@@ -14,8 +14,8 @@
     <ItemGroup>
         <PackageReference Include="FluentResults" Version="4.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.10"/>
-        <PackageReference Include="ShadcnBlazor" Version="1.0.16" />
-        <PackageReference Include="ShadcnBlazor.Extras" Version="1.0.16" />
+        <PackageReference Include="ShadcnBlazor" Version="1.0.17" />
+        <PackageReference Include="ShadcnBlazor.Extras" Version="1.0.17" />
     </ItemGroup>
 
     <ItemGroup>

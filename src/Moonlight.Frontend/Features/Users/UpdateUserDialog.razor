@@ -1,0 +1,143 @@
+@using Moonlight.Frontend.Infrastructure.Helpers
+@using Moonlight.Shared.Features.Users
+@using ShadcnBlazor.Dialogs
+@using ShadcnBlazor.Extras.Forms
+@using ShadcnBlazor.Fields
+@using ShadcnBlazor.Inputs
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.Extras.Toasts
+@using ShadcnBlazor.Switches
+
+@inherits ShadcnBlazor.Extras.Dialogs.DialogBase
+
+@inject UserService UserService
+@inject ToastService ToastService
+
+<DialogHeader>
+    <DialogTitle>Update User</DialogTitle>
+    <DialogDescription>
+        Update an existing user
+    </DialogDescription>
+</DialogHeader>
+<EnhancedEditForm @ref="_form" Model="_model" OnValidSubmit="OnSubmitAsync" ClassName="mt-3">
+    <FieldGroup>
+        <DataAnnotationsValidator />
+        <FormValidationSummary />
+        
+        <FieldSet>
+            <FieldGroup>
+                <Field>
+                    <FieldLabel for="username">
+                        Username
+                    </FieldLabel>
+                    <TextInputField @bind-Value="_model.Username"
+                                    id="username"
+                                    type="text"
+                                    placeholder="user1234"/>
+                </Field>
+                <Field>
+                    <FieldLabel for="displayName">
+                        Display Name
+                    </FieldLabel>
+                    <TextInputField @bind-Value="_model.DisplayName"
+                                    id="displayName"
+                                    type="text"
+                                    placeholder="User 1234"/>
+                </Field>
+                <Field>
+                    <FieldLabel for="email">
+                        Email
+                    </FieldLabel>
+                    <TextInputField @bind-Value="_model.Email"
+                                    id="email"
+                                    type="email"
+                                    placeholder="my@cool.email"/>
+                </Field>
+            </FieldGroup>
+        </FieldSet>
+        <FieldSeparator/>
+        <FieldSet>
+            <FieldLegend>Local Authentication</FieldLegend>
+            <FieldDescription>
+                When this option is enabled the user can login with the provided password
+            </FieldDescription>
+            <FieldGroup>
+                <Field Orientation="FieldOrientation.Horizontal">
+                    <Switch
+                        @bind-Value="_model.AllowLocalAuth"
+                        id="enableLocalAuth"/>
+                    <FieldLabel
+                        for="enableLocalAuth"
+                        ClassName="font-normal">
+                        Allow local authentication
+                    </FieldLabel>
+                </Field>
+
+                @if (_model.AllowLocalAuth)
+                {
+                    <Field>
+                        <FieldLabel for="password">
+                            Password
+                        </FieldLabel>
+                        <TextInputField @bind-Value="_model.Password"
+                                        id="password"
+                                        placeholder="(Leave blank to keep password the same)"/>
+                    </Field>
+                }
+            </FieldGroup>
+        </FieldSet>
+    </FieldGroup>
+</EnhancedEditForm>
+<DialogFooter>
+    <DialogClose>
+        <Slot>
+            <Button Variant="ButtonVariant.Outline" @attributes="context">Cancel</Button>
+        </Slot>
+    </DialogClose>
+    <Button @onclick="_form.SubmitAsync">
+        Save changes
+    </Button>
+</DialogFooter>
+
+@code
+{
+    [Parameter] public UserDto User { get; set; }
+    [Parameter] public Func<Task>? Callback { get; set; }
+
+    private UpdateUserDto _model;
+    private EnhancedEditForm _form;
+
+    protected override void OnInitialized()
+    {
+        _model = new()
+        {
+            Username = User.Username,
+            DisplayName = User.DisplayName,
+            Email = User.Email,
+            AllowLocalAuth = User.AllowLocalAuth
+        };
+    }
+
+    private async Task<bool> OnSubmitAsync(EditContext editContext, ValidationMessageStore messageStore)
+    {
+        var result = await UserService.UpdateAsync(User.Id, _model);
+        
+        if(result.IsFailed)
+        {
+            messageStore.Add(new FieldIdentifier(_model, string.Empty), result.GetReasons());
+            return false;
+        }
+
+        await ToastService.SuccessAsync(
+            "User updated",
+            $"Successfully updated user {result.Value.Username}"
+        );
+
+        await CloseAsync();
+
+        if (Callback is not null)
+            await Callback();
+        
+        return true;
+    }
+}

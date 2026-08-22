@@ -63,7 +63,7 @@ public class UserSyncService
                 DisplayName = principal.FindFirstValue(ClaimTypes.Name) ?? username,
                 Email = principal.FindFirstValue(ClaimTypes.Email),
                 IsDeleted = false,
-                Username = username,
+                Username = username.ToLower(),
                 AllowLocalAuth = false,
                 PasswordHash = null,
                 CreatedAt = DateTimeOffset.UtcNow,

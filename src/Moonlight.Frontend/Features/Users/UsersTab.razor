@@ -1,60 +1,153 @@
+@using LucideBlazor
 @using Moonlight.Frontend.Infrastructure.Helpers
+@using Moonlight.FrontendSdk.Helpers
 @using Moonlight.Shared.Features.Users
 @using ShadcnBlazor.Badges
-@using ShadcnBlazor.Cards
+@using ShadcnBlazor.Buttons
 @using ShadcnBlazor.DataGrids
+@using ShadcnBlazor.Extras.AlertDialogs
+@using ShadcnBlazor.Extras.Dialogs
+@using ShadcnBlazor.Extras.Toasts
 @using ShadcnBlazor.Tabels
+@using ShadcnBlazor.Tooltips
 
 @inject UserService UserService
+@inject DialogService DialogService
+@inject AlertDialogService AlertDialogService
+@inject ToastService ToastService
 
-<Card ClassName="py-2">
-    <CardContent ClassName="px-2.5">
-        <DataGrid TGridItem="UserDto" Loader="LoadAsync">
-            <PropertyColumn Field="arg => arg.Id"/>
-            <PropertyColumn Field="arg => arg.DisplayName" Title="Display Name"/>
-            <TemplateColumn Title="Email">
-                <CellTemplate>
-                    <TableCell>
-                        @(context.Email ?? "-")
-                    </TableCell>
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn Title="Details">
-                <CellTemplate>
-                    <TableCell>
-                        <div class="flex gap-1">
-                            @if (context.AllowLocalAuth)
-                            {
-                                <Badge Variant="BadgeVariant.Outline">
-                                    Local Auth
-                                </Badge>
-                            }
-                            else
-                            {
-                                <Badge Variant="BadgeVariant.Outline">
-                                    OIDC
-                                </Badge>
-                            }
-                        </div>
-                    </TableCell>
-                </CellTemplate>
-            </TemplateColumn>
-            <PropertyColumn Field="arg => arg.CreatedAt" Title="Created at"/>
-            <PropertyColumn Field="arg => arg.UpdatedAt" Title="Updated at"/>
-        </DataGrid>
-    </CardContent>
-</Card>
+<DataGrid @ref="Grid" TGridItem="UserDto" Loader="LoadAsync" EnableSearch="true" ClassName="bg-card">
+    <ChildContent>
+        <PropertyColumn Field="arg => arg.Id"/>
+        <PropertyColumn Field="arg => arg.Username" Title="Username" />
+        <PropertyColumn Field="arg => arg.DisplayName" Title="Display Name"/>
+        <TemplateColumn Title="Email">
+            <CellTemplate>
+                <TableCell>
+                    @(context.Email ?? "-")
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Details">
+            <CellTemplate>
+                <TableCell>
+                    <div class="flex gap-1">
+                        @if (context.AllowLocalAuth)
+                        {
+                            <Badge Variant="BadgeVariant.Outline">
+                                Local Auth
+                            </Badge>
+                        }
+                        else
+                        {
+                            <Badge Variant="BadgeVariant.Outline">
+                                OIDC
+                            </Badge>
+                        }
+                    </div>
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Created at">
+            <CellTemplate>
+                <TableCell>
+                    @Formatter.FormatDateTimeOffset(context.CreatedAt)
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Updated at">
+            <CellTemplate>
+                <TableCell>
+                    @Formatter.FormatDateTimeOffset(context.UpdatedAt)
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <HeadTemplate>
+                <TableHead>
+                    <div class="flex justify-end">
+                        Actions
+                    </div>
+                </TableHead>
+            </HeadTemplate>
+            <CellTemplate>
+                <TableCell>
+                    <div class="flex justify-end gap-x-2">
+                        <Button @onclick="() => UpdateAsync(context)" Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm">
+                            <SquarePenIcon ClassName="text-primary"/>
+                        </Button>
+                        <Button @onclick="() => DeleteAsync(context)" Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm">
+                            <TrashIcon ClassName="text-destructive"/>
+                        </Button>
+                    </div>
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+    </ChildContent>
+    <ToolbarSlot>
+        <Button @onclick="CreateAsync">
+            <PlusIcon/>
+            <span class="hidden md:block">Create</span>
+        </Button>
+    </ToolbarSlot>
+</DataGrid>
 
 @code
 {
-
+    private DataGrid<UserDto> Grid;
+    
     private async Task<DataGridResponse<UserDto>> LoadAsync(DataGridRequest<UserDto> request)
     {
-        var result = await UserService.GetAsync(request.Length, request.StartIndex);
+        var result = await UserService.GetAsync(request.Length, request.StartIndex, request.SearchTerm);
 
         if (result.IsFailed)
             throw new AggregateException(result.GetReasons());
 
         return new DataGridResponse<UserDto>(result.Value.Data, result.Value.TotalLength);
+    }
+
+    private async Task CreateAsync()
+    {
+        await DialogService.LaunchAsync<CreateUserDialog>(parameters =>
+        {
+            parameters[nameof(CreateUserDialog.Callback)] = async Task () => await Grid.RefreshAsync();
+        });
+    }
+
+    private async Task UpdateAsync(UserDto dto)
+    {
+        await DialogService.LaunchAsync<UpdateUserDialog>(parameters =>
+        {
+            parameters[nameof(UpdateUserDialog.User)] = dto;
+            parameters[nameof(UpdateUserDialog.Callback)] = async Task () => await Grid.RefreshAsync();
+        });
+    }
+
+    private async Task DeleteAsync(UserDto dto)
+    {
+        await AlertDialogService.ConfirmDangerAsync(
+            $"Deleting {dto.Username}",
+                $"Do you really want to delete {dto.Username}? This action cannot be undone.",
+                async () =>
+                {
+                    var result = await UserService.DeleteAsync(dto.Id);
+
+                    if (result.IsFailed)
+                    {
+                        await AlertDialogService.ErrorAsync(
+                            $"Failed to delete {dto.Username}",
+                                result.GetReasons()
+                        );
+                        return;
+                    }
+
+                    await ToastService.SuccessAsync(
+                        "User deleted",
+                        $"Successfully deleted {dto.Username}"
+                    );
+
+                    await Grid.RefreshAsync();
+                }
+        );
     }
 }
