@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging.Console;
 using Moonlight.Api.Infrastructure.Helpers;
-using Moonlight.Shared.Shared;
 
 namespace Moonlight.Api;
 

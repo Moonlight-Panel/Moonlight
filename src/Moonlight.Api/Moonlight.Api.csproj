@@ -12,7 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Roles\Admin\" />
       <Folder Include="Infrastructure\Database\Migrations\" />
     </ItemGroup>
 
@@ -27,6 +26,9 @@
         <DependentUpon>Startup.cs</DependentUpon>
       </Compile>
       <Compile Update="Startup.Users.cs">
+        <DependentUpon>Startup.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Startup.Roles.cs">
         <DependentUpon>Startup.cs</DependentUpon>
       </Compile>
     </ItemGroup>

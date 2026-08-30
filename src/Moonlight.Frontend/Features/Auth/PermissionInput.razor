@@ -1,0 +1,41 @@
+@using System.Diagnostics.CodeAnalysis
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.Extras.AlertDialogs
+
+@inject AlertDialogService AlertDialogService
+
+@inherits InputBase<string[]>
+
+<Button Variant="ButtonVariant.Outline" @onclick="LaunchAsync" @attributes="AdditionalAttributes">
+    @(CurrentValue?.Length ?? 0) selected
+</Button>
+
+@code
+{
+    private async Task LaunchAsync()
+    {
+        await AlertDialogService.LaunchCustomAsync<PermissionDialog>(parameters =>
+        {
+            parameters[nameof(PermissionDialog.InitialPermissions)] = CurrentValue;
+            parameters[nameof(PermissionDialog.Callback)] = async Task (string[] permissions) =>
+            {
+                CurrentValue = permissions;
+                await ValueChanged.InvokeAsync(CurrentValue);
+            };
+        });
+    }
+
+    protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out string[] result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            result = [];
+            validationErrorMessage = null;
+            return true;
+        }
+
+        result = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        validationErrorMessage = null;
+        return true;
+    }
+}

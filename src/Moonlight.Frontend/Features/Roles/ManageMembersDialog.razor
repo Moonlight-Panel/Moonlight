@@ -1,0 +1,168 @@
+@using FluentResults
+@using LucideBlazor
+@using Moonlight.Frontend.Features.Users
+@using Moonlight.Frontend.Infrastructure.Helpers
+@using Moonlight.FrontendSdk.Helpers
+@using Moonlight.Shared.Features.Roles
+@using Moonlight.Shared.Features.Users
+@using ShadcnBlazor.Dialogs
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.DataGrids
+@using ShadcnBlazor.Extras.Comboboxes
+@using ShadcnBlazor.Extras.Common
+@using ShadcnBlazor.Extras.Toasts
+@using ShadcnBlazor.Tabels
+
+@inherits ShadcnBlazor.Extras.Dialogs.DialogBase
+
+@inject RoleService RoleService
+@inject UserService UserService
+@inject ToastService ToastService
+
+<DialogHeader>
+    <DialogTitle>Manage Members</DialogTitle>
+    <DialogDescription>
+        Manage the members of @Role.DisplayName
+    </DialogDescription>
+</DialogHeader>
+
+<div class="my-2.5">
+    <DataGrid @ref="_grid" TGridItem="MembershipDto" Loader="LoadAsync">
+        <ToolbarSlot>
+            <div class="gap-x-1.5 flex items-center me-2.5">
+                <Combobox TItem="UserDto"
+                          Source="LoadAsync"
+                          ValueSelector="user => user.DisplayName"
+                          SearchPlaceholder="Search for user"
+                          @bind-Value="_selectedUser"/>
+                <WButton OnClick="AddNewMemberAsync">
+                    <PlusIcon />
+                    Add
+                </WButton>
+            </div>
+        </ToolbarSlot>
+        <ChildContent>
+            <PropertyColumn Field="@(x => x.UserId)" />
+            <PropertyColumn Field="@(x => x.DisplayName)" />
+            <TemplateColumn Title="Member since">
+                <CellTemplate>
+                    <TableCell>
+                        @Formatter.FormatDateTimeOffset(context.CreatedAt)
+                    </TableCell>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Actions">
+                <HeadTemplate>
+                    <TableHead>
+                        <div class="flex justify-end">
+                            Actions
+                        </div>
+                    </TableHead>
+                </HeadTemplate>
+                <CellTemplate>
+                    <TableCell>
+                        <div class="flex justify-end">
+                            <Button @onclick="() => DeleteAsync(context)" Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm">
+                                <TrashIcon ClassName="text-destructive"/>
+                            </Button>
+                        </div>
+                    </TableCell>
+                </CellTemplate>
+            </TemplateColumn>
+        </ChildContent>
+    </DataGrid>
+</div>
+
+<DialogFooter>
+    <DialogClose>
+        <Slot>
+            <Button Variant="ButtonVariant.Outline" @attributes="context">Close</Button>
+        </Slot>
+    </DialogClose>
+</DialogFooter>
+
+@code
+{
+    [Parameter] public RoleDto Role { get; set; }
+    [Parameter] public Func<Task> Callback { get; set; }
+
+    private DataGrid<MembershipDto> _grid;
+    private Result<IReadOnlyList<UserDto>> _loadResult;
+
+    private UserDto? _selectedUser;
+    
+    private async Task DeleteAsync(MembershipDto member)
+    {
+        var result = await RoleService.RemoveMemberAsync(Role.Id, member.UserId);
+
+        if (result.IsFailed)
+        {
+            await ToastService.ErrorAsync(
+                "Failed to delete member",
+                result.GetReasons()
+            );
+            return;
+        }
+
+        await ToastService.SuccessAsync(
+            "Member deleted",
+            "Successfully deleted member"
+        );
+
+        await _grid.RefreshAsync();
+        await Callback();
+    }
+
+    private async Task<UserDto[]> LoadAsync(string? searchTerm)
+    {
+        var result = await UserService.GetAsync(25, 0, searchTerm);
+
+        if (result.IsFailed)
+            return [];
+
+        return result.Value.Data;
+    }
+
+    private async Task AddNewMemberAsync()
+    {
+        if(_selectedUser is null)
+            return;
+        
+        var result = await RoleService.AddMemberAsync(Role.Id, _selectedUser.Id);
+        _selectedUser = null;
+        
+        if (result.IsFailed)
+        {
+            await ToastService.ErrorAsync(
+                "Failed to add member",
+                result.GetReasons()
+            );
+            return;
+        }
+
+        await ToastService.SuccessAsync(
+            "Member added",
+            "Successfully added member"
+        );
+
+        await _grid.RefreshAsync();
+        await Callback();
+    }
+
+    private async Task<DataGridResponse<MembershipDto>> LoadAsync(DataGridRequest<MembershipDto> request)
+    {
+        var dataResult = await RoleService.GetMembersAsync(Role.Id, request.StartIndex, request.Length);
+
+        if (dataResult.IsFailed)
+        {
+            await ToastService.ErrorAsync(
+                "Failed to get members",
+                dataResult.GetReasons()
+            );
+
+            return new([], 0);
+        }
+
+        return new(dataResult.Value.Data, dataResult.Value.TotalLength);
+    }
+}

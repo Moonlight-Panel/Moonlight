@@ -23,8 +23,4 @@
       <_ContentIncludedByDefault Remove="wwwroot\exampleJsInterop.js" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Features\Auth\" />
-    </ItemGroup>
-
 </Project>

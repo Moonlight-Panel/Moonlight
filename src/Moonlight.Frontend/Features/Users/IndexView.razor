@@ -1,19 +1,36 @@
 @page "/admin/users"
+
 @using LucideBlazor
+@using Moonlight.Frontend.Features.Roles
 @using ShadcnBlazor.Tab
 
-<Tabs DefaultValue="users">
+@inject NavigationManager Navigation
+
+<Tabs DefaultValue="@(Tab ?? "users")" OnValueChanged="OnSwitched">
     <TabsList>
         <TabsTrigger Value="users">
-            <UsersIcon />
+            <UsersIcon/>
             Users
         </TabsTrigger>
         <TabsTrigger Value="roles">
-            <ShieldIcon />
+            <ShieldIcon/>
             Roles
         </TabsTrigger>
     </TabsList>
     <TabsContent Value="users">
-        <UsersTab />
+        <UsersTab/>
+    </TabsContent>
+    <TabsContent Value="roles">
+        <RolesTab/>
     </TabsContent>
 </Tabs>
+
+@code
+{
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? Tab { get; set; }
+
+    private void OnSwitched(string tabValue)
+        => Navigation.NavigateTo($"/admin/users?tab={tabValue}");
+}

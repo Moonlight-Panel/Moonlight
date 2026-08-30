@@ -1,0 +1,140 @@
+@using LucideBlazor
+@using Moonlight.Frontend.Infrastructure.Helpers
+@using Moonlight.FrontendSdk.Helpers
+@using Moonlight.Shared.Features.Roles
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.DataGrids
+@using ShadcnBlazor.Extras.AlertDialogs
+@using ShadcnBlazor.Extras.Dialogs
+@using ShadcnBlazor.Extras.Toasts
+@using ShadcnBlazor.Tabels
+
+@inject RoleService RoleService
+@inject DialogService DialogService
+@inject AlertDialogService AlertDialogService
+@inject ToastService ToastService
+
+<DataGrid @ref="Grid" TGridItem="RoleDto" Loader="LoadAsync" EnableSearch="true" ClassName="bg-card">
+    <ChildContent>
+        <PropertyColumn Field="arg => arg.Id"/>
+        <PropertyColumn Field="arg => arg.DisplayName" Title="Display Name" />
+        <PropertyColumn Field="arg => arg.Description" Title="Description"/>
+        <PropertyColumn Field="arg => arg.MemberCount" Title="Members"/>
+        <TemplateColumn Title="Created at">
+            <CellTemplate>
+                <TableCell>
+                    @Formatter.FormatDateTimeOffset(context.CreatedAt)
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Updated at">
+            <CellTemplate>
+                <TableCell>
+                    @Formatter.FormatDateTimeOffset(context.UpdatedAt)
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Actions">
+            <HeadTemplate>
+                <TableHead>
+                    <div class="flex justify-end">
+                        Actions
+                    </div>
+                </TableHead>
+            </HeadTemplate>
+            <CellTemplate>
+                <TableCell>
+                    <div class="flex justify-end gap-x-2">
+                        <Button @onclick="() => ManageMembersAsync(context)" Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm">
+                            <UsersIcon ClassName="text-primary"/>
+                        </Button>
+                        <Button @onclick="() => UpdateAsync(context)" Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm">
+                            <SquarePenIcon ClassName="text-primary"/>
+                        </Button>
+                        <Button @onclick="() => DeleteAsync(context)" Variant="ButtonVariant.Ghost" Size="ButtonSize.IconSm">
+                            <TrashIcon ClassName="text-destructive"/>
+                        </Button>
+                    </div>
+                </TableCell>
+            </CellTemplate>
+        </TemplateColumn>
+    </ChildContent>
+    <ToolbarSlot>
+        <Button @onclick="CreateAsync">
+            <PlusIcon/>
+            <span class="hidden md:block">Create</span>
+        </Button>
+    </ToolbarSlot>
+</DataGrid>
+
+@code
+{
+    private DataGrid<RoleDto> Grid;
+    
+    private async Task<DataGridResponse<RoleDto>> LoadAsync(DataGridRequest<RoleDto> request)
+    {
+        var result = await RoleService.GetAsync(request.Length, request.StartIndex, request.SearchTerm);
+
+        if (result.IsFailed)
+            throw new AggregateException(result.GetReasons());
+
+        return new DataGridResponse<RoleDto>(result.Value.Data, result.Value.TotalLength);
+    }
+
+    private async Task CreateAsync()
+    {
+        await DialogService.LaunchAsync<CreateRoleDialog>(parameters =>
+        {
+            parameters[nameof(CreateRoleDialog.Callback)] = async Task () => await Grid.RefreshAsync();
+        });
+    }
+
+    private async Task UpdateAsync(RoleDto dto)
+    {
+        await DialogService.LaunchAsync<UpdateRoleDialog>(parameters =>
+        {
+            parameters[nameof(UpdateRoleDialog.Role)] = dto;
+            parameters[nameof(UpdateRoleDialog.Callback)] = async Task () => await Grid.RefreshAsync();
+        });
+    }
+
+    private async Task ManageMembersAsync(RoleDto dto)
+    {
+        await DialogService.LaunchAsync<ManageMembersDialog>(parameters =>
+        {
+            parameters[nameof(ManageMembersDialog.Role)] = dto;
+            parameters[nameof(ManageMembersDialog.Callback)] = async Task () => await Grid.RefreshAsync();
+        }, model =>
+        {
+            model.ClassName = "sm:max-w-2xl!";
+        });
+    }
+
+    private async Task DeleteAsync(RoleDto dto)
+    {
+        await AlertDialogService.ConfirmDangerAsync(
+            $"Deleting {dto.DisplayName}",
+                $"Do you really want to delete {dto.DisplayName}? This action cannot be undone.",
+                async () =>
+                {
+                    var result = await RoleService.DeleteAsync(dto.Id);
+
+                    if (result.IsFailed)
+                    {
+                        await AlertDialogService.ErrorAsync(
+                            $"Failed to delete {dto.DisplayName}",
+                                result.GetReasons()
+                        );
+                        return;
+                    }
+
+                    await ToastService.SuccessAsync(
+                        "Role deleted",
+                        $"Successfully deleted {dto.DisplayName}"
+                    );
+
+                    await Grid.RefreshAsync();
+                }
+        );
+    }
+}

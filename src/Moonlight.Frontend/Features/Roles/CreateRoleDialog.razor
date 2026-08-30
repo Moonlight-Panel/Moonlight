@@ -1,0 +1,100 @@
+@using Moonlight.Frontend.Features.Auth
+@using Moonlight.Frontend.Infrastructure.Helpers
+@using Moonlight.Shared.Features.Roles
+@using ShadcnBlazor.Dialogs
+@using ShadcnBlazor.Extras.Forms
+@using ShadcnBlazor.Fields
+@using ShadcnBlazor.Inputs
+@using ShadcnBlazor.Buttons
+@using ShadcnBlazor.Extras.Toasts
+
+@inherits ShadcnBlazor.Extras.Dialogs.DialogBase
+
+@inject RoleService RoleService
+@inject ToastService ToastService
+
+<DialogHeader>
+    <DialogTitle>Create Role</DialogTitle>
+    <DialogDescription>
+        Create a new role on this instance
+    </DialogDescription>
+</DialogHeader>
+<EnhancedEditForm @ref="_form" Model="_model" OnValidSubmit="OnSubmitAsync" ClassName="mt-3">
+    <FieldGroup>
+        <DataAnnotationsValidator />
+        <FormValidationSummary />
+        
+        <FieldSet>
+            <FieldGroup>
+                <Field>
+                    <FieldLabel for="displayName">
+                        Display Name
+                    </FieldLabel>
+                    <TextInputField @bind-Value="_model.DisplayName"
+                                    id="displayName"
+                                    type="text"
+                                    placeholder="Administrator"/>
+                </Field>
+                <Field>
+                    <FieldLabel for="description">
+                        Description
+                    </FieldLabel>
+                    <TextareaInputField @bind-Value="_model.Description"
+                                        id="description"
+                                        placeholder="Describe this role"/>
+                </Field>
+                <Field>
+                    <FieldLabel for="permissions">
+                        Permissions
+                    </FieldLabel>
+                    <PermissionInput @bind-Value="_model.Permissions"
+                                        id="permissions"/>
+                </Field>
+            </FieldGroup>
+        </FieldSet>
+    </FieldGroup>
+</EnhancedEditForm>
+<DialogFooter>
+    <DialogClose>
+        <Slot>
+            <Button Variant="ButtonVariant.Outline" @attributes="context">Cancel</Button>
+        </Slot>
+    </DialogClose>
+    <Button @onclick="_form.SubmitAsync">
+        Save changes
+    </Button>
+</DialogFooter>
+
+@code
+{
+    [Parameter] public Func<Task>? Callback { get; set; }
+    
+    private CreateRoleDto _model = new()
+    {
+        Permissions = []
+    };
+    private EnhancedEditForm _form;
+    
+    private async Task<bool> OnSubmitAsync(EditContext editContext, ValidationMessageStore messageStore)
+    {
+        var result = await RoleService.CreateAsync(_model);
+        
+        if(result.IsFailed)
+        {
+            messageStore.Add(new FieldIdentifier(_model, string.Empty), result.GetReasons());
+            return false;
+        }
+
+        await ToastService.SuccessAsync(
+            "Role created",
+            $"Successfully created role {result.Value.DisplayName}"
+        );
+
+        await CloseAsync();
+
+        if (Callback is not null)
+            await Callback();
+        
+        return true;
+    }
+}

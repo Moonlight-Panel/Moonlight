@@ -19,6 +19,9 @@
       <Compile Update="Startup.Users.cs">
         <DependentUpon>Startup.cs</DependentUpon>
       </Compile>
+      <Compile Update="Startup.Roles.cs">
+        <DependentUpon>Startup.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

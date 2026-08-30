@@ -1,0 +1,37 @@
+@using Moonlight.FrontendSdk.Features.Auth
+@using ShadcnBlazor.Items
+@using ShadcnBlazor.Switches
+
+<Item Variant="ItemVariant.Outline" ClassName="cursor-pointer">
+    <Slot>
+        <label for="@_id" @attributes="context">
+            <ItemContent>
+                <ItemTitle>@Permission.DisplayName</ItemTitle>
+                <ItemDescription>
+                    @Permission.Description
+                </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+                <Switch @bind-Value="_value" @bind-Value:after="OnAfterChanged" id="@_id"/>
+            </ItemActions>
+        </label>
+    </Slot>
+</Item>
+
+@code
+{
+    [Parameter] public Permission Permission { get; set; }
+    [Parameter] public bool InitialValue { get; set; }
+    [Parameter] public Action<bool> Callback { get; set; }
+
+    private bool _value;
+    private string _id;
+
+    protected override void OnInitialized()
+    {
+        _id = $"ps-{GetHashCode()}";
+        _value = InitialValue;
+    }
+
+    private void OnAfterChanged() => Callback(_value);
+}

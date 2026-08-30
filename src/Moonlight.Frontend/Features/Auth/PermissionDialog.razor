@@ -1,0 +1,102 @@
+@using Moonlight.FrontendSdk.Features.Auth
+@using ShadcnBlazor.Accordions
+@using ShadcnBlazor.AlertDialogs
+
+@inherits ShadcnBlazor.Extras.AlertDialogs.AlertDialogBase
+
+@inject IEnumerable<IPermissionProvider> Providers
+
+<AlertDialogHeader>
+    <AlertDialogTitle>Select permissions</AlertDialogTitle>
+    <AlertDialogDescription>
+        Select from the available permissions
+    </AlertDialogDescription>
+</AlertDialogHeader>
+
+<div class="my-5 max-h-[50vh] overflow-y-auto scrollbar-thin">
+    <Accordion Type="AccordionType.Multiple"
+               ClassName="flex w-full flex-col gap-2">
+                    
+        @foreach (var permissionGroup in _availablePermissions.GroupBy(x => x.Group))
+        {
+            var permissionsInGroup = permissionGroup.ToArray();
+            
+            if(permissionsInGroup.Length == 0)
+                continue;
+
+            var selectedPermissions = permissionsInGroup
+                .Where(x => _selectedPermissions.Contains(x.Identifier))
+                .ToArray();
+
+            <AccordionItem Value="@permissionGroup.Key"
+                           ClassName="overflow-hidden rounded-lg border bg-card px-4 last:border-b">
+                <AccordionTrigger ClassName="hover:no-underline">
+                    <div class="flex items-center gap-3">
+                        <DynamicComponent Type="permissionsInGroup[0].Icon" Parameters="_iconAttributes" />
+                        <span class="text-left">
+                            @permissionGroup.Key (@selectedPermissions.Length / @permissionsInGroup.Length)
+                        </span>
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                    <div class="flex flex-col gap-1.5">
+                        @foreach (var permission in permissionsInGroup)
+                        {
+                            var isSelected = selectedPermissions.Any(x => x.Identifier == permission.Identifier);
+
+                            <PermissionSwitch Permission="permission"
+                                              InitialValue="isSelected"
+                                              Callback="v => OnPermissionValueChanged(permission, v)"/>
+                        }
+                    </div>
+                </AccordionContent>
+            </AccordionItem>
+        }
+    </Accordion>
+</div>
+
+<AlertDialogFooter>
+    <AlertDialogCancel>Cancel</AlertDialogCancel>
+    <AlertDialogAction OnClick="SubmitAsync">Continue</AlertDialogAction>
+</AlertDialogFooter>
+
+@code
+{
+    [Parameter, EditorRequired] public string[] InitialPermissions { get; set; }
+    [Parameter, EditorRequired] public Func<string[], Task> Callback { get; set; }
+
+    private List<Permission> _availablePermissions = [];
+    private List<string> _selectedPermissions;
+    
+    private readonly Dictionary<string, object> _iconAttributes = new()
+    {
+        {
+            "ClassName",
+            "size-4 text-muted-foreground"
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var provider in Providers)
+            await provider.ApplyChangesAsync(_availablePermissions);
+
+        _selectedPermissions = InitialPermissions.ToList();
+    }
+
+    private void OnPermissionValueChanged(Permission permission, bool value)
+    {
+        if(value && !_selectedPermissions.Contains(permission.Identifier))
+            _selectedPermissions.Add(permission.Identifier);
+        else if(!value && _selectedPermissions.Contains(permission.Identifier))
+            _selectedPermissions.Remove(permission.Identifier);
+
+        StateHasChanged();
+    }
+
+    private async Task SubmitAsync()
+    {
+        await Callback(_selectedPermissions.ToArray());
+        await CloseAsync();
+    }
+}
