@@ -113,8 +113,11 @@ public class CrudController : Controller
         if (user.AllowLocalAuth && request.AllowLocalAuth && !string.IsNullOrWhiteSpace(request.Password))
             user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password);
         
+        
         UserMapper.Merge(user, request);
 
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+            
         _dataContext.Users.Update(user);
         await _dataContext.SaveChangesAsync();
         
