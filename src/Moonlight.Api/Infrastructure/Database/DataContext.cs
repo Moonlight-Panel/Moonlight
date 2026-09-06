@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Moonlight.ApiSdk.Features.Activity;
 using Moonlight.ApiSdk.Features.Roles;
 using Moonlight.ApiSdk.Features.Users;
 
@@ -10,7 +11,8 @@ public class DataContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<RoleMembership> RoleMemberships { get; set; }
-    
+    public DbSet<Activity> Activities { get; set; }
+
     private readonly IOptions<DatabaseOptions> _options;
     
     public DataContext(IOptions<DatabaseOptions> options)
