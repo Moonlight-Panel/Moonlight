@@ -1,8 +1,7 @@
-using FluentResults;
 using Moonlight.Api.Infrastructure.Database;
 using Moonlight.ApiSdk.Features.Activity;
 
-namespace Moonlight.Api.Features.Activity;
+namespace Moonlight.Api.Features.Activities;
 
 public class ActivityQueryService : IActivityQueryService
 {
@@ -13,7 +12,7 @@ public class ActivityQueryService : IActivityQueryService
         _dataContext = dataContext;
     }
 
-    public IQueryable Query()
+    public IQueryable<Activity> Query()
     {
         return _dataContext.Activities;
     }

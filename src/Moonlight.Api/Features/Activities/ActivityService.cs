@@ -4,7 +4,7 @@ using Moonlight.Api.Infrastructure.Database;
 using Moonlight.ApiSdk.Features.Activity;
 using Moonlight.ApiSdk.Features.Users;
 
-namespace Moonlight.Api.Features.Activity;
+namespace Moonlight.Api.Features.Activities;
 
 public class ActivityService : IActivityService
 {
@@ -17,7 +17,7 @@ public class ActivityService : IActivityService
         _dataContext = dataContext;
     }
 
-    public async Task<Result<ApiSdk.Features.Activity.Activity>> CreateAsync(string title, string content, string type, int? userId = null, Dictionary<string, object>? parameters = null)
+    public async Task<Result<Activity>> CreateAsync(string title, string content, string type, int? userId = null, Dictionary<string, object>? parameters = null)
     {
         User? user = null;
 
@@ -35,7 +35,7 @@ public class ActivityService : IActivityService
 
         var json = JsonSerializer.Serialize(parameters);
 
-        var activity = new ApiSdk.Features.Activity.Activity()
+        var activity = new Activity()
         {
             Title = title,
             Content = content,
